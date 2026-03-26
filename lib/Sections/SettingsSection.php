@@ -61,7 +61,7 @@ class SettingsSection implements IIconSection
      */
     public function getName(): string
     {
-        return $this->l->t('App Template');
+        return $this->l->t('Decidesk');
     }//end getName()
 
     /**

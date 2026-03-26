@@ -1,15 +1,15 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "App Template Register",
-    "description": "Register containing all schemas for the App Template application.",
+    "title": "Decidesk Register",
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
     "version": "0.1.0"
   },
   "x-openregister": {
     "type": "application",
     "app": "decidesk",
     "openregister": "^v0.2.10",
-    "description": "App Template — replace with your app description"
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings"
   },
   "paths": {},
   "components": {

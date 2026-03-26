@@ -1,12 +1,12 @@
 <template>
 	<div class="decidesk-admin">
 		<CnVersionInfoCard
-			:app-name="'App Template'"
+			:app-name="'Decidesk'"
 			:app-version="appVersion"
 			:is-up-to-date="true"
 			:show-update-button="true"
 			:title="t('decidesk', 'Version Information')"
-			:description="t('decidesk', 'Information about the current App Template installation')">
+			:description="t('decidesk', 'Information about the current Decidesk installation')">
 			<template #footer>
 				<div class="cn-support-info">
 					<h4>{{ t('decidesk', 'Support') }}</h4>
