@@ -14,13 +14,27 @@ Agenda management handles the creation, ordering, and conduct of meeting agendas
 
 ## Data Model
 
-See [ARCHITECTURE.md](../../architecture/README.md) for the full AgendaItem entity definition including property tables, Schema.org mappings, and OpenRaadsinformatie alignment.
+See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full entity definitions.
 
 | Entity | Schema.org Type | Key Properties |
 |--------|----------------|----------------|
-| AgendaItem | `schema:ListItem` | title, itemType (informational/discussion/decision), position, allocatedTime, presenter, meeting |
-| Agenda | `schema:ItemList` | meeting, items, totalDuration, status (draft/published/in-progress/completed) |
+| AgendaItem | `schema:ListItem` | title, itemType, position, startTime, indiener (submitter), presenter, decisionPoint (linked Motion/Vote), speakers[], meeting, documents |
+| MeetingType | `schema:EventSeries` | name, domain, defaultAgendaItems (JSON), quorumRule, votingMethod, speakingTimeRules |
 | DocumentPackage | `schema:CreativeWork` | meeting, tableOfContents, documents |
+
+### Key Design Decisions
+
+**Dynamic duration**: An agenda item's duration is NOT a fixed property but is calculated dynamically as `nextItem.startTime - thisItem.startTime` (or `meeting.endTime - thisItem.startTime` for the last item). Only `startTime` is stored.
+
+**Indiener (submitter)**: Every agenda item tracks who submitted/proposed it. This enables proposal status tracking — submitters can see where their item is in the review/approval pipeline.
+
+**Decision points**: An agenda item can be linked to a Motion, Amendment, or Vote via the `decisionPoint` field. This means "agenda item 7 is about voting on motion X". The voting interface activates when the meeting progresses to this item.
+
+**Speakers**: Participants can register as speakers for specific agenda items before or during the meeting. The chair manages the speakers list. Speaking time is tracked per speaker per item.
+
+**Meeting types are configuration, not code**: Meeting types (council meeting, ALV, board meeting, MT, committee) are seeded configuration objects, not hardcoded enums. Each type defines default agenda items, quorum rules, voting methods, and speaking time rules. Admins can create new types or modify existing ones.
+
+**Default agenda items**: A MeetingType seeds its meetings with default items. For example, a Dutch council meeting type seeds: 1. Opening, 2. Vaststellen agenda, 3. Vaststellen notulen vorige vergadering, ... N-1. Rondvraag, N. Sluiting. These can be reordered or removed per meeting.
 
 ## Requirements
 
@@ -398,6 +412,166 @@ The system MUST export agendas in standardized formats.
 - WHEN exported as iCalendar
 - THEN each agenda item MUST appear as a sub-event with start/end times
 - AND the export MUST be importable into calendar applications
+
+---
+
+### Requirement: Configurable Meeting Types with Default Agenda Items [MVP]
+
+Meeting types MUST be configurable seed data objects, NOT hardcoded enums. Each meeting type defines default agenda items that are automatically populated when creating a new meeting of that type. Admins MUST be able to create, modify, and delete meeting types.
+
+#### Scenario: Create meeting from type with default items
+
+- GIVEN a meeting type "Raadsvergadering" configured with default items [Opening, Vaststellen agenda, Vaststellen notulen vorige vergadering, Ingekomen stukken, ..., Rondvraag, Sluiting]
+- WHEN a user creates a new meeting of type "Raadsvergadering"
+- THEN the agenda MUST be pre-populated with all default items in the configured order
+- AND the user MUST be able to add, remove, or reorder items before publishing
+- AND each default item MUST have its type (informational/discussion/decision) pre-set
+
+#### Scenario: Seed application with standard meeting types
+
+- GIVEN a fresh Decidesk installation
+- WHEN the repair step runs
+- THEN the system MUST seed the following meeting types: Raadsvergadering (council), Commissievergadering (committee), ALV (general assembly), Bestuursvergadering (board meeting), MT-vergadering (management team), AVA/Aandeelhoudersvergadering (shareholder meeting), Burgerberaad (citizens' assembly)
+- AND each MUST include domain-appropriate default agenda items, quorum rules, and voting methods
+
+#### Scenario: Admin creates a custom meeting type
+
+- GIVEN an admin of a sports association
+- WHEN they create a meeting type "Jaarvergadering" with default items [Opening, Notulen vorige jaarvergadering, Jaarverslag, Financieel verslag, Verslag kascommissie, Bestuursverkiezing, Begroting, Rondvraag, Sluiting]
+- THEN this meeting type MUST be available when creating new meetings
+- AND the quorum and voting rules MUST be configurable per type
+
+---
+
+### Requirement: Agenda Item Indiener and Proposal Status Tracking [MVP]
+
+Every agenda item MUST track its indiener (submitter). The indiener MUST be able to see the status of their submitted proposals across all meetings. The system MUST provide a "My Proposals" view.
+
+#### Scenario: Track proposal status from submission to decision
+
+- GIVEN a council member who submitted a motion "Amendement klimaatbegroting"
+- WHEN they open their "My Proposals" view
+- THEN they MUST see the proposal with its current status (submitted → under review → on agenda → debated → voted → approved/rejected)
+- AND they MUST see which meeting it is scheduled for
+- AND they MUST see the agenda item position and estimated time
+
+#### Scenario: Indiener receives notifications on status changes
+
+- GIVEN a board member who submitted a proposal for the next meeting
+- WHEN the chair accepts the proposal and places it on the agenda
+- THEN the indiener MUST receive a notification "Your proposal 'X' has been placed on the agenda for meeting Y, item Z"
+- AND when the item is discussed during the meeting, they MUST be notified
+- AND when a vote is taken, they MUST see the result
+
+---
+
+### Requirement: Agenda Item Decision Points [MVP]
+
+An agenda item MUST be linkable to a decision point (Motion, Amendment, or Vote). When the meeting progresses to an item with a decision point, the voting interface MUST activate automatically.
+
+#### Scenario: Agenda item linked to a motion vote
+
+- GIVEN an agenda item "Stemming over motie verkeersplan"
+- WHEN the item is linked to Motion #42 as its decision point
+- THEN when the chair activates this agenda item during the meeting, the voting interface MUST appear with Motion #42's text
+- AND participants MUST be able to cast their vote directly
+
+#### Scenario: Multiple decision points per agenda item
+
+- GIVEN an agenda item "Behandeling begroting 2027" with 3 amendments and the main motion
+- WHEN the chair activates this item
+- THEN the system MUST present amendments in the correct voting order (most radical first, or LIFO)
+- AND after all amendments are voted on, the (possibly amended) main motion MUST be put to vote
+
+---
+
+### Requirement: Speaker Registration for Agenda Items [MVP]
+
+Participants MUST be able to register as speakers for specific agenda items before and during the meeting. The chair manages the speakers list and speaking order.
+
+#### Scenario: Pre-register as speaker
+
+- GIVEN a published meeting agenda with item "Bestemmingsplan Westpark"
+- WHEN a council member registers to speak on this item before the meeting
+- THEN they MUST appear on the speakers list for that item
+- AND the chair MUST see all registered speakers when the item is activated
+
+#### Scenario: Register during meeting
+
+- GIVEN an active agenda item during a meeting
+- WHEN a participant presses "Request to speak"
+- THEN they MUST be added to the speakers queue
+- AND the chair MUST see the updated queue in real-time
+- AND speaking time MUST be tracked per speaker from the moment the chair grants the floor
+
+---
+
+### Requirement: Dynamic Time Tracking Per Agenda Item [MVP]
+
+Agenda item duration MUST be calculated dynamically based on start times, not stored as a fixed allocation. The system MUST track actual time spent per item during meetings.
+
+#### Scenario: Calculate duration from start times
+
+- GIVEN agenda item 3 starts at 20:15 and item 4 starts at 20:45
+- THEN item 3's allocated duration MUST display as 30 minutes
+- AND the last item's duration MUST be calculated as meeting.endTime minus item.startTime
+
+#### Scenario: Track actual time during meeting
+
+- GIVEN agenda item 3 is active during a meeting
+- WHEN the chair moves to item 4 at 20:52 (7 minutes over the planned 20:45)
+- THEN item 3's actual duration MUST be recorded as 37 minutes (20:15 to 20:52)
+- AND item 4's start time MUST update to 20:52
+- AND the remaining items MUST show updated estimated times
+- AND the meeting dashboard MUST show "running 7 minutes over schedule"
+
+---
+
+### Requirement: Live Meeting Page for Participants [MVP]
+
+The system MUST provide a real-time meeting page where participants can see: the current agenda item, all meeting documents, the speakers queue, active votes, and the timer. This page MUST update in real-time without manual refresh.
+
+#### Scenario: Participant views live meeting
+
+- GIVEN a meeting is in progress with item 5 "Behandeling motie parkeerbeleid" active
+- WHEN a participant opens the live meeting page
+- THEN they MUST see: the current item title and description, the attached documents, the speakers queue with current speaker highlighted, the item timer showing elapsed time, any active vote with the ability to cast their ballot, and the full agenda with current position indicated
+
+#### Scenario: Remote participant follows along
+
+- GIVEN a hybrid meeting where some participants attend remotely
+- WHEN the chair advances to the next agenda item
+- THEN all remote participants' screens MUST update in real-time
+- AND documents for the new item MUST be immediately accessible
+- AND if the item has a decision point, the voting interface MUST appear
+
+#### Scenario: Meeting page shows proposal status inline
+
+- GIVEN a participant who submitted a proposal now on the agenda
+- WHEN they view the live meeting page
+- THEN their proposal MUST be highlighted/marked as "yours"
+- AND they MUST see real-time status updates as the chair processes it
+
+---
+
+### Requirement: Calendar Integration for Meetings [MVP]
+
+Meetings MUST be integrated with Nextcloud Calendar via OpenRegister's CalDAV provider. Meeting creation MUST optionally create a calendar event, and calendar events MUST link back to the meeting in Decidesk.
+
+#### Scenario: Meeting creates calendar event
+
+- GIVEN a user creates a new meeting "Bestuursvergadering 15 april" with date, time, and location
+- WHEN they check "Add to calendar"
+- THEN a CalDAV event MUST be created in the organization's shared calendar
+- AND the event MUST include a link back to the Decidesk meeting page
+- AND invited participants MUST receive calendar invitations
+
+#### Scenario: Recurring meeting series
+
+- GIVEN a meeting type "MT-vergadering" configured as bi-weekly on Tuesday 10:00-12:00
+- WHEN the admin sets up a recurring series
+- THEN CalDAV RRULE events MUST be created for the series
+- AND each occurrence MUST auto-create a Decidesk meeting with default agenda items from the meeting type
 
 ---
 
