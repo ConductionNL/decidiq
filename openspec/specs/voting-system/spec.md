@@ -415,6 +415,45 @@ The system MUST support processing consent agenda items (hamerstukken) as a batc
 
 ---
 
+### Requirement: Decision Point Activation from Agenda [MVP]
+
+The system MUST automatically activate the voting interface when the chair advances to an agenda item that has a `decisionPoint` (linked Motion, Amendment, or Vote). The chair MUST NOT need to manually open the voting panel for decision-point items. Amendments linked to a decision point MUST be voted on before the main motion, following standard parliamentary procedure.
+
+**Cross-reference**: See agenda-management spec -- AgendaItem `decisionPoint` field links to Motion/Amendment/Vote. The live meeting page (meeting-management spec) displays the voting panel when a decision-point item is active.
+
+#### Scenario: Voting interface activates when chair reaches decision-point agenda item
+
+- GIVEN a meeting in progress and agenda item 7 "Vaststellen begroting 2027" has a linked decisionPoint (a Motion to approve the budget)
+- WHEN the chair advances the meeting to agenda item 7
+- THEN the voting interface MUST activate automatically for all eligible participants
+- AND the motion text and any supporting documents MUST be displayed alongside the voting panel
+- AND the chair MUST be able to open debate before starting the formal vote
+
+#### Scenario: Amendments are voted before the main motion
+
+- GIVEN agenda item 7 has a main motion and 2 linked amendments (Amendment A and Amendment B)
+- WHEN the chair reaches item 7 and starts the voting sequence
+- THEN the system MUST present amendments for voting first, in submission order (Amendment A, then Amendment B)
+- AND after all amendments are resolved (adopted or rejected), the main motion (as possibly amended) MUST be put to vote
+- AND the final motion text MUST reflect any adopted amendments before the main vote
+
+#### Scenario: Vote result updates agenda item status in real-time
+
+- GIVEN a vote has been conducted on agenda item 7's decision point
+- WHEN the vote result is calculated (adopted or rejected)
+- THEN the agenda item's status MUST update to "decided" in real-time on all participants' live meeting pages
+- AND the decision outcome (adopted/rejected with vote counts) MUST be recorded on the agenda item
+- AND the chair MUST see a summary before advancing to the next agenda item
+
+#### Scenario: Non-decision agenda item does not trigger voting
+
+- GIVEN a meeting in progress and agenda item 3 "Mededelingen" has type "informational" with no decisionPoint
+- WHEN the chair advances to agenda item 3
+- THEN the voting interface MUST NOT activate
+- AND the chair MUST retain the ability to manually initiate an ad-hoc vote if needed
+
+---
+
 ### Requirement: Quorum Tracking and Enforcement
 
 The system MUST continuously track attendance and calculate quorum in real-time. Quorum rules MUST be configurable per governing body. The system MUST block voting when quorum is not met and provide alerts when quorum is at risk.
@@ -577,3 +616,7 @@ The system MUST provide an accessible, mobile-friendly voting interface that mee
 - Voting UX meets WCAG AA; mobile-first design with vote confirmation
 - E2E verifiability (cast-as-intended, recorded-as-cast, tallied-as-recorded) for secret ballots
 - Decision tables for configurable voting rules per organization
+- Voting interface activates automatically when the chair advances to an agenda item with a decisionPoint
+- Amendments linked to a decision point are voted before the main motion in submission order
+- Vote results update the agenda item status to "decided" in real-time on all participants' views
+- Non-decision agenda items do not trigger the voting interface

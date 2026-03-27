@@ -263,6 +263,141 @@ The system MUST support managing meeting proceedings including speaking order, t
 
 ---
 
+### Requirement: Meeting Type Configuration and Seeding [MVP]
+
+The system MUST support configurable MeetingType entities that define the default structure for meetings. When a meeting is created from a MeetingType, the system MUST automatically seed the meeting with default agenda items, quorum rules, voting methods, and speaking time rules as defined by the type. MeetingTypes are stored as OpenRegister objects, not hardcoded enums. Administrators MUST be able to create, modify, and archive MeetingTypes.
+
+**Cross-reference**: See agenda-management spec -- MeetingType entity defines `defaultAgendaItems`, `quorumRule`, `votingMethod`, `speakingTimeRules`.
+
+#### Scenario: Create meeting from council meeting type
+
+- GIVEN a MeetingType "Raadsvergadering" with default agenda items (Opening, Vaststellen agenda, Vaststellen notulen, Hamerstukken, Bespreekstukken, Moties/Amendementen, Rondvraag, Sluiting), quorum >50%, and default open voting
+- WHEN the griffier creates a new meeting from this type
+- THEN the meeting MUST be pre-populated with all default agenda items from the MeetingType
+- AND the quorum rule MUST be set to >50% of seated members
+- AND the default voting method MUST be set to open vote
+- AND the griffier MUST be able to add, remove, or reorder items after seeding
+
+#### Scenario: Create meeting from ALV meeting type
+
+- GIVEN a MeetingType "ALV" with default agenda items (Opening, Vaststellen notulen, Jaarverslag, Jaarrekening, Verslag kascommissie, Bestuursverkiezing, WVTTK, Sluiting), quorum per statutes, and default open voting with secret ballot for elections
+- WHEN the secretary creates a new ALV meeting from this type
+- THEN the meeting MUST be pre-populated with all statutory agenda items
+- AND the quorum rule MUST be inherited from the MeetingType configuration
+- AND agenda items marked as elections MUST default to secret ballot voting method
+- AND removed required items MUST trigger a compliance warning
+
+#### Scenario: Administrator creates a custom meeting type
+
+- GIVEN an administrator who wants to create a new meeting type for steering committee meetings
+- WHEN they define a MeetingType with name "Stuurgroep", default items (Opening, Projectstatus, Risico-overzicht, Beslispunten, Actiepunten, Sluiting), quorum 50%+1, and default open voting
+- THEN the system MUST save the MeetingType as an OpenRegister object
+- AND the type MUST be available in the "Create Meeting" dialog
+- AND existing meetings MUST NOT be affected by changes to the MeetingType
+
+---
+
+### Requirement: Live Meeting Page [MVP]
+
+The system MUST provide a real-time meeting page for all participants during an active meeting. The live meeting page MUST show the current agenda item, its documents, active vote (if any), the speaker queue, and meeting progress. The page MUST update in real-time without manual refresh.
+
+#### Scenario: Participant views live meeting page during session
+
+- GIVEN a meeting in progress with agenda item 4 of 8 active
+- WHEN a participant opens the live meeting page
+- THEN they MUST see the current agenda item title, description, and attached documents
+- AND a progress indicator MUST show "Item 4 of 8" with time elapsed
+- AND if a vote is active on the current item, the voting panel MUST be displayed
+- AND the speaker queue for the current item MUST be visible
+
+#### Scenario: Live page updates when chair advances agenda
+
+- GIVEN a participant viewing the live meeting page
+- WHEN the chair advances from agenda item 4 to agenda item 5
+- THEN the page MUST update in real-time to show item 5's details
+- AND if item 5 has a decision point (linked motion/vote), the voting interface MUST activate automatically
+- AND the speaker queue MUST reset to show speakers registered for item 5
+
+#### Scenario: Remote participant follows meeting via live page
+
+- GIVEN a hybrid meeting with remote participants
+- WHEN a remote member accesses the live meeting page
+- THEN they MUST see the same real-time information as in-person attendees
+- AND they MUST be able to register as a speaker, cast votes, and view documents
+- AND their participation MUST be logged with "remote" attendance mode
+
+---
+
+### Requirement: Calendar Integration (CalDAV) [MVP]
+
+The system MUST integrate meetings with Nextcloud Calendar via OpenRegister's RegisterCalendarProvider. Meetings MUST appear as CalDAV events in a virtual calendar. Recurring meeting series MUST generate individual CalDAV events. Meeting invitations MUST be sent as iCalendar invitations to all body members.
+
+**Cross-reference**: OpenRegister _calendar metadata provides the CalDAV virtual calendar backend.
+
+#### Scenario: Meeting appears in Nextcloud Calendar automatically
+
+- GIVEN a meeting "Board Meeting Q2" scheduled for 2026-07-10 14:00-16:00
+- WHEN the meeting is saved in Decidesk
+- THEN it MUST appear in the Decidesk virtual calendar in Nextcloud Calendar
+- AND the calendar event MUST include: title, start/end time, location/virtual link, and a link back to the Decidesk meeting page
+- AND the event MUST sync to any CalDAV client (mobile, desktop)
+
+#### Scenario: Recurring meeting series creates individual calendar events
+
+- GIVEN a MeetingType "MT Weekly" with recurrence "every Tuesday at 10:00"
+- WHEN the recurring series is created
+- THEN each individual meeting instance MUST appear as a separate CalDAV event
+- AND modifying one instance (e.g., rescheduling) MUST NOT affect other instances
+- AND cancelling one instance MUST update the corresponding CalDAV event
+
+#### Scenario: Send meeting invitations as iCalendar
+
+- GIVEN a meeting with 12 body members
+- WHEN the secretary sends the meeting convocation
+- THEN each member MUST receive an iCalendar (.ics) invitation via Nextcloud notification
+- AND accepting the invitation MUST update the member's attendance RSVP
+- AND the system MUST track invitation delivery and RSVP status per member
+
+---
+
+### Requirement: Speaker Queue Management [MVP]
+
+The system MUST support a speaker queue where participants can register to speak on the current agenda item. The chair MUST be able to grant the floor, skip speakers, and manage the queue order. Speaking time MUST be tracked per speaker with configurable time limits.
+
+#### Scenario: Member registers to speak on current agenda item
+
+- GIVEN a meeting in progress on agenda item "Budget Discussion"
+- WHEN a member clicks "Request to speak"
+- THEN they MUST be added to the speaker queue for the current item
+- AND the chair MUST see the updated queue with the member's name and registration time
+- AND the member MUST see their position in the queue
+
+#### Scenario: Chair grants the floor and tracks speaking time
+
+- GIVEN a speaker queue with 3 registered speakers and a 5-minute time limit per speaker
+- WHEN the chair grants the floor to the first speaker
+- THEN a countdown timer MUST start (5:00)
+- AND the current speaker MUST be highlighted in the queue
+- AND when time expires, an alert MUST notify the chair and speaker
+- AND the chair MUST be able to extend time or move to the next speaker
+
+#### Scenario: Chair reorders or removes speakers from the queue
+
+- GIVEN a speaker queue with 5 registered speakers
+- WHEN the chair needs to prioritize a specific speaker (e.g., the motion proposer gets to speak first)
+- THEN the chair MUST be able to drag-and-drop reorder the queue
+- AND the chair MUST be able to remove a speaker who withdraws
+- AND all participants MUST see the updated queue in real-time
+
+#### Scenario: Track speaking time analytics per meeting
+
+- GIVEN a completed meeting with speaking time tracked per participant
+- WHEN the meeting analytics are generated
+- THEN the system MUST show total speaking time per participant, average time per intervention, and number of interventions
+- AND the system SHOULD highlight distribution imbalances for DEI insights
+
+---
+
 ### Requirement: Meeting Recording and Webcasting [V1]
 
 The system SHOULD support recording meetings (audio/video) and publishing them with searchable indexes linked to agenda items.
@@ -647,6 +782,13 @@ The system MUST export meetings in standardized formats for interoperability.
 23. Citizen registration for committee speaking (inspreekrecht) is supported
 24. Extraordinary ALV request validation is supported (10% threshold, 4-week deadline)
 25. All meeting interfaces comply with Digitoegankelijk (EN 301 549 with WCAG 2.1)
+26. MeetingTypes are configurable OpenRegister objects that seed default agenda items, quorum rules, and voting methods when creating a meeting
+27. A live meeting page provides real-time view of current agenda item, documents, votes, and speaker queue for all participants
+28. Meetings appear as CalDAV events in Nextcloud Calendar via OpenRegister's RegisterCalendarProvider
+29. Recurring meeting series generate individual CalDAV events that are independently editable
+30. Meeting invitations are sent as iCalendar (.ics) with RSVP tracking
+31. Speaker queue supports registration, floor granting, time tracking, and chair reordering
+32. Speaking time analytics are available per participant per meeting with DEI distribution insights
 
 ## Notes
 
