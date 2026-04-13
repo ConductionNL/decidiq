@@ -109,14 +109,14 @@ class InitializeSettingsTest extends TestCase
      */
     public function testRunSkipsWhenOpenRegisterUnavailable(): void
     {
-        $this->settingsService->expects(constraint: $this->once())
+        $this->settingsService->expects($this->once())
             ->method(constraint: 'isOpenRegisterAvailable')
-            ->willReturn(value: false);
+            ->willReturn(false);
 
-        $this->output->expects(constraint: $this->atLeastOnce())
+        $this->output->expects($this->atLeastOnce())
             ->method(constraint: 'warning');
 
-        $this->settingsService->expects(constraint: $this->never())
+        $this->settingsService->expects($this->never())
             ->method(constraint: 'loadConfiguration');
 
         $this->repairStep->run(output: $this->output);
@@ -132,21 +132,21 @@ class InitializeSettingsTest extends TestCase
      */
     public function testRunImportsWhenOpenRegisterAvailable(): void
     {
-        $this->settingsService->expects(constraint: $this->once())
+        $this->settingsService->expects($this->once())
             ->method(constraint: 'isOpenRegisterAvailable')
-            ->willReturn(value: true);
+            ->willReturn(true);
 
-        $this->settingsService->expects(constraint: $this->once())
+        $this->settingsService->expects($this->once())
             ->method(constraint: 'loadConfiguration')
-            ->with(force: true)
+            ->with(true)
             ->willReturn(
-                    value: [
+                    [
                         'success' => true,
                         'version' => '0.1.0',
                     ]
                     );
 
-        $this->output->expects(constraint: $this->atLeastOnce())
+        $this->output->expects($this->atLeastOnce())
             ->method(constraint: 'info');
 
         $this->repairStep->run(output: $this->output);
@@ -162,21 +162,22 @@ class InitializeSettingsTest extends TestCase
      */
     public function testRunHandlesExceptionGracefully(): void
     {
-        $this->settingsService->expects(constraint: $this->once())
+        $this->settingsService->expects($this->once())
             ->method(constraint: 'isOpenRegisterAvailable')
-            ->willReturn(value: true);
+            ->willReturn(true);
 
-        $this->settingsService->expects(constraint: $this->once())
+        $this->settingsService->expects($this->once())
             ->method(constraint: 'loadConfiguration')
-            ->willThrowException(exception: new \RuntimeException('Connection failed'));
+            ->willThrowException(new \RuntimeException('Connection failed'));
 
-        $this->output->expects(constraint: $this->atLeastOnce())
+        $this->output->expects($this->atLeastOnce())
             ->method(constraint: 'warning');
 
-        $this->logger->expects(constraint: $this->once())
+        $this->logger->expects($this->once())
             ->method(constraint: 'error');
 
         $this->repairStep->run(output: $this->output);
 
     }//end testRunHandlesExceptionGracefully()
+
 }//end class

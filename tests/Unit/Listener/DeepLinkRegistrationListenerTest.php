@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Listener;
 
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
+use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\EventDispatcher\Event;
 use PHPUnit\Framework\TestCase;
 
@@ -63,18 +64,22 @@ class DeepLinkRegistrationListenerTest extends TestCase
     {
         $event = $this->createMock(originalClassName: Event::class);
         $this->listener->handle(event: $event);
-        $this->addToAssertionCount(numberOfAssertionsToAdd: 1);
+        $this->addToAssertionCount(1);
 
     }//end testIgnoresNonDeepLinkEvents()
 
     /**
-     * Test that the listener registers deep links for all 17 schemas.
+     * Test that an event that is not a DeepLinkRegistrationEvent results in zero registrations.
+     *
+     * The anonymous class below has a register() method but does NOT extend
+     * DeepLinkRegistrationEvent, so the listener must return early without
+     * calling register().
      *
      * @return void
      *
      * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
      */
-    public function testRegistersAllSeventeenSchemas(): void
+    public function testIgnoresEventThatIsNotDeepLinkRegistrationEvent(): void
     {
         $registrations = [];
 
@@ -125,13 +130,86 @@ class DeepLinkRegistrationListenerTest extends TestCase
             }//end register()
         };
 
-        // The anonymous class is NOT a DeepLinkRegistrationEvent,
-        // so the listener should ignore it. This test verifies no errors.
         $this->listener->handle(event: $event);
 
         self::assertCount(expectedCount: 0, haystack: $registrations);
 
+    }//end testIgnoresEventThatIsNotDeepLinkRegistrationEvent()
+
+    /**
+     * Test that handling a DeepLinkRegistrationEvent registers exactly 17 schemas.
+     *
+     * Each registration must use appId 'decidesk', registerSlug 'decidesk',
+     * and a urlTemplate matching /apps/decidesk/#/{routeSegment}/{uuid}.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
+     */
+    public function testRegistersAllSeventeenSchemas(): void
+    {
+        $event = new DeepLinkRegistrationEvent();
+        $this->listener->handle(event: $event);
+
+        $registrations = $event->getRegistrations();
+
+        self::assertCount(expectedCount: 17, haystack: $registrations);
+
+        foreach ($registrations as $reg) {
+            self::assertSame(expected: 'decidesk', actual: $reg['appId']);
+            self::assertSame(expected: 'decidesk', actual: $reg['registerSlug']);
+            self::assertMatchesRegularExpression(
+                pattern: '~^/apps/decidesk/#/.+/\{uuid\}$~',
+                string: $reg['urlTemplate'],
+            );
+        }
+
     }//end testRegistersAllSeventeenSchemas()
+
+    /**
+     * Test that all 17 expected schema slugs are registered with correct URL templates.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
+     */
+    public function testRegistersExpectedSlugsAndUrlTemplates(): void
+    {
+        $event = new DeepLinkRegistrationEvent();
+        $this->listener->handle(event: $event);
+
+        $registrations = $event->getRegistrations();
+        $bySlug        = [];
+        foreach ($registrations as $reg) {
+            $bySlug[$reg['schemaSlug']] = $reg['urlTemplate'];
+        }
+
+        $expected = [
+            'governance-body'  => '/apps/decidesk/#/governance-bodies/{uuid}',
+            'meeting'          => '/apps/decidesk/#/meetings/{uuid}',
+            'participant'      => '/apps/decidesk/#/participants/{uuid}',
+            'agenda-item'      => '/apps/decidesk/#/agenda-items/{uuid}',
+            'motion'           => '/apps/decidesk/#/motions/{uuid}',
+            'amendment'        => '/apps/decidesk/#/amendments/{uuid}',
+            'voting-round'     => '/apps/decidesk/#/voting-rounds/{uuid}',
+            'vote'             => '/apps/decidesk/#/votes/{uuid}',
+            'decision'         => '/apps/decidesk/#/decisions/{uuid}',
+            'action-item'      => '/apps/decidesk/#/action-items/{uuid}',
+            'minutes'          => '/apps/decidesk/#/minutes/{uuid}',
+            'digital-document' => '/apps/decidesk/#/digital-documents/{uuid}',
+            'monetary-amount'  => '/apps/decidesk/#/monetary-amounts/{uuid}',
+            'offer'            => '/apps/decidesk/#/offers/{uuid}',
+            'order'            => '/apps/decidesk/#/orders/{uuid}',
+            'product'          => '/apps/decidesk/#/products/{uuid}',
+            'report'           => '/apps/decidesk/#/reports/{uuid}',
+        ];
+
+        foreach ($expected as $slug => $urlTemplate) {
+            self::assertArrayHasKey(key: $slug, array: $bySlug, message: "Schema slug '{$slug}' not registered");
+            self::assertSame(expected: $urlTemplate, actual: $bySlug[$slug]);
+        }
+
+    }//end testRegistersExpectedSlugsAndUrlTemplates()
 
     /**
      * Test that listener can be instantiated without dependencies.
@@ -148,4 +226,5 @@ class DeepLinkRegistrationListenerTest extends TestCase
         );
 
     }//end testCanBeInstantiated()
+
 }//end class
