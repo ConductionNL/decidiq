@@ -15,6 +15,8 @@
  * @version GIT: <git-id>
  *
  * @link https://conduction.nl
+ *
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
  */
 
 declare(strict_types=1);
@@ -31,6 +33,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Service for managing Decidesk application configuration and settings.
+ *
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
  */
 class SettingsService
 {

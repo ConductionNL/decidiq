@@ -123,6 +123,28 @@
                         "votingDefault": "for-against-abstain",
                         "termStart": "2024-01-01T00:00:00Z",
                         "termEnd": "2027-12-31T23:59:59Z"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "GovernanceBody",
+                            "slug": "directieteam-gemeente-utrecht"
+                        },
+                        "name": "Directieteam Gemeente Utrecht",
+                        "bodyType": "operational",
+                        "domain": "municipality",
+                        "votingDefault": "show-of-hands"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "GovernanceBody",
+                            "slug": "auditcommissie-provincie-nh"
+                        },
+                        "name": "Auditcommissie Provincie Noord-Holland",
+                        "bodyType": "legislative",
+                        "domain": "province",
+                        "votingDefault": "for-against-abstain"
                     }
                 ]
             },
@@ -264,6 +286,21 @@
                         "meetingMode": "in-person",
                         "lifecycle": "draft",
                         "quorumRequired": 13
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Meeting",
+                            "slug": "ledenvergadering-veh-voorjaar-2025"
+                        },
+                        "title": "Algemene Ledenvergadering VEH — Voorjaar 2025",
+                        "meetingType": "public hearing",
+                        "scheduledDate": "2025-06-18T13:00:00Z",
+                        "endDate": "2025-06-18T17:00:00Z",
+                        "location": "World Forum Den Haag",
+                        "meetingMode": "in-person",
+                        "lifecycle": "scheduled",
+                        "quorumRequired": 50
                     }
                 ]
             },
@@ -387,6 +424,19 @@
                         "email": "p.vandam@example.waterschap.nl",
                         "joinedAt": "2024-01-15T00:00:00Z",
                         "votingWeight": 0
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Participant",
+                            "slug": "participant-ans-rutten"
+                        },
+                        "displayName": "Ans Rutten",
+                        "role": "vice-chair",
+                        "party": "CDA",
+                        "email": "a.rutten@example.gemeente.nl",
+                        "joinedAt": "2022-03-30T00:00:00Z",
+                        "votingWeight": 1
                     }
                 ]
             },
@@ -493,6 +543,31 @@
                         "orderNumber": 99,
                         "estimatedDuration": 15,
                         "isRecurring": true
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "AgendaItem",
+                            "slug": "agendaitem-notulen-2024-12-18"
+                        },
+                        "title": "Vaststellen notulen vergadering 18 december 2024",
+                        "itemType": "decision",
+                        "orderNumber": 2,
+                        "estimatedDuration": 10,
+                        "isRecurring": true
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "AgendaItem",
+                            "slug": "agendaitem-kadernota-2026"
+                        },
+                        "title": "Kadernota begroting 2026",
+                        "itemType": "discussion",
+                        "orderNumber": 4,
+                        "estimatedDuration": 60,
+                        "description": "Eerste bespreking van de financiële kaders voor begrotingsjaar 2026",
+                        "isRecurring": false
                     }
                 ]
             },

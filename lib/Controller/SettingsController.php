@@ -15,6 +15,8 @@
  * @version GIT: <git-id>
  *
  * @link https://conduction.nl
+ *
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
  */
 
 declare(strict_types=1);
@@ -29,6 +31,8 @@ use OCP\IRequest;
 
 /**
  * Controller for managing Decidesk application settings.
+ *
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
  */
 class SettingsController extends Controller
 {
@@ -53,6 +57,8 @@ class SettingsController extends Controller
      * @NoAdminRequired
      *
      * @return JSONResponse
+     *
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      */
     public function index(): JSONResponse
     {
@@ -65,6 +71,8 @@ class SettingsController extends Controller
      * Update settings with provided data.
      *
      * @return JSONResponse
+     *
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      */
     public function create(): JSONResponse
     {
@@ -86,6 +94,8 @@ class SettingsController extends Controller
      * all schema and register IDs from the import result.
      *
      * @return JSONResponse
+     *
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      */
     public function load(): JSONResponse
     {
