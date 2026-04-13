@@ -19,6 +19,11 @@ define('PHPUNIT_RUN', 1);
 // Include Composer's autoloader.
 require_once __DIR__.'/../vendor/autoload.php';
 
+// Load test stubs for cross-app classes not available when the app is not installed.
+if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
+    include_once __DIR__.'/Stubs/DeepLinkRegistrationEvent.php';
+}
+
 // Bootstrap Nextcloud if not already done.
 if (defined('OC_CONSOLE') === false) {
     if (file_exists(__DIR__.'/../../../lib/base.php') === true) {
