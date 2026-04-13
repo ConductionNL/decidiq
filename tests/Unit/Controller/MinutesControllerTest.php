@@ -31,6 +31,7 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -66,6 +67,34 @@ class MinutesControllerTest extends TestCase
     private MinutesGenerationService&MockObject $generationService;
 
     /**
+     * Mock IGroupManager.
+     *
+     * @var IGroupManager&MockObject
+     */
+    private IGroupManager&MockObject $groupManager;
+
+    /**
+     * Mock IUserSession.
+     *
+     * @var IUserSession&MockObject
+     */
+    private IUserSession&MockObject $userSession;
+
+    /**
+     * Mock ContainerInterface.
+     *
+     * @var ContainerInterface&MockObject
+     */
+    private ContainerInterface&MockObject $container;
+
+    /**
+     * Mock IAppConfig.
+     *
+     * @var IAppConfig&MockObject
+     */
+    private IAppConfig&MockObject $appConfig;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -76,14 +105,18 @@ class MinutesControllerTest extends TestCase
 
         $this->request           = $this->createMock(originalClassName: IRequest::class);
         $this->generationService = $this->createMock(originalClassName: MinutesGenerationService::class);
+        $this->groupManager      = $this->createMock(originalClassName: IGroupManager::class);
+        $this->userSession       = $this->createMock(originalClassName: IUserSession::class);
+        $this->container         = $this->createMock(originalClassName: ContainerInterface::class);
+        $this->appConfig         = $this->createMock(originalClassName: IAppConfig::class);
 
         $this->controller = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->generationService,
-            groupManager: $this->createMock(originalClassName: IGroupManager::class),
-            userSession: $this->createMock(originalClassName: IUserSession::class),
-            container: $this->createMock(originalClassName: ContainerInterface::class),
-            appConfig: $this->createMock(originalClassName: IAppConfig::class),
+            groupManager: $this->groupManager,
+            userSession: $this->userSession,
+            container: $this->container,
+            appConfig: $this->appConfig,
         );
 
     }//end setUp()
@@ -182,4 +215,109 @@ class MinutesControllerTest extends TestCase
         self::assertStringNotContainsString('@PublicPage', $docComment);
 
     }//end testGenerateDraftRequiresAuthentication()
+
+    /**
+     * Test that transition() rejects an unknown lifecycle value with 400.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
+     */
+    public function testTransitionRejectsInvalidLifecycle(): void
+    {
+        $this->request->expects($this->once())
+            ->method('getParam')
+            ->with('lifecycle')
+            ->willReturn('hacked');
+
+        $result = $this->controller->transition('minutes-uuid-1');
+
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $result->getStatus());
+        self::assertArrayHasKey(key: 'message', array: $result->getData());
+
+    }//end testTransitionRejectsInvalidLifecycle()
+
+    /**
+     * Test that transition() returns 403 when a non-admin requests a restricted lifecycle.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
+     */
+    public function testTransitionRejectsNonAdminForRestrictedLifecycle(): void
+    {
+        $this->request->expects($this->once())
+            ->method('getParam')
+            ->with('lifecycle')
+            ->willReturn('approved');
+
+        $user = $this->createMock(originalClassName: IUser::class);
+        $user->method('getUID')->willReturn('user1');
+        $this->userSession->method('getUser')->willReturn($user);
+        $this->groupManager->method('isAdmin')->with('user1')->willReturn(false);
+
+        $result = $this->controller->transition('minutes-uuid-1');
+
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertSame(expected: Http::STATUS_FORBIDDEN, actual: $result->getStatus());
+
+    }//end testTransitionRejectsNonAdminForRestrictedLifecycle()
+
+    /**
+     * Test that transition() sets approvedAt, increments version, and populates signedBy on approved.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
+     */
+    public function testTransitionApprovedSetsApprovedAtVersionAndSignedBy(): void
+    {
+        $this->request->expects($this->once())
+            ->method('getParam')
+            ->with('lifecycle')
+            ->willReturn('approved');
+
+        $user = $this->createMock(originalClassName: IUser::class);
+        $user->method('getUID')->willReturn('admin1');
+        $user->method('getDisplayName')->willReturn('Admin User');
+        $this->userSession->method('getUser')->willReturn($user);
+        $this->groupManager->method('isAdmin')->with('admin1')->willReturn(true);
+
+        $minutesData   = ['id' => 'minutes-uuid-1', 'lifecycle' => 'review', 'version' => 1, 'signedBy' => []];
+        $capturedArgs  = [];
+        $objectService = new class($minutesData, $capturedArgs) {
+            public function __construct(
+                private array $minutes,
+                private array &$captured,
+            ) {
+            }
+
+            public function findObject(string $register, string $schema, string $id): ?array
+            {
+                return $this->minutes;
+            }
+
+            public function saveObject(string $register, string $schema, array $object): array
+            {
+                $this->captured = $object;
+                return $object;
+            }
+        };
+
+        $this->container->method('get')->willReturn($objectService);
+        $this->appConfig->method('getValueString')->willReturn('decidesk');
+
+        $result = $this->controller->transition('minutes-uuid-1');
+
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertSame(expected: Http::STATUS_OK, actual: $result->getStatus());
+
+        $data = $result->getData();
+        self::assertSame(expected: 'approved', actual: $data['lifecycle']);
+        self::assertArrayHasKey(key: 'approvedAt', array: $data);
+        self::assertSame(expected: 2, actual: $data['version']);
+        self::assertContains(needle: 'Admin User', haystack: $data['signedBy']);
+
+    }//end testTransitionApprovedSetsApprovedAtVersionAndSignedBy()
 }//end class

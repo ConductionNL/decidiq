@@ -114,6 +114,12 @@ class MinutesController extends Controller
             return new JSONResponse(['message' => 'Missing lifecycle parameter'], Http::STATUS_BAD_REQUEST);
         }
 
+        // Validate against the complete set of allowed lifecycle values.
+        $allowedLifecycles = ['draft', 'review', 'approved', 'signed', 'published'];
+        if (in_array($lifecycle, $allowedLifecycles, true) === false) {
+            return new JSONResponse(['message' => 'Invalid lifecycle value'], Http::STATUS_BAD_REQUEST);
+        }
+
         // Governance-critical transitions require admin role.
         $restrictedTransitions = ['approved', 'signed', 'published'];
         if (in_array($lifecycle, $restrictedTransitions, true) === true) {
@@ -137,6 +143,17 @@ class MinutesController extends Controller
             if ($lifecycle === 'approved') {
                 $minutes['approvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
                 $minutes['version']    = (int) ($minutes['version'] ?? 1) + 1;
+                // Spec task 5.3: append the approving user's display name to signedBy.
+                $currentUser = $this->userSession->getUser();
+                if ($currentUser !== null) {
+                    $signedBy = $minutes['signedBy'] ?? [];
+                    if (is_array($signedBy) === false) {
+                        $signedBy = [];
+                    }
+
+                    $signedBy[]          = $currentUser->getDisplayName();
+                    $minutes['signedBy'] = $signedBy;
+                }
             }
 
             $updated = $objectService->saveObject(register: $register, schema: 'minutes', object: $minutes);

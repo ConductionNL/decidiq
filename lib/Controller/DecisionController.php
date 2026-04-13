@@ -68,9 +68,11 @@ class DecisionController extends Controller
     /**
      * Publish a decision.
      *
-     * Sets isPublished=true and records publishedAt. Requires admin role —
-     * publication is a governance-critical operation that must not be
-     * performable by arbitrary authenticated users via the frontend.
+     * Sets isPublished=true and records publishedAt. Any authenticated user may
+     * call this endpoint; admin role is enforced manually via IGroupManager::isAdmin().
+     * The NoAdminRequired annotation is intentional — it prevents Nextcloud from
+     * performing its own framework-level admin check so that the explicit guard
+     * below is the single source of truth for this role gate.
      *
      * @param string $decisionId The UUID of the Decision object
      *
@@ -82,6 +84,9 @@ class DecisionController extends Controller
      */
     public function publish(string $decisionId): JSONResponse
     {
+        // NoAdminRequired intentional: admin is enforced below via IGroupManager::isAdmin()
+        // rather than @AdminRequired so that the same guard handles the role check
+        // and the response body in a single place.
         $user = $this->userSession->getUser();
         if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(['message' => 'Insufficient permissions to publish a decision'], Http::STATUS_FORBIDDEN);
