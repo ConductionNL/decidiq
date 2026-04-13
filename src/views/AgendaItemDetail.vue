@@ -8,9 +8,10 @@ Copyright (C) 2026 Conduction B.V.
 	<div class="agenda-item-detail">
 		<header class="agenda-item-detail__header">
 			<h2>{{ item.title || t('decidesk', 'Agenda item') }}</h2>
-			<span class="agenda-item-detail__badge" :class="typeBadgeClass">
-				{{ typeLabel }}
-			</span>
+			<CnStatusBadge
+				:label="typeLabel"
+				:variant="typeBadgeVariant"
+				size="small" />
 		</header>
 
 		<!-- Description -->
@@ -34,20 +35,10 @@ Copyright (C) 2026 Conduction B.V.
 		<!-- BOB phase timeline for discussion/decision items -->
 		<div v-if="showBobPhase" class="agenda-item-detail__bob">
 			<h3>{{ t('decidesk', 'BOB Phase') }}</h3>
-			<div class="agenda-item-detail__bob-stages" role="list" :aria-label="t('decidesk', 'BOB Phase stages')">
-				<div v-for="stage in bobStages"
-					:key="stage.value"
-					class="agenda-item-detail__bob-stage"
-					:class="{
-						'agenda-item-detail__bob-stage--active': item.status === stage.value,
-						'agenda-item-detail__bob-stage--completed': isStageCompleted(stage.value),
-					}"
-					role="listitem"
-					:aria-label="stage.label"
-					:aria-current="item.status === stage.value ? 'step' : undefined">
-					{{ stage.label }}
-				</div>
-			</div>
+			<CnTimelineStages
+				:stages="bobTimelineStages"
+				:current-stage="item.status"
+				:aria-label="t('decidesk', 'BOB Phase stages')" />
 		</div>
 
 		<!-- COI section -->
@@ -88,61 +79,42 @@ Copyright (C) 2026 Conduction B.V.
 			{{ t('decidesk', 'Only decision-type items support motions') }}
 		</p>
 
-		<!-- COI declaration dialog -->
-		<div v-if="showCoiDialog" class="agenda-item-detail__dialog-overlay" @click.self="showCoiDialog = false">
-			<div class="agenda-item-detail__dialog" role="dialog" :aria-label="t('decidesk', 'Declare conflict of interest')">
-				<h3>{{ t('decidesk', 'Declare conflict of interest') }}</h3>
-				<label for="coi-reason" class="agenda-item-detail__label">
-					{{ t('decidesk', 'Reason for recusal') }}
-				</label>
-				<textarea
-					id="coi-reason"
-					v-model="coiReason"
-					class="agenda-item-detail__textarea"
-					:placeholder="t('decidesk', 'Provide a reason for the conflict of interest')"
-					rows="3"
-					required />
-				<p v-if="coiError" class="agenda-item-detail__error">{{ coiError }}</p>
-				<div class="agenda-item-detail__dialog-actions">
-					<button class="agenda-item-detail__btn agenda-item-detail__btn--primary"
-						@click="submitCoi">
-						{{ t('decidesk', 'Submit') }}
-					</button>
-					<button class="agenda-item-detail__btn"
-						@click="showCoiDialog = false">
-						{{ t('decidesk', 'Cancel') }}
-					</button>
-				</div>
-			</div>
-		</div>
+		<!-- COI declaration dialog (CnFormDialog — task 5.1) -->
+		<CnFormDialog
+			v-if="showCoiDialog"
+			:dialog-title="t('decidesk', 'Declare conflict of interest')"
+			:fields="coiFormFields"
+			:confirm-label="t('decidesk', 'Submit')"
+			:cancel-label="t('decidesk', 'Cancel')"
+			@confirm="onCoiSubmit"
+			@close="showCoiDialog = false" />
 
-		<!-- Link motion dialog -->
-		<div v-if="showMotionDialog" class="agenda-item-detail__dialog-overlay" @click.self="showMotionDialog = false">
-			<div class="agenda-item-detail__dialog" role="dialog" :aria-label="t('decidesk', 'Link motion')">
-				<h3>{{ t('decidesk', 'Link motion') }}</h3>
-				<ul v-if="availableMotions.length > 0" class="agenda-item-detail__motion-select">
-					<li v-for="motion in availableMotions"
-						:key="motion.id || motion.uuid"
-						class="agenda-item-detail__motion-option"
-						@click="linkMotion(motion)">
-						{{ motion.title }}
-					</li>
-				</ul>
-				<p v-else class="agenda-item-detail__empty">
-					{{ t('decidesk', 'No motions available') }}
-				</p>
-				<div class="agenda-item-detail__dialog-actions">
-					<button class="agenda-item-detail__btn"
-						@click="showMotionDialog = false">
-						{{ t('decidesk', 'Cancel') }}
-					</button>
-				</div>
-			</div>
-		</div>
+		<!-- Link motion dialog (CnFormDialog — task 2.4) -->
+		<CnFormDialog
+			v-if="showMotionDialog"
+			:dialog-title="t('decidesk', 'Link motion')"
+			:fields="motionFormFields"
+			:confirm-label="t('decidesk', 'Link motion')"
+			:cancel-label="t('decidesk', 'Cancel')"
+			@confirm="onMotionSubmit"
+			@close="showMotionDialog = false" />
+
+		<!-- Object sidebar — Files, Notes, Audit Trail (task 7.3) -->
+		<CnObjectSidebar
+			v-if="item.id || item.uuid"
+			:object-id="item.id || item.uuid"
+			:object-type="t('decidesk', 'Agenda item')"
+			register="decidesk"
+			schema="agenda-item"
+			:hidden-tabs="['tags', 'tasks']" />
 	</div>
 </template>
 
 <script>
+import CnFormDialog from '@conduction/nextcloud-vue/src/components/CnFormDialog/CnFormDialog.vue'
+import CnObjectSidebar from '@conduction/nextcloud-vue/src/components/CnObjectSidebar/CnObjectSidebar.vue'
+import CnStatusBadge from '@conduction/nextcloud-vue/src/components/CnStatusBadge/CnStatusBadge.vue'
+import CnTimelineStages from '@conduction/nextcloud-vue/src/components/CnTimelineStages/CnTimelineStages.vue'
 import { useObjectStore } from '../store/modules/object.js'
 
 /**
@@ -153,14 +125,19 @@ import { useObjectStore } from '../store/modules/object.js'
 export default {
 	name: 'AgendaItemDetail',
 
+	components: {
+		CnFormDialog,
+		CnObjectSidebar,
+		CnStatusBadge,
+		CnTimelineStages,
+	},
+
 	data() {
 		return {
 			item: {},
 			availableMotions: [],
 			showCoiDialog: false,
 			showMotionDialog: false,
-			coiReason: '',
-			coiError: '',
 		}
 	},
 
@@ -187,24 +164,56 @@ export default {
 			return labels[this.item.itemType] || this.item.itemType || ''
 		},
 
-		typeBadgeClass() {
-			return {
-				'agenda-item-detail__badge--informational': this.item.itemType === 'informational',
-				'agenda-item-detail__badge--discussion': this.item.itemType === 'discussion',
-				'agenda-item-detail__badge--decision': this.item.itemType === 'decision',
+		typeBadgeVariant() {
+			const variants = {
+				informational: 'info',
+				discussion: 'warning',
+				decision: 'primary',
 			}
+			return variants[this.item.itemType] || 'default'
+		},
+
+		/** Stages array in the format CnTimelineStages expects. */
+		bobTimelineStages() {
+			return [
+				{ id: 'beeldvorming', label: this.t('decidesk', 'Image forming') },
+				{ id: 'oordeelsvorming', label: this.t('decidesk', 'Opinion forming') },
+				{ id: 'besluitvorming', label: this.t('decidesk', 'Decision making') },
+			]
+		},
+
+		/** Fields definition for the COI CnFormDialog. */
+		coiFormFields() {
+			return [
+				{
+					key: 'reason',
+					label: this.t('decidesk', 'Reason for recusal'),
+					widget: 'textarea',
+					required: true,
+					description: this.t('decidesk', 'Provide a reason for the conflict of interest'),
+				},
+			]
+		},
+
+		/** Fields definition for the link-motion CnFormDialog. */
+		motionFormFields() {
+			return [
+				{
+					key: 'motionId',
+					label: this.t('decidesk', 'Motion'),
+					widget: 'select',
+					required: true,
+					// CnFormDialog uses `enum` for static option values and `enumLabels` for display names.
+					enum: this.availableMotions.map((m) => m.id || m.uuid),
+					enumLabels: Object.fromEntries(
+						this.availableMotions.map((m) => [m.id || m.uuid, m.title]),
+					),
+				},
+			]
 		},
 
 		showBobPhase() {
 			return this.item.itemType === 'discussion' || this.item.itemType === 'decision'
-		},
-
-		bobStages() {
-			return [
-				{ value: 'beeldvorming', label: this.t('decidesk', 'Image forming') },
-				{ value: 'oordeelsvorming', label: this.t('decidesk', 'Opinion forming') },
-				{ value: 'besluitvorming', label: this.t('decidesk', 'Decision making') },
-			]
 		},
 
 		coiNotes() {
@@ -225,16 +234,16 @@ export default {
 		},
 	},
 
-	async created() {
-		await this.fetchItem()
-	},
-
 	watch: {
 		showMotionDialog(val) {
 			if (val) {
 				this.fetchAvailableMotions()
 			}
 		},
+	},
+
+	async created() {
+		await this.fetchItem()
 	},
 
 	methods: {
@@ -255,62 +264,41 @@ export default {
 			}
 		},
 
-		isStageCompleted(stageValue) {
-			const order = ['beeldvorming', 'oordeelsvorming', 'besluitvorming', 'afgerond']
-			return order.indexOf(this.item.status) > order.indexOf(stageValue)
-		},
-
-		async submitCoi() {
-			this.coiError = ''
-			if (!this.coiReason.trim()) {
-				this.coiError = this.t('decidesk', 'Provide a reason for the conflict of interest')
-				return
-			}
-
+		async onCoiSubmit(formData) {
 			const displayName = OC.getCurrentUser().displayName || OC.getCurrentUser().uid || ''
 			const note = {
 				title: 'COI: ' + displayName,
-				body: this.coiReason.trim(),
+				body: (formData.reason || '').trim(),
 			}
 
-			// Add note via the item's notes array and save.
-			const updatedNotes = [...(this.item.notes || []), note]
-			const updatedItem = { ...this.item, notes: updatedNotes }
-
+			// Add note via the item's notes array and save only the notes field.
 			const objectStore = useObjectStore()
-			const url = new URL(objectStore.baseUrl, window.location.origin)
-			await fetch(url.toString(), {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					requesttoken: OC.requestToken,
-				},
-				body: JSON.stringify(updatedItem),
+			await objectStore.saveObject({
+				id: this.item.id || this.item.uuid,
+				notes: [...(this.item.notes || []), note],
 			})
 
 			this.showCoiDialog = false
-			this.coiReason = ''
 			await this.fetchItem()
 		},
 
-		async linkMotion(motion) {
+		async onMotionSubmit(formData) {
+			const motionId = formData.motionId
+			const motion = this.availableMotions.find((m) => (m.id || m.uuid) === motionId)
+			if (!motion) return
+
 			const relations = [...(this.item.relations || []), {
 				schema: 'motion',
 				type: 'motion',
 				id: motion.id || motion.uuid,
 				title: motion.title,
 			}]
-			const updatedItem = { ...this.item, relations }
 
+			// Save only the relations field to prevent mass-assignment.
 			const objectStore = useObjectStore()
-			const url = new URL(objectStore.baseUrl, window.location.origin)
-			await fetch(url.toString(), {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					requesttoken: OC.requestToken,
-				},
-				body: JSON.stringify(updatedItem),
+			await objectStore.saveObject({
+				id: this.item.id || this.item.uuid,
+				relations,
 			})
 
 			this.showMotionDialog = false

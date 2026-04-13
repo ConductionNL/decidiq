@@ -57,9 +57,10 @@ Copyright (C) 2026 Conduction B.V.
 					:key="item.id || item.uuid"
 					class="agenda-builder__item agenda-builder__item--proposal">
 					<span class="agenda-builder__title">{{ item.title }}</span>
-					<span class="agenda-builder__badge agenda-builder__badge--proposal">
-						{{ t('decidesk', 'Proposal') }}
-					</span>
+					<CnStatusBadge
+						:label="t('decidesk', 'Proposal')"
+						variant="info"
+						size="small" />
 					<div class="agenda-builder__proposal-actions">
 						<button class="agenda-builder__action agenda-builder__action--approve"
 							:aria-label="t('decidesk', 'Approve')"
@@ -99,9 +100,10 @@ Copyright (C) 2026 Conduction B.V.
 				@keydown="onKeyDown($event, index)">
 				<span class="agenda-builder__order">{{ item.orderNumber }}</span>
 				<span class="agenda-builder__title">{{ item.title }}</span>
-				<span class="agenda-builder__badge" :class="typeBadgeClass(item.itemType)">
-					{{ typeLabel(item.itemType) }}
-				</span>
+				<CnStatusBadge
+					:label="typeLabel(item.itemType)"
+					:variant="itemTypeVariant(item.itemType)"
+					size="small" />
 				<span class="agenda-builder__duration-value">
 					{{ item.estimatedDuration ? item.estimatedDuration + ' min' : '—' }}
 				</span>
@@ -148,6 +150,8 @@ Copyright (C) 2026 Conduction B.V.
 
 <script>
 import { useAgendaStore } from '../store/modules/agenda.js'
+import { useObjectStore } from '../store/modules/object.js'
+import CnStatusBadge from '@conduction/nextcloud-vue/src/components/CnStatusBadge/CnStatusBadge.vue'
 
 /**
  * Drag-and-drop agenda builder component.
@@ -156,6 +160,10 @@ import { useAgendaStore } from '../store/modules/agenda.js'
  */
 export default {
 	name: 'AgendaBuilder',
+
+	components: {
+		CnStatusBadge,
+	},
 
 	props: {
 		items: {
@@ -240,12 +248,13 @@ export default {
 			return labels[itemType] || itemType
 		},
 
-		typeBadgeClass(itemType) {
-			return {
-				'agenda-builder__badge--informational': itemType === 'informational',
-				'agenda-builder__badge--discussion': itemType === 'discussion',
-				'agenda-builder__badge--decision': itemType === 'decision',
+		itemTypeVariant(itemType) {
+			const variants = {
+				informational: 'info',
+				discussion: 'warning',
+				decision: 'primary',
 			}
+			return variants[itemType] || 'default'
 		},
 
 		getSpokesperson(item) {
@@ -323,64 +332,29 @@ export default {
 		},
 
 		async removeFromHamerstukken(item) {
-			const objectStore = this.$root.$pinia?.state?.value?.object
-			if (!objectStore) return
+			const objectStore = useObjectStore()
 			const updatedTags = (item.tags || []).filter((t) => t !== 'hamerstuk')
-			const updatedItem = { ...item, tags: updatedTags }
-
-			const url = new URL(
-				this.$root.$pinia?.state?.value?.object?.baseUrl || '/apps/openregister/api/objects',
-				window.location.origin,
-			)
-			await fetch(url.toString(), {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					requesttoken: OC.requestToken,
-				},
-				body: JSON.stringify(updatedItem),
-			})
+			// Send only the fields being changed to prevent mass-assignment.
+			await objectStore.saveObject({ id: item.id || item.uuid, tags: updatedTags })
 			this.$emit('items-updated')
 		},
 
 		async approveProposal(item) {
+			const objectStore = useObjectStore()
 			const maxOrder = Math.max(...this.sortedItems.map((i) => i.orderNumber || 0), 0)
-			const updatedItem = {
-				...item,
+			// Send only the fields being changed to prevent mass-assignment.
+			await objectStore.saveObject({
+				id: item.id || item.uuid,
 				status: 'beeldvorming',
 				orderNumber: maxOrder + 1,
-			}
-
-			const url = new URL(
-				this.$root.$pinia?.state?.value?.object?.baseUrl || '/apps/openregister/api/objects',
-				window.location.origin,
-			)
-			await fetch(url.toString(), {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					requesttoken: OC.requestToken,
-				},
-				body: JSON.stringify(updatedItem),
 			})
 			this.$emit('items-updated')
 		},
 
 		async rejectProposal(item) {
-			const updatedItem = { ...item, status: 'afgewezen' }
-
-			const url = new URL(
-				this.$root.$pinia?.state?.value?.object?.baseUrl || '/apps/openregister/api/objects',
-				window.location.origin,
-			)
-			await fetch(url.toString(), {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					requesttoken: OC.requestToken,
-				},
-				body: JSON.stringify(updatedItem),
-			})
+			const objectStore = useObjectStore()
+			// Send only the fields being changed to prevent mass-assignment.
+			await objectStore.saveObject({ id: item.id || item.uuid, status: 'afgewezen' })
 			this.$emit('items-updated')
 		},
 	},

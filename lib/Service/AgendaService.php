@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCP\IL10N;
 use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -65,6 +66,7 @@ class AgendaService
      *
      * @param ContainerInterface $container   The service container
      * @param LoggerInterface    $logger      The logger
+     * @param IL10N              $l10n        The localisation helper
      * @param IUserSession|null  $userSession The user session (null in unit-test mode)
      *
      * @return void
@@ -72,6 +74,7 @@ class AgendaService
     public function __construct(
         private ContainerInterface $container,
         private LoggerInterface $logger,
+        private IL10N $l10n,
         private ?IUserSession $userSession=null,
     ) {
     }//end __construct()
@@ -99,7 +102,7 @@ class AgendaService
         if ($objectService === null) {
             return [
                 'success'       => true,
-                'message'       => 'Agenda gepubliceerd',
+                'message'       => $this->l10n->t('Agenda published'),
                 'notifications' => 0,
             ];
         }
@@ -131,8 +134,11 @@ class AgendaService
             foreach ($participants as $participant) {
                 $notificationService->sendNotification(
                     ($participant['owner'] ?? ''),
-                    $meetingTitle.' — Agenda gepubliceerd',
-                    'De agenda voor '.$meetingTitle.' ('.$scheduledDate.') is gepubliceerd.'
+                    $meetingTitle.' — '.$this->l10n->t('Agenda published'),
+                    $this->l10n->t(
+                        'The agenda for %1$s (%2$s) has been published.',
+                        [$meetingTitle, $scheduledDate]
+                    )
                 );
             }
         }
@@ -154,7 +160,7 @@ class AgendaService
 
         return [
             'success'       => true,
-            'message'       => 'Agenda gepubliceerd',
+            'message'       => $this->l10n->t('Agenda published'),
             'notifications' => count($participants),
         ];
 
@@ -193,20 +199,19 @@ class AgendaService
         try {
             $item = $objectService->getObject('decidesk', 'agenda-item', $agendaItemId);
         } catch (\Throwable) {
-            return [
-                'success'       => true,
-                'previousPhase' => 'voorstel',
-                'currentPhase'  => 'beeldvorming',
-            ];
+            throw new \RuntimeException('Agenda item not found', 404);
         }
 
-        // Enforce chair/secretary role when the meeting ID is resolvable.
+        // Enforce chair/secretary role — deny access when meeting cannot be resolved.
         $meetingId = $this->getMeetingIdFromItem(item: $item);
-        if ($meetingId !== '') {
-            $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
-            $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
-            $this->assertChairOrSecretary(participants: $participants);
+        if ($meetingId === '') {
+            // Orphan items (no meeting link) are not manipulatable without explicit governance decision.
+            throw new \RuntimeException('Forbidden: agenda item is not linked to a meeting', 403);
         }
+
+        $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
+        $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        $this->assertChairOrSecretary(participants: $participants);
 
         $currentPhase = ($item['status'] ?? 'beeldvorming');
 

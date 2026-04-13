@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AgendaService;
+use OCP\IL10N;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -57,6 +58,13 @@ class AgendaServiceTest extends TestCase
      * @var LoggerInterface&MockObject
      */
     private LoggerInterface&MockObject $logger;
+
+    /**
+     * Mock IL10N.
+     *
+     * @var IL10N&MockObject
+     */
+    private IL10N&MockObject $l10n;
 
     /**
      * Mock object service.
@@ -94,6 +102,8 @@ class AgendaServiceTest extends TestCase
 
         $this->container = $this->createMock(originalClassName: ContainerInterface::class);
         $this->logger    = $this->createMock(originalClassName: LoggerInterface::class);
+        $this->l10n      = $this->createMock(originalClassName: IL10N::class);
+        $this->l10n->method('t')->willReturnCallback(static fn(string $text) => $text);
 
         $this->objectService        = $this->createMockObjectService();
         $this->notificationService  = $this->createMockNotificationService();
@@ -115,6 +125,7 @@ class AgendaServiceTest extends TestCase
         $this->service = new AgendaService(
             container: $this->container,
             logger: $this->logger,
+            l10n: $this->l10n,
         );
 
     }//end setUp()
@@ -214,6 +225,25 @@ class AgendaServiceTest extends TestCase
     }//end testPublishAgendaSendsNotificationsToActiveParticipants()
 
     /**
+     * Test advanceBobPhase throws RuntimeException when item is not found.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
+     */
+    public function testAdvanceBobPhaseThrowsWhenItemNotFound(): void
+    {
+        $this->objectService->method('getObject')
+            ->willThrowException(new \RuntimeException('Not found'));
+
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionMessage(message: 'Agenda item not found');
+
+        $this->service->advanceBobPhase(agendaItemId: 'nonexistent-id');
+
+    }//end testAdvanceBobPhaseThrowsWhenItemNotFound()
+
+    /**
      * Test advanceBobPhase cycles through phases correctly.
      *
      * @return void
@@ -226,11 +256,24 @@ class AgendaServiceTest extends TestCase
             'id'       => 'item-1',
             'itemType' => 'discussion',
             'status'   => 'beeldvorming',
-            // No 'meeting' field — auth check is skipped automatically.
+            'meeting'  => 'meeting-1',
+        ];
+
+        $meeting = [
+            'id'        => 'meeting-1',
+            'relations' => [],
         ];
 
         $this->objectService->method('getObject')
-            ->willReturn($item);
+            ->willReturnCallback(
+                static function () use ($item, $meeting) {
+                    $schema = func_get_arg(1);
+                    return match ($schema) {
+                        'agenda-item' => $item,
+                        default       => $meeting,
+                    };
+                }
+            );
 
         $this->objectService->expects($this->once())
             ->method('saveObject');
@@ -256,10 +299,24 @@ class AgendaServiceTest extends TestCase
             'id'       => 'item-1',
             'itemType' => 'informational',
             'status'   => 'beeldvorming',
+            'meeting'  => 'meeting-1',
+        ];
+
+        $meeting = [
+            'id'        => 'meeting-1',
+            'relations' => [],
         ];
 
         $this->objectService->method('getObject')
-            ->willReturn($item);
+            ->willReturnCallback(
+                static function () use ($item, $meeting) {
+                    $schema = func_get_arg(1);
+                    return match ($schema) {
+                        'agenda-item' => $item,
+                        default       => $meeting,
+                    };
+                }
+            );
 
         $this->expectException(exception: \RuntimeException::class);
         $this->expectExceptionMessage(message: 'Informatieve agendapunten hebben geen BOB-fasering');
@@ -281,10 +338,24 @@ class AgendaServiceTest extends TestCase
             'id'       => 'item-1',
             'itemType' => 'decision',
             'status'   => 'afgerond',
+            'meeting'  => 'meeting-1',
+        ];
+
+        $meeting = [
+            'id'        => 'meeting-1',
+            'relations' => [],
         ];
 
         $this->objectService->method('getObject')
-            ->willReturn($item);
+            ->willReturnCallback(
+                static function () use ($item, $meeting) {
+                    $schema = func_get_arg(1);
+                    return match ($schema) {
+                        'agenda-item' => $item,
+                        default       => $meeting,
+                    };
+                }
+            );
 
         $this->expectException(exception: \RuntimeException::class);
         $this->expectExceptionMessage(message: 'Agendapunt is al in de laatste fase');

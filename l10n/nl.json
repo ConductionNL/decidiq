@@ -89,7 +89,11 @@
         "Title": "Titel",
         "Duration (min)": "Duur (min)",
         "Attachments": "Bijlagen",
-        "An error occurred": "Er is een fout opgetreden"
+        "An error occurred": "Er is een fout opgetreden",
+        "Agenda published": "Agenda gepubliceerd",
+        "The agenda for %1$s (%2$s) has been published.": "De agenda voor %1$s (%2$s) is gepubliceerd.",
+        "Export completed": "Export voltooid",
+        "Close": "Sluiten"
     },
     "plurals": ""
 }

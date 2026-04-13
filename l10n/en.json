@@ -89,7 +89,11 @@
         "Title": "Title",
         "Duration (min)": "Duration (min)",
         "Attachments": "Attachments",
-        "An error occurred": "An error occurred"
+        "An error occurred": "An error occurred",
+        "Agenda published": "Agenda published",
+        "The agenda for %1$s (%2$s) has been published.": "The agenda for %1$s (%2$s) has been published.",
+        "Export completed": "Export completed",
+        "Close": "Close"
     },
     "plurals": ""
 }

@@ -73,25 +73,25 @@ Copyright (C) 2026 Conduction B.V.
 		</div>
 
 		<!-- Export dialog -->
-		<div v-if="showExport" class="meeting-detail__dialog-overlay" @click.self="showExport = false">
-			<div class="meeting-detail__dialog" role="dialog" :aria-label="t('decidesk', 'Export agenda')">
-				<h3>{{ t('decidesk', 'Export agenda') }}</h3>
-				<p>{{ t('decidesk', 'Download the agenda as CSV with columns: Number, Title, Type, Duration, Spokesperson, Attachments.') }}</p>
-				<div class="meeting-detail__dialog-actions">
-					<button class="meeting-detail__btn meeting-detail__btn--primary" @click="exportCsv">
-						{{ t('decidesk', 'Download CSV') }}
-					</button>
-					<button class="meeting-detail__btn" @click="showExport = false">
-						{{ t('decidesk', 'Cancel') }}
-					</button>
-				</div>
-			</div>
-		</div>
+		<CnMassExportDialog
+			v-if="showExport"
+			ref="exportDialog"
+			:dialog-title="t('decidesk', 'Export agenda')"
+			:description="t('decidesk', 'Download the agenda as CSV with columns: Number, Title, Type, Duration, Spokesperson, Attachments.')"
+			:formats="[{ id: 'csv', label: 'CSV (.csv)' }]"
+			default-format="csv"
+			:success-text="t('decidesk', 'Export completed')"
+			:cancel-label="t('decidesk', 'Cancel')"
+			:close-label="t('decidesk', 'Close')"
+			:confirm-label="t('decidesk', 'Download CSV')"
+			@confirm="onExportConfirm"
+			@close="showExport = false" />
 	</div>
 </template>
 
 <script>
 import AgendaBuilder from '../components/AgendaBuilder.vue'
+import CnMassExportDialog from '@conduction/nextcloud-vue/src/components/CnMassExportDialog/CnMassExportDialog.vue'
 import { useAgendaStore } from '../store/modules/agenda.js'
 import { useObjectStore } from '../store/modules/object.js'
 
@@ -105,6 +105,7 @@ export default {
 
 	components: {
 		AgendaBuilder,
+		CnMassExportDialog,
 	},
 
 	data() {
@@ -112,7 +113,6 @@ export default {
 			meeting: {},
 			agendaItems: [],
 			publishError: '',
-			isPublished: false,
 			showExport: false,
 			showAddDialog: false,
 			showRecurringDialog: false,
@@ -124,6 +124,14 @@ export default {
 	computed: {
 		meetingId() {
 			return this.$route.params.id
+		},
+
+		/**
+		 * Derives publication status from the fetched meeting object so it
+		 * persists across page navigations rather than being session-only.
+		 */
+		isPublished() {
+			return this.meeting.agendaPublished === true || this.meeting.lifecycle === 'published'
 		},
 
 		isChairOrSecretary() {
@@ -178,14 +186,18 @@ export default {
 			const agendaStore = useAgendaStore()
 			const result = await agendaStore.publishAgenda(this.meetingId)
 			if (result && result.success) {
-				this.isPublished = true
+				// Reflect published state in the meeting object so isPublished stays true on reload.
+				this.meeting = { ...this.meeting, agendaPublished: true }
 			} else {
 				this.publishError = (result && result.error) || this.t('decidesk', 'Publication failed')
 			}
 		},
 
-		reviseAgenda() {
-			this.isPublished = false
+		async reviseAgenda() {
+			// Clear published flag on the backend by saving the updated meeting state.
+			const objectStore = useObjectStore()
+			await objectStore.saveObject({ id: this.meeting.id || this.meeting.uuid, agendaPublished: false })
+			this.meeting = { ...this.meeting, agendaPublished: false }
 		},
 
 		goToLiveMeeting() {
@@ -201,6 +213,27 @@ export default {
 			this.$emit('assign-spokesperson', item)
 		},
 
+		/**
+		 * Wrap a value in RFC 4180 CSV quoting: double-quote the value and
+		 * escape any embedded double-quotes.  Applied to all string columns
+		 * to protect against injection and commas in field values.
+		 *
+		 * @param {*} value - Field value to quote
+		 * @return {string} RFC 4180 quoted string
+		 */
+		csvField(value) {
+			return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"'
+		},
+
+		onExportConfirm() {
+			try {
+				this.exportCsv()
+				this.$refs.exportDialog.setResult({ success: true })
+			} catch (err) {
+				this.$refs.exportDialog.setResult({ error: err.message })
+			}
+		},
+
 		exportCsv() {
 			const typeLabels = {
 				informational: this.t('decidesk', 'Informational'),
@@ -209,22 +242,25 @@ export default {
 			}
 			const sorted = [...this.agendaItems].sort((a, b) => (a.orderNumber || 0) - (b.orderNumber || 0))
 			const header = [
-				this.t('decidesk', 'Number'),
-				this.t('decidesk', 'Title'),
-				this.t('decidesk', 'Type'),
-				this.t('decidesk', 'Duration (min)'),
-				this.t('decidesk', 'Spokesperson'),
-				this.t('decidesk', 'Attachments'),
+				this.csvField(this.t('decidesk', 'Number')),
+				this.csvField(this.t('decidesk', 'Title')),
+				this.csvField(this.t('decidesk', 'Type')),
+				this.csvField(this.t('decidesk', 'Duration (min)')),
+				this.csvField(this.t('decidesk', 'Spokesperson')),
+				this.csvField(this.t('decidesk', 'Attachments')),
 			]
 			const rows = sorted.map((item) => {
+				const typeLabel = typeLabels[item.itemType] || item.itemType || ''
 				const spokesperson = this.getSpokesperson(item)
+				// Apply RFC 4180 quoting to all string fields to prevent injection and
+				// handle commas in names, titles, or type labels.
 				return [
-					item.orderNumber || '',
-					'"' + (item.title || '').replace(/"/g, '""') + '"',
-					typeLabels[item.itemType] || item.itemType || '',
-					item.estimatedDuration || '',
-					spokesperson || '',
-					(item.files || []).length,
+					this.csvField(item.orderNumber || ''),
+					this.csvField(item.title || ''),
+					this.csvField(typeLabel),
+					this.csvField(item.estimatedDuration || ''),
+					this.csvField(spokesperson),
+					this.csvField((item.files || []).length),
 				].join(',')
 			})
 
@@ -234,7 +270,6 @@ export default {
 			link.href = URL.createObjectURL(blob)
 			link.download = (this.meeting.title || 'agenda') + '.csv'
 			link.click()
-			this.showExport = false
 		},
 
 		getSpokesperson(item) {

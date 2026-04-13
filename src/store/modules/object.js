@@ -56,5 +56,37 @@ export const useObjectStore = defineStore('object', {
 			}
 			return []
 		},
+
+		/**
+		 * Save (PUT) an object by sending only the provided fields.
+		 * Avoids mass-assignment by accepting an explicit fields object.
+		 *
+		 * @param {object} fields - Object containing at minimum `id` or `uuid` plus the fields to update
+		 * @return {Promise<object|null>} The saved object, or null on failure
+		 */
+		async saveObject(fields = {}) {
+			if (!this.baseUrl) {
+				console.warn('objectStore.baseUrl is not configured')
+				return null
+			}
+
+			try {
+				const url = new URL(this.baseUrl, window.location.origin)
+				const response = await fetch(url.toString(), {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+						requesttoken: OC.requestToken,
+					},
+					body: JSON.stringify(fields),
+				})
+				if (response.ok) {
+					return await response.json()
+				}
+			} catch (error) {
+				console.error('Failed to save object:', error)
+			}
+			return null
+		},
 	},
 })
