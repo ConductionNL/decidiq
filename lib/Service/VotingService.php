@@ -154,6 +154,7 @@ class VotingService
         $this->motionService->transitionLifecycle($motionId, 'motion', 'voting', $actorId);
 
         // Create VotingRound object. isOpen=true marks the round as active for casting.
+        // motion is stored directly on the object so VotingRoundPanel can filter by it.
         $votingRound = $objectService->saveObject(
                 'votingRound',
                 [
@@ -246,24 +247,10 @@ class VotingService
             ]
         );
 
-        // If proxy: check no other proxy vote exists from the delegator in this round.
+        // If proxy: verify the caller was actually granted proxy rights by the delegator,
+        // then check no other proxy vote already exists for this delegator in this round.
         if ($isProxy === true && $delegatorId !== null) {
-            $existingProxyVotes = $objectService->getObjects(
-                'vote',
-                [
-                    'votingRound' => $votingRoundId,
-                    'delegator'   => $delegatorId,
-                    'isProxy'     => true,
-                ]
-            );
-
-            if (empty($existingProxyVotes) === false) {
-                throw new \RuntimeException(
-                    'Er is al een volmachtstem uitgebracht voor deze delegator in deze stemronde'
-                );
-            }
-
-            // Verify the voter was actually granted proxy rights by the delegator.
+            // Authorization check: confirm a valid proxy grant exists in the VotingRound notes.
             $notes        = $votingRound['notes'] ?? [];
             $proxyGranted = false;
             foreach ($notes as $note) {
@@ -278,7 +265,22 @@ class VotingService
 
             if ($proxyGranted === false) {
                 throw new \InvalidArgumentException('Geen geldige volmacht');
-            }//end if
+            }
+
+            $existingProxyVotes = $objectService->getObjects(
+                'vote',
+                [
+                    'votingRound' => $votingRoundId,
+                    'delegator'   => $delegatorId,
+                    'isProxy'     => true,
+                ]
+            );
+
+            if (empty($existingProxyVotes) === false) {
+                throw new \RuntimeException(
+                    'Er is al een volmachtstem uitgebracht voor deze delegator in deze stemronde'
+                );
+            }
         }//end if
 
         // Build vote data.
@@ -634,7 +636,7 @@ class VotingService
     ): void {
         $objectService = $this->getObjectService();
 
-        // Fetch VotingRound and check if round is currently open for casting.
+        // Fetch VotingRound and check if round is already open (proxy cannot be revoked once open).
         $votingRound = $objectService->getObject('votingRound', $votingRoundId);
 
         if (($votingRound['isOpen'] ?? false) === true) {

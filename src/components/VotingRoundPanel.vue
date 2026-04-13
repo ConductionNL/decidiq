@@ -266,6 +266,7 @@ export default {
 						requesttoken: OC.requestToken,
 					},
 					body: JSON.stringify({
+						// participantId is resolved server-side from the authenticated session
 						value,
 						isProxy: false,
 						delegatorId: null,

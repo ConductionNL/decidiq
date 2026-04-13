@@ -43,6 +43,7 @@ class MailReplyHandler extends \OCP\BackgroundJob\TimedJob
 
     /**
      * The service container for resolving dependencies.
+     * Stored for use when IMAP polling is fully implemented (deferred to p3).
      *
      * @var ContainerInterface
      */
@@ -77,7 +78,7 @@ class MailReplyHandler extends \OCP\BackgroundJob\TimedJob
         IAppConfig $appConfig,
     ) {
         parent::__construct(time: $time);
-        $this->setInterval(interval: 300);
+        $this->setInterval(seconds: 300);
 
         $this->container = $container;
         $this->logger    = $logger;

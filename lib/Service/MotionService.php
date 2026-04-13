@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -56,14 +55,12 @@ class MotionService
      *
      * @param ContainerInterface $container The service container
      * @param LoggerInterface    $logger    The logger
-     * @param IAppConfig         $appConfig The app config interface
      *
      * @return void
      */
     public function __construct(
         private ContainerInterface $container,
         private LoggerInterface $logger,
-        private IAppConfig $appConfig,
     ) {
     }//end __construct()
 

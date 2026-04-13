@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\MotionService;
-use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -54,13 +53,6 @@ class MotionServiceTest extends TestCase
     private LoggerInterface&MockObject $logger;
 
     /**
-     * Mock IAppConfig.
-     *
-     * @var IAppConfig&MockObject
-     */
-    private IAppConfig&MockObject $appConfig;
-
-    /**
      * Mock ObjectService (generic stdClass with added methods).
      *
      * @var MockObject
@@ -84,13 +76,11 @@ class MotionServiceTest extends TestCase
         $this->container->method('get')
             ->willReturn($this->objectService);
 
-        $this->logger    = $this->createMock(originalClassName: LoggerInterface::class);
-        $this->appConfig = $this->createMock(originalClassName: IAppConfig::class);
+        $this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 
         $this->service = new MotionService(
             container: $this->container,
             logger: $this->logger,
-            appConfig: $this->appConfig,
         );
 
     }//end setUp()

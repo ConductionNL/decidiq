@@ -146,6 +146,8 @@ class MotionController extends DecideskController
      */
     public function coSignConfirm(string $id): JSONResponse
     {
+        // Co-signing is a participant action — any authenticated user may confirm their own signature.
+        // The actor is resolved server-side from the session; no admin/chair restriction needed.
         $user = $this->userSession->getUser();
         if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
