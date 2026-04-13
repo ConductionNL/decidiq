@@ -23,9 +23,12 @@
  * @link https://conduction.nl
  */
 
+declare(strict_types=1);
+
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -60,20 +63,30 @@ class OriPublicationService
     private IAppConfig $appConfig;
 
     /**
+     * The HTTP client service for making outbound requests.
+     *
+     * @var IClientService
+     */
+    private IClientService $clientService;
+
+    /**
      * Constructor.
      *
-     * @param ContainerInterface $container The service container for resolving dependencies.
-     * @param LoggerInterface    $logger    The logger instance.
-     * @param IAppConfig         $appConfig The Nextcloud app configuration service.
+     * @param ContainerInterface $container     The service container for resolving dependencies.
+     * @param LoggerInterface    $logger        The logger instance.
+     * @param IAppConfig         $appConfig     The Nextcloud app configuration service.
+     * @param IClientService     $clientService The HTTP client service.
      */
     public function __construct(
         ContainerInterface $container,
         LoggerInterface $logger,
         IAppConfig $appConfig,
+        IClientService $clientService,
     ) {
-        $this->container = $container;
-        $this->logger    = $logger;
-        $this->appConfig = $appConfig;
+        $this->container     = $container;
+        $this->logger        = $logger;
+        $this->appConfig     = $appConfig;
+        $this->clientService = $clientService;
     }//end __construct()
 
     /**
@@ -90,8 +103,7 @@ class OriPublicationService
      * Publish a VotingRound to the configured ORI endpoint.
      *
      * Fetches the VotingRound by ID, builds a JSON-LD payload with ORI-compliant
-     * context and type annotations, and logs the publication attempt. The actual
-     * HTTP call to the ORI endpoint would be dispatched via an IJob in production.
+     * context and type annotations, and POSTs it to the configured ORI endpoint.
      *
      * @param string $votingRoundId The UUID of the VotingRound to publish.
      *
@@ -121,16 +133,39 @@ class OriPublicationService
             'result'      => $votingRound['result'] ?? '',
         ];
 
-        // In production the actual HTTP POST to the ORI endpoint would be
-        // dispatched via an IJob (background job) to avoid blocking the request.
-        $this->logger->info(
-                'OriPublicationService: publishing VotingRound to ORI endpoint',
+        // Log only the host/path, not the full URL (which may contain API keys).
+        $scheme       = (parse_url($oriEndpoint, PHP_URL_SCHEME) ?? 'https');
+        $host         = (parse_url($oriEndpoint, PHP_URL_HOST) ?? '');
+        $path         = (parse_url($oriEndpoint, PHP_URL_PATH) ?? '');
+        $endpointHost = $scheme.'://'.$host.$path;
+
+        try {
+            $client = $this->clientService->newClient();
+            $client->post(
+                $oriEndpoint,
+                [
+                    'body'    => json_encode($payload, JSON_THROW_ON_ERROR),
+                    'headers' => ['Content-Type' => 'application/ld+json'],
+                ]
+            );
+
+            $this->logger->info(
+                'OriPublicationService: published VotingRound to ORI endpoint',
                 [
                     'votingRoundId' => $votingRoundId,
-                    'endpoint'      => $oriEndpoint,
-                    'payload'       => json_encode($payload),
+                    'endpoint'      => $endpointHost,
                 ]
-                );
+            );
+        } catch (\Exception $e) {
+            $this->logger->error(
+                'OriPublicationService: failed to publish VotingRound to ORI endpoint',
+                [
+                    'votingRoundId' => $votingRoundId,
+                    'endpoint'      => $endpointHost,
+                    'error'         => $e->getMessage(),
+                ]
+            );
+        }//end try
     }//end publish()
 
     /**

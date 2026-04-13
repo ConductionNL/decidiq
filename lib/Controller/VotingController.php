@@ -30,7 +30,9 @@ use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUserSession;
 
 /**
  * Thin controller for the voting round API.
@@ -45,6 +47,8 @@ class VotingController extends Controller
      * @param IRequest              $request               The request object
      * @param VotingService         $votingService         The voting service
      * @param OriPublicationService $oriPublicationService The ORI publication service
+     * @param IUserSession          $userSession           The user session
+     * @param IGroupManager         $groupManager          The group manager
      *
      * @return void
      */
@@ -52,9 +56,29 @@ class VotingController extends Controller
         IRequest $request,
         private VotingService $votingService,
         private OriPublicationService $oriPublicationService,
+        private IUserSession $userSession,
+        private IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
+
+    /**
+     * Check whether the current user has chair or admin privileges.
+     *
+     * @return bool True when the user is an admin or a member of decidesk-chair
+     */
+    private function isChairOrAdmin(): bool
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return false;
+        }
+
+        $uid = $user->getUID();
+
+        return $this->groupManager->isAdmin($uid)
+            || $this->groupManager->isInGroup($uid, 'decidesk-chair');
+    }//end isChairOrAdmin()
 
     /**
      * Open a new voting round.
@@ -67,6 +91,10 @@ class VotingController extends Controller
      */
     public function open(): JSONResponse
     {
+        if ($this->isChairOrAdmin() === false) {
+            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
+        }
+
         $motionId     = $this->request->getParam('motionId');
         $votingMethod = $this->request->getParam('votingMethod');
         $isSecret     = (bool) $this->request->getParam('isSecret');
@@ -83,6 +111,9 @@ class VotingController extends Controller
     /**
      * Cast a vote in a voting round.
      *
+     * The participant identity is resolved from the authenticated session;
+     * any participantId supplied in the request body is ignored.
+     *
      * @param string $id The voting round identifier
      *
      * @return JSONResponse
@@ -93,7 +124,12 @@ class VotingController extends Controller
      */
     public function cast(string $id): JSONResponse
     {
-        $participantId = $this->request->getParam('participantId');
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $participantId = $user->getUID();
         $value         = $this->request->getParam('value');
         $isProxy       = (bool) $this->request->getParam('isProxy');
         $delegatorId   = $this->request->getParam('delegatorId');
@@ -101,7 +137,7 @@ class VotingController extends Controller
         try {
             $result = $this->votingService->castVote($id, $participantId, $value, $isProxy, $delegatorId);
             return new JSONResponse($result);
-        } catch (\RuntimeException $e) {
+        } catch (\InvalidArgumentException | \RuntimeException $e) {
             return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
     }//end cast()
@@ -119,6 +155,10 @@ class VotingController extends Controller
      */
     public function close(string $id): JSONResponse
     {
+        if ($this->isChairOrAdmin() === false) {
+            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
+        }
+
         $result = $this->votingService->closeVotingRound($id);
 
         return new JSONResponse($result);
@@ -137,6 +177,10 @@ class VotingController extends Controller
      */
     public function publish(string $id): JSONResponse
     {
+        if ($this->isChairOrAdmin() === false) {
+            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
+        }
+
         $this->oriPublicationService->publish($id);
 
         return new JSONResponse(['success' => true]);
@@ -144,6 +188,9 @@ class VotingController extends Controller
 
     /**
      * Grant proxy voting rights.
+     *
+     * The fromParticipantId is resolved from the authenticated session;
+     * any fromParticipantId supplied in the request body is ignored.
      *
      * @param string $id The voting round identifier
      *
@@ -155,19 +202,27 @@ class VotingController extends Controller
      */
     public function grantProxy(string $id): JSONResponse
     {
-        $fromParticipantId = $this->request->getParam('fromParticipantId');
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $fromParticipantId = $user->getUID();
         $toParticipantId   = $this->request->getParam('toParticipantId');
 
         try {
-            $result = $this->votingService->grantProxy($id, $fromParticipantId, $toParticipantId);
-            return new JSONResponse($result);
-        } catch (\RuntimeException $e) {
+            $this->votingService->grantProxy($id, $fromParticipantId, $toParticipantId);
+            return new JSONResponse(['success' => true]);
+        } catch (\InvalidArgumentException | \RuntimeException $e) {
             return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
     }//end grantProxy()
 
     /**
      * Revoke proxy voting rights.
+     *
+     * The fromParticipantId is resolved from the authenticated session;
+     * any fromParticipantId supplied in the request body is ignored.
      *
      * @param string $id The voting round identifier
      *
@@ -179,11 +234,16 @@ class VotingController extends Controller
      */
     public function revokeProxy(string $id): JSONResponse
     {
-        $fromParticipantId = $this->request->getParam('fromParticipantId');
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $fromParticipantId = $user->getUID();
 
         try {
-            $result = $this->votingService->revokeProxy($id, $fromParticipantId);
-            return new JSONResponse($result);
+            $this->votingService->revokeProxy($id, $fromParticipantId);
+            return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }

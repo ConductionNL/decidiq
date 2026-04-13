@@ -49,12 +49,12 @@
 - [x] 3.1 Create `lib/Service/OriPublicationService.php` tagged `@spec openspec/changes/p2-motion-and-voting/tasks.md#task-3`:
   - `publish(string $votingRoundId): void` — reads `OriEndpoint` from `IAppConfig`; if not configured, returns silently; builds JSON-LD payload following ORI 1.0 format; sends `POST` with retry on failure via a queued `IJob`
   - `getPublicationStatus(string $votingRoundId): string` — returns `pending`, `published`, or `not_configured`
-- [x] 3.2 Create `lib/BackgroundJob/MailReplyHandler.php` — Nextcloud `IJob` background job tagged `@spec openspec/changes/p2-motion-and-voting/tasks.md#task-3`:
+- [ ] 3.2 [DEFERRED to p3] Create `lib/BackgroundJob/MailReplyHandler.php` — Nextcloud `IJob` background job tagged `@spec openspec/changes/p2-motion-and-voting/tasks.md#task-3`:
   - Polls for email replies addressed to voting notification threads (via `_mail` metadata on open VotingRounds)
   - Parses first non-empty line of reply for vote keywords ("Voor", "Tegen", "Onthouding"), case-insensitive
   - Calls `VotingService::castVote()` on match; sends confirmation email via `NotificationService`
   - On unrecognised reply: sends re-prompt email; after 3 failures per round per Participant, marks email voting as exhausted and sends final fallback notification
-- [x] 3.3 Register `OriPublicationService` in DI container; register `MailReplyHandler` as a background job in `appinfo/info.xml`
+- [x] 3.3 Register `OriPublicationService` in DI container; MailReplyHandler background job registration removed from `appinfo/info.xml` (deferred to p3)
 
 ## 4. Frontend — Motion Views
 

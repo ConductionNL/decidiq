@@ -1,122 +1,121 @@
 <template>
-	<div class="motion-detail">
-		<header class="motion-detail__header">
-			<div class="motion-detail__title-row">
-				<h2>{{ motion.title || t('decidesk', 'Motion') }}</h2>
-				<span v-if="motion.lifecycle"
-					class="motion-detail__lifecycle"
-					:data-status="motion.lifecycle">
-					{{ lifecycleLabel(motion.lifecycle) }}
-				</span>
-			</div>
-		</header>
-
-		<!-- Timeline stages -->
-		<div class="motion-detail__timeline" role="list" :aria-label="t('decidesk', 'Motion lifecycle')">
-			<div v-for="stage in timelineStages"
-				:key="stage.key"
-				class="motion-detail__stage"
-				:class="{ 'motion-detail__stage--active': stage.key === motion.lifecycle, 'motion-detail__stage--done': stage.done }"
-				role="listitem"
-				:aria-current="stage.key === motion.lifecycle ? 'step' : undefined">
-				{{ stage.label }}
-			</div>
-		</div>
-
-		<!-- Action buttons -->
-		<div class="motion-detail__actions">
-			<button v-if="motion.lifecycle === 'submitted'"
-				class="primary"
-				@click="transition('debating')">
-				{{ t('decidesk', 'Open debate') }}
-			</button>
-			<button v-if="motion.lifecycle === 'debating'"
-				class="primary"
-				@click="transition('voting')">
-				{{ t('decidesk', 'Open voting round') }}
-			</button>
-			<button v-if="canWithdraw"
-				class="error"
-				@click="transition('withdrawn')">
-				{{ t('decidesk', 'Withdraw motion') }}
-			</button>
-		</div>
-
-		<!-- Motion text -->
-		<section class="motion-detail__section">
-			<h3>{{ t('decidesk', 'Motion text') }}</h3>
-			<p class="motion-detail__text">
-				{{ motion.text }}
-			</p>
-		</section>
-
-		<!-- Proposer info -->
-		<section class="motion-detail__section">
-			<h3>{{ t('decidesk', 'Proposer') }}</h3>
-			<p>{{ motion.proposer }}</p>
-		</section>
-
-		<!-- Co-signers -->
-		<section class="motion-detail__section">
-			<h3>{{ t('decidesk', 'Co-signers') }}</h3>
-			<ul v-if="coSigners.length > 0" class="motion-detail__cosigners">
-				<li v-for="name in coSigners" :key="name">
-					{{ name }}
-				</li>
-			</ul>
-			<p v-else class="motion-detail__empty">
-				{{ t('decidesk', 'No co-signers yet') }}
-			</p>
-
-			<div class="motion-detail__cosign-form">
-				<input v-model="newCoSigner"
-					type="text"
-					:placeholder="t('decidesk', 'Participant name')"
-					:aria-label="t('decidesk', 'Co-signer name')">
-				<button @click="addCoSigner">
-					{{ t('decidesk', 'Add co-signer') }}
+	<CnDetailPage :title="motion.title || t('decidesk', 'Motion')">
+		<template #actions>
+			<div class="motion-detail__actions">
+				<button v-if="motion.lifecycle === 'submitted'"
+					class="primary"
+					@click="transition('debating')">
+					{{ t('decidesk', 'Open debate') }}
+				</button>
+				<button v-if="motion.lifecycle === 'debating'"
+					class="primary"
+					@click="transition('voting')">
+					{{ t('decidesk', 'Open voting round') }}
+				</button>
+				<button v-if="canWithdraw"
+					class="error"
+					@click="transition('withdrawn')">
+					{{ t('decidesk', 'Withdraw motion') }}
 				</button>
 			</div>
-		</section>
+		</template>
 
-		<!-- Budget impact (for amendments) -->
-		<section v-if="motion.motionType === 'amendment'" class="motion-detail__section">
-			<h3>{{ t('decidesk', 'Budget impact') }}</h3>
-			<div class="motion-detail__budget-form">
-				<label>
-					{{ t('decidesk', 'Budget line') }}
-					<input v-model="budgetLine" type="text">
-				</label>
-				<label>
-					{{ t('decidesk', 'Amount delta') }}
-					<input v-model.number="amountDelta" type="number" step="0.01">
-				</label>
-				<label>
-					{{ t('decidesk', 'Rationale') }}
-					<textarea v-model="budgetRationale" rows="3" />
-				</label>
-				<button @click="saveBudgetImpact">
-					{{ t('decidesk', 'Save budget impact') }}
-				</button>
+		<template #default>
+			<span v-if="motion.lifecycle"
+				class="motion-detail__lifecycle"
+				:data-status="motion.lifecycle">
+				{{ lifecycleLabel(motion.lifecycle) }}
+			</span>
+
+			<!-- Timeline stages -->
+			<div class="motion-detail__timeline" role="list" :aria-label="t('decidesk', 'Motion lifecycle')">
+				<div v-for="stage in timelineStages"
+					:key="stage.key"
+					class="motion-detail__stage"
+					:class="{ 'motion-detail__stage--active': stage.key === motion.lifecycle, 'motion-detail__stage--done': stage.done }"
+					role="listitem"
+					:aria-current="stage.key === motion.lifecycle ? 'step' : undefined">
+					{{ stage.label }}
+				</div>
 			</div>
-		</section>
 
-		<!-- Amendments list -->
-		<section class="motion-detail__section">
-			<h3>{{ t('decidesk', 'Amendments') }}</h3>
-			<AmendmentList :motion-id="motionId" />
-		</section>
+			<!-- Motion text -->
+			<section class="motion-detail__section">
+				<h3>{{ t('decidesk', 'Motion text') }}</h3>
+				<p class="motion-detail__text">
+					{{ motion.text }}
+				</p>
+			</section>
 
-		<!-- Voting round panel -->
-		<section class="motion-detail__section">
-			<h3>{{ t('decidesk', 'Voting') }}</h3>
-			<VotingRoundPanel :motion-id="motionId" :motion-lifecycle="motion.lifecycle" />
-		</section>
-	</div>
+			<!-- Proposer info -->
+			<section class="motion-detail__section">
+				<h3>{{ t('decidesk', 'Proposer') }}</h3>
+				<p>{{ motion.proposer }}</p>
+			</section>
+
+			<!-- Co-signers -->
+			<section class="motion-detail__section">
+				<h3>{{ t('decidesk', 'Co-signers') }}</h3>
+				<ul v-if="coSigners.length > 0" class="motion-detail__cosigners">
+					<li v-for="name in coSigners" :key="name">
+						{{ name }}
+					</li>
+				</ul>
+				<p v-else class="motion-detail__empty">
+					{{ t('decidesk', 'No co-signers yet') }}
+				</p>
+
+				<div class="motion-detail__cosign-form">
+					<input v-model="newCoSigner"
+						type="text"
+						:placeholder="t('decidesk', 'Participant name')"
+						:aria-label="t('decidesk', 'Co-signer name')">
+					<button @click="addCoSigner">
+						{{ t('decidesk', 'Add co-signer') }}
+					</button>
+				</div>
+			</section>
+
+			<!-- Budget impact (for amendments) -->
+			<section v-if="motion.motionType === 'amendment'" class="motion-detail__section">
+				<h3>{{ t('decidesk', 'Budget impact') }}</h3>
+				<div class="motion-detail__budget-form">
+					<label>
+						{{ t('decidesk', 'Budget line') }}
+						<input v-model="budgetLine" type="text">
+					</label>
+					<label>
+						{{ t('decidesk', 'Amount delta') }}
+						<input v-model.number="amountDelta" type="number" step="0.01">
+					</label>
+					<label>
+						{{ t('decidesk', 'Rationale') }}
+						<textarea v-model="budgetRationale" rows="3" />
+					</label>
+					<button @click="saveBudgetImpact">
+						{{ t('decidesk', 'Save budget impact') }}
+					</button>
+				</div>
+			</section>
+
+			<!-- Amendments list -->
+			<section class="motion-detail__section">
+				<h3>{{ t('decidesk', 'Amendments') }}</h3>
+				<AmendmentList :motion-id="motionId" />
+			</section>
+
+			<!-- Voting round panel -->
+			<section class="motion-detail__section">
+				<h3>{{ t('decidesk', 'Voting') }}</h3>
+				<VotingRoundPanel :motion-id="motionId" :motion-lifecycle="motion.lifecycle" />
+			</section>
+		</template>
+	</CnDetailPage>
 </template>
 
 <script>
 import { generateUrl } from '@nextcloud/router'
+import { CnDetailPage } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 import AmendmentList from '../components/AmendmentList.vue'
 import VotingRoundPanel from '../components/VotingRoundPanel.vue'
@@ -124,6 +123,7 @@ import VotingRoundPanel from '../components/VotingRoundPanel.vue'
 export default {
 	name: 'MotionDetail',
 	components: {
+		CnDetailPage,
 		AmendmentList,
 		VotingRoundPanel,
 	},
@@ -191,7 +191,7 @@ export default {
 						'Content-Type': 'application/json',
 						requesttoken: OC.requestToken,
 					},
-					body: JSON.stringify({ newState, actorId: 'current-user' }),
+					body: JSON.stringify({ newState }),
 				})
 				await this.loadMotion()
 			} catch (error) {
@@ -252,33 +252,13 @@ export default {
 </script>
 
 <style scoped>
-.motion-detail {
-	padding: 8px 4px 24px;
-	max-width: 900px;
-}
-
-.motion-detail__header {
-	margin-bottom: 16px;
-}
-
-.motion-detail__title-row {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-}
-
-.motion-detail__title-row h2 {
-	margin: 0;
-	font-size: 22px;
-	font-weight: 600;
-}
-
 .motion-detail__lifecycle {
 	display: inline-block;
 	padding: 2px 10px;
 	border-radius: var(--border-radius-pill);
 	font-size: 12px;
 	font-weight: 600;
+	margin-bottom: 12px;
 }
 
 .motion-detail__lifecycle[data-status='adopted'] {

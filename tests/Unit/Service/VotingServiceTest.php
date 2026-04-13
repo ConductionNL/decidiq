@@ -167,7 +167,7 @@ class VotingServiceTest extends TestCase
     {
         $this->objectService->method('getObject')
             ->willReturnCallback(
-                    function (string $id): array {
+                    function (string $type, string $id): array {
                         if ($id === 'motion-1') {
                             return [
                                 'id'      => 'motion-1',
@@ -229,6 +229,7 @@ class VotingServiceTest extends TestCase
         $this->objectService->expects($this->once())
             ->method('saveObject')
             ->with(
+                    $this->equalTo('vote'),
                     $this->callback(
                             callback:
                     function (array $data): bool {
@@ -238,7 +239,7 @@ class VotingServiceTest extends TestCase
                     )
                     )
             ->willReturnCallback(
-                    function (array $data): array {
+                    function (string $type, array $data): array {
                         return $data;
                     }
                     );
@@ -273,7 +274,7 @@ class VotingServiceTest extends TestCase
         $callCount = 0;
         $this->objectService->method('getObjects')
             ->willReturnCallback(
-                    function (array $filters) use (&$callCount): array {
+                    function (string $type, array $filters) use (&$callCount): array {
                         $callCount++;
                         // First call: existing votes for this participant (none).
                         if ($callCount === 1) {
@@ -335,7 +336,7 @@ class VotingServiceTest extends TestCase
 
         $this->objectService->method('saveObject')
             ->willReturnCallback(
-                    function (array $data): array {
+                    function (string $type, array $data): array {
                         return $data;
                     }
                     );
@@ -379,7 +380,7 @@ class VotingServiceTest extends TestCase
 
         $this->objectService->method('saveObject')
             ->willReturnCallback(
-                    function (array $data): array {
+                    function (string $type, array $data): array {
                         return $data;
                     }
                     );
@@ -422,7 +423,7 @@ class VotingServiceTest extends TestCase
 
         $this->objectService->method('saveObject')
             ->willReturnCallback(
-                    function (array $data): array {
+                    function (string $type, array $data): array {
                         return $data;
                     }
                     );

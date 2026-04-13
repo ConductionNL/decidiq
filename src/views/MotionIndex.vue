@@ -1,96 +1,100 @@
 <template>
-	<div class="motion-index">
-		<header class="motion-index__header">
-			<h2>{{ t('decidesk', 'Motions') }}</h2>
-		</header>
+	<CnIndexPage :title="t('decidesk', 'Motions')">
+		<template #filters>
+			<div class="motion-index__filters">
+				<select v-model="filterLifecycle" class="motion-index__select">
+					<option value="">
+						{{ t('decidesk', 'All statuses') }}
+					</option>
+					<option value="submitted">
+						{{ t('decidesk', 'Submitted') }}
+					</option>
+					<option value="debating">
+						{{ t('decidesk', 'Debating') }}
+					</option>
+					<option value="voting">
+						{{ t('decidesk', 'Voting') }}
+					</option>
+					<option value="adopted">
+						{{ t('decidesk', 'Adopted') }}
+					</option>
+					<option value="rejected">
+						{{ t('decidesk', 'Rejected') }}
+					</option>
+					<option value="withdrawn">
+						{{ t('decidesk', 'Withdrawn') }}
+					</option>
+				</select>
+				<select v-model="filterType" class="motion-index__select">
+					<option value="">
+						{{ t('decidesk', 'All types') }}
+					</option>
+					<option value="motion">
+						{{ t('decidesk', 'Motion') }}
+					</option>
+					<option value="amendment">
+						{{ t('decidesk', 'Amendment') }}
+					</option>
+					<option value="order">
+						{{ t('decidesk', 'Order motion') }}
+					</option>
+					<option value="procedural">
+						{{ t('decidesk', 'Procedural') }}
+					</option>
+				</select>
+			</div>
+		</template>
 
-		<div class="motion-index__filters">
-			<select v-model="filterLifecycle" class="motion-index__select">
-				<option value="">
-					{{ t('decidesk', 'All statuses') }}
-				</option>
-				<option value="submitted">
-					{{ t('decidesk', 'Submitted') }}
-				</option>
-				<option value="debating">
-					{{ t('decidesk', 'Debating') }}
-				</option>
-				<option value="voting">
-					{{ t('decidesk', 'Voting') }}
-				</option>
-				<option value="adopted">
-					{{ t('decidesk', 'Adopted') }}
-				</option>
-				<option value="rejected">
-					{{ t('decidesk', 'Rejected') }}
-				</option>
-				<option value="withdrawn">
-					{{ t('decidesk', 'Withdrawn') }}
-				</option>
-			</select>
-			<select v-model="filterType" class="motion-index__select">
-				<option value="">
-					{{ t('decidesk', 'All types') }}
-				</option>
-				<option value="motion">
-					{{ t('decidesk', 'Motion') }}
-				</option>
-				<option value="amendment">
-					{{ t('decidesk', 'Amendment') }}
-				</option>
-				<option value="order">
-					{{ t('decidesk', 'Order motion') }}
-				</option>
-				<option value="procedural">
-					{{ t('decidesk', 'Procedural') }}
-				</option>
-			</select>
-		</div>
-
-		<table class="motion-index__table">
-			<thead>
-				<tr>
-					<th>{{ t('decidesk', 'Title') }}</th>
-					<th>{{ t('decidesk', 'Type') }}</th>
-					<th>{{ t('decidesk', 'Proposer') }}</th>
-					<th>{{ t('decidesk', 'Status') }}</th>
-					<th>{{ t('decidesk', 'Submitted') }}</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr v-for="motion in filteredMotions"
-					:key="motion.id"
-					class="motion-index__row"
-					@click="$router.push({ name: 'MotionDetail', params: { id: motion.id } })">
-					<td>{{ motion.title }}</td>
-					<td>
-						<span class="motion-index__badge" :data-type="motion.motionType">
-							{{ motionTypeLabel(motion.motionType) }}
-						</span>
-					</td>
-					<td>{{ motion.proposer }}</td>
-					<td>
-						<span class="motion-index__status" :data-status="motion.lifecycle">
-							{{ lifecycleLabel(motion.lifecycle) }}
-						</span>
-					</td>
-					<td>{{ formatDate(motion.submittedAt) }}</td>
-				</tr>
-				<tr v-if="filteredMotions.length === 0">
-					<td colspan="5" class="motion-index__empty">
-						{{ t('decidesk', 'No motions found') }}
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+		<template #default>
+			<table class="motion-index__table">
+				<thead>
+					<tr>
+						<th>{{ t('decidesk', 'Title') }}</th>
+						<th>{{ t('decidesk', 'Type') }}</th>
+						<th>{{ t('decidesk', 'Proposer') }}</th>
+						<th>{{ t('decidesk', 'Status') }}</th>
+						<th>{{ t('decidesk', 'Submitted') }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="motion in filteredMotions"
+						:key="motion.id"
+						class="motion-index__row"
+						@click="$router.push({ name: 'MotionDetail', params: { id: motion.id } })">
+						<td>{{ motion.title }}</td>
+						<td>
+							<span class="motion-index__badge" :data-type="motion.motionType">
+								{{ motionTypeLabel(motion.motionType) }}
+							</span>
+						</td>
+						<td>{{ motion.proposer }}</td>
+						<td>
+							<span class="motion-index__status" :data-status="motion.lifecycle">
+								{{ lifecycleLabel(motion.lifecycle) }}
+							</span>
+						</td>
+						<td>{{ formatDate(motion.submittedAt) }}</td>
+					</tr>
+					<tr v-if="filteredMotions.length === 0">
+						<td colspan="5" class="motion-index__empty">
+							{{ t('decidesk', 'No motions found') }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</template>
+	</CnIndexPage>
 </template>
 
 <script>
+import { CnIndexPage } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 
 export default {
 	name: 'MotionIndex',
+	components: {
+		CnIndexPage,
+	},
 	data() {
 		return {
 			filterLifecycle: '',
@@ -145,21 +149,6 @@ export default {
 </script>
 
 <style scoped>
-.motion-index {
-	padding: 8px 4px 24px;
-	max-width: 1200px;
-}
-
-.motion-index__header {
-	margin-bottom: 16px;
-}
-
-.motion-index__header h2 {
-	margin: 0;
-	font-size: 22px;
-	font-weight: 600;
-}
-
 .motion-index__filters {
 	display: flex;
 	gap: 8px;

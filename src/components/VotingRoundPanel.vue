@@ -188,7 +188,7 @@ export default {
 			handsFor: 0,
 			handsAgainst: 0,
 			handsAbstain: 0,
-			isChair: true,
+			isChair: false,
 			pollInterval: null,
 		}
 	},
@@ -197,7 +197,7 @@ export default {
 			return useObjectStore()
 		},
 		votingRounds() {
-			return this.objectStore.objects.votingRound || []
+			return (this.objectStore.objects.votingRound || []).filter(r => r.motion === this.motionId)
 		},
 		activeRound() {
 			return this.votingRounds.find(r => !r.closedAt) || null

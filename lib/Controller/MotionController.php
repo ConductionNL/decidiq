@@ -29,7 +29,9 @@ use OCA\Decidesk\Service\MotionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUserSession;
 
 /**
  * Thin controller for the motion lifecycle API.
@@ -43,18 +45,43 @@ class MotionController extends Controller
      *
      * @param IRequest      $request       The request object
      * @param MotionService $motionService The motion service
+     * @param IUserSession  $userSession   The user session
+     * @param IGroupManager $groupManager  The group manager
      *
      * @return void
      */
     public function __construct(
         IRequest $request,
         private MotionService $motionService,
+        private IUserSession $userSession,
+        private IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 
     /**
+     * Check whether the current user has chair or admin privileges.
+     *
+     * @return bool True when the user is an admin or a member of decidesk-chair
+     */
+    private function isChairOrAdmin(): bool
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return false;
+        }
+
+        $uid = $user->getUID();
+
+        return $this->groupManager->isAdmin($uid)
+            || $this->groupManager->isInGroup($uid, 'decidesk-chair');
+    }//end isChairOrAdmin()
+
+    /**
      * Transition a motion to a new lifecycle state.
+     *
+     * The actorId is resolved from the authenticated session; any actorId
+     * supplied in the request body is ignored.
      *
      * @param string $id The motion identifier
      *
@@ -66,8 +93,17 @@ class MotionController extends Controller
      */
     public function transition(string $id): JSONResponse
     {
+        if ($this->isChairOrAdmin() === false) {
+            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
         $newState = $this->request->getParam('newState');
-        $actorId  = $this->request->getParam('actorId');
+        $actorId  = $user->getUID();
 
         try {
             $result = $this->motionService->transitionLifecycle($id, 'motion', $newState, $actorId);
@@ -92,9 +128,16 @@ class MotionController extends Controller
     {
         $participantIds = $this->request->getParam('participantIds');
 
-        $result = $this->motionService->requestCoSignature($id, $participantIds);
+        if (is_array($participantIds) === false || empty($participantIds) === true) {
+            return new JSONResponse(
+                ['error' => 'participantIds must be a non-empty array'],
+                Http::STATUS_BAD_REQUEST
+            );
+        }
 
-        return new JSONResponse(['success' => true, 'data' => $result]);
+        $this->motionService->requestCoSignature($id, $participantIds);
+
+        return new JSONResponse(['success' => true]);
     }//end coSignRequest()
 
     /**
@@ -142,6 +185,9 @@ class MotionController extends Controller
     /**
      * Transition an amendment to a new lifecycle state.
      *
+     * The actorId is resolved from the authenticated session; any actorId
+     * supplied in the request body is ignored.
+     *
      * @param string $id The amendment identifier
      *
      * @return JSONResponse
@@ -152,8 +198,17 @@ class MotionController extends Controller
      */
     public function amendmentTransition(string $id): JSONResponse
     {
+        if ($this->isChairOrAdmin() === false) {
+            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
         $newState = $this->request->getParam('newState');
-        $actorId  = $this->request->getParam('actorId');
+        $actorId  = $user->getUID();
 
         try {
             $result = $this->motionService->transitionLifecycle($id, 'amendment', $newState, $actorId);

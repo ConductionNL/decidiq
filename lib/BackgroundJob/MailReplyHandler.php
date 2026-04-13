@@ -24,6 +24,8 @@
  * @link https://conduction.nl
  */
 
+declare(strict_types=1);
+
 namespace OCA\Decidesk\BackgroundJob;
 
 use OCA\Decidesk\AppInfo\Application;

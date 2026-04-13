@@ -1,77 +1,77 @@
 <template>
-	<div class="amendment-detail">
-		<header class="amendment-detail__header">
-			<div class="amendment-detail__title-row">
-				<h2>{{ amendment.title || t('decidesk', 'Amendment') }}</h2>
-				<span v-if="amendment.lifecycle"
-					class="amendment-detail__lifecycle"
-					:data-status="amendment.lifecycle">
-					{{ lifecycleLabel(amendment.lifecycle) }}
-				</span>
+	<CnDetailPage :title="amendment.title || t('decidesk', 'Amendment')">
+		<template #actions>
+			<div class="amendment-detail__actions">
+				<button v-if="amendment.lifecycle === 'submitted'"
+					class="primary"
+					@click="transition('debating')">
+					{{ t('decidesk', 'Open debate') }}
+				</button>
+				<button v-if="amendment.lifecycle === 'debating'"
+					class="primary"
+					@click="transition('voting')">
+					{{ t('decidesk', 'Open voting round') }}
+				</button>
 			</div>
-		</header>
+		</template>
 
-		<!-- Conflict warning -->
-		<div v-if="hasConflict" class="amendment-detail__conflict" role="alert">
-			{{ t('decidesk', 'Possible conflict with another amendment — consult the clerk') }}
-		</div>
+		<template #default>
+			<span v-if="amendment.lifecycle"
+				class="amendment-detail__lifecycle"
+				:data-status="amendment.lifecycle">
+				{{ lifecycleLabel(amendment.lifecycle) }}
+			</span>
 
-		<!-- Timeline -->
-		<div class="amendment-detail__timeline" role="list" :aria-label="t('decidesk', 'Amendment lifecycle')">
-			<div v-for="stage in timelineStages"
-				:key="stage.key"
-				class="amendment-detail__stage"
-				:class="{ 'amendment-detail__stage--active': stage.key === amendment.lifecycle, 'amendment-detail__stage--done': stage.done }"
-				role="listitem"
-				:aria-current="stage.key === amendment.lifecycle ? 'step' : undefined">
-				{{ stage.label }}
+			<!-- Conflict warning -->
+			<div v-if="hasConflict" class="amendment-detail__conflict" role="alert">
+				{{ t('decidesk', 'Possible conflict with another amendment — consult the clerk') }}
 			</div>
-		</div>
 
-		<!-- Actions -->
-		<div class="amendment-detail__actions">
-			<button v-if="amendment.lifecycle === 'submitted'"
-				class="primary"
-				@click="transition('debating')">
-				{{ t('decidesk', 'Open debate') }}
-			</button>
-			<button v-if="amendment.lifecycle === 'debating'"
-				class="primary"
-				@click="transition('voting')">
-				{{ t('decidesk', 'Open voting round') }}
-			</button>
-		</div>
+			<!-- Timeline -->
+			<div class="amendment-detail__timeline" role="list" :aria-label="t('decidesk', 'Amendment lifecycle')">
+				<div v-for="stage in timelineStages"
+					:key="stage.key"
+					class="amendment-detail__stage"
+					:class="{ 'amendment-detail__stage--active': stage.key === amendment.lifecycle, 'amendment-detail__stage--done': stage.done }"
+					role="listitem"
+					:aria-current="stage.key === amendment.lifecycle ? 'step' : undefined">
+					{{ stage.label }}
+				</div>
+			</div>
 
-		<!-- Amendment text -->
-		<section class="amendment-detail__section">
-			<h3>{{ t('decidesk', 'Amendment text') }}</h3>
-			<p class="amendment-detail__text">
-				{{ amendment.text }}
-			</p>
-		</section>
+			<!-- Amendment text -->
+			<section class="amendment-detail__section">
+				<h3>{{ t('decidesk', 'Amendment text') }}</h3>
+				<p class="amendment-detail__text">
+					{{ amendment.text }}
+				</p>
+			</section>
 
-		<!-- Proposer -->
-		<section class="amendment-detail__section">
-			<h3>{{ t('decidesk', 'Proposer') }}</h3>
-			<p>{{ amendment.proposer }}</p>
-		</section>
+			<!-- Proposer -->
+			<section class="amendment-detail__section">
+				<h3>{{ t('decidesk', 'Proposer') }}</h3>
+				<p>{{ amendment.proposer }}</p>
+			</section>
 
-		<!-- Voting round -->
-		<section class="amendment-detail__section">
-			<h3>{{ t('decidesk', 'Voting') }}</h3>
-			<VotingRoundPanel :motion-id="amendmentId" :motion-lifecycle="amendment.lifecycle" />
-		</section>
-	</div>
+			<!-- Voting round -->
+			<section class="amendment-detail__section">
+				<h3>{{ t('decidesk', 'Voting') }}</h3>
+				<VotingRoundPanel :motion-id="amendmentId" :motion-lifecycle="amendment.lifecycle" />
+			</section>
+		</template>
+	</CnDetailPage>
 </template>
 
 <script>
 import { generateUrl } from '@nextcloud/router'
+import { CnDetailPage } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 import VotingRoundPanel from '../components/VotingRoundPanel.vue'
 
 export default {
 	name: 'AmendmentDetail',
 	components: {
+		CnDetailPage,
 		VotingRoundPanel,
 	},
 	data() {
@@ -127,7 +127,7 @@ export default {
 						'Content-Type': 'application/json',
 						requesttoken: OC.requestToken,
 					},
-					body: JSON.stringify({ newState, actorId: 'current-user' }),
+					body: JSON.stringify({ newState }),
 				})
 				await this.loadAmendment()
 			} catch (error) {
@@ -149,33 +149,13 @@ export default {
 </script>
 
 <style scoped>
-.amendment-detail {
-	padding: 8px 4px 24px;
-	max-width: 900px;
-}
-
-.amendment-detail__header {
-	margin-bottom: 16px;
-}
-
-.amendment-detail__title-row {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-}
-
-.amendment-detail__title-row h2 {
-	margin: 0;
-	font-size: 22px;
-	font-weight: 600;
-}
-
 .amendment-detail__lifecycle {
 	display: inline-block;
 	padding: 2px 10px;
 	border-radius: var(--border-radius-pill);
 	font-size: 12px;
 	font-weight: 600;
+	margin-bottom: 12px;
 }
 
 .amendment-detail__lifecycle[data-status='adopted'] {
