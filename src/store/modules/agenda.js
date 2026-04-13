@@ -33,6 +33,9 @@ export const useAgendaStore = defineStore('agenda', {
 						requesttoken: OC.requestToken,
 					},
 				})
+				if (!response.ok) {
+					throw new Error(`Publish agenda failed: ${response.status} ${response.statusText}`)
+				}
 				return await response.json()
 			} catch (error) {
 				console.error('Failed to publish agenda:', error)
@@ -59,6 +62,9 @@ export const useAgendaStore = defineStore('agenda', {
 						requesttoken: OC.requestToken,
 					},
 				})
+				if (!response.ok) {
+					throw new Error(`Advance BOB phase failed: ${response.status} ${response.statusText}`)
+				}
 				return await response.json()
 			} catch (error) {
 				console.error('Failed to advance BOB phase:', error)
@@ -85,6 +91,9 @@ export const useAgendaStore = defineStore('agenda', {
 						requesttoken: OC.requestToken,
 					},
 				})
+				if (!response.ok) {
+					throw new Error(`Process hamerstukken failed: ${response.status} ${response.statusText}`)
+				}
 				return await response.json()
 			} catch (error) {
 				console.error('Failed to process hamerstukken:', error)
@@ -113,6 +122,9 @@ export const useAgendaStore = defineStore('agenda', {
 					},
 					body: JSON.stringify({ ids }),
 				})
+				if (!response.ok) {
+					throw new Error(`Reorder items failed: ${response.status} ${response.statusText}`)
+				}
 				return await response.json()
 			} catch (error) {
 				console.error('Failed to reorder agenda items:', error)

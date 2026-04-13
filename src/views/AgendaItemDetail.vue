@@ -5,45 +5,41 @@ Copyright (C) 2026 Conduction B.V.
 @spec openspec/changes/p2-agenda-management/tasks.md#task-7
 -->
 <template>
-	<div class="agenda-item-detail">
-		<header class="agenda-item-detail__header">
-			<h2>{{ item.title || t('decidesk', 'Agenda item') }}</h2>
+	<CnDetailPage
+		:title="item.title || t('decidesk', 'Agenda item')"
+		:description="item.description || ''">
+		<template #header-actions>
 			<CnStatusBadge
 				:label="typeLabel"
 				:variant="typeBadgeVariant"
 				size="small" />
-		</header>
+		</template>
 
-		<!-- Description -->
-		<p v-if="item.description" class="agenda-item-detail__description">
-			{{ item.description }}
-		</p>
+		<!-- Core info card -->
+		<CnDetailCard :title="t('decidesk', 'Details')">
+			<div class="agenda-item-detail__meta">
+				<div v-if="item.estimatedDuration" class="agenda-item-detail__meta-item">
+					<strong>{{ t('decidesk', 'Estimated duration') }}:</strong> {{ item.estimatedDuration }} min
+				</div>
+				<div v-if="spokesperson" class="agenda-item-detail__meta-item">
+					<strong>{{ t('decidesk', 'Spokesperson') }}:</strong> {{ spokesperson }}
+				</div>
+				<div v-if="item.orderNumber" class="agenda-item-detail__meta-item">
+					<strong>{{ t('decidesk', 'Order') }}:</strong> {{ item.orderNumber }}
+				</div>
+			</div>
+		</CnDetailCard>
 
-		<!-- Meta info -->
-		<div class="agenda-item-detail__meta">
-			<div v-if="item.estimatedDuration" class="agenda-item-detail__meta-item">
-				<strong>{{ t('decidesk', 'Estimated duration') }}:</strong> {{ item.estimatedDuration }} min
-			</div>
-			<div v-if="spokesperson" class="agenda-item-detail__meta-item">
-				<strong>{{ t('decidesk', 'Spokesperson') }}:</strong> {{ spokesperson }}
-			</div>
-			<div v-if="item.orderNumber" class="agenda-item-detail__meta-item">
-				<strong>{{ t('decidesk', 'Order') }}:</strong> {{ item.orderNumber }}
-			</div>
-		</div>
-
-		<!-- BOB phase timeline for discussion/decision items -->
-		<div v-if="showBobPhase" class="agenda-item-detail__bob">
-			<h3>{{ t('decidesk', 'BOB Phase') }}</h3>
+		<!-- BOB phase card (discussion/decision items only) -->
+		<CnDetailCard v-if="showBobPhase" :title="t('decidesk', 'BOB Phase')">
 			<CnTimelineStages
 				:stages="bobTimelineStages"
 				:current-stage="item.status"
 				:aria-label="t('decidesk', 'BOB Phase stages')" />
-		</div>
+		</CnDetailCard>
 
-		<!-- COI section -->
-		<div class="agenda-item-detail__coi">
-			<h3>{{ t('decidesk', 'Conflict of interest') }}</h3>
+		<!-- COI card -->
+		<CnDetailCard :title="t('decidesk', 'Conflict of interest')">
 			<div v-if="coiNotes.length > 0" class="agenda-item-detail__coi-list">
 				<div v-for="(note, idx) in coiNotes" :key="idx" class="agenda-item-detail__coi-item">
 					<span class="agenda-item-detail__badge agenda-item-detail__badge--coi">COI</span>
@@ -55,11 +51,12 @@ Copyright (C) 2026 Conduction B.V.
 				@click="showCoiDialog = true">
 				{{ t('decidesk', 'Declare conflict of interest') }}
 			</button>
-		</div>
+		</CnDetailCard>
 
-		<!-- Linked motions (decision items only) -->
-		<div v-if="item.itemType === 'decision'" class="agenda-item-detail__motions">
-			<h3>{{ t('decidesk', 'Linked motions') }}</h3>
+		<!-- Linked motions card (decision items only) -->
+		<CnDetailCard
+			v-if="item.itemType === 'decision'"
+			:title="t('decidesk', 'Linked motions')">
 			<ul v-if="linkedMotions.length > 0" class="agenda-item-detail__motion-list">
 				<li v-for="motion in linkedMotions" :key="motion.id || motion.uuid">
 					<a href="#" @click.prevent="goToMotion(motion)">{{ motion.title }}</a>
@@ -72,9 +69,9 @@ Copyright (C) 2026 Conduction B.V.
 				@click="showMotionDialog = true">
 				{{ t('decidesk', 'Link motion') }}
 			</button>
-		</div>
+		</CnDetailCard>
 
-		<!-- Informational items tooltip for motions -->
+		<!-- Informational items hint for motions -->
 		<p v-if="item.itemType === 'informational'" class="agenda-item-detail__hint">
 			{{ t('decidesk', 'Only decision-type items support motions') }}
 		</p>
@@ -107,10 +104,12 @@ Copyright (C) 2026 Conduction B.V.
 			register="decidesk"
 			schema="agenda-item"
 			:hidden-tabs="['tags', 'tasks']" />
-	</div>
+	</CnDetailPage>
 </template>
 
 <script>
+import CnDetailCard from '@conduction/nextcloud-vue/src/components/CnDetailCard/CnDetailCard.vue'
+import CnDetailPage from '@conduction/nextcloud-vue/src/components/CnDetailPage/CnDetailPage.vue'
 import CnFormDialog from '@conduction/nextcloud-vue/src/components/CnFormDialog/CnFormDialog.vue'
 import CnObjectSidebar from '@conduction/nextcloud-vue/src/components/CnObjectSidebar/CnObjectSidebar.vue'
 import CnStatusBadge from '@conduction/nextcloud-vue/src/components/CnStatusBadge/CnStatusBadge.vue'
@@ -126,6 +125,8 @@ export default {
 	name: 'AgendaItemDetail',
 
 	components: {
+		CnDetailCard,
+		CnDetailPage,
 		CnFormDialog,
 		CnObjectSidebar,
 		CnStatusBadge,
@@ -317,29 +318,6 @@ export default {
 </script>
 
 <style scoped>
-.agenda-item-detail {
-	padding: 16px;
-	max-width: 900px;
-}
-
-.agenda-item-detail__header {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin-bottom: 12px;
-}
-
-.agenda-item-detail__header h2 {
-	margin: 0;
-	font-size: 22px;
-	font-weight: 600;
-}
-
-.agenda-item-detail__description {
-	margin: 0 0 16px;
-	line-height: 1.6;
-}
-
 .agenda-item-detail__meta {
 	display: flex;
 	gap: 24px;

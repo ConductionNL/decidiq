@@ -50,8 +50,8 @@ class AgendaController extends Controller
      */
     public function __construct(
         IRequest $request,
-        private AgendaService $agendaService,
-        private IL10N $l10n,
+        private readonly AgendaService $agendaService,
+        private readonly IL10N $l10n,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()

@@ -5,17 +5,10 @@ Copyright (C) 2026 Conduction B.V.
 @spec openspec/changes/p2-agenda-management/tasks.md#task-3
 -->
 <template>
-	<div class="meeting-detail">
-		<header class="meeting-detail__header">
-			<h2>{{ meeting.title || t('decidesk', 'Meeting') }}</h2>
-			<div class="meeting-detail__meta">
-				<span v-if="meeting.scheduledDate">{{ meeting.scheduledDate }}</span>
-				<span v-if="meeting.location"> — {{ meeting.location }}</span>
-			</div>
-		</header>
-
-		<!-- Publication controls -->
-		<div class="meeting-detail__publish-section">
+	<CnDetailPage
+		:title="meeting.title || t('decidesk', 'Meeting')"
+		:description="meetingMeta">
+		<template #header-actions>
 			<button v-if="isChairOrSecretary && !isPublished"
 				class="meeting-detail__btn meeting-detail__btn--primary"
 				:disabled="agendaItems.length === 0"
@@ -37,28 +30,31 @@ Copyright (C) 2026 Conduction B.V.
 				@click="goToLiveMeeting">
 				{{ t('decidesk', 'Live meeting') }}
 			</button>
-		</div>
+		</template>
 
 		<!-- Validation error -->
 		<p v-if="publishError" class="meeting-detail__error">
 			{{ publishError }}
 		</p>
 
-		<!-- Agenda builder -->
-		<AgendaBuilder
-			:items="agendaItems"
-			:meeting-id="meetingId"
-			:is-chair="isChairOrSecretary"
-			:can-propose="canPropose"
-			@items-updated="fetchAgendaItems"
-			@add-item="showAddDialog = true"
-			@add-recurring="showRecurringDialog = true"
-			@propose-item="showProposeDialog = true"
-			@assign-spokesperson="openSpokespersonDialog" />
+		<!-- Agenda builder card -->
+		<CnDetailCard :title="t('decidesk', 'Agenda')">
+			<AgendaBuilder
+				:items="agendaItems"
+				:meeting-id="meetingId"
+				:is-chair="isChairOrSecretary"
+				:can-propose="canPropose"
+				@items-updated="fetchAgendaItems"
+				@add-item="showAddDialog = true"
+				@add-recurring="showRecurringDialog = true"
+				@propose-item="showProposeDialog = true"
+				@assign-spokesperson="openSpokespersonDialog" />
+		</CnDetailCard>
 
-		<!-- COI summary for chair -->
-		<div v-if="isChairOrSecretary" class="meeting-detail__coi-summary">
-			<h3>{{ t('decidesk', 'Conflict of interest declarations') }}</h3>
+		<!-- COI summary card (chair only) -->
+		<CnDetailCard
+			v-if="isChairOrSecretary"
+			:title="t('decidesk', 'Conflict of interest declarations')">
 			<div v-if="coiItems.length === 0" class="meeting-detail__empty">
 				{{ t('decidesk', 'No conflict of interest declarations submitted') }}
 			</div>
@@ -70,7 +66,7 @@ Copyright (C) 2026 Conduction B.V.
 					</span>
 				</li>
 			</ul>
-		</div>
+		</CnDetailCard>
 
 		<!-- Export dialog -->
 		<CnMassExportDialog
@@ -86,11 +82,13 @@ Copyright (C) 2026 Conduction B.V.
 			:confirm-label="t('decidesk', 'Download CSV')"
 			@confirm="onExportConfirm"
 			@close="showExport = false" />
-	</div>
+	</CnDetailPage>
 </template>
 
 <script>
 import AgendaBuilder from '../components/AgendaBuilder.vue'
+import CnDetailCard from '@conduction/nextcloud-vue/src/components/CnDetailCard/CnDetailCard.vue'
+import CnDetailPage from '@conduction/nextcloud-vue/src/components/CnDetailPage/CnDetailPage.vue'
 import CnMassExportDialog from '@conduction/nextcloud-vue/src/components/CnMassExportDialog/CnMassExportDialog.vue'
 import { useAgendaStore } from '../store/modules/agenda.js'
 import { useObjectStore } from '../store/modules/object.js'
@@ -105,6 +103,8 @@ export default {
 
 	components: {
 		AgendaBuilder,
+		CnDetailCard,
+		CnDetailPage,
 		CnMassExportDialog,
 	},
 
@@ -124,6 +124,13 @@ export default {
 	computed: {
 		meetingId() {
 			return this.$route.params.id
+		},
+
+		meetingMeta() {
+			const parts = []
+			if (this.meeting.scheduledDate) parts.push(this.meeting.scheduledDate)
+			if (this.meeting.location) parts.push(this.meeting.location)
+			return parts.join(' — ')
 		},
 
 		/**
@@ -282,31 +289,6 @@ export default {
 </script>
 
 <style scoped>
-.meeting-detail {
-	padding: 16px;
-	max-width: 1200px;
-}
-
-.meeting-detail__header {
-	margin-bottom: 16px;
-}
-
-.meeting-detail__header h2 {
-	margin: 0 0 4px;
-	font-size: 22px;
-	font-weight: 600;
-}
-
-.meeting-detail__meta {
-	color: var(--color-text-maxcontrast);
-}
-
-.meeting-detail__publish-section {
-	display: flex;
-	gap: 8px;
-	margin-bottom: 16px;
-}
-
 .meeting-detail__btn {
 	padding: 8px 16px;
 	border: 1px solid var(--color-border);

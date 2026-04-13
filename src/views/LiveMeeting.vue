@@ -5,15 +5,16 @@ Copyright (C) 2026 Conduction B.V.
 @spec openspec/changes/p2-agenda-management/tasks.md#task-4
 -->
 <template>
-	<div class="live-meeting">
-		<header class="live-meeting__header">
-			<h2>{{ meeting.title || t('decidesk', 'Live meeting') }}</h2>
+	<CnDetailPage
+		:title="meeting.title || t('decidesk', 'Live meeting')">
+		<template #header-actions>
 			<span class="live-meeting__status">{{ t('decidesk', 'Live') }}</span>
-		</header>
+		</template>
 
-		<!-- Hamerstukken section -->
-		<div v-if="hamerstukken.length > 0" class="live-meeting__section">
-			<h3>{{ t('decidesk', 'Consent items') }}</h3>
+		<!-- Consent items card -->
+		<CnDetailCard
+			v-if="hamerstukken.length > 0"
+			:title="t('decidesk', 'Consent items')">
 			<ul class="live-meeting__list" role="list">
 				<li v-for="item in hamerstukken"
 					:key="item.id || item.uuid"
@@ -36,11 +37,10 @@ Copyright (C) 2026 Conduction B.V.
 				@click="confirmProcessHamerstukken">
 				{{ t('decidesk', 'Adopt consent items') }}
 			</button>
-		</div>
+		</CnDetailCard>
 
-		<!-- Main agenda -->
-		<div class="live-meeting__section">
-			<h3>{{ t('decidesk', 'Agenda') }}</h3>
+		<!-- Main agenda card -->
+		<CnDetailCard :title="t('decidesk', 'Agenda')">
 			<AgendaBuilder
 				v-if="isChair"
 				:items="regularItems"
@@ -66,13 +66,13 @@ Copyright (C) 2026 Conduction B.V.
 					</span>
 				</li>
 			</ul>
-		</div>
+		</CnDetailCard>
 
-		<!-- BOB phase panels for active items -->
-		<div v-for="item in bobItems"
+		<!-- BOB phase cards for active items -->
+		<CnDetailCard
+			v-for="item in bobItems"
 			:key="'bob-' + (item.id || item.uuid)"
-			class="live-meeting__bob-panel">
-			<h4>{{ item.title }} — {{ t('decidesk', 'BOB Phase') }}</h4>
+			:title="item.title + ' — ' + t('decidesk', 'BOB Phase')">
 			<div class="live-meeting__bob-stages">
 				<div v-for="stage in bobStages"
 					:key="stage.value"
@@ -96,12 +96,14 @@ Copyright (C) 2026 Conduction B.V.
 					{{ t('decidesk', 'Activate this item') }}
 				</button>
 			</div>
-		</div>
-	</div>
+		</CnDetailCard>
+	</CnDetailPage>
 </template>
 
 <script>
 import AgendaBuilder from '../components/AgendaBuilder.vue'
+import CnDetailCard from '@conduction/nextcloud-vue/src/components/CnDetailCard/CnDetailCard.vue'
+import CnDetailPage from '@conduction/nextcloud-vue/src/components/CnDetailPage/CnDetailPage.vue'
 import { useAgendaStore } from '../store/modules/agenda.js'
 import { useObjectStore } from '../store/modules/object.js'
 
@@ -115,6 +117,8 @@ export default {
 
 	components: {
 		AgendaBuilder,
+		CnDetailCard,
+		CnDetailPage,
 	},
 
 	data() {
@@ -263,16 +267,8 @@ export default {
 		async removeFromHamerstukken(item) {
 			const updatedTags = (item.tags || []).filter((t) => t !== 'hamerstuk')
 			const objectStore = useObjectStore()
-			const url = new URL(objectStore.baseUrl, window.location.origin)
-			// Send only the fields being changed to prevent mass-assignment.
-			await fetch(url.toString(), {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					requesttoken: OC.requestToken,
-				},
-				body: JSON.stringify({ id: item.id || item.uuid, tags: updatedTags }),
-			})
+			// Delegate to objectStore.saveObject() to keep headers, base-URL, and auth consistent.
+			await objectStore.saveObject({ id: item.id || item.uuid, tags: updatedTags })
 			await this.fetchAgendaItems()
 		},
 	},
@@ -280,24 +276,6 @@ export default {
 </script>
 
 <style scoped>
-.live-meeting {
-	padding: 16px;
-	max-width: 1200px;
-}
-
-.live-meeting__header {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin-bottom: 16px;
-}
-
-.live-meeting__header h2 {
-	margin: 0;
-	font-size: 22px;
-	font-weight: 600;
-}
-
 .live-meeting__status {
 	padding: 4px 12px;
 	border-radius: var(--border-radius-pill);
@@ -306,16 +284,6 @@ export default {
 	font-size: 12px;
 	font-weight: 600;
 	text-transform: uppercase;
-}
-
-.live-meeting__section {
-	margin-bottom: 20px;
-}
-
-.live-meeting__section h3 {
-	margin: 0 0 8px;
-	font-size: 16px;
-	font-weight: 600;
 }
 
 .live-meeting__list {

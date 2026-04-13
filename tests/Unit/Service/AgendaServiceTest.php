@@ -25,6 +25,8 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AgendaService;
 use OCP\IL10N;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -88,11 +90,18 @@ class AgendaServiceTest extends TestCase
     private object $calendarEventService;
 
     /**
+     * Mock IUserSession for the chair user (userId = 'user-1').
+     *
+     * @var IUserSession&MockObject
+     */
+    private IUserSession&MockObject $chairUserSession;
+
+    /**
      * Set up test fixtures.
      *
-     * IUserSession is not injected so assertChairOrSecretary is skipped,
-     * keeping existing tests focused on business logic without mocking
-     * the full participant/role hierarchy.
+     * IUserSession is injected with a chair user (userId = 'user-1') so that
+     * assertChairOrSecretary passes whenever participants include 'user-1'.
+     * Tests that validate the 403 path create their own service instance.
      *
      * @return void
      */
@@ -121,11 +130,17 @@ class AgendaServiceTest extends TestCase
                 }
             );
 
-        // UserSession is null — assertChairOrSecretary is a no-op in all tests below.
+        // Inject a chair user so assertChairOrSecretary does not silently bypass.
+        $mockUser               = $this->createMock(originalClassName: IUser::class);
+        $mockUser->method('getUID')->willReturn('user-1');
+        $this->chairUserSession = $this->createMock(originalClassName: IUserSession::class);
+        $this->chairUserSession->method('getUser')->willReturn($mockUser);
+
         $this->service = new AgendaService(
             container: $this->container,
             logger: $this->logger,
             l10n: $this->l10n,
+            userSession: $this->chairUserSession,
         );
 
     }//end setUp()
@@ -133,14 +148,46 @@ class AgendaServiceTest extends TestCase
     /**
      * Test publishAgenda throws when the agenda has no items (spec §1.1).
      *
+     * Auth check runs first (info-disclosure fix), so the meeting must have a
+     * governance body with 'user-1' as chair before the item count is checked.
+     *
      * @return void
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
      */
     public function testPublishAgendaThrowsWhenNoItems(): void
     {
+        $meeting = [
+            'id'        => 'meeting-1',
+            'relations' => [
+                [
+                    'schema' => 'governance-body',
+                    'id'     => 'gb-1',
+                ],
+            ],
+        ];
+
+        $chairParticipant = [
+            [
+                'owner'  => 'user-1',
+                'role'   => 'chair',
+                'leftAt' => null,
+            ],
+        ];
+
+        $this->objectService->method('getObject')
+            ->willReturn($meeting);
+
         $this->objectService->method('getObjects')
-            ->willReturn([]);
+            ->willReturnCallback(
+                static function () use ($chairParticipant) {
+                    $schema = func_get_arg(1);
+                    return match ($schema) {
+                        'participant' => $chairParticipant,
+                        default       => [],
+                    };
+                }
+            );
 
         $this->expectException(exception: \RuntimeException::class);
         $this->expectExceptionMessage(message: 'Een agenda moet minimaal één agendapunt bevatten');
@@ -261,7 +308,12 @@ class AgendaServiceTest extends TestCase
 
         $meeting = [
             'id'        => 'meeting-1',
-            'relations' => [],
+            'relations' => [
+                [
+                    'schema' => 'governance-body',
+                    'id'     => 'gb-1',
+                ],
+            ],
         ];
 
         $this->objectService->method('getObject')
@@ -273,6 +325,17 @@ class AgendaServiceTest extends TestCase
                         default       => $meeting,
                     };
                 }
+            );
+
+        $this->objectService->method('getObjects')
+            ->willReturn(
+                [
+                    [
+                        'owner'  => 'user-1',
+                        'role'   => 'chair',
+                        'leftAt' => null,
+                    ],
+                ]
             );
 
         $this->objectService->expects($this->once())
@@ -304,7 +367,12 @@ class AgendaServiceTest extends TestCase
 
         $meeting = [
             'id'        => 'meeting-1',
-            'relations' => [],
+            'relations' => [
+                [
+                    'schema' => 'governance-body',
+                    'id'     => 'gb-1',
+                ],
+            ],
         ];
 
         $this->objectService->method('getObject')
@@ -316,6 +384,17 @@ class AgendaServiceTest extends TestCase
                         default       => $meeting,
                     };
                 }
+            );
+
+        $this->objectService->method('getObjects')
+            ->willReturn(
+                [
+                    [
+                        'owner'  => 'user-1',
+                        'role'   => 'chair',
+                        'leftAt' => null,
+                    ],
+                ]
             );
 
         $this->expectException(exception: \RuntimeException::class);
@@ -343,7 +422,12 @@ class AgendaServiceTest extends TestCase
 
         $meeting = [
             'id'        => 'meeting-1',
-            'relations' => [],
+            'relations' => [
+                [
+                    'schema' => 'governance-body',
+                    'id'     => 'gb-1',
+                ],
+            ],
         ];
 
         $this->objectService->method('getObject')
@@ -355,6 +439,17 @@ class AgendaServiceTest extends TestCase
                         default       => $meeting,
                     };
                 }
+            );
+
+        $this->objectService->method('getObjects')
+            ->willReturn(
+                [
+                    [
+                        'owner'  => 'user-1',
+                        'role'   => 'chair',
+                        'leftAt' => null,
+                    ],
+                ]
             );
 
         $this->expectException(exception: \RuntimeException::class);
@@ -390,15 +485,31 @@ class AgendaServiceTest extends TestCase
 
         // GetObject is called for the meeting during the auth check.
         $this->objectService->method('getObject')
-            ->willReturn(['id' => 'meeting-1', 'relations' => []]);
+            ->willReturn(
+                [
+                    'id'        => 'meeting-1',
+                    'relations' => [
+                        [
+                            'schema' => 'governance-body',
+                            'id'     => 'gb-1',
+                        ],
+                    ],
+                ]
+            );
 
-        // GetObjects is called for participants (returns [] — empty governance body)
-        // and for agenda-items (returns hamerstukken).
+        // GetObjects: participants (with 'user-1' as chair) and agenda-items (hamerstukken).
         $this->objectService->method('getObjects')
             ->willReturnCallback(
                 static function () use ($hamerstukken) {
                     $schema = func_get_arg(1);
                     return match ($schema) {
+                        'participant' => [
+                            [
+                                'owner'  => 'user-1',
+                                'role'   => 'chair',
+                                'leftAt' => null,
+                            ],
+                        ],
                         'agenda-item' => $hamerstukken,
                         default       => [],
                     };
@@ -441,14 +552,31 @@ class AgendaServiceTest extends TestCase
 
         // GetObject is called for the meeting during the auth check.
         $this->objectService->method('getObject')
-            ->willReturn(['id' => 'meeting-1', 'relations' => []]);
+            ->willReturn(
+                [
+                    'id'        => 'meeting-1',
+                    'relations' => [
+                        [
+                            'schema' => 'governance-body',
+                            'id'     => 'gb-1',
+                        ],
+                    ],
+                ]
+            );
 
-        // GetObjects: participants (empty governance body) and agenda-items.
+        // GetObjects: participants (with 'user-1' as chair) and agenda-items.
         $this->objectService->method('getObjects')
             ->willReturnCallback(
                 static function () use ($items) {
                     $schema = func_get_arg(1);
                     return match ($schema) {
+                        'participant' => [
+                            [
+                                'owner'  => 'user-1',
+                                'role'   => 'chair',
+                                'leftAt' => null,
+                            ],
+                        ],
                         'agenda-item' => $items,
                         default       => [],
                     };
@@ -477,6 +605,79 @@ class AgendaServiceTest extends TestCase
         self::assertSame(expected: 3, actual: $result['count']);
 
     }//end testReorderItemsAssignsSequentialNumbers()
+
+    /**
+     * Test assertChairOrSecretary throws 403 for a non-chair user.
+     *
+     * Injects a mock IUserSession that returns userId 'non-chair-user' and
+     * a participant list where that user has role 'member', verifying that
+     * the real authorization logic raises RuntimeException(code=403).
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
+     */
+    public function testPublishAgendaThrowsWith403ForNonChairUser(): void
+    {
+        $mockUser = $this->createMock(originalClassName: IUser::class);
+        $mockUser->method('getUID')->willReturn('non-chair-user');
+
+        $memberSession = $this->createMock(originalClassName: IUserSession::class);
+        $memberSession->method('getUser')->willReturn($mockUser);
+
+        $container = $this->createMock(originalClassName: ContainerInterface::class);
+
+        $objectService = $this->createMockObjectService();
+        $container->method('get')
+            ->willReturnCallback(
+                function (string $id) use ($objectService) {
+                    return match ($id) {
+                        'OCA\OpenRegister\Service\ObjectService'        => $objectService,
+                        'OCA\OpenRegister\Service\NotificationService'  => $this->notificationService,
+                        'OCA\OpenRegister\Service\CalendarEventService' => $this->calendarEventService,
+                        default => throw new \RuntimeException('Unknown service: '.$id),
+                    };
+                }
+            );
+
+        $objectService->method('getObject')
+            ->willReturn(
+                [
+                    'id'        => 'meeting-1',
+                    'relations' => [
+                        [
+                            'schema' => 'governance-body',
+                            'id'     => 'gb-1',
+                        ],
+                    ],
+                ]
+            );
+
+        // Participants list has 'non-chair-user' as a plain member — not chair or secretary.
+        $objectService->method('getObjects')
+            ->willReturn(
+                [
+                    [
+                        'owner'  => 'non-chair-user',
+                        'role'   => 'member',
+                        'leftAt' => null,
+                    ],
+                ]
+            );
+
+        $service = new AgendaService(
+            container: $container,
+            logger: $this->logger,
+            l10n: $this->l10n,
+            userSession: $memberSession,
+        );
+
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionCode(code: 403);
+
+        $service->publishAgenda(meetingId: 'meeting-1');
+
+    }//end testPublishAgendaThrowsWith403ForNonChairUser()
 
     /**
      * Create a mock ObjectService.

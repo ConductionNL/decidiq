@@ -72,10 +72,10 @@ class AgendaService
      * @return void
      */
     public function __construct(
-        private ContainerInterface $container,
-        private LoggerInterface $logger,
-        private IL10N $l10n,
-        private ?IUserSession $userSession=null,
+        private readonly ContainerInterface $container,
+        private readonly LoggerInterface $logger,
+        private readonly IL10N $l10n,
+        private readonly ?IUserSession $userSession=null,
     ) {
     }//end __construct()
 
@@ -107,6 +107,13 @@ class AgendaService
             ];
         }
 
+        // Fetch meeting and participants first so auth runs before any data is revealed.
+        $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
+        $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+
+        // Enforce chair/secretary role before revealing meeting state (info-disclosure guard).
+        $this->assertChairOrSecretary(participants: $participants);
+
         // Validate: at least one agenda item must exist (spec §1.1).
         $agendaItems = $objectService->getObjects(
             'decidesk',
@@ -117,13 +124,6 @@ class AgendaService
         if (empty($agendaItems) === true) {
             throw new \RuntimeException('Een agenda moet minimaal één agendapunt bevatten');
         }
-
-        // Fetch meeting and participants for auth + notification dispatch.
-        $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
-        $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
-
-        // Enforce chair/secretary role.
-        $this->assertChairOrSecretary(participants: $participants);
 
         // Send notifications to each active participant.
         $meetingTitle  = ($meeting['title'] ?? 'Vergadering');
@@ -156,7 +156,7 @@ class AgendaService
             );
         }
 
-        $this->logger->info('Decidesk: Agenda published for meeting '.$meetingId);
+        $this->logger->info('Decidesk: Agenda published for meeting', ['meetingId' => $meetingId]);
 
         return [
             'success'       => true,
@@ -233,8 +233,12 @@ class AgendaService
         );
 
         $this->logger->info(
-            'Decidesk: BOB phase advanced from '.$currentPhase.' to '.$nextPhase
-            .' for item '.$agendaItemId
+            'Decidesk: BOB phase advanced',
+            [
+                'previousPhase' => $currentPhase,
+                'currentPhase'  => $nextPhase,
+                'agendaItemId'  => $agendaItemId,
+            ]
         );
 
         return [
@@ -291,7 +295,11 @@ class AgendaService
         }
 
         $this->logger->info(
-            'Decidesk: Processed '.$count.' hamerstukken for meeting '.$meetingId
+            'Decidesk: Hamerstukken processed',
+            [
+                'count'     => $count,
+                'meetingId' => $meetingId,
+            ]
         );
 
         return [
@@ -465,8 +473,7 @@ class AgendaService
     private function assertChairOrSecretary(array $participants): void
     {
         if ($this->userSession === null) {
-            // Degraded/unit-test mode: skip authorisation.
-            return;
+            throw new \RuntimeException('Forbidden: auth service unavailable', 403);
         }
 
         $userId = $this->userSession->getUser()?->getUID() ?? '';

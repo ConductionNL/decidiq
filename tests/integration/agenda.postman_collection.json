@@ -179,11 +179,11 @@
 		},
 		{
 			"key": "admin_user",
-			"value": "admin"
+			"value": ""
 		},
 		{
 			"key": "admin_password",
-			"value": "admin"
+			"value": ""
 		}
 	]
 }
