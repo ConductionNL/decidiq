@@ -6,8 +6,8 @@
  * Service for agenda management: publication, BOB phase transitions,
  * hamerstukken processing, and agenda item reordering.
  *
- * @category  Service
- * @package   OCA\Decidesk\Service
+ * @category Service
+ * @package  OCA\Decidesk\Service
  *
  * @author    Conduction Development Team <dev@conductio.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,7 +22,6 @@
 
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
-
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -47,10 +46,10 @@ class AgendaService
      * @var array<string,string>
      */
     private const BOB_PHASES = [
-        'voorstel'         => 'beeldvorming',
-        'beeldvorming'     => 'oordeelsvorming',
-        'oordeelsvorming'  => 'besluitvorming',
-        'besluitvorming'   => 'afgerond',
+        'voorstel'        => 'beeldvorming',
+        'beeldvorming'    => 'oordeelsvorming',
+        'oordeelsvorming' => 'besluitvorming',
+        'besluitvorming'  => 'afgerond',
     ];
 
     /**
@@ -87,9 +86,9 @@ class AgendaService
 
         // Fetch agenda items for this meeting.
         $agendaItems = $objectService->getObjects(
-            schema: 'agenda-item',
-            register: 'decidesk',
-            filters: ['meeting' => $meetingId]
+            'agenda-item',
+            'decidesk',
+            ['meeting' => $meetingId]
         );
 
         if (empty($agendaItems) === true) {
@@ -98,9 +97,9 @@ class AgendaService
 
         // Fetch the meeting to get governance body and title.
         $meeting = $objectService->getObject(
-            register: 'decidesk',
-            schema: 'meeting',
-            id: $meetingId
+            'decidesk',
+            'meeting',
+            $meetingId
         );
 
         // Fetch active participants (leftAt is null) for the governance body.
@@ -108,14 +107,14 @@ class AgendaService
 
         // Send notifications to each active participant.
         $notificationService = $this->getNotificationService();
-        $meetingTitle         = ($meeting['title'] ?? 'Vergadering');
-        $scheduledDate        = ($meeting['scheduledDate'] ?? '');
+        $meetingTitle        = ($meeting['title'] ?? 'Vergadering');
+        $scheduledDate       = ($meeting['scheduledDate'] ?? '');
 
         foreach ($participants as $participant) {
             $notificationService->sendNotification(
-                userId: ($participant['owner'] ?? ''),
-                subject: $meetingTitle.' — Agenda gepubliceerd',
-                message: 'De agenda voor '.$meetingTitle.' ('.$scheduledDate.') is gepubliceerd.',
+                ($participant['owner'] ?? ''),
+                $meetingTitle.' — Agenda gepubliceerd',
+                'De agenda voor '.$meetingTitle.' ('.$scheduledDate.') is gepubliceerd.'
             );
         }
 
@@ -123,8 +122,8 @@ class AgendaService
         try {
             $calendarService = $this->getCalendarEventService();
             $calendarService->updateEvent(
-                meetingId: $meetingId,
-                data: ['agenda_published' => true]
+                $meetingId,
+                ['agenda_published' => true]
             );
         } catch (\Throwable $e) {
             $this->logger->warning(
@@ -162,9 +161,9 @@ class AgendaService
         $objectService = $this->getObjectService();
 
         $item         = $objectService->getObject(
-            register: 'decidesk',
-            schema: 'agenda-item',
-            id: $agendaItemId
+            'decidesk',
+            'agenda-item',
+            $agendaItemId
         );
         $currentPhase = ($item['status'] ?? 'beeldvorming');
 
@@ -180,9 +179,9 @@ class AgendaService
         $nextPhase = self::BOB_PHASES[$currentPhase];
 
         $objectService->saveObject(
-            register: 'decidesk',
-            schema: 'agenda-item',
-            object: array_merge($item, ['status' => $nextPhase])
+            'decidesk',
+            'agenda-item',
+            array_merge($item, ['status' => $nextPhase])
         );
 
         $this->logger->info(
@@ -215,9 +214,9 @@ class AgendaService
         $objectService = $this->getObjectService();
 
         $agendaItems = $objectService->getObjects(
-            schema: 'agenda-item',
-            register: 'decidesk',
-            filters: [
+            'agenda-item',
+            'decidesk',
+            [
                 'meeting' => $meetingId,
                 'tags'    => 'hamerstuk',
             ]
@@ -226,9 +225,9 @@ class AgendaService
         $count = 0;
         foreach ($agendaItems as $item) {
             $objectService->saveObject(
-                register: 'decidesk',
-                schema: 'agenda-item',
-                object: array_merge($item, ['status' => 'afgerond'])
+                'decidesk',
+                'agenda-item',
+                array_merge($item, ['status' => 'afgerond'])
             );
             $count++;
         }
@@ -262,15 +261,15 @@ class AgendaService
         $objectService = $this->getObjectService();
 
         $agendaItems = $objectService->getObjects(
-            schema: 'agenda-item',
-            register: 'decidesk',
-            filters: ['meeting' => $meetingId]
+            'agenda-item',
+            'decidesk',
+            ['meeting' => $meetingId]
         );
 
         // Index items by ID.
         $itemsById = [];
         foreach ($agendaItems as $item) {
-            $id             = ($item['id'] ?? ($item['uuid'] ?? ''));
+            $id = ($item['id'] ?? ($item['uuid'] ?? ''));
             $itemsById[$id] = $item;
         }
 
@@ -279,9 +278,9 @@ class AgendaService
         foreach ($orderedIds as $id) {
             if (isset($itemsById[$id]) === true) {
                 $objectService->saveObject(
-                    register: 'decidesk',
-                    schema: 'agenda-item',
-                    object: array_merge($itemsById[$id], ['orderNumber' => $orderNumber])
+                    'decidesk',
+                    'agenda-item',
+                    array_merge($itemsById[$id], ['orderNumber' => $orderNumber])
                 );
                 $orderNumber++;
             }
@@ -297,8 +296,8 @@ class AgendaService
     /**
      * Get active participants for a meeting's governance body.
      *
-     * @param object               $objectService The object service
-     * @param array<string,mixed>  $meeting       The meeting data
+     * @param object              $objectService The object service
+     * @param array<string,mixed> $meeting       The meeting data
      *
      * @return array<int,array<string,mixed>> Active participants
      *
@@ -320,9 +319,9 @@ class AgendaService
         }
 
         $participants = $objectService->getObjects(
-            schema: 'participant',
-            register: 'decidesk',
-            filters: ['governanceBody' => $governanceBodyId]
+            'participant',
+            'decidesk',
+            ['governanceBody' => $governanceBodyId]
         );
 
         // Filter to active participants only (leftAt is null/empty).

@@ -5,8 +5,8 @@
  *
  * Thin controller for agenda management API endpoints.
  *
- * @category  Controller
- * @package   OCA\Decidesk\Controller
+ * @category Controller
+ * @package  OCA\Decidesk\Controller
  *
  * @author    Conduction Development Team <dev@conductio.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,7 +21,6 @@
 
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
-
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
@@ -39,7 +38,6 @@ use OCP\IRequest;
  */
 class AgendaController extends Controller
 {
-
     /**
      * Constructor for AgendaController.
      *

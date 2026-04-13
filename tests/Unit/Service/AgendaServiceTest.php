@@ -182,7 +182,8 @@ class AgendaServiceTest extends TestCase
 
         $this->objectService->method('getObjects')
             ->willReturnCallback(
-                static function (string $schema) use ($agendaItems, $participants) {
+                static function () use ($agendaItems, $participants) {
+                    $schema = func_get_arg(0);
                     return match ($schema) {
                         'agenda-item'  => $agendaItems,
                         'participant'  => $participants,
