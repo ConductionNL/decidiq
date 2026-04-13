@@ -1,0 +1,6 @@
+- Auth: Nextcloud built-in ONLY. NO custom login, sessions, tokens, password storage.
+- Admin check: `IGroupManager::isAdmin()` on BACKEND. Frontend-only checks = vulnerability.
+- Multi-tenant isolation: enforce at API/service level, not UI only.
+- NO PII in logs, error responses, or debug output.
+- File uploads: validate type + size before storage.
+- API responses: NO stack traces, SQL, or internal paths.

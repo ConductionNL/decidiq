@@ -1,0 +1,5 @@
+- Every new PHP service/controller → PHPUnit tests in `tests/Unit/` (≥3 methods).
+- Every new Vue component → test file (if test framework exists).
+- Every new API endpoint → Newman/Postman collection in `tests/integration/`.
+- Every spec scenario → browser test (GIVEN/WHEN/THEN verified via Playwright).
+- All tests MUST pass in `composer check:strict`.
