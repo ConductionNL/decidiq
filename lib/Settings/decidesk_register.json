@@ -9,31 +9,1457 @@
     "type": "application",
     "app": "decidesk",
     "openregister": "^v0.2.10",
-    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings"
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
+    "seeds": [
+      {
+        "register": "decidesk",
+        "schema": "governance-body",
+        "slug": "gemeente-utrecht-raad",
+        "data": {
+          "name": "Gemeenteraad Utrecht",
+          "bodyType": "legislative",
+          "domain": "municipality",
+          "quorumRule": "majority",
+          "votingDefault": "for-against-abstain",
+          "termStart": "2022-03-30T00:00:00Z",
+          "termEnd": "2026-03-30T00:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "governance-body",
+        "slug": "bestuur-acme-consultancy",
+        "data": {
+          "name": "Board of Directors — Acme Consultancy",
+          "bodyType": "corporate-board",
+          "domain": "corporate",
+          "quorumRule": "two-thirds",
+          "votingDefault": "for-against-abstain",
+          "termStart": "2024-01-01T00:00:00Z",
+          "termEnd": "2027-01-01T00:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "governance-body",
+        "slug": "wijkraad-noord",
+        "data": {
+          "name": "Wijkraad Noord",
+          "bodyType": "citizen-panel",
+          "domain": "participation",
+          "quorumRule": "majority",
+          "votingDefault": "show-of-hands"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "participant",
+        "slug": "jan-de-vries",
+        "data": {
+          "displayName": "Jan de Vries",
+          "role": "chair",
+          "party": "GroenLinks",
+          "email": "j.devries@example.nl",
+          "joinedAt": "2022-03-30T00:00:00Z",
+          "votingWeight": 1
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "participant",
+        "slug": "maria-bakker",
+        "data": {
+          "displayName": "Maria Bakker",
+          "role": "secretary",
+          "email": "m.bakker@example.nl",
+          "joinedAt": "2022-03-30T00:00:00Z",
+          "votingWeight": 1
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "participant",
+        "slug": "pieter-jansen",
+        "data": {
+          "displayName": "Pieter Jansen",
+          "role": "member",
+          "party": "VVD",
+          "email": "p.jansen@example.nl",
+          "joinedAt": "2023-01-15T00:00:00Z",
+          "votingWeight": 1
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "meeting",
+        "slug": "raadsvergadering-2026-04",
+        "data": {
+          "title": "Raadsvergadering april 2026",
+          "meetingType": "regular",
+          "scheduledDate": "2026-04-15T19:00:00Z",
+          "endDate": "2026-04-15T22:00:00Z",
+          "location": "Stadhuis Utrecht, Raadzaal",
+          "meetingMode": "hybrid",
+          "lifecycle": "scheduled",
+          "quorumRequired": 23,
+          "series": "raadsvergadering-2026"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "meeting",
+        "slug": "board-meeting-q2",
+        "data": {
+          "title": "Q2 Board Meeting — Acme Consultancy",
+          "meetingType": "regular",
+          "scheduledDate": "2026-04-20T14:00:00Z",
+          "endDate": "2026-04-20T16:00:00Z",
+          "location": "Boardroom A",
+          "meetingMode": "in-person",
+          "lifecycle": "draft",
+          "quorumRequired": 3
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "meeting",
+        "slug": "wijkraad-mei",
+        "data": {
+          "title": "Wijkraad Noord — mei vergadering",
+          "meetingType": "regular",
+          "scheduledDate": "2026-05-10T20:00:00Z",
+          "location": "Buurthuis De Halte",
+          "meetingMode": "in-person",
+          "lifecycle": "draft"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "agenda-item",
+        "slug": "opening-raad-april",
+        "data": {
+          "title": "Opening en vaststelling agenda",
+          "itemType": "informational",
+          "orderNumber": 1,
+          "estimatedDuration": 5,
+          "isRecurring": true
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "agenda-item",
+        "slug": "bestemmingsplan-west",
+        "data": {
+          "title": "Vaststelling bestemmingsplan West",
+          "itemType": "decision",
+          "orderNumber": 3,
+          "estimatedDuration": 45,
+          "description": "Besluitvorming over het herziene bestemmingsplan voor de wijk West."
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "agenda-item",
+        "slug": "financieel-verslag",
+        "data": {
+          "title": "Financial Report Q1 2026",
+          "itemType": "informational",
+          "orderNumber": 2,
+          "estimatedDuration": 20,
+          "description": "Presentation of Q1 2026 financial results."
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "motion",
+        "slug": "motie-groene-energie",
+        "data": {
+          "title": "Motie versnelling groene energie",
+          "text": "De raad verzoekt het college om binnen 6 maanden een plan te presenteren voor versnelling van de groene energietransitie.",
+          "motionType": "motion",
+          "proposer": "Jan de Vries",
+          "coSigners": ["Maria Bakker"],
+          "lifecycle": "submitted",
+          "submittedAt": "2026-04-10T12:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "motion",
+        "slug": "motie-fietspaden",
+        "data": {
+          "title": "Motie uitbreiding fietspadennetwerk",
+          "text": "De raad verzoekt het college om extra budget vrij te maken voor de uitbreiding van het fietspadennetwerk in de buitenwijken.",
+          "motionType": "motion",
+          "proposer": "Pieter Jansen",
+          "lifecycle": "debating",
+          "submittedAt": "2026-04-10T12:30:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "motion",
+        "slug": "orde-voorstel-schorsing",
+        "data": {
+          "title": "Ordevoorstel: schorsing voor overleg",
+          "text": "Voorstel om de vergadering 15 minuten te schorsen voor fractieoverleg.",
+          "motionType": "procedural",
+          "proposer": "Maria Bakker",
+          "lifecycle": "adopted",
+          "submittedAt": "2026-04-10T13:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "amendment",
+        "slug": "amendement-termijn",
+        "data": {
+          "title": "Amendement: termijn verlengen naar 9 maanden",
+          "text": "In de motie 'versnelling groene energie' wordt '6 maanden' gewijzigd in '9 maanden'.",
+          "proposer": "Pieter Jansen",
+          "lifecycle": "submitted",
+          "submittedAt": "2026-04-10T14:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "amendment",
+        "slug": "amendement-budget",
+        "data": {
+          "title": "Amendment: add budget ceiling",
+          "text": "Add to paragraph 2: 'with a maximum budget of EUR 500,000'.",
+          "proposer": "Maria Bakker",
+          "lifecycle": "debating",
+          "submittedAt": "2026-04-11T09:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "amendment",
+        "slug": "amendement-scope",
+        "data": {
+          "title": "Amendment: limit scope to inner city",
+          "text": "Replace 'buitenwijken' with 'binnenstad' in the motion text.",
+          "proposer": "Jan de Vries",
+          "lifecycle": "rejected",
+          "submittedAt": "2026-04-11T09:30:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "voting-round",
+        "slug": "stemming-groene-energie",
+        "data": {
+          "votingMethod": "for-against-abstain",
+          "isSecret": false,
+          "openedAt": "2026-04-15T20:30:00Z",
+          "closedAt": "2026-04-15T20:35:00Z",
+          "quorumMet": true,
+          "result": "adopted",
+          "votesFor": 28,
+          "votesAgainst": 12,
+          "votesAbstain": 3
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "voting-round",
+        "slug": "stemming-fietspaden",
+        "data": {
+          "votingMethod": "for-against-abstain",
+          "isSecret": false,
+          "openedAt": "2026-04-15T21:00:00Z",
+          "closedAt": "2026-04-15T21:05:00Z",
+          "quorumMet": true,
+          "result": "rejected",
+          "votesFor": 15,
+          "votesAgainst": 25,
+          "votesAbstain": 3
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "voting-round",
+        "slug": "stemming-board-strategy",
+        "data": {
+          "votingMethod": "for-against-abstain",
+          "isSecret": true,
+          "quorumMet": true,
+          "result": "adopted",
+          "votesFor": 4,
+          "votesAgainst": 1,
+          "votesAbstain": 0
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "vote",
+        "slug": "stem-devries-groene-energie",
+        "data": {
+          "value": "for",
+          "weight": 1,
+          "isProxy": false,
+          "castAt": "2026-04-15T20:31:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "vote",
+        "slug": "stem-jansen-groene-energie",
+        "data": {
+          "value": "against",
+          "weight": 1,
+          "isProxy": false,
+          "castAt": "2026-04-15T20:32:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "vote",
+        "slug": "stem-bakker-groene-energie",
+        "data": {
+          "value": "for",
+          "weight": 1,
+          "isProxy": true,
+          "castAt": "2026-04-15T20:33:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "decision",
+        "slug": "besluit-groene-energie",
+        "data": {
+          "title": "Besluit versnelling groene energietransitie",
+          "text": "De raad besluit het college te verzoeken binnen 9 maanden een plan te presenteren voor versnelling van de groene energietransitie.",
+          "decisionDate": "2026-04-15T20:35:00Z",
+          "outcome": "adopted",
+          "isPublished": false,
+          "legalBasis": "Gemeentewet art. 147"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "decision",
+        "slug": "besluit-fietspaden",
+        "data": {
+          "title": "Besluit uitbreiding fietspadennetwerk",
+          "text": "De raad verwerpt de motie inzake de uitbreiding van het fietspadennetwerk.",
+          "decisionDate": "2026-04-15T21:05:00Z",
+          "outcome": "rejected",
+          "isPublished": false
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "decision",
+        "slug": "decision-strategy-2027",
+        "data": {
+          "title": "Approval of Strategy Plan 2027",
+          "text": "The board approves the strategic plan for fiscal year 2027 as presented by the CEO.",
+          "decisionDate": "2026-04-20T15:00:00Z",
+          "outcome": "adopted",
+          "isPublished": true,
+          "publishedAt": "2026-04-21T10:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "action-item",
+        "slug": "actie-energieplan",
+        "data": {
+          "title": "Energieplan opstellen",
+          "description": "College stelt een plan op voor versnelling groene energietransitie binnen 9 maanden.",
+          "assignee": "Wethouder Duurzaamheid",
+          "dueDate": "2027-01-15T00:00:00Z",
+          "taskStatus": "open"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "action-item",
+        "slug": "actie-terugkoppeling",
+        "data": {
+          "title": "Terugkoppeling raad Q3",
+          "description": "Tussentijdse terugkoppeling aan de raad over de voortgang van het energieplan.",
+          "assignee": "Griffier",
+          "dueDate": "2026-10-01T00:00:00Z",
+          "taskStatus": "open"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "action-item",
+        "slug": "action-strategy-kpis",
+        "data": {
+          "title": "Define KPIs for Strategy Plan 2027",
+          "description": "CEO to present measurable KPIs for board review at next meeting.",
+          "assignee": "CEO",
+          "dueDate": "2026-07-20T00:00:00Z",
+          "taskStatus": "in-progress"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "minutes",
+        "slug": "notulen-raad-april",
+        "data": {
+          "title": "Notulen raadsvergadering 15 april 2026",
+          "lifecycle": "draft",
+          "content": "Opening door de voorzitter om 19:05. Aanwezig: 43 van 45 raadsleden. Agenda vastgesteld conform voorstel.",
+          "version": 1
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "minutes",
+        "slug": "notulen-board-q1",
+        "data": {
+          "title": "Minutes Board Meeting Q1 2026",
+          "lifecycle": "approved",
+          "content": "Board meeting opened at 14:00. All directors present. Q1 financial results reviewed and approved.",
+          "approvedAt": "2026-04-01T16:00:00Z",
+          "signedBy": ["Chair", "Secretary"],
+          "version": 2
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "minutes",
+        "slug": "notulen-wijkraad-maart",
+        "data": {
+          "title": "Notulen Wijkraad Noord — maart 2026",
+          "lifecycle": "published",
+          "content": "Vergadering geopend om 20:00. Onderwerpen: herinrichting speeltuin, verkeersoverlast, buurtbudget.",
+          "approvedAt": "2026-03-25T20:00:00Z",
+          "version": 1
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "digital-document",
+        "slug": "bestemmingsplan-west-pdf",
+        "data": {
+          "name": "Bestemmingsplan West — concept",
+          "documentType": "report",
+          "description": "Concept bestemmingsplan voor de wijk West, ter vaststelling door de raad.",
+          "encodingFormat": "application/pdf",
+          "contentSize": "2.4 MB"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "digital-document",
+        "slug": "board-pack-q2",
+        "data": {
+          "name": "Board Pack Q2 2026",
+          "documentType": "report",
+          "description": "Consolidated board pack with financial statements, risk register, and strategic update.",
+          "encodingFormat": "application/pdf",
+          "contentSize": "8.1 MB"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "digital-document",
+        "slug": "contract-catering",
+        "data": {
+          "name": "Contract cateringdiensten 2026",
+          "documentType": "contract",
+          "description": "Raamovereenkomst voor cateringdiensten tijdens vergaderingen.",
+          "encodingFormat": "application/pdf",
+          "contentSize": "450 KB"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "report",
+        "slug": "jaarrekening-2025",
+        "data": {
+          "name": "Jaarrekening 2025",
+          "reportType": "financial",
+          "period": "2025",
+          "generatedAt": "2026-03-15T10:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "report",
+        "slug": "compliance-report-q1",
+        "data": {
+          "name": "Compliance Report Q1 2026",
+          "reportType": "compliance",
+          "period": "Q1 2026",
+          "generatedAt": "2026-04-05T14:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "report",
+        "slug": "audit-report-2025",
+        "data": {
+          "name": "Internal Audit Report 2025",
+          "reportType": "audit",
+          "period": "2025",
+          "generatedAt": "2026-02-28T09:00:00Z"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "monetary-amount",
+        "slug": "budget-energieplan",
+        "data": {
+          "value": 500000,
+          "currency": "EUR"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "monetary-amount",
+        "slug": "budget-fietspaden",
+        "data": {
+          "value": 1200000,
+          "currency": "EUR"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "monetary-amount",
+        "slug": "catering-budget",
+        "data": {
+          "value": 15000,
+          "currency": "EUR"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "offer",
+        "slug": "offerte-av-systeem",
+        "data": {
+          "name": "Offerte AV-systeem raadzaal",
+          "price": 85000,
+          "priceCurrency": "EUR",
+          "validFrom": "2026-03-01T00:00:00Z",
+          "validThrough": "2026-06-01T00:00:00Z",
+          "availability": "InStock"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "offer",
+        "slug": "offer-consulting",
+        "data": {
+          "name": "Governance consulting package",
+          "price": 25000,
+          "priceCurrency": "EUR",
+          "validFrom": "2026-04-01T00:00:00Z",
+          "validThrough": "2026-09-30T00:00:00Z",
+          "availability": "InStock"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "offer",
+        "slug": "offerte-catering",
+        "data": {
+          "name": "Catering raadsvergaderingen 2026",
+          "price": 15000,
+          "priceCurrency": "EUR",
+          "validFrom": "2026-01-01T00:00:00Z",
+          "validThrough": "2026-12-31T00:00:00Z",
+          "availability": "InStock"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "order",
+        "slug": "order-av-installatie",
+        "data": {
+          "orderNumber": "PO-2026-0042",
+          "orderDate": "2026-04-01T00:00:00Z",
+          "orderStatus": "confirmed",
+          "totalPrice": 85000,
+          "currency": "EUR",
+          "deliveryDate": "2026-07-15T00:00:00Z",
+          "paymentTerms": "NET30"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "order",
+        "slug": "order-laptops",
+        "data": {
+          "orderNumber": "PO-2026-0043",
+          "orderDate": "2026-04-10T00:00:00Z",
+          "orderStatus": "pending",
+          "totalPrice": 12500,
+          "currency": "EUR",
+          "paymentTerms": "NET14"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "order",
+        "slug": "order-catering-april",
+        "data": {
+          "orderNumber": "PO-2026-0044",
+          "orderDate": "2026-04-12T00:00:00Z",
+          "orderStatus": "delivered",
+          "totalPrice": 1250,
+          "currency": "EUR",
+          "deliveryDate": "2026-04-15T00:00:00Z",
+          "paymentTerms": "NET14"
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "product",
+        "slug": "product-webcam-ptz",
+        "data": {
+          "name": "PTZ Conference Camera",
+          "sku": "CAM-PTZ-4K",
+          "description": "4K PTZ camera for council chamber recording and streaming.",
+          "category": "AV Equipment",
+          "unitPrice": 3500,
+          "currency": "EUR",
+          "unitCode": "C62",
+          "taxRate": 21
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "product",
+        "slug": "product-microfoon",
+        "data": {
+          "name": "Discussiesysteem microfoon",
+          "sku": "MIC-DSC-01",
+          "description": "Draadloze microfoon voor het raadszaal discussiesysteem.",
+          "category": "AV Equipment",
+          "unitPrice": 850,
+          "currency": "EUR",
+          "unitCode": "C62",
+          "taxRate": 21
+        }
+      },
+      {
+        "register": "decidesk",
+        "schema": "product",
+        "slug": "product-vergaderset",
+        "data": {
+          "name": "Vergaderset standard",
+          "sku": "MTG-SET-01",
+          "description": "Standaard vergaderset: schrijfblok, pen, naamkaartje, water.",
+          "category": "Office Supplies",
+          "unitPrice": 12.50,
+          "currency": "EUR",
+          "unitCode": "C62",
+          "taxRate": 21
+        }
+      }
+    ]
   },
   "paths": {},
   "components": {
     "schemas": {
-      "example": {
-        "slug": "example",
-        "icon": "FileDocumentOutline",
+      "governance-body": {
+        "slug": "governance-body",
+        "icon": "DomainOutline",
         "version": "0.1.0",
-        "title": "Example",
-        "description": "Example schema — replace with your app's actual schemas.",
+        "title": "GovernanceBody",
+        "description": "A governance body (council, board, committee, assembly)",
+        "x-schema-type": "schema:Organization",
         "type": "object",
         "required": [
-          "title"
+          "name",
+          "bodyType",
+          "domain"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Body name",
+            "example": "Gemeenteraad Utrecht"
+          },
+          "bodyType": {
+            "type": "string",
+            "description": "Type of governance body",
+            "enum": ["legislative", "association", "corporate-board", "operational", "citizen-panel"],
+            "example": "legislative"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Governance domain preset",
+            "example": "municipality"
+          },
+          "workflowTemplate": {
+            "type": "string",
+            "description": "State machine workflow configuration"
+          },
+          "quorumRule": {
+            "type": "string",
+            "description": "Quorum calculation method",
+            "example": "majority"
+          },
+          "votingDefault": {
+            "type": "string",
+            "description": "Default voting method",
+            "example": "for-against-abstain"
+          },
+          "termStart": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Current term start"
+          },
+          "termEnd": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Current term end"
+          }
+        }
+      },
+      "participant": {
+        "slug": "participant",
+        "icon": "AccountOutline",
+        "version": "0.1.0",
+        "title": "Participant",
+        "description": "A member or attendee of a governance body",
+        "x-schema-type": "schema:Person",
+        "type": "object",
+        "required": [
+          "displayName",
+          "role"
+        ],
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "description": "Display name",
+            "example": "Jan de Vries"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role within the governance body",
+            "enum": ["chair", "vice-chair", "secretary", "member", "observer", "guest"],
+            "example": "member"
+          },
+          "party": {
+            "type": "string",
+            "description": "Political party or faction",
+            "example": "GroenLinks"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Contact email",
+            "example": "j.devries@example.nl"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When they joined the body"
+          },
+          "leftAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When they left (null = active)"
+          },
+          "votingWeight": {
+            "type": "number",
+            "description": "Vote weight (default 1)",
+            "default": 1,
+            "example": 1
+          }
+        }
+      },
+      "meeting": {
+        "slug": "meeting",
+        "icon": "CalendarOutline",
+        "version": "0.1.0",
+        "title": "Meeting",
+        "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
+        "x-schema-type": "schema:Event",
+        "type": "object",
+        "required": [
+          "title",
+          "meetingType",
+          "scheduledDate",
+          "meetingMode",
+          "lifecycle"
         ],
         "properties": {
           "title": {
             "type": "string",
-            "description": "The title of the example object",
-            "example": "My example"
+            "description": "Meeting title",
+            "example": "Raadsvergadering april 2026"
+          },
+          "meetingType": {
+            "type": "string",
+            "description": "Type of meeting",
+            "enum": ["regular", "extraordinary", "committee", "public hearing"],
+            "example": "regular"
+          },
+          "scheduledDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date and time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End date and time"
+          },
+          "location": {
+            "type": "string",
+            "description": "Physical location or video link",
+            "example": "Stadhuis Utrecht, Raadzaal"
+          },
+          "meetingMode": {
+            "type": "string",
+            "description": "Meeting mode",
+            "enum": ["in-person", "digital", "hybrid"],
+            "example": "hybrid"
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Meeting lifecycle state",
+            "enum": ["draft", "scheduled", "opened", "paused", "adjourned", "closed"],
+            "example": "scheduled"
+          },
+          "quorumRequired": {
+            "type": "integer",
+            "description": "Minimum participants for valid meeting"
+          },
+          "series": {
+            "type": "string",
+            "description": "Meeting series identifier"
+          }
+        }
+      },
+      "agenda-item": {
+        "slug": "agenda-item",
+        "icon": "FormatListNumberedRtl",
+        "version": "0.1.0",
+        "title": "AgendaItem",
+        "description": "An item on a meeting agenda with type, time, and ordering",
+        "x-schema-type": "custom:AgendaItem",
+        "type": "object",
+        "required": [
+          "title",
+          "itemType",
+          "orderNumber"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Agenda item title",
+            "example": "Vaststelling bestemmingsplan West"
+          },
+          "itemType": {
+            "type": "string",
+            "description": "Item type",
+            "enum": ["informational", "discussion", "decision"],
+            "example": "decision"
+          },
+          "orderNumber": {
+            "type": "integer",
+            "description": "Position on the agenda",
+            "example": 1
+          },
+          "estimatedDuration": {
+            "type": "integer",
+            "description": "Estimated minutes"
+          },
+          "actualDuration": {
+            "type": "integer",
+            "description": "Actual minutes spent"
           },
           "description": {
             "type": "string",
-            "description": "An optional description",
-            "example": "This is an example"
+            "description": "Detailed description"
+          },
+          "isRecurring": {
+            "type": "boolean",
+            "description": "Appears on every meeting",
+            "default": false
+          }
+        }
+      },
+      "motion": {
+        "slug": "motion",
+        "icon": "TextBoxOutline",
+        "version": "0.1.0",
+        "title": "Motion",
+        "description": "A formal proposal submitted for debate and voting",
+        "x-schema-type": "custom:Motion",
+        "type": "object",
+        "required": [
+          "title",
+          "text",
+          "motionType",
+          "proposer",
+          "lifecycle",
+          "submittedAt"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Motion title",
+            "example": "Motie versnelling groene energie"
+          },
+          "text": {
+            "type": "string",
+            "description": "Full motion text",
+            "example": "De raad verzoekt het college..."
+          },
+          "motionType": {
+            "type": "string",
+            "description": "Type of motion",
+            "enum": ["motion", "amendment", "order", "procedural"],
+            "example": "motion"
+          },
+          "proposer": {
+            "type": "string",
+            "description": "Name of proposer",
+            "example": "Jan de Vries"
+          },
+          "coSigners": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of co-signers"
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Motion lifecycle state",
+            "enum": ["submitted", "debating", "voting", "adopted", "rejected", "withdrawn"],
+            "example": "submitted"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Submission timestamp"
+          }
+        }
+      },
+      "amendment": {
+        "slug": "amendment",
+        "icon": "PencilBoxOutline",
+        "version": "0.1.0",
+        "title": "Amendment",
+        "description": "A proposed change to an existing motion",
+        "x-schema-type": "custom:Amendment",
+        "type": "object",
+        "required": [
+          "title",
+          "text",
+          "proposer",
+          "lifecycle",
+          "submittedAt"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Amendment title",
+            "example": "Amendement: termijn verlengen naar 9 maanden"
+          },
+          "text": {
+            "type": "string",
+            "description": "Amendment text (change description)",
+            "example": "In de motie wordt '6 maanden' gewijzigd in '9 maanden'."
+          },
+          "proposer": {
+            "type": "string",
+            "description": "Name of proposer",
+            "example": "Pieter Jansen"
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Amendment lifecycle state",
+            "enum": ["submitted", "debating", "voting", "adopted", "rejected"],
+            "example": "submitted"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Submission timestamp"
+          }
+        }
+      },
+      "voting-round": {
+        "slug": "voting-round",
+        "icon": "VoteOutline",
+        "version": "0.1.0",
+        "title": "VotingRound",
+        "description": "A voting session on a motion or amendment",
+        "x-schema-type": "custom:VotingRound",
+        "type": "object",
+        "required": [
+          "votingMethod",
+          "isSecret"
+        ],
+        "properties": {
+          "votingMethod": {
+            "type": "string",
+            "description": "Voting method used",
+            "enum": ["for-against-abstain", "ranked-choice", "weighted", "show-of-hands"],
+            "example": "for-against-abstain"
+          },
+          "isSecret": {
+            "type": "boolean",
+            "description": "Secret ballot",
+            "example": false
+          },
+          "openedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When voting opened"
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When voting closed"
+          },
+          "quorumMet": {
+            "type": "boolean",
+            "description": "Was quorum met"
+          },
+          "result": {
+            "type": "string",
+            "description": "Voting result",
+            "enum": ["adopted", "rejected", "tied", "invalid"]
+          },
+          "votesFor": {
+            "type": "integer",
+            "description": "Count of votes for"
+          },
+          "votesAgainst": {
+            "type": "integer",
+            "description": "Count of votes against"
+          },
+          "votesAbstain": {
+            "type": "integer",
+            "description": "Count of abstentions"
+          }
+        }
+      },
+      "vote": {
+        "slug": "vote",
+        "icon": "ThumbUpOutline",
+        "version": "0.1.0",
+        "title": "Vote",
+        "description": "An individual vote cast in a voting round",
+        "x-schema-type": "custom:Vote",
+        "type": "object",
+        "required": [
+          "value",
+          "castAt"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "Vote value",
+            "enum": ["for", "against", "abstain"],
+            "example": "for"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Vote weight (for weighted voting)",
+            "default": 1
+          },
+          "isProxy": {
+            "type": "boolean",
+            "description": "Cast via proxy delegation",
+            "default": false
+          },
+          "castAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the vote was cast"
+          }
+        }
+      },
+      "decision": {
+        "slug": "decision",
+        "icon": "GavelOutline",
+        "version": "0.1.0",
+        "title": "Decision",
+        "description": "A formal decision resulting from a vote",
+        "x-schema-type": "custom:Decision",
+        "type": "object",
+        "required": [
+          "title",
+          "text",
+          "decisionDate",
+          "outcome"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Decision title",
+            "example": "Besluit versnelling groene energietransitie"
+          },
+          "text": {
+            "type": "string",
+            "description": "Decision text"
+          },
+          "decisionDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the decision was made"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Decision outcome",
+            "enum": ["adopted", "rejected"],
+            "example": "adopted"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "description": "Published via ORI API",
+            "default": false
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Publication timestamp"
+          },
+          "legalBasis": {
+            "type": "string",
+            "description": "Legal article or regulation"
+          }
+        }
+      },
+      "action-item": {
+        "slug": "action-item",
+        "icon": "CheckboxMarkedOutline",
+        "version": "0.1.0",
+        "title": "ActionItem",
+        "description": "A follow-up task from a meeting decision",
+        "x-schema-type": "custom:ActionItem",
+        "type": "object",
+        "required": [
+          "title",
+          "taskStatus"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Task title",
+            "example": "Energieplan opstellen"
+          },
+          "description": {
+            "type": "string",
+            "description": "Task details"
+          },
+          "assignee": {
+            "type": "string",
+            "description": "Assigned participant"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Due date"
+          },
+          "taskStatus": {
+            "type": "string",
+            "description": "Task status",
+            "enum": ["open", "in-progress", "completed", "overdue"],
+            "example": "open"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Completion timestamp"
+          }
+        }
+      },
+      "minutes": {
+        "slug": "minutes",
+        "icon": "NoteTextOutline",
+        "version": "0.1.0",
+        "title": "Minutes",
+        "description": "Official record of a meeting's proceedings",
+        "x-schema-type": "custom:Minutes",
+        "type": "object",
+        "required": [
+          "title",
+          "lifecycle"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Minutes title",
+            "example": "Notulen raadsvergadering 15 april 2026"
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Minutes lifecycle state",
+            "enum": ["draft", "review", "approved", "signed", "published"],
+            "example": "draft"
+          },
+          "content": {
+            "type": "string",
+            "description": "Full minutes text"
+          },
+          "approvedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Approval timestamp"
+          },
+          "signedBy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Digital signers (chair + secretary)"
+          },
+          "version": {
+            "type": "integer",
+            "description": "Revision number",
+            "default": 1
+          }
+        }
+      },
+      "digital-document": {
+        "slug": "digital-document",
+        "icon": "FileDocumentOutline",
+        "version": "0.1.0",
+        "title": "DigitalDocument",
+        "description": "Schema.org DigitalDocument — standard vocabulary for digital document data",
+        "x-schema-type": "schema:DigitalDocument",
+        "type": "object",
+        "required": [
+          "name",
+          "documentType"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Document name/title",
+            "example": "Bestemmingsplan West — concept"
+          },
+          "documentType": {
+            "type": "string",
+            "description": "Document type (contract, tender, report, etc.)",
+            "example": "report"
+          },
+          "description": {
+            "type": "string",
+            "description": "Document description"
+          },
+          "encodingFormat": {
+            "type": "string",
+            "description": "MIME type (application/pdf, etc.)"
+          },
+          "contentSize": {
+            "type": "string",
+            "description": "File size"
+          }
+        }
+      },
+      "monetary-amount": {
+        "slug": "monetary-amount",
+        "icon": "CurrencyEur",
+        "version": "0.1.0",
+        "title": "MonetaryAmount",
+        "description": "Schema.org MonetaryAmount — standard vocabulary for monetary amount data",
+        "x-schema-type": "schema:MonetaryAmount",
+        "type": "object",
+        "required": [
+          "value",
+          "currency"
+        ],
+        "properties": {
+          "value": {
+            "type": "number",
+            "description": "Numeric value",
+            "example": 500000
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code",
+            "example": "EUR"
+          }
+        }
+      },
+      "offer": {
+        "slug": "offer",
+        "icon": "TagOutline",
+        "version": "0.1.0",
+        "title": "Offer",
+        "description": "Schema.org Offer — standard vocabulary for offer data",
+        "x-schema-type": "schema:Offer",
+        "type": "object",
+        "required": [
+          "name",
+          "price",
+          "priceCurrency"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Offer/quote name",
+            "example": "Offerte AV-systeem raadzaal"
+          },
+          "price": {
+            "type": "number",
+            "description": "Offered price",
+            "example": 85000
+          },
+          "priceCurrency": {
+            "type": "string",
+            "description": "Currency",
+            "example": "EUR"
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Offer valid from"
+          },
+          "validThrough": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Offer valid until"
+          },
+          "availability": {
+            "type": "string",
+            "description": "Availability status"
+          }
+        }
+      },
+      "order": {
+        "slug": "order",
+        "icon": "CartOutline",
+        "version": "0.1.0",
+        "title": "Order",
+        "description": "Schema.org Order — standard vocabulary for order data",
+        "x-schema-type": "schema:Order",
+        "type": "object",
+        "required": [
+          "orderNumber",
+          "orderDate",
+          "orderStatus",
+          "totalPrice",
+          "currency"
+        ],
+        "properties": {
+          "orderNumber": {
+            "type": "string",
+            "description": "Purchase order number",
+            "example": "PO-2026-0042"
+          },
+          "orderDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date of order"
+          },
+          "orderStatus": {
+            "type": "string",
+            "description": "Order status",
+            "example": "confirmed"
+          },
+          "totalPrice": {
+            "type": "number",
+            "description": "Total order amount",
+            "example": 85000
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code",
+            "example": "EUR"
+          },
+          "deliveryDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Expected delivery date"
+          },
+          "paymentTerms": {
+            "type": "string",
+            "description": "Payment terms (e.g., NET30)"
+          }
+        }
+      },
+      "product": {
+        "slug": "product",
+        "icon": "PackageVariant",
+        "version": "0.1.0",
+        "title": "Product",
+        "description": "Schema.org Product — standard vocabulary for product data",
+        "x-schema-type": "schema:Product",
+        "type": "object",
+        "required": [
+          "name",
+          "unitPrice",
+          "currency"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Product name",
+            "example": "PTZ Conference Camera"
+          },
+          "sku": {
+            "type": "string",
+            "description": "Stock keeping unit"
+          },
+          "description": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "category": {
+            "type": "string",
+            "description": "Product category"
+          },
+          "unitPrice": {
+            "type": "number",
+            "description": "Unit price",
+            "example": 3500
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code",
+            "example": "EUR"
+          },
+          "unitCode": {
+            "type": "string",
+            "description": "Unit of measure (UN/CEFACT)"
+          },
+          "taxRate": {
+            "type": "number",
+            "description": "Applicable tax rate percentage"
+          }
+        }
+      },
+      "report": {
+        "slug": "report",
+        "icon": "ChartBoxOutline",
+        "version": "0.1.0",
+        "title": "Report",
+        "description": "Schema.org Report — standard vocabulary for report data",
+        "x-schema-type": "schema:Report",
+        "type": "object",
+        "required": [
+          "name",
+          "reportType"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Report title",
+            "example": "Jaarrekening 2025"
+          },
+          "reportType": {
+            "type": "string",
+            "description": "Report type (financial, compliance, etc.)",
+            "example": "financial"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the report was generated"
           }
         }
       }
