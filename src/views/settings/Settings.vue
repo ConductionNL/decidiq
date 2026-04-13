@@ -12,6 +12,25 @@
 					:placeholder="t('decidesk', 'OpenRegister register ID')">
 			</div>
 
+			<div class="form-group">
+				<label for="oriEndpoint">{{ t('decidesk', 'ORI endpoint') }}</label>
+				<input
+					id="oriEndpoint"
+					v-model="form.oriEndpoint"
+					type="url"
+					:placeholder="t('decidesk', 'ORI endpoint')">
+			</div>
+
+			<div class="form-group">
+				<label for="emailVoting">
+					<input
+						id="emailVoting"
+						v-model="form.emailVoting"
+						type="checkbox">
+					{{ t('decidesk', 'Enable email voting') }}
+				</label>
+			</div>
+
 			<div v-if="successMessage" class="success-message">
 				{{ successMessage }}
 			</div>
@@ -41,6 +60,8 @@ export default {
 		return {
 			form: {
 				register: '',
+				oriEndpoint: '',
+				emailVoting: false,
 			},
 			saving: false,
 			successMessage: '',
@@ -49,6 +70,8 @@ export default {
 	created() {
 		const settingsStore = useSettingsStore()
 		this.form.register = settingsStore.settings?.register || ''
+		this.form.oriEndpoint = settingsStore.settings?.oriEndpoint || ''
+		this.form.emailVoting = settingsStore.settings?.emailVoting || false
 	},
 	methods: {
 		async save() {

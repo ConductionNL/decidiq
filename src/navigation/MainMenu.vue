@@ -10,6 +10,13 @@
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
+				:name="t('decidesk', 'Motions')"
+				:to="{ name: 'MotionIndex' }">
+				<template #icon>
+					<GavelIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
 				:name="t('decidesk', 'Documentation')"
 				@click="openLink('https://conduction.nl', '_blank')">
 				<template #icon>
@@ -33,6 +40,7 @@
 import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 import CogIcon from 'vue-material-design-icons/Cog.vue'
+import GavelIcon from 'vue-material-design-icons/Gavel.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
 export default {
@@ -42,6 +50,7 @@ export default {
 		NcAppNavigationItem,
 		BookOpenVariantOutline,
 		CogIcon,
+		GavelIcon,
 		HomeIcon,
 	},
 	methods: {
