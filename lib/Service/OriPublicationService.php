@@ -138,11 +138,21 @@ class OriPublicationService
             return;
         }//end if
 
-        // Guard: only publish over HTTPS to prevent data leakage.
-        if (parse_url($oriEndpoint, PHP_URL_SCHEME) !== 'https') {
+        // Validate that the ORI endpoint uses HTTPS to prevent transmitting
+        // government data in plaintext (OWASP A02:2021 — Cryptographic Failures).
+        $endpointScheme = parse_url($oriEndpoint, PHP_URL_SCHEME);
+        if ($endpointScheme !== 'https') {
+            $endpointHost = parse_url($oriEndpoint, PHP_URL_HOST);
+            $endpointLog  = '';
+            if ($endpointHost !== false && $endpointHost !== null) {
+                $endpointLog = $endpointHost;
+            } else {
+                $endpointLog = $oriEndpoint;
+            }
+
             $this->logger->error(
-                'OriPublicationService: ORI endpoint must use HTTPS',
-                ['endpoint' => (parse_url($oriEndpoint, PHP_URL_HOST) ?? $oriEndpoint)]
+                'OriPublicationService: ORI endpoint must use HTTPS; publication aborted',
+                ['endpoint' => $endpointLog]
             );
             return;
         }//end if
@@ -150,10 +160,10 @@ class OriPublicationService
         $objectService = $this->getObjectService();
         $votingRound   = $objectService->getObject('votingRound', $votingRoundId);
 
-        // Guard: cannot publish an open (not yet closed) voting round.
+        // Guard: only publish closed rounds to prevent sending incomplete results.
         if (($votingRound['closedAt'] ?? null) === null) {
             $this->logger->warning(
-                'OriPublicationService: attempted to publish an open voting round',
+                'OriPublicationService: attempted to publish an open voting round; publication aborted',
                 ['votingRoundId' => $votingRoundId]
             );
             return;
@@ -163,14 +173,15 @@ class OriPublicationService
         $attempts = (int) ($votingRound['oriPublicationAttempts'] ?? 0) + 1;
 
         // Build JSON-LD payload conforming to the ORI standard.
+        // Use the actual VotingRound field names: openedAt / closedAt.
         $payload = [
             '@context'     => 'https://standaarden.overheid.nl/owms/terms/',
             '@type'        => 'VotingRound',
             'identifier'   => $votingRoundId,
             'startDate'    => ($votingRound['openedAt'] ?? ''),
             'endDate'      => ($votingRound['closedAt'] ?? ''),
-            'votingMethod' => ($votingRound['votingMethod'] ?? ''),
             'result'       => ($votingRound['result'] ?? ''),
+            'votingMethod' => ($votingRound['votingMethod'] ?? ''),
         ];
 
         // Log only the host/path, not the full URL (which may contain API keys).

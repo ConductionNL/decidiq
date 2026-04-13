@@ -216,8 +216,8 @@ export default {
 		},
 	},
 	created() {
+		this.isChair = this.settingsStore.isAdmin || this.settingsStore.isChair
 		this.objectStore.fetchObjects('votingRound')
-		this.isChair = !!(this.settingsStore.settings?.isChair)
 		this.pollInterval = setInterval(() => {
 			this.objectStore.fetchObjects('votingRound')
 		}, 5000)

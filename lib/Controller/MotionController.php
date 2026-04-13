@@ -30,6 +30,7 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
 
 /**
  * Thin controller for the motion lifecycle API.
@@ -41,18 +42,20 @@ class MotionController extends DecideskController
     /**
      * Constructor for the MotionController.
      *
-     * @param IRequest      $request       The request object
-     * @param MotionService $motionService The motion service
-     * @param IUserSession  $userSession   The user session
-     * @param IGroupManager $groupManager  The group manager
+     * @param IRequest        $request       The request object
+     * @param MotionService   $motionService The motion service
+     * @param IUserSession    $userSession   The user session
+     * @param IGroupManager   $groupManager  The group manager
+     * @param LoggerInterface $logger        The logger
      *
      * @return void
      */
     public function __construct(
         IRequest $request,
-        private MotionService $motionService,
+        private readonly MotionService $motionService,
         IUserSession $userSession,
         IGroupManager $groupManager,
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct(request: $request, userSession: $userSession, groupManager: $groupManager);
     }//end __construct()
@@ -89,7 +92,8 @@ class MotionController extends DecideskController
             $result = $this->motionService->transitionLifecycle($id, 'motion', $newState, $actorId);
             return new JSONResponse($result);
         } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+            $this->logger->warning('Motion lifecycle transition failed', ['motionId' => $id, 'newState' => $newState, 'error' => $e->getMessage()]);
+            return new JSONResponse(['error' => 'State transition not permitted'], Http::STATUS_BAD_REQUEST);
         }
     }//end transition()
 
@@ -218,7 +222,11 @@ class MotionController extends DecideskController
             $result = $this->motionService->transitionLifecycle($id, 'amendment', $newState, $actorId);
             return new JSONResponse($result);
         } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+            $this->logger->warning(
+                'Amendment lifecycle transition failed',
+                ['amendmentId' => $id, 'newState' => $newState, 'error' => $e->getMessage()]
+            );
+            return new JSONResponse(['error' => 'State transition not permitted'], Http::STATUS_BAD_REQUEST);
         }
     }//end amendmentTransition()
 }//end class

@@ -59,9 +59,9 @@ export default {
 			})
 		},
 		canSubmit() {
-			const allowedStates = ['submitted', 'debating']
-			if (!allowedStates.includes(this.motionLifecycle)) return false
-			return !!(this.settingsStore.settings?.isChair) || this.settingsStore.isAdmin
+			const validLifecycles = ['submitted', 'debating']
+			return validLifecycles.includes(this.motionLifecycle)
+				&& (this.settingsStore.isAdmin || this.settingsStore.isChair)
 		},
 	},
 	created() {

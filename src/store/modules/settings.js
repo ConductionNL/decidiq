@@ -7,6 +7,7 @@ export const useSettingsStore = defineStore('settings', {
 		loading: false,
 		hasOpenRegisters: false,
 		isAdmin: false,
+		isChair: false,
 	}),
 
 	getters: {
@@ -26,6 +27,7 @@ export const useSettingsStore = defineStore('settings', {
 					this.settings = data
 					this.hasOpenRegisters = !!data?.openregisters
 					this.isAdmin = !!data?.isAdmin
+					this.isChair = !!data?.isChair
 					return data
 				}
 			} catch (error) {
