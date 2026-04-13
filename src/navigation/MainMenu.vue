@@ -54,7 +54,9 @@
 			</NcAppNavigationItem>
 		</template>
 		<template #footer>
-			<NcAppNavigationSettings :name="t('decidesk', 'Instellingen')">
+			<NcAppNavigationSettings
+				v-if="isAdmin"
+				:name="t('decidesk', 'Instellingen')">
 				<NcAppNavigationItem
 					:name="t('decidesk', 'Instellingen')"
 					:to="{ name: 'Settings' }">
@@ -70,6 +72,7 @@
 <script>
 import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
 import GlobalSearch from '../components/GlobalSearch.vue'
+import { useSettingsStore } from '../store/modules/settings.js'
 
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
@@ -98,6 +101,12 @@ export default {
 		AccountGroupOutline,
 		DomainIcon,
 		CogIcon,
+	},
+
+	computed: {
+		isAdmin() {
+			return useSettingsStore().getIsAdmin
+		},
 	},
 }
 </script>

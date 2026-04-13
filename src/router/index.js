@@ -29,7 +29,7 @@ const SettingsView = () => import('../views/SettingsView.vue')
 
 export default new Router({
 	mode: 'history',
-	base: generateUrl('/apps/decidesk'),
+	base: generateUrl('/apps/decidesk') + '/',
 	routes: [
 		{ path: '/', name: 'Dashboard', component: DashboardView },
 		{ path: '/meetings', name: 'MeetingList', component: MeetingList },

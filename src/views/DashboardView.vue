@@ -64,32 +64,23 @@
 		<!-- Quick-access navigation tiles -->
 		<template #widget-quick-access>
 			<div class="decidesk-dashboard__tiles">
-				<button
+				<CnTileWidget
 					v-for="tile in tiles"
 					:key="tile.route"
-					class="decidesk-dashboard__tile"
-					:title="tile.label"
-					@click="$router.push({ name: tile.route })"
-					@keydown.enter="$router.push({ name: tile.route })">
-					<component :is="tile.icon" :size="32" />
-					<span>{{ tile.label }}</span>
-				</button>
+					:tile="tile.tileConfig" />
 			</div>
 		</template>
 	</CnDashboardPage>
 </template>
 
 <script>
-import { CnDashboardPage, CnKpiGrid, CnStatsBlock, CnChartWidget } from '@conduction/nextcloud-vue'
+import { CnDashboardPage, CnKpiGrid, CnStatsBlock, CnChartWidget, CnTileWidget } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/modules/object.js'
 
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
 import ClipboardCheckOutline from 'vue-material-design-icons/ClipboardCheckOutline.vue'
 import GavelIcon from 'vue-material-design-icons/Gavel.vue'
-import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
-import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
-import DomainIcon from 'vue-material-design-icons/Domain.vue'
 
 /**
  * Dashboard view showing KPI cards, meeting status chart, and quick-access tiles.
@@ -103,13 +94,7 @@ export default {
 		CnKpiGrid,
 		CnStatsBlock,
 		CnChartWidget,
-		CalendarClock,
-		FileDocumentOutline,
-		ClipboardCheckOutline,
-		GavelIcon,
-		CalendarBlank,
-		AccountGroupOutline,
-		DomainIcon,
+		CnTileWidget,
 	},
 
 	data() {
@@ -127,11 +112,56 @@ export default {
 			},
 			meetings: [],
 			tiles: [
-				{ route: 'MeetingList', label: this.t('decidesk', 'Vergaderingen'), icon: CalendarBlank },
-				{ route: 'MotionList', label: this.t('decidesk', 'Moties'), icon: FileDocumentOutline },
-				{ route: 'DecisionList', label: this.t('decidesk', 'Besluiten'), icon: GavelIcon },
-				{ route: 'ParticipantList', label: this.t('decidesk', 'Deelnemers'), icon: AccountGroupOutline },
-				{ route: 'GovernanceBodyList', label: this.t('decidesk', 'Bestuursorganen'), icon: DomainIcon },
+				{
+					route: 'MeetingList',
+					tileConfig: {
+						title: this.t('decidesk', 'Vergaderingen'),
+						icon: 'mdi:calendar-blank',
+						iconType: 'class',
+						linkType: 'url',
+						linkValue: '/meetings',
+					},
+				},
+				{
+					route: 'MotionList',
+					tileConfig: {
+						title: this.t('decidesk', 'Moties'),
+						icon: 'mdi:file-document-outline',
+						iconType: 'class',
+						linkType: 'url',
+						linkValue: '/motions',
+					},
+				},
+				{
+					route: 'DecisionList',
+					tileConfig: {
+						title: this.t('decidesk', 'Besluiten'),
+						icon: 'mdi:gavel',
+						iconType: 'class',
+						linkType: 'url',
+						linkValue: '/decisions',
+					},
+				},
+				{
+					route: 'ParticipantList',
+					tileConfig: {
+						title: this.t('decidesk', 'Deelnemers'),
+						icon: 'mdi:account-group-outline',
+						iconType: 'class',
+						linkType: 'url',
+						linkValue: '/participants',
+					},
+				},
+				{
+					route: 'GovernanceBodyList',
+					tileConfig: {
+						title: this.t('decidesk', 'Bestuursorganen'),
+						icon: 'mdi:domain',
+						iconType: 'class',
+						linkType: 'url',
+						linkValue: '/governance-bodies',
+					},
+				},
 			],
 			dashboardWidgets: [
 				{ id: 'kpi-stats', title: '', type: 'custom' },
@@ -224,21 +254,7 @@ export default {
 		}
 	},
 
-	methods: {
-		/**
-		 * Truncate a title to 60 characters with ellipsis.
-		 *
-		 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.6
-		 * @param {string} title The title to truncate.
-		 * @return {string} Truncated title.
-		 */
-		truncateTitle(title) {
-			if (!title || title.length <= 60) {
-				return title || ''
-			}
-			return title.substring(0, 57) + '…'
-		},
-	},
+	methods: {},
 }
 </script>
 
@@ -254,32 +270,5 @@ export default {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
 	gap: 12px;
-}
-
-.decidesk-dashboard__tile {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 8px;
-	padding: 16px 8px;
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-large);
-	background: var(--color-main-background);
-	color: var(--color-main-text);
-	cursor: pointer;
-	transition: background-color 0.15s ease;
-}
-
-.decidesk-dashboard__tile:hover,
-.decidesk-dashboard__tile:focus-visible {
-	background: var(--color-background-hover);
-	outline: 2px solid var(--color-primary-element);
-	outline-offset: -2px;
-}
-
-.decidesk-dashboard__tile span {
-	font-size: 13px;
-	font-weight: 500;
-	text-align: center;
 }
 </style>

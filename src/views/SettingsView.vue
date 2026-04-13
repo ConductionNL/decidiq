@@ -19,22 +19,24 @@
 			<template #footer>
 				<div class="cn-support-info">
 					<h4>{{ t('decidesk', 'Support') }}</h4>
-					<p>{{ t('decidesk', 'For support, contact us at') }} <a href="mailto:support@conduction.nl">support@conduction.nl</a></p>
+					<p>{{ t('decidesk', 'For support, contact us at {email}', { email: 'support@conduction.nl' }) }}</p>
 				</div>
 			</template>
 		</CnVersionInfoCard>
 
 		<CnRegisterMapping
+			v-if="isAdmin"
 			:name="t('decidesk', 'Register Configuration')"
 			:description="t('decidesk', 'Configure the OpenRegister schema mappings for all Decidesk object types.')"
 			:groups="registerGroups"
 			:configuration="registerConfiguration"
-			:show-reimport-button="true"
+			:show-reimport-button="false"
 			:reimporting="reimporting"
 			@save="handleMappingSave"
 			@reimport="reimportRegister" />
 
 		<CnSettingsSection
+			v-if="isAdmin"
 			:name="t('decidesk', 'Register')"
 			:description="t('decidesk', 'Manage the OpenRegister configuration for Decidesk.')">
 			<NcButton
@@ -100,9 +102,12 @@ export default {
 	},
 
 	computed: {
+		isAdmin() {
+			return useSettingsStore().getIsAdmin
+		},
+
 		registerConfiguration() {
-			const settingsStore = useSettingsStore()
-			return settingsStore.getSettings
+			return useSettingsStore().getSettings
 		},
 	},
 

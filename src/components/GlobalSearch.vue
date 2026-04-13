@@ -53,6 +53,7 @@
 				<button
 					v-for="(result, index) in results"
 					:key="result.id || index"
+					tabindex="-1"
 					class="global-search__result"
 					role="option"
 					:aria-selected="index === activeIndex"
@@ -78,6 +79,7 @@
 
 <script>
 import { NcLoadingIcon } from '@nextcloud/vue'
+import { useListView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/modules/object.js'
 
 import Magnify from 'vue-material-design-icons/Magnify.vue'
@@ -88,7 +90,15 @@ import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.v
 import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
 
 /**
+ * The schema types to search across.
+ *
+ * @type {string[]}
+ */
+const SEARCH_TYPES = ['meeting', 'motion', 'decision', 'agendaItem', 'participant']
+
+/**
  * Global search bar with floating dropdown for governance data.
+ * Uses useListView from @conduction/nextcloud-vue for debounced search per object type.
  *
  * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-6.1
  */
@@ -105,6 +115,22 @@ export default {
 	},
 
 	data() {
+		const objectStore = useObjectStore()
+
+		/**
+		 * Create one useListView instance per object type, each with a fetchFn
+		 * delegating to the objectStore — this uses the library's built-in debounce
+		 * instead of custom timer state (ADR-004 compliant).
+		 */
+		const listViews = {}
+		for (const type of SEARCH_TYPES) {
+			listViews[type] = useListView({
+				objectType: type,
+				debounceMs: 400,
+				fetchFn: (objectType, params) => objectStore.fetchObjects(objectType, params),
+			})
+		}
+
 		return {
 			query: '',
 			results: [],
@@ -112,39 +138,28 @@ export default {
 			hasSearched: false,
 			showDropdown: false,
 			activeIndex: -1,
-			debounceTimer: null,
-		}
-	},
-
-	beforeDestroy() {
-		if (this.debounceTimer) {
-			clearTimeout(this.debounceTimer)
+			listViews,
 		}
 	},
 
 	methods: {
 		/**
-		 * Debounced input handler — triggers search after 400ms with 3+ characters.
+		 * Input handler — delegates to each useListView's onSearchInput for debounced search.
 		 *
 		 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-6.1
 		 */
 		onInput() {
-			if (this.debounceTimer) {
-				clearTimeout(this.debounceTimer)
-			}
 			if (this.query.length < 3) {
 				this.results = []
 				this.hasSearched = false
 				this.showDropdown = false
 				return
 			}
-			this.debounceTimer = setTimeout(() => {
-				this.performSearch()
-			}, 400)
+			this.performSearch()
 		},
 
 		/**
-		 * Search OpenRegister across multiple schemas.
+		 * Search OpenRegister across multiple schemas via useListView composables.
 		 *
 		 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-6.2
 		 */
@@ -153,18 +168,15 @@ export default {
 			this.showDropdown = true
 			this.activeIndex = -1
 
-			const objectStore = useObjectStore()
-			const types = ['meeting', 'motion', 'decision', 'agendaItem', 'participant']
-
 			try {
-				const fetches = types.map((type) =>
-					objectStore.fetchObjects(type, { _search: this.query })
-						.then((items) => (items || []).map((item) => ({ ...item, _type: type }))),
-				)
+				const fetches = SEARCH_TYPES.map(async (type) => {
+					const items = await this.listViews[type].fetchFn(type, { _search: this.query })
+					return (items || []).map((item) => ({ ...item, _type: type }))
+				})
 				const allResults = await Promise.all(fetches)
 				this.results = allResults.flat().slice(0, 10)
 			} catch (error) {
-				console.error('Search failed:', error)
+				console.error('Search failed:', error.message)
 				this.results = []
 			} finally {
 				this.searching = false
