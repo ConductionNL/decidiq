@@ -10,6 +10,12 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
+        // Agenda management endpoints (p2-agenda-management).
+        ['name' => 'agenda#publish', 'url' => '/api/agendas/{meetingId}/publish', 'verb' => 'POST'],
+        ['name' => 'agenda#advanceBobPhase', 'url' => '/api/agenda-items/{id}/bob-phase', 'verb' => 'PUT'],
+        ['name' => 'agenda#processHamerstukken', 'url' => '/api/agendas/{meetingId}/hamerstukken', 'verb' => 'POST'],
+        ['name' => 'agenda#reorder', 'url' => '/api/agendas/{meetingId}/reorder', 'verb' => 'PUT'],
+
         // Prometheus metrics endpoint.
         ['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
         // Health check endpoint.
