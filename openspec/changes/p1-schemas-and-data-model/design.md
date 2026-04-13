@@ -1,3 +1,5 @@
+## Status: pr-created
+
 ## Context
 
 Decidesk is a thin-client Nextcloud app: it owns no database tables and performs no direct SQL. All domain data is stored and retrieved via OpenRegister's ObjectService. Before any feature can be built, the 17 entities defined in ADR-000 must be registered as OpenRegister schemas inside a `decidesk` register.
