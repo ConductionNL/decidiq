@@ -6,7 +6,8 @@
  *
  * Decidesk Base Controller
  *
- * Abstract base controller providing shared permission helpers for all Decidesk controllers.
+ * Abstract base controller that provides the shared isChairOrAdmin() permission
+ * helper for all Decidesk controllers, avoiding duplication.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -31,37 +32,27 @@ use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
- * Abstract base controller providing shared permission helpers.
+ * Abstract base controller providing the shared isChairOrAdmin() permission helper.
  *
- * Subclasses must set $this->userSession and $this->groupManager in their own constructors
- * before any permission checks are invoked.
+ * MotionController and VotingController extend this class so the permission logic
+ * lives in a single place.
  */
 abstract class DecideskController extends Controller
 {
-
-    /**
-     * The user session for resolving the authenticated user.
-     *
-     * @var IUserSession
-     */
-    protected IUserSession $userSession;
-
-    /**
-     * The group manager for resolving group membership.
-     *
-     * @var IGroupManager
-     */
-    protected IGroupManager $groupManager;
-
     /**
      * Constructor.
      *
-     * @param IRequest $request The request object
+     * @param IRequest      $request      The request object
+     * @param IUserSession  $userSession  The user session
+     * @param IGroupManager $groupManager The group manager
      *
      * @return void
      */
-    public function __construct(IRequest $request)
-    {
+    public function __construct(
+        IRequest $request,
+        protected IUserSession $userSession,
+        protected IGroupManager $groupManager,
+    ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 

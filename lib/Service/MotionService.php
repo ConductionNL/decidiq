@@ -123,6 +123,7 @@ class MotionService
                 'objectType' => $objectType,
                 'from'       => $currentState,
                 'to'         => $newState,
+                'actorId'    => substr(sha1($actorId), 0, 8),
             ]
         );
 
@@ -149,7 +150,7 @@ class MotionService
         $title         = ($motion['title'] ?? 'Untitled motion');
 
         foreach ($participantIds as $participantId) {
-            $this->logger->info(
+            $this->logger->debug(
                 'Co-signature requested',
                 [
                     'motionId'    => $motionId,

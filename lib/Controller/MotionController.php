@@ -54,9 +54,7 @@ class MotionController extends DecideskController
         IUserSession $userSession,
         IGroupManager $groupManager,
     ) {
-        parent::__construct(request: $request);
-        $this->userSession  = $userSession;
-        $this->groupManager = $groupManager;
+        parent::__construct(request: $request, userSession: $userSession, groupManager: $groupManager);
     }//end __construct()
 
     /**
@@ -98,7 +96,7 @@ class MotionController extends DecideskController
     /**
      * Request co-signatures for a motion.
      *
-     * Only chairs and admins may send co-signature requests.
+     * Only chairs and admins may trigger co-signature requests.
      *
      * @param string $id The motion identifier
      *
@@ -159,7 +157,7 @@ class MotionController extends DecideskController
     /**
      * Save budget impact for a motion.
      *
-     * Only chairs and admins may annotate budget impact.
+     * Only chairs and admins may record budget impact notes.
      *
      * @param string $id The motion identifier
      *

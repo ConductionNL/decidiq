@@ -57,15 +57,11 @@ class VotingController extends DecideskController
         IUserSession $userSession,
         IGroupManager $groupManager,
     ) {
-        parent::__construct(request: $request);
-        $this->userSession  = $userSession;
-        $this->groupManager = $groupManager;
+        parent::__construct(request: $request, userSession: $userSession, groupManager: $groupManager);
     }//end __construct()
 
     /**
      * Open a new voting round.
-     *
-     * The actorId is resolved from the authenticated session.
      *
      * @NoAdminRequired
      *
@@ -84,14 +80,20 @@ class VotingController extends DecideskController
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
         }
 
+        $actorId      = $user->getUID();
         $motionId     = $this->request->getParam('motionId');
         $votingMethod = $this->request->getParam('votingMethod');
         $isSecret     = (bool) $this->request->getParam('isSecret');
         $closedAt     = $this->request->getParam('closedAt');
-        $actorId      = $user->getUID();
 
         try {
-            $result = $this->votingService->openVotingRound($motionId, $votingMethod, $isSecret, $actorId, $closedAt);
+            $result = $this->votingService->openVotingRound(
+                $motionId,
+                $votingMethod,
+                $isSecret,
+                $closedAt,
+                $actorId
+            );
             return new JSONResponse($result);
         } catch (\InvalidArgumentException | \RuntimeException $e) {
             return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
@@ -153,34 +155,6 @@ class VotingController extends DecideskController
 
         return new JSONResponse($result);
     }//end close()
-
-    /**
-     * Save show-of-hands counts for a voting round.
-     *
-     * Persists manually entered hand-count totals and closes the round.
-     *
-     * @param string $id The voting round identifier
-     *
-     * @return JSONResponse
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     */
-    public function handsCount(string $id): JSONResponse
-    {
-        if ($this->isChairOrAdmin() === false) {
-            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
-        }
-
-        $votesFor     = (int) $this->request->getParam('votesFor', 0);
-        $votesAgainst = (int) $this->request->getParam('votesAgainst', 0);
-        $votesAbstain = (int) $this->request->getParam('votesAbstain', 0);
-
-        $result = $this->votingService->closeVotingRoundWithHandsCount($id, $votesFor, $votesAgainst, $votesAbstain);
-
-        return new JSONResponse($result);
-    }//end handsCount()
 
     /**
      * Publish voting results to ORI.
@@ -266,4 +240,33 @@ class VotingController extends DecideskController
             return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
     }//end revokeProxy()
+
+    /**
+     * Save manually entered show-of-hands totals on a voting round.
+     *
+     * Used when votingMethod is 'show-of-hands' and the chair enters totals
+     * directly rather than recording individual votes.
+     *
+     * @param string $id The voting round identifier
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+     */
+    public function handsCount(string $id): JSONResponse
+    {
+        if ($this->isChairOrAdmin() === false) {
+            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
+        }
+
+        $votesFor     = (int) $this->request->getParam('votesFor', 0);
+        $votesAgainst = (int) $this->request->getParam('votesAgainst', 0);
+        $votesAbstain = (int) $this->request->getParam('votesAbstain', 0);
+
+        $result = $this->votingService->saveHandsCount($id, $votesFor, $votesAgainst, $votesAbstain);
+
+        return new JSONResponse($result);
+    }//end handsCount()
 }//end class

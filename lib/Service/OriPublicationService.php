@@ -10,7 +10,7 @@
  *
  * This service builds JSON-LD payloads conforming to the ORI standard and handles
  * publication of VotingRound resources to a configured ORI endpoint. Failed
- * publications are persisted on the VotingRound and retried via a background job.
+ * publications are retried up to 3 times via a queued background job.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -45,7 +45,7 @@ class OriPublicationService
 {
 
     /**
-     * Maximum number of publication attempts before permanent failure.
+     * Maximum number of publication attempts before giving up.
      */
     private const MAX_ATTEMPTS = 3;
 
@@ -78,7 +78,7 @@ class OriPublicationService
     private IClientService $clientService;
 
     /**
-     * The job list for enqueueing retry jobs.
+     * The background job list for enqueuing retry jobs.
      *
      * @var IJobList
      */
@@ -91,7 +91,7 @@ class OriPublicationService
      * @param LoggerInterface    $logger        The logger instance.
      * @param IAppConfig         $appConfig     The Nextcloud app configuration service.
      * @param IClientService     $clientService The HTTP client service.
-     * @param IJobList           $jobList       The job list for enqueueing retry jobs.
+     * @param IJobList           $jobList       The background job list.
      */
     public function __construct(
         ContainerInterface $container,
@@ -120,31 +120,17 @@ class OriPublicationService
     /**
      * Publish a VotingRound to the configured ORI endpoint.
      *
-     * On success, persists publicationStatus='published' on the VotingRound.
-     * On failure, persists publicationStatus='failed' and enqueues a retry job.
+     * Fetches the VotingRound by ID, builds a JSON-LD payload with ORI-compliant
+     * context and type annotations, and POSTs it to the configured ORI endpoint.
+     * On success the VotingRound is updated with oriPublicationStatus='published'.
+     * On failure the status is set to 'failed' and a retry job is enqueued if the
+     * attempt limit has not been reached.
      *
      * @param string $votingRoundId The UUID of the VotingRound to publish.
      *
      * @return void
      */
     public function publish(string $votingRoundId): void
-    {
-        $this->publishWithRetry(votingRoundId: $votingRoundId, attempt: 1, jobList: $this->jobList);
-    }//end publish()
-
-    /**
-     * Attempt to publish a VotingRound, tracking the attempt number.
-     *
-     * Called by publish() for the first attempt and by OriPublicationRetryJob
-     * for subsequent attempts.
-     *
-     * @param string   $votingRoundId The UUID of the VotingRound to publish.
-     * @param int      $attempt       The 1-based attempt number.
-     * @param IJobList $jobList       The job list for enqueueing the next retry.
-     *
-     * @return void
-     */
-    public function publishWithRetry(string $votingRoundId, int $attempt, IJobList $jobList): void
     {
         $oriEndpoint = $this->appConfig->getValueString(Application::APP_ID, 'ori_endpoint', '');
 
@@ -155,17 +141,20 @@ class OriPublicationService
         $objectService = $this->getObjectService();
         $votingRound   = $objectService->getObject('votingRound', $votingRoundId);
 
+        // Compute the next attempt number before modifying $votingRound.
+        $attempts = (int) ($votingRound['oriPublicationAttempts'] ?? 0) + 1;
+
         // Build JSON-LD payload conforming to the ORI standard.
         $payload = [
             '@context'    => 'https://standaarden.overheid.nl/owms/terms/',
             '@type'       => 'VotingRound',
             'identifier'  => $votingRoundId,
-            'name'        => $votingRound['name'] ?? '',
-            'description' => $votingRound['description'] ?? '',
-            'status'      => $votingRound['status'] ?? '',
-            'startDate'   => $votingRound['startDate'] ?? '',
-            'endDate'     => $votingRound['endDate'] ?? '',
-            'result'      => $votingRound['result'] ?? '',
+            'name'        => ($votingRound['name'] ?? ''),
+            'description' => ($votingRound['description'] ?? ''),
+            'status'      => ($votingRound['status'] ?? ''),
+            'startDate'   => ($votingRound['startDate'] ?? ''),
+            'endDate'     => ($votingRound['endDate'] ?? ''),
+            'result'      => ($votingRound['result'] ?? ''),
         ];
 
         // Log only the host/path, not the full URL (which may contain API keys).
@@ -184,8 +173,8 @@ class OriPublicationService
                 ]
             );
 
-            // Persist success state.
-            $votingRound['publicationStatus'] = 'published';
+            $votingRound['oriPublicationAttempts'] = $attempts;
+            $votingRound['oriPublicationStatus']   = 'published';
             $objectService->saveObject('votingRound', $votingRound);
 
             $this->logger->info(
@@ -193,48 +182,46 @@ class OriPublicationService
                 [
                     'votingRoundId' => $votingRoundId,
                     'endpoint'      => $endpointHost,
+                    'attempt'       => $attempts,
                 ]
             );
         } catch (\Exception $e) {
+            $votingRound['oriPublicationAttempts'] = $attempts;
+            $votingRound['oriPublicationStatus']   = 'failed';
+            $objectService->saveObject('votingRound', $votingRound);
+
             $this->logger->error(
                 'OriPublicationService: failed to publish VotingRound to ORI endpoint',
                 [
                     'votingRoundId' => $votingRoundId,
                     'endpoint'      => $endpointHost,
-                    'attempt'       => $attempt,
+                    'attempt'       => $attempts,
                     'error'         => $e->getMessage(),
                 ]
             );
 
-            if ($attempt < self::MAX_ATTEMPTS) {
-                // Persist pending-retry state and enqueue next attempt.
-                $votingRound['publicationStatus'] = 'pending';
-                $objectService->saveObject('votingRound', $votingRound);
-
-                $jobList->add(
+            if ($attempts < self::MAX_ATTEMPTS) {
+                $this->jobList->add(
                     OriPublicationRetryJob::class,
-                    [
-                        'votingRoundId' => $votingRoundId,
-                        'attempt'       => ($attempt + 1),
-                    ]
-                );
-            } else {
-                // Max attempts reached — persist permanent failure.
-                $votingRound['publicationStatus'] = 'failed';
-                $objectService->saveObject('votingRound', $votingRound);
-
-                $this->logger->error(
-                    'OriPublicationService: max retry attempts reached, publication permanently failed',
                     ['votingRoundId' => $votingRoundId]
                 );
-            }//end if
+
+                $this->logger->info(
+                    'OriPublicationService: enqueued retry job',
+                    [
+                        'votingRoundId' => $votingRoundId,
+                        'attempt'       => $attempts,
+                        'maxAttempts'   => self::MAX_ATTEMPTS,
+                    ]
+                );
+            }
         }//end try
-    }//end publishWithRetry()
+    }//end publish()
 
     /**
      * Get the publication status of a VotingRound on the ORI endpoint.
      *
-     * Reads the persisted publicationStatus from the VotingRound object.
+     * Reads the persisted oriPublicationStatus field from the VotingRound object.
      * Possible values: 'not_configured', 'pending', 'published', 'failed'.
      *
      * @param string $votingRoundId The UUID of the VotingRound to check.
@@ -252,6 +239,6 @@ class OriPublicationService
         $objectService = $this->getObjectService();
         $votingRound   = $objectService->getObject('votingRound', $votingRoundId);
 
-        return ($votingRound['publicationStatus'] ?? 'pending');
+        return ($votingRound['oriPublicationStatus'] ?? 'pending');
     }//end getPublicationStatus()
 }//end class

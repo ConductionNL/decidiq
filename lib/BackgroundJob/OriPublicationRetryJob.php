@@ -6,9 +6,9 @@
  *
  * Decidesk ORI Publication Retry Job
  *
- * Background job that retries a failed ORI publication attempt.
- * Implements simple exponential backoff by re-enqueueing with an incremented
- * attempt counter; stops after three failed attempts.
+ * Queued background job that retries a failed ORI publication attempt.
+ * Added to the job queue by OriPublicationService when an initial publish
+ * call fails. Maximum 3 total attempts are tracked on the VotingRound object.
  *
  * @category BackgroundJob
  * @package  OCA\Decidesk\BackgroundJob
@@ -28,31 +28,30 @@ namespace OCA\Decidesk\BackgroundJob;
 
 use OCA\Decidesk\Service\OriPublicationService;
 use OCP\AppFramework\Utility\ITimeFactory;
-use OCP\BackgroundJob\IJobList;
-use OCP\BackgroundJob\QueuedJob;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Background job that retries a failed ORI publication attempt.
+ * Queued background job that retries a failed ORI publication.
+ *
+ * Uses lazy container resolution for OriPublicationService to avoid a
+ * circular construction dependency (OriPublicationService → IJobList →
+ * OriPublicationRetryJob → OriPublicationService).
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
  */
-class OriPublicationRetryJob extends QueuedJob
+class OriPublicationRetryJob extends \OCP\BackgroundJob\QueuedJob
 {
     /**
      * Constructor.
      *
-     * @param ITimeFactory          $time                  The time factory for scheduling
-     * @param OriPublicationService $oriPublicationService The ORI publication service
-     * @param IJobList              $jobList               The job list for re-enqueueing
-     * @param LoggerInterface       $logger                The logger instance
-     *
-     * @return void
+     * @param ITimeFactory       $time      The time factory for job scheduling.
+     * @param ContainerInterface $container The DI container for lazy service resolution.
+     * @param LoggerInterface    $logger    The logger instance.
      */
     public function __construct(
         ITimeFactory $time,
-        private OriPublicationService $oriPublicationService,
-        private IJobList $jobList,
+        private ContainerInterface $container,
         private LoggerInterface $logger,
     ) {
         parent::__construct(time: $time);
@@ -61,35 +60,31 @@ class OriPublicationRetryJob extends QueuedJob
     /**
      * Execute the retry job.
      *
-     * Re-attempts ORI publication for the given VotingRound. If the attempt
-     * limit is reached the job logs a permanent failure and stops retrying.
+     * Resolves OriPublicationService lazily from the container to avoid
+     * circular construction, then calls publish() with the stored votingRoundId.
      *
-     * @param mixed $argument The job argument: ['votingRoundId' => string, 'attempt' => int]
+     * @param mixed $argument The job argument array containing 'votingRoundId'.
      *
      * @return void
      */
-    protected function run(mixed $argument): void
+    protected function run($argument): void
     {
-        $votingRoundId = $argument['votingRoundId'] ?? '';
-        $attempt       = (int) ($argument['attempt'] ?? 1);
-
-        if ($votingRoundId === '') {
-            $this->logger->error('OriPublicationRetryJob: missing votingRoundId in argument');
+        $votingRoundId = $argument['votingRoundId'] ?? null;
+        if ($votingRoundId === null) {
+            $this->logger->warning('OriPublicationRetryJob: missing votingRoundId in argument');
             return;
         }
 
         $this->logger->info(
             'OriPublicationRetryJob: retrying ORI publication',
-            [
-                'votingRoundId' => $votingRoundId,
-                'attempt'       => $attempt,
-            ]
+            ['votingRoundId' => $votingRoundId]
         );
 
-        $this->oriPublicationService->publishWithRetry(
-            votingRoundId: $votingRoundId,
-            attempt: $attempt,
-            jobList: $this->jobList
-        );
+        /*
+         * @var OriPublicationService $service
+         */
+
+        $service = $this->container->get(OriPublicationService::class);
+        $service->publish($votingRoundId);
     }//end run()
 }//end class

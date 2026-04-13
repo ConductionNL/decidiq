@@ -360,11 +360,9 @@ export default {
 						votesAbstain: this.handsAbstain,
 					}),
 				})
-				if (!response.ok) {
-					console.error('Save hands count failed:', await response.text())
-					return
+				if (response.ok) {
+					await this.objectStore.fetchObjects('votingRound')
 				}
-				await this.objectStore.fetchObjects('votingRound')
 			} catch (error) {
 				console.error('Save hands count failed:', error)
 			}
