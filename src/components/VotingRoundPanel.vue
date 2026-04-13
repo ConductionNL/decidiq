@@ -157,7 +157,7 @@
 
 <script>
 import { generateUrl } from '@nextcloud/router'
-import { useObjectStore } from '../store/store.js'
+import { useObjectStore, useSettingsStore } from '../store/store.js'
 
 export default {
 	name: 'VotingRoundPanel',
@@ -196,6 +196,9 @@ export default {
 		objectStore() {
 			return useObjectStore()
 		},
+		settingsStore() {
+			return useSettingsStore()
+		},
 		votingRounds() {
 			return (this.objectStore.objects.votingRound || []).filter(r => r.motion === this.motionId)
 		},
@@ -214,6 +217,7 @@ export default {
 	},
 	created() {
 		this.objectStore.fetchObjects('votingRound')
+		this.isChair = !!(this.settingsStore.settings?.isChair)
 		this.pollInterval = setInterval(() => {
 			this.objectStore.fetchObjects('votingRound')
 		}, 5000)

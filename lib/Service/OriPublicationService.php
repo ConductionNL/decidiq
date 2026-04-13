@@ -138,23 +138,39 @@ class OriPublicationService
             return;
         }//end if
 
+        // Guard: only publish over HTTPS to prevent data leakage.
+        if (parse_url($oriEndpoint, PHP_URL_SCHEME) !== 'https') {
+            $this->logger->error(
+                'OriPublicationService: ORI endpoint must use HTTPS',
+                ['endpoint' => (parse_url($oriEndpoint, PHP_URL_HOST) ?? $oriEndpoint)]
+            );
+            return;
+        }//end if
+
         $objectService = $this->getObjectService();
         $votingRound   = $objectService->getObject('votingRound', $votingRoundId);
+
+        // Guard: cannot publish an open (not yet closed) voting round.
+        if (($votingRound['closedAt'] ?? null) === null) {
+            $this->logger->warning(
+                'OriPublicationService: attempted to publish an open voting round',
+                ['votingRoundId' => $votingRoundId]
+            );
+            return;
+        }//end if
 
         // Compute the next attempt number before modifying $votingRound.
         $attempts = (int) ($votingRound['oriPublicationAttempts'] ?? 0) + 1;
 
         // Build JSON-LD payload conforming to the ORI standard.
         $payload = [
-            '@context'    => 'https://standaarden.overheid.nl/owms/terms/',
-            '@type'       => 'VotingRound',
-            'identifier'  => $votingRoundId,
-            'name'        => ($votingRound['name'] ?? ''),
-            'description' => ($votingRound['description'] ?? ''),
-            'status'      => ($votingRound['status'] ?? ''),
-            'startDate'   => ($votingRound['startDate'] ?? ''),
-            'endDate'     => ($votingRound['endDate'] ?? ''),
-            'result'      => ($votingRound['result'] ?? ''),
+            '@context'     => 'https://standaarden.overheid.nl/owms/terms/',
+            '@type'        => 'VotingRound',
+            'identifier'   => $votingRoundId,
+            'startDate'    => ($votingRound['openedAt'] ?? ''),
+            'endDate'      => ($votingRound['closedAt'] ?? ''),
+            'votingMethod' => ($votingRound['votingMethod'] ?? ''),
+            'result'       => ($votingRound['result'] ?? ''),
         ];
 
         // Log only the host/path, not the full URL (which may contain API keys).

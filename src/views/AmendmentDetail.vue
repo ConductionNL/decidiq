@@ -116,7 +116,10 @@ export default {
 	methods: {
 		async loadAmendment() {
 			const amendments = await this.objectStore.fetchObjects('amendment')
-			this.amendment = amendments.find(a => String(a.id) === String(this.amendmentId)) || {}
+			const amendment = amendments.find(a => String(a.id) === String(this.amendmentId)) || {}
+			this.amendment = amendment
+			const notes = amendment.notes || []
+			this.hasConflict = notes.some(n => typeof n.title === 'string' && n.title.startsWith('Conflict:'))
 		},
 		async transition(newState) {
 			try {

@@ -149,6 +149,10 @@ class VotingService
             throw new \RuntimeException('Quorum niet bereikt');
         }
 
+        // Transition motion to 'voting' state first — throws if motion is not in 'debating'.
+        // Must be called before saving the VotingRound to avoid orphaned objects on failure.
+        $this->motionService->transitionLifecycle($motionId, 'motion', 'voting', $actorId);
+
         // Create VotingRound object. isOpen=true marks the round as active for casting.
         $votingRound = $objectService->saveObject(
                 'votingRound',
@@ -175,9 +179,6 @@ class VotingService
                     'type' => 'VotingRound->Motion',
                 ]
                 );
-
-        // Transition motion to 'voting' state through the lifecycle guard.
-        $this->motionService->transitionLifecycle($motionId, 'motion', 'voting', $actorId);
 
         $this->logger->info(
                 'Voting round opened',
@@ -370,6 +371,7 @@ class VotingService
 
         // Perform the single authoritative save: closedAt + tally data together.
         $votingRound['closedAt']     = (new \DateTimeImmutable())->format('c');
+        $votingRound['isOpen']       = false;
         $votingRound['votesFor']     = $tally['votesFor'];
         $votingRound['votesAgainst'] = $tally['votesAgainst'];
         $votingRound['votesAbstain'] = $tally['votesAbstain'];
@@ -390,14 +392,12 @@ class VotingService
 
             if (empty($relations) === false) {
                 $relation = reset($relations);
-                $motion   = $objectService->getObject('motion', $relation['to']);
-                $motion['lifecycle'] = $result;
-                $objectService->saveObject('motion', $motion);
+                $this->motionService->transitionLifecycle($relation['to'], 'motion', $result, '');
 
                 $this->logger->info(
                         'Motion lifecycle updated',
                         [
-                            'motionId'  => $motion['id'],
+                            'motionId'  => $relation['to'],
                             'lifecycle' => $result,
                         ]
                         );
@@ -613,11 +613,11 @@ class VotingService
     ): void {
         $objectService = $this->getObjectService();
 
-        // Fetch VotingRound and check if round is already open for casting.
+        // Fetch VotingRound and check if round is still actively open for casting.
         $votingRound = $objectService->getObject('votingRound', $votingRoundId);
-        $isOpen      = ($votingRound['isOpen'] ?? false);
+        $isActive    = (($votingRound['closedAt'] ?? null) === null);
 
-        if ($isOpen === true) {
+        if ($isActive === true) {
             throw new \RuntimeException('Kan volmacht niet intrekken: stemronde is al geopend');
         }
 

@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { useObjectStore } from '../store/store.js'
+import { useObjectStore, useSettingsStore } from '../store/store.js'
 
 export default {
 	name: 'AmendmentList',
@@ -39,10 +39,17 @@ export default {
 			type: String,
 			required: true,
 		},
+		motionLifecycle: {
+			type: String,
+			default: '',
+		},
 	},
 	computed: {
 		objectStore() {
 			return useObjectStore()
+		},
+		settingsStore() {
+			return useSettingsStore()
 		},
 		amendments() {
 			const all = this.objectStore.objects.amendment || []
@@ -52,7 +59,9 @@ export default {
 			})
 		},
 		canSubmit() {
-			return true
+			const allowedStates = ['submitted', 'debating']
+			if (!allowedStates.includes(this.motionLifecycle)) return false
+			return !!(this.settingsStore.settings?.isChair) || this.settingsStore.isAdmin
 		},
 	},
 	created() {

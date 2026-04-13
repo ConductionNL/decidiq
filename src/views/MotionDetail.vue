@@ -66,12 +66,8 @@
 				</p>
 
 				<div class="motion-detail__cosign-form">
-					<input v-model="newCoSigner"
-						type="text"
-						:placeholder="t('decidesk', 'Participant name')"
-						:aria-label="t('decidesk', 'Co-signer name')">
 					<button @click="addCoSigner">
-						{{ t('decidesk', 'Add co-signer') }}
+						{{ t('decidesk', 'Confirm my co-signature') }}
 					</button>
 				</div>
 			</section>
@@ -101,7 +97,7 @@
 			<!-- Amendments list -->
 			<section class="motion-detail__section">
 				<h3>{{ t('decidesk', 'Amendments') }}</h3>
-				<AmendmentList :motion-id="motionId" />
+				<AmendmentList :motion-id="motionId" :motion-lifecycle="motion.lifecycle" />
 			</section>
 
 			<!-- Voting round panel -->
@@ -130,7 +126,6 @@ export default {
 	data() {
 		return {
 			motion: {},
-			newCoSigner: '',
 			budgetLine: '',
 			amountDelta: 0,
 			budgetRationale: '',
@@ -199,7 +194,6 @@ export default {
 			}
 		},
 		async addCoSigner() {
-			if (!this.newCoSigner.trim()) return
 			try {
 				const url = generateUrl(`/apps/decidesk/api/motions/${this.motionId}/co-sign-confirm`)
 				await fetch(url, {
@@ -208,9 +202,7 @@ export default {
 						'Content-Type': 'application/json',
 						requesttoken: OC.requestToken,
 					},
-					body: JSON.stringify({ displayName: this.newCoSigner.trim() }),
 				})
-				this.newCoSigner = ''
 				await this.loadMotion()
 			} catch (error) {
 				console.error('Add co-signer failed:', error)

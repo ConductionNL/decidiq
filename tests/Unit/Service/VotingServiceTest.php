@@ -481,8 +481,8 @@ class VotingServiceTest extends TestCase
         $this->objectService->method('getObject')
             ->willReturn(
                     [
-                        'id'     => 'round-open',
-                        'isOpen' => true,
+                        'id'       => 'round-open',
+                        'closedAt' => null,
                     ]
                     );
 
@@ -504,9 +504,9 @@ class VotingServiceTest extends TestCase
     public function testRevokeProxySucceedsWhenRoundIsNotOpen(): void
     {
         $votingRound = [
-            'id'     => 'round-not-open',
-            'isOpen' => false,
-            'notes'  => [
+            'id'       => 'round-not-open',
+            'closedAt' => '2026-01-01T00:00:00+00:00',
+            'notes'    => [
                 ['type' => 'proxy', 'from' => 'participant-1', 'to' => 'participant-2'],
             ],
         ];

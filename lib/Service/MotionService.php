@@ -108,9 +108,16 @@ class MotionService
         if (isset(self::ALLOWED_TRANSITIONS[$currentState]) === false
             || in_array($newState, self::ALLOWED_TRANSITIONS[$currentState], true) === false
         ) {
-            throw new \InvalidArgumentException(
-                "Transition from '{$currentState}' to '{$newState}' is not allowed for object '{$objectId}'"
+            $this->logger->warning(
+                'State transition not allowed',
+                [
+                    'objectId'   => $objectId,
+                    'objectType' => $objectType,
+                    'from'       => $currentState,
+                    'to'         => $newState,
+                ]
             );
+            throw new \InvalidArgumentException('State transition not permitted');
         }
 
         $object['lifecycle'] = $newState;
@@ -153,8 +160,9 @@ class MotionService
             $this->logger->debug(
                 'Co-signature requested',
                 [
-                    'motionId'    => $motionId,
-                    'motionTitle' => $title,
+                    'motionId'      => $motionId,
+                    'motionTitle'   => $title,
+                    'participantId' => substr(sha1($participantId), 0, 8),
                 ]
             );
         }

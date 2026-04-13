@@ -91,14 +91,21 @@ class SettingsService
             $settings[$key] = $this->appConfig->getValueString(Application::APP_ID, $key, '');
         }
 
-        $user    = $this->userSession->getUser();
-        $isAdmin = ($user !== null && $this->groupManager->isAdmin($user->getUID()));
+        $user = $this->userSession->getUser();
+        $uid  = '';
+        if ($user !== null) {
+            $uid = $user->getUID();
+        }
+
+        $isAdmin = ($uid !== '' && $this->groupManager->isAdmin($uid));
+        $isChair = ($uid !== '' && $this->groupManager->isInGroup($uid, 'decidesk-chair'));
 
         return array_merge(
             $settings,
             [
                 'openregisters' => $this->isOpenRegisterAvailable(),
                 'isAdmin'       => $isAdmin,
+                'isChair'       => ($isChair || $isAdmin),
             ]
         );
     }//end getSettings()
