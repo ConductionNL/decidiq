@@ -99,6 +99,11 @@ class SettingsService
             [
                 'openregisters' => $this->isOpenRegisterAvailable(),
                 'isAdmin'       => $isAdmin,
+                'entityConfig'  => [
+                    'minutes'    => ['schema' => 'minutes', 'register' => 'decidesk'],
+                    'decision'   => ['schema' => 'decision', 'register' => 'decidesk'],
+                    'actionItem' => ['schema' => 'action-item', 'register' => 'decidesk'],
+                ],
             ]
         );
     }//end getSettings()

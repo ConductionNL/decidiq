@@ -1,4 +1,7 @@
 import { generateUrl } from '@nextcloud/router'
+import { useActionItemStore } from './modules/actionItem.js'
+import { useDecisionStore } from './modules/decision.js'
+import { useMinutesStore } from './modules/minutes.js'
 import { useObjectStore } from './modules/object.js'
 import { useSettingsStore } from './modules/settings.js'
 
@@ -43,7 +46,16 @@ export async function initializeStores() {
 		objectStore.registerObjectType(name, schema, register)
 	}
 
-	return { settingsStore, objectStore }
+	// Initialize dedicated stores for Minutes, Decision, and ActionItem.
+	const minutesStore = useMinutesStore()
+	const decisionStore = useDecisionStore()
+	const actionItemStore = useActionItemStore()
+
+	minutesStore.registerObjectType('minutes', 'minutes', 'decidesk')
+	decisionStore.registerObjectType('decision', 'decision', 'decidesk')
+	actionItemStore.registerObjectType('action-item', 'action-item', 'decidesk')
+
+	return { settingsStore, objectStore, minutesStore, decisionStore, actionItemStore }
 }
 
-export { useObjectStore, useSettingsStore }
+export { useActionItemStore, useDecisionStore, useMinutesStore, useObjectStore, useSettingsStore }

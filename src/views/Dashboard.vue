@@ -3,38 +3,38 @@
 		<header class="decidesk-dashboard__header">
 			<h2>{{ t('decidesk', 'Dashboard') }}</h2>
 			<p class="decidesk-dashboard__lead">
-				{{ t('decidesk', 'Starter overview with sample KPIs and activity placeholders. Replace this view with your own data.') }}
+				{{ t('decidesk', 'Overview of your governance activities and key metrics.') }}
 			</p>
 		</header>
 
 		<CnKpiGrid :columns="4">
 			<CnStatsBlock
-				:title="t('decidesk', 'Open items')"
-				:count="12"
-				:count-label="t('decidesk', 'sample')"
-				:icon="FolderOutline"
-				variant="primary"
-				horizontal />
-			<CnStatsBlock
-				:title="t('decidesk', 'Due this week')"
-				:count="5"
-				:count-label="t('decidesk', 'sample')"
-				:icon="CalendarClock"
+				:title="t('decidesk', 'Notulen ter goedkeuring')"
+				:count="minutesReviewCount"
+				:count-label="t('decidesk', 'awaiting review')"
+				:icon="NotebookOutline"
 				variant="warning"
 				horizontal />
 			<CnStatsBlock
-				:title="t('decidesk', 'Completed')"
-				:count="48"
-				:count-label="t('decidesk', 'sample')"
-				:icon="CheckCircleOutline"
+				:title="t('decidesk', 'Gepubliceerde besluiten')"
+				:count="publishedDecisionsCount"
+				:count-label="t('decidesk', 'published')"
+				:icon="GavelIcon"
 				variant="success"
 				horizontal />
 			<CnStatsBlock
-				:title="t('decidesk', 'Team members')"
-				:count="7"
-				:count-label="t('decidesk', 'sample')"
-				:icon="AccountGroupOutline"
-				variant="default"
+				:title="t('decidesk', 'Open actiepunten')"
+				:count="openActionItemsCount"
+				:count-label="t('decidesk', 'open or in progress')"
+				:icon="CheckboxMarkedOutline"
+				variant="primary"
+				horizontal />
+			<CnStatsBlock
+				:title="t('decidesk', 'Overdue')"
+				:count="overdueCount"
+				:count-label="t('decidesk', 'overdue items')"
+				:icon="CalendarClock"
+				variant="error"
 				horizontal />
 		</CnKpiGrid>
 
@@ -58,10 +58,11 @@
 
 <script>
 import { CnConfigurationCard, CnKpiGrid, CnStatsBlock } from '@conduction/nextcloud-vue'
-import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
-import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
-import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
+import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
+import GavelIcon from 'vue-material-design-icons/Gavel.vue'
+import NotebookOutline from 'vue-material-design-icons/NotebookOutline.vue'
+import { useObjectStore } from '../store/modules/object.js'
 
 export default {
 	name: 'Dashboard',
@@ -72,11 +73,43 @@ export default {
 	},
 	data() {
 		return {
-			FolderOutline,
+			NotebookOutline,
+			GavelIcon,
+			CheckboxMarkedOutline,
 			CalendarClock,
-			CheckCircleOutline,
-			AccountGroupOutline,
+			minutesReviewCount: 0,
+			publishedDecisionsCount: 0,
+			openActionItemsCount: 0,
+			overdueCount: 0,
 		}
+	},
+	async created() {
+		await this.fetchKpiCounts()
+	},
+	methods: {
+		async fetchKpiCounts() {
+			const objectStore = useObjectStore()
+			try {
+				const [minutesItems, decisionItems, actionItems] = await Promise.all([
+					objectStore.fetchObjects('minutes', { lifecycle: 'review' }),
+					objectStore.fetchObjects('decision', { isPublished: 'true' }),
+					objectStore.fetchObjects('actionItem'),
+				])
+
+				this.minutesReviewCount = (minutesItems || []).length
+				this.publishedDecisionsCount = (decisionItems || []).length
+
+				const allItems = (actionItems || [])
+				this.openActionItemsCount = allItems.filter(
+					(i) => i.taskStatus === 'open' || i.taskStatus === 'in-progress',
+				).length
+				this.overdueCount = allItems.filter(
+					(i) => i.taskStatus === 'overdue',
+				).length
+			} catch (e) {
+				console.error('Failed to fetch KPI counts:', e)
+			}
+		},
 	},
 }
 </script>
