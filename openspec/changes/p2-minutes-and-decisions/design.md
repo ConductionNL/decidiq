@@ -29,10 +29,10 @@ OpenRegister provides full-text search, audit trails, file attachments, relation
 **Rationale**: ADR-001 requires using platform capabilities. `status` is a built-in field with workflow engine support — no custom state machine code needed.
 **Alternative considered**: Custom `lifecycle` field managed in PHP service — rejected because it duplicates the platform's workflow engine.
 
-### 2. Digital signing stores signer display names in `signedBy` array
-**Decision**: `signedBy` on the Minutes object stores the `displayName` values of the chair and secretary who approved. The `approvedAt` timestamp is recorded when transitioning to `approved`. The audit trail provides full traceability.
-**Rationale**: Full cryptographic PKI signing is out of scope for v1. Display name + audit trail is sufficient for legal governance traceability. Full digital signatures can be layered on in a future sprint via Nextcloud Sign integration.
-**Alternative considered**: Integration with Nextcloud Sign — deferred to future sprint.
+### 2. Digital signing stores signer UIDs in `signedBy` array
+**Decision**: `signedBy` on the Minutes object stores the `getUID()` values (immutable Nextcloud user IDs) of the chair and secretary who performed the `approved` and `signed` transitions respectively. The `approvedAt` timestamp is recorded when transitioning to `approved`. The audit trail provides full traceability.
+**Rationale**: UIDs are immutable in Nextcloud — a user cannot rename themselves to impersonate another signer. Using `getDisplayName()` was identified as OWASP A04:2021 (Insecure Design) since display names are mutable and user-controlled. UID provides a tamper-resistant audit record while the audit trail stores the full display name context. Full cryptographic PKI signing is out of scope for v1 and is deferred to a future sprint via Nextcloud Sign integration.
+**Alternative considered**: Storing display names — rejected due to security finding (mutable, impersonation risk). Integration with Nextcloud Sign — deferred to future sprint.
 
 ### 3. Decision publication sets `isPublished` flag via explicit user action
 **Decision**: A "Publiceren" button on an adopted Decision's detail page calls `ObjectService::saveObject()` to set `isPublished: true` and `publishedAt: <now>`. The actual ORI API push is deferred to p3.
@@ -49,12 +49,17 @@ OpenRegister provides full-text search, audit trails, file attachments, relation
 **Rationale**: OpenRegister does not have a built-in scheduled status transition. A cron-style background job (ADR-003 pattern) is correct. The frontend also calculates and shows overdue state client-side for immediate feedback — the job is a best-effort sync.
 **Alternative considered**: Frontend-only overdue detection — rejected because it would not reliably update the persisted `taskStatus` field needed for filtering and reporting.
 
+### 6. Minutes lifecycle transitions handled client-side via `ObjectService.saveObject()` (realignment with Decision 1)
+**Decision**: The custom `POST /api/minutes/{id}/transition` backend endpoint initially introduced during implementation has been removed. Lifecycle transitions (`draft → review → approved → signed → published`) are now performed by calling `minutesStore.saveObject()` directly from `MinutesDetail.vue`, which delegates to OpenRegister's `ObjectService`. Side-effects (`signedBy` population with the current user's UID, `approvedAt` timestamp, `version` increment) are computed client-side before the save call and are stored as ordinary object fields.
+**Rationale**: The custom endpoint was flagged as a spec deviation (Decision 1 specifies `WorkflowEngineController`). Removing it and performing transitions client-side via the standard object store aligns with the OpenRegister-first principle. The governance side-effects (signedBy, approvedAt, version) are light enough to compute in the Vue component; they do not require a dedicated server endpoint. The sequential state machine is enforced by the UI (buttons are only shown for valid next states) rather than server-side.
+**Alternative considered**: Keeping the custom transition endpoint — rejected to eliminate the spec deviation and reduce backend surface area.
+
 ## Reuse Analysis (ADR-012)
 
 | Capability | OpenRegister / Platform service used |
 |------------|--------------------------------------|
 | Minutes / Decision / ActionItem CRUD | `ObjectService` + `CnIndexPage` + `CnDetailPage` |
-| Lifecycle transitions | `WorkflowEngineController` + `CnTimelineStages` |
+| Lifecycle transitions | Client-side `ObjectService.saveObject()` via store + `CnTimelineStages` (see Decision 6) |
 | Version / revision history | `AuditTrailService` (built-in) + `CnObjectSidebar` → `CnAuditTrailTab` |
 | Decision full-text search | `IndexService` + `CnFilterBar` + `CnFacetSidebar` |
 | File attachments (signed minutes PDFs) | `FileService` + `CnObjectSidebar` → `CnFilesTab` |

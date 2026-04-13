@@ -212,12 +212,12 @@ export default {
 				const minutesStore = useMinutesStore()
 				const updated = { ...this.entity, lifecycle: newState }
 
-				// Spec Decision 2 / Task 5.3: record the signer's display name on approval and signing.
+				// Spec Decision 2: store immutable UID (tamper-resistant audit record).
 				if (newState === 'approved' || newState === 'signed') {
 					const currentUser = getCurrentUser()
-					const displayName = currentUser?.displayName || currentUser?.uid || ''
+					const signerUid = currentUser?.uid || currentUser?.displayName || ''
 					const signedBy = Array.isArray(updated.signedBy) ? [...updated.signedBy] : []
-					signedBy.push(displayName)
+					signedBy.push(signerUid)
 					updated.signedBy = signedBy
 				}
 
