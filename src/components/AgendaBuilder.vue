@@ -445,7 +445,7 @@ export default {
 	flex-wrap: wrap;
 }
 
-.agenda-builder__item[draggable="true"] {
+.agenda-builder__item[draggable='true'] {
 	cursor: grab;
 }
 
