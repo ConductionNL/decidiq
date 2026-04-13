@@ -117,6 +117,8 @@ import { NcButton } from '@nextcloud/vue'
 import { showError } from '@nextcloud/dialogs'
 import { generateUrl } from '@nextcloud/router'
 import { CnDetailCard, CnDetailPage, CnObjectSidebar, CnStatusBadge, useDetailView } from '@conduction/nextcloud-vue'
+import { useActionItemStore } from '../store/modules/actionItem.js'
+import { useDecisionStore } from '../store/modules/decision.js'
 import { useObjectStore } from '../store/modules/object.js'
 
 export default {
@@ -135,9 +137,9 @@ export default {
 		},
 	},
 	setup() {
-		const objectStore = useObjectStore()
+		const decisionStore = useDecisionStore()
 		const detailView = useDetailView('decision', {
-			objectStore,
+			objectStore: decisionStore,
 		})
 		return { detailView }
 	},
@@ -186,14 +188,15 @@ export default {
 			}
 		},
 		async deleteEntity() {
-			const objectStore = useObjectStore()
-			await objectStore.deleteObject?.('decision', this.entityId)
+			const decisionStore = useDecisionStore()
+			await decisionStore.deleteObject?.('decision', this.entityId)
 			this.$router.push({ name: 'Decisions' })
 		},
 		async loadRelated() {
+			const actionItemStore = useActionItemStore()
 			const objectStore = useObjectStore()
 			try {
-				const actionItems = await objectStore.fetchObjects('actionItem', { decision: this.entityId })
+				const actionItems = await actionItemStore.fetchObjects('action-item', { decision: this.entityId })
 				this.relatedActionItems = actionItems || []
 			} catch (e) {
 				this.relatedActionItems = []

@@ -28,7 +28,7 @@
 
 <script>
 import { CnIndexPage, CnStatusBadge, useListView } from '@conduction/nextcloud-vue'
-import { useObjectStore } from '../store/modules/object.js'
+import { useMinutesStore } from '../store/modules/minutes.js'
 
 export default {
 	name: 'Minutes',
@@ -38,9 +38,9 @@ export default {
 	},
 	inject: ['sidebarState'],
 	setup() {
-		const objectStore = useObjectStore()
+		const minutesStore = useMinutesStore()
 		const listView = useListView('minutes', {
-			objectStore,
+			objectStore: minutesStore,
 		})
 		return { listView }
 	},

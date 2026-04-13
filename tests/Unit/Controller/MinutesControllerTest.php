@@ -132,6 +132,15 @@ class MinutesControllerTest extends TestCase
     {
         $previewText = 'NOTULEN\nRaadsvergadering 10 april 2025\n...';
 
+        $objectService = new class {
+            public function findObject(string $register, string $schema, string $id): array
+            {
+                return ['id' => $id, 'title' => 'Test'];
+            }
+        };
+        $this->container->method('get')->willReturn($objectService);
+        $this->appConfig->method('getValueString')->willReturn('decidesk');
+
         $this->generationService->expects($this->once())
             ->method('generateDraft')
             ->with('minutes-uuid-1')
@@ -154,6 +163,15 @@ class MinutesControllerTest extends TestCase
      */
     public function testGenerateDraftInvalidIdReturns404(): void
     {
+        $objectService = new class {
+            public function findObject(string $register, string $schema, string $id): array
+            {
+                return ['id' => $id, 'title' => 'Test'];
+            }
+        };
+        $this->container->method('get')->willReturn($objectService);
+        $this->appConfig->method('getValueString')->willReturn('decidesk');
+
         $this->generationService->expects($this->once())
             ->method('generateDraft')
             ->with('non-existent-id')
@@ -176,6 +194,15 @@ class MinutesControllerTest extends TestCase
      */
     public function testGenerateDraftMissingMeetingReturns404(): void
     {
+        $objectService = new class {
+            public function findObject(string $register, string $schema, string $id): array
+            {
+                return ['id' => $id, 'title' => 'Test'];
+            }
+        };
+        $this->container->method('get')->willReturn($objectService);
+        $this->appConfig->method('getValueString')->willReturn('decidesk');
+
         $this->generationService->expects($this->once())
             ->method('generateDraft')
             ->with('minutes-no-meeting')

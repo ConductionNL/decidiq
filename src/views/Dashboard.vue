@@ -62,7 +62,9 @@ import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
 import GavelIcon from 'vue-material-design-icons/Gavel.vue'
 import NotebookOutline from 'vue-material-design-icons/NotebookOutline.vue'
-import { useObjectStore } from '../store/modules/object.js'
+import { useActionItemStore } from '../store/modules/actionItem.js'
+import { useDecisionStore } from '../store/modules/decision.js'
+import { useMinutesStore } from '../store/modules/minutes.js'
 
 export default {
 	name: 'Dashboard',
@@ -88,12 +90,14 @@ export default {
 	},
 	methods: {
 		async fetchKpiCounts() {
-			const objectStore = useObjectStore()
+			const minutesStore = useMinutesStore()
+			const decisionStore = useDecisionStore()
+			const actionItemStore = useActionItemStore()
 			try {
 				const [minutesItems, decisionItems, actionItems] = await Promise.all([
-					objectStore.fetchObjects('minutes', { lifecycle: 'review' }),
-					objectStore.fetchObjects('decision', { isPublished: 'true' }),
-					objectStore.fetchObjects('actionItem'),
+					minutesStore.fetchObjects('minutes', { lifecycle: 'review' }),
+					decisionStore.fetchObjects('decision', { isPublished: 'true' }),
+					actionItemStore.fetchObjects('action-item'),
 				])
 
 				this.minutesReviewCount = (minutesItems || []).length

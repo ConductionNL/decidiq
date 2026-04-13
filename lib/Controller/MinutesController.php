@@ -87,16 +87,16 @@ class MinutesController extends Controller
      */
     public function generateDraft(string $minutesId): JSONResponse
     {
-        // Verify the Minutes object exists and is accessible before delegating to the service.
-        // OpenRegister enforces row-level ACL — findObject() returns empty when access is denied.
-        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        $register      = $this->appConfig->getValueString(Application::APP_ID, 'register', 'decidesk');
-        $minutes       = $objectService->findObject(register: $register, schema: 'minutes', id: $minutesId);
-        if (empty($minutes) === true) {
-            return new JSONResponse(['message' => 'Minutes object not found'], Http::STATUS_NOT_FOUND);
-        }
-
         try {
+            // Verify the Minutes object exists and is accessible before delegating to the service.
+            // OpenRegister enforces row-level ACL — findObject() returns empty when access is denied.
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $register      = $this->appConfig->getValueString(Application::APP_ID, 'register', 'decidesk');
+            $minutes       = $objectService->findObject(register: $register, schema: 'minutes', id: $minutesId);
+            if (empty($minutes) === true) {
+                return new JSONResponse(['message' => 'Minutes object not found'], Http::STATUS_NOT_FOUND);
+            }
+
             $preview = $this->minutesGenerationService->generateDraft($minutesId);
             return new JSONResponse(['preview' => $preview]);
         } catch (\RuntimeException $e) {
@@ -104,6 +104,8 @@ class MinutesController extends Controller
                 ['message' => $e->getMessage()],
                 Http::STATUS_NOT_FOUND
             );
+        } catch (\Throwable $e) {
+            return new JSONResponse(['message' => 'Failed to generate draft'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
     }//end generateDraft()
 

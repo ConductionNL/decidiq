@@ -91,7 +91,7 @@
 <script>
 import { NcButton } from '@nextcloud/vue'
 import { CnDetailCard, CnDetailPage, CnObjectSidebar, CnStatusBadge, useDetailView } from '@conduction/nextcloud-vue'
-import { useObjectStore } from '../store/modules/object.js'
+import { useActionItemStore } from '../store/modules/actionItem.js'
 
 export default {
 	name: 'ActionItemDetail',
@@ -109,9 +109,9 @@ export default {
 		},
 	},
 	setup() {
-		const objectStore = useObjectStore()
+		const actionItemStore = useActionItemStore()
 		const detailView = useDetailView('action-item', {
-			objectStore,
+			objectStore: actionItemStore,
 		})
 		return { detailView }
 	},
@@ -151,19 +151,19 @@ export default {
 			return 'default'
 		},
 		async updateStatus(newStatus) {
-			const objectStore = useObjectStore()
+			const actionItemStore = useActionItemStore()
 			const updated = { ...this.entity, taskStatus: newStatus }
 
 			if (newStatus === 'completed') {
 				updated.completedAt = new Date().toISOString()
 			}
 
-			await objectStore.saveObject?.('actionItem', updated)
+			await actionItemStore.saveObject?.('action-item', updated)
 			this.detailView?.refresh?.()
 		},
 		async deleteEntity() {
-			const objectStore = useObjectStore()
-			await objectStore.deleteObject?.('actionItem', this.entityId)
+			const actionItemStore = useActionItemStore()
+			await actionItemStore.deleteObject?.('action-item', this.entityId)
 			this.$router.push({ name: 'ActionItems' })
 		},
 	},

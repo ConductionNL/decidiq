@@ -37,7 +37,7 @@
 
 <script>
 import { CnFilterBar, CnIndexPage, CnStatusBadge, useListView } from '@conduction/nextcloud-vue'
-import { useObjectStore } from '../store/modules/object.js'
+import { useDecisionStore } from '../store/modules/decision.js'
 
 export default {
 	name: 'Decisions',
@@ -48,9 +48,9 @@ export default {
 	},
 	inject: ['sidebarState'],
 	setup() {
-		const objectStore = useObjectStore()
+		const decisionStore = useDecisionStore()
 		const listView = useListView('decision', {
-			objectStore,
+			objectStore: decisionStore,
 		})
 		return { listView }
 	},

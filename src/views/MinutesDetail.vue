@@ -126,7 +126,7 @@ import { NcButton, NcDialog } from '@nextcloud/vue'
 import { showError } from '@nextcloud/dialogs'
 import { CnDetailCard, CnDetailPage, CnObjectSidebar, CnStatusBadge, CnTimelineStages, useDetailView } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import { useObjectStore } from '../store/modules/object.js'
+import { useMinutesStore } from '../store/modules/minutes.js'
 
 export default {
 	name: 'MinutesDetail',
@@ -146,9 +146,9 @@ export default {
 		},
 	},
 	setup() {
-		const objectStore = useObjectStore()
+		const minutesStore = useMinutesStore()
 		const detailView = useDetailView('minutes', {
-			objectStore,
+			objectStore: minutesStore,
 		})
 		return { detailView }
 	},
@@ -200,9 +200,9 @@ export default {
 			}
 		},
 		async applyDraft() {
-			const objectStore = useObjectStore()
+			const minutesStore = useMinutesStore()
 			const updated = { ...this.entity, content: this.previewContent }
-			await objectStore.saveObject?.('minutes', updated)
+			await minutesStore.saveObject?.('minutes', updated)
 			this.showPreview = false
 			this.detailView?.refresh?.()
 		},
@@ -228,8 +228,8 @@ export default {
 			}
 		},
 		async deleteEntity() {
-			const objectStore = useObjectStore()
-			await objectStore.deleteObject?.('minutes', this.entityId)
+			const minutesStore = useMinutesStore()
+			await minutesStore.deleteObject?.('minutes', this.entityId)
 			this.$router.push({ name: 'Minutes' })
 		},
 	},

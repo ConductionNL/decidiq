@@ -35,7 +35,7 @@
 
 <script>
 import { CnFilterBar, CnIndexPage, CnStatusBadge, useListView } from '@conduction/nextcloud-vue'
-import { useObjectStore } from '../store/modules/object.js'
+import { useActionItemStore } from '../store/modules/actionItem.js'
 
 export default {
 	name: 'ActionItems',
@@ -46,9 +46,9 @@ export default {
 	},
 	inject: ['sidebarState'],
 	setup() {
-		const objectStore = useObjectStore()
+		const actionItemStore = useActionItemStore()
 		const listView = useListView('action-item', {
-			objectStore,
+			objectStore: actionItemStore,
 		})
 		return { listView }
 	},
