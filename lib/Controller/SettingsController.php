@@ -74,6 +74,8 @@ class SettingsController extends Controller
      *
      * @NoAdminRequired
      *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     *
      * @return JSONResponse
      */
     public function index(): JSONResponse
@@ -85,6 +87,8 @@ class SettingsController extends Controller
 
     /**
      * Update settings with provided data.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
      *
      * @return JSONResponse
      */
@@ -111,6 +115,9 @@ class SettingsController extends Controller
      *
      * Forces a fresh import regardless of version, auto-configuring
      * all schema and register IDs from the import result.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
      *
      * @return JSONResponse
      */

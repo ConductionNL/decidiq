@@ -139,6 +139,7 @@ export default {
 			showDropdown: false,
 			activeIndex: -1,
 			listViews,
+			debounceTimer: null,
 		}
 	},
 
@@ -153,9 +154,11 @@ export default {
 				this.results = []
 				this.hasSearched = false
 				this.showDropdown = false
+				clearTimeout(this.debounceTimer)
 				return
 			}
-			this.performSearch()
+			clearTimeout(this.debounceTimer)
+			this.debounceTimer = setTimeout(() => this.performSearch(), 400)
 		},
 
 		/**

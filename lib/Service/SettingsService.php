@@ -69,6 +69,8 @@ class SettingsService
     /**
      * Check whether OpenRegister is installed and available.
      *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     *
      * @return bool
      */
     public function isOpenRegisterAvailable(): bool
@@ -81,6 +83,8 @@ class SettingsService
      *
      * Returns a flat array containing all app config values plus metadata
      * fields (openregisters, isAdmin) consumed by the frontend.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      *
      * @return array<string,mixed>
      */
@@ -108,6 +112,8 @@ class SettingsService
      *
      * @param array<string,mixed> $data The data to update
      *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
+     *
      * @return array<string,mixed> The updated settings
      */
     public function updateSettings(array $data): array
@@ -125,6 +131,9 @@ class SettingsService
      * Load configuration from decidesk_register.json via OpenRegister.
      *
      * @param bool $force Force re-import even if already configured.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      *
      * @return array<string,mixed> Result with success flag, message, and version.
      */

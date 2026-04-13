@@ -54,6 +54,7 @@ import { NcButton } from '@nextcloud/vue'
 import { CnVersionInfoCard, CnRegisterMapping, CnSettingsSection } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
+import axios from '@nextcloud/axios'
 import { useSettingsStore } from '../store/modules/settings.js'
 
 /**
@@ -130,22 +131,15 @@ export default {
 		async reimportRegister() {
 			this.reimporting = true
 			try {
-				const response = await fetch(generateUrl('/apps/decidesk/api/settings/load'), {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
-					},
-				})
-				const data = await response.json()
+				const { data } = await axios.post(generateUrl('/apps/decidesk/api/settings/load'))
 				if (data.success) {
-					showSuccess(t('decidesk', 'Register successfully reimported.'))
+					showSuccess(this.t('decidesk', 'Register successfully reimported.'))
 				} else {
-					showError(data.message || t('decidesk', 'Failed to reimport register.'))
+					showError(data.message || this.t('decidesk', 'Failed to reimport register.'))
 				}
 			} catch (error) {
-				console.error('Register reimport failed:', error)
-				showError(t('decidesk', 'Failed to reimport register.'))
+				console.error('Register reimport failed:', error.message)
+				showError(this.t('decidesk', 'Failed to reimport register.'))
 			} finally {
 				this.reimporting = false
 			}
