@@ -29,13 +29,14 @@
 
 			<CnDetailCard :title="t('decidesk', 'Governance Body')">
 				<template #content>
-					<dl v-if="relatedGovernanceBody" class="decidesk-detail__properties">
-						<dt>{{ t('decidesk', 'Name') }}</dt>
-						<dd>{{ relatedGovernanceBody.name }}</dd>
-						<dt>{{ t('decidesk', 'Body Type') }}</dt>
-						<dd>{{ relatedGovernanceBody.bodyType }}</dd>
-					</dl>
-					<p v-else>
+					<div
+						v-if="relatedGovernanceBody"
+						class="decidesk-detail__related-item"
+						@click="$router.push({ name: 'GovernanceBodyDetail', params: { id: relatedGovernanceBody.id } })">
+						<span class="decidesk-detail__related-title">{{ relatedGovernanceBody.name }}</span>
+						<span class="decidesk-detail__related-meta">{{ relatedGovernanceBody.bodyType }}</span>
+					</div>
+					<p v-else class="decidesk-detail__empty">
 						{{ t('decidesk', 'No governance body linked to this participant.') }}
 					</p>
 				</template>
@@ -108,5 +109,27 @@ export default {
 .decidesk-detail__properties dt {
 	font-weight: 600;
 	color: var(--color-text-maxcontrast);
+}
+
+.decidesk-detail__related-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 0;
+	cursor: pointer;
+}
+
+.decidesk-detail__related-item:hover {
+	color: var(--color-primary-element);
+}
+
+.decidesk-detail__related-meta {
+	font-size: 0.85em;
+	color: var(--color-text-maxcontrast);
+}
+
+.decidesk-detail__empty {
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
 }
 </style>

@@ -24,12 +24,12 @@ namespace OCA\Decidesk\Settings;
 use OCA\Decidesk\AppInfo\Application;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\Settings\ISettings;
+use OCP\Settings\IDelegatedSettings;
 
 /**
  * Provides the admin settings form for the Decidesk application.
  */
-class AdminSettings implements ISettings
+class AdminSettings implements IDelegatedSettings
 {
     /**
      * Constructor.
@@ -76,4 +76,26 @@ class AdminSettings implements ISettings
     {
         return 10;
     }//end getPriority()
+
+    /**
+     * Get the sub-name for differentiating settings within a section.
+     *
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return null;
+    }//end getName()
+
+    /**
+     * Get authorized app config keys that delegated admins may modify.
+     *
+     * @return array<string, array<string>>
+     */
+    public function getAuthorizedAppConfig(): array
+    {
+        return [
+            Application::APP_ID => ['/register/'],
+        ];
+    }//end getAuthorizedAppConfig()
 }//end class

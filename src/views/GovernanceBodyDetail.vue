@@ -30,11 +30,16 @@
 			<CnDetailCard :title="t('decidesk', 'Meetings')">
 				<template #content>
 					<ul v-if="relatedMeetings.length" class="decidesk-detail__related-list">
-						<li v-for="item in relatedMeetings" :key="item.id">
-							{{ item.title || item.id }}
+						<li
+							v-for="item in relatedMeetings"
+							:key="item.id"
+							class="decidesk-detail__related-item"
+							@click="$router.push({ name: 'MeetingDetail', params: { id: item.id } })">
+							<span class="decidesk-detail__related-title">{{ item.title || item.id }}</span>
+							<span class="decidesk-detail__related-meta">{{ item.lifecycle }}</span>
 						</li>
 					</ul>
-					<p v-else>
+					<p v-else class="decidesk-detail__empty">
 						{{ t('decidesk', 'No meetings linked to this governance body.') }}
 					</p>
 				</template>
@@ -43,12 +48,16 @@
 			<CnDetailCard :title="t('decidesk', 'Participants')">
 				<template #content>
 					<ul v-if="relatedParticipants.length" class="decidesk-detail__related-list">
-						<li v-for="item in relatedParticipants" :key="item.id">
-							{{ item.displayName || item.id }}
-							<span v-if="item.role" class="decidesk-detail__related-meta"> — {{ item.role }}</span>
+						<li
+							v-for="item in relatedParticipants"
+							:key="item.id"
+							class="decidesk-detail__related-item"
+							@click="$router.push({ name: 'ParticipantDetail', params: { id: item.id } })">
+							<span class="decidesk-detail__related-title">{{ item.displayName || item.id }}</span>
+							<span v-if="item.role" class="decidesk-detail__related-meta">{{ item.role }}</span>
 						</li>
 					</ul>
-					<p v-else>
+					<p v-else class="decidesk-detail__empty">
 						{{ t('decidesk', 'No participants linked to this governance body.') }}
 					</p>
 				</template>
@@ -134,16 +143,30 @@ export default {
 	margin: 0;
 }
 
-.decidesk-detail__related-list li {
-	padding: 4px 0;
+.decidesk-detail__related-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 0;
 	border-bottom: 1px solid var(--color-border);
+	cursor: pointer;
 }
 
-.decidesk-detail__related-list li:last-child {
+.decidesk-detail__related-item:last-child {
 	border-bottom: none;
 }
 
+.decidesk-detail__related-item:hover {
+	color: var(--color-primary-element);
+}
+
 .decidesk-detail__related-meta {
+	font-size: 0.85em;
 	color: var(--color-text-maxcontrast);
+}
+
+.decidesk-detail__empty {
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
 }
 </style>

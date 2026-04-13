@@ -32,12 +32,17 @@
 			<CnDetailCard :title="t('decidesk', 'Agenda Items')">
 				<template #content>
 					<ul v-if="relatedAgendaItems.length" class="decidesk-detail__related-list">
-						<li v-for="item in relatedAgendaItems" :key="item.id">
-							<span v-if="item.orderNumber" class="decidesk-detail__related-meta">{{ item.orderNumber }}. </span>
-							{{ item.title || item.id }}
+						<li
+							v-for="item in relatedAgendaItems"
+							:key="item.id"
+							class="decidesk-detail__related-item"
+							@click="$router.push({ name: 'AgendaItemDetail', params: { id: item.id } })">
+							<span v-if="item.orderNumber" class="decidesk-detail__related-order">{{ item.orderNumber }}.</span>
+							<span class="decidesk-detail__related-title">{{ item.title || item.id }}</span>
+							<span v-if="item.itemType" class="decidesk-detail__related-meta">{{ item.itemType }}</span>
 						</li>
 					</ul>
-					<p v-else>
+					<p v-else class="decidesk-detail__empty">
 						{{ t('decidesk', 'No agenda items linked to this meeting.') }}
 					</p>
 				</template>
@@ -120,16 +125,40 @@ export default {
 	margin: 0;
 }
 
-.decidesk-detail__related-list li {
-	padding: 4px 0;
+.decidesk-detail__related-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 0;
 	border-bottom: 1px solid var(--color-border);
+	cursor: pointer;
 }
 
-.decidesk-detail__related-list li:last-child {
+.decidesk-detail__related-item:last-child {
 	border-bottom: none;
 }
 
-.decidesk-detail__related-meta {
+.decidesk-detail__related-item:hover {
+	color: var(--color-primary-element);
+}
+
+.decidesk-detail__related-order {
+	font-weight: 600;
 	color: var(--color-text-maxcontrast);
+	min-width: 24px;
+}
+
+.decidesk-detail__related-title {
+	flex: 1;
+}
+
+.decidesk-detail__related-meta {
+	font-size: 0.85em;
+	color: var(--color-text-maxcontrast);
+}
+
+.decidesk-detail__empty {
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
 }
 </style>
