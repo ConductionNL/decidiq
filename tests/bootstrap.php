@@ -17,11 +17,11 @@ declare(strict_types=1);
 define('PHPUNIT_RUN', 1);
 
 // Include Composer's autoloader.
-require_once __DIR__.'/../vendor/autoload.php';
-
-// Load test stubs for cross-app classes not available when the app is not installed.
-if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
-    include_once __DIR__.'/Stubs/DeepLinkRegistrationEvent.php';
+// Also register OCP namespace from vendor for standalone runs (no Nextcloud server present).
+$autoloader = require __DIR__.'/../vendor/autoload.php';
+if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
+    $autoloader->addPsr4('OCP\\', __DIR__.'/../vendor/nextcloud/ocp/OCP/');
+    $autoloader->addPsr4('NCU\\', __DIR__.'/../vendor/nextcloud/ocp/NCU/');
 }
 
 // Bootstrap Nextcloud if not already done.
@@ -37,4 +37,12 @@ if (defined('OC_CONSOLE') === false) {
     \OC_App::loadApps();
     \OC_App::loadApp('decidesk');
     OC_Hook::clear();
+}
+
+// Load test stubs AFTER Nextcloud bootstrap so that OCP\EventDispatcher\Event
+// (which the stub extends) is already resolvable — either via the Nextcloud
+// autoloader (full NC environment) or via the vendor/nextcloud/ocp fallback
+// registered above (standalone mode).
+if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
+    include_once __DIR__.'/Stubs/DeepLinkRegistrationEvent.php';
 }
