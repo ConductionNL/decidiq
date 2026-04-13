@@ -26,6 +26,20 @@
 					</dl>
 				</template>
 			</CnDetailCard>
+
+			<CnDetailCard :title="t('decidesk', 'Governance Body')">
+				<template #content>
+					<dl v-if="relatedGovernanceBody" class="decidesk-detail__properties">
+						<dt>{{ t('decidesk', 'Name') }}</dt>
+						<dd>{{ relatedGovernanceBody.name }}</dd>
+						<dt>{{ t('decidesk', 'Body Type') }}</dt>
+						<dd>{{ relatedGovernanceBody.bodyType }}</dd>
+					</dl>
+					<p v-else>
+						{{ t('decidesk', 'No governance body linked to this participant.') }}
+					</p>
+				</template>
+			</CnDetailCard>
 		</template>
 
 		<template #sidebar>
@@ -41,6 +55,7 @@
 <script>
 import { CnDetailPage, CnDetailCard, CnObjectSidebar, useDetailView } from '@conduction/nextcloud-vue'
 import { useParticipantStore } from '../store/modules/participant.js'
+import { useGovernanceBodyStore } from '../store/modules/governanceBody.js'
 
 export default {
 	name: 'ParticipantDetail',
@@ -50,16 +65,34 @@ export default {
 	},
 	setup(props) {
 		const participantStore = useParticipantStore()
+		const governanceBodyStore = useGovernanceBodyStore()
 		const detailView = useDetailView('participant', props.id, {
 			objectStore: () => participantStore,
 			listRouteName: 'Participants',
 			detailRouteName: 'ParticipantDetail',
 		})
-		return { detailView, participantStore }
+		return { detailView, participantStore, governanceBodyStore }
+	},
+	data() {
+		return {
+			relatedGovernanceBody: null,
+		}
 	},
 	computed: {
 		object() {
 			return this.detailView.object.value || {}
+		},
+	},
+	watch: {
+		'object.id': {
+			immediate: true,
+			async handler(id) {
+				if (!id) return
+				const results = await this.participantStore.fetchUses('participant', id, {
+					_schema: 'governance-body',
+				})
+				this.relatedGovernanceBody = (results && results.length > 0) ? results[0] : null
+			},
 		},
 	},
 }

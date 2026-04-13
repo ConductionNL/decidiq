@@ -26,8 +26,11 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\SettingsService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUserSession;
 
 /**
  * Controller for managing Decidesk application settings.
@@ -41,12 +44,16 @@ class SettingsController extends Controller
      *
      * @param IRequest        $request         The request object
      * @param SettingsService $settingsService The settings service
+     * @param IGroupManager   $groupManager    The group manager for admin checks
+     * @param IUserSession    $userSession     The user session
      *
      * @return void
      */
     public function __construct(
         IRequest $request,
         private SettingsService $settingsService,
+        private IGroupManager $groupManager,
+        private IUserSession $userSession,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -70,12 +77,20 @@ class SettingsController extends Controller
     /**
      * Update settings with provided data.
      *
+     * Admin-only: no @NoAdminRequired annotation by design.
+     * Explicitly enforced via IGroupManager::isAdmin() as defence-in-depth.
+     *
      * @return JSONResponse
      *
      * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      */
     public function create(): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(['message' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         $data   = $this->request->getParams();
         $config = $this->settingsService->updateSettings($data);
 
@@ -93,12 +108,20 @@ class SettingsController extends Controller
      * Forces a fresh import regardless of version, auto-configuring
      * all schema and register IDs from the import result.
      *
+     * Admin-only: no @NoAdminRequired annotation by design.
+     * Explicitly enforced via IGroupManager::isAdmin() as defence-in-depth.
+     *
      * @return JSONResponse
      *
      * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      */
     public function load(): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(['message' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         $result = $this->settingsService->loadConfiguration(force: true);
 
         return new JSONResponse($result);

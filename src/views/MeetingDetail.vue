@@ -28,6 +28,20 @@
 					</dl>
 				</template>
 			</CnDetailCard>
+
+			<CnDetailCard :title="t('decidesk', 'Agenda Items')">
+				<template #content>
+					<ul v-if="relatedAgendaItems.length" class="decidesk-detail__related-list">
+						<li v-for="item in relatedAgendaItems" :key="item.id">
+							<span v-if="item.orderNumber" class="decidesk-detail__related-meta">{{ item.orderNumber }}. </span>
+							{{ item.title || item.id }}
+						</li>
+					</ul>
+					<p v-else>
+						{{ t('decidesk', 'No agenda items linked to this meeting.') }}
+					</p>
+				</template>
+			</CnDetailCard>
 		</template>
 
 		<template #sidebar>
@@ -43,6 +57,7 @@
 <script>
 import { CnDetailPage, CnDetailCard, CnObjectSidebar, useDetailView } from '@conduction/nextcloud-vue'
 import { useMeetingStore } from '../store/modules/meeting.js'
+import { useAgendaItemStore } from '../store/modules/agendaItem.js'
 
 export default {
 	name: 'MeetingDetail',
@@ -52,16 +67,36 @@ export default {
 	},
 	setup(props) {
 		const meetingStore = useMeetingStore()
+		const agendaItemStore = useAgendaItemStore()
 		const detailView = useDetailView('meeting', props.id, {
 			objectStore: () => meetingStore,
 			listRouteName: 'Meetings',
 			detailRouteName: 'MeetingDetail',
 		})
-		return { detailView, meetingStore }
+		return { detailView, meetingStore, agendaItemStore }
+	},
+	data() {
+		return {
+			relatedAgendaItems: [],
+		}
 	},
 	computed: {
 		object() {
 			return this.detailView.object.value || {}
+		},
+	},
+	watch: {
+		'object.id': {
+			immediate: true,
+			async handler(id) {
+				if (!id) return
+				const items = await this.meetingStore.fetchUses('meeting', id, {
+					_schema: 'agenda-item',
+					_sort: 'orderNumber',
+					_order: 'asc',
+				})
+				this.relatedAgendaItems = items || []
+			},
 		},
 	},
 }
@@ -76,6 +111,25 @@ export default {
 
 .decidesk-detail__properties dt {
 	font-weight: 600;
+	color: var(--color-text-maxcontrast);
+}
+
+.decidesk-detail__related-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.decidesk-detail__related-list li {
+	padding: 4px 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.decidesk-detail__related-list li:last-child {
+	border-bottom: none;
+}
+
+.decidesk-detail__related-meta {
 	color: var(--color-text-maxcontrast);
 }
 </style>

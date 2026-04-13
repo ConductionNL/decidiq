@@ -29,9 +29,11 @@
 </template>
 
 <script>
+/* global appVersion */
 import { NcButton } from '@nextcloud/vue'
 import { CnVersionInfoCard, CnRegisterMapping } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
+import { getRequestToken } from '@nextcloud/auth'
 import { useSettingsStore } from '../store/modules/settings.js'
 
 export default {
@@ -43,7 +45,7 @@ export default {
 	},
 	data() {
 		return {
-			appVersion: '0.1.0',
+			appVersion,
 			reimporting: false,
 			reimportMessage: '',
 			reimportSuccess: false,
@@ -64,7 +66,7 @@ export default {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
+						requesttoken: getRequestToken(),
 					},
 				})
 				const data = await response.json()
