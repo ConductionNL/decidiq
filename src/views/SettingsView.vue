@@ -24,6 +24,16 @@
 			</template>
 		</CnVersionInfoCard>
 
+		<CnRegisterMapping
+			:name="t('decidesk', 'Register Configuration')"
+			:description="t('decidesk', 'Configure the OpenRegister schema mappings for all Decidesk object types.')"
+			:groups="registerGroups"
+			:configuration="registerConfiguration"
+			:show-reimport-button="true"
+			:reimporting="reimporting"
+			@save="handleMappingSave"
+			@reimport="reimportRegister" />
+
 		<CnSettingsSection
 			:name="t('decidesk', 'Register')"
 			:description="t('decidesk', 'Manage the OpenRegister configuration for Decidesk.')">
@@ -39,9 +49,10 @@
 
 <script>
 import { NcButton } from '@nextcloud/vue'
-import { CnVersionInfoCard, CnSettingsSection } from '@conduction/nextcloud-vue'
+import { CnVersionInfoCard, CnRegisterMapping, CnSettingsSection } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
+import { useSettingsStore } from '../store/modules/settings.js'
 
 /**
  * Settings page with version info, register mapping, and re-import button.
@@ -53,6 +64,7 @@ export default {
 	components: {
 		NcButton,
 		CnVersionInfoCard,
+		CnRegisterMapping,
 		CnSettingsSection,
 	},
 
@@ -60,10 +72,51 @@ export default {
 		return {
 			reimporting: false,
 			appVersion: document.getElementById('content')?.dataset?.version || '0.1.0',
+			registerGroups: [
+				{
+					name: this.t('decidesk', 'Decidesk'),
+					types: [
+						{ slug: 'governanceBody', label: this.t('decidesk', 'Governance Bodies') },
+						{ slug: 'meeting', label: this.t('decidesk', 'Meetings') },
+						{ slug: 'participant', label: this.t('decidesk', 'Participants') },
+						{ slug: 'agendaItem', label: this.t('decidesk', 'Agenda Items') },
+						{ slug: 'motion', label: this.t('decidesk', 'Motions') },
+						{ slug: 'amendment', label: this.t('decidesk', 'Amendments') },
+						{ slug: 'votingRound', label: this.t('decidesk', 'Voting Rounds') },
+						{ slug: 'vote', label: this.t('decidesk', 'Votes') },
+						{ slug: 'decision', label: this.t('decidesk', 'Decisions') },
+						{ slug: 'actionItem', label: this.t('decidesk', 'Action Items') },
+						{ slug: 'minutes', label: this.t('decidesk', 'Minutes') },
+						{ slug: 'digitalDocument', label: this.t('decidesk', 'Digital Documents') },
+						{ slug: 'monetaryAmount', label: this.t('decidesk', 'Monetary Amounts') },
+						{ slug: 'offer', label: this.t('decidesk', 'Offers') },
+						{ slug: 'order', label: this.t('decidesk', 'Orders') },
+						{ slug: 'product', label: this.t('decidesk', 'Products') },
+						{ slug: 'report', label: this.t('decidesk', 'Reports') },
+					],
+				},
+			],
 		}
 	},
 
+	computed: {
+		registerConfiguration() {
+			const settingsStore = useSettingsStore()
+			return settingsStore.getSettings
+		},
+	},
+
 	methods: {
+		/**
+		 * Save register mapping configuration.
+		 *
+		 * @param {object} config Updated configuration from CnRegisterMapping.
+		 */
+		async handleMappingSave(config) {
+			const settingsStore = useSettingsStore()
+			await settingsStore.saveSettings(config)
+		},
+
 		/**
 		 * Re-import the register configuration.
 		 *
