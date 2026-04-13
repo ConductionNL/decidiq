@@ -169,6 +169,15 @@ export default {
 			return this.$route.params.id
 		},
 
+		meetingId() {
+			// Prefer a direct FK field, then fall back to relations.
+			if (this.item.meeting && typeof this.item.meeting === 'string') {
+				return this.item.meeting
+			}
+			const rel = (this.item.relations || []).find((r) => r.schema === 'meeting')
+			return rel ? (rel.id || rel.uuid || null) : null
+		},
+
 		typeLabel() {
 			const labels = {
 				informational: this.t('decidesk', 'Informational'),
@@ -220,7 +229,22 @@ export default {
 		await this.fetchItem()
 	},
 
+	watch: {
+		showMotionDialog(val) {
+			if (val) {
+				this.fetchAvailableMotions()
+			}
+		},
+	},
+
 	methods: {
+		async fetchAvailableMotions() {
+			if (!this.meetingId) return
+			const objectStore = useObjectStore()
+			const results = await objectStore.fetchObjects('motion', { meeting: this.meetingId })
+			this.availableMotions = Array.isArray(results) ? results : []
+		},
+
 		async fetchItem() {
 			const objectStore = useObjectStore()
 			const results = await objectStore.fetchObjects('agendaItem', { id: this.itemId })

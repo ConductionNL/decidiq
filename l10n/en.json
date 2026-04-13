@@ -84,7 +84,12 @@
         "No motions linked": "No motions linked",
         "Link motion": "Link motion",
         "No motions available": "No motions available",
-        "Only decision-type items support motions": "Only decision-type items support motions"
+        "Only decision-type items support motions": "Only decision-type items support motions",
+        "Number": "Number",
+        "Title": "Title",
+        "Duration (min)": "Duration (min)",
+        "Attachments": "Attachments",
+        "An error occurred": "An error occurred"
     },
     "plurals": ""
 }

@@ -117,6 +117,7 @@ export default {
 			showAddDialog: false,
 			showRecurringDialog: false,
 			showProposeDialog: false,
+			currentUserRole: 'none',
 		}
 	},
 
@@ -126,7 +127,10 @@ export default {
 		},
 
 		isChairOrSecretary() {
-			return true
+			return this.currentUserRole === 'chair'
+				|| this.currentUserRole === 'voorzitter'
+				|| this.currentUserRole === 'secretary'
+				|| this.currentUserRole === 'secretaris'
 		},
 
 		canPropose() {
@@ -143,6 +147,8 @@ export default {
 	async created() {
 		await this.fetchMeeting()
 		await this.fetchAgendaItems()
+		const agendaStore = useAgendaStore()
+		this.currentUserRole = await agendaStore.fetchUserRole(this.meetingId)
 	},
 
 	methods: {
@@ -202,7 +208,14 @@ export default {
 				decision: this.t('decidesk', 'Decision'),
 			}
 			const sorted = [...this.agendaItems].sort((a, b) => (a.orderNumber || 0) - (b.orderNumber || 0))
-			const header = ['Nummer', 'Titel', 'Type', 'Duur (min)', 'Spreker', 'Bijlagen']
+			const header = [
+				this.t('decidesk', 'Number'),
+				this.t('decidesk', 'Title'),
+				this.t('decidesk', 'Type'),
+				this.t('decidesk', 'Duration (min)'),
+				this.t('decidesk', 'Spokesperson'),
+				this.t('decidesk', 'Attachments'),
+			]
 			const rows = sorted.map((item) => {
 				const spokesperson = this.getSpokesperson(item)
 				return [

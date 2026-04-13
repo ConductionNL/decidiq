@@ -15,6 +15,7 @@ return [
         ['name' => 'agenda#advanceBobPhase', 'url' => '/api/agenda-items/{id}/bob-phase', 'verb' => 'PUT'],
         ['name' => 'agenda#processHamerstukken', 'url' => '/api/agendas/{meetingId}/hamerstukken', 'verb' => 'POST'],
         ['name' => 'agenda#reorder', 'url' => '/api/agendas/{meetingId}/reorder', 'verb' => 'PUT'],
+        ['name' => 'agenda#userRole', 'url' => '/api/agendas/{meetingId}/user-role', 'verb' => 'GET'],
 
         // Prometheus metrics endpoint.
         ['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],

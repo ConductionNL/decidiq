@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -53,29 +54,41 @@ class AgendaService
     ];
 
     /**
+     * Role values that are treated as chair or secretary.
+     *
+     * @var array<string>
+     */
+    private const CHAIR_ROLES = ['chair', 'voorzitter', 'secretary', 'secretaris'];
+
+    /**
      * Constructor for AgendaService.
      *
-     * @param ContainerInterface $container The service container
-     * @param LoggerInterface    $logger    The logger
+     * @param ContainerInterface $container   The service container
+     * @param LoggerInterface    $logger      The logger
+     * @param IUserSession|null  $userSession The user session (null in unit-test mode)
      *
      * @return void
      */
     public function __construct(
         private ContainerInterface $container,
         private LoggerInterface $logger,
+        private ?IUserSession $userSession=null,
     ) {
     }//end __construct()
 
     /**
      * Publish an agenda for a meeting.
      *
-     * Sends notifications to all active Participants and updates the meeting
-     * calendar event. Returns zero notifications when no items or participants
-     * exist, or when the OpenRegister service is unavailable.
+     * Validates that at least one agenda item exists, verifies that the
+     * calling user holds a chair or secretary role, then sends notifications
+     * to all active participants.
      *
      * @param string $meetingId The meeting ID
      *
-     * @return array<string,mixed> Result with success flag and message
+     * @return array<string,mixed> Result with success flag and notification count
+     *
+     * @throws \RuntimeException When the agenda has no items (HTTP 400)
+     * @throws \RuntimeException When the caller is not chair or secretary (HTTP 403)
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1
      */
@@ -91,51 +104,45 @@ class AgendaService
             ];
         }
 
-        // Fetch agenda items for this meeting.
+        // Validate: at least one agenda item must exist (spec §1.1).
         $agendaItems = $objectService->getObjects(
-            'agenda-item',
             'decidesk',
+            'agenda-item',
             ['meeting' => $meetingId]
         );
 
         if (empty($agendaItems) === true) {
-            return [
-                'success'       => true,
-                'message'       => 'Agenda gepubliceerd',
-                'notifications' => 0,
-            ];
+            throw new \RuntimeException('Een agenda moet minimaal één agendapunt bevatten');
         }
 
-        // Fetch the meeting to get governance body and title.
-        $meeting = $objectService->getObject(
-            'decidesk',
-            'meeting',
-            $meetingId
-        );
-
-        // Fetch active participants (leftAt is null) for the governance body.
+        // Fetch meeting and participants for auth + notification dispatch.
+        $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
         $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
 
-        // Send notifications to each active participant.
-        $notificationService = $this->getNotificationService();
-        $meetingTitle        = ($meeting['title'] ?? 'Vergadering');
-        $scheduledDate       = ($meeting['scheduledDate'] ?? '');
+        // Enforce chair/secretary role.
+        $this->assertChairOrSecretary(participants: $participants);
 
-        foreach ($participants as $participant) {
-            $notificationService->sendNotification(
-                ($participant['owner'] ?? ''),
-                $meetingTitle.' — Agenda gepubliceerd',
-                'De agenda voor '.$meetingTitle.' ('.$scheduledDate.') is gepubliceerd.'
-            );
+        // Send notifications to each active participant.
+        $meetingTitle  = ($meeting['title'] ?? 'Vergadering');
+        $scheduledDate = ($meeting['scheduledDate'] ?? '');
+
+        $notificationService = $this->getNotificationService();
+        if ($notificationService !== null) {
+            foreach ($participants as $participant) {
+                $notificationService->sendNotification(
+                    ($participant['owner'] ?? ''),
+                    $meetingTitle.' — Agenda gepubliceerd',
+                    'De agenda voor '.$meetingTitle.' ('.$scheduledDate.') is gepubliceerd.'
+                );
+            }
         }
 
         // Update calendar event via CalendarEventService.
         try {
             $calendarService = $this->getCalendarEventService();
-            $calendarService->updateEvent(
-                $meetingId,
-                ['agenda_published' => true]
-            );
+            if ($calendarService !== null) {
+                $calendarService->updateEvent($meetingId, ['agenda_published' => true]);
+            }
         } catch (\Throwable $e) {
             $this->logger->warning(
                 'Decidesk: CalendarEventService not available',
@@ -157,15 +164,17 @@ class AgendaService
      * Advance the BOB phase of an agenda item.
      *
      * Transitions the status through: voorstel → beeldvorming →
-     * oordeelsvorming → besluitvorming → afgerond. Returns a default
-     * first-phase advancement when the item does not exist or when
-     * the OpenRegister service is unavailable.
+     * oordeelsvorming → besluitvorming → afgerond. Verifies that the
+     * calling user is chair or secretary for the item's meeting when the
+     * meeting ID can be resolved from the item.
      *
      * @param string $agendaItemId The agenda item ID
      *
      * @return array<string,mixed> Result with the new phase
      *
-     * @throws \RuntimeException When the item is already at the final phase
+     * @throws \RuntimeException When the item is informational (HTTP 400)
+     * @throws \RuntimeException When the item is already at the final phase (HTTP 400)
+     * @throws \RuntimeException When the caller is not chair or secretary (HTTP 403)
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1
      */
@@ -182,17 +191,21 @@ class AgendaService
         }
 
         try {
-            $item = $objectService->getObject(
-                'decidesk',
-                'agenda-item',
-                $agendaItemId
-            );
+            $item = $objectService->getObject('decidesk', 'agenda-item', $agendaItemId);
         } catch (\Throwable) {
             return [
                 'success'       => true,
                 'previousPhase' => 'voorstel',
                 'currentPhase'  => 'beeldvorming',
             ];
+        }
+
+        // Enforce chair/secretary role when the meeting ID is resolvable.
+        $meetingId = $this->getMeetingIdFromItem(item: $item);
+        if ($meetingId !== '') {
+            $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
+            $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+            $this->assertChairOrSecretary(participants: $participants);
         }
 
         $currentPhase = ($item['status'] ?? 'beeldvorming');
@@ -230,13 +243,14 @@ class AgendaService
     /**
      * Process hamerstukken (consent items) for a meeting.
      *
-     * Fetches all agenda items tagged 'hamerstuk' and bulk-updates
-     * their status to 'afgerond'. Returns count 0 when the OpenRegister
-     * service is unavailable.
+     * Verifies that the calling user is chair or secretary, then
+     * bulk-updates all items tagged 'hamerstuk' to status 'afgerond'.
      *
      * @param string $meetingId The meeting ID
      *
      * @return array<string,mixed> Result with count of processed items
+     *
+     * @throws \RuntimeException When the caller is not chair or secretary (HTTP 403)
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1
      */
@@ -248,9 +262,13 @@ class AgendaService
             return ['success' => true, 'count' => 0];
         }
 
+        $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
+        $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        $this->assertChairOrSecretary(participants: $participants);
+
         $agendaItems = $objectService->getObjects(
-            'agenda-item',
             'decidesk',
+            'agenda-item',
             [
                 'meeting' => $meetingId,
                 'tags'    => 'hamerstuk',
@@ -281,14 +299,16 @@ class AgendaService
     /**
      * Reorder agenda items for a meeting.
      *
-     * Assigns sequential orderNumber values (1..n) to agenda items
-     * based on the provided ordered array of IDs. Returns count 0 when
-     * the OpenRegister service is unavailable.
+     * Verifies that the calling user is chair or secretary, then assigns
+     * sequential orderNumber values (1..n) to agenda items based on the
+     * provided ordered array of IDs.
      *
      * @param string        $meetingId  The meeting ID
      * @param array<string> $orderedIds Ordered array of agenda item IDs
      *
      * @return array<string,mixed> Result with success flag
+     *
+     * @throws \RuntimeException When the caller is not chair or secretary (HTTP 403)
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1
      */
@@ -300,9 +320,13 @@ class AgendaService
             return ['success' => true, 'count' => 0];
         }
 
+        $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
+        $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        $this->assertChairOrSecretary(participants: $participants);
+
         $agendaItems = $objectService->getObjects(
-            'agenda-item',
             'decidesk',
+            'agenda-item',
             ['meeting' => $meetingId]
         );
 
@@ -334,6 +358,50 @@ class AgendaService
     }//end reorderItems()
 
     /**
+     * Get the calling user's role for a meeting.
+     *
+     * Returns 'none' when OpenRegister is unavailable or the user is not
+     * an active participant of the meeting's governance body.
+     *
+     * @param string $meetingId The meeting ID
+     *
+     * @return array<string,string> Array with a 'role' key
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-1
+     */
+    public function getUserRole(string $meetingId): array
+    {
+        $objectService = $this->getObjectService();
+        if ($objectService === null) {
+            return ['role' => 'none'];
+        }
+
+        $userId = $this->userSession?->getUser()?->getUID() ?? '';
+        if ($userId === '') {
+            return ['role' => 'none'];
+        }
+
+        try {
+            $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
+            $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        } catch (\Throwable) {
+            return ['role' => 'none'];
+        }
+
+        foreach ($participants as $participant) {
+            if (($participant['owner'] ?? '') !== $userId) {
+                continue;
+            }
+
+            $role = strtolower($participant['role'] ?? ($participant['function'] ?? 'member'));
+            return ['role' => $role];
+        }
+
+        return ['role' => 'none'];
+
+    }//end getUserRole()
+
+    /**
      * Get active participants for a meeting's governance body.
      *
      * @param object              $objectService The object service
@@ -359,8 +427,8 @@ class AgendaService
         }
 
         $participants = $objectService->getObjects(
-            'participant',
             'decidesk',
+            'participant',
             ['governanceBody' => $governanceBodyId]
         );
 
@@ -375,6 +443,72 @@ class AgendaService
         );
 
     }//end getActiveParticipants()
+
+    /**
+     * Assert that the current user holds a chair or secretary role.
+     *
+     * Skipped entirely when no user session is available (unit-test mode).
+     * Throws with HTTP code 403 when the user is authenticated but does
+     * not hold a qualifying role.
+     *
+     * @param array<int,array<string,mixed>> $participants Active participants for the meeting
+     *
+     * @return void
+     *
+     * @throws \RuntimeException With code 403 when not authorised
+     */
+    private function assertChairOrSecretary(array $participants): void
+    {
+        if ($this->userSession === null) {
+            // Degraded/unit-test mode: skip authorisation.
+            return;
+        }
+
+        $userId = $this->userSession->getUser()?->getUID() ?? '';
+        if ($userId === '') {
+            throw new \RuntimeException('Forbidden: unauthenticated request', 403);
+        }
+
+        foreach ($participants as $participant) {
+            if (($participant['owner'] ?? '') !== $userId) {
+                continue;
+            }
+
+            $role = strtolower($participant['role'] ?? ($participant['function'] ?? ''));
+            if (in_array($role, self::CHAIR_ROLES, true) === true) {
+                return;
+            }
+        }
+
+        throw new \RuntimeException('Forbidden: chair or secretary role required', 403);
+
+    }//end assertChairOrSecretary()
+
+    /**
+     * Extract the meeting ID from an agenda item object.
+     *
+     * Checks the `meeting` string field first, then falls back to the
+     * item's relations array looking for schema 'meeting'.
+     *
+     * @param array<string,mixed> $item The agenda item data
+     *
+     * @return string The meeting ID, or empty string if not resolvable
+     */
+    private function getMeetingIdFromItem(array $item): string
+    {
+        if (isset($item['meeting']) === true && is_string($item['meeting']) === true) {
+            return $item['meeting'];
+        }
+
+        foreach (($item['relations'] ?? []) as $relation) {
+            if (($relation['schema'] ?? '') === 'meeting') {
+                return ($relation['id'] ?? ($relation['uuid'] ?? ''));
+            }
+        }
+
+        return '';
+
+    }//end getMeetingIdFromItem()
 
     /**
      * Get the ObjectService from the container, or null if unavailable.
@@ -395,24 +529,32 @@ class AgendaService
     }//end getObjectService()
 
     /**
-     * Get the NotificationService from the container.
+     * Get the NotificationService from the container, or null if unavailable.
      *
-     * @return object The OpenRegister NotificationService
+     * @return object|null The OpenRegister NotificationService, or null
      */
-    private function getNotificationService(): object
+    private function getNotificationService(): ?object
     {
-        return $this->container->get('OCA\OpenRegister\Service\NotificationService');
+        try {
+            return $this->container->get('OCA\OpenRegister\Service\NotificationService');
+        } catch (\Throwable) {
+            return null;
+        }
 
     }//end getNotificationService()
 
     /**
-     * Get the CalendarEventService from the container.
+     * Get the CalendarEventService from the container, or null if unavailable.
      *
-     * @return object The OpenRegister CalendarEventService
+     * @return object|null The OpenRegister CalendarEventService, or null
      */
-    private function getCalendarEventService(): object
+    private function getCalendarEventService(): ?object
     {
-        return $this->container->get('OCA\OpenRegister\Service\CalendarEventService');
+        try {
+            return $this->container->get('OCA\OpenRegister\Service\CalendarEventService');
+        } catch (\Throwable) {
+            return null;
+        }
 
     }//end getCalendarEventService()
 }//end class

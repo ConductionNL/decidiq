@@ -29,6 +29,7 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\AgendaService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IL10N;
 use OCP\IRequest;
 
 /**
@@ -43,12 +44,14 @@ class AgendaController extends Controller
      *
      * @param IRequest      $request       The request object
      * @param AgendaService $agendaService The agenda service
+     * @param IL10N         $l10n          The localisation helper
      *
      * @return void
      */
     public function __construct(
         IRequest $request,
         private AgendaService $agendaService,
+        private IL10N $l10n,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -70,9 +73,14 @@ class AgendaController extends Controller
             $result = $this->agendaService->publishAgenda(meetingId: $meetingId);
             return new JSONResponse($result);
         } catch (\Throwable $e) {
+            $status = 400;
+            if ($e->getCode() === 403) {
+                $status = 403;
+            }
+
             return new JSONResponse(
-                ['success' => false, 'error' => $e->getMessage()],
-                400
+                ['success' => false, 'error' => $this->l10n->t('An error occurred')],
+                $status
             );
         }
 
@@ -95,9 +103,14 @@ class AgendaController extends Controller
             $result = $this->agendaService->advanceBobPhase(agendaItemId: $id);
             return new JSONResponse($result);
         } catch (\Throwable $e) {
+            $status = 400;
+            if ($e->getCode() === 403) {
+                $status = 403;
+            }
+
             return new JSONResponse(
-                ['success' => false, 'error' => $e->getMessage()],
-                400
+                ['success' => false, 'error' => $this->l10n->t('An error occurred')],
+                $status
             );
         }
 
@@ -120,9 +133,14 @@ class AgendaController extends Controller
             $result = $this->agendaService->processHamerstukken(meetingId: $meetingId);
             return new JSONResponse($result);
         } catch (\Throwable $e) {
+            $status = 400;
+            if ($e->getCode() === 403) {
+                $status = 403;
+            }
+
             return new JSONResponse(
-                ['success' => false, 'error' => $e->getMessage()],
-                400
+                ['success' => false, 'error' => $this->l10n->t('An error occurred')],
+                $status
             );
         }
 
@@ -150,11 +168,38 @@ class AgendaController extends Controller
             );
             return new JSONResponse($result);
         } catch (\Throwable $e) {
+            $status = 400;
+            if ($e->getCode() === 403) {
+                $status = 403;
+            }
+
             return new JSONResponse(
-                ['success' => false, 'error' => $e->getMessage()],
-                400
+                ['success' => false, 'error' => $this->l10n->t('An error occurred')],
+                $status
             );
         }
 
     }//end reorder()
+
+    /**
+     * Get the current user's role for a meeting.
+     *
+     * @param string $meetingId The meeting ID
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-1
+     */
+    public function userRole(string $meetingId): JSONResponse
+    {
+        try {
+            $result = $this->agendaService->getUserRole(meetingId: $meetingId);
+            return new JSONResponse($result);
+        } catch (\Throwable) {
+            return new JSONResponse(['role' => 'none']);
+        }
+
+    }//end userRole()
 }//end class

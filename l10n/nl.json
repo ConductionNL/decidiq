@@ -84,7 +84,12 @@
         "No motions linked": "Geen moties gekoppeld",
         "Link motion": "Motie koppelen",
         "No motions available": "Geen moties beschikbaar",
-        "Only decision-type items support motions": "Alleen besluitpunten ondersteunen moties"
+        "Only decision-type items support motions": "Alleen besluitpunten ondersteunen moties",
+        "Number": "Nummer",
+        "Title": "Titel",
+        "Duration (min)": "Duur (min)",
+        "Attachments": "Bijlagen",
+        "An error occurred": "Er is een fout opgetreden"
     },
     "plurals": ""
 }

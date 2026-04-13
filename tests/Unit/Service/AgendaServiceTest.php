@@ -19,7 +19,6 @@
 
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
-
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
@@ -83,14 +82,18 @@ class AgendaServiceTest extends TestCase
     /**
      * Set up test fixtures.
      *
+     * IUserSession is not injected so assertChairOrSecretary is skipped,
+     * keeping existing tests focused on business logic without mocking
+     * the full participant/role hierarchy.
+     *
      * @return void
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->container  = $this->createMock(originalClassName: ContainerInterface::class);
-        $this->logger     = $this->createMock(originalClassName: LoggerInterface::class);
+        $this->container = $this->createMock(originalClassName: ContainerInterface::class);
+        $this->logger    = $this->createMock(originalClassName: LoggerInterface::class);
 
         $this->objectService        = $this->createMockObjectService();
         $this->notificationService  = $this->createMockNotificationService();
@@ -108,6 +111,7 @@ class AgendaServiceTest extends TestCase
                 }
             );
 
+        // UserSession is null — assertChairOrSecretary is a no-op in all tests below.
         $this->service = new AgendaService(
             container: $this->container,
             logger: $this->logger,
@@ -116,23 +120,23 @@ class AgendaServiceTest extends TestCase
     }//end setUp()
 
     /**
-     * Test publishAgenda returns zero notifications when no items exist.
+     * Test publishAgenda throws when the agenda has no items (spec §1.1).
      *
      * @return void
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
      */
-    public function testPublishAgendaWithNoItemsReturnsZeroNotifications(): void
+    public function testPublishAgendaThrowsWhenNoItems(): void
     {
         $this->objectService->method('getObjects')
             ->willReturn([]);
 
-        $result = $this->service->publishAgenda(meetingId: 'meeting-1');
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionMessage(message: 'Een agenda moet minimaal één agendapunt bevatten');
 
-        self::assertTrue(condition: $result['success']);
-        self::assertSame(expected: 0, actual: $result['notifications']);
+        $this->service->publishAgenda(meetingId: 'meeting-1');
 
-    }//end testPublishAgendaWithNoItemsReturnsZeroNotifications()
+    }//end testPublishAgendaThrowsWhenNoItems()
 
     /**
      * Test publishAgenda sends notifications to active participants only.
@@ -166,16 +170,19 @@ class AgendaServiceTest extends TestCase
             [
                 'owner'       => 'user-1',
                 'displayName' => 'Alice',
+                'role'        => 'chair',
                 'leftAt'      => null,
             ],
             [
                 'owner'       => 'user-2',
                 'displayName' => 'Bob',
+                'role'        => 'member',
                 'leftAt'      => null,
             ],
             [
                 'owner'       => 'user-3',
                 'displayName' => 'Charlie',
+                'role'        => 'member',
                 'leftAt'      => '2025-01-01',
             ],
         ];
@@ -183,7 +190,8 @@ class AgendaServiceTest extends TestCase
         $this->objectService->method('getObjects')
             ->willReturnCallback(
                 static function () use ($agendaItems, $participants) {
-                    $schema = func_get_arg(0);
+                    // Argument order after fix: getObjects($register, $schema, $filters).
+                    $schema = func_get_arg(1);
                     return match ($schema) {
                         'agenda-item'  => $agendaItems,
                         'participant'  => $participants,
@@ -195,7 +203,7 @@ class AgendaServiceTest extends TestCase
         $this->objectService->method('getObject')
             ->willReturn($meeting);
 
-        $this->notificationService->expects($this->exactly(2))
+        $this->notificationService->expects($this->exactly(count: 2))
             ->method('sendNotification');
 
         $result = $this->service->publishAgenda(meetingId: 'meeting-1');
@@ -218,6 +226,7 @@ class AgendaServiceTest extends TestCase
             'id'       => 'item-1',
             'itemType' => 'discussion',
             'status'   => 'beeldvorming',
+            // No 'meeting' field — auth check is skipped automatically.
         ];
 
         $this->objectService->method('getObject')
@@ -252,8 +261,8 @@ class AgendaServiceTest extends TestCase
         $this->objectService->method('getObject')
             ->willReturn($item);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Informatieve agendapunten hebben geen BOB-fasering');
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionMessage(message: 'Informatieve agendapunten hebben geen BOB-fasering');
 
         $this->service->advanceBobPhase(agendaItemId: 'item-1');
 
@@ -277,8 +286,8 @@ class AgendaServiceTest extends TestCase
         $this->objectService->method('getObject')
             ->willReturn($item);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Agendapunt is al in de laatste fase');
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionMessage(message: 'Agendapunt is al in de laatste fase');
 
         $this->service->advanceBobPhase(agendaItemId: 'item-1');
 
@@ -308,10 +317,24 @@ class AgendaServiceTest extends TestCase
             ],
         ];
 
-        $this->objectService->method('getObjects')
-            ->willReturn($hamerstukken);
+        // GetObject is called for the meeting during the auth check.
+        $this->objectService->method('getObject')
+            ->willReturn(['id' => 'meeting-1', 'relations' => []]);
 
-        $this->objectService->expects($this->exactly(2))
+        // GetObjects is called for participants (returns [] — empty governance body)
+        // and for agenda-items (returns hamerstukken).
+        $this->objectService->method('getObjects')
+            ->willReturnCallback(
+                static function () use ($hamerstukken) {
+                    $schema = func_get_arg(1);
+                    return match ($schema) {
+                        'agenda-item' => $hamerstukken,
+                        default       => [],
+                    };
+                }
+            );
+
+        $this->objectService->expects($this->exactly(count: 2))
             ->method('saveObject');
 
         $result = $this->service->processHamerstukken(meetingId: 'meeting-1');
@@ -345,18 +368,31 @@ class AgendaServiceTest extends TestCase
             ],
         ];
 
-        $this->objectService->method('getObjects')
-            ->willReturn($items);
+        // GetObject is called for the meeting during the auth check.
+        $this->objectService->method('getObject')
+            ->willReturn(['id' => 'meeting-1', 'relations' => []]);
 
-        // Reversed order.
+        // GetObjects: participants (empty governance body) and agenda-items.
+        $this->objectService->method('getObjects')
+            ->willReturnCallback(
+                static function () use ($items) {
+                    $schema = func_get_arg(1);
+                    return match ($schema) {
+                        'agenda-item' => $items,
+                        default       => [],
+                    };
+                }
+            );
+
+        // Reversed order — item-c first.
         $orderedIds = ['item-c', 'item-a', 'item-b'];
 
         $savedItems = [];
-        $this->objectService->expects($this->exactly(3))
+        $this->objectService->expects($this->exactly(count: 3))
             ->method('saveObject')
             ->willReturnCallback(
                 static function () use (&$savedItems) {
-                    $args = func_get_args();
+                    $args         = func_get_args();
                     $savedItems[] = $args;
                 }
             );
@@ -378,7 +414,7 @@ class AgendaServiceTest extends TestCase
      */
     private function createMockObjectService(): object
     {
-        $mock = $this->getMockBuilder(\stdClass::class)
+        $mock = $this->getMockBuilder(className: \stdClass::class)
             ->addMethods(
                 [
                     'getObjects',
@@ -399,7 +435,7 @@ class AgendaServiceTest extends TestCase
      */
     private function createMockNotificationService(): object
     {
-        $mock = $this->getMockBuilder(\stdClass::class)
+        $mock = $this->getMockBuilder(className: \stdClass::class)
             ->addMethods(['sendNotification'])
             ->getMock();
 
@@ -414,7 +450,7 @@ class AgendaServiceTest extends TestCase
      */
     private function createMockCalendarEventService(): object
     {
-        $mock = $this->getMockBuilder(\stdClass::class)
+        $mock = $this->getMockBuilder(className: \stdClass::class)
             ->addMethods(['updateEvent'])
             ->getMock();
 

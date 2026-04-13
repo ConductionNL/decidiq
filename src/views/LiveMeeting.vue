@@ -124,6 +124,7 @@ export default {
 			activeItemId: null,
 			showAddDialog: false,
 			pollInterval: null,
+			currentUserRole: 'none',
 		}
 	},
 
@@ -133,7 +134,10 @@ export default {
 		},
 
 		isChair() {
-			return true
+			return this.currentUserRole === 'chair'
+				|| this.currentUserRole === 'voorzitter'
+				|| this.currentUserRole === 'secretary'
+				|| this.currentUserRole === 'secretaris'
 		},
 
 		sortedItems() {
@@ -176,6 +180,7 @@ export default {
 	async created() {
 		await this.fetchMeeting()
 		await this.fetchAgendaItems()
+		this.currentUserRole = await this.fetchUserRole()
 		// Auto-refresh every 30 seconds.
 		this.pollInterval = setInterval(() => this.fetchAgendaItems(), 30000)
 	},
@@ -187,6 +192,11 @@ export default {
 	},
 
 	methods: {
+		async fetchUserRole() {
+			const agendaStore = useAgendaStore()
+			return agendaStore.fetchUserRole(this.meetingId)
+		},
+
 		async fetchMeeting() {
 			const objectStore = useObjectStore()
 			const results = await objectStore.fetchObjects('meeting', { id: this.meetingId })
@@ -254,13 +264,14 @@ export default {
 			const updatedTags = (item.tags || []).filter((t) => t !== 'hamerstuk')
 			const objectStore = useObjectStore()
 			const url = new URL(objectStore.baseUrl, window.location.origin)
+			// Send only the fields being changed to prevent mass-assignment.
 			await fetch(url.toString(), {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
 					requesttoken: OC.requestToken,
 				},
-				body: JSON.stringify({ ...item, tags: updatedTags }),
+				body: JSON.stringify({ id: item.id || item.uuid, tags: updatedTags }),
 			})
 			await this.fetchAgendaItems()
 		},

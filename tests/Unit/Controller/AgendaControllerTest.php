@@ -19,7 +19,6 @@
 
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
-
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Controller;
@@ -27,6 +26,7 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\AgendaController;
 use OCA\Decidesk\Service\AgendaService;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IL10N;
 use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -61,6 +61,13 @@ class AgendaControllerTest extends TestCase
     private AgendaService&MockObject $agendaService;
 
     /**
+     * Mock IL10N.
+     *
+     * @var IL10N&MockObject
+     */
+    private IL10N&MockObject $l10n;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -71,10 +78,15 @@ class AgendaControllerTest extends TestCase
 
         $this->request       = $this->createMock(originalClassName: IRequest::class);
         $this->agendaService = $this->createMock(originalClassName: AgendaService::class);
+        $this->l10n          = $this->createMock(originalClassName: IL10N::class);
+
+        // T() returns the key so error assertions remain key-independent.
+        $this->l10n->method('t')->willReturnArgument(0);
 
         $this->controller = new AgendaController(
             request: $this->request,
             agendaService: $this->agendaService,
+            l10n: $this->l10n,
         );
 
     }//end setUp()
@@ -126,6 +138,27 @@ class AgendaControllerTest extends TestCase
         self::assertSame(expected: 400, actual: $result->getStatus());
 
     }//end testPublishReturns400OnError()
+
+    /**
+     * Test publish returns 403 when service throws with code 403.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
+     */
+    public function testPublishReturns403OnForbidden(): void
+    {
+        $this->agendaService->expects($this->once())
+            ->method('publishAgenda')
+            ->willThrowException(new \RuntimeException('Forbidden', 403));
+
+        $result = $this->controller->publish(meetingId: 'meeting-1');
+
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertFalse(condition: $result->getData()['success']);
+        self::assertSame(expected: 403, actual: $result->getStatus());
+
+    }//end testPublishReturns403OnForbidden()
 
     /**
      * Test advanceBobPhase delegates to service.
@@ -214,4 +247,25 @@ class AgendaControllerTest extends TestCase
         self::assertSame(expected: 3, actual: $result->getData()['count']);
 
     }//end testReorderPassesIdsToService()
+
+    /**
+     * Test userRole returns the role from the service.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
+     */
+    public function testUserRoleReturnsDelegatedRole(): void
+    {
+        $this->agendaService->expects($this->once())
+            ->method('getUserRole')
+            ->with(meetingId: 'meeting-1')
+            ->willReturn(['role' => 'chair']);
+
+        $result = $this->controller->userRole(meetingId: 'meeting-1');
+
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertSame(expected: 'chair', actual: $result->getData()['role']);
+
+    }//end testUserRoleReturnsDelegatedRole()
 }//end class

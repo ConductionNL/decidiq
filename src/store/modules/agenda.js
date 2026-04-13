@@ -123,6 +123,26 @@ export const useAgendaStore = defineStore('agenda', {
 		},
 
 		/**
+		 * Fetch the current user's role for a meeting.
+		 *
+		 * @param {string} meetingId The meeting ID
+		 * @return {Promise<string>} The role ('chair', 'voorzitter', 'secretary', 'secretaris', 'member', 'none')
+		 */
+		async fetchUserRole(meetingId) {
+			try {
+				const url = generateUrl(`/apps/decidesk/api/agendas/${meetingId}/user-role`)
+				const response = await fetch(url, {
+					headers: { requesttoken: OC.requestToken },
+				})
+				const data = await response.json()
+				return data.role || 'none'
+			} catch (error) {
+				console.error('Failed to fetch user role:', error)
+				return 'none'
+			}
+		},
+
+		/**
 		 * Set the currently active agenda item in the live view.
 		 *
 		 * @param {string|null} itemId The item ID or null to deactivate
