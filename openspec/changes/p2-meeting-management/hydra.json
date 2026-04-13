@@ -1,0 +1,12 @@
+{
+  "spec_slug": "p2-meeting-management",
+  "title": "Meeting Management",
+  "app": "decidesk",
+  "repo": "https://github.com/ConductionNL/decidesk",
+  "depends_on": [
+    "p1-schemas-and-data-model",
+    "p1-dashboard-and-navigation",
+    "p1-crud-operations"
+  ],
+  "issue": null
+}

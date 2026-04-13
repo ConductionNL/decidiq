@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
 <template>
 	<CnDashboardPage>
 		<CnKpiGrid :columns="4">
