@@ -1,8 +1,8 @@
 {
   "round": 9,
-  "timestamp": "2026-04-13T21:45:44.723585+00:00",
+  "timestamp": "2026-04-13T21:50:46.681570+00:00",
   "pr": 23,
-  "commit": "016f3ff",
+  "commit": "0a985a2",
   "code_review": {
     "pass": null,
     "turns": 0,
@@ -11,14 +11,6 @@
   "security_review": {
     "pass": null,
     "turns": 0,
-    "cost_usd": 0,
-    "cost_eur": 0,
-    "tokens": {
-      "input": 0,
-      "output": 0,
-      "cache_read": 0,
-      "cache_create": 0
-    },
     "findings": []
   }
 }
