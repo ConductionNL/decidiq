@@ -1,9 +1,9 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 /**
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
+ *
  * Decidesk Motion Service
  *
  * Service for managing motion lifecycle, co-signatures, budget impact,
@@ -168,7 +168,7 @@ class MotionService
      * as a co-signer the motion is returned unchanged.
      *
      * @param string $motionId               The ID of the motion
-     * @param string $participantDisplayName  The display name of the co-signer
+     * @param string $participantDisplayName The display name of the co-signer
      *
      * @return array<string,mixed> The updated motion
      *
@@ -227,9 +227,9 @@ class MotionService
             ),
         ];
 
-        $notes            = ($motion['notes'] ?? []);
-        $notes[]          = $note;
-        $motion['notes']  = $notes;
+        $notes           = ($motion['notes'] ?? []);
+        $notes[]         = $note;
+        $motion['notes'] = $notes;
 
         return $objectService->saveObject('motion', $motion);
     }//end saveBudgetImpact()
@@ -249,11 +249,11 @@ class MotionService
      */
     public function detectConflicts(string $motionId, string $newAmendmentId): array
     {
-        $objectService  = $this->getObjectService();
-        $motion         = $objectService->getObject('motion', $motionId);
-        $amendmentIds   = ($motion['amendments'] ?? []);
-        $newAmendment   = $objectService->getObject('amendment', $newAmendmentId);
-        $newWords       = $this->extractWords(($newAmendment['text'] ?? ''));
+        $objectService = $this->getObjectService();
+        $motion        = $objectService->getObject('motion', $motionId);
+        $amendmentIds  = ($motion['amendments'] ?? []);
+        $newAmendment  = $objectService->getObject('amendment', $newAmendmentId);
+        $newWords      = $this->extractWords(text: ($newAmendment['text'] ?? ''));
 
         if (count($newWords) === 0) {
             return [];
@@ -267,7 +267,7 @@ class MotionService
             }
 
             $existing      = $objectService->getObject('amendment', $existingId);
-            $existingWords = $this->extractWords(($existing['text'] ?? ''));
+            $existingWords = $this->extractWords(text: ($existing['text'] ?? ''));
 
             if (count($existingWords) === 0) {
                 continue;
@@ -308,7 +308,7 @@ class MotionService
         $amendmentText  = ($amendment['text'] ?? '');
 
         $motion['text'] = ($motion['text'] ?? '')
-            . "\n\n[Amendement: {$amendmentTitle}]\n{$amendmentText}";
+            ."\n\n[Amendement: {$amendmentTitle}]\n{$amendmentText}";
 
         return $objectService->saveObject('motion', $motion);
     }//end applyAmendment()
@@ -326,5 +326,4 @@ class MotionService
 
         return array_unique($words);
     }//end extractWords()
-
 }//end class

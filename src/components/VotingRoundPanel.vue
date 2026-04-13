@@ -14,17 +14,19 @@
 					</select>
 				</label>
 				<label class="voting-panel__toggle">
-					<input v-model="openForm.isSecret" type="checkbox" :aria-label="t('decidesk', 'Secret ballot')" />
+					<input v-model="openForm.isSecret" type="checkbox" :aria-label="t('decidesk', 'Secret ballot')">
 					{{ t('decidesk', 'Secret ballot') }}
 				</label>
 				<label>
 					{{ t('decidesk', 'Deadline (optional)') }}
-					<input v-model="openForm.closedAt" type="datetime-local" :aria-label="t('decidesk', 'Voting deadline')" />
+					<input v-model="openForm.closedAt" type="datetime-local" :aria-label="t('decidesk', 'Voting deadline')">
 				</label>
 				<button class="primary" @click="openRound">
 					{{ t('decidesk', 'Open voting round') }}
 				</button>
-				<p v-if="quorumError" class="voting-panel__error" role="alert">{{ quorumError }}</p>
+				<p v-if="quorumError" class="voting-panel__error" role="alert">
+					{{ quorumError }}
+				</p>
 			</div>
 		</div>
 
@@ -73,18 +75,29 @@
 				<div class="voting-panel__hands-inputs">
 					<label>
 						{{ t('decidesk', 'For') }}
-						<input v-model.number="handsFor" type="number" min="0" :aria-label="t('decidesk', 'Votes for')" />
+						<input v-model.number="handsFor"
+							type="number"
+							min="0"
+							:aria-label="t('decidesk', 'Votes for')">
 					</label>
 					<label>
 						{{ t('decidesk', 'Against') }}
-						<input v-model.number="handsAgainst" type="number" min="0" :aria-label="t('decidesk', 'Votes against')" />
+						<input v-model.number="handsAgainst"
+							type="number"
+							min="0"
+							:aria-label="t('decidesk', 'Votes against')">
 					</label>
 					<label>
 						{{ t('decidesk', 'Abstain') }}
-						<input v-model.number="handsAbstain" type="number" min="0" :aria-label="t('decidesk', 'Abstentions')" />
+						<input v-model.number="handsAbstain"
+							type="number"
+							min="0"
+							:aria-label="t('decidesk', 'Abstentions')">
 					</label>
 				</div>
-				<button @click="saveHandsCount">{{ t('decidesk', 'Save result') }}</button>
+				<button @click="saveHandsCount">
+					{{ t('decidesk', 'Save result') }}
+				</button>
 			</div>
 
 			<!-- Live tally -->
@@ -106,8 +119,10 @@
 					<input v-model="proxyToId"
 						type="text"
 						:placeholder="t('decidesk', 'Delegate participant ID')"
-						:aria-label="t('decidesk', 'Proxy delegate')" />
-					<button @click="grantProxy">{{ t('decidesk', 'Confirm proxy') }}</button>
+						:aria-label="t('decidesk', 'Proxy delegate')">
+					<button @click="grantProxy">
+						{{ t('decidesk', 'Confirm proxy') }}
+					</button>
 				</div>
 				<button v-if="hasProxy" @click="revokeProxy">
 					{{ t('decidesk', 'Revoke proxy') }}
@@ -330,9 +345,7 @@ export default {
 			}
 		},
 		async saveHandsCount() {
-			// For show-of-hands, we save directly as vote totals
-			if (!this.activeRound) return
-			console.log('Saving hands count:', this.handsFor, this.handsAgainst, this.handsAbstain)
+			// Show-of-hands totals would be saved via ObjectService in production.
 		},
 		methodLabel(method) {
 			const labels = {

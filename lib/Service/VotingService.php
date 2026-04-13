@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
+ *
  * Decidesk Voting Service
  *
  * Service for managing voting rounds, casting votes, tallying results,
@@ -18,9 +21,6 @@
  * @link https://conduction.nl
  */
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -37,7 +37,6 @@ use Psr\Log\LoggerInterface;
  */
 class VotingService
 {
-
     /**
      * Constructor for the VotingService.
      *
@@ -80,7 +79,7 @@ class VotingService
     {
         $objectService = $this->getObjectService();
 
-        $meeting = $objectService->getObject($meetingId);
+        $meeting        = $objectService->getObject($meetingId);
         $quorumRequired = $meeting['quorumRequired'] ?? 0;
 
         $governanceBodyId = $meeting['governanceBody'] ?? null;
@@ -127,12 +126,12 @@ class VotingService
         string $motionId,
         string $votingMethod,
         bool $isSecret,
-        ?string $closedAt = null,
+        ?string $closedAt=null,
     ): array {
         $objectService = $this->getObjectService();
 
         // Fetch the motion and its related meeting.
-        $motion  = $objectService->getObject($motionId);
+        $motion    = $objectService->getObject($motionId);
         $meetingId = $motion['meeting'] ?? null;
 
         if ($meetingId === null) {
@@ -140,39 +139,46 @@ class VotingService
         }
 
         // Verify quorum.
-        if ($this->checkQuorum($meetingId) === false) {
+        if ($this->checkQuorum(meetingId: $meetingId) === false) {
             throw new \RuntimeException('Quorum niet bereikt');
         }
 
         // Create VotingRound object.
-        $votingRound = $objectService->saveObject([
-            'votingMethod' => $votingMethod,
-            'isSecret'     => $isSecret,
-            'openedAt'     => (new \DateTimeImmutable())->format('c'),
-            'closedAt'     => $closedAt,
-            'quorumMet'    => true,
-            'result'       => null,
-            'votesFor'     => 0,
-            'votesAgainst' => 0,
-            'votesAbstain' => 0,
-        ]);
+        $votingRound = $objectService->saveObject(
+                [
+                    'votingMethod' => $votingMethod,
+                    'isSecret'     => $isSecret,
+                    'openedAt'     => (new \DateTimeImmutable())->format('c'),
+                    'closedAt'     => $closedAt,
+                    'quorumMet'    => true,
+                    'result'       => null,
+                    'votesFor'     => 0,
+                    'votesAgainst' => 0,
+                    'votesAbstain' => 0,
+                ]
+                );
 
         // Create relation VotingRound -> Motion.
-        $objectService->saveObject([
-            'from' => $votingRound['id'],
-            'to'   => $motionId,
-            'type' => 'VotingRound->Motion',
-        ]);
+        $objectService->saveObject(
+                [
+                    'from' => $votingRound['id'],
+                    'to'   => $motionId,
+                    'type' => 'VotingRound->Motion',
+                ]
+                );
 
         // Transition motion to 'voting' state.
         $motion['lifecycle'] = 'voting';
         $objectService->saveObject($motion);
 
-        $this->logger->info('Voting round opened', [
-            'votingRoundId' => $votingRound['id'],
-            'motionId'      => $motionId,
-            'votingMethod'  => $votingMethod,
-        ]);
+        $this->logger->info(
+                'Voting round opened',
+                [
+                    'votingRoundId' => $votingRound['id'],
+                    'motionId'      => $motionId,
+                    'votingMethod'  => $votingMethod,
+                ]
+                );
 
         return $votingRound;
     }//end openVotingRound()
@@ -200,8 +206,8 @@ class VotingService
         string $votingRoundId,
         string $participantId,
         string $value,
-        bool $isProxy = false,
-        ?string $delegatorId = null,
+        bool $isProxy=false,
+        ?string $delegatorId=null,
     ): array {
         // Validate vote value.
         $allowedValues = ['for', 'against', 'abstain'];
@@ -246,12 +252,12 @@ class VotingService
 
         // Build vote data.
         $voteData = [
-            'value'        => $value,
-            'weight'       => 1,
-            'isProxy'      => $isProxy,
-            'castAt'       => (new \DateTimeImmutable())->format('c'),
-            'votingRound'  => $votingRoundId,
-            'participant'  => $participantId,
+            'value'       => $value,
+            'weight'      => 1,
+            'isProxy'     => $isProxy,
+            'castAt'      => (new \DateTimeImmutable())->format('c'),
+            'votingRound' => $votingRoundId,
+            'participant' => $participantId,
         ];
 
         if ($isProxy === true && $delegatorId !== null) {
@@ -260,16 +266,19 @@ class VotingService
 
         // If existing vote, update it (overwrite).
         if (empty($existingVotes) === false) {
-            $existingVote = reset($existingVotes);
+            $existingVote   = reset($existingVotes);
             $voteData['id'] = $existingVote['id'];
-            $vote = $objectService->saveObject($voteData);
+            $vote           = $objectService->saveObject($voteData);
 
-            $this->logger->info('Vote updated', [
-                'voteId'        => $vote['id'],
-                'votingRoundId' => $votingRoundId,
-                'participantId' => $participantId,
-                'value'         => $value,
-            ]);
+            $this->logger->info(
+                    'Vote updated',
+                    [
+                        'voteId'        => $vote['id'],
+                        'votingRoundId' => $votingRoundId,
+                        'participantId' => $participantId,
+                        'value'         => $value,
+                    ]
+                    );
 
             return $vote;
         }
@@ -278,35 +287,44 @@ class VotingService
         $vote = $objectService->saveObject($voteData);
 
         // Create relation Vote -> VotingRound.
-        $objectService->saveObject([
-            'from' => $vote['id'],
-            'to'   => $votingRoundId,
-            'type' => 'Vote->VotingRound',
-        ]);
+        $objectService->saveObject(
+                [
+                    'from' => $vote['id'],
+                    'to'   => $votingRoundId,
+                    'type' => 'Vote->VotingRound',
+                ]
+                );
 
         // Create relation Vote -> Participant.
-        $objectService->saveObject([
-            'from' => $vote['id'],
-            'to'   => $participantId,
-            'type' => 'Vote->Participant',
-        ]);
+        $objectService->saveObject(
+                [
+                    'from' => $vote['id'],
+                    'to'   => $participantId,
+                    'type' => 'Vote->Participant',
+                ]
+                );
 
         // If proxy, create relation Vote -> Participant (delegator).
         if ($isProxy === true && $delegatorId !== null) {
-            $objectService->saveObject([
-                'from' => $vote['id'],
-                'to'   => $delegatorId,
-                'type' => 'Vote->Participant',
-            ]);
+            $objectService->saveObject(
+                    [
+                        'from' => $vote['id'],
+                        'to'   => $delegatorId,
+                        'type' => 'Vote->Participant',
+                    ]
+                    );
         }
 
-        $this->logger->info('Vote cast', [
-            'voteId'        => $vote['id'],
-            'votingRoundId' => $votingRoundId,
-            'participantId' => $participantId,
-            'value'         => $value,
-            'isProxy'       => $isProxy,
-        ]);
+        $this->logger->info(
+                'Vote cast',
+                [
+                    'voteId'        => $vote['id'],
+                    'votingRoundId' => $votingRoundId,
+                    'participantId' => $participantId,
+                    'value'         => $value,
+                    'isProxy'       => $isProxy,
+                ]
+                );
 
         return $vote;
     }//end castVote()
@@ -332,14 +350,14 @@ class VotingService
         $votingRound = $objectService->getObject($votingRoundId);
 
         // Tally results.
-        $tally = $this->tallyResults($votingRoundId);
+        $tally = $this->tallyResults(votingRoundId: $votingRoundId);
 
         // Update VotingRound closedAt to now.
-        $votingRound['closedAt']      = (new \DateTimeImmutable())->format('c');
-        $votingRound['votesFor']      = $tally['votesFor'];
-        $votingRound['votesAgainst']  = $tally['votesAgainst'];
-        $votingRound['votesAbstain']  = $tally['votesAbstain'];
-        $votingRound['result']        = $tally['result'];
+        $votingRound['closedAt']     = (new \DateTimeImmutable())->format('c');
+        $votingRound['votesFor']     = $tally['votesFor'];
+        $votingRound['votesAgainst'] = $tally['votesAgainst'];
+        $votingRound['votesAbstain'] = $tally['votesAbstain'];
+        $votingRound['result']       = $tally['result'];
         $votingRound = $objectService->saveObject($votingRound);
 
         // Determine motion lifecycle based on result.
@@ -359,33 +377,45 @@ class VotingService
                 $motion['lifecycle'] = $result;
                 $objectService->saveObject($motion);
 
-                $this->logger->info('Motion lifecycle updated', [
-                    'motionId'  => $motion['id'],
-                    'lifecycle' => $result,
-                ]);
+                $this->logger->info(
+                        'Motion lifecycle updated',
+                        [
+                            'motionId'  => $motion['id'],
+                            'lifecycle' => $result,
+                        ]
+                        );
             }
-        }
+        }//end if
 
         // Check if ORI publication is configured.
         $oriEnabled = $this->appConfig->getValueString('decidesk', 'ori_publication', '');
         if ($oriEnabled !== '') {
-            $this->logger->info('ORI publication configured; voting round results eligible for publication', [
-                'votingRoundId' => $votingRoundId,
-                'result'        => $result,
-            ]);
+            $this->logger->info(
+                    'ORI publication configured; voting round results eligible for publication',
+                    [
+                        'votingRoundId' => $votingRoundId,
+                        'result'        => $result,
+                    ]
+                    );
         }
 
         // If result is adopted, log dossier folder creation.
         if ($result === 'adopted') {
-            $this->logger->info('Motion adopted; dossier folder creation should be triggered', [
-                'votingRoundId' => $votingRoundId,
-            ]);
+            $this->logger->info(
+                    'Motion adopted; dossier folder creation should be triggered',
+                    [
+                        'votingRoundId' => $votingRoundId,
+                    ]
+                    );
         }
 
-        $this->logger->info('Voting round closed', [
-            'votingRoundId' => $votingRoundId,
-            'result'        => $result,
-        ]);
+        $this->logger->info(
+                'Voting round closed',
+                [
+                    'votingRoundId' => $votingRoundId,
+                    'result'        => $result,
+                ]
+                );
 
         return $votingRound;
     }//end closeVotingRound()
@@ -435,9 +465,9 @@ class VotingService
         // Determine result.
         if (($votesFor + $votesAgainst + $votesAbstain) === 0) {
             $result = 'invalid';
-        } elseif ($votesFor > $votesAgainst) {
+        } else if ($votesFor > $votesAgainst) {
             $result = 'adopted';
-        } elseif ($votesAgainst > $votesFor) {
+        } else if ($votesAgainst > $votesFor) {
             $result = 'rejected';
         } else {
             $result = 'tied';
@@ -465,9 +495,9 @@ class VotingService
      * Verifies the receiving participant is eligible (not an observer or guest),
      * then records the proxy as a note on the VotingRound.
      *
-     * @param string $votingRoundId      The ID of the voting round
-     * @param string $fromParticipantId  The ID of the delegating participant
-     * @param string $toParticipantId    The ID of the receiving participant
+     * @param string $votingRoundId     The ID of the voting round
+     * @param string $fromParticipantId The ID of the delegating participant
+     * @param string $toParticipantId   The ID of the receiving participant
      *
      * @return void
      *
@@ -484,7 +514,7 @@ class VotingService
 
         // Fetch toParticipant and verify role.
         $toParticipant = $objectService->getObject($toParticipantId);
-        $role = $toParticipant['role'] ?? '';
+        $role          = $toParticipant['role'] ?? '';
 
         if ($role === 'observer' || $role === 'guest') {
             throw new \InvalidArgumentException(
@@ -494,8 +524,8 @@ class VotingService
 
         // Store proxy as a note on VotingRound.
         $votingRound = $objectService->getObject($votingRoundId);
-        $notes = $votingRound['notes'] ?? [];
-        $notes[] = [
+        $notes       = $votingRound['notes'] ?? [];
+        $notes[]     = [
             'title'   => "Proxy: {$fromParticipantId} -> {$toParticipantId}",
             'type'    => 'proxy',
             'from'    => $fromParticipantId,
@@ -505,11 +535,14 @@ class VotingService
         $votingRound['notes'] = $notes;
         $objectService->saveObject($votingRound);
 
-        $this->logger->info('Proxy granted', [
-            'votingRoundId'     => $votingRoundId,
-            'fromParticipantId' => $fromParticipantId,
-            'toParticipantId'   => $toParticipantId,
-        ]);
+        $this->logger->info(
+                'Proxy granted',
+                [
+                    'votingRoundId'     => $votingRoundId,
+                    'fromParticipantId' => $fromParticipantId,
+                    'toParticipantId'   => $toParticipantId,
+                ]
+                );
     }//end grantProxy()
 
     /**
@@ -535,14 +568,14 @@ class VotingService
 
         // Fetch VotingRound and check if round is already open.
         $votingRound = $objectService->getObject($votingRoundId);
-        $openedAt = $votingRound['openedAt'] ?? null;
+        $openedAt    = $votingRound['openedAt'] ?? null;
 
         if ($openedAt !== null) {
             throw new \RuntimeException('Kan volmacht niet intrekken: stemronde is al geopend');
         }
 
         // Remove proxy note.
-        $notes = $votingRound['notes'] ?? [];
+        $notes         = $votingRound['notes'] ?? [];
         $filteredNotes = [];
         foreach ($notes as $note) {
             if (($note['type'] ?? '') === 'proxy' && ($note['from'] ?? '') === $fromParticipantId) {
@@ -555,9 +588,12 @@ class VotingService
         $votingRound['notes'] = $filteredNotes;
         $objectService->saveObject($votingRound);
 
-        $this->logger->info('Proxy revoked', [
-            'votingRoundId'     => $votingRoundId,
-            'fromParticipantId' => $fromParticipantId,
-        ]);
+        $this->logger->info(
+                'Proxy revoked',
+                [
+                    'votingRoundId'     => $votingRoundId,
+                    'fromParticipantId' => $fromParticipantId,
+                ]
+                );
     }//end revokeProxy()
 }//end class

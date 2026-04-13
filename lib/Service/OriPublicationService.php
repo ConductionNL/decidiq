@@ -1,7 +1,27 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
+/**
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
+ *
+ * Decidesk ORI Publication Service
+ *
+ * Service for publishing voting round data to an ORI (Open Raadsinformatie) API endpoint.
+ *
+ * This service builds JSON-LD payloads conforming to the ORI standard and handles
+ * publication of VotingRound resources to a configured ORI endpoint.
+ *
+ * @category Service
+ * @package  OCA\Decidesk\Service
+ *
+ * @author    Conduction Development Team <dev@conductio.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @version GIT: <git-id>
+ *
+ * @link https://conduction.nl
+ */
 
 namespace OCA\Decidesk\Service;
 
@@ -13,25 +33,29 @@ use Psr\Log\LoggerInterface;
 /**
  * Service for publishing voting round data to an ORI (Open Raadsinformatie) API endpoint.
  *
- * This service builds JSON-LD payloads conforming to the ORI standard and handles
- * publication of VotingRound resources to a configured ORI endpoint.
- *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
  */
 class OriPublicationService
 {
+
     /**
-     * @var ContainerInterface The service container for resolving dependencies.
+     * The service container for resolving dependencies.
+     *
+     * @var ContainerInterface
      */
     private ContainerInterface $container;
 
     /**
-     * @var LoggerInterface The logger instance.
+     * The logger instance.
+     *
+     * @var LoggerInterface
      */
     private LoggerInterface $logger;
 
     /**
-     * @var IAppConfig The Nextcloud app configuration service.
+     * The Nextcloud app configuration service.
+     *
+     * @var IAppConfig
      */
     private IAppConfig $appConfig;
 
@@ -48,7 +72,7 @@ class OriPublicationService
         IAppConfig $appConfig,
     ) {
         $this->container = $container;
-        $this->logger = $logger;
+        $this->logger    = $logger;
         $this->appConfig = $appConfig;
     }//end __construct()
 
@@ -82,28 +106,31 @@ class OriPublicationService
         }//end if
 
         $objectService = $this->getObjectService();
-        $votingRound = $objectService->getObject('votingRound', $votingRoundId);
+        $votingRound   = $objectService->getObject('votingRound', $votingRoundId);
 
         // Build JSON-LD payload conforming to the ORI standard.
         $payload = [
-            '@context' => 'https://standaarden.overheid.nl/owms/terms/',
-            '@type' => 'VotingRound',
-            'identifier' => $votingRoundId,
-            'name' => $votingRound['name'] ?? '',
+            '@context'    => 'https://standaarden.overheid.nl/owms/terms/',
+            '@type'       => 'VotingRound',
+            'identifier'  => $votingRoundId,
+            'name'        => $votingRound['name'] ?? '',
             'description' => $votingRound['description'] ?? '',
-            'status' => $votingRound['status'] ?? '',
-            'startDate' => $votingRound['startDate'] ?? '',
-            'endDate' => $votingRound['endDate'] ?? '',
-            'result' => $votingRound['result'] ?? '',
+            'status'      => $votingRound['status'] ?? '',
+            'startDate'   => $votingRound['startDate'] ?? '',
+            'endDate'     => $votingRound['endDate'] ?? '',
+            'result'      => $votingRound['result'] ?? '',
         ];
 
         // In production the actual HTTP POST to the ORI endpoint would be
         // dispatched via an IJob (background job) to avoid blocking the request.
-        $this->logger->info('OriPublicationService: publishing VotingRound to ORI endpoint', [
-            'votingRoundId' => $votingRoundId,
-            'endpoint' => $oriEndpoint,
-            'payload' => json_encode($payload),
-        ]);
+        $this->logger->info(
+                'OriPublicationService: publishing VotingRound to ORI endpoint',
+                [
+                    'votingRoundId' => $votingRoundId,
+                    'endpoint'      => $oriEndpoint,
+                    'payload'       => json_encode($payload),
+                ]
+                );
     }//end publish()
 
     /**

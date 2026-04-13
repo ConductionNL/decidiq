@@ -6,20 +6,44 @@
 
 		<div class="motion-index__filters">
 			<select v-model="filterLifecycle" class="motion-index__select">
-				<option value="">{{ t('decidesk', 'All statuses') }}</option>
-				<option value="submitted">{{ t('decidesk', 'Submitted') }}</option>
-				<option value="debating">{{ t('decidesk', 'Debating') }}</option>
-				<option value="voting">{{ t('decidesk', 'Voting') }}</option>
-				<option value="adopted">{{ t('decidesk', 'Adopted') }}</option>
-				<option value="rejected">{{ t('decidesk', 'Rejected') }}</option>
-				<option value="withdrawn">{{ t('decidesk', 'Withdrawn') }}</option>
+				<option value="">
+					{{ t('decidesk', 'All statuses') }}
+				</option>
+				<option value="submitted">
+					{{ t('decidesk', 'Submitted') }}
+				</option>
+				<option value="debating">
+					{{ t('decidesk', 'Debating') }}
+				</option>
+				<option value="voting">
+					{{ t('decidesk', 'Voting') }}
+				</option>
+				<option value="adopted">
+					{{ t('decidesk', 'Adopted') }}
+				</option>
+				<option value="rejected">
+					{{ t('decidesk', 'Rejected') }}
+				</option>
+				<option value="withdrawn">
+					{{ t('decidesk', 'Withdrawn') }}
+				</option>
 			</select>
 			<select v-model="filterType" class="motion-index__select">
-				<option value="">{{ t('decidesk', 'All types') }}</option>
-				<option value="motion">{{ t('decidesk', 'Motion') }}</option>
-				<option value="amendment">{{ t('decidesk', 'Amendment') }}</option>
-				<option value="order">{{ t('decidesk', 'Order motion') }}</option>
-				<option value="procedural">{{ t('decidesk', 'Procedural') }}</option>
+				<option value="">
+					{{ t('decidesk', 'All types') }}
+				</option>
+				<option value="motion">
+					{{ t('decidesk', 'Motion') }}
+				</option>
+				<option value="amendment">
+					{{ t('decidesk', 'Amendment') }}
+				</option>
+				<option value="order">
+					{{ t('decidesk', 'Order motion') }}
+				</option>
+				<option value="procedural">
+					{{ t('decidesk', 'Procedural') }}
+				</option>
 			</select>
 		</div>
 

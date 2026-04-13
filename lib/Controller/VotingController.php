@@ -1,9 +1,9 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 /**
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
+ *
  * Decidesk Voting Controller
  *
  * Thin controller for the voting round API.
@@ -61,9 +61,9 @@ class VotingController extends Controller
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     *
      * @return JSONResponse
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      */
     public function open(): JSONResponse
     {
@@ -83,13 +83,13 @@ class VotingController extends Controller
     /**
      * Cast a vote in a voting round.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The voting round identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      */
     public function cast(string $id): JSONResponse
     {
@@ -109,13 +109,13 @@ class VotingController extends Controller
     /**
      * Close a voting round.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The voting round identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      */
     public function close(string $id): JSONResponse
     {
@@ -127,13 +127,13 @@ class VotingController extends Controller
     /**
      * Publish voting results to ORI.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The voting round identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      */
     public function publish(string $id): JSONResponse
     {
@@ -145,13 +145,13 @@ class VotingController extends Controller
     /**
      * Grant proxy voting rights.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The voting round identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      */
     public function grantProxy(string $id): JSONResponse
     {
@@ -169,13 +169,13 @@ class VotingController extends Controller
     /**
      * Revoke proxy voting rights.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The voting round identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      */
     public function revokeProxy(string $id): JSONResponse
     {

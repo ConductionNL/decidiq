@@ -45,7 +45,9 @@
 		<!-- Motion text -->
 		<section class="motion-detail__section">
 			<h3>{{ t('decidesk', 'Motion text') }}</h3>
-			<p class="motion-detail__text">{{ motion.text }}</p>
+			<p class="motion-detail__text">
+				{{ motion.text }}
+			</p>
 		</section>
 
 		<!-- Proposer info -->
@@ -58,16 +60,22 @@
 		<section class="motion-detail__section">
 			<h3>{{ t('decidesk', 'Co-signers') }}</h3>
 			<ul v-if="coSigners.length > 0" class="motion-detail__cosigners">
-				<li v-for="name in coSigners" :key="name">{{ name }}</li>
+				<li v-for="name in coSigners" :key="name">
+					{{ name }}
+				</li>
 			</ul>
-			<p v-else class="motion-detail__empty">{{ t('decidesk', 'No co-signers yet') }}</p>
+			<p v-else class="motion-detail__empty">
+				{{ t('decidesk', 'No co-signers yet') }}
+			</p>
 
 			<div class="motion-detail__cosign-form">
 				<input v-model="newCoSigner"
 					type="text"
 					:placeholder="t('decidesk', 'Participant name')"
-					:aria-label="t('decidesk', 'Co-signer name')" />
-				<button @click="addCoSigner">{{ t('decidesk', 'Add co-signer') }}</button>
+					:aria-label="t('decidesk', 'Co-signer name')">
+				<button @click="addCoSigner">
+					{{ t('decidesk', 'Add co-signer') }}
+				</button>
 			</div>
 		</section>
 
@@ -77,17 +85,19 @@
 			<div class="motion-detail__budget-form">
 				<label>
 					{{ t('decidesk', 'Budget line') }}
-					<input v-model="budgetLine" type="text" />
+					<input v-model="budgetLine" type="text">
 				</label>
 				<label>
 					{{ t('decidesk', 'Amount delta') }}
-					<input v-model.number="amountDelta" type="number" step="0.01" />
+					<input v-model.number="amountDelta" type="number" step="0.01">
 				</label>
 				<label>
 					{{ t('decidesk', 'Rationale') }}
 					<textarea v-model="budgetRationale" rows="3" />
 				</label>
-				<button @click="saveBudgetImpact">{{ t('decidesk', 'Save budget impact') }}</button>
+				<button @click="saveBudgetImpact">
+					{{ t('decidesk', 'Save budget impact') }}
+				</button>
 			</div>
 		</section>
 
@@ -159,13 +169,13 @@ export default {
 			return stages.map((s, i) => ({ ...s, done: i < currentIdx }))
 		},
 	},
-	created() {
-		this.loadMotion()
-	},
 	watch: {
 		'$route.params.id'() {
 			this.loadMotion()
 		},
+	},
+	created() {
+		this.loadMotion()
 	},
 	methods: {
 		async loadMotion() {

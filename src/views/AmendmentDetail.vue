@@ -45,7 +45,9 @@
 		<!-- Amendment text -->
 		<section class="amendment-detail__section">
 			<h3>{{ t('decidesk', 'Amendment text') }}</h3>
-			<p class="amendment-detail__text">{{ amendment.text }}</p>
+			<p class="amendment-detail__text">
+				{{ amendment.text }}
+			</p>
 		</section>
 
 		<!-- Proposer -->
@@ -103,13 +105,13 @@ export default {
 			return stages.map((s, i) => ({ ...s, done: i < currentIdx }))
 		},
 	},
-	created() {
-		this.loadAmendment()
-	},
 	watch: {
 		'$route.params.id'() {
 			this.loadAmendment()
 		},
+	},
+	created() {
+		this.loadAmendment()
 	},
 	methods: {
 		async loadAmendment() {

@@ -76,7 +76,7 @@ class MotionServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->objectService = $this->getMockBuilder(\stdClass::class)
+        $this->objectService = $this->getMockBuilder(className: \stdClass::class)
             ->addMethods(['getObject', 'saveObject', 'getObjects'])
             ->getMock();
 
@@ -105,24 +105,31 @@ class MotionServiceTest extends TestCase
         $this->objectService->expects($this->once())
             ->method('getObject')
             ->with('motion', 'motion-1')
-            ->willReturn([
-                'id'        => 'motion-1',
-                'lifecycle' => 'submitted',
-                'status'    => 'submitted',
-            ]);
+            ->willReturn(
+                    [
+                        'id'        => 'motion-1',
+                        'lifecycle' => 'submitted',
+                        'status'    => 'submitted',
+                    ]
+                    );
 
         $this->objectService->expects($this->once())
             ->method('saveObject')
             ->with(
                 'motion',
-                $this->callback(function (array $object): bool {
-                    return $object['lifecycle'] === 'debating'
-                        && $object['status'] === 'debating';
-                })
+                $this->callback(
+                        callback:
+                        function (array $object): bool {
+                            return $object['lifecycle'] === 'debating'
+                            && $object['status'] === 'debating';
+                        }
+                        )
             )
-            ->willReturnCallback(function (string $type, array $object): array {
-                return $object;
-            });
+            ->willReturnCallback(
+                    function (string $type, array $object): array {
+                        return $object;
+                    }
+                    );
 
         $result = $this->service->transitionLifecycle(
             objectId: 'motion-1',
@@ -146,16 +153,18 @@ class MotionServiceTest extends TestCase
         $this->objectService->expects($this->once())
             ->method('getObject')
             ->with('motion', 'motion-2')
-            ->willReturn([
-                'id'        => 'motion-2',
-                'lifecycle' => 'adopted',
-                'status'    => 'adopted',
-            ]);
+            ->willReturn(
+                    [
+                        'id'        => 'motion-2',
+                        'lifecycle' => 'adopted',
+                        'status'    => 'adopted',
+                    ]
+                    );
 
         $this->objectService->expects($this->never())
             ->method('saveObject');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(exception: \InvalidArgumentException::class);
 
         $this->service->transitionLifecycle(
             objectId: 'motion-2',
@@ -179,23 +188,28 @@ class MotionServiceTest extends TestCase
         ];
 
         // First call: 'A' already present, saveObject should NOT be called.
-        $this->objectService->expects($this->exactly(2))
+        $this->objectService->expects($this->exactly(count: 2))
             ->method('getObject')
             ->with('motion', 'motion-3')
             ->willReturn($motion);
 
-        $matcher = $this->exactly(1);
+        $matcher = $this->exactly(count: 1);
         $this->objectService->expects($matcher)
             ->method('saveObject')
             ->with(
                 'motion',
-                $this->callback(function (array $object): bool {
-                    return $object['coSigners'] === ['A', 'B'];
-                })
+                $this->callback(
+                        callback:
+                        function (array $object): bool {
+                            return $object['coSigners'] === ['A', 'B'];
+                        }
+                        )
             )
-            ->willReturnCallback(function (string $type, array $object): array {
-                return $object;
-            });
+            ->willReturnCallback(
+                    function (string $type, array $object): array {
+                        return $object;
+                    }
+                    );
 
         // Idempotent: adding existing co-signer 'A' returns the motion unchanged.
         $resultA = $this->service->addCoSigner(
@@ -352,15 +366,20 @@ class MotionServiceTest extends TestCase
             ->method('saveObject')
             ->with(
                 'motion',
-                $this->callback(function (array $object): bool {
-                    return str_contains($object['text'], 'Original motion text')
-                        && str_contains($object['text'], '[Amendement: Budget Adjustment]')
-                        && str_contains($object['text'], 'Add 10k to education budget.');
-                })
+                $this->callback(
+                        callback:
+                        function (array $object): bool {
+                            return str_contains($object['text'], 'Original motion text')
+                            && str_contains($object['text'], '[Amendement: Budget Adjustment]')
+                            && str_contains($object['text'], 'Add 10k to education budget.');
+                        }
+                        )
             )
-            ->willReturnCallback(function (string $type, array $object): array {
-                return $object;
-            });
+            ->willReturnCallback(
+                    function (string $type, array $object): array {
+                        return $object;
+                    }
+                    );
 
         $result = $this->service->applyAmendment(
             motionId: 'motion-6',
@@ -377,5 +396,4 @@ class MotionServiceTest extends TestCase
         );
 
     }//end testApplyAmendmentUpdatesText()
-
 }//end class

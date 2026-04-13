@@ -76,7 +76,7 @@ class VotingServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->objectService = $this->getMockBuilder(\stdClass::class)
+        $this->objectService = $this->getMockBuilder(className: \stdClass::class)
             ->addMethods(['getObject', 'saveObject', 'getObjects'])
             ->getMock();
 
@@ -103,19 +103,23 @@ class VotingServiceTest extends TestCase
     public function testCheckQuorumMet(): void
     {
         $this->objectService->method('getObject')
-            ->willReturn([
-                'id'              => 'meeting-1',
-                'quorumRequired'  => 3,
-                'governanceBody'  => 'body-1',
-            ]);
+            ->willReturn(
+                    [
+                        'id'             => 'meeting-1',
+                        'quorumRequired' => 3,
+                        'governanceBody' => 'body-1',
+                    ]
+                    );
 
         $this->objectService->method('getObjects')
-            ->willReturn([
-                ['id' => 'p1', 'leftAt' => null],
-                ['id' => 'p2', 'leftAt' => null],
-                ['id' => 'p3', 'leftAt' => null],
-                ['id' => 'p4', 'leftAt' => null],
-            ]);
+            ->willReturn(
+                    [
+                        ['id' => 'p1', 'leftAt' => null],
+                        ['id' => 'p2', 'leftAt' => null],
+                        ['id' => 'p3', 'leftAt' => null],
+                        ['id' => 'p4', 'leftAt' => null],
+                    ]
+                    );
 
         $result = $this->service->checkQuorum(meetingId: 'meeting-1');
 
@@ -131,18 +135,22 @@ class VotingServiceTest extends TestCase
     public function testCheckQuorumNotMet(): void
     {
         $this->objectService->method('getObject')
-            ->willReturn([
-                'id'              => 'meeting-2',
-                'quorumRequired'  => 5,
-                'governanceBody'  => 'body-2',
-            ]);
+            ->willReturn(
+                    [
+                        'id'             => 'meeting-2',
+                        'quorumRequired' => 5,
+                        'governanceBody' => 'body-2',
+                    ]
+                    );
 
         $this->objectService->method('getObjects')
-            ->willReturn([
-                ['id' => 'p1', 'leftAt' => null],
-                ['id' => 'p2', 'leftAt' => null],
-                ['id' => 'p3', 'leftAt' => null],
-            ]);
+            ->willReturn(
+                    [
+                        ['id' => 'p1', 'leftAt' => null],
+                        ['id' => 'p2', 'leftAt' => null],
+                        ['id' => 'p3', 'leftAt' => null],
+                    ]
+                    );
 
         $result = $this->service->checkQuorum(meetingId: 'meeting-2');
 
@@ -158,28 +166,30 @@ class VotingServiceTest extends TestCase
     public function testOpenVotingRoundQuorumBlock(): void
     {
         $this->objectService->method('getObject')
-            ->willReturnCallback(function (string $id): array {
-                if ($id === 'motion-1') {
-                    return [
-                        'id'      => 'motion-1',
-                        'meeting' => 'meeting-q',
-                    ];
-                }
+            ->willReturnCallback(
+                    function (string $id): array {
+                        if ($id === 'motion-1') {
+                            return [
+                                'id'      => 'motion-1',
+                                'meeting' => 'meeting-q',
+                            ];
+                        }
 
-                // Meeting object returned for quorum check.
-                return [
-                    'id'              => 'meeting-q',
-                    'quorumRequired'  => 10,
-                    'governanceBody'  => 'body-q',
-                ];
-            });
+                        // Meeting object returned for quorum check.
+                        return [
+                            'id'             => 'meeting-q',
+                            'quorumRequired' => 10,
+                            'governanceBody' => 'body-q',
+                        ];
+                    }
+                    );
 
         // No active participants at all.
         $this->objectService->method('getObjects')
             ->willReturn([]);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Quorum niet bereikt');
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionMessage(message: 'Quorum niet bereikt');
 
         $this->service->openVotingRound(
             motionId: 'motion-1',
@@ -198,17 +208,19 @@ class VotingServiceTest extends TestCase
     {
         // Voting round is open (no closedAt).
         $this->objectService->method('getObject')
-            ->willReturn([
-                'id'       => 'round-1',
-                'closedAt' => null,
-            ]);
+            ->willReturn(
+                    [
+                        'id'       => 'round-1',
+                        'closedAt' => null,
+                    ]
+                    );
 
         // Return an existing vote for this participant.
         $existingVote = [
-            'id'           => 'vote-existing',
-            'value'        => 'for',
-            'votingRound'  => 'round-1',
-            'participant'  => 'participant-1',
+            'id'          => 'vote-existing',
+            'value'       => 'for',
+            'votingRound' => 'round-1',
+            'participant' => 'participant-1',
         ];
 
         $this->objectService->method('getObjects')
@@ -216,13 +228,20 @@ class VotingServiceTest extends TestCase
 
         $this->objectService->expects($this->once())
             ->method('saveObject')
-            ->with($this->callback(function (array $data): bool {
-                return $data['id'] === 'vote-existing'
-                    && $data['value'] === 'against';
-            }))
-            ->willReturnCallback(function (array $data): array {
-                return $data;
-            });
+            ->with(
+                    $this->callback(
+                            callback:
+                    function (array $data): bool {
+                        return $data['id'] === 'vote-existing'
+                        && $data['value'] === 'against';
+                    }
+                    )
+                    )
+            ->willReturnCallback(
+                    function (array $data): array {
+                        return $data;
+                    }
+                    );
 
         $result = $this->service->castVote(
             votingRoundId: 'round-1',
@@ -244,32 +263,36 @@ class VotingServiceTest extends TestCase
     {
         // Voting round is open.
         $this->objectService->method('getObject')
-            ->willReturn([
-                'id'       => 'round-2',
-                'closedAt' => null,
-            ]);
+            ->willReturn(
+                    [
+                        'id'       => 'round-2',
+                        'closedAt' => null,
+                    ]
+                    );
 
         $callCount = 0;
         $this->objectService->method('getObjects')
-            ->willReturnCallback(function (array $filters) use (&$callCount): array {
-                $callCount++;
-                // First call: existing votes for this participant (none).
-                if ($callCount === 1) {
-                    return [];
-                }
+            ->willReturnCallback(
+                    function (array $filters) use (&$callCount): array {
+                        $callCount++;
+                        // First call: existing votes for this participant (none).
+                        if ($callCount === 1) {
+                            return [];
+                        }
 
-                // Second call: existing proxy votes for the delegator (one found).
-                return [
-                    [
-                        'id'          => 'proxy-vote-1',
-                        'isProxy'     => true,
-                        'delegator'   => 'delegator-1',
-                        'votingRound' => 'round-2',
-                    ],
-                ];
-            });
+                        // Second call: existing proxy votes for the delegator (one found).
+                        return [
+                            [
+                                'id'          => 'proxy-vote-1',
+                                'isProxy'     => true,
+                                'delegator'   => 'delegator-1',
+                                'votingRound' => 'round-2',
+                            ],
+                        ];
+                    }
+                    );
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(exception: \RuntimeException::class);
 
         $this->service->castVote(
             votingRoundId: 'round-2',
@@ -300,18 +323,22 @@ class VotingServiceTest extends TestCase
             ->willReturn($votes);
 
         $this->objectService->method('getObject')
-            ->willReturn([
-                'id'           => 'round-tally-1',
-                'votesFor'     => 0,
-                'votesAgainst' => 0,
-                'votesAbstain' => 0,
-                'result'       => null,
-            ]);
+            ->willReturn(
+                    [
+                        'id'           => 'round-tally-1',
+                        'votesFor'     => 0,
+                        'votesAgainst' => 0,
+                        'votesAbstain' => 0,
+                        'result'       => null,
+                    ]
+                    );
 
         $this->objectService->method('saveObject')
-            ->willReturnCallback(function (array $data): array {
-                return $data;
-            });
+            ->willReturnCallback(
+                    function (array $data): array {
+                        return $data;
+                    }
+                    );
 
         $result = $this->service->tallyResults(votingRoundId: 'round-tally-1');
 
@@ -340,18 +367,22 @@ class VotingServiceTest extends TestCase
             ->willReturn($votes);
 
         $this->objectService->method('getObject')
-            ->willReturn([
-                'id'           => 'round-tally-2',
-                'votesFor'     => 0,
-                'votesAgainst' => 0,
-                'votesAbstain' => 0,
-                'result'       => null,
-            ]);
+            ->willReturn(
+                    [
+                        'id'           => 'round-tally-2',
+                        'votesFor'     => 0,
+                        'votesAgainst' => 0,
+                        'votesAbstain' => 0,
+                        'result'       => null,
+                    ]
+                    );
 
         $this->objectService->method('saveObject')
-            ->willReturnCallback(function (array $data): array {
-                return $data;
-            });
+            ->willReturnCallback(
+                    function (array $data): array {
+                        return $data;
+                    }
+                    );
 
         $result = $this->service->tallyResults(votingRoundId: 'round-tally-2');
 
@@ -379,18 +410,22 @@ class VotingServiceTest extends TestCase
             ->willReturn($votes);
 
         $this->objectService->method('getObject')
-            ->willReturn([
-                'id'           => 'round-tally-3',
-                'votesFor'     => 0,
-                'votesAgainst' => 0,
-                'votesAbstain' => 0,
-                'result'       => null,
-            ]);
+            ->willReturn(
+                    [
+                        'id'           => 'round-tally-3',
+                        'votesFor'     => 0,
+                        'votesAgainst' => 0,
+                        'votesAbstain' => 0,
+                        'result'       => null,
+                    ]
+                    );
 
         $this->objectService->method('saveObject')
-            ->willReturnCallback(function (array $data): array {
-                return $data;
-            });
+            ->willReturnCallback(
+                    function (array $data): array {
+                        return $data;
+                    }
+                    );
 
         $result = $this->service->tallyResults(votingRoundId: 'round-tally-3');
 
@@ -408,12 +443,14 @@ class VotingServiceTest extends TestCase
     public function testGrantProxyObserverRejection(): void
     {
         $this->objectService->method('getObject')
-            ->willReturn([
-                'id'   => 'participant-obs',
-                'role' => 'observer',
-            ]);
+            ->willReturn(
+                    [
+                        'id'   => 'participant-obs',
+                        'role' => 'observer',
+                    ]
+                    );
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(exception: \InvalidArgumentException::class);
 
         $this->service->grantProxy(
             votingRoundId: 'round-proxy',
@@ -422,5 +459,4 @@ class VotingServiceTest extends TestCase
         );
 
     }//end testGrantProxyObserverRejection()
-
 }//end class

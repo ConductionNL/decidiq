@@ -1,9 +1,9 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 /**
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
+ *
  * Decidesk Motion Controller
  *
  * Thin controller for the motion lifecycle API.
@@ -56,13 +56,13 @@ class MotionController extends Controller
     /**
      * Transition a motion to a new lifecycle state.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The motion identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function transition(string $id): JSONResponse
     {
@@ -80,13 +80,13 @@ class MotionController extends Controller
     /**
      * Request co-signatures for a motion.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The motion identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function coSignRequest(string $id): JSONResponse
     {
@@ -100,13 +100,13 @@ class MotionController extends Controller
     /**
      * Confirm a co-signature on a motion.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The motion identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function coSignConfirm(string $id): JSONResponse
     {
@@ -120,13 +120,13 @@ class MotionController extends Controller
     /**
      * Save budget impact for a motion.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The motion identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function budgetImpact(string $id): JSONResponse
     {
@@ -142,13 +142,13 @@ class MotionController extends Controller
     /**
      * Transition an amendment to a new lifecycle state.
      *
-     * @NoAdminRequired
-     *
      * @param string $id The amendment identifier
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
-     *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function amendmentTransition(string $id): JSONResponse
     {
