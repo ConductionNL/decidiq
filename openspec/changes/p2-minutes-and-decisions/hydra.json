@@ -10,7 +10,7 @@
   ],
   "issue": null,
   "pipeline": {
-    "review_rounds": 8,
+    "review_rounds": 9,
     "build_count": 1,
     "fix_iterations": 0,
     "total_cost_eur": 0,
