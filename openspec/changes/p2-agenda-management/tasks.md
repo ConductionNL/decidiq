@@ -69,7 +69,7 @@
 
 - [x] 9.1 Write PHPUnit tests for `AgendaServiceTest`: `publishAgenda` — missing items validation; notification dispatch; `advanceBobPhase` — phase transition sequence; informational item guard; `processHamerstukken` — batch update; `reorderItems` — sequential numbering
 - [x] 9.2 Write Newman/Postman integration tests in `tests/integration/agenda.json` for all 4 new API endpoints (publish, bob-phase, hamerstukken, reorder)
-- [ ] 9.3 Write Playwright browser tests for REQ-BLD-002 (drag-drop reorder persisted), REQ-PUB-001 (publish triggers notification), REQ-LIV-002 (BOB phase advances), REQ-LIV-003 (hamerstukken batch adopt), REQ-COI-001 (COI declaration saved as note), REQ-COI-003 (motion linked to item)
+- [ ] 9.3 Write Playwright browser tests for REQ-BLD-002 (drag-drop reorder persisted), REQ-PUB-001 (publish triggers notification), REQ-LIV-002 (BOB phase advances), REQ-LIV-003 (hamerstukken batch adopt), REQ-COI-001 (COI declaration saved as note), REQ-COI-003 (motion linked to item) — tracked in https://github.com/ConductionNL/decidesk/issues/27 (blocks next PR)
 
 ## 10. Verification
 
