@@ -89,7 +89,7 @@ class VotingService
         }
 
         $participants = $objectService->getObjects(
-            filters: [
+            [
                 'governanceBody' => $governanceBodyId,
             ]
         );
@@ -227,7 +227,7 @@ class VotingService
 
         // Check for existing vote from this participant in this round.
         $existingVotes = $objectService->getObjects(
-            filters: [
+            [
                 'votingRound' => $votingRoundId,
                 'participant' => $participantId,
             ]
@@ -236,7 +236,7 @@ class VotingService
         // If proxy: check no other proxy vote exists from the delegator in this round.
         if ($isProxy === true && $delegatorId !== null) {
             $existingProxyVotes = $objectService->getObjects(
-                filters: [
+                [
                     'votingRound' => $votingRoundId,
                     'delegator'   => $delegatorId,
                     'isProxy'     => true,
@@ -365,7 +365,7 @@ class VotingService
         if ($result === 'adopted' || $result === 'rejected') {
             // Fetch the related motion.
             $relations = $objectService->getObjects(
-                filters: [
+                [
                     'from' => $votingRoundId,
                     'type' => 'VotingRound->Motion',
                 ]
@@ -439,7 +439,7 @@ class VotingService
 
         // Fetch all votes for this round.
         $votes = $objectService->getObjects(
-            filters: [
+            [
                 'votingRound' => $votingRoundId,
             ]
         );

@@ -133,12 +133,12 @@ export default {
 	color: var(--color-main-text);
 }
 
-.amendment-list__lifecycle[data-status="adopted"] {
+.amendment-list__lifecycle[data-status='adopted'] {
 	background: var(--color-success);
 	color: var(--color-primary-text);
 }
 
-.amendment-list__lifecycle[data-status="rejected"] {
+.amendment-list__lifecycle[data-status='rejected'] {
 	background: var(--color-error);
 	color: var(--color-primary-text);
 }

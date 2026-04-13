@@ -527,22 +527,22 @@ export default {
 	font-size: 14px;
 }
 
-.voting-panel__result-badge[data-result="adopted"] {
+.voting-panel__result-badge[data-result='adopted'] {
 	background: var(--color-success);
 	color: var(--color-primary-text);
 }
 
-.voting-panel__result-badge[data-result="rejected"] {
+.voting-panel__result-badge[data-result='rejected'] {
 	background: var(--color-error);
 	color: var(--color-primary-text);
 }
 
-.voting-panel__result-badge[data-result="tied"] {
+.voting-panel__result-badge[data-result='tied'] {
 	background: var(--color-warning);
 	color: var(--color-primary-text);
 }
 
-.voting-panel__result-badge[data-result="invalid"] {
+.voting-panel__result-badge[data-result='invalid'] {
 	background: var(--color-background-dark);
 	color: var(--color-text-maxcontrast);
 }

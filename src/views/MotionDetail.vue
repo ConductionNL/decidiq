@@ -281,28 +281,28 @@ export default {
 	font-weight: 600;
 }
 
-.motion-detail__lifecycle[data-status="adopted"] {
+.motion-detail__lifecycle[data-status='adopted'] {
 	background: var(--color-success);
 	color: var(--color-primary-text);
 }
 
-.motion-detail__lifecycle[data-status="rejected"] {
+.motion-detail__lifecycle[data-status='rejected'] {
 	background: var(--color-error);
 	color: var(--color-primary-text);
 }
 
-.motion-detail__lifecycle[data-status="voting"] {
+.motion-detail__lifecycle[data-status='voting'] {
 	background: var(--color-warning);
 	color: var(--color-primary-text);
 }
 
-.motion-detail__lifecycle[data-status="debating"],
-.motion-detail__lifecycle[data-status="submitted"] {
+.motion-detail__lifecycle[data-status='debating'],
+.motion-detail__lifecycle[data-status='submitted'] {
 	background: var(--color-primary-element-light);
 	color: var(--color-primary-element-light-text);
 }
 
-.motion-detail__lifecycle[data-status="withdrawn"] {
+.motion-detail__lifecycle[data-status='withdrawn'] {
 	background: var(--color-background-dark);
 	color: var(--color-text-maxcontrast);
 }

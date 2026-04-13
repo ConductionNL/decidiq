@@ -178,23 +178,23 @@ export default {
 	font-weight: 600;
 }
 
-.amendment-detail__lifecycle[data-status="adopted"] {
+.amendment-detail__lifecycle[data-status='adopted'] {
 	background: var(--color-success);
 	color: var(--color-primary-text);
 }
 
-.amendment-detail__lifecycle[data-status="rejected"] {
+.amendment-detail__lifecycle[data-status='rejected'] {
 	background: var(--color-error);
 	color: var(--color-primary-text);
 }
 
-.amendment-detail__lifecycle[data-status="voting"] {
+.amendment-detail__lifecycle[data-status='voting'] {
 	background: var(--color-warning);
 	color: var(--color-primary-text);
 }
 
-.amendment-detail__lifecycle[data-status="debating"],
-.amendment-detail__lifecycle[data-status="submitted"] {
+.amendment-detail__lifecycle[data-status='debating'],
+.amendment-detail__lifecycle[data-status='submitted'] {
 	background: var(--color-primary-element-light);
 	color: var(--color-primary-element-light-text);
 }

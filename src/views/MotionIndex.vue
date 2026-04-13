@@ -214,28 +214,28 @@ export default {
 	color: var(--color-main-text);
 }
 
-.motion-index__status[data-status="adopted"] {
+.motion-index__status[data-status='adopted'] {
 	background: var(--color-success);
 	color: var(--color-primary-text);
 }
 
-.motion-index__status[data-status="rejected"] {
+.motion-index__status[data-status='rejected'] {
 	background: var(--color-error);
 	color: var(--color-primary-text);
 }
 
-.motion-index__status[data-status="voting"] {
+.motion-index__status[data-status='voting'] {
 	background: var(--color-warning);
 	color: var(--color-primary-text);
 }
 
-.motion-index__status[data-status="debating"],
-.motion-index__status[data-status="submitted"] {
+.motion-index__status[data-status='debating'],
+.motion-index__status[data-status='submitted'] {
 	background: var(--color-primary-element-light);
 	color: var(--color-primary-element-light-text);
 }
 
-.motion-index__status[data-status="withdrawn"] {
+.motion-index__status[data-status='withdrawn'] {
 	background: var(--color-background-dark);
 	color: var(--color-text-maxcontrast);
 }
