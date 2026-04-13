@@ -106,7 +106,8 @@ class MinutesController extends Controller
             );
         } catch (\Throwable $e) {
             return new JSONResponse(['message' => 'Failed to generate draft'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
+
     }//end generateDraft()
 
     /**

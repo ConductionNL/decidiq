@@ -130,8 +130,7 @@ class MinutesControllerTest extends TestCase
      */
     public function testGenerateDraftReturnsPreviewJson(): void
     {
-        $previewText = 'NOTULEN\nRaadsvergadering 10 april 2025\n...';
-
+        $previewText   = 'NOTULEN\nRaadsvergadering 10 april 2025\n...';
         $objectService = new class {
             public function findObject(string $register, string $schema, string $id): array
             {

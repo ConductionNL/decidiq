@@ -117,9 +117,8 @@ import { NcButton } from '@nextcloud/vue'
 import { showError } from '@nextcloud/dialogs'
 import { generateUrl } from '@nextcloud/router'
 import { CnDetailCard, CnDetailPage, CnObjectSidebar, CnStatusBadge, useDetailView } from '@conduction/nextcloud-vue'
-import { useActionItemStore } from '../store/modules/actionItem.js'
 import { useDecisionStore } from '../store/modules/decision.js'
-import { useObjectStore } from '../store/modules/object.js'
+import { useActionItemStore } from '../store/modules/actionItem.js'
 
 export default {
 	name: 'DecisionDetail',
@@ -194,7 +193,6 @@ export default {
 		},
 		async loadRelated() {
 			const actionItemStore = useActionItemStore()
-			const objectStore = useObjectStore()
 			try {
 				const actionItems = await actionItemStore.fetchObjects('action-item', { decision: this.entityId })
 				this.relatedActionItems = actionItems || []
@@ -203,13 +201,14 @@ export default {
 			}
 
 			// Fetch related motion from the entity's relations array.
+			const decisionStore = useDecisionStore()
 			const motionRelation = (this.entity?.relations || []).find(
 				(r) => r.schema?.toLowerCase() === 'motion',
 			)
 			if (motionRelation) {
 				const motionId = motionRelation.objectId || motionRelation.id
 				try {
-					this.relatedMotion = await objectStore.fetchObject?.('motion', motionId) || null
+					this.relatedMotion = await decisionStore.fetchObject?.('motion', motionId) || null
 				} catch (e) {
 					this.relatedMotion = null
 				}
