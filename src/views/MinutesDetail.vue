@@ -123,6 +123,7 @@
 
 <script>
 import { NcButton, NcDialog } from '@nextcloud/vue'
+import { showError } from '@nextcloud/dialogs'
 import { CnDetailCard, CnDetailPage, CnObjectSidebar, CnStatusBadge, CnTimelineStages, useDetailView } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { useObjectStore } from '../store/modules/object.js'
@@ -188,7 +189,12 @@ export default {
 					const data = await response.json()
 					this.previewContent = data.preview
 					this.showPreview = true
+				} else {
+					const data = await response.json().catch(() => ({}))
+					showError(t('decidesk', 'Failed to generate draft: ') + (data.message || response.statusText))
 				}
+			} catch (e) {
+				showError(t('decidesk', 'Failed to generate draft: ') + e.message)
 			} finally {
 				this.generating = false
 			}
@@ -201,25 +207,25 @@ export default {
 			this.detailView?.refresh?.()
 		},
 		async transitionLifecycle(newState) {
-			const objectStore = useObjectStore()
-			const updated = { ...this.entity, lifecycle: newState }
-
-			if (newState === 'approved') {
-				updated.approvedAt = new Date().toISOString()
-				const userName = OC.getCurrentUser()?.displayName || OC.getCurrentUser()?.uid || ''
-				updated.signedBy = [...(updated.signedBy || []), userName]
-				updated.version = (updated.version || 1) + 1
-			}
-
-			if (newState === 'signed') {
-				const userName = OC.getCurrentUser()?.displayName || OC.getCurrentUser()?.uid || ''
-				if (!(updated.signedBy || []).includes(userName)) {
-					updated.signedBy = [...(updated.signedBy || []), userName]
+			try {
+				const url = generateUrl(`/apps/decidesk/api/minutes/${this.entityId}/transition`)
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						requesttoken: OC.requestToken,
+					},
+					body: JSON.stringify({ lifecycle: newState }),
+				})
+				if (response.ok) {
+					this.detailView?.refresh?.()
+				} else {
+					const data = await response.json().catch(() => ({}))
+					showError(t('decidesk', 'Lifecycle transition failed: ') + (data.message || response.statusText))
 				}
+			} catch (e) {
+				showError(t('decidesk', 'Lifecycle transition failed: ') + e.message)
 			}
-
-			await objectStore.saveObject?.('minutes', updated)
-			this.detailView?.refresh?.()
 		},
 		async deleteEntity() {
 			const objectStore = useObjectStore()

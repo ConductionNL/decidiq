@@ -111,28 +111,50 @@ class MinutesGenerationService
                 }
                 );
 
-        // Fetch motions, voting rounds, and decisions for context.
-        $motions      = $this->fetchRelatedObjects(
-            objectService: $objectService,
-            register: $register,
-            schema: 'motion',
-            relationKey: 'agendaItem',
-            relationValue: null,
-        );
-        $votingRounds = $this->fetchRelatedObjects(
-            objectService: $objectService,
-            register: $register,
-            schema: 'voting-round',
-            relationKey: 'motion',
-            relationValue: null,
-        );
-        $decisions    = $this->fetchRelatedObjects(
-            objectService: $objectService,
-            register: $register,
-            schema: 'decision',
-            relationKey: 'motion',
-            relationValue: null,
-        );
+        // Collect agenda item IDs to scope subsequent fetches to this meeting only.
+        $agendaItemIds = array_filter(array_map(fn($item) => ($item['id'] ?? null), $agendaItems));
+
+        // Fetch motions for each agenda item (scoped to this meeting).
+        $motions = [];
+        foreach ($agendaItemIds as $itemId) {
+            $itemMotions = $this->fetchRelatedObjects(
+                objectService: $objectService,
+                register: $register,
+                schema: 'motion',
+                relationKey: 'agendaItem',
+                relationValue: $itemId,
+            );
+            $motions     = array_merge($motions, $itemMotions);
+        }
+
+        // Collect motion IDs to scope voting-round and decision fetches.
+        $motionIds = array_filter(array_map(fn($m) => ($m['id'] ?? null), $motions));
+
+        // Fetch voting rounds for each motion.
+        $votingRounds = [];
+        foreach ($motionIds as $motionId) {
+            $motionVotes  = $this->fetchRelatedObjects(
+                objectService: $objectService,
+                register: $register,
+                schema: 'voting-round',
+                relationKey: 'motion',
+                relationValue: $motionId,
+            );
+            $votingRounds = array_merge($votingRounds, $motionVotes);
+        }
+
+        // Fetch decisions for each motion.
+        $decisions = [];
+        foreach ($motionIds as $motionId) {
+            $motionDecisions = $this->fetchRelatedObjects(
+                objectService: $objectService,
+                register: $register,
+                schema: 'decision',
+                relationKey: 'motion',
+                relationValue: $motionId,
+            );
+            $decisions       = array_merge($decisions, $motionDecisions);
+        }
 
         return $this->renderTemplate(
             meeting: $meeting,

@@ -28,9 +28,13 @@ use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IAppConfig;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 
 /**
  * Tests for MinutesController.
@@ -76,6 +80,10 @@ class MinutesControllerTest extends TestCase
         $this->controller = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->generationService,
+            groupManager: $this->createMock(originalClassName: IGroupManager::class),
+            userSession: $this->createMock(originalClassName: IUserSession::class),
+            container: $this->createMock(originalClassName: ContainerInterface::class),
+            appConfig: $this->createMock(originalClassName: IAppConfig::class),
         );
 
     }//end setUp()
@@ -146,4 +154,32 @@ class MinutesControllerTest extends TestCase
         self::assertSame(expected: Http::STATUS_NOT_FOUND, actual: $result->getStatus());
 
     }//end testGenerateDraftMissingMeetingReturns404()
+
+    /**
+     * Test that generateDraft endpoint requires authentication (spec task 9.3c).
+     *
+     * The @NoAdminRequired annotation allows any authenticated user.
+     * The absence of @PublicPage means Nextcloud's SessionMiddleware enforces
+     * authentication at the framework layer, returning HTTP 401 for unauthenticated
+     * requests. This cannot be tested at the unit level (middleware is outside the
+     * controller); this test verifies the annotations are correctly set to guarantee
+     * the framework guard fires.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-19
+     */
+    public function testGenerateDraftRequiresAuthentication(): void
+    {
+        $reflection = new \ReflectionMethod(MinutesController::class, 'generateDraft');
+        $docComment = (string) $reflection->getDocComment();
+
+        // @NoAdminRequired: any authenticated user may call this endpoint (not admin-only).
+        self::assertStringContainsString('@NoAdminRequired', $docComment);
+
+        // @PublicPage would bypass session auth — its absence means the framework
+        // SessionMiddleware enforces authentication and returns 401 for unauthenticated requests.
+        self::assertStringNotContainsString('@PublicPage', $docComment);
+
+    }//end testGenerateDraftRequiresAuthentication()
 }//end class

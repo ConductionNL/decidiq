@@ -64,6 +64,8 @@ class SettingsController extends Controller
     /**
      * Update settings with provided data.
      *
+     * @AdminRequired
+     *
      * @return JSONResponse
      */
     public function create(): JSONResponse
@@ -84,6 +86,8 @@ class SettingsController extends Controller
      *
      * Forces a fresh import regardless of version, auto-configuring
      * all schema and register IDs from the import result.
+     *
+     * @AdminRequired
      *
      * @return JSONResponse
      */

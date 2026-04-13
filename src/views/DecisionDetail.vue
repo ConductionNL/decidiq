@@ -114,6 +114,8 @@
 
 <script>
 import { NcButton } from '@nextcloud/vue'
+import { showError } from '@nextcloud/dialogs'
+import { generateUrl } from '@nextcloud/router'
 import { CnDetailCard, CnDetailPage, CnObjectSidebar, CnStatusBadge, useDetailView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/modules/object.js'
 
@@ -167,14 +169,21 @@ export default {
 			return new Date(dateStr).toLocaleDateString()
 		},
 		async publishDecision() {
-			const objectStore = useObjectStore()
-			const updated = {
-				...this.entity,
-				isPublished: true,
-				publishedAt: new Date().toISOString(),
+			try {
+				const url = generateUrl(`/apps/decidesk/api/decisions/${this.entityId}/publish`)
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: { requesttoken: OC.requestToken },
+				})
+				if (response.ok) {
+					this.detailView?.refresh?.()
+				} else {
+					const data = await response.json().catch(() => ({}))
+					showError(t('decidesk', 'Failed to publish decision: ') + (data.message || response.statusText))
+				}
+			} catch (e) {
+				showError(t('decidesk', 'Failed to publish decision: ') + e.message)
 			}
-			await objectStore.saveObject?.('decision', updated)
-			this.detailView?.refresh?.()
 		},
 		async deleteEntity() {
 			const objectStore = useObjectStore()
@@ -188,6 +197,21 @@ export default {
 				this.relatedActionItems = actionItems || []
 			} catch (e) {
 				this.relatedActionItems = []
+			}
+
+			// Fetch related motion from the entity's relations array.
+			const motionRelation = (this.entity?.relations || []).find(
+				(r) => r.schema?.toLowerCase() === 'motion',
+			)
+			if (motionRelation) {
+				const motionId = motionRelation.objectId || motionRelation.id
+				try {
+					this.relatedMotion = await objectStore.fetchObject?.('motion', motionId) || null
+				} catch (e) {
+					this.relatedMotion = null
+				}
+			} else {
+				this.relatedMotion = null
 			}
 		},
 	},

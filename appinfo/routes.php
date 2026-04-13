@@ -10,8 +10,12 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
-        // Minutes generation endpoint — BEFORE wildcard routes.
+        // Minutes endpoints — BEFORE wildcard routes.
         ['name' => 'minutes#generateDraft', 'url' => '/api/minutes/{minutesId}/generate-draft', 'verb' => 'POST'],
+        ['name' => 'minutes#transition',    'url' => '/api/minutes/{minutesId}/transition',     'verb' => 'POST'],
+
+        // Decision endpoints.
+        ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
 
         // Prometheus metrics endpoint.
         ['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
