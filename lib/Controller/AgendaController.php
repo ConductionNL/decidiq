@@ -73,9 +73,13 @@ class AgendaController extends Controller
             $result = $this->agendaService->publishAgenda(meetingId: $meetingId);
             return new JSONResponse($result);
         } catch (\Throwable $e) {
-            $status = 400;
-            if ($e->getCode() === 403) {
+            $code = $e->getCode();
+            if ($code === 403) {
                 $status = 403;
+            } else if ($code === 503) {
+                $status = 503;
+            } else {
+                $status = 400;
             }
 
             return new JSONResponse(
@@ -103,9 +107,13 @@ class AgendaController extends Controller
             $result = $this->agendaService->advanceBobPhase(agendaItemId: $id);
             return new JSONResponse($result);
         } catch (\Throwable $e) {
-            $status = 400;
-            if ($e->getCode() === 403) {
+            $code = $e->getCode();
+            if ($code === 403) {
                 $status = 403;
+            } else if ($code === 503) {
+                $status = 503;
+            } else {
+                $status = 400;
             }
 
             return new JSONResponse(
@@ -133,9 +141,13 @@ class AgendaController extends Controller
             $result = $this->agendaService->processHamerstukken(meetingId: $meetingId);
             return new JSONResponse($result);
         } catch (\Throwable $e) {
-            $status = 400;
-            if ($e->getCode() === 403) {
+            $code = $e->getCode();
+            if ($code === 403) {
                 $status = 403;
+            } else if ($code === 503) {
+                $status = 503;
+            } else {
+                $status = 400;
             }
 
             return new JSONResponse(
@@ -168,16 +180,20 @@ class AgendaController extends Controller
             );
             return new JSONResponse($result);
         } catch (\Throwable $e) {
-            $status = 400;
-            if ($e->getCode() === 403) {
+            $code = $e->getCode();
+            if ($code === 403) {
                 $status = 403;
+            } else if ($code === 503) {
+                $status = 503;
+            } else {
+                $status = 400;
             }
 
             return new JSONResponse(
                 ['success' => false, 'error' => $this->l10n->t('An error occurred')],
                 $status
             );
-        }
+        }//end try
 
     }//end reorder()
 

@@ -58,6 +58,87 @@
 			]
 		},
 		{
+			"name": "POST /api/agendas/{meetingId}/publish — 400 empty agenda",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{emptyMeetingId}}/publish",
+					"host": ["{{baseUrl}}"],
+					"path": ["apps", "decidesk", "api", "agendas", "{{emptyMeetingId}}", "publish"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 400 for empty agenda', function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"pm.test('Response has success false', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.success).to.eql(false);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "POST /api/agendas/{meetingId}/publish — 403 non-chair",
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "username",
+						"value": "{{member_user}}",
+						"type": "string"
+					},
+					{
+						"key": "password",
+						"value": "{{member_password}}",
+						"type": "string"
+					}
+				]
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/publish",
+					"host": ["{{baseUrl}}"],
+					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "publish"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 403 for non-chair', function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"pm.test('Response has success false', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.success).to.eql(false);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
 			"name": "PUT /api/agenda-items/{id}/bob-phase",
 			"request": {
 				"method": "PUT",
@@ -126,6 +207,54 @@
 			]
 		},
 		{
+			"name": "POST /api/agendas/{meetingId}/hamerstukken — 403 non-chair",
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "username",
+						"value": "{{member_user}}",
+						"type": "string"
+					},
+					{
+						"key": "password",
+						"value": "{{member_password}}",
+						"type": "string"
+					}
+				]
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/hamerstukken",
+					"host": ["{{baseUrl}}"],
+					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "hamerstukken"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 403 for non-chair', function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"pm.test('Response has success false', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.success).to.eql(false);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
 			"name": "PUT /api/agendas/{meetingId}/reorder",
 			"request": {
 				"method": "PUT",
@@ -162,6 +291,58 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "PUT /api/agendas/{meetingId}/reorder — 403 non-chair",
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "username",
+						"value": "{{member_user}}",
+						"type": "string"
+					},
+					{
+						"key": "password",
+						"value": "{{member_password}}",
+						"type": "string"
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"ids\": [\"{{agendaItemId}}\"]}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/reorder",
+					"host": ["{{baseUrl}}"],
+					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "reorder"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 403 for non-chair', function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"pm.test('Response has success false', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.success).to.eql(false);",
+							"});"
+						]
+					}
+				}
+			]
 		}
 	],
 	"variable": [
@@ -174,6 +355,10 @@
 			"value": "test-meeting-1"
 		},
 		{
+			"key": "emptyMeetingId",
+			"value": "test-meeting-empty"
+		},
+		{
 			"key": "agendaItemId",
 			"value": "test-item-1"
 		},
@@ -183,6 +368,14 @@
 		},
 		{
 			"key": "admin_password",
+			"value": ""
+		},
+		{
+			"key": "member_user",
+			"value": ""
+		},
+		{
+			"key": "member_password",
 			"value": ""
 		}
 	]

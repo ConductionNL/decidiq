@@ -145,12 +145,28 @@ Copyright (C) 2026 Conduction B.V.
 				{{ t('decidesk', 'Propose agenda item') }}
 			</button>
 		</div>
+
+		<!-- Action error display -->
+		<p v-if="actionError" class="agenda-builder__error">
+			{{ actionError }}
+		</p>
+
+		<!-- Consent items confirmation dialog -->
+		<CnFormDialog
+			v-if="showHamerstukkenConfirm"
+			:dialog-title="pendingHamerstukkenCount + ' ' + t('decidesk', 'agenda items will be adopted as consent items')"
+			:fields="[]"
+			:confirm-label="t('decidesk', 'Adopt')"
+			:cancel-label="t('decidesk', 'Cancel')"
+			@confirm="doProcessHamerstukken"
+			@close="showHamerstukkenConfirm = false" />
 	</div>
 </template>
 
 <script>
 import { useAgendaStore } from '../store/modules/agenda.js'
 import { useObjectStore } from '../store/modules/object.js'
+import CnFormDialog from '@conduction/nextcloud-vue/src/components/CnFormDialog/CnFormDialog.vue'
 import CnStatusBadge from '@conduction/nextcloud-vue/src/components/CnStatusBadge/CnStatusBadge.vue'
 
 /**
@@ -162,6 +178,7 @@ export default {
 	name: 'AgendaBuilder',
 
 	components: {
+		CnFormDialog,
 		CnStatusBadge,
 	},
 
@@ -201,6 +218,9 @@ export default {
 		return {
 			dragIndex: null,
 			dropIndex: null,
+			actionError: '',
+			showHamerstukkenConfirm: false,
+			pendingHamerstukkenCount: 0,
 		}
 	},
 
@@ -313,22 +333,32 @@ export default {
 			items.splice(toIndex, 0, moved)
 			const ids = items.map((item) => item.id || item.uuid)
 
+			this.actionError = ''
 			const agendaStore = useAgendaStore()
-			await agendaStore.reorderItems(this.meetingId, ids)
-			this.$emit('reorder', ids)
-			this.$emit('items-updated')
+			try {
+				await agendaStore.reorderItems(this.meetingId, ids)
+				this.$emit('reorder', ids)
+				this.$emit('items-updated')
+			} catch (err) {
+				this.actionError = this.t('decidesk', 'Failed to reorder agenda items')
+			}
 		},
 
 		async confirmProcessHamerstukken() {
-			const count = this.hamerstukken.filter((i) => i.status !== 'afgerond').length
-			const confirmed = window.confirm(
-				count + ' ' + this.t('decidesk', 'agenda items will be adopted as consent items'),
-			)
-			if (!confirmed) return
+			this.pendingHamerstukkenCount = this.hamerstukken.filter((i) => i.status !== 'afgerond').length
+			this.showHamerstukkenConfirm = true
+		},
 
+		async doProcessHamerstukken() {
+			this.showHamerstukkenConfirm = false
+			this.actionError = ''
 			const agendaStore = useAgendaStore()
-			await agendaStore.processHamerstukken(this.meetingId)
-			this.$emit('items-updated')
+			try {
+				await agendaStore.processHamerstukken(this.meetingId)
+				this.$emit('items-updated')
+			} catch (err) {
+				this.actionError = this.t('decidesk', 'Failed to process consent items')
+			}
 		},
 
 		async removeFromHamerstukken(item) {
@@ -553,5 +583,10 @@ export default {
 .agenda-builder__action-btn:hover,
 .agenda-builder__publish-btn:hover {
 	background: var(--color-primary-element-hover);
+}
+
+.agenda-builder__error {
+	color: var(--color-error);
+	margin: 8px 0 0;
 }
 </style>

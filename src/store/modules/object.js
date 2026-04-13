@@ -70,8 +70,14 @@ export const useObjectStore = defineStore('object', {
 				return null
 			}
 
+			const id = fields.id || fields.uuid
+			if (!id) {
+				console.warn('objectStore.saveObject: id or uuid is required')
+				return null
+			}
+
 			try {
-				const url = new URL(this.baseUrl, window.location.origin)
+				const url = new URL(this.baseUrl + '/' + id, window.location.origin)
 				const response = await fetch(url.toString(), {
 					method: 'PUT',
 					headers: {

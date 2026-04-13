@@ -11,6 +11,21 @@ Copyright (C) 2026 Conduction B.V.
 			<span class="live-meeting__status">{{ t('decidesk', 'Live') }}</span>
 		</template>
 
+		<!-- Action error display -->
+		<p v-if="actionError" class="live-meeting__error">
+			{{ actionError }}
+		</p>
+
+		<!-- Consent items confirmation dialog -->
+		<CnFormDialog
+			v-if="showHamerstukkenConfirm"
+			:dialog-title="pendingHamerstukkenCount + ' ' + t('decidesk', 'agenda items will be adopted as consent items')"
+			:fields="[]"
+			:confirm-label="t('decidesk', 'Adopt')"
+			:cancel-label="t('decidesk', 'Cancel')"
+			@confirm="doProcessHamerstukken"
+			@close="showHamerstukkenConfirm = false" />
+
 		<!-- Consent items card -->
 		<CnDetailCard
 			v-if="hamerstukken.length > 0"
@@ -104,6 +119,7 @@ Copyright (C) 2026 Conduction B.V.
 import AgendaBuilder from '../components/AgendaBuilder.vue'
 import CnDetailCard from '@conduction/nextcloud-vue/src/components/CnDetailCard/CnDetailCard.vue'
 import CnDetailPage from '@conduction/nextcloud-vue/src/components/CnDetailPage/CnDetailPage.vue'
+import CnFormDialog from '@conduction/nextcloud-vue/src/components/CnFormDialog/CnFormDialog.vue'
 import { useAgendaStore } from '../store/modules/agenda.js'
 import { useObjectStore } from '../store/modules/object.js'
 
@@ -119,6 +135,7 @@ export default {
 		AgendaBuilder,
 		CnDetailCard,
 		CnDetailPage,
+		CnFormDialog,
 	},
 
 	data() {
@@ -129,6 +146,9 @@ export default {
 			showAddDialog: false,
 			pollInterval: null,
 			currentUserRole: 'none',
+			actionError: '',
+			showHamerstukkenConfirm: false,
+			pendingHamerstukkenCount: 0,
 		}
 	},
 
@@ -247,21 +267,31 @@ export default {
 		},
 
 		async advanceBobPhase(item) {
+			this.actionError = ''
 			const agendaStore = useAgendaStore()
-			await agendaStore.advanceBobPhase(item.id || item.uuid)
-			await this.fetchAgendaItems()
+			try {
+				await agendaStore.advanceBobPhase(item.id || item.uuid)
+				await this.fetchAgendaItems()
+			} catch (err) {
+				this.actionError = this.t('decidesk', 'Failed to advance phase')
+			}
 		},
 
 		async confirmProcessHamerstukken() {
-			const count = this.hamerstukken.filter((i) => i.status !== 'afgerond').length
-			const confirmed = window.confirm(
-				count + ' ' + this.t('decidesk', 'agenda items will be adopted as consent items'),
-			)
-			if (!confirmed) return
+			this.pendingHamerstukkenCount = this.hamerstukken.filter((i) => i.status !== 'afgerond').length
+			this.showHamerstukkenConfirm = true
+		},
 
+		async doProcessHamerstukken() {
+			this.showHamerstukkenConfirm = false
+			this.actionError = ''
 			const agendaStore = useAgendaStore()
-			await agendaStore.processHamerstukken(this.meetingId)
-			await this.fetchAgendaItems()
+			try {
+				await agendaStore.processHamerstukken(this.meetingId)
+				await this.fetchAgendaItems()
+			} catch (err) {
+				this.actionError = this.t('decidesk', 'Failed to process consent items')
+			}
 		},
 
 		async removeFromHamerstukken(item) {
@@ -446,5 +476,10 @@ export default {
 
 .live-meeting__btn--active {
 	border-color: var(--color-primary);
+}
+
+.live-meeting__error {
+	color: var(--color-error);
+	margin: 0 0 12px;
 }
 </style>

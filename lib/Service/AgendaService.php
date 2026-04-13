@@ -100,11 +100,7 @@ class AgendaService
         $objectService = $this->getObjectService();
 
         if ($objectService === null) {
-            return [
-                'success'       => true,
-                'message'       => $this->l10n->t('Agenda published'),
-                'notifications' => 0,
-            ];
+            throw new \RuntimeException('Service unavailable: OpenRegister is not installed', 503);
         }
 
         // Fetch meeting and participants first so auth runs before any data is revealed.
@@ -189,11 +185,7 @@ class AgendaService
         $objectService = $this->getObjectService();
 
         if ($objectService === null) {
-            return [
-                'success'       => true,
-                'previousPhase' => 'voorstel',
-                'currentPhase'  => 'beeldvorming',
-            ];
+            throw new \RuntimeException('Service unavailable: OpenRegister is not installed', 503);
         }
 
         try {
@@ -268,7 +260,7 @@ class AgendaService
         $objectService = $this->getObjectService();
 
         if ($objectService === null) {
-            return ['success' => true, 'count' => 0];
+            throw new \RuntimeException('Service unavailable: OpenRegister is not installed', 503);
         }
 
         $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
@@ -330,7 +322,7 @@ class AgendaService
         $objectService = $this->getObjectService();
 
         if ($objectService === null) {
-            return ['success' => true, 'count' => 0];
+            throw new \RuntimeException('Service unavailable: OpenRegister is not installed', 503);
         }
 
         $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);

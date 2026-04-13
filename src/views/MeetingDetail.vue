@@ -191,12 +191,16 @@ export default {
 			}
 
 			const agendaStore = useAgendaStore()
-			const result = await agendaStore.publishAgenda(this.meetingId)
-			if (result && result.success) {
-				// Reflect published state in the meeting object so isPublished stays true on reload.
-				this.meeting = { ...this.meeting, agendaPublished: true }
-			} else {
-				this.publishError = (result && result.error) || this.t('decidesk', 'Publication failed')
+			try {
+				const result = await agendaStore.publishAgenda(this.meetingId)
+				if (result && result.success) {
+					// Reflect published state in the meeting object so isPublished stays true on reload.
+					this.meeting = { ...this.meeting, agendaPublished: true }
+				} else {
+					this.publishError = (result && result.error) || this.t('decidesk', 'Publication failed')
+				}
+			} catch (err) {
+				this.publishError = this.t('decidesk', 'Publication failed')
 			}
 		},
 

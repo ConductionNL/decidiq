@@ -146,6 +146,7 @@ export const useAgendaStore = defineStore('agenda', {
 				const response = await fetch(url, {
 					headers: { requesttoken: OC.requestToken },
 				})
+				if (!response.ok) return 'none'
 				const data = await response.json()
 				return data.role || 'none'
 			} catch (error) {
