@@ -1,3 +1,7 @@
+---
+status: pr-created
+---
+
 ## Context
 
 Decidesk is a Nextcloud app using the **thin-client** pattern: the app owns no database tables. All domain data is stored as JSON objects in OpenRegister. The frontend talks to the OpenRegister API directly via Pinia object stores. The backend is minimal — only a `SettingsController` for configuration and a repair step that imports the register schema.
