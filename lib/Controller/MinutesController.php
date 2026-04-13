@@ -71,6 +71,12 @@ class MinutesController extends Controller
     /**
      * Generate a draft minutes document from the linked meeting data.
      *
+     * Authorization: row-level access is enforced by OpenRegister's ObjectService::findObject().
+     * If the calling user does not have read permission on the Minutes object, findObject() will
+     * return empty and this endpoint returns 404. Broad read access for all authenticated members
+     * is intentional per the Decidesk governance model — minutes content is not private once a
+     * meeting has taken place.
+     *
      * @param string $minutesId The UUID of the Minutes object
      *
      * @return JSONResponse JSON with preview text or error
@@ -81,6 +87,15 @@ class MinutesController extends Controller
      */
     public function generateDraft(string $minutesId): JSONResponse
     {
+        // Verify the Minutes object exists and is accessible before delegating to the service.
+        // OpenRegister enforces row-level ACL — findObject() returns empty when access is denied.
+        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+        $register      = $this->appConfig->getValueString(Application::APP_ID, 'register', 'decidesk');
+        $minutes       = $objectService->findObject(register: $register, schema: 'minutes', id: $minutesId);
+        if (empty($minutes) === true) {
+            return new JSONResponse(['message' => 'Minutes object not found'], Http::STATUS_NOT_FOUND);
+        }
+
         try {
             $preview = $this->minutesGenerationService->generateDraft($minutesId);
             return new JSONResponse(['preview' => $preview]);
@@ -136,6 +151,23 @@ class MinutesController extends Controller
             $minutes = $objectService->findObject(register: $register, schema: 'minutes', id: $minutesId);
             if (empty($minutes) === true) {
                 return new JSONResponse(['message' => 'Minutes object not found'], Http::STATUS_NOT_FOUND);
+            }
+
+            // Enforce governance state machine — only forward sequential transitions are allowed.
+            $validTransitions = [
+                'draft'    => 'review',
+                'review'   => 'approved',
+                'approved' => 'signed',
+                'signed'   => 'published',
+            ];
+            $currentLifecycle = $minutes['lifecycle'] ?? 'draft';
+            if (array_key_exists($currentLifecycle, $validTransitions) === false
+                || $validTransitions[$currentLifecycle] !== $lifecycle
+            ) {
+                return new JSONResponse(
+                    ['message' => sprintf('Invalid transition: %s → %s', $currentLifecycle, $lifecycle)],
+                    Http::STATUS_UNPROCESSABLE_ENTITY
+                );
             }
 
             $minutes['lifecycle'] = $lifecycle;

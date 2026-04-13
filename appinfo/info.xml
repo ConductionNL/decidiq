@@ -5,37 +5,37 @@
     <name lang="en">Decidesk</name>
     <name lang="nl">Decidesk</name>
     <summary lang="en">Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings</summary>
-    <summary lang="nl">Een sjabloon voor het maken van nieuwe Nextcloud-apps</summary>
-    <description lang="en"><![CDATA[Decidesk manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation.
+    <summary lang="nl">Universeel besluitvormingsplatform voor bestuursorganen, verenigingen, raden van bestuur en operationele vergaderingen</summary>
+    <description lang="en"><![CDATA[Decidesk manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organisation type. It serves governance bodies such as legislative/democratic bodies, associations and NGOs, corporate boards, and citizen participation platforms.
 
 **Key Features**
 
-- **Vue 2 + Pinia frontend** — Modern reactive UI with state management
+- **Minutes management** — Generate, review, approve, sign, and publish meeting minutes through a governed lifecycle
+- **Decision tracking** — Record, publish, and audit decisions linked to motions and voting rounds
+- **Action items** — Assign and track follow-up tasks from meetings with overdue notifications
 - **OpenRegister integration** — Built-in support for the OpenRegister data layer
-- **Admin settings** — Pre-wired settings page with version info
 - **NL Design System ready** — CSS variables, WCAG AA, government theming
-- **Full quality pipeline** — PHPCS, PHPMD, Psalm, PHPStan, ESLint, Stylelint
 
 Free and open source under the EUPL-1.2 license.
 
 **Support:** For support, contact support@conduction.nl.
     ]]></description>
-    <description lang="nl"><![CDATA[Een startpunt voor het bouwen van Nextcloud-apps volgens ConductionNL-conventies.
+    <description lang="nl"><![CDATA[Decidesk beheert vergaderingen, agenda's, moties, amendementen, stemrondes, notulen en besluitregistratie met configureerbare workflows per organisatietype. Het platform ondersteunt bestuursorganen zoals democratische lichamen, verenigingen en NGO's, raden van bestuur en burgerparticipatieplatforms.
 
 **Belangrijkste functies**
 
-- **Vue 2 + Pinia frontend** — Moderne reactieve UI met state management
+- **Notulenbeheer** — Genereer, beoordeel, keur goed, onderteken en publiceer vergadernotulen via een bestuurde levenscyclus
+- **Besluitregistratie** — Leg besluiten vast, publiceer en auditeer ze, gekoppeld aan moties en stemrondes
+- **Actiepunten** — Wijs follow-uptaken uit vergaderingen toe en volg ze op met meldingen bij overschrijding
 - **OpenRegister-integratie** — Ingebouwde ondersteuning voor de OpenRegister-datalaag
-- **Beheerdersinstell ingen** — Voorgeconfigureerde instellingenpagina met versie-informatie
 - **NL Design System klaar** — CSS-variabelen, WCAG AA, overheidsthema
-- **Volledige kwaliteitspipeline** — PHPCS, PHPMD, Psalm, PHPStan, ESLint, Stylelint
 
 Vrij en open source onder de EUPL-1.2-licentie.
 
 **Ondersteuning:** Voor ondersteuning, neem contact op via support@conduction.nl.
     ]]></description>
     <version>0.1.0</version>
-    <licence>agpl</licence>
+    <licence>eupl</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidesk</namespace>
     <documentation>

@@ -20,15 +20,13 @@ const OBJECT_TYPES = {
 	amendment: { schema: 'amendment', register: 'decidesk' },
 	votingRound: { schema: 'voting-round', register: 'decidesk' },
 	vote: { schema: 'vote', register: 'decidesk' },
-	decision: { schema: 'decision', register: 'decidesk' },
-	actionItem: { schema: 'action-item', register: 'decidesk' },
-	minutes: { schema: 'minutes', register: 'decidesk' },
 	digitalDocument: { schema: 'digital-document', register: 'decidesk' },
 	monetaryAmount: { schema: 'monetary-amount', register: 'decidesk' },
 	offer: { schema: 'offer', register: 'decidesk' },
 	order: { schema: 'order', register: 'decidesk' },
 	product: { schema: 'product', register: 'decidesk' },
 	report: { schema: 'report', register: 'decidesk' },
+	// minutes, decision, and actionItem are registered exclusively via their dedicated stores below.
 }
 
 export async function initializeStores() {
