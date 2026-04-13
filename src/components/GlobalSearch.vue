@@ -79,7 +79,6 @@
 
 <script>
 import { NcLoadingIcon } from '@nextcloud/vue'
-import { useListView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/modules/object.js'
 
 import Magnify from 'vue-material-design-icons/Magnify.vue'
@@ -98,7 +97,7 @@ const SEARCH_TYPES = ['meeting', 'motion', 'decision', 'agendaItem', 'participan
 
 /**
  * Global search bar with floating dropdown for governance data.
- * Uses useListView from @conduction/nextcloud-vue for debounced search per object type.
+ * Searches across multiple OpenRegister object types with manual debounce.
  *
  * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-6.1
  */
@@ -115,22 +114,6 @@ export default {
 	},
 
 	data() {
-		const objectStore = useObjectStore()
-
-		/**
-		 * Create one useListView instance per object type, each with a fetchFn
-		 * delegating to the objectStore — this uses the library's built-in debounce
-		 * instead of custom timer state (ADR-004 compliant).
-		 */
-		const listViews = {}
-		for (const type of SEARCH_TYPES) {
-			listViews[type] = useListView({
-				objectType: type,
-				debounceMs: 400,
-				fetchFn: (objectType, params) => objectStore.fetchObjects(objectType, params),
-			})
-		}
-
 		return {
 			query: '',
 			results: [],
@@ -138,7 +121,6 @@ export default {
 			hasSearched: false,
 			showDropdown: false,
 			activeIndex: -1,
-			listViews,
 			debounceTimer: null,
 		}
 	},
@@ -162,7 +144,7 @@ export default {
 		},
 
 		/**
-		 * Search OpenRegister across multiple schemas via useListView composables.
+		 * Search OpenRegister across multiple schemas.
 		 *
 		 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-6.2
 		 */
@@ -171,9 +153,11 @@ export default {
 			this.showDropdown = true
 			this.activeIndex = -1
 
+			const objectStore = useObjectStore()
+
 			try {
 				const fetches = SEARCH_TYPES.map(async (type) => {
-					const items = await this.listViews[type].fetchFn(type, { _search: this.query })
+					const items = await objectStore.fetchObjects(type, { _search: this.query })
 					return (items || []).map((item) => ({ ...item, _type: type }))
 				})
 				const allResults = await Promise.all(fetches)

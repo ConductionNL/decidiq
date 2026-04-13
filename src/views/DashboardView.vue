@@ -75,6 +75,7 @@
 
 <script>
 import { CnDashboardPage, CnKpiGrid, CnStatsBlock, CnChartWidget, CnTileWidget } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
 import { useObjectStore } from '../store/modules/object.js'
 
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
@@ -119,7 +120,7 @@ export default {
 						icon: 'mdi:calendar-blank',
 						iconType: 'class',
 						linkType: 'url',
-						linkValue: '/meetings',
+						linkValue: generateUrl('/apps/decidesk/meetings'),
 					},
 				},
 				{
@@ -129,7 +130,7 @@ export default {
 						icon: 'mdi:file-document-outline',
 						iconType: 'class',
 						linkType: 'url',
-						linkValue: '/motions',
+						linkValue: generateUrl('/apps/decidesk/motions'),
 					},
 				},
 				{
@@ -139,7 +140,7 @@ export default {
 						icon: 'mdi:gavel',
 						iconType: 'class',
 						linkType: 'url',
-						linkValue: '/decisions',
+						linkValue: generateUrl('/apps/decidesk/decisions'),
 					},
 				},
 				{
@@ -149,7 +150,7 @@ export default {
 						icon: 'mdi:account-group-outline',
 						iconType: 'class',
 						linkType: 'url',
-						linkValue: '/participants',
+						linkValue: generateUrl('/apps/decidesk/participants'),
 					},
 				},
 				{
@@ -159,7 +160,7 @@ export default {
 						icon: 'mdi:domain',
 						iconType: 'class',
 						linkType: 'url',
-						linkValue: '/governance-bodies',
+						linkValue: generateUrl('/apps/decidesk/governance-bodies'),
 					},
 				},
 			],
