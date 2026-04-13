@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\VotingService;
 use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -61,6 +62,13 @@ class VotingServiceTest extends TestCase
     private IAppConfig&MockObject $appConfig;
 
     /**
+     * Mock MotionService.
+     *
+     * @var MotionService&MockObject
+     */
+    private MotionService&MockObject $motionService;
+
+    /**
      * Mock ObjectService (generic stdClass with added methods).
      *
      * @var MockObject
@@ -84,13 +92,15 @@ class VotingServiceTest extends TestCase
         $this->container->method('get')
             ->willReturn($this->objectService);
 
-        $this->logger    = $this->createMock(originalClassName: LoggerInterface::class);
-        $this->appConfig = $this->createMock(originalClassName: IAppConfig::class);
+        $this->logger        = $this->createMock(originalClassName: LoggerInterface::class);
+        $this->appConfig     = $this->createMock(originalClassName: IAppConfig::class);
+        $this->motionService = $this->createMock(originalClassName: MotionService::class);
 
         $this->service = new VotingService(
             container: $this->container,
             logger: $this->logger,
             appConfig: $this->appConfig,
+            motionService: $this->motionService,
         );
 
     }//end setUp()
@@ -460,4 +470,70 @@ class VotingServiceTest extends TestCase
         );
 
     }//end testGrantProxyObserverRejection()
+
+    /**
+     * Test that revokeProxy throws RuntimeException when the round isOpen flag is true.
+     *
+     * @return void
+     */
+    public function testRevokeProxyThrowsWhenRoundIsOpen(): void
+    {
+        $this->objectService->method('getObject')
+            ->willReturn(
+                    [
+                        'id'     => 'round-open',
+                        'isOpen' => true,
+                    ]
+                    );
+
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionMessage(message: 'Kan volmacht niet intrekken: stemronde is al geopend');
+
+        $this->service->revokeProxy(
+            votingRoundId: 'round-open',
+            fromParticipantId: 'participant-1',
+        );
+
+    }//end testRevokeProxyThrowsWhenRoundIsOpen()
+
+    /**
+     * Test that revokeProxy succeeds and removes the proxy note when isOpen is false.
+     *
+     * @return void
+     */
+    public function testRevokeProxySucceedsWhenRoundIsNotOpen(): void
+    {
+        $votingRound = [
+            'id'     => 'round-not-open',
+            'isOpen' => false,
+            'notes'  => [
+                ['type' => 'proxy', 'from' => 'participant-1', 'to' => 'participant-2'],
+            ],
+        ];
+
+        $this->objectService->method('getObject')
+            ->willReturn($votingRound);
+
+        $this->objectService->expects($this->once())
+            ->method('saveObject')
+            ->with(
+                    $this->equalTo(value: 'votingRound'),
+                    $this->callback(
+                            callback: function (array $data): bool {
+                                return count($data['notes']) === 0;
+                            }
+                    )
+                    )
+            ->willReturnCallback(
+                    function (string $type, array $data): array {
+                        return $data;
+                    }
+                    );
+
+        $this->service->revokeProxy(
+            votingRoundId: 'round-not-open',
+            fromParticipantId: 'participant-1',
+        );
+
+    }//end testRevokeProxySucceedsWhenRoundIsNotOpen()
 }//end class
