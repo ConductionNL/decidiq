@@ -1,22 +1,22 @@
-# Data Model — Decidesk
+# ADR: Data Model — Decidesk
 
-**App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
-**Platform:** OpenRegister (register/schema/object pattern)
+**Status:** accepted
 **Entities:** 17
 
-OpenRegister built-in fields available on ALL entities (do NOT redefine):
+## Context
+
+All data entities are OpenRegister schemas. This ADR is the single source of truth
+for the app's data model. Individual specs REFERENCE these entities but do not redefine them.
+
+OpenRegister built-in fields (NOT listed below, always available):
 id, uuid, uri, version, createdAt, updatedAt, owner, organization,
 register, schema, relations, files, auditTrail, notes, tasks, tags, status, locked.
 
-OpenRegister built-in capabilities (do NOT rebuild):
-CRUD REST API, CSV/JSON/XML import+export, full-text search, filtering,
-pagination, audit trails, file attachments, relation management, locking.
+## Entities
 
----
-
-## ActionItem
-**Schema.org type:** `custom:ActionItem`
-**Purpose:** A follow-up task from a meeting decision
+### ActionItem
+**Schema.org:** `custom:ActionItem`
+_A follow-up task from a meeting decision_
 **Primary spec:** p2-minutes-and-decisions
 
 | Property | Type | Required | Description |
@@ -32,11 +32,9 @@ pagination, audit trails, file attachments, relation management, locking.
 - → Decision (many-to-one)
 - → Meeting (many-to-one)
 
----
-
-## AgendaItem
-**Schema.org type:** `custom:AgendaItem`
-**Purpose:** An item on a meeting agenda with type, time, and ordering
+### AgendaItem
+**Schema.org:** `custom:AgendaItem`
+_An item on a meeting agenda with type, time, and ordering_
 **Primary spec:** p2-agenda-management
 
 | Property | Type | Required | Description |
@@ -53,11 +51,9 @@ pagination, audit trails, file attachments, relation management, locking.
 - → Meeting (many-to-one)
 - → Motion (one-to-many)
 
----
-
-## Amendment
-**Schema.org type:** `custom:Amendment`
-**Purpose:** A proposed change to an existing motion
+### Amendment
+**Schema.org:** `custom:Amendment`
+_A proposed change to an existing motion_
 **Primary spec:** p2-motion-and-voting
 
 | Property | Type | Required | Description |
@@ -71,11 +67,9 @@ pagination, audit trails, file attachments, relation management, locking.
 **Relations:**
 - → Motion (many-to-one)
 
----
-
-## Decision
-**Schema.org type:** `custom:Decision`
-**Purpose:** A formal decision resulting from a vote
+### Decision
+**Schema.org:** `custom:Decision`
+_A formal decision resulting from a vote_
 **Primary spec:** p2-minutes-and-decisions
 
 | Property | Type | Required | Description |
@@ -92,11 +86,9 @@ pagination, audit trails, file attachments, relation management, locking.
 - → Motion (many-to-one)
 - → ActionItem (one-to-many)
 
----
-
-## DigitalDocument
-**Schema.org type:** `schema:DigitalDocument`
-**Purpose:** Schema.org DigitalDocument — standard vocabulary for digitaldocument data
+### DigitalDocument
+**Schema.org:** `schema:DigitalDocument`
+_Schema.org DigitalDocument — standard vocabulary for digitaldocument data_
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -106,11 +98,9 @@ pagination, audit trails, file attachments, relation management, locking.
 | encodingFormat | string | No | MIME type (application/pdf, etc.) |
 | contentSize | string | No | File size |
 
----
-
-## GovernanceBody
-**Schema.org type:** `schema:Organization`
-**Purpose:** A governance body (council, board, committee, assembly)
+### GovernanceBody
+**Schema.org:** `schema:Organization`
+_A governance body (council, board, committee, assembly)_
 **Primary spec:** p3-governance-bodies
 
 | Property | Type | Required | Description |
@@ -128,11 +118,9 @@ pagination, audit trails, file attachments, relation management, locking.
 - → Meeting (one-to-many)
 - → Participant (one-to-many)
 
----
-
-## Meeting
-**Schema.org type:** `schema:Event`
-**Purpose:** A scheduled governance meeting with agenda, participants, and lifecycle
+### Meeting
+**Schema.org:** `schema:Event`
+_A scheduled governance meeting with agenda, participants, and lifecycle_
 **Primary spec:** p2-meeting-management
 
 | Property | Type | Required | Description |
@@ -151,11 +139,9 @@ pagination, audit trails, file attachments, relation management, locking.
 - → GovernanceBody (many-to-one)
 - → AgendaItem (one-to-many)
 
----
-
-## Minutes
-**Schema.org type:** `custom:Minutes`
-**Purpose:** Official record of a meeting's proceedings
+### Minutes
+**Schema.org:** `custom:Minutes`
+_Official record of a meeting's proceedings_
 **Primary spec:** p2-minutes-and-decisions
 
 | Property | Type | Required | Description |
@@ -170,22 +156,18 @@ pagination, audit trails, file attachments, relation management, locking.
 **Relations:**
 - → Meeting (one-to-one)
 
----
-
-## MonetaryAmount
-**Schema.org type:** `schema:MonetaryAmount`
-**Purpose:** Schema.org MonetaryAmount — standard vocabulary for monetaryamount data
+### MonetaryAmount
+**Schema.org:** `schema:MonetaryAmount`
+_Schema.org MonetaryAmount — standard vocabulary for monetaryamount data_
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | value | number | Yes | Numeric value |
 | currency | string | Yes | ISO 4217 currency code |
 
----
-
-## Motion
-**Schema.org type:** `custom:Motion`
-**Purpose:** A formal proposal submitted for debate and voting
+### Motion
+**Schema.org:** `custom:Motion`
+_A formal proposal submitted for debate and voting_
 **Primary spec:** p2-motion-and-voting
 
 | Property | Type | Required | Description |
@@ -203,11 +185,9 @@ pagination, audit trails, file attachments, relation management, locking.
 - → Amendment (one-to-many)
 - → VotingRound (one-to-many)
 
----
-
-## Offer
-**Schema.org type:** `schema:Offer`
-**Purpose:** Schema.org Offer — standard vocabulary for offer data
+### Offer
+**Schema.org:** `schema:Offer`
+_Schema.org Offer — standard vocabulary for offer data_
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -218,11 +198,9 @@ pagination, audit trails, file attachments, relation management, locking.
 | validThrough | datetime | No | Offer valid until |
 | availability | string | No | Availability status |
 
----
-
-## Order
-**Schema.org type:** `schema:Order`
-**Purpose:** Schema.org Order — standard vocabulary for order data
+### Order
+**Schema.org:** `schema:Order`
+_Schema.org Order — standard vocabulary for order data_
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -234,11 +212,9 @@ pagination, audit trails, file attachments, relation management, locking.
 | deliveryDate | datetime | No | Expected delivery date |
 | paymentTerms | string | No | Payment terms (e.g., NET30) |
 
----
-
-## Participant
-**Schema.org type:** `schema:Person`
-**Purpose:** A member or attendee of a governance body
+### Participant
+**Schema.org:** `schema:Person`
+_A member or attendee of a governance body_
 **Primary spec:** p3-governance-bodies
 
 | Property | Type | Required | Description |
@@ -254,11 +230,9 @@ pagination, audit trails, file attachments, relation management, locking.
 **Relations:**
 - → GovernanceBody (many-to-one)
 
----
-
-## Product
-**Schema.org type:** `schema:Product`
-**Purpose:** Schema.org Product — standard vocabulary for product data
+### Product
+**Schema.org:** `schema:Product`
+_Schema.org Product — standard vocabulary for product data_
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -271,11 +245,9 @@ pagination, audit trails, file attachments, relation management, locking.
 | unitCode | string | No | Unit of measure (UN/CEFACT) |
 | taxRate | number | No | Applicable tax rate percentage |
 
----
-
-## Report
-**Schema.org type:** `schema:Report`
-**Purpose:** Schema.org Report — standard vocabulary for report data
+### Report
+**Schema.org:** `schema:Report`
+_Schema.org Report — standard vocabulary for report data_
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -284,11 +256,9 @@ pagination, audit trails, file attachments, relation management, locking.
 | period | string | No | Reporting period |
 | generatedAt | datetime | No | When the report was generated |
 
----
-
-## Vote
-**Schema.org type:** `custom:Vote`
-**Purpose:** An individual vote cast in a voting round
+### Vote
+**Schema.org:** `custom:Vote`
+_An individual vote cast in a voting round_
 **Primary spec:** p2-motion-and-voting
 
 | Property | Type | Required | Description |
@@ -302,11 +272,9 @@ pagination, audit trails, file attachments, relation management, locking.
 - → VotingRound (many-to-one)
 - → Participant (many-to-one)
 
----
-
-## VotingRound
-**Schema.org type:** `custom:VotingRound`
-**Purpose:** A voting session on a motion or amendment
+### VotingRound
+**Schema.org:** `custom:VotingRound`
+_A voting session on a motion or amendment_
 **Primary spec:** p2-motion-and-voting
 
 | Property | Type | Required | Description |
@@ -324,5 +292,3 @@ pagination, audit trails, file attachments, relation management, locking.
 **Relations:**
 - → Motion (many-to-one)
 - → Vote (one-to-many)
-
----
