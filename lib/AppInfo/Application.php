@@ -22,7 +22,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
-use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -63,9 +62,6 @@ class Application extends App implements IBootstrap
             event: DeepLinkRegistrationEvent::class,
             listener: DeepLinkRegistrationListener::class
         );
-
-        // Initialize register and schemas on install/upgrade.
-        $context->registerRepairStep(InitializeSettings::class);
 
     }//end register()
 

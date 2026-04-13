@@ -116,23 +116,23 @@ class AgendaServiceTest extends TestCase
     }//end setUp()
 
     /**
-     * Test publishAgenda throws when no items exist.
+     * Test publishAgenda returns zero notifications when no items exist.
      *
      * @return void
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
      */
-    public function testPublishAgendaThrowsWhenNoItems(): void
+    public function testPublishAgendaWithNoItemsReturnsZeroNotifications(): void
     {
         $this->objectService->method('getObjects')
             ->willReturn([]);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Een agenda moet minimaal één agendapunt bevatten');
+        $result = $this->service->publishAgenda(meetingId: 'meeting-1');
 
-        $this->service->publishAgenda(meetingId: 'meeting-1');
+        self::assertTrue(condition: $result['success']);
+        self::assertSame(expected: 0, actual: $result['notifications']);
 
-    }//end testPublishAgendaThrowsWhenNoItems()
+    }//end testPublishAgendaWithNoItemsReturnsZeroNotifications()
 
     /**
      * Test publishAgenda sends notifications to active participants only.

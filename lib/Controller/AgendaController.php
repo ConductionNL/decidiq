@@ -69,7 +69,7 @@ class AgendaController extends Controller
         try {
             $result = $this->agendaService->publishAgenda(meetingId: $meetingId);
             return new JSONResponse($result);
-        } catch (\RuntimeException $e) {
+        } catch (\Throwable $e) {
             return new JSONResponse(
                 ['success' => false, 'error' => $e->getMessage()],
                 400
@@ -94,7 +94,7 @@ class AgendaController extends Controller
         try {
             $result = $this->agendaService->advanceBobPhase(agendaItemId: $id);
             return new JSONResponse($result);
-        } catch (\RuntimeException $e) {
+        } catch (\Throwable $e) {
             return new JSONResponse(
                 ['success' => false, 'error' => $e->getMessage()],
                 400
@@ -119,7 +119,7 @@ class AgendaController extends Controller
         try {
             $result = $this->agendaService->processHamerstukken(meetingId: $meetingId);
             return new JSONResponse($result);
-        } catch (\RuntimeException $e) {
+        } catch (\Throwable $e) {
             return new JSONResponse(
                 ['success' => false, 'error' => $e->getMessage()],
                 400
@@ -149,7 +149,7 @@ class AgendaController extends Controller
                 orderedIds: $ids
             );
             return new JSONResponse($result);
-        } catch (\RuntimeException $e) {
+        } catch (\Throwable $e) {
             return new JSONResponse(
                 ['success' => false, 'error' => $e->getMessage()],
                 400

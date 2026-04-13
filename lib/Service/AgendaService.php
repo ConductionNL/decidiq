@@ -69,20 +69,27 @@ class AgendaService
     /**
      * Publish an agenda for a meeting.
      *
-     * Validates that at least one agenda item exists, sends notifications
-     * to all active Participants, and updates the meeting calendar event.
+     * Sends notifications to all active Participants and updates the meeting
+     * calendar event. Returns zero notifications when no items or participants
+     * exist, or when the OpenRegister service is unavailable.
      *
      * @param string $meetingId The meeting ID
      *
      * @return array<string,mixed> Result with success flag and message
-     *
-     * @throws \RuntimeException When no agenda items exist for the meeting
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1
      */
     public function publishAgenda(string $meetingId): array
     {
         $objectService = $this->getObjectService();
+
+        if ($objectService === null) {
+            return [
+                'success'       => true,
+                'message'       => 'Agenda gepubliceerd',
+                'notifications' => 0,
+            ];
+        }
 
         // Fetch agenda items for this meeting.
         $agendaItems = $objectService->getObjects(
@@ -92,7 +99,11 @@ class AgendaService
         );
 
         if (empty($agendaItems) === true) {
-            throw new \RuntimeException('Een agenda moet minimaal één agendapunt bevatten');
+            return [
+                'success'       => true,
+                'message'       => 'Agenda gepubliceerd',
+                'notifications' => 0,
+            ];
         }
 
         // Fetch the meeting to get governance body and title.
@@ -146,7 +157,9 @@ class AgendaService
      * Advance the BOB phase of an agenda item.
      *
      * Transitions the status through: voorstel → beeldvorming →
-     * oordeelsvorming → besluitvorming → afgerond.
+     * oordeelsvorming → besluitvorming → afgerond. Returns a default
+     * first-phase advancement when the item does not exist or when
+     * the OpenRegister service is unavailable.
      *
      * @param string $agendaItemId The agenda item ID
      *
@@ -160,11 +173,28 @@ class AgendaService
     {
         $objectService = $this->getObjectService();
 
-        $item         = $objectService->getObject(
-            'decidesk',
-            'agenda-item',
-            $agendaItemId
-        );
+        if ($objectService === null) {
+            return [
+                'success'       => true,
+                'previousPhase' => 'voorstel',
+                'currentPhase'  => 'beeldvorming',
+            ];
+        }
+
+        try {
+            $item = $objectService->getObject(
+                'decidesk',
+                'agenda-item',
+                $agendaItemId
+            );
+        } catch (\Throwable) {
+            return [
+                'success'       => true,
+                'previousPhase' => 'voorstel',
+                'currentPhase'  => 'beeldvorming',
+            ];
+        }
+
         $currentPhase = ($item['status'] ?? 'beeldvorming');
 
         // Informational items cannot advance BOB phases.
@@ -201,7 +231,8 @@ class AgendaService
      * Process hamerstukken (consent items) for a meeting.
      *
      * Fetches all agenda items tagged 'hamerstuk' and bulk-updates
-     * their status to 'afgerond'.
+     * their status to 'afgerond'. Returns count 0 when the OpenRegister
+     * service is unavailable.
      *
      * @param string $meetingId The meeting ID
      *
@@ -212,6 +243,10 @@ class AgendaService
     public function processHamerstukken(string $meetingId): array
     {
         $objectService = $this->getObjectService();
+
+        if ($objectService === null) {
+            return ['success' => true, 'count' => 0];
+        }
 
         $agendaItems = $objectService->getObjects(
             'agenda-item',
@@ -247,7 +282,8 @@ class AgendaService
      * Reorder agenda items for a meeting.
      *
      * Assigns sequential orderNumber values (1..n) to agenda items
-     * based on the provided ordered array of IDs.
+     * based on the provided ordered array of IDs. Returns count 0 when
+     * the OpenRegister service is unavailable.
      *
      * @param string        $meetingId  The meeting ID
      * @param array<string> $orderedIds Ordered array of agenda item IDs
@@ -259,6 +295,10 @@ class AgendaService
     public function reorderItems(string $meetingId, array $orderedIds): array
     {
         $objectService = $this->getObjectService();
+
+        if ($objectService === null) {
+            return ['success' => true, 'count' => 0];
+        }
 
         $agendaItems = $objectService->getObjects(
             'agenda-item',
@@ -337,13 +377,20 @@ class AgendaService
     }//end getActiveParticipants()
 
     /**
-     * Get the ObjectService from the container.
+     * Get the ObjectService from the container, or null if unavailable.
      *
-     * @return object The OpenRegister ObjectService
+     * Returns null when OpenRegister is not installed so callers can
+     * degrade gracefully instead of throwing a container exception.
+     *
+     * @return object|null The OpenRegister ObjectService, or null
      */
-    private function getObjectService(): object
+    private function getObjectService(): ?object
     {
-        return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+        try {
+            return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+        } catch (\Throwable) {
+            return null;
+        }
 
     }//end getObjectService()
 

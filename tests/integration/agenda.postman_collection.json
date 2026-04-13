@@ -4,6 +4,21 @@
 		"description": "Integration tests for the 4 agenda management API endpoints.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "{{admin_user}}",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "{{admin_password}}",
+				"type": "string"
+			}
+		]
+	},
 	"item": [
 		{
 			"name": "POST /api/agendas/{meetingId}/publish",
@@ -161,6 +176,14 @@
 		{
 			"key": "agendaItemId",
 			"value": "test-item-1"
+		},
+		{
+			"key": "admin_user",
+			"value": "admin"
+		},
+		{
+			"key": "admin_password",
+			"value": "admin"
 		}
 	]
 }
