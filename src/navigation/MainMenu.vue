@@ -1,6 +1,14 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- Copyright (C) 2026 Conduction B.V. -->
+
+<!--
+ @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-4.2
+ @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-6.1
+-->
 <template>
 	<NcAppNavigation>
 		<template #list>
+			<GlobalSearch />
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Dashboard')"
 				:to="{ name: 'Dashboard' }"
@@ -10,44 +18,86 @@
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
-				:name="t('decidesk', 'Documentation')"
-				@click="openLink('https://conduction.nl', '_blank')">
+				:name="t('decidesk', 'Vergaderingen')"
+				:to="{ name: 'MeetingList' }">
 				<template #icon>
-					<BookOpenVariantOutline :size="20" />
+					<CalendarBlank :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Moties')"
+				:to="{ name: 'MotionList' }">
+				<template #icon>
+					<FileDocumentOutline :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Besluiten')"
+				:to="{ name: 'DecisionList' }">
+				<template #icon>
+					<GavelIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Deelnemers')"
+				:to="{ name: 'ParticipantList' }">
+				<template #icon>
+					<AccountGroupOutline :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Bestuursorganen')"
+				:to="{ name: 'GovernanceBodyList' }">
+				<template #icon>
+					<DomainIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
 		</template>
 		<template #footer>
-			<NcAppNavigationItem
-				:name="t('decidesk', 'Settings')"
-				:to="{ name: 'Settings' }">
-				<template #icon>
-					<CogIcon :size="20" />
-				</template>
-			</NcAppNavigationItem>
+			<NcAppNavigationSettings :name="t('decidesk', 'Instellingen')">
+				<NcAppNavigationItem
+					:name="t('decidesk', 'Instellingen')"
+					:to="{ name: 'Settings' }">
+					<template #icon>
+						<CogIcon :size="20" />
+					</template>
+				</NcAppNavigationItem>
+			</NcAppNavigationSettings>
 		</template>
 	</NcAppNavigation>
 </template>
 
 <script>
-import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
-import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
-import CogIcon from 'vue-material-design-icons/Cog.vue'
-import HomeIcon from 'vue-material-design-icons/Home.vue'
+import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
+import GlobalSearch from '../components/GlobalSearch.vue'
 
+import HomeIcon from 'vue-material-design-icons/Home.vue'
+import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
+import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
+import GavelIcon from 'vue-material-design-icons/Gavel.vue'
+import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
+import DomainIcon from 'vue-material-design-icons/Domain.vue'
+import CogIcon from 'vue-material-design-icons/Cog.vue'
+
+/**
+ * Main navigation menu with entity routes, search, and settings.
+ *
+ * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-4.2
+ */
 export default {
 	name: 'MainMenu',
 	components: {
 		NcAppNavigation,
 		NcAppNavigationItem,
-		BookOpenVariantOutline,
-		CogIcon,
+		NcAppNavigationSettings,
+		GlobalSearch,
 		HomeIcon,
-	},
-	methods: {
-		openLink(url, target = '_blank') {
-			window.open(url, target)
-		},
+		CalendarBlank,
+		FileDocumentOutline,
+		GavelIcon,
+		AccountGroupOutline,
+		DomainIcon,
+		CogIcon,
 	},
 }
 </script>
