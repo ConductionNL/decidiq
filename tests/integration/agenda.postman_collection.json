@@ -1,0 +1,166 @@
+{
+	"info": {
+		"name": "Decidesk — Agenda Management (p2)",
+		"description": "Integration tests for the 4 agenda management API endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "POST /api/agendas/{meetingId}/publish",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/publish",
+					"host": ["{{baseUrl}}"],
+					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "publish"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('Response has success flag', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.success).to.eql(true);",
+							"});",
+							"pm.test('Response has notifications count', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.notifications).to.be.a('number');",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "PUT /api/agenda-items/{id}/bob-phase",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/apps/decidesk/api/agenda-items/{{agendaItemId}}/bob-phase",
+					"host": ["{{baseUrl}}"],
+					"path": ["apps", "decidesk", "api", "agenda-items", "{{agendaItemId}}", "bob-phase"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('Phase advanced correctly', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.success).to.eql(true);",
+							"    pm.expect(json.currentPhase).to.be.a('string');",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "POST /api/agendas/{meetingId}/hamerstukken",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/hamerstukken",
+					"host": ["{{baseUrl}}"],
+					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "hamerstukken"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('Response has count', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.success).to.eql(true);",
+							"    pm.expect(json.count).to.be.a('number');",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "PUT /api/agendas/{meetingId}/reorder",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"ids\": [\"{{agendaItemId}}\"]}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/reorder",
+					"host": ["{{baseUrl}}"],
+					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "reorder"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('Reorder succeeded', function () {",
+							"    var json = pm.response.json();",
+							"    pm.expect(json.success).to.eql(true);",
+							"    pm.expect(json.count).to.be.a('number');",
+							"});"
+						]
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "meetingId",
+			"value": "test-meeting-1"
+		},
+		{
+			"key": "agendaItemId",
+			"value": "test-item-1"
+		}
+	]
+}
