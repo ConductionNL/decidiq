@@ -62,8 +62,8 @@ class SettingsControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->request         = $this->createMock(IRequest::class);
-        $this->settingsService = $this->createMock(SettingsService::class);
+        $this->request         = $this->createMock(originalClassName: IRequest::class);
+        $this->settingsService = $this->createMock(originalClassName: SettingsService::class);
 
         $this->controller = new SettingsController(
             request: $this->request,
@@ -91,8 +91,8 @@ class SettingsControllerTest extends TestCase
 
         $result = $this->controller->index();
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertSame($settings, $result->getData());
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertSame(expected: $settings, actual: $result->getData());
 
     }//end testIndexReturnsJsonResponseWithSettings()
 
@@ -117,9 +117,9 @@ class SettingsControllerTest extends TestCase
 
         $result = $this->controller->create();
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertTrue($result->getData()['success']);
-        self::assertArrayHasKey('config', $result->getData());
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertTrue(condition: $result->getData()['success']);
+        self::assertArrayHasKey(key: 'config', array: $result->getData());
 
     }//end testCreateCallsUpdateSettingsAndReturnsSuccess()
 
@@ -143,8 +143,8 @@ class SettingsControllerTest extends TestCase
 
         $result = $this->controller->load();
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertTrue($result->getData()['success']);
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertTrue(condition: $result->getData()['success']);
 
     }//end testLoadReturnsConfigurationResult()
 }//end class
