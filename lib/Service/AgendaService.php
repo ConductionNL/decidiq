@@ -67,7 +67,7 @@ class AgendaService
      * @param ContainerInterface $container   The service container
      * @param LoggerInterface    $logger      The logger
      * @param IL10N              $l10n        The localisation helper
-     * @param IUserSession|null  $userSession The user session (null in unit-test mode)
+     * @param IUserSession       $userSession The user session
      *
      * @return void
      */
@@ -75,7 +75,7 @@ class AgendaService
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly IL10N $l10n,
-        private readonly ?IUserSession $userSession=null,
+        private readonly IUserSession $userSession,
     ) {
     }//end __construct()
 
@@ -389,7 +389,7 @@ class AgendaService
             return ['role' => 'none'];
         }
 
-        $userId = $this->userSession?->getUser()?->getUID() ?? '';
+        $userId = $this->userSession->getUser()?->getUID() ?? '';
         if ($userId === '') {
             return ['role' => 'none'];
         }
@@ -460,8 +460,7 @@ class AgendaService
     /**
      * Assert that the current user holds a chair or secretary role.
      *
-     * Skipped entirely when no user session is available (unit-test mode).
-     * Throws with HTTP code 403 when the user is authenticated but does
+     * Throws with HTTP code 403 when the user is not authenticated or does
      * not hold a qualifying role.
      *
      * @param array<int,array<string,mixed>> $participants Active participants for the meeting
@@ -472,10 +471,6 @@ class AgendaService
      */
     private function assertChairOrSecretary(array $participants): void
     {
-        if ($this->userSession === null) {
-            throw new \RuntimeException('Forbidden: auth service unavailable', 403);
-        }
-
         $userId = $this->userSession->getUser()?->getUID() ?? '';
         if ($userId === '') {
             throw new \RuntimeException('Forbidden: unauthenticated request', 403);

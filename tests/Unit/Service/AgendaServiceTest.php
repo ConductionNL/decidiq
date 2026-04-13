@@ -680,6 +680,94 @@ class AgendaServiceTest extends TestCase
     }//end testPublishAgendaThrowsWith403ForNonChairUser()
 
     /**
+     * Test processHamerstukken throws 403 for a non-chair user.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
+     */
+    public function testProcessHamerstukkenThrowsWith403ForNonChairUser(): void
+    {
+        $mockUser = $this->createMock(originalClassName: IUser::class);
+        $mockUser->method('getUID')->willReturn('non-chair-user');
+
+        $memberSession = $this->createMock(originalClassName: IUserSession::class);
+        $memberSession->method('getUser')->willReturn($mockUser);
+
+        $container     = $this->createMock(originalClassName: ContainerInterface::class);
+        $objectService = $this->createMockObjectService();
+        $container->method('get')->willReturn($objectService);
+
+        $objectService->method('getObject')
+            ->willReturn(
+                [
+                    'id'        => 'meeting-1',
+                    'relations' => [['schema' => 'governance-body', 'id' => 'gb-1']],
+                ]
+            );
+
+        $objectService->method('getObjects')
+            ->willReturn([['owner' => 'non-chair-user', 'role' => 'member', 'leftAt' => null]]);
+
+        $service = new AgendaService(
+            container: $container,
+            logger: $this->logger,
+            l10n: $this->l10n,
+            userSession: $memberSession,
+        );
+
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionCode(code: 403);
+
+        $service->processHamerstukken(meetingId: 'meeting-1');
+
+    }//end testProcessHamerstukkenThrowsWith403ForNonChairUser()
+
+    /**
+     * Test reorderItems throws 403 for a non-chair user.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
+     */
+    public function testReorderItemsThrowsWith403ForNonChairUser(): void
+    {
+        $mockUser = $this->createMock(originalClassName: IUser::class);
+        $mockUser->method('getUID')->willReturn('non-chair-user');
+
+        $memberSession = $this->createMock(originalClassName: IUserSession::class);
+        $memberSession->method('getUser')->willReturn($mockUser);
+
+        $container     = $this->createMock(originalClassName: ContainerInterface::class);
+        $objectService = $this->createMockObjectService();
+        $container->method('get')->willReturn($objectService);
+
+        $objectService->method('getObject')
+            ->willReturn(
+                [
+                    'id'        => 'meeting-1',
+                    'relations' => [['schema' => 'governance-body', 'id' => 'gb-1']],
+                ]
+            );
+
+        $objectService->method('getObjects')
+            ->willReturn([['owner' => 'non-chair-user', 'role' => 'member', 'leftAt' => null]]);
+
+        $service = new AgendaService(
+            container: $container,
+            logger: $this->logger,
+            l10n: $this->l10n,
+            userSession: $memberSession,
+        );
+
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionCode(code: 403);
+
+        $service->reorderItems(meetingId: 'meeting-1', orderedIds: ['item-a']);
+
+    }//end testReorderItemsThrowsWith403ForNonChairUser()
+
+    /**
      * Create a mock ObjectService.
      *
      * @return object&MockObject
