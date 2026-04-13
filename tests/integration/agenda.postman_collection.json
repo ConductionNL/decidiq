@@ -1,6 +1,6 @@
 {
 	"info": {
-		"name": "Decidesk — Agenda Management (p2)",
+		"name": "Decidesk \u2014 Agenda Management (p2)",
 		"description": "Integration tests for the 4 agenda management API endpoints.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -32,8 +32,17 @@
 				],
 				"url": {
 					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/publish",
-					"host": ["{{baseUrl}}"],
-					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "publish"]
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"apps",
+						"decidesk",
+						"api",
+						"agendas",
+						"{{meetingId}}",
+						"publish"
+					]
 				}
 			},
 			"event": [
@@ -58,7 +67,7 @@
 			]
 		},
 		{
-			"name": "POST /api/agendas/{meetingId}/publish — 400 empty agenda",
+			"name": "POST /api/agendas/{meetingId}/publish \u2014 400 empty agenda",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -69,8 +78,17 @@
 				],
 				"url": {
 					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{emptyMeetingId}}/publish",
-					"host": ["{{baseUrl}}"],
-					"path": ["apps", "decidesk", "api", "agendas", "{{emptyMeetingId}}", "publish"]
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"apps",
+						"decidesk",
+						"api",
+						"agendas",
+						"{{emptyMeetingId}}",
+						"publish"
+					]
 				}
 			},
 			"event": [
@@ -91,7 +109,7 @@
 			]
 		},
 		{
-			"name": "POST /api/agendas/{meetingId}/publish — 403 non-chair",
+			"name": "POST /api/agendas/{meetingId}/publish \u2014 403 non-chair",
 			"auth": {
 				"type": "basic",
 				"basic": [
@@ -117,8 +135,17 @@
 				],
 				"url": {
 					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/publish",
-					"host": ["{{baseUrl}}"],
-					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "publish"]
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"apps",
+						"decidesk",
+						"api",
+						"agendas",
+						"{{meetingId}}",
+						"publish"
+					]
 				}
 			},
 			"event": [
@@ -139,6 +166,47 @@
 			]
 		},
 		{
+			"name": "POST /api/agendas/{meetingId}/publish \u2014 401 unauthenticated",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/publish",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"apps",
+						"decidesk",
+						"api",
+						"agendas",
+						"{{meetingId}}",
+						"publish"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Unauthenticated request is rejected', function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
 			"name": "PUT /api/agenda-items/{id}/bob-phase",
 			"request": {
 				"method": "PUT",
@@ -150,8 +218,17 @@
 				],
 				"url": {
 					"raw": "{{baseUrl}}/apps/decidesk/api/agenda-items/{{agendaItemId}}/bob-phase",
-					"host": ["{{baseUrl}}"],
-					"path": ["apps", "decidesk", "api", "agenda-items", "{{agendaItemId}}", "bob-phase"]
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"apps",
+						"decidesk",
+						"api",
+						"agenda-items",
+						"{{agendaItemId}}",
+						"bob-phase"
+					]
 				}
 			},
 			"event": [
@@ -184,8 +261,17 @@
 				],
 				"url": {
 					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/hamerstukken",
-					"host": ["{{baseUrl}}"],
-					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "hamerstukken"]
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"apps",
+						"decidesk",
+						"api",
+						"agendas",
+						"{{meetingId}}",
+						"hamerstukken"
+					]
 				}
 			},
 			"event": [
@@ -207,7 +293,7 @@
 			]
 		},
 		{
-			"name": "POST /api/agendas/{meetingId}/hamerstukken — 403 non-chair",
+			"name": "POST /api/agendas/{meetingId}/hamerstukken \u2014 403 non-chair",
 			"auth": {
 				"type": "basic",
 				"basic": [
@@ -233,8 +319,17 @@
 				],
 				"url": {
 					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/hamerstukken",
-					"host": ["{{baseUrl}}"],
-					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "hamerstukken"]
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"apps",
+						"decidesk",
+						"api",
+						"agendas",
+						"{{meetingId}}",
+						"hamerstukken"
+					]
 				}
 			},
 			"event": [
@@ -270,8 +365,17 @@
 				},
 				"url": {
 					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/reorder",
-					"host": ["{{baseUrl}}"],
-					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "reorder"]
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"apps",
+						"decidesk",
+						"api",
+						"agendas",
+						"{{meetingId}}",
+						"reorder"
+					]
 				}
 			},
 			"event": [
@@ -293,7 +397,7 @@
 			]
 		},
 		{
-			"name": "PUT /api/agendas/{meetingId}/reorder — 403 non-chair",
+			"name": "PUT /api/agendas/{meetingId}/reorder \u2014 403 non-chair",
 			"auth": {
 				"type": "basic",
 				"basic": [
@@ -323,8 +427,17 @@
 				},
 				"url": {
 					"raw": "{{baseUrl}}/apps/decidesk/api/agendas/{{meetingId}}/reorder",
-					"host": ["{{baseUrl}}"],
-					"path": ["apps", "decidesk", "api", "agendas", "{{meetingId}}", "reorder"]
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"apps",
+						"decidesk",
+						"api",
+						"agendas",
+						"{{meetingId}}",
+						"reorder"
+					]
 				}
 			},
 			"event": [

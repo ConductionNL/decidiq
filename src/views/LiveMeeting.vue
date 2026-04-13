@@ -223,7 +223,7 @@ export default {
 
 		async fetchMeeting() {
 			const objectStore = useObjectStore()
-			const results = await objectStore.fetchObjects('meeting', { id: this.meetingId })
+			const results = await objectStore.fetchCollection('meeting', { id: this.meetingId })
 			if (Array.isArray(results) && results.length > 0) {
 				this.meeting = results[0]
 			} else if (results && !Array.isArray(results)) {
@@ -233,7 +233,7 @@ export default {
 
 		async fetchAgendaItems() {
 			const objectStore = useObjectStore()
-			const results = await objectStore.fetchObjects('agendaItem', { meeting: this.meetingId })
+			const results = await objectStore.fetchCollection('agendaItem', { meeting: this.meetingId })
 			this.agendaItems = Array.isArray(results) ? results : []
 		},
 
@@ -298,7 +298,7 @@ export default {
 			const updatedTags = (item.tags || []).filter((t) => t !== 'hamerstuk')
 			const objectStore = useObjectStore()
 			// Delegate to objectStore.saveObject() to keep headers, base-URL, and auth consistent.
-			await objectStore.saveObject({ id: item.id || item.uuid, tags: updatedTags })
+			await objectStore.saveObject('agendaItem', { id: item.id || item.uuid, tags: updatedTags })
 			await this.fetchAgendaItems()
 		},
 	},

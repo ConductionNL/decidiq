@@ -365,7 +365,7 @@ export default {
 			const objectStore = useObjectStore()
 			const updatedTags = (item.tags || []).filter((t) => t !== 'hamerstuk')
 			// Send only the fields being changed to prevent mass-assignment.
-			await objectStore.saveObject({ id: item.id || item.uuid, tags: updatedTags })
+			await objectStore.saveObject('agendaItem', { id: item.id || item.uuid, tags: updatedTags })
 			this.$emit('items-updated')
 		},
 
@@ -373,7 +373,7 @@ export default {
 			const objectStore = useObjectStore()
 			const maxOrder = Math.max(...this.sortedItems.map((i) => i.orderNumber || 0), 0)
 			// Send only the fields being changed to prevent mass-assignment.
-			await objectStore.saveObject({
+			await objectStore.saveObject('agendaItem', {
 				id: item.id || item.uuid,
 				status: 'beeldvorming',
 				orderNumber: maxOrder + 1,
@@ -384,7 +384,7 @@ export default {
 		async rejectProposal(item) {
 			const objectStore = useObjectStore()
 			// Send only the fields being changed to prevent mass-assignment.
-			await objectStore.saveObject({ id: item.id || item.uuid, status: 'afgewezen' })
+			await objectStore.saveObject('agendaItem', { id: item.id || item.uuid, status: 'afgewezen' })
 			this.$emit('items-updated')
 		},
 	},

@@ -34,7 +34,6 @@ export async function initializeStores() {
 
 	objectStore.configure({
 		baseUrl: generateUrl('/apps/openregister/api/objects'),
-		schemaBaseUrl: generateUrl('/apps/openregister/api/schemas'),
 	})
 
 	await settingsStore.fetchSettings()
