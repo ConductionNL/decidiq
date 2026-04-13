@@ -14,19 +14,19 @@
 			</div>
 
 			<div class="form-group">
-				<label for="oriEndpoint">{{ t('decidesk', 'ORI endpoint') }}</label>
+				<label for="ori_endpoint">{{ t('decidesk', 'ORI endpoint') }}</label>
 				<input
-					id="oriEndpoint"
-					v-model="form.oriEndpoint"
+					id="ori_endpoint"
+					v-model="form.ori_endpoint"
 					type="url"
 					:placeholder="t('decidesk', 'ORI endpoint')">
 			</div>
 
 			<div class="form-group">
-				<label for="emailVoting">
+				<label for="email_voting_enabled">
 					<input
-						id="emailVoting"
-						v-model="form.emailVoting"
+						id="email_voting_enabled"
+						v-model="form.email_voting_enabled"
 						type="checkbox">
 					{{ t('decidesk', 'Enable email voting') }}
 				</label>
@@ -61,8 +61,8 @@ export default {
 		return {
 			form: {
 				register: '',
-				oriEndpoint: '',
-				emailVoting: false,
+				ori_endpoint: '',
+				email_voting_enabled: false,
 			},
 			saving: false,
 			successMessage: '',
@@ -71,8 +71,8 @@ export default {
 	created() {
 		const settingsStore = useSettingsStore()
 		this.form.register = settingsStore.settings?.register || ''
-		this.form.oriEndpoint = settingsStore.settings?.oriEndpoint || ''
-		this.form.emailVoting = settingsStore.settings?.emailVoting || false
+		this.form.ori_endpoint = settingsStore.settings?.ori_endpoint || ''
+		this.form.email_voting_enabled = settingsStore.settings?.email_voting_enabled || false
 	},
 	methods: {
 		async save() {

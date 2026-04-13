@@ -266,7 +266,6 @@ export default {
 						requesttoken: OC.requestToken,
 					},
 					body: JSON.stringify({
-						participantId: 'current-user',
 						value,
 						isProxy: false,
 						delegatorId: null,

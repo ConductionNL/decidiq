@@ -146,10 +146,6 @@ class MotionController extends DecideskController
      */
     public function coSignConfirm(string $id): JSONResponse
     {
-        if ($this->isChairOrAdmin() === false) {
-            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
-        }
-
         $user = $this->userSession->getUser();
         if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);

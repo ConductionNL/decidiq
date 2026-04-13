@@ -65,6 +65,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </navigation>
     </navigations>
 
+    <background-jobs>
+        <job>OCA\Decidesk\BackgroundJob\MailReplyHandler</job>
+    </background-jobs>
+
     <repair-steps>
         <post-migration>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>

@@ -157,6 +157,7 @@ class VotingService
         $votingRound = $objectService->saveObject(
                 'votingRound',
                 [
+                    'motion'       => $motionId,
                     'votingMethod' => $votingMethod,
                     'isSecret'     => $isSecret,
                     'isOpen'       => true,
@@ -222,7 +223,7 @@ class VotingService
         $allowedValues = ['for', 'against', 'abstain'];
         if (in_array($value, $allowedValues, true) === false) {
             throw new \InvalidArgumentException(
-                "Ongeldige stemwaarde: '{$value}'. Toegestaan: for, against, abstain"
+                'Ongeldige stemwaarde. Toegestaan: for, against, abstain'
             );
         }
 
@@ -261,7 +262,24 @@ class VotingService
                     'Er is al een volmachtstem uitgebracht voor deze delegator in deze stemronde'
                 );
             }
-        }
+
+            // Verify the voter was actually granted proxy rights by the delegator.
+            $notes        = $votingRound['notes'] ?? [];
+            $proxyGranted = false;
+            foreach ($notes as $note) {
+                if (($note['type'] ?? '') === 'proxy'
+                    && ($note['from'] ?? '') === $delegatorId
+                    && ($note['to'] ?? '') === $participantId
+                ) {
+                    $proxyGranted = true;
+                    break;
+                }
+            }
+
+            if ($proxyGranted === false) {
+                throw new \InvalidArgumentException('Geen geldige volmacht');
+            }//end if
+        }//end if
 
         // Build vote data.
         $voteData = [
@@ -616,11 +634,11 @@ class VotingService
     ): void {
         $objectService = $this->getObjectService();
 
-        // Fetch VotingRound and check if round is already closed (proxy cannot be revoked after close).
+        // Fetch VotingRound and check if round is currently open for casting.
         $votingRound = $objectService->getObject('votingRound', $votingRoundId);
 
-        if (($votingRound['closedAt'] ?? null) !== null) {
-            throw new \RuntimeException('Kan volmacht niet intrekken: stemronde is al gesloten');
+        if (($votingRound['isOpen'] ?? false) === true) {
+            throw new \RuntimeException('Kan volmacht niet intrekken: stemronde is al geopend');
         }
 
         // Remove proxy note.

@@ -482,6 +482,7 @@ class VotingServiceTest extends TestCase
             ->willReturn(
                     [
                         'id'       => 'round-open',
+                        'isOpen'   => true,
                         'closedAt' => null,
                     ]
                     );
