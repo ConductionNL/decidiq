@@ -125,6 +125,7 @@
 import { NcButton, NcDialog } from '@nextcloud/vue'
 import { showError } from '@nextcloud/dialogs'
 import { CnDetailCard, CnDetailPage, CnObjectSidebar, CnStatusBadge, CnTimelineStages, useDetailView } from '@conduction/nextcloud-vue'
+import { getCurrentUser } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 import { useMinutesStore } from '../store/modules/minutes.js'
 
@@ -208,23 +209,28 @@ export default {
 		},
 		async transitionLifecycle(newState) {
 			try {
-				const url = generateUrl(`/apps/decidesk/api/minutes/${this.entityId}/transition`)
-				const response = await fetch(url, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
-					},
-					body: JSON.stringify({ lifecycle: newState }),
-				})
-				if (response.ok) {
-					this.detailView?.refresh?.()
-				} else {
-					const data = await response.json().catch(() => ({}))
-					showError(t('decidesk', 'Lifecycle transition failed: ') + (data.message || response.statusText))
+				const minutesStore = useMinutesStore()
+				const updated = { ...this.entity, lifecycle: newState }
+
+				// Spec Decision 2 / Task 5.3: record the signer's display name on approval and signing.
+				if (newState === 'approved' || newState === 'signed') {
+					const currentUser = getCurrentUser()
+					const displayName = currentUser?.displayName || currentUser?.uid || ''
+					const signedBy = Array.isArray(updated.signedBy) ? [...updated.signedBy] : []
+					signedBy.push(displayName)
+					updated.signedBy = signedBy
 				}
+
+				// Record approval timestamp and bump version on approved transition.
+				if (newState === 'approved') {
+					updated.approvedAt = new Date().toISOString()
+					updated.version = (parseInt(updated.version) || 1) + 1
+				}
+
+				await minutesStore.saveObject?.('minutes', updated)
+				this.detailView?.refresh?.()
 			} catch (e) {
-				showError(t('decidesk', 'Lifecycle transition failed: ') + e.message)
+				showError(this.t('decidesk', 'Lifecycle transition failed: ') + e.message)
 			}
 		},
 		async deleteEntity() {

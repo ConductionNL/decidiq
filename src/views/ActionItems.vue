@@ -50,7 +50,7 @@ export default {
 		const listView = useListView('action-item', {
 			objectStore: actionItemStore,
 		})
-		return { listView }
+		return { listView, actionItemStore }
 	},
 	data() {
 		return {
@@ -73,7 +73,26 @@ export default {
 			],
 		}
 	},
+	async created() {
+		await this.loadAssigneeOptions()
+	},
 	methods: {
+		async loadAssigneeOptions() {
+			try {
+				const items = await this.actionItemStore.fetchObjects?.('action-item') || []
+				const uniqueAssignees = [...new Set(
+					(Array.isArray(items) ? items : [])
+						.map((item) => item.assignee)
+						.filter(Boolean),
+				)]
+				const assigneeFilter = this.filters.find((f) => f.key === 'assignee')
+				if (assigneeFilter) {
+					assigneeFilter.options = uniqueAssignees.map((a) => ({ value: a, label: a }))
+				}
+			} catch (e) {
+				// Non-fatal: filter remains empty if assignees cannot be loaded.
+			}
+		},
 		onRowClick(item) {
 			this.$router.push({ name: 'ActionItemDetail', params: { id: item.id } })
 		},

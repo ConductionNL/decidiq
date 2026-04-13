@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-17
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  */
 
 // SPDX-License-Identifier: EUPL-1.2
@@ -34,7 +34,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for MinutesGenerationService.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-17
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  */
 class MinutesGenerationServiceTest extends TestCase
 {
@@ -96,7 +96,7 @@ class MinutesGenerationServiceTest extends TestCase
      *
      * @return void
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-17
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      */
     public function testGenerateDraftHappyPath(): void
     {
@@ -153,7 +153,7 @@ class MinutesGenerationServiceTest extends TestCase
      *
      * @return void
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-17
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      */
     public function testGenerateDraftNoAgendaItems(): void
     {
@@ -190,7 +190,7 @@ class MinutesGenerationServiceTest extends TestCase
      *
      * @return void
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-17
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      */
     public function testGenerateDraftMissingMeetingThrowsException(): void
     {

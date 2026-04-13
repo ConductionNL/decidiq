@@ -170,6 +170,38 @@ class DecisionControllerTest extends TestCase
     }//end testPublishRejectsNonAdoptedDecision()
 
     /**
+     * Test that publish() returns 404 when the decision object is not found.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6
+     */
+    public function testPublishReturnsNotFoundWhenDecisionMissing(): void
+    {
+        $user = $this->createMock(originalClassName: IUser::class);
+        $user->method('getUID')->willReturn('admin1');
+        $this->userSession->method('getUser')->willReturn($user);
+        $this->groupManager->method('isAdmin')->with('admin1')->willReturn(true);
+
+        $objectService = new class {
+            public function findObject(string $register, string $schema, string $id): array
+            {
+                return [];
+            }
+        };
+
+        $this->container->method('get')->willReturn($objectService);
+        $this->appConfig->method('getValueString')->willReturn('decidesk');
+
+        $result = $this->controller->publish('non-existent-uuid');
+
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertSame(expected: Http::STATUS_NOT_FOUND, actual: $result->getStatus());
+        self::assertArrayHasKey(key: 'message', array: $result->getData());
+
+    }//end testPublishReturnsNotFoundWhenDecisionMissing()
+
+    /**
      * Test that publish() sets isPublished=true and a valid publishedAt timestamp on success.
      *
      * @return void

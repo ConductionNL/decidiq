@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
  */
 
 // SPDX-License-Identifier: EUPL-1.2
@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
  * Queries all ActionItems where taskStatus is 'open' or 'in-progress'
  * and dueDate < now(), then updates their taskStatus to 'overdue'.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
  */
 class OverdueActionItemsJob extends TimedJob
 {
@@ -60,7 +60,7 @@ class OverdueActionItemsJob extends TimedJob
      *
      * @return void
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
      */
     public function __construct(
         ITimeFactory $time,
@@ -83,7 +83,7 @@ class OverdueActionItemsJob extends TimedJob
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
      */
     protected function run(mixed $argument): void
     {

@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
 
 // SPDX-License-Identifier: EUPL-1.2
@@ -30,16 +30,14 @@ use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
-use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
 use OCP\IAppConfig;
+use OCP\IRequest;
+use Psr\Container\ContainerInterface;
 
 /**
  * Thin controller for minutes draft generation.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
 class MinutesController extends Controller
 {
@@ -48,20 +46,16 @@ class MinutesController extends Controller
      *
      * @param IRequest                 $request                  The request object
      * @param MinutesGenerationService $minutesGenerationService The generation service
-     * @param IGroupManager            $groupManager             The group manager
-     * @param IUserSession             $userSession              The user session
      * @param ContainerInterface       $container                The DI container
      * @param IAppConfig               $appConfig                The app config
      *
      * @return void
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function __construct(
         IRequest $request,
         private readonly MinutesGenerationService $minutesGenerationService,
-        private readonly IGroupManager $groupManager,
-        private readonly IUserSession $userSession,
         private readonly ContainerInterface $container,
         private readonly IAppConfig $appConfig,
     ) {
@@ -83,7 +77,7 @@ class MinutesController extends Controller
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function generateDraft(string $minutesId): JSONResponse
     {
@@ -109,95 +103,4 @@ class MinutesController extends Controller
         }//end try
 
     }//end generateDraft()
-
-    /**
-     * Perform a lifecycle transition on a Minutes object.
-     *
-     * Governance-critical transitions (approved, signed, published) require
-     * admin role. The draft → review transition is available to any authenticated user.
-     *
-     * @param string $minutesId The UUID of the Minutes object
-     *
-     * @return JSONResponse Updated object or error
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
-     */
-    public function transition(string $minutesId): JSONResponse
-    {
-        $lifecycle = $this->request->getParam('lifecycle');
-
-        if (empty($lifecycle) === true) {
-            return new JSONResponse(['message' => 'Missing lifecycle parameter'], Http::STATUS_BAD_REQUEST);
-        }
-
-        // Validate against the complete set of allowed lifecycle values.
-        $allowedLifecycles = ['draft', 'review', 'approved', 'signed', 'published'];
-        if (in_array($lifecycle, $allowedLifecycles, true) === false) {
-            return new JSONResponse(['message' => 'Invalid lifecycle value'], Http::STATUS_BAD_REQUEST);
-        }
-
-        // Governance-critical transitions require admin role.
-        $restrictedTransitions = ['approved', 'signed', 'published'];
-        if (in_array($lifecycle, $restrictedTransitions, true) === true) {
-            $user = $this->userSession->getUser();
-            if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
-                return new JSONResponse(['message' => 'Insufficient permissions for this lifecycle transition'], Http::STATUS_FORBIDDEN);
-            }
-        }
-
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $register      = $this->appConfig->getValueString(Application::APP_ID, 'register', 'decidesk');
-
-            $minutes = $objectService->findObject(register: $register, schema: 'minutes', id: $minutesId);
-            if (empty($minutes) === true) {
-                return new JSONResponse(['message' => 'Minutes object not found'], Http::STATUS_NOT_FOUND);
-            }
-
-            // Enforce governance state machine — only forward sequential transitions are allowed.
-            $validTransitions = [
-                'draft'    => 'review',
-                'review'   => 'approved',
-                'approved' => 'signed',
-                'signed'   => 'published',
-            ];
-            $currentLifecycle = $minutes['lifecycle'] ?? 'draft';
-            if (array_key_exists($currentLifecycle, $validTransitions) === false
-                || $validTransitions[$currentLifecycle] !== $lifecycle
-            ) {
-                return new JSONResponse(
-                    ['message' => sprintf('Invalid transition: %s → %s', $currentLifecycle, $lifecycle)],
-                    Http::STATUS_UNPROCESSABLE_ENTITY
-                );
-            }
-
-            $minutes['lifecycle'] = $lifecycle;
-
-            if ($lifecycle === 'approved') {
-                $minutes['approvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
-                $minutes['version']    = (int) ($minutes['version'] ?? 1) + 1;
-                // Spec task 5.3: append the approving user's display name to signedBy.
-                $currentUser = $this->userSession->getUser();
-                if ($currentUser !== null) {
-                    $signedBy = $minutes['signedBy'] ?? [];
-                    if (is_array($signedBy) === false) {
-                        $signedBy = [];
-                    }
-
-                    $signedBy[]          = $currentUser->getDisplayName();
-                    $minutes['signedBy'] = $signedBy;
-                }
-            }
-
-            $updated = $objectService->saveObject(register: $register, schema: 'minutes', object: $minutes);
-            return new JSONResponse($updated);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => 'Transition failed'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }//end try
-
-    }//end transition()
 }//end class

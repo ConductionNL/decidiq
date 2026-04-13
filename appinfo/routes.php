@@ -12,7 +12,6 @@ return [
 
         // Minutes endpoints — BEFORE wildcard routes.
         ['name' => 'minutes#generateDraft', 'url' => '/api/minutes/{minutesId}/generate-draft', 'verb' => 'POST'],
-        ['name' => 'minutes#transition',    'url' => '/api/minutes/{minutesId}/transition',     'verb' => 'POST'],
 
         // Decision endpoints.
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],

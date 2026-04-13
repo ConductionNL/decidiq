@@ -94,22 +94,18 @@ export default {
 			const decisionStore = useDecisionStore()
 			const actionItemStore = useActionItemStore()
 			try {
-				const [minutesItems, decisionItems, actionItems] = await Promise.all([
+				const [minutesItems, decisionItems, openItems, inProgressItems, overdueItems] = await Promise.all([
 					minutesStore.fetchObjects('minutes', { lifecycle: 'review' }),
 					decisionStore.fetchObjects('decision', { isPublished: 'true' }),
-					actionItemStore.fetchObjects('action-item'),
+					actionItemStore.fetchObjects('action-item', { taskStatus: 'open' }),
+					actionItemStore.fetchObjects('action-item', { taskStatus: 'in-progress' }),
+					actionItemStore.fetchObjects('action-item', { taskStatus: 'overdue' }),
 				])
 
 				this.minutesReviewCount = (minutesItems || []).length
 				this.publishedDecisionsCount = (decisionItems || []).length
-
-				const allItems = (actionItems || [])
-				this.openActionItemsCount = allItems.filter(
-					(i) => i.taskStatus === 'open' || i.taskStatus === 'in-progress',
-				).length
-				this.overdueCount = allItems.filter(
-					(i) => i.taskStatus === 'overdue',
-				).length
+				this.openActionItemsCount = (openItems || []).length + (inProgressItems || []).length
+				this.overdueCount = (overdueItems || []).length
 			} catch (e) {
 				console.error('Failed to fetch KPI counts:', e)
 			}
