@@ -251,13 +251,13 @@ export default {
 		async fetchAvailableMotions() {
 			if (!this.meetingId) return
 			const objectStore = useObjectStore()
-			const results = await objectStore.fetchObjects('motion', { meeting: this.meetingId })
+			const results = await objectStore.fetchCollection('motion', { meeting: this.meetingId })
 			this.availableMotions = Array.isArray(results) ? results : []
 		},
 
 		async fetchItem() {
 			const objectStore = useObjectStore()
-			const results = await objectStore.fetchObjects('agendaItem', { id: this.itemId })
+			const results = await objectStore.fetchCollection('agendaItem', { id: this.itemId })
 			if (Array.isArray(results) && results.length > 0) {
 				this.item = results[0]
 			} else if (results && !Array.isArray(results)) {
@@ -274,7 +274,7 @@ export default {
 
 			// Add note via the item's notes array and save only the notes field.
 			const objectStore = useObjectStore()
-			await objectStore.saveObject({
+			await objectStore.saveObject('agendaItem', {
 				id: this.item.id || this.item.uuid,
 				notes: [...(this.item.notes || []), note],
 			})
@@ -297,7 +297,7 @@ export default {
 
 			// Save only the relations field to prevent mass-assignment.
 			const objectStore = useObjectStore()
-			await objectStore.saveObject({
+			await objectStore.saveObject('agendaItem', {
 				id: this.item.id || this.item.uuid,
 				relations,
 			})

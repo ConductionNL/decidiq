@@ -17,11 +17,6 @@ return [
         ['name' => 'agenda#reorder', 'url' => '/api/agendas/{meetingId}/reorder', 'verb' => 'PUT'],
         ['name' => 'agenda#userRole', 'url' => '/api/agendas/{meetingId}/user-role', 'verb' => 'GET'],
 
-        // Prometheus metrics endpoint.
-        ['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
-        // Health check endpoint.
-        ['name' => 'health#index', 'url' => '/api/health', 'verb' => 'GET'],
-
         // SPA catch-all — same controller as the index route; must use a distinct route name
         // (duplicate names replace the earlier route in Symfony, which breaks GET /).
         ['name' => 'dashboard#catchAll', 'url' => '/{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], 'defaults' => ['path' => '']],

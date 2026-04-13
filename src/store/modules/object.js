@@ -61,5 +61,65 @@ export const useObjectStore = defineStore('object', {
 			}
 			return []
 		},
+
+		/**
+		 * Alias for fetchObjects — canonical name used across all views.
+		 *
+		 * @param {string} type The object type key
+		 * @param {object} params Optional query parameters
+		 * @return {Promise<Array>} Array of objects
+		 */
+		async fetchCollection(type, params = {}) {
+			return this.fetchObjects(type, params)
+		},
+
+		/**
+		 * Create or update an object of the given type.
+		 *
+		 * @param {string} type The object type key
+		 * @param {object} data Object data; must contain `id` or `uuid` for updates
+		 * @return {Promise<object|null>} The saved object, or null on failure
+		 */
+		async saveObject(type, data = {}) {
+			if (!this.objectTypes[type]) {
+				console.warn(`Object type "${type}" is not registered`)
+				return null
+			}
+
+			this.loading[type] = true
+			const { schema, register } = this.objectTypes[type]
+			const id = data.id || data.uuid
+
+			try {
+				const base = id ? `${this.baseUrl}/${id}` : this.baseUrl
+				const url = new URL(base, window.location.origin)
+				url.searchParams.set('register', register)
+				url.searchParams.set('schema', schema)
+
+				const response = await fetch(url.toString(), {
+					method: id ? 'PUT' : 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						requesttoken: getRequestToken(),
+					},
+					body: JSON.stringify(data),
+				})
+				if (response.ok) {
+					const saved = await response.json()
+					const idx = (this.objects[type] || []).findIndex(
+						(o) => (o.id || o.uuid) === (saved.id || saved.uuid),
+					)
+					if (idx >= 0) {
+						this.objects[type][idx] = saved
+					}
+					return saved
+				}
+			} catch (error) {
+				console.error(`Failed to save ${type} object:`, error)
+			} finally {
+				this.loading[type] = false
+			}
+			return null
+		},
 	},
 })

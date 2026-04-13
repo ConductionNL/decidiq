@@ -48,7 +48,6 @@ class AgendaService
      * @var array<string,string>
      */
     private const BOB_PHASES = [
-        'voorstel'        => 'beeldvorming',
         'beeldvorming'    => 'oordeelsvorming',
         'oordeelsvorming' => 'besluitvorming',
         'besluitvorming'  => 'afgerond',
@@ -126,16 +125,23 @@ class AgendaService
         $scheduledDate = ($meeting['scheduledDate'] ?? '');
 
         $notificationService = $this->getNotificationService();
+        $notifiedCount       = 0;
         if ($notificationService !== null) {
             foreach ($participants as $participant) {
+                $owner = ($participant['owner'] ?? '');
+                if ($owner === '') {
+                    continue;
+                }
+
                 $notificationService->sendNotification(
-                    ($participant['owner'] ?? ''),
+                    $owner,
                     $meetingTitle.' — '.$this->l10n->t('Agenda published'),
                     $this->l10n->t(
                         'The agenda for %1$s (%2$s) has been published.',
                         [$meetingTitle, $scheduledDate]
                     )
                 );
+                $notifiedCount++;
             }
         }
 
@@ -157,7 +163,7 @@ class AgendaService
         return [
             'success'       => true,
             'message'       => $this->l10n->t('Agenda published'),
-            'notifications' => count($participants),
+            'notifications' => $notifiedCount,
         ];
 
     }//end publishAgenda()
@@ -190,7 +196,11 @@ class AgendaService
 
         try {
             $item = $objectService->getObject('decidesk', 'agenda-item', $agendaItemId);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'Decidesk: Failed to retrieve agenda item',
+                ['agendaItemId' => $agendaItemId, 'exception' => $e->getMessage()]
+            );
             throw new \RuntimeException('Agenda item not found', 404);
         }
 
@@ -210,6 +220,11 @@ class AgendaService
         // Informational items cannot advance BOB phases.
         if (($item['itemType'] ?? '') === 'informational') {
             throw new \RuntimeException('Informatieve agendapunten hebben geen BOB-fasering');
+        }
+
+        // Proposals must be formally approved before entering the BOB flow.
+        if ($currentPhase === 'voorstel') {
+            throw new \RuntimeException('Voorgestelde agendapunten moeten eerst worden goedgekeurd', 400);
         }
 
         if (isset(self::BOB_PHASES[$currentPhase]) === false) {
