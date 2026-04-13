@@ -65,6 +65,12 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </navigation>
     </navigations>
 
+    <repair-steps>
+        <post-migration>
+            <step>OCA\Decidesk\Repair\InitializeSettings</step>
+        </post-migration>
+    </repair-steps>
+
     <settings>
         <admin>OCA\Decidesk\Settings\AdminSettings</admin>
         <admin-section>OCA\Decidesk\Sections\SettingsSection</admin-section>

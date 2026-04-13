@@ -15,6 +15,8 @@
  * @version GIT: <git-id>
  *
  * @link https://conduction.nl
+ *
+ * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
  */
 
 declare(strict_types=1);
@@ -28,6 +30,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Repair step that initializes Decidesk configuration via SettingsService.
+ *
+ * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
  */
 class InitializeSettings implements IRepairStep
 {
