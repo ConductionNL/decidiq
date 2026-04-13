@@ -24,10 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\VotingService;
-use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -39,7 +37,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
  */
-class VotingController extends Controller
+class VotingController extends DecideskController
 {
     /**
      * Constructor for the VotingController.
@@ -56,32 +54,18 @@ class VotingController extends Controller
         IRequest $request,
         private VotingService $votingService,
         private OriPublicationService $oriPublicationService,
-        private IUserSession $userSession,
-        private IGroupManager $groupManager,
+        IUserSession $userSession,
+        IGroupManager $groupManager,
     ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
+        parent::__construct(request: $request);
+        $this->userSession  = $userSession;
+        $this->groupManager = $groupManager;
     }//end __construct()
 
     /**
-     * Check whether the current user has chair or admin privileges.
-     *
-     * @return bool True when the user is an admin or a member of decidesk-chair
-     */
-    private function isChairOrAdmin(): bool
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return false;
-        }
-
-        $uid = $user->getUID();
-
-        return $this->groupManager->isAdmin($uid)
-            || $this->groupManager->isInGroup($uid, 'decidesk-chair');
-    }//end isChairOrAdmin()
-
-    /**
      * Open a new voting round.
+     *
+     * The actorId is resolved from the authenticated session.
      *
      * @NoAdminRequired
      *
@@ -95,15 +79,21 @@ class VotingController extends Controller
             return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
         }
 
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
         $motionId     = $this->request->getParam('motionId');
         $votingMethod = $this->request->getParam('votingMethod');
         $isSecret     = (bool) $this->request->getParam('isSecret');
         $closedAt     = $this->request->getParam('closedAt');
+        $actorId      = $user->getUID();
 
         try {
-            $result = $this->votingService->openVotingRound($motionId, $votingMethod, $isSecret, $closedAt);
+            $result = $this->votingService->openVotingRound($motionId, $votingMethod, $isSecret, $actorId, $closedAt);
             return new JSONResponse($result);
-        } catch (\RuntimeException $e) {
+        } catch (\InvalidArgumentException | \RuntimeException $e) {
             return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
     }//end open()
@@ -163,6 +153,34 @@ class VotingController extends Controller
 
         return new JSONResponse($result);
     }//end close()
+
+    /**
+     * Save show-of-hands counts for a voting round.
+     *
+     * Persists manually entered hand-count totals and closes the round.
+     *
+     * @param string $id The voting round identifier
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+     */
+    public function handsCount(string $id): JSONResponse
+    {
+        if ($this->isChairOrAdmin() === false) {
+            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
+        }
+
+        $votesFor     = (int) $this->request->getParam('votesFor', 0);
+        $votesAgainst = (int) $this->request->getParam('votesAgainst', 0);
+        $votesAbstain = (int) $this->request->getParam('votesAbstain', 0);
+
+        $result = $this->votingService->closeVotingRoundWithHandsCount($id, $votesFor, $votesAgainst, $votesAbstain);
+
+        return new JSONResponse($result);
+    }//end handsCount()
 
     /**
      * Publish voting results to ORI.

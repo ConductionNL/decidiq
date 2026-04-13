@@ -123,7 +123,6 @@ class MotionService
                 'objectType' => $objectType,
                 'from'       => $currentState,
                 'to'         => $newState,
-                'actorId'    => $actorId,
             ]
         );
 
@@ -153,9 +152,8 @@ class MotionService
             $this->logger->info(
                 'Co-signature requested',
                 [
-                    'motionId'      => $motionId,
-                    'motionTitle'   => $title,
-                    'participantId' => $participantId,
+                    'motionId'    => $motionId,
+                    'motionTitle' => $title,
                 ]
             );
         }

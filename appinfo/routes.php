@@ -27,6 +27,7 @@ return [
         ['name' => 'voting#cast', 'url' => '/api/voting-rounds/{id}/cast', 'verb' => 'POST'],
         ['name' => 'voting#close', 'url' => '/api/voting-rounds/{id}/close', 'verb' => 'POST'],
         ['name' => 'voting#publish', 'url' => '/api/voting-rounds/{id}/publish', 'verb' => 'POST'],
+        ['name' => 'voting#handsCount', 'url' => '/api/voting-rounds/{id}/hands-count', 'verb' => 'POST'],
         ['name' => 'voting#grantProxy', 'url' => '/api/voting-rounds/{id}/proxy', 'verb' => 'POST'],
         ['name' => 'voting#revokeProxy', 'url' => '/api/voting-rounds/{id}/proxy', 'verb' => 'DELETE'],
 

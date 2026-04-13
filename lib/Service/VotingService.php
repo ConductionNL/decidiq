@@ -40,9 +40,10 @@ class VotingService
     /**
      * Constructor for the VotingService.
      *
-     * @param ContainerInterface $container The dependency injection container
-     * @param LoggerInterface    $logger    The logger
-     * @param IAppConfig         $appConfig The app config interface
+     * @param ContainerInterface $container     The dependency injection container
+     * @param LoggerInterface    $logger        The logger
+     * @param IAppConfig         $appConfig     The app config interface
+     * @param MotionService      $motionService The motion service for lifecycle transitions
      *
      * @return void
      */
@@ -50,6 +51,7 @@ class VotingService
         private ContainerInterface $container,
         private LoggerInterface $logger,
         private IAppConfig $appConfig,
+        private MotionService $motionService,
     ) {
     }//end __construct()
 
@@ -109,17 +111,19 @@ class VotingService
      * Open a new voting round for a given motion.
      *
      * Verifies quorum is met for the related meeting, creates a VotingRound
-     * object, relates it to the motion, and transitions the motion to the
-     * 'voting' state.
+     * object with isOpen=true, relates it to the motion, and transitions the
+     * motion to the 'voting' state via MotionService::transitionLifecycle().
      *
      * @param string      $motionId     The ID of the motion to vote on
      * @param string      $votingMethod The voting method (e.g. 'show_of_hands', 'roll_call')
      * @param bool        $isSecret     Whether the vote is secret
+     * @param string      $actorId      The UID of the actor opening the round
      * @param string|null $closedAt     Optional scheduled close time (ISO 8601)
      *
      * @return array The created VotingRound as an associative array
      *
-     * @throws \RuntimeException When quorum is not met
+     * @throws \InvalidArgumentException When the motion lifecycle transition is not allowed
+     * @throws \RuntimeException         When quorum is not met
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      */
@@ -127,6 +131,7 @@ class VotingService
         string $motionId,
         string $votingMethod,
         bool $isSecret,
+        string $actorId,
         ?string $closedAt=null,
     ): array {
         $objectService = $this->getObjectService();
@@ -144,12 +149,13 @@ class VotingService
             throw new \RuntimeException('Quorum niet bereikt');
         }
 
-        // Create VotingRound object.
+        // Create VotingRound object. isOpen=true marks the round as active for casting.
         $votingRound = $objectService->saveObject(
                 'votingRound',
                 [
                     'votingMethod' => $votingMethod,
                     'isSecret'     => $isSecret,
+                    'isOpen'       => true,
                     'openedAt'     => (new \DateTimeImmutable())->format('c'),
                     'closedAt'     => $closedAt,
                     'quorumMet'    => true,
@@ -170,9 +176,8 @@ class VotingService
                 ]
                 );
 
-        // Transition motion to 'voting' state.
-        $motion['lifecycle'] = 'voting';
-        $objectService->saveObject('motion', $motion);
+        // Transition motion to 'voting' state via lifecycle guard.
+        $this->motionService->transitionLifecycle($motionId, 'motion', 'voting', $actorId);
 
         $this->logger->info(
                 'Voting round opened',
@@ -275,13 +280,12 @@ class VotingService
             $voteData['id'] = $existingVote['id'];
             $vote           = $objectService->saveObject('vote', $voteData);
 
+            // Log only voteId + votingRoundId to avoid linking identity to ballot value.
             $this->logger->info(
                     'Vote updated',
                     [
                         'voteId'        => $vote['id'],
                         'votingRoundId' => $votingRoundId,
-                        'participantId' => $participantId,
-                        'value'         => $value,
                     ]
                     );
 
@@ -301,18 +305,20 @@ class VotingService
                 ]
                 );
 
-        // Create relation Vote -> Participant.
-        $objectService->saveObject(
-                'objectRelation',
-                [
-                    'from' => $vote['id'],
-                    'to'   => $participantId,
-                    'type' => 'Vote->Participant',
-                ]
-                );
+        // Create Vote -> Participant relation only for non-secret ballots.
+        if (($votingRound['isSecret'] ?? false) === false) {
+            $objectService->saveObject(
+                    'objectRelation',
+                    [
+                        'from' => $vote['id'],
+                        'to'   => $participantId,
+                        'type' => 'Vote->Participant',
+                    ]
+                    );
+        }
 
-        // If proxy, create relation Vote -> Participant (delegator).
-        if ($isProxy === true && $delegatorId !== null) {
+        // If proxy, create relation Vote -> Participant (delegator) — skip for secret ballots.
+        if ($isProxy === true && $delegatorId !== null && ($votingRound['isSecret'] ?? false) === false) {
             $objectService->saveObject(
                     'objectRelation',
                     [
@@ -323,13 +329,12 @@ class VotingService
                     );
         }
 
+        // Log only voteId + votingRoundId to avoid linking identity to ballot value.
         $this->logger->info(
                 'Vote cast',
                 [
                     'voteId'        => $vote['id'],
                     'votingRoundId' => $votingRoundId,
-                    'participantId' => $participantId,
-                    'value'         => $value,
                     'isProxy'       => $isProxy,
                 ]
                 );
@@ -357,10 +362,10 @@ class VotingService
         // Fetch VotingRound.
         $votingRound = $objectService->getObject('votingRound', $votingRoundId);
 
-        // Tally results.
+        // Tally results (returns counts + result without saving).
         $tally = $this->tallyResults(votingRoundId: $votingRoundId);
 
-        // Update VotingRound closedAt to now.
+        // Perform single authoritative save with tally + closedAt.
         $votingRound['closedAt']     = (new \DateTimeImmutable())->format('c');
         $votingRound['votesFor']     = $tally['votesFor'];
         $votingRound['votesAgainst'] = $tally['votesAgainst'];
@@ -430,11 +435,67 @@ class VotingService
     }//end closeVotingRound()
 
     /**
+     * Close a voting round with manually entered show-of-hands counts.
+     *
+     * Used for show-of-hands voting where individual Vote objects are not cast.
+     * Persists the supplied counts, determines the result, and closes the round.
+     *
+     * @param string $votingRoundId The ID of the voting round to close
+     * @param int    $votesFor      Manually counted votes in favour
+     * @param int    $votesAgainst  Manually counted votes against
+     * @param int    $votesAbstain  Manually counted abstentions
+     *
+     * @return array The updated VotingRound as an associative array
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+     */
+    public function closeVotingRoundWithHandsCount(
+        string $votingRoundId,
+        int $votesFor,
+        int $votesAgainst,
+        int $votesAbstain,
+    ): array {
+        $objectService = $this->getObjectService();
+
+        $votingRound = $objectService->getObject('votingRound', $votingRoundId);
+
+        if ($votesFor > $votesAgainst) {
+            $result = 'adopted';
+        } else if ($votesAgainst > $votesFor) {
+            $result = 'rejected';
+        } else if (($votesFor + $votesAgainst + $votesAbstain) === 0) {
+            $result = 'invalid';
+        } else {
+            $result = 'tied';
+        }
+
+        $votingRound['closedAt']     = (new \DateTimeImmutable())->format('c');
+        $votingRound['votesFor']     = $votesFor;
+        $votingRound['votesAgainst'] = $votesAgainst;
+        $votingRound['votesAbstain'] = $votesAbstain;
+        $votingRound['result']       = $result;
+        $votingRound = $objectService->saveObject('votingRound', $votingRound);
+
+        $this->logger->info(
+                'Voting round closed with hands count',
+                [
+                    'votingRoundId' => $votingRoundId,
+                    'result'        => $result,
+                ]
+                );
+
+        return $votingRound;
+    }//end closeVotingRoundWithHandsCount()
+
+    /**
      * Tally the results of a voting round.
      *
      * Counts all votes cast in the round and determines the outcome based
      * on simple majority: adopted if for > against, rejected if against > for,
      * tied if equal, or invalid if no votes were cast.
+     *
+     * Returns tally data only — the caller is responsible for persisting
+     * the counts to the VotingRound object.
      *
      * @param string $votingRoundId The ID of the voting round to tally
      *
@@ -483,14 +544,6 @@ class VotingService
             $result = 'tied';
         }
 
-        // Update VotingRound with counts and result.
-        $votingRound = $objectService->getObject('votingRound', $votingRoundId);
-        $votingRound['votesFor']     = $votesFor;
-        $votingRound['votesAgainst'] = $votesAgainst;
-        $votingRound['votesAbstain'] = $votesAbstain;
-        $votingRound['result']       = $result;
-        $objectService->saveObject('votingRound', $votingRound);
-
         return [
             'votesFor'     => $votesFor,
             'votesAgainst' => $votesAgainst,
@@ -536,7 +589,7 @@ class VotingService
         $votingRound = $objectService->getObject('votingRound', $votingRoundId);
         $notes       = $votingRound['notes'] ?? [];
         $notes[]     = [
-            'title'   => "Proxy: {$fromParticipantId} -> {$toParticipantId}",
+            'title'   => 'Proxy granted',
             'type'    => 'proxy',
             'from'    => $fromParticipantId,
             'to'      => $toParticipantId,
@@ -547,26 +600,22 @@ class VotingService
 
         $this->logger->info(
                 'Proxy granted',
-                [
-                    'votingRoundId'     => $votingRoundId,
-                    'fromParticipantId' => $fromParticipantId,
-                    'toParticipantId'   => $toParticipantId,
-                ]
+                ['votingRoundId' => $votingRoundId]
                 );
     }//end grantProxy()
 
     /**
      * Revoke a previously granted proxy delegation.
      *
-     * Can only revoke a proxy if the voting round has not yet been opened.
-     * Removes the proxy note from the VotingRound and logs the revocation.
+     * Can only revoke a proxy if the voting round has not yet been opened
+     * for casting (isOpen === false).
      *
      * @param string $votingRoundId     The ID of the voting round
      * @param string $fromParticipantId The ID of the delegating participant
      *
      * @return void
      *
-     * @throws \RuntimeException When the voting round is already open
+     * @throws \RuntimeException When the voting round is already open for casting
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      */
@@ -576,11 +625,11 @@ class VotingService
     ): void {
         $objectService = $this->getObjectService();
 
-        // Fetch VotingRound and check if round is already open.
+        // Fetch VotingRound and check if round is already open for casting.
         $votingRound = $objectService->getObject('votingRound', $votingRoundId);
-        $openedAt    = $votingRound['openedAt'] ?? null;
+        $isOpen      = $votingRound['isOpen'] ?? false;
 
-        if ($openedAt !== null) {
+        if ($isOpen === true) {
             throw new \RuntimeException('Kan volmacht niet intrekken: stemronde is al geopend');
         }
 
@@ -600,10 +649,7 @@ class VotingService
 
         $this->logger->info(
                 'Proxy revoked',
-                [
-                    'votingRoundId'     => $votingRoundId,
-                    'fromParticipantId' => $fromParticipantId,
-                ]
+                ['votingRoundId' => $votingRoundId]
                 );
     }//end revokeProxy()
 }//end class

@@ -24,9 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
 
-use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MotionService;
-use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -38,7 +36,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
  */
-class MotionController extends Controller
+class MotionController extends DecideskController
 {
     /**
      * Constructor for the MotionController.
@@ -53,29 +51,13 @@ class MotionController extends Controller
     public function __construct(
         IRequest $request,
         private MotionService $motionService,
-        private IUserSession $userSession,
-        private IGroupManager $groupManager,
+        IUserSession $userSession,
+        IGroupManager $groupManager,
     ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
+        parent::__construct(request: $request);
+        $this->userSession  = $userSession;
+        $this->groupManager = $groupManager;
     }//end __construct()
-
-    /**
-     * Check whether the current user has chair or admin privileges.
-     *
-     * @return bool True when the user is an admin or a member of decidesk-chair
-     */
-    private function isChairOrAdmin(): bool
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return false;
-        }
-
-        $uid = $user->getUID();
-
-        return $this->groupManager->isAdmin($uid)
-            || $this->groupManager->isInGroup($uid, 'decidesk-chair');
-    }//end isChairOrAdmin()
 
     /**
      * Transition a motion to a new lifecycle state.
@@ -116,6 +98,8 @@ class MotionController extends Controller
     /**
      * Request co-signatures for a motion.
      *
+     * Only chairs and admins may send co-signature requests.
+     *
      * @param string $id The motion identifier
      *
      * @return JSONResponse
@@ -126,6 +110,10 @@ class MotionController extends Controller
      */
     public function coSignRequest(string $id): JSONResponse
     {
+        if ($this->isChairOrAdmin() === false) {
+            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
+        }
+
         $participantIds = $this->request->getParam('participantIds');
 
         if (is_array($participantIds) === false || empty($participantIds) === true) {
@@ -143,6 +131,9 @@ class MotionController extends Controller
     /**
      * Confirm a co-signature on a motion.
      *
+     * The co-signer identity is resolved from the authenticated session;
+     * any displayName supplied in the request body is ignored.
+     *
      * @param string $id The motion identifier
      *
      * @return JSONResponse
@@ -153,7 +144,12 @@ class MotionController extends Controller
      */
     public function coSignConfirm(string $id): JSONResponse
     {
-        $displayName = $this->request->getParam('displayName');
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $displayName = $user->getDisplayName();
 
         $result = $this->motionService->addCoSigner($id, $displayName);
 
@@ -162,6 +158,8 @@ class MotionController extends Controller
 
     /**
      * Save budget impact for a motion.
+     *
+     * Only chairs and admins may annotate budget impact.
      *
      * @param string $id The motion identifier
      *
@@ -173,6 +171,10 @@ class MotionController extends Controller
      */
     public function budgetImpact(string $id): JSONResponse
     {
+        if ($this->isChairOrAdmin() === false) {
+            return new JSONResponse(['error' => 'Insufficient permissions'], Http::STATUS_FORBIDDEN);
+        }
+
         $budgetLine  = $this->request->getParam('budgetLine');
         $amountDelta = (float) $this->request->getParam('amountDelta');
         $rationale   = $this->request->getParam('rationale');

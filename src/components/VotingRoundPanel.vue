@@ -345,7 +345,29 @@ export default {
 			}
 		},
 		async saveHandsCount() {
-			// Show-of-hands totals would be saved via ObjectService in production.
+			if (!this.activeRound) return
+			try {
+				const url = generateUrl(`/apps/decidesk/api/voting-rounds/${this.activeRound.id}/hands-count`)
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						requesttoken: OC.requestToken,
+					},
+					body: JSON.stringify({
+						votesFor: this.handsFor,
+						votesAgainst: this.handsAgainst,
+						votesAbstain: this.handsAbstain,
+					}),
+				})
+				if (!response.ok) {
+					console.error('Save hands count failed:', await response.text())
+					return
+				}
+				await this.objectStore.fetchObjects('votingRound')
+			} catch (error) {
+				console.error('Save hands count failed:', error)
+			}
 		},
 		methodLabel(method) {
 			const labels = {
