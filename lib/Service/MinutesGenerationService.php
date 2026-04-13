@@ -21,7 +21,6 @@
 
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
-
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -42,7 +41,6 @@ use Psr\Log\LoggerInterface;
  */
 class MinutesGenerationService
 {
-
     /**
      * Constructor for MinutesGenerationService.
      *
@@ -88,7 +86,7 @@ class MinutesGenerationService
         }
 
         // Find the linked meeting via relations.
-        $meetingId = $this->findRelatedObjectId($minutes, 'meeting');
+        $meetingId = $this->findRelatedObjectId(object: $minutes, relationType: 'meeting');
         if ($meetingId === null) {
             throw new \RuntimeException('Geen vergadering gekoppeld aan deze notulen');
         }
@@ -99,17 +97,50 @@ class MinutesGenerationService
         }
 
         // Fetch agenda items sorted by orderNumber.
-        $agendaItems = $this->fetchRelatedObjects($objectService, $register, 'agenda-item', 'meeting', $meetingId);
-        usort($agendaItems, function ($a, $b) {
-            return (int) ($a['orderNumber'] ?? 0) - (int) ($b['orderNumber'] ?? 0);
-        });
+        $agendaItems = $this->fetchRelatedObjects(
+            objectService: $objectService,
+            register: $register,
+            schema: 'agenda-item',
+            relationKey: 'meeting',
+            relationValue: $meetingId,
+        );
+        usort(
+                $agendaItems,
+                function ($a, $b) {
+                    return (int) ($a['orderNumber'] ?? 0) - (int) ($b['orderNumber'] ?? 0);
+                }
+                );
 
         // Fetch motions, voting rounds, and decisions for context.
-        $motions      = $this->fetchRelatedObjects($objectService, $register, 'motion', 'agendaItem', null);
-        $votingRounds = $this->fetchRelatedObjects($objectService, $register, 'voting-round', 'motion', null);
-        $decisions    = $this->fetchRelatedObjects($objectService, $register, 'decision', 'motion', null);
+        $motions      = $this->fetchRelatedObjects(
+            objectService: $objectService,
+            register: $register,
+            schema: 'motion',
+            relationKey: 'agendaItem',
+            relationValue: null,
+        );
+        $votingRounds = $this->fetchRelatedObjects(
+            objectService: $objectService,
+            register: $register,
+            schema: 'voting-round',
+            relationKey: 'motion',
+            relationValue: null,
+        );
+        $decisions    = $this->fetchRelatedObjects(
+            objectService: $objectService,
+            register: $register,
+            schema: 'decision',
+            relationKey: 'motion',
+            relationValue: null,
+        );
 
-        return $this->renderTemplate($meeting, $agendaItems, $motions, $votingRounds, $decisions);
+        return $this->renderTemplate(
+            meeting: $meeting,
+            agendaItems: $agendaItems,
+            motions: $motions,
+            votingRounds: $votingRounds,
+            decisions: $decisions,
+        );
     }//end generateDraft()
 
     /**
@@ -223,31 +254,31 @@ class MinutesGenerationService
             $itemType    = ($item['itemType'] ?? 'informational');
 
             $lines[] = 'Agendapunt '.$orderNumber.' — '.$itemTitle;
-            $lines[] = 'Type: '.$this->translateItemType($itemType);
+            $lines[] = 'Type: '.$this->translateItemType(type: $itemType);
 
             if (empty($item['description']) === false) {
                 $lines[] = $item['description'];
             }
 
             // Find motions for this agenda item.
-            $itemMotions = $this->filterByRelation($motions, 'agendaItem', ($item['id'] ?? ''));
+            $itemMotions = $this->filterByRelation(objects: $motions, relationKey: 'agendaItem', targetId: ($item['id'] ?? ''));
             foreach ($itemMotions as $motion) {
                 $lines[] = '';
                 $lines[] = 'Motie: '.($motion['title'] ?? 'Zonder titel');
                 $lines[] = 'Indiener: '.($motion['proposer'] ?? 'Onbekend');
-                $lines[] = 'Status: '.$this->translateLifecycle(($motion['lifecycle'] ?? ''));
+                $lines[] = 'Status: '.$this->translateLifecycle(lifecycle: ($motion['lifecycle'] ?? ''));
 
                 // Find voting rounds for this motion.
-                $motionVotes = $this->filterByRelation($votingRounds, 'motion', ($motion['id'] ?? ''));
+                $motionVotes = $this->filterByRelation(objects: $votingRounds, relationKey: 'motion', targetId: ($motion['id'] ?? ''));
                 foreach ($motionVotes as $vote) {
                     $lines[] = 'Stemming: voor '.($vote['votesFor'] ?? 0)
                         .', tegen '.($vote['votesAgainst'] ?? 0)
                         .', onthoudingen '.($vote['votesAbstain'] ?? 0)
-                        .' — resultaat: '.$this->translateResult(($vote['result'] ?? ''));
+                        .' — resultaat: '.$this->translateResult(result: ($vote['result'] ?? ''));
                 }
 
                 // Find decisions for this motion.
-                $motionDecisions = $this->filterByRelation($decisions, 'motion', ($motion['id'] ?? ''));
+                $motionDecisions = $this->filterByRelation(objects: $decisions, relationKey: 'motion', targetId: ($motion['id'] ?? ''));
                 foreach ($motionDecisions as $decision) {
                     $lines[] = 'Besluit: '.($decision['title'] ?? '');
                     $lines[] = ($decision['text'] ?? '');
@@ -280,20 +311,23 @@ class MinutesGenerationService
             return [];
         }
 
-        return array_filter($objects, function ($obj) use ($relationKey, $targetId) {
-            $relations = ($obj['relations'] ?? []);
-            foreach ($relations as $relation) {
-                $schema = strtolower(($relation['schema'] ?? ''));
-                if ($schema === strtolower($relationKey)) {
-                    $relId = ($relation['objectId'] ?? $relation['id'] ?? '');
-                    if ($relId === $targetId) {
-                        return true;
+        return array_filter(
+                $objects,
+                function ($obj) use ($relationKey, $targetId) {
+                    $relations = ($obj['relations'] ?? []);
+                    foreach ($relations as $relation) {
+                        $schema = strtolower(($relation['schema'] ?? ''));
+                        if ($schema === strtolower($relationKey)) {
+                            $relId = ($relation['objectId'] ?? $relation['id'] ?? '');
+                            if ($relId === $targetId) {
+                                return true;
+                            }
+                        }
                     }
-                }
-            }
 
-            return false;
-        });
+                    return false;
+                }
+                );
     }//end filterByRelation()
 
     /**
@@ -328,12 +362,12 @@ class MinutesGenerationService
     private function translateLifecycle(string $lifecycle): string
     {
         $translations = [
-            'submitted'  => 'Ingediend',
-            'debating'   => 'In debat',
-            'voting'     => 'In stemming',
-            'adopted'    => 'Aangenomen',
-            'rejected'   => 'Verworpen',
-            'withdrawn'  => 'Ingetrokken',
+            'submitted' => 'Ingediend',
+            'debating'  => 'In debat',
+            'voting'    => 'In stemming',
+            'adopted'   => 'Aangenomen',
+            'rejected'  => 'Verworpen',
+            'withdrawn' => 'Ingetrokken',
         ];
 
         return ($translations[$lifecycle] ?? $lifecycle);

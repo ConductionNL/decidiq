@@ -21,7 +21,6 @@
 
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
-
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
@@ -40,12 +39,11 @@ use OCP\IRequest;
  */
 class MinutesController extends Controller
 {
-
     /**
      * Constructor for the MinutesController.
      *
-     * @param IRequest                  $request                  The request object
-     * @param MinutesGenerationService  $minutesGenerationService The generation service
+     * @param IRequest                 $request                  The request object
+     * @param MinutesGenerationService $minutesGenerationService The generation service
      *
      * @return void
      *
@@ -61,11 +59,11 @@ class MinutesController extends Controller
     /**
      * Generate a draft minutes document from the linked meeting data.
      *
-     * @NoAdminRequired
-     *
      * @param string $minutesId The UUID of the Minutes object
      *
      * @return JSONResponse JSON with preview text or error
+     *
+     * @NoAdminRequired
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
      */

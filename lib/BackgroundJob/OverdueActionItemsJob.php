@@ -21,7 +21,6 @@
 
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
-
 declare(strict_types=1);
 
 namespace OCA\Decidesk\BackgroundJob;
@@ -69,7 +68,9 @@ class OverdueActionItemsJob extends TimedJob
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
     ) {
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters -- OCP parent class
         parent::__construct($time);
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters -- OCP parent class
         $this->setInterval(self::RUN_INTERVAL);
     }//end __construct()
 
@@ -106,7 +107,7 @@ class OverdueActionItemsJob extends TimedJob
                     schema: 'action-item',
                     params: ['taskStatus' => $status]
                 );
-                $items = ($result['results'] ?? $result ?? []);
+                $items  = ($result['results'] ?? $result ?? []);
             } catch (\Throwable $e) {
                 $this->logger->warning(
                     'Decidesk: failed to query action items with status '.$status,
