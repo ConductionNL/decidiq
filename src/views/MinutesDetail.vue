@@ -1,122 +1,124 @@
 <template>
-	<CnDetailPage
-		:entity-id="entityId"
-		:detail-view="detailView"
-		:title="entity?.title || t('decidesk', 'Notulen')"
-		@back="$router.push({ name: 'Minutes' })">
-		<template #header-actions>
-			<NcButton type="secondary" @click="editMode = !editMode">
-				{{ editMode ? t('decidesk', 'View') : t('decidesk', 'Edit') }}
-			</NcButton>
-			<NcButton type="error" @click="deleteEntity">
-				{{ t('decidesk', 'Delete') }}
-			</NcButton>
-		</template>
+	<div>
+		<CnDetailPage
+			:entity-id="entityId"
+			:detail-view="detailView"
+			:title="entity?.title || t('decidesk', 'Notulen')"
+			@back="$router.push({ name: 'Minutes' })">
+			<template #header-actions>
+				<NcButton type="secondary" @click="editMode = !editMode">
+					{{ editMode ? t('decidesk', 'View') : t('decidesk', 'Edit') }}
+				</NcButton>
+				<NcButton type="error" @click="deleteEntity">
+					{{ t('decidesk', 'Delete') }}
+				</NcButton>
+			</template>
 
-		<template #content>
-			<div class="minutes-detail">
-				<CnDetailCard :title="t('decidesk', 'Details')">
-					<div class="detail-grid">
-						<div class="detail-row">
-							<span class="detail-label">{{ t('decidesk', 'Title') }}</span>
-							<span class="detail-value">{{ entity?.title }}</span>
+			<template #content>
+				<div class="minutes-detail">
+					<CnDetailCard :title="t('decidesk', 'Details')">
+						<div class="detail-grid">
+							<div class="detail-row">
+								<span class="detail-label">{{ t('decidesk', 'Title') }}</span>
+								<span class="detail-value">{{ entity?.title }}</span>
+							</div>
+							<div class="detail-row">
+								<span class="detail-label">{{ t('decidesk', 'Lifecycle') }}</span>
+								<span class="detail-value">
+									<CnStatusBadge :label="entity?.lifecycle || ''" />
+								</span>
+							</div>
+							<div class="detail-row">
+								<span class="detail-label">{{ t('decidesk', 'Version') }}</span>
+								<span class="detail-value">{{ entity?.version }}</span>
+							</div>
+							<div class="detail-row">
+								<span class="detail-label">{{ t('decidesk', 'Approved at') }}</span>
+								<span class="detail-value">{{ formatDate(entity?.approvedAt) }}</span>
+							</div>
+							<div class="detail-row">
+								<span class="detail-label">{{ t('decidesk', 'Signed by') }}</span>
+								<span class="detail-value">{{ (entity?.signedBy || []).join(', ') }}</span>
+							</div>
 						</div>
-						<div class="detail-row">
-							<span class="detail-label">{{ t('decidesk', 'Lifecycle') }}</span>
-							<span class="detail-value">
-								<CnStatusBadge :label="entity?.lifecycle || ''" />
-							</span>
-						</div>
-						<div class="detail-row">
-							<span class="detail-label">{{ t('decidesk', 'Version') }}</span>
-							<span class="detail-value">{{ entity?.version }}</span>
-						</div>
-						<div class="detail-row">
-							<span class="detail-label">{{ t('decidesk', 'Approved at') }}</span>
-							<span class="detail-value">{{ formatDate(entity?.approvedAt) }}</span>
-						</div>
-						<div class="detail-row">
-							<span class="detail-label">{{ t('decidesk', 'Signed by') }}</span>
-							<span class="detail-value">{{ (entity?.signedBy || []).join(', ') }}</span>
-						</div>
-					</div>
-				</CnDetailCard>
+					</CnDetailCard>
 
-				<CnDetailCard :title="t('decidesk', 'Lifecycle')">
-					<CnTimelineStages
-						:stages="lifecycleStages"
-						:current-stage="entity?.lifecycle || 'draft'" />
-					<div class="lifecycle-actions">
+					<CnDetailCard :title="t('decidesk', 'Lifecycle')">
+						<CnTimelineStages
+							:stages="lifecycleStages"
+							:current-stage="entity?.lifecycle || 'draft'" />
+						<div class="lifecycle-actions">
+							<NcButton
+								v-if="entity?.lifecycle === 'draft'"
+								type="primary"
+								@click="transitionLifecycle('review')">
+								{{ t('decidesk', 'Ter goedkeuring indienen') }}
+							</NcButton>
+							<NcButton
+								v-if="entity?.lifecycle === 'review'"
+								type="primary"
+								@click="transitionLifecycle('approved')">
+								{{ t('decidesk', 'Goedkeuren') }}
+							</NcButton>
+							<NcButton
+								v-if="entity?.lifecycle === 'approved'"
+								type="primary"
+								@click="transitionLifecycle('signed')">
+								{{ t('decidesk', 'Ondertekenen') }}
+							</NcButton>
+							<NcButton
+								v-if="entity?.lifecycle === 'signed'"
+								type="primary"
+								@click="transitionLifecycle('published')">
+								{{ t('decidesk', 'Publiceren') }}
+							</NcButton>
+						</div>
+					</CnDetailCard>
+
+					<CnDetailCard :title="t('decidesk', 'Content')">
 						<NcButton
 							v-if="entity?.lifecycle === 'draft'"
-							type="primary"
-							@click="transitionLifecycle('review')">
-							{{ t('decidesk', 'Ter goedkeuring indienen') }}
+							type="secondary"
+							:disabled="generating"
+							@click="generateDraft">
+							{{ t('decidesk', 'Concept genereren') }}
 						</NcButton>
-						<NcButton
-							v-if="entity?.lifecycle === 'review'"
-							type="primary"
-							@click="transitionLifecycle('approved')">
-							{{ t('decidesk', 'Goedkeuren') }}
-						</NcButton>
-						<NcButton
-							v-if="entity?.lifecycle === 'approved'"
-							type="primary"
-							@click="transitionLifecycle('signed')">
-							{{ t('decidesk', 'Ondertekenen') }}
-						</NcButton>
-						<NcButton
-							v-if="entity?.lifecycle === 'signed'"
-							type="primary"
-							@click="transitionLifecycle('published')">
-							{{ t('decidesk', 'Publiceren') }}
-						</NcButton>
-					</div>
-				</CnDetailCard>
+						<div v-if="entity?.content" class="minutes-content">
+							{{ entity.content }}
+						</div>
+						<p v-else class="empty-content">
+							{{ t('decidesk', 'No content yet. Use "Concept genereren" to generate a draft from the linked meeting.') }}
+						</p>
+					</CnDetailCard>
+				</div>
+			</template>
 
-				<CnDetailCard :title="t('decidesk', 'Content')">
-					<NcButton
-						v-if="entity?.lifecycle === 'draft'"
-						type="secondary"
-						:disabled="generating"
-						@click="generateDraft">
-						{{ t('decidesk', 'Concept genereren') }}
-					</NcButton>
-					<div v-if="entity?.content" class="minutes-content">
-						{{ entity.content }}
-					</div>
-					<p v-else class="empty-content">
-						{{ t('decidesk', 'No content yet. Use "Concept genereren" to generate a draft from the linked meeting.') }}
-					</p>
-				</CnDetailCard>
+			<template #sidebar>
+				<CnObjectSidebar
+					v-if="entity?.id"
+					:object-id="entity.id"
+					:object-type="'minutes'" />
+			</template>
+		</CnDetailPage>
+
+		<!-- Preview dialog for generated draft -->
+		<NcDialog
+			v-if="showPreview"
+			:name="t('decidesk', 'Draft preview')"
+			@close="showPreview = false">
+			<div class="preview-content">
+				{{ previewContent }}
 			</div>
-		</template>
-
-		<template #sidebar>
-			<CnObjectSidebar
-				v-if="entity?.id"
-				:object-id="entity.id"
-				:object-type="'minutes'" />
-		</template>
-	</CnDetailPage>
-
-	<!-- Preview dialog for generated draft -->
-	<NcDialog
-		v-if="showPreview"
-		:name="t('decidesk', 'Draft preview')"
-		@close="showPreview = false">
-		<div class="preview-content">
-			{{ previewContent }}
-		</div>
-		<template #actions>
-			<NcButton type="secondary" @click="showPreview = false">
-				{{ t('decidesk', 'Cancel') }}
-			</NcButton>
-			<NcButton type="primary" @click="applyDraft">
-				{{ t('decidesk', 'Apply') }}
-			</NcButton>
-		</template>
-	</NcDialog>
+			<template #actions>
+				<NcButton type="secondary" @click="showPreview = false">
+					{{ t('decidesk', 'Cancel') }}
+				</NcButton>
+				<NcButton type="primary" @click="applyDraft">
+					{{ t('decidesk', 'Apply') }}
+				</NcButton>
+			</template>
+		</NcDialog>
+	</div>
 </template>
 
 <script>
@@ -142,7 +144,7 @@ export default {
 			required: true,
 		},
 	},
-	setup(props) {
+	setup() {
 		const objectStore = useObjectStore()
 		const detailView = useDetailView('minutes', {
 			objectStore,

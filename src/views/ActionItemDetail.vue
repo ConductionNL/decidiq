@@ -108,7 +108,7 @@ export default {
 			required: true,
 		},
 	},
-	setup(props) {
+	setup() {
 		const objectStore = useObjectStore()
 		const detailView = useDetailView('action-item', {
 			objectStore,

@@ -132,7 +132,7 @@ export default {
 			required: true,
 		},
 	},
-	setup(props) {
+	setup() {
 		const objectStore = useObjectStore()
 		const detailView = useDetailView('decision', {
 			objectStore,
