@@ -6,7 +6,7 @@
   "depends_on": [],
   "issue": "https://github.com/ConductionNL/decidesk/issues/8",
   "pipeline": {
-    "review_rounds": 4,
+    "review_rounds": 5,
     "build_count": 1,
     "fix_iterations": 0,
     "total_cost_eur": 0,
