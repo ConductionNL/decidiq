@@ -78,7 +78,6 @@
 
 <script>
 import { NcLoadingIcon } from '@nextcloud/vue'
-import { generateUrl } from '@nextcloud/router'
 import { useObjectStore } from '../store/modules/object.js'
 
 import Magnify from 'vue-material-design-icons/Magnify.vue'

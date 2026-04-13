@@ -152,7 +152,7 @@ export default {
 		 * Chart series for meeting lifecycle distribution donut.
 		 *
 		 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.4
-		 * @returns {Array<number>} Counts per lifecycle state.
+		 * @return {Array<number>} Counts per lifecycle state.
 		 */
 		chartSeries() {
 			const states = ['draft', 'scheduled', 'opened', 'adjourned', 'closed']
@@ -229,7 +229,7 @@ export default {
 		 *
 		 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.6
 		 * @param {string} title The title to truncate.
-		 * @returns {string} Truncated title.
+		 * @return {string} Truncated title.
 		 */
 		truncateTitle(title) {
 			if (!title || title.length <= 60) {
