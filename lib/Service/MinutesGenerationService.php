@@ -253,8 +253,14 @@ class MinutesGenerationService
         $lines[] = '';
 
         if (empty($scheduledDate) === false) {
-            $dateFormatted = date('d-m-Y H:i', strtotime($scheduledDate));
-            $lines[]       = 'Datum: '.$dateFormatted;
+            $timestamp = strtotime($scheduledDate);
+            if ($timestamp !== false) {
+                $dateFormatted = date('d-m-Y H:i', $timestamp);
+            } else {
+                $dateFormatted = $scheduledDate;
+            }
+
+            $lines[] = 'Datum: '.$dateFormatted;
         }
 
         if (empty($location) === false) {

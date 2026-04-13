@@ -116,6 +116,7 @@
 import { NcButton } from '@nextcloud/vue'
 import { showError } from '@nextcloud/dialogs'
 import { generateUrl } from '@nextcloud/router'
+import { getRequestToken } from '@nextcloud/auth'
 import { CnDetailCard, CnDetailPage, CnObjectSidebar, CnStatusBadge, useDetailView } from '@conduction/nextcloud-vue'
 import { useDecisionStore } from '../store/modules/decision.js'
 import { useActionItemStore } from '../store/modules/actionItem.js'
@@ -201,14 +202,17 @@ export default {
 			}
 
 			// Fetch related motion from the entity's relations array.
-			const decisionStore = useDecisionStore()
 			const motionRelation = (this.entity?.relations || []).find(
 				(r) => r.schema?.toLowerCase() === 'motion',
 			)
 			if (motionRelation) {
 				const motionId = motionRelation.objectId || motionRelation.id
 				try {
-					this.relatedMotion = await decisionStore.fetchObject?.('motion', motionId) || null
+					const baseUrl = generateUrl('/apps/openregister/api/objects')
+					const resp = await fetch(`${baseUrl}/${motionId}?register=decidesk&schema=motion`, {
+						headers: { requesttoken: getRequestToken() },
+					})
+					this.relatedMotion = resp.ok ? (await resp.json()) : null
 				} catch (e) {
 					this.relatedMotion = null
 				}

@@ -66,15 +66,27 @@
 				</CnDetailCard>
 
 				<CnDetailCard :title="t('decidesk', 'Related Decision')">
-					<p class="empty-content">
-						{{ t('decidesk', 'Related decisions are shown via OpenRegister relations.') }}
+					<p v-if="!relatedDecision" class="empty-content">
+						{{ t('decidesk', 'No decision linked to this action item.') }}
 					</p>
+					<div v-else class="detail-row">
+						<span class="detail-label">{{ t('decidesk', 'Decision') }}</span>
+						<span class="detail-value">
+							<router-link :to="{ name: 'DecisionDetail', params: { id: relatedDecision.id } }">
+								{{ relatedDecision.title }}
+							</router-link>
+						</span>
+					</div>
 				</CnDetailCard>
 
 				<CnDetailCard :title="t('decidesk', 'Related Meeting')">
-					<p class="empty-content">
-						{{ t('decidesk', 'Related meetings are shown via OpenRegister relations.') }}
+					<p v-if="!relatedMeeting" class="empty-content">
+						{{ t('decidesk', 'No meeting linked to this action item.') }}
 					</p>
+					<div v-else class="detail-row">
+						<span class="detail-label">{{ t('decidesk', 'Meeting') }}</span>
+						<span class="detail-value">{{ relatedMeeting.title }}</span>
+					</div>
 				</CnDetailCard>
 			</div>
 		</template>
@@ -90,6 +102,8 @@
 
 <script>
 import { NcButton } from '@nextcloud/vue'
+import { generateUrl } from '@nextcloud/router'
+import { getRequestToken } from '@nextcloud/auth'
 import { CnDetailCard, CnDetailPage, CnObjectSidebar, CnStatusBadge, useDetailView } from '@conduction/nextcloud-vue'
 import { useActionItemStore } from '../store/modules/actionItem.js'
 
@@ -118,6 +132,8 @@ export default {
 	data() {
 		return {
 			editMode: false,
+			relatedDecision: null,
+			relatedMeeting: null,
 		}
 	},
 	computed: {
@@ -125,7 +141,51 @@ export default {
 			return this.detailView?.entity || null
 		},
 	},
+	watch: {
+		entity: {
+			handler(val) {
+				if (val) {
+					this.loadRelated()
+				}
+			},
+			immediate: true,
+		},
+	},
 	methods: {
+		async loadRelated() {
+			const baseUrl = generateUrl('/apps/openregister/api/objects')
+			const relations = this.entity?.relations || []
+
+			const decisionRelation = relations.find((r) => r.schema?.toLowerCase() === 'decision')
+			if (decisionRelation) {
+				const decisionId = decisionRelation.objectId || decisionRelation.id
+				try {
+					const resp = await fetch(`${baseUrl}/${decisionId}?register=decidesk&schema=decision`, {
+						headers: { requesttoken: getRequestToken() },
+					})
+					this.relatedDecision = resp.ok ? (await resp.json()) : null
+				} catch (e) {
+					this.relatedDecision = null
+				}
+			} else {
+				this.relatedDecision = null
+			}
+
+			const meetingRelation = relations.find((r) => r.schema?.toLowerCase() === 'meeting')
+			if (meetingRelation) {
+				const meetingId = meetingRelation.objectId || meetingRelation.id
+				try {
+					const resp = await fetch(`${baseUrl}/${meetingId}?register=decidesk&schema=meeting`, {
+						headers: { requesttoken: getRequestToken() },
+					})
+					this.relatedMeeting = resp.ok ? (await resp.json()) : null
+				} catch (e) {
+					this.relatedMeeting = null
+				}
+			} else {
+				this.relatedMeeting = null
+			}
+		},
 		formatDate(dateStr) {
 			if (!dateStr) return ''
 			return new Date(dateStr).toLocaleDateString()

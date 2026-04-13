@@ -103,10 +103,11 @@ export default {
 					actionItemStore.fetchObjects('action-item', { taskStatus: 'overdue' }),
 				])
 
-				this.minutesReviewCount = (minutesItems || []).length
-				this.publishedDecisionsCount = (decisionItems || []).length
-				this.openActionItemsCount = (openItems || []).length + (inProgressItems || []).length
-				this.overdueCount = (overdueItems || []).length
+				const toArray = (r) => Array.isArray(r) ? r : (r?.results ?? [])
+				this.minutesReviewCount = toArray(minutesItems).length
+				this.publishedDecisionsCount = toArray(decisionItems).length
+				this.openActionItemsCount = toArray(openItems).length + toArray(inProgressItems).length
+				this.overdueCount = toArray(overdueItems).length
 			} catch (e) {
 				console.error('Failed to fetch KPI counts:', e)
 			}
