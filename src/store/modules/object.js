@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { getRequestToken } from '@nextcloud/auth'
 
 /**
  * Generic OpenRegister object store.
@@ -42,7 +43,7 @@ export const useObjectStore = defineStore('object', {
 				Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
 
 				const response = await fetch(url.toString(), {
-					headers: { requesttoken: OC.requestToken },
+					headers: { requesttoken: getRequestToken() },
 				})
 				if (response.ok) {
 					const data = await response.json()

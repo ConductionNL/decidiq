@@ -5,8 +5,8 @@
     <name lang="en">Decidesk</name>
     <name lang="nl">Decidesk</name>
     <summary lang="en">Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings</summary>
-    <summary lang="nl">Universeel besluitvormingsplatform voor bestuursorganen, verenigingen, raden van bestuur en operationele vergaderingen</summary>
-    <description lang="en"><![CDATA[Decidesk manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organisation type. It serves governance bodies such as legislative/democratic bodies, associations and NGOs, corporate boards, and citizen participation platforms.
+    <summary lang="nl">Universeel besluitvormingsplatform voor bestuursorganen, verenigingen, bedrijfsbesturen en operationele vergaderingen</summary>
+    <description lang="en"><![CDATA[Decidesk manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation.
 
 **Key Features**
 
@@ -20,7 +20,7 @@ Free and open source under the EUPL-1.2 license.
 
 **Support:** For support, contact support@conduction.nl.
     ]]></description>
-    <description lang="nl"><![CDATA[Decidesk beheert vergaderingen, agenda's, moties, amendementen, stemrondes, notulen en besluitregistratie met configureerbare workflows per organisatietype. Het platform ondersteunt bestuursorganen zoals democratische lichamen, verenigingen en NGO's, raden van bestuur en burgerparticipatieplatforms.
+    <description lang="nl"><![CDATA[Decidesk beheert vergaderingen, agenda's, moties, amendementen, stemmingen, notulen en besluitvorming met configureerbare workflows per organisatietype. Het bedient 5 bestuursdomeinen: wetgevende/democratische organen, verenigingen/NGO's, ondernemingsbestuur, bedrijfsvoering en burgerparticipatie.
 
 **Belangrijkste functies**
 
@@ -28,6 +28,7 @@ Free and open source under the EUPL-1.2 license.
 - **Besluitregistratie** — Leg besluiten vast, publiceer en auditeer ze, gekoppeld aan moties en stemrondes
 - **Actiepunten** — Wijs follow-uptaken uit vergaderingen toe en volg ze op met meldingen bij overschrijding
 - **OpenRegister-integratie** — Ingebouwde ondersteuning voor de OpenRegister-datalaag
+- **Beheerdersinstellingen** — Voorgeconfigureerde instellingenpagina met versie-informatie
 - **NL Design System klaar** — CSS-variabelen, WCAG AA, overheidsthema
 
 Vrij en open source onder de EUPL-1.2-licentie.

@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
 <template>
 	<NcContent app-name="decidesk">
 		<template v-if="storesReady && !hasOpenRegisters">

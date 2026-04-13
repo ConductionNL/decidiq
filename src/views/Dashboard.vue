@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
 <template>
 	<div class="decidesk-dashboard">
 		<header class="decidesk-dashboard__header">
