@@ -10,7 +10,7 @@
   ],
   "issue": "https://github.com/ConductionNL/decidesk/issues/15",
   "pipeline": {
-    "review_rounds": 1,
+    "review_rounds": 2,
     "build_count": 1,
     "fix_iterations": 0,
     "total_cost_eur": 0,
