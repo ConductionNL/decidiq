@@ -2,81 +2,124 @@
 	<div class="decidesk-dashboard">
 		<header class="decidesk-dashboard__header">
 			<h2>{{ t('decidesk', 'Dashboard') }}</h2>
-			<p class="decidesk-dashboard__lead">
-				{{ t('decidesk', 'Starter overview with sample KPIs and activity placeholders. Replace this view with your own data.') }}
-			</p>
 		</header>
 
 		<CnKpiGrid :columns="4">
 			<CnStatsBlock
-				:title="t('decidesk', 'Open items')"
-				:count="12"
-				:count-label="t('decidesk', 'sample')"
-				:icon="FolderOutline"
+				:title="t('decidesk', 'Governance Bodies')"
+				:count="governanceBodyCount"
+				:count-label="t('decidesk', 'total')"
+				:icon="AccountGroupOutline"
 				variant="primary"
 				horizontal />
 			<CnStatsBlock
-				:title="t('decidesk', 'Due this week')"
-				:count="5"
-				:count-label="t('decidesk', 'sample')"
+				:title="t('decidesk', 'Meetings')"
+				:count="meetingCount"
+				:count-label="t('decidesk', 'total')"
 				:icon="CalendarClock"
-				variant="warning"
+				variant="default"
 				horizontal />
 			<CnStatsBlock
-				:title="t('decidesk', 'Completed')"
-				:count="48"
-				:count-label="t('decidesk', 'sample')"
-				:icon="CheckCircleOutline"
+				:title="t('decidesk', 'Participants')"
+				:count="participantCount"
+				:count-label="t('decidesk', 'total')"
+				:icon="AccountOutline"
 				variant="success"
 				horizontal />
 			<CnStatsBlock
-				:title="t('decidesk', 'Team members')"
-				:count="7"
-				:count-label="t('decidesk', 'sample')"
-				:icon="AccountGroupOutline"
-				variant="default"
+				:title="t('decidesk', 'Upcoming Meetings')"
+				:count="upcomingMeetingCount"
+				:count-label="t('decidesk', 'scheduled')"
+				:icon="CalendarCheckOutline"
+				variant="warning"
 				horizontal />
 		</CnKpiGrid>
 
-		<div class="decidesk-dashboard__columns">
-			<CnConfigurationCard :title="t('decidesk', 'Recent activity')">
-				<ul class="decidesk-dashboard__placeholder-list">
-					<li>{{ t('decidesk', 'Placeholder: user opened a record') }}</li>
-					<li>{{ t('decidesk', 'Placeholder: status changed to Review') }}</li>
-					<li>{{ t('decidesk', 'Placeholder: comment added') }}</li>
-				</ul>
-			</CnConfigurationCard>
-
-			<CnConfigurationCard :title="t('decidesk', 'Quick actions')">
-				<p class="decidesk-dashboard__hint">
-					{{ t('decidesk', 'Wire buttons here to create records, open lists, or deep links. Use the sidebar for Settings and Documentation.') }}
-				</p>
-			</CnConfigurationCard>
+		<div class="decidesk-dashboard__chart">
+			<CnChartWidget
+				:title="t('decidesk', 'Meeting Lifecycle Distribution')"
+				type="donut"
+				:data="lifecycleChartData"
+				:loading="loading" />
 		</div>
 	</div>
 </template>
 
 <script>
-import { CnConfigurationCard, CnKpiGrid, CnStatsBlock } from '@conduction/nextcloud-vue'
+import { CnChartWidget, CnKpiGrid, CnStatsBlock } from '@conduction/nextcloud-vue'
+import { useGovernanceBodyStore } from '../store/modules/governanceBody.js'
+import { useMeetingStore } from '../store/modules/meeting.js'
+import { useParticipantStore } from '../store/modules/participant.js'
 import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
+import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
+import CalendarCheckOutline from 'vue-material-design-icons/CalendarCheckOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
-import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
-import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
 
 export default {
 	name: 'Dashboard',
 	components: {
-		CnConfigurationCard,
+		CnChartWidget,
 		CnKpiGrid,
 		CnStatsBlock,
 	},
 	data() {
 		return {
-			FolderOutline,
-			CalendarClock,
-			CheckCircleOutline,
 			AccountGroupOutline,
+			AccountOutline,
+			CalendarCheckOutline,
+			CalendarClock,
+			governanceBodyCount: 0,
+			meetingCount: 0,
+			participantCount: 0,
+			upcomingMeetingCount: 0,
+			lifecycleCounts: {},
+			loading: true,
 		}
+	},
+	computed: {
+		lifecycleChartData() {
+			const labels = ['draft', 'scheduled', 'opened', 'paused', 'adjourned', 'closed']
+			return {
+				labels,
+				datasets: [{
+					data: labels.map((state) => this.lifecycleCounts[state] || 0),
+				}],
+			}
+		},
+	},
+	async created() {
+		const governanceBodyStore = useGovernanceBodyStore()
+		const meetingStore = useMeetingStore()
+		const participantStore = useParticipantStore()
+
+		const [governanceBodies, meetings, participants] = await Promise.all([
+			governanceBodyStore.fetchCollection('governanceBody', { _limit: 1 }),
+			meetingStore.fetchCollection('meeting', { _limit: 999 }),
+			participantStore.fetchCollection('participant', { _limit: 1 }),
+		])
+
+		const gbPagination = governanceBodyStore.getPagination('governanceBody')
+		const meetingPagination = meetingStore.getPagination('meeting')
+		const participantPagination = participantStore.getPagination('participant')
+
+		this.governanceBodyCount = gbPagination.total || governanceBodies.length
+		this.meetingCount = meetingPagination.total || meetings.length
+		this.participantCount = participantPagination.total || participants.length
+
+		// Count upcoming (scheduled) meetings and lifecycle distribution
+		const allMeetings = meetingStore.getCollection('meeting')
+		const counts = {}
+		let upcoming = 0
+		for (const meeting of allMeetings) {
+			const state = meeting.lifecycle || 'draft'
+			counts[state] = (counts[state] || 0) + 1
+			if (state === 'scheduled') {
+				upcoming++
+			}
+		}
+		this.upcomingMeetingCount = upcoming
+		this.lifecycleCounts = counts
+		this.loading = false
 	},
 }
 </script>
@@ -97,33 +140,8 @@ export default {
 	font-weight: 600;
 }
 
-.decidesk-dashboard__lead {
-	margin: 0;
-	color: var(--color-text-maxcontrast);
-	line-height: 1.5;
-}
-
-.decidesk-dashboard__columns {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 16px;
-}
-
-@media (max-width: 900px) {
-	.decidesk-dashboard__columns {
-		grid-template-columns: 1fr;
-	}
-}
-
-.decidesk-dashboard__placeholder-list {
-	margin: 0;
-	padding-left: 1.2em;
-	line-height: 1.6;
-}
-
-.decidesk-dashboard__hint {
-	margin: 0;
-	line-height: 1.5;
-	color: var(--color-text-maxcontrast);
+.decidesk-dashboard__chart {
+	margin-top: 20px;
+	max-width: 600px;
 }
 </style>

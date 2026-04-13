@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.6
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ use OCP\EventDispatcher\IEventListener;
  *
  * @implements IEventListener<Event>
  *
- * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.6
  */
 class DeepLinkRegistrationListener implements IEventListener
 {
@@ -71,7 +71,7 @@ class DeepLinkRegistrationListener implements IEventListener
      *
      * @return void
      *
-     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.6
      */
     public function handle(Event $event): void
     {

@@ -10,10 +10,31 @@
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
-				:name="t('decidesk', 'Documentation')"
-				@click="openLink('https://conduction.nl', '_blank')">
+				:name="t('decidesk', 'Governance Bodies')"
+				:to="{ name: 'GovernanceBodies' }">
 				<template #icon>
-					<BookOpenVariantOutline :size="20" />
+					<AccountGroupOutline :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Meetings')"
+				:to="{ name: 'Meetings' }">
+				<template #icon>
+					<CalendarClock :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Participants')"
+				:to="{ name: 'Participants' }">
+				<template #icon>
+					<AccountOutline :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Agenda Items')"
+				:to="{ name: 'AgendaItems' }">
+				<template #icon>
+					<FormatListNumbered :size="20" />
 				</template>
 			</NcAppNavigationItem>
 		</template>
@@ -31,8 +52,11 @@
 
 <script>
 import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
-import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
+import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
+import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
+import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import CogIcon from 'vue-material-design-icons/Cog.vue'
+import FormatListNumbered from 'vue-material-design-icons/FormatListNumbered.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
 export default {
@@ -40,14 +64,12 @@ export default {
 	components: {
 		NcAppNavigation,
 		NcAppNavigationItem,
-		BookOpenVariantOutline,
+		AccountGroupOutline,
+		AccountOutline,
+		CalendarClock,
 		CogIcon,
+		FormatListNumbered,
 		HomeIcon,
-	},
-	methods: {
-		openLink(url, target = '_blank') {
-			window.open(url, target)
-		},
 	},
 }
 </script>
