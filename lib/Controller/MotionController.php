@@ -153,11 +153,15 @@ class MotionController extends DecideskController
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
         }
 
+        $uid         = $user->getUID();
         $displayName = $user->getDisplayName();
 
-        $result = $this->motionService->addCoSigner($id, $displayName);
-
-        return new JSONResponse($result);
+        try {
+            $result = $this->motionService->addCoSigner($id, $uid, $displayName);
+            return new JSONResponse($result);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(['error' => 'Co-signature not permitted'], Http::STATUS_FORBIDDEN);
+        }
     }//end coSignConfirm()
 
     /**
@@ -180,8 +184,12 @@ class MotionController extends DecideskController
         }
 
         $budgetLine  = $this->request->getParam('budgetLine');
-        $amountDelta = (float) $this->request->getParam('amountDelta');
         $rationale   = $this->request->getParam('rationale');
+        $amountDelta = (float) $this->request->getParam('amountDelta');
+
+        if (is_string($budgetLine) === false || $budgetLine === '' || is_string($rationale) === false) {
+            return new JSONResponse(['error' => 'budgetLine and rationale are required'], Http::STATUS_BAD_REQUEST);
+        }
 
         $result = $this->motionService->saveBudgetImpact($id, $budgetLine, $amountDelta, $rationale);
 

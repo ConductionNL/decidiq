@@ -137,8 +137,8 @@ class MotionService
     /**
      * Request co-signatures for a motion from the given participants.
      *
-     * Logs the co-signature request for each participant. Actual notification
-     * delivery requires a running Nextcloud environment.
+     * Stores invited participant UIDs in the motion's pendingCoSigners list
+     * so that only invited users can confirm their co-signature.
      *
      * @param string        $motionId       The ID of the motion
      * @param array<string> $participantIds The participant IDs to request signatures from
@@ -153,7 +153,12 @@ class MotionService
         $motion        = $objectService->getObject('motion', $motionId);
         $title         = ($motion['title'] ?? 'Untitled motion');
 
+        $pending = ($motion['pendingCoSigners'] ?? []);
         foreach ($participantIds as $participantId) {
+            if (in_array($participantId, $pending, true) === false) {
+                $pending[] = $participantId;
+            }
+
             $this->logger->debug(
                 'Co-signature requested',
                 [
@@ -163,34 +168,56 @@ class MotionService
                 ]
             );
         }
+
+        $motion['pendingCoSigners'] = $pending;
+        $objectService->saveObject('motion', $motion);
     }//end requestCoSignature()
 
     /**
      * Add a co-signer to a motion.
      *
-     * This operation is idempotent — if the participant is already listed
-     * as a co-signer the motion is returned unchanged.
+     * Only participants who were explicitly invited via requestCoSignature()
+     * may confirm. The UID is the authoritative identity; displayName is stored
+     * alongside for rendering. This operation is idempotent — if the UID is
+     * already listed as a co-signer the motion is returned unchanged.
      *
      * @param string $motionId               The ID of the motion
-     * @param string $participantDisplayName The display name of the co-signer
+     * @param string $participantUid         The UID of the co-signer (authoritative)
+     * @param string $participantDisplayName The display name (for rendering only)
      *
      * @return array<string,mixed> The updated motion
      *
+     * @throws \RuntimeException When the participant was not invited
+     *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
-    public function addCoSigner(string $motionId, string $participantDisplayName): array
+    public function addCoSigner(string $motionId, string $participantUid, string $participantDisplayName): array
     {
         $objectService = $this->getObjectService();
         $motion        = $objectService->getObject('motion', $motionId);
 
+        $pending = ($motion['pendingCoSigners'] ?? []);
+        if (in_array($participantUid, $pending, true) === false) {
+            throw new \RuntimeException('Participant was not invited to co-sign this motion');
+        }
+
         $coSigners = ($motion['coSigners'] ?? []);
 
-        if (in_array($participantDisplayName, $coSigners, true) === true) {
+        $alreadySigned = array_filter(
+            $coSigners,
+            static fn($entry) => is_array($entry) && ($entry['uid'] ?? '') === $participantUid
+        );
+
+        if (count($alreadySigned) > 0) {
             return $motion;
         }
 
-        $coSigners[]         = $participantDisplayName;
+        $coSigners[]         = ['uid' => $participantUid, 'displayName' => $participantDisplayName];
         $motion['coSigners'] = $coSigners;
+
+        $motion['pendingCoSigners'] = array_values(
+            array_filter($pending, static fn($uid) => $uid !== $participantUid)
+        );
 
         return $objectService->saveObject('motion', $motion);
     }//end addCoSigner()

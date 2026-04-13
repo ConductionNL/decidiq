@@ -95,8 +95,10 @@ class VotingController extends DecideskController
                 $actorId
             );
             return new JSONResponse($result);
-        } catch (\InvalidArgumentException | \RuntimeException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['error' => 'Invalid voting round parameters'], Http::STATUS_BAD_REQUEST);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(['error' => 'Voting round operation failed'], Http::STATUS_BAD_REQUEST);
         }
     }//end open()
 
@@ -129,8 +131,10 @@ class VotingController extends DecideskController
         try {
             $result = $this->votingService->castVote($id, $participantId, $value, $isProxy, $delegatorId);
             return new JSONResponse($result);
-        } catch (\InvalidArgumentException | \RuntimeException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['error' => 'Invalid vote parameters'], Http::STATUS_BAD_REQUEST);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(['error' => 'Vote casting failed'], Http::STATUS_BAD_REQUEST);
         }
     }//end cast()
 

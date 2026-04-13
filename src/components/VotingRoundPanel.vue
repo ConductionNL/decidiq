@@ -321,7 +321,6 @@ export default {
 						requesttoken: OC.requestToken,
 					},
 					body: JSON.stringify({
-						fromParticipantId: 'current-user',
 						toParticipantId: this.proxyToId,
 					}),
 				})
@@ -341,7 +340,7 @@ export default {
 						'Content-Type': 'application/json',
 						requesttoken: OC.requestToken,
 					},
-					body: JSON.stringify({ fromParticipantId: 'current-user' }),
+					body: JSON.stringify({}),
 				})
 				this.hasProxy = false
 			} catch (error) {

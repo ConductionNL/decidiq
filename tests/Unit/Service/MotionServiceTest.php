@@ -172,26 +172,31 @@ class MotionServiceTest extends TestCase
      */
     public function testAddCoSignerIdempotent(): void
     {
-        $motion = [
-            'id'        => 'motion-3',
-            'coSigners' => ['A'],
+        $existingEntry = ['uid' => 'uid-a', 'displayName' => 'Alice'];
+        $motion        = [
+            'id'               => 'motion-3',
+            'pendingCoSigners' => ['uid-a', 'uid-b'],
+            'coSigners'        => [$existingEntry],
         ];
 
-        // First call: 'A' already present, saveObject should NOT be called.
+        // Two getObject calls: one for each addCoSigner call.
         $this->objectService->expects($this->exactly(count: 2))
             ->method('getObject')
             ->with('motion', 'motion-3')
             ->willReturn($motion);
 
-        $matcher = $this->exactly(count: 1);
-        $this->objectService->expects($matcher)
+        // Only one saveObject call — when uid-b is added; uid-a is already signed.
+        $this->objectService->expects($this->exactly(count: 1))
             ->method('saveObject')
             ->with(
                 'motion',
                 $this->callback(
                         callback:
                         function (array $object): bool {
-                            return $object['coSigners'] === ['A', 'B'];
+                            $signers = $object['coSigners'];
+                            return count($signers) === 2
+                                && ($signers[1]['uid'] ?? '') === 'uid-b'
+                                && ($signers[1]['displayName'] ?? '') === 'Bob';
                         }
                         )
             )
@@ -201,23 +206,57 @@ class MotionServiceTest extends TestCase
                     }
                     );
 
-        // Idempotent: adding existing co-signer 'A' returns the motion unchanged.
+        // Idempotent: uid-a is already in coSigners → returns motion unchanged, no saveObject.
         $resultA = $this->service->addCoSigner(
             motionId: 'motion-3',
-            participantDisplayName: 'A',
+            participantUid: 'uid-a',
+            participantDisplayName: 'Alice',
         );
 
-        self::assertSame(expected: ['A'], actual: $resultA['coSigners']);
+        self::assertSame(expected: [$existingEntry], actual: $resultA['coSigners']);
 
-        // Adding new co-signer 'B' triggers saveObject with ['A', 'B'].
+        // uid-b is new → saveObject is called once.
         $resultB = $this->service->addCoSigner(
             motionId: 'motion-3',
-            participantDisplayName: 'B',
+            participantUid: 'uid-b',
+            participantDisplayName: 'Bob',
         );
 
-        self::assertSame(expected: ['A', 'B'], actual: $resultB['coSigners']);
+        self::assertCount(expectedCount: 2, haystack: $resultB['coSigners']);
+        self::assertSame(expected: 'uid-b', actual: $resultB['coSigners'][1]['uid']);
 
     }//end testAddCoSignerIdempotent()
+
+    /**
+     * Test that addCoSigner throws RuntimeException when the user was not invited.
+     *
+     * @return void
+     */
+    public function testAddCoSignerThrowsWhenNotInvited(): void
+    {
+        $motion = [
+            'id'               => 'motion-7',
+            'pendingCoSigners' => [],
+            'coSigners'        => [],
+        ];
+
+        $this->objectService->expects($this->once())
+            ->method('getObject')
+            ->with('motion', 'motion-7')
+            ->willReturn($motion);
+
+        $this->objectService->expects($this->never())
+            ->method('saveObject');
+
+        $this->expectException(exception: \RuntimeException::class);
+
+        $this->service->addCoSigner(
+            motionId: 'motion-7',
+            participantUid: 'uid-x',
+            participantDisplayName: 'Xavier',
+        );
+
+    }//end testAddCoSignerThrowsWhenNotInvited()
 
     /**
      * Test that detectConflicts returns conflicting amendment IDs when words overlap.

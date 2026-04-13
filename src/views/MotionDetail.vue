@@ -2,17 +2,12 @@
 	<CnDetailPage :title="motion.title || t('decidesk', 'Motion')">
 		<template #actions>
 			<div class="motion-detail__actions">
-				<button v-if="motion.lifecycle === 'submitted'"
+				<button v-if="isChairOrAdmin && motion.lifecycle === 'submitted'"
 					class="primary"
 					@click="transition('debating')">
 					{{ t('decidesk', 'Open debate') }}
 				</button>
-				<button v-if="motion.lifecycle === 'debating'"
-					class="primary"
-					@click="transition('voting')">
-					{{ t('decidesk', 'Open voting round') }}
-				</button>
-				<button v-if="canWithdraw"
+				<button v-if="isChairOrAdmin && canWithdraw"
 					class="error"
 					@click="transition('withdrawn')">
 					{{ t('decidesk', 'Withdraw motion') }}
@@ -57,8 +52,8 @@
 			<section class="motion-detail__section">
 				<h3>{{ t('decidesk', 'Co-signers') }}</h3>
 				<ul v-if="coSigners.length > 0" class="motion-detail__cosigners">
-					<li v-for="name in coSigners" :key="name">
-						{{ name }}
+					<li v-for="signer in coSigners" :key="signer.uid || signer">
+						{{ signer.displayName || signer }}
 					</li>
 				</ul>
 				<p v-else class="motion-detail__empty">
@@ -111,8 +106,9 @@
 
 <script>
 import { generateUrl } from '@nextcloud/router'
+import { getRequestToken } from '@nextcloud/auth'
 import { CnDetailPage } from '@conduction/nextcloud-vue'
-import { useObjectStore } from '../store/store.js'
+import { useObjectStore, useSettingsStore } from '../store/store.js'
 import AmendmentList from '../components/AmendmentList.vue'
 import VotingRoundPanel from '../components/VotingRoundPanel.vue'
 
@@ -137,6 +133,12 @@ export default {
 		},
 		objectStore() {
 			return useObjectStore()
+		},
+		settingsStore() {
+			return useSettingsStore()
+		},
+		isChairOrAdmin() {
+			return this.settingsStore.isChair || this.settingsStore.isAdmin
 		},
 		coSigners() {
 			return this.motion.coSigners || []
@@ -184,7 +186,7 @@ export default {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
+						requesttoken: getRequestToken(),
 					},
 					body: JSON.stringify({ newState }),
 				})
@@ -200,7 +202,7 @@ export default {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
+						requesttoken: getRequestToken(),
 					},
 				})
 				await this.loadMotion()
@@ -215,7 +217,7 @@ export default {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
+						requesttoken: getRequestToken(),
 					},
 					body: JSON.stringify({
 						budgetLine: this.budgetLine,
