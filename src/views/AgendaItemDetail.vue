@@ -26,6 +26,24 @@
 					</dl>
 				</template>
 			</CnDetailCard>
+
+			<CnDetailCard :title="t('decidesk', 'Meeting')">
+				<template #content>
+					<ul v-if="relatedMeetings.length" class="decidesk-detail__related-list">
+						<li
+							v-for="item in relatedMeetings"
+							:key="item.id"
+							class="decidesk-detail__related-item"
+							@click="$router.push({ name: 'MeetingDetail', params: { id: item.id } })">
+							<span class="decidesk-detail__related-title">{{ item.title || item.id }}</span>
+							<span v-if="item.lifecycle" class="decidesk-detail__related-meta">{{ item.lifecycle }}</span>
+						</li>
+					</ul>
+					<p v-else class="decidesk-detail__empty">
+						{{ t('decidesk', 'No meeting linked to this agenda item.') }}
+					</p>
+				</template>
+			</CnDetailCard>
 		</template>
 
 		<template #sidebar>
@@ -41,6 +59,7 @@
 <script>
 import { CnDetailPage, CnDetailCard, CnObjectSidebar, useDetailView } from '@conduction/nextcloud-vue'
 import { useAgendaItemStore } from '../store/modules/agendaItem.js'
+import { useMeetingStore } from '../store/modules/meeting.js'
 
 export default {
 	name: 'AgendaItemDetail',
@@ -50,16 +69,32 @@ export default {
 	},
 	setup(props) {
 		const agendaItemStore = useAgendaItemStore()
+		const meetingStore = useMeetingStore()
 		const detailView = useDetailView('agendaItem', props.id, {
 			objectStore: () => agendaItemStore,
 			listRouteName: 'AgendaItems',
 			detailRouteName: 'AgendaItemDetail',
 		})
-		return { detailView, agendaItemStore }
+		return { detailView, agendaItemStore, meetingStore }
+	},
+	data() {
+		return {
+			relatedMeetings: [],
+		}
 	},
 	computed: {
 		object() {
 			return this.detailView.object.value || {}
+		},
+	},
+	watch: {
+		'object.id': {
+			immediate: true,
+			async handler(id) {
+				if (!id) return
+				const meetings = await this.agendaItemStore.fetchUses('agendaItem', id, { _schema: 'meeting' })
+				this.relatedMeetings = meetings || []
+			},
 		},
 	},
 }

@@ -95,7 +95,7 @@ export default {
 			immediate: true,
 			async handler(id) {
 				if (!id) return
-				const items = await this.meetingStore.fetchUses('meeting', id, {
+				const items = await this.meetingStore.fetchUsed('meeting', id, {
 					_schema: 'agenda-item',
 					_sort: 'orderNumber',
 					_order: 'asc',

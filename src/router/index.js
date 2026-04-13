@@ -8,7 +8,7 @@ import { generateUrl } from '@nextcloud/router'
 Vue.use(Router)
 
 export default new Router({
-	mode: 'history',
+	mode: 'hash',
 	base: generateUrl('/apps/decidesk'),
 	routes: [
 		{ path: '/', name: 'Dashboard', component: () => import('../views/Dashboard.vue') },

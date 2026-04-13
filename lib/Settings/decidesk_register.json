@@ -1051,7 +1051,7 @@
                     "active": true,
                     "hardDelete": false,
                     "searchable": true,
-                    "mailEnabled": true,
+                    "mailEnabled": false,
                     "x-mail-security-audit": "mailEnabled activates inbound email ingestion. Before production: verify OpenRegister sanitizes HTML/headers, validate sender identity, and ensure Decision views never use v-html for mail-sourced content. Tracked in issue #6."
                 },
                 "required": [
