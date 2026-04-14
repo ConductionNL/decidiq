@@ -33,6 +33,7 @@ export const useDecisionStore = defineStore('decision', {
 		/**
 		 * Fetch a paginated list of Decision objects.
 		 *
+		 * @param params
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async fetchDecisions(params = {}) {
@@ -67,6 +68,7 @@ export const useDecisionStore = defineStore('decision', {
 		/**
 		 * Fetch a single Decision object by ID.
 		 *
+		 * @param id
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async fetchDecisionById(id) {
@@ -91,6 +93,7 @@ export const useDecisionStore = defineStore('decision', {
 		/**
 		 * Save (create or update) a Decision object.
 		 *
+		 * @param decisionData
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async saveDecision(decisionData) {
@@ -126,6 +129,7 @@ export const useDecisionStore = defineStore('decision', {
 		/**
 		 * Delete a Decision object.
 		 *
+		 * @param id
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async deleteDecision(id) {
@@ -152,15 +156,22 @@ export const useDecisionStore = defineStore('decision', {
 		 * Publish a Decision by setting isPublished=true and publishedAt=now.
 		 *
 		 * Only valid when outcome='adopted' and isPublished=false.
+		 * Uses the provided id to confirm the correct Decision is published,
+		 * fetching it first if it differs from currentDecision.
 		 *
 		 * @param {string} id - UUID of the Decision object
 		 *
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
-		async publishDecision(_id) {
-			if (!this.currentDecision) return null
+		async publishDecision(id) {
+			let decision = this.currentDecision
+			if (!decision || decision.id !== id) {
+				decision = await this.fetchDecisionById(id)
+			}
+
+			if (!decision) return null
 			return this.saveDecision({
-				...this.currentDecision,
+				...decision,
 				isPublished: true,
 				publishedAt: new Date().toISOString(),
 			})

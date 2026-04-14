@@ -32,6 +32,7 @@ export const useActionItemStore = defineStore('actionItem', {
 		 * Compute overdue items client-side for immediate visual feedback.
 		 * The background job persists the overdue status for filtering/reporting.
 		 *
+		 * @param state
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-7
 		 */
 		overdueItems: (state) => {
@@ -47,6 +48,7 @@ export const useActionItemStore = defineStore('actionItem', {
 		/**
 		 * Fetch a paginated list of ActionItem objects.
 		 *
+		 * @param params
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async fetchActionItems(params = {}) {
@@ -81,6 +83,7 @@ export const useActionItemStore = defineStore('actionItem', {
 		/**
 		 * Fetch a single ActionItem object by ID.
 		 *
+		 * @param id
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async fetchActionItemById(id) {
@@ -105,6 +108,7 @@ export const useActionItemStore = defineStore('actionItem', {
 		/**
 		 * Save (create or update) an ActionItem object.
 		 *
+		 * @param actionItemData
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async saveActionItem(actionItemData) {
@@ -140,6 +144,7 @@ export const useActionItemStore = defineStore('actionItem', {
 		/**
 		 * Delete an ActionItem object.
 		 *
+		 * @param id
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async deleteActionItem(id) {

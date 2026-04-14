@@ -97,51 +97,63 @@ class OverdueActionItemsJob extends TimedJob
         $errorCount   = 0;
 
         foreach (['open', 'in-progress'] as $status) {
-            $actionItems = $this->fetchActionItemsByStatus(objectService: $objectService, status: $status);
+            $offset   = 0;
+            $pageSize = 100;
 
-            foreach ($actionItems as $item) {
-                $dueDate = $item['dueDate'] ?? null;
-                if ($dueDate === null || $dueDate === '') {
-                    // No dueDate — cannot be overdue.
-                    continue;
-                }
+            do {
+                $actionItems = $this->fetchActionItemsByStatus(
+                    objectService: $objectService,
+                    status: $status,
+                    offset: $offset,
+                    pageSize: $pageSize,
+                );
 
-                try {
-                    $dueDatetime = new \DateTimeImmutable($dueDate);
-                    $nowDatetime = new \DateTimeImmutable($now);
-                } catch (\Throwable) {
-                    // Unparseable dueDate — skip.
-                    continue;
-                }
+                foreach ($actionItems as $item) {
+                    $dueDate = $item['dueDate'] ?? null;
+                    if ($dueDate === null || $dueDate === '') {
+                        // No dueDate — cannot be overdue.
+                        continue;
+                    }
 
-                if ($dueDatetime >= $nowDatetime) {
-                    // Not yet overdue.
-                    continue;
-                }
+                    try {
+                        $dueDatetime = new \DateTimeImmutable($dueDate);
+                        $nowDatetime = new \DateTimeImmutable($now);
+                    } catch (\Throwable) {
+                        // Unparseable dueDate — skip.
+                        continue;
+                    }
 
-                $uuid = $item['id'] ?? $item['uuid'] ?? null;
-                if ($uuid === null || $uuid === '') {
-                    continue;
-                }
+                    if ($dueDatetime >= $nowDatetime) {
+                        // Not yet overdue.
+                        continue;
+                    }
 
-                try {
-                    $objectService->setRegister('decidesk');
-                    $objectService->setSchema('action-item');
-                    $objectService->saveObject(
-                        object: array_merge($item, ['taskStatus' => 'overdue']),
-                        register: 'decidesk',
-                        schema: 'action-item',
-                        uuid: $uuid
-                    );
-                    $updatedCount++;
-                } catch (\Throwable $e) {
-                    $errorCount++;
-                    $this->logger->error(
-                        'Decidesk OverdueActionItemsJob: Failed to update ActionItem to overdue',
-                        ['uuid' => $uuid, 'exception' => $e->getMessage()]
-                    );
-                }//end try
-            }//end foreach
+                    $uuid = $item['id'] ?? $item['uuid'] ?? null;
+                    if ($uuid === null || $uuid === '') {
+                        continue;
+                    }
+
+                    try {
+                        $objectService->setRegister('decidesk');
+                        $objectService->setSchema('action-item');
+                        $objectService->saveObject(
+                            object: array_merge($item, ['taskStatus' => 'overdue']),
+                            register: 'decidesk',
+                            schema: 'action-item',
+                            uuid: $uuid
+                        );
+                        $updatedCount++;
+                    } catch (\Throwable $e) {
+                        $errorCount++;
+                        $this->logger->error(
+                            'Decidesk OverdueActionItemsJob: Failed to update ActionItem to overdue',
+                            ['uuid' => $uuid, 'exception' => $e->getMessage()]
+                        );
+                    }//end try
+                }//end foreach
+
+                $offset += count($actionItems);
+            } while (count($actionItems) === $pageSize);
         }//end foreach
 
         $this->logger->info(
@@ -155,17 +167,23 @@ class OverdueActionItemsJob extends TimedJob
     }//end run()
 
     /**
-     * Fetch ActionItems matching a given taskStatus from OpenRegister.
+     * Fetch one page of ActionItems matching a given taskStatus from OpenRegister.
      *
      * @param object $objectService The ObjectService instance
      * @param string $status        The taskStatus to filter on ("open" or "in-progress")
+     * @param int    $offset        Number of records to skip (for pagination)
+     * @param int    $pageSize      Maximum records to return per page
      *
-     * @return array<int,array<string,mixed>> Array of ActionItem data arrays
+     * @return array<int,array<string,mixed>> Array of ActionItem data arrays (at most $pageSize items)
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
      */
-    private function fetchActionItemsByStatus(object $objectService, string $status): array
-    {
+    private function fetchActionItemsByStatus(
+        object $objectService,
+        string $status,
+        int $offset = 0,
+        int $pageSize = 100,
+    ): array {
         try {
             $objectService->setRegister('decidesk');
             $objectService->setSchema('action-item');
@@ -176,7 +194,8 @@ class OverdueActionItemsJob extends TimedJob
                         'schema'     => 'action-item',
                         'taskStatus' => $status,
                     ],
-                    'limit'   => 1000,
+                    'limit'  => $pageSize,
+                    'offset' => $offset,
                 ]
             );
 

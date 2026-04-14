@@ -33,6 +33,7 @@ export const useMinutesStore = defineStore('minutes', {
 		/**
 		 * Fetch a paginated list of Minutes objects.
 		 *
+		 * @param params
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async fetchMinutes(params = {}) {
@@ -66,6 +67,7 @@ export const useMinutesStore = defineStore('minutes', {
 		/**
 		 * Fetch a single Minutes object by ID.
 		 *
+		 * @param id
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async fetchMinutesById(id) {
@@ -90,6 +92,7 @@ export const useMinutesStore = defineStore('minutes', {
 		/**
 		 * Save (create or update) a Minutes object.
 		 *
+		 * @param minutesData
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async saveMinutes(minutesData) {
@@ -125,6 +128,7 @@ export const useMinutesStore = defineStore('minutes', {
 		/**
 		 * Delete a Minutes object.
 		 *
+		 * @param id
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async deleteMinutes(id) {
@@ -151,7 +155,7 @@ export const useMinutesStore = defineStore('minutes', {
 		 * Call the generate-draft API endpoint and return the preview text.
 		 *
 		 * @param {string} minutesId - UUID of the Minutes object
-		 * @returns {Promise<string|null>} Generated draft text or null on failure
+		 * @return {Promise<string|null>} Generated draft text or null on failure
 		 *
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
