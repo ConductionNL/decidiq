@@ -26,45 +26,43 @@
 				:name="t('decidesk', 'Meetings')"
 				:to="{ name: 'Meetings' }">
 				<template #icon>
-					<CalendarBlank :size="20" />
+					<CalendarBlankIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Participants')"
 				:to="{ name: 'Participants' }">
 				<template #icon>
-					<AccountGroupOutline :size="20" />
+					<AccountGroupIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Agenda Items')"
 				:to="{ name: 'AgendaItems' }">
 				<template #icon>
-					<FormatListBulleted :size="20" />
+					<FormatListNumberedIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
 		</template>
 		<template #footer>
-			<NcAppNavigationSettings>
-				<NcAppNavigationItem
-					:name="t('decidesk', 'Settings')"
-					:to="{ name: 'Settings' }">
-					<template #icon>
-						<CogIcon :size="20" />
-					</template>
-				</NcAppNavigationItem>
-			</NcAppNavigationSettings>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Settings')"
+				:to="{ name: 'Settings' }">
+				<template #icon>
+					<CogIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
 		</template>
 	</NcAppNavigation>
 </template>
 
 <script>
-import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
-import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
-import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
+import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
+import AccountGroupIcon from 'vue-material-design-icons/AccountGroupOutline.vue'
+import CalendarBlankIcon from 'vue-material-design-icons/CalendarBlank.vue'
 import CogIcon from 'vue-material-design-icons/Cog.vue'
 import DomainIcon from 'vue-material-design-icons/Domain.vue'
-import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
+import FormatListNumberedIcon from 'vue-material-design-icons/FormatListNumbered.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
 export default {
@@ -72,12 +70,11 @@ export default {
 	components: {
 		NcAppNavigation,
 		NcAppNavigationItem,
-		NcAppNavigationSettings,
-		AccountGroupOutline,
-		CalendarBlank,
+		AccountGroupIcon,
+		CalendarBlankIcon,
 		CogIcon,
 		DomainIcon,
-		FormatListBulleted,
+		FormatListNumberedIcon,
 		HomeIcon,
 	},
 }

@@ -6,43 +6,60 @@
 -->
 <template>
 	<CnIndexPage
-		:list-view="listView"
-		:sidebar-state="sidebarState"
+		:title="t('decidesk', 'Meetings')"
+		:schema="schema"
+		:objects="objects"
+		:loading="loading"
+		:pagination="pagination"
+		:search-term="searchTerm"
+		:active-filters="activeFilters"
+		:visible-columns="columns"
+		@search="onSearch"
+		@sort="onSort"
+		@filter-change="onFilterChange"
+		@page-change="onPageChange"
 		@row-click="onRowClick"
-		@add="onAdd" />
+		@create="onCreateClick"
+		@refresh="refresh">
+		<template #create-dialog="{ close }">
+			<CnSchemaFormDialog
+				:schema="schema"
+				:title="t('decidesk', 'Create Meeting')"
+				:object-store="objectStore"
+				object-type="meeting"
+				@close="close"
+				@saved="onSaved" />
+		</template>
+	</CnIndexPage>
 </template>
 
 <script>
-import { CnIndexPage, useListView } from '@conduction/nextcloud-vue'
-import { useMeetingStore } from '../store/store.js'
+import { CnIndexPage, CnSchemaFormDialog, useListView } from '@conduction/nextcloud-vue'
+import { useObjectStore } from '../store/store.js'
 
-/**
- * Index page for meetings.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-7.1
- */
 export default {
 	name: 'Meetings',
-	components: { CnIndexPage },
-
-	inject: {
-		sidebarState: { default: () => ({ active: false }) },
-	},
-
+	components: { CnIndexPage, CnSchemaFormDialog },
 	setup() {
-		const meetingStore = useMeetingStore()
+		const objectStore = useObjectStore()
 		const listView = useListView('meeting', {
-			objectStore: meetingStore,
+			objectStore,
+			sidebarState: null,
 		})
-		return { listView }
+		return { ...listView, objectStore }
 	},
-
+	data() {
+		return {
+			columns: ['title', 'meetingType', 'scheduledDate', 'meetingMode', 'lifecycle'],
+		}
+	},
 	methods: {
 		onRowClick(row) {
 			this.$router.push({ name: 'MeetingDetail', params: { id: row.id } })
 		},
-		onAdd() {
-			this.$router.push({ name: 'MeetingDetail', params: { id: 'new' } })
+		onCreateClick() { /* handled by create-dialog slot */ },
+		onSaved() {
+			this.refresh()
 		},
 	},
 }

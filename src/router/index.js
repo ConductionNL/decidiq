@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 
-/**
- * Vue Router configuration for Decidesk.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.4
- */
-
 import Vue from 'vue'
 import Router from 'vue-router'
 import { generateUrl } from '@nextcloud/router'
+
+/**
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.4
+ */
 
 Vue.use(Router)
 
@@ -30,13 +28,13 @@ export default new Router({
 	routes: [
 		{ path: '/', name: 'Dashboard', component: DashboardView },
 		{ path: '/governance-bodies', name: 'GovernanceBodies', component: GovernanceBodies },
-		{ path: '/governance-bodies/:id', name: 'GovernanceBodyDetail', component: GovernanceBodyDetail, props: (route) => ({ entityId: route.params.id }) },
+		{ path: '/governance-bodies/:id', name: 'GovernanceBodyDetail', component: GovernanceBodyDetail, props: true },
 		{ path: '/meetings', name: 'Meetings', component: Meetings },
-		{ path: '/meetings/:id', name: 'MeetingDetail', component: MeetingDetail, props: (route) => ({ entityId: route.params.id }) },
+		{ path: '/meetings/:id', name: 'MeetingDetail', component: MeetingDetail, props: true },
 		{ path: '/participants', name: 'Participants', component: Participants },
-		{ path: '/participants/:id', name: 'ParticipantDetail', component: ParticipantDetail, props: (route) => ({ entityId: route.params.id }) },
+		{ path: '/participants/:id', name: 'ParticipantDetail', component: ParticipantDetail, props: true },
 		{ path: '/agenda-items', name: 'AgendaItems', component: AgendaItems },
-		{ path: '/agenda-items/:id', name: 'AgendaItemDetail', component: AgendaItemDetail, props: (route) => ({ entityId: route.params.id }) },
+		{ path: '/agenda-items/:id', name: 'AgendaItemDetail', component: AgendaItemDetail, props: true },
 		{ path: '/settings', name: 'Settings', component: SettingsView },
 		{ path: '*', redirect: '/' },
 	],

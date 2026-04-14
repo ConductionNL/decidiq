@@ -5,141 +5,102 @@
  @spec openspec/changes/p1-crud-operations/tasks.md#task-7.2
 -->
 <template>
-	<div>
-		<CnDetailPage
-			v-if="!isNew && detailView"
-			:detail-view="detailView"
-			:title="detailView.data?.title || t('decidesk', 'Meeting')">
-			<template #header-actions>
-				<NcButton type="secondary" @click="isEditing = true">
-					{{ t('decidesk', 'Edit') }}
-				</NcButton>
-				<NcButton type="error" @click="showDelete = true">
-					{{ t('decidesk', 'Delete') }}
-				</NcButton>
-			</template>
-
+	<CnDetailPage
+		:object="object"
+		:loading="loading"
+		:title="object.title || t('decidesk', 'Meeting')"
+		:show-sidebar="true"
+		@edit="editing = true"
+		@delete="showDeleteDialog = true">
+		<template #properties>
 			<CnDetailCard :title="t('decidesk', 'Properties')">
 				<CnDetailGrid :items="propertyItems" />
 			</CnDetailCard>
+		</template>
 
+		<template #relations>
 			<CnDetailCard :title="t('decidesk', 'Agenda Items')">
-				<CnDataTable
-					v-if="relatedAgendaItems.length"
-					:columns="agendaItemColumns"
-					:rows="relatedAgendaItems"
-					@row-click="(row) => $router.push({ name: 'AgendaItemDetail', params: { id: row.id } })" />
-				<p v-else>{{ t('decidesk', 'No agenda items linked to this meeting.') }}</p>
+				<p v-if="!object.relations?.['agenda-item']?.length" class="decidesk-empty">
+					{{ t('decidesk', 'No agenda items.') }}
+				</p>
 			</CnDetailCard>
+		</template>
 
-			<template #sidebar>
-				<CnObjectSidebar
-					:object-store="meetingStore"
-					:object-id="entityId" />
-			</template>
-		</CnDetailPage>
+		<template #sidebar>
+			<CnObjectSidebar :object="object" :loading="loading" />
+		</template>
 
-		<CnFormDialog
-			v-if="isEditing || isNew"
-			:open="isEditing || isNew"
-			:object-store="meetingStore"
-			:object="isNew ? {} : detailView?.data"
-			:title="isNew ? t('decidesk', 'New Meeting') : t('decidesk', 'Edit Meeting')"
-			@close="onFormClose"
-			@saved="onSaved" />
+		<template #edit-dialog>
+			<CnSchemaFormDialog
+				v-if="editing"
+				:schema="schema"
+				:object="object"
+				:title="t('decidesk', 'Edit Meeting')"
+				:object-store="objectStore"
+				object-type="meeting"
+				@close="editing = false"
+				@saved="onEditSaved" />
+		</template>
 
-		<CnDeleteDialog
-			v-if="showDelete"
-			:open="showDelete"
-			:object-store="meetingStore"
-			:object="detailView?.data"
-			@close="showDelete = false"
-			@deleted="$router.push({ name: 'Meetings' })" />
-	</div>
+		<template #delete-dialog>
+			<CnDeleteDialog
+				v-if="showDeleteDialog"
+				:object-name="object.title || ''"
+				@confirm="confirmDelete"
+				@close="showDeleteDialog = false" />
+		</template>
+	</CnDetailPage>
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnDataTable, CnObjectSidebar, CnFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
-import { useMeetingStore } from '../store/store.js'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { useObjectStore } from '../store/store.js'
 
-/**
- * Detail page for a meeting with related agenda items.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-7.2
- */
 export default {
 	name: 'MeetingDetail',
-	components: {
-		NcButton,
-		CnDetailPage,
-		CnDetailCard,
-		CnDetailGrid,
-		CnDataTable,
-		CnObjectSidebar,
-		CnFormDialog,
-		CnDeleteDialog,
-	},
-
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog },
 	props: {
-		entityId: { type: String, required: true },
+		id: { type: String, required: true },
 	},
-
 	setup(props) {
-		const meetingStore = useMeetingStore()
-		const detailView = props.entityId !== 'new'
-			? useDetailView('meeting', { objectStore: meetingStore, id: props.entityId })
-			: null
-		return { detailView, meetingStore }
+		const objectStore = useObjectStore()
+		const detailView = useDetailView('meeting', props.id, {
+			objectStore,
+			listRouteName: 'Meetings',
+			detailRouteName: 'MeetingDetail',
+		})
+		return { ...detailView, objectStore }
 	},
-
-	data() {
-		return {
-			isEditing: false,
-			showDelete: false,
-			relatedAgendaItems: [],
-			agendaItemColumns: [
-				{ key: 'orderNumber', label: this.t('decidesk', 'Order') },
-				{ key: 'title', label: this.t('decidesk', 'Title') },
-				{ key: 'itemType', label: this.t('decidesk', 'Type') },
-				{ key: 'estimatedDuration', label: this.t('decidesk', 'Duration (min)') },
-			],
-		}
-	},
-
 	computed: {
-		isNew() {
-			return this.entityId === 'new'
+		schema() {
+			return this.objectStore.getSchema('meeting')
 		},
 		propertyItems() {
-			const d = this.detailView?.data
-			if (!d) return []
 			return [
-				{ label: this.t('decidesk', 'Title'), value: d.title },
-				{ label: this.t('decidesk', 'Type'), value: d.meetingType },
-				{ label: this.t('decidesk', 'Scheduled Date'), value: d.scheduledDate },
-				{ label: this.t('decidesk', 'End Date'), value: d.endDate },
-				{ label: this.t('decidesk', 'Location'), value: d.location },
-				{ label: this.t('decidesk', 'Mode'), value: d.meetingMode },
-				{ label: this.t('decidesk', 'Lifecycle'), value: d.lifecycle },
-				{ label: this.t('decidesk', 'Quorum Required'), value: d.quorumRequired },
+				{ label: this.t('decidesk', 'Title'), value: this.object.title },
+				{ label: this.t('decidesk', 'Type'), value: this.object.meetingType },
+				{ label: this.t('decidesk', 'Scheduled Date'), value: this.object.scheduledDate },
+				{ label: this.t('decidesk', 'End Date'), value: this.object.endDate },
+				{ label: this.t('decidesk', 'Location'), value: this.object.location },
+				{ label: this.t('decidesk', 'Mode'), value: this.object.meetingMode },
+				{ label: this.t('decidesk', 'Lifecycle'), value: this.object.lifecycle },
+				{ label: this.t('decidesk', 'Quorum Required'), value: this.object.quorumRequired },
+				{ label: this.t('decidesk', 'Series'), value: this.object.series },
 			]
 		},
 	},
-
 	methods: {
-		onFormClose() {
-			if (this.isNew) {
-				this.$router.push({ name: 'Meetings' })
-			}
-			this.isEditing = false
-		},
-		onSaved(savedObject) {
-			if (this.isNew && savedObject?.id) {
-				this.$router.replace({ name: 'MeetingDetail', params: { id: savedObject.id } })
-			}
-			this.isEditing = false
+		onEditSaved() {
+			this.editing = false
+			this.objectStore.fetchObject('meeting', this.id)
 		},
 	},
 }
 </script>
+
+<style scoped>
+.decidesk-empty {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}
+</style>

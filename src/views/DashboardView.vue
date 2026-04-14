@@ -62,7 +62,7 @@
 
 <script>
 import { CnDashboardPage, CnKpiGrid, CnStatsBlock, CnChartWidget } from '@conduction/nextcloud-vue'
-import { useGovernanceBodyStore, useMeetingStore, useParticipantStore, useAgendaItemStore } from '../store/store.js'
+import { useObjectStore } from '../store/store.js'
 
 import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
 import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
@@ -154,22 +154,20 @@ export default {
 	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-5.3
 	 */
 	async created() {
-		const governanceBodyStore = useGovernanceBodyStore()
-		const meetingStore = useMeetingStore()
-		const participantStore = useParticipantStore()
+		const objectStore = useObjectStore()
 
 		try {
-			const [governanceBodies, meetingData, participants] = await Promise.all([
-				governanceBodyStore.fetchObjects('governanceBody'),
-				meetingStore.fetchObjects('meeting'),
-				participantStore.fetchObjects('participant'),
+			const [governanceBodyData, meetingData, participantData] = await Promise.all([
+				objectStore.fetchCollection('governance-body'),
+				objectStore.fetchCollection('meeting'),
+				objectStore.fetchCollection('participant'),
 			])
 
 			this.meetings = meetingData || []
 
-			this.kpi.governanceBodies = (governanceBodies || []).length
+			this.kpi.governanceBodies = (governanceBodyData || []).length
 			this.kpi.meetings = (meetingData || []).length
-			this.kpi.participants = (participants || []).length
+			this.kpi.participants = (participantData || []).length
 			this.kpi.upcomingMeetings = (meetingData || [])
 				.filter((m) => m.lifecycle === 'scheduled').length
 		} catch (error) {

@@ -5,127 +5,100 @@
  @spec openspec/changes/p1-crud-operations/tasks.md#task-8.2
 -->
 <template>
-	<div>
-		<CnDetailPage
-			v-if="!isNew && detailView"
-			:detail-view="detailView"
-			:title="detailView.data?.displayName || t('decidesk', 'Participant')">
-			<template #header-actions>
-				<NcButton type="secondary" @click="isEditing = true">
-					{{ t('decidesk', 'Edit') }}
-				</NcButton>
-				<NcButton type="error" @click="showDelete = true">
-					{{ t('decidesk', 'Delete') }}
-				</NcButton>
-			</template>
-
+	<CnDetailPage
+		:object="object"
+		:loading="loading"
+		:title="object.displayName || t('decidesk', 'Participant')"
+		:show-sidebar="true"
+		@edit="editing = true"
+		@delete="showDeleteDialog = true">
+		<template #properties>
 			<CnDetailCard :title="t('decidesk', 'Properties')">
 				<CnDetailGrid :items="propertyItems" />
 			</CnDetailCard>
+		</template>
 
+		<template #relations>
 			<CnDetailCard :title="t('decidesk', 'Governance Body')">
-				<p>{{ t('decidesk', 'Related governance body is shown via object relations.') }}</p>
+				<p v-if="!object.relations?.['governance-body']?.length" class="decidesk-empty">
+					{{ t('decidesk', 'No linked governance body.') }}
+				</p>
 			</CnDetailCard>
+		</template>
 
-			<template #sidebar>
-				<CnObjectSidebar
-					:object-store="participantStore"
-					:object-id="entityId" />
-			</template>
-		</CnDetailPage>
+		<template #sidebar>
+			<CnObjectSidebar :object="object" :loading="loading" />
+		</template>
 
-		<CnFormDialog
-			v-if="isEditing || isNew"
-			:open="isEditing || isNew"
-			:object-store="participantStore"
-			:object="isNew ? {} : detailView?.data"
-			:title="isNew ? t('decidesk', 'New Participant') : t('decidesk', 'Edit Participant')"
-			@close="onFormClose"
-			@saved="onSaved" />
+		<template #edit-dialog>
+			<CnSchemaFormDialog
+				v-if="editing"
+				:schema="schema"
+				:object="object"
+				:title="t('decidesk', 'Edit Participant')"
+				:object-store="objectStore"
+				object-type="participant"
+				@close="editing = false"
+				@saved="onEditSaved" />
+		</template>
 
-		<CnDeleteDialog
-			v-if="showDelete"
-			:open="showDelete"
-			:object-store="participantStore"
-			:object="detailView?.data"
-			@close="showDelete = false"
-			@deleted="$router.push({ name: 'Participants' })" />
-	</div>
+		<template #delete-dialog>
+			<CnDeleteDialog
+				v-if="showDeleteDialog"
+				:object-name="object.displayName || ''"
+				@confirm="confirmDelete"
+				@close="showDeleteDialog = false" />
+		</template>
+	</CnDetailPage>
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
-import { useParticipantStore } from '../store/store.js'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { useObjectStore } from '../store/store.js'
 
-/**
- * Detail page for a participant with related governance body.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-8.2
- */
 export default {
 	name: 'ParticipantDetail',
-	components: {
-		NcButton,
-		CnDetailPage,
-		CnDetailCard,
-		CnDetailGrid,
-		CnObjectSidebar,
-		CnFormDialog,
-		CnDeleteDialog,
-	},
-
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog },
 	props: {
-		entityId: { type: String, required: true },
+		id: { type: String, required: true },
 	},
-
 	setup(props) {
-		const participantStore = useParticipantStore()
-		const detailView = props.entityId !== 'new'
-			? useDetailView('participant', { objectStore: participantStore, id: props.entityId })
-			: null
-		return { detailView, participantStore }
+		const objectStore = useObjectStore()
+		const detailView = useDetailView('participant', props.id, {
+			objectStore,
+			listRouteName: 'Participants',
+			detailRouteName: 'ParticipantDetail',
+		})
+		return { ...detailView, objectStore }
 	},
-
-	data() {
-		return {
-			isEditing: false,
-			showDelete: false,
-		}
-	},
-
 	computed: {
-		isNew() {
-			return this.entityId === 'new'
+		schema() {
+			return this.objectStore.getSchema('participant')
 		},
 		propertyItems() {
-			const d = this.detailView?.data
-			if (!d) return []
 			return [
-				{ label: this.t('decidesk', 'Display Name'), value: d.displayName },
-				{ label: this.t('decidesk', 'Role'), value: d.role },
-				{ label: this.t('decidesk', 'Party'), value: d.party },
-				{ label: this.t('decidesk', 'Email'), value: d.email },
-				{ label: this.t('decidesk', 'Joined At'), value: d.joinedAt },
-				{ label: this.t('decidesk', 'Left At'), value: d.leftAt },
-				{ label: this.t('decidesk', 'Voting Weight'), value: d.votingWeight },
+				{ label: this.t('decidesk', 'Name'), value: this.object.displayName },
+				{ label: this.t('decidesk', 'Role'), value: this.object.role },
+				{ label: this.t('decidesk', 'Party'), value: this.object.party },
+				{ label: this.t('decidesk', 'Email'), value: this.object.email },
+				{ label: this.t('decidesk', 'Joined'), value: this.object.joinedAt },
+				{ label: this.t('decidesk', 'Left'), value: this.object.leftAt },
+				{ label: this.t('decidesk', 'Voting Weight'), value: this.object.votingWeight },
 			]
 		},
 	},
-
 	methods: {
-		onFormClose() {
-			if (this.isNew) {
-				this.$router.push({ name: 'Participants' })
-			}
-			this.isEditing = false
-		},
-		onSaved(savedObject) {
-			if (this.isNew && savedObject?.id) {
-				this.$router.replace({ name: 'ParticipantDetail', params: { id: savedObject.id } })
-			}
-			this.isEditing = false
+		onEditSaved() {
+			this.editing = false
+			this.objectStore.fetchObject('participant', this.id)
 		},
 	},
 }
 </script>
+
+<style scoped>
+.decidesk-empty {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}
+</style>

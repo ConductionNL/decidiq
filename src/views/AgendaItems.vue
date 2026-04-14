@@ -6,44 +6,61 @@
 -->
 <template>
 	<CnIndexPage
-		:list-view="listView"
-		:sidebar-state="sidebarState"
+		:title="t('decidesk', 'Agenda Items')"
+		:schema="schema"
+		:objects="objects"
+		:loading="loading"
+		:pagination="pagination"
+		:search-term="searchTerm"
+		:active-filters="activeFilters"
+		:visible-columns="columns"
+		@search="onSearch"
+		@sort="onSort"
+		@filter-change="onFilterChange"
+		@page-change="onPageChange"
 		@row-click="onRowClick"
-		@add="onAdd" />
+		@create="onCreateClick"
+		@refresh="refresh">
+		<template #create-dialog="{ close }">
+			<CnSchemaFormDialog
+				:schema="schema"
+				:title="t('decidesk', 'Create Agenda Item')"
+				:object-store="objectStore"
+				object-type="agenda-item"
+				@close="close"
+				@saved="onSaved" />
+		</template>
+	</CnIndexPage>
 </template>
 
 <script>
-import { CnIndexPage, useListView } from '@conduction/nextcloud-vue'
-import { useAgendaItemStore } from '../store/store.js'
+import { CnIndexPage, CnSchemaFormDialog, useListView } from '@conduction/nextcloud-vue'
+import { useObjectStore } from '../store/store.js'
 
-/**
- * Index page for agenda items with default sort by orderNumber ascending.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-9.1
- */
 export default {
 	name: 'AgendaItems',
-	components: { CnIndexPage },
-
-	inject: {
-		sidebarState: { default: () => ({ active: false }) },
-	},
-
+	components: { CnIndexPage, CnSchemaFormDialog },
 	setup() {
-		const agendaItemStore = useAgendaItemStore()
-		const listView = useListView('agendaItem', {
-			objectStore: agendaItemStore,
-			defaultSort: { field: 'orderNumber', direction: 'asc' },
+		const objectStore = useObjectStore()
+		const listView = useListView('agenda-item', {
+			objectStore,
+			sidebarState: null,
+			defaultSort: { key: 'orderNumber', order: 'asc' },
 		})
-		return { listView }
+		return { ...listView, objectStore }
 	},
-
+	data() {
+		return {
+			columns: ['orderNumber', 'title', 'itemType', 'estimatedDuration', 'isRecurring'],
+		}
+	},
 	methods: {
 		onRowClick(row) {
 			this.$router.push({ name: 'AgendaItemDetail', params: { id: row.id } })
 		},
-		onAdd() {
-			this.$router.push({ name: 'AgendaItemDetail', params: { id: 'new' } })
+		onCreateClick() { /* handled by create-dialog slot */ },
+		onSaved() {
+			this.refresh()
 		},
 	},
 }

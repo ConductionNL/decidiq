@@ -5,155 +5,105 @@
  @spec openspec/changes/p1-crud-operations/tasks.md#task-6.2
 -->
 <template>
-	<div>
-		<CnDetailPage
-			v-if="!isNew && detailView"
-			:detail-view="detailView"
-			:title="detailView.data?.name || t('decidesk', 'Governance Body')">
-			<template #header-actions>
-				<NcButton type="secondary" @click="isEditing = true">
-					{{ t('decidesk', 'Edit') }}
-				</NcButton>
-				<NcButton type="error" @click="showDelete = true">
-					{{ t('decidesk', 'Delete') }}
-				</NcButton>
-			</template>
-
+	<CnDetailPage
+		:object="object"
+		:loading="loading"
+		:title="object.name || t('decidesk', 'Governance Body')"
+		:show-sidebar="true"
+		@edit="editing = true"
+		@delete="showDeleteDialog = true">
+		<template #properties>
 			<CnDetailCard :title="t('decidesk', 'Properties')">
 				<CnDetailGrid :items="propertyItems" />
 			</CnDetailCard>
+		</template>
 
+		<template #relations>
 			<CnDetailCard :title="t('decidesk', 'Related Meetings')">
-				<CnDataTable
-					v-if="relatedMeetings.length"
-					:columns="meetingColumns"
-					:rows="relatedMeetings"
-					@row-click="(row) => $router.push({ name: 'MeetingDetail', params: { id: row.id } })" />
-				<p v-else>{{ t('decidesk', 'No meetings linked to this governance body.') }}</p>
+				<p v-if="!object.relations?.meeting?.length" class="decidesk-empty">
+					{{ t('decidesk', 'No related meetings.') }}
+				</p>
 			</CnDetailCard>
-
 			<CnDetailCard :title="t('decidesk', 'Related Participants')">
-				<CnDataTable
-					v-if="relatedParticipants.length"
-					:columns="participantColumns"
-					:rows="relatedParticipants"
-					@row-click="(row) => $router.push({ name: 'ParticipantDetail', params: { id: row.id } })" />
-				<p v-else>{{ t('decidesk', 'No participants linked to this governance body.') }}</p>
+				<p v-if="!object.relations?.participant?.length" class="decidesk-empty">
+					{{ t('decidesk', 'No related participants.') }}
+				</p>
 			</CnDetailCard>
+		</template>
 
-			<template #sidebar>
-				<CnObjectSidebar
-					:object-store="governanceBodyStore"
-					:object-id="entityId" />
-			</template>
-		</CnDetailPage>
+		<template #sidebar>
+			<CnObjectSidebar :object="object" :loading="loading" />
+		</template>
 
-		<CnFormDialog
-			v-if="isEditing || isNew"
-			:open="isEditing || isNew"
-			:object-store="governanceBodyStore"
-			:object="isNew ? {} : detailView?.data"
-			:title="isNew ? t('decidesk', 'New Governance Body') : t('decidesk', 'Edit Governance Body')"
-			@close="onFormClose"
-			@saved="onSaved" />
+		<template #edit-dialog>
+			<CnSchemaFormDialog
+				v-if="editing"
+				:schema="schema"
+				:object="object"
+				:title="t('decidesk', 'Edit Governance Body')"
+				:object-store="objectStore"
+				object-type="governance-body"
+				@close="editing = false"
+				@saved="onEditSaved" />
+		</template>
 
-		<CnDeleteDialog
-			v-if="showDelete"
-			:open="showDelete"
-			:object-store="governanceBodyStore"
-			:object="detailView?.data"
-			@close="showDelete = false"
-			@deleted="$router.push({ name: 'GovernanceBodies' })" />
-	</div>
+		<template #delete-dialog>
+			<CnDeleteDialog
+				v-if="showDeleteDialog"
+				:object-name="object.name || ''"
+				@confirm="confirmDelete"
+				@close="showDeleteDialog = false" />
+		</template>
+	</CnDetailPage>
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnDataTable, CnObjectSidebar, CnFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
-import { useGovernanceBodyStore } from '../store/store.js'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { useObjectStore } from '../store/store.js'
 
-/**
- * Detail page for a governance body with related meetings and participants.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-6.2
- */
 export default {
 	name: 'GovernanceBodyDetail',
-	components: {
-		NcButton,
-		CnDetailPage,
-		CnDetailCard,
-		CnDetailGrid,
-		CnDataTable,
-		CnObjectSidebar,
-		CnFormDialog,
-		CnDeleteDialog,
-	},
-
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog },
 	props: {
-		entityId: { type: String, required: true },
+		id: { type: String, required: true },
 	},
-
 	setup(props) {
-		const governanceBodyStore = useGovernanceBodyStore()
-		const detailView = props.entityId !== 'new'
-			? useDetailView('governanceBody', { objectStore: governanceBodyStore, id: props.entityId })
-			: null
-		return { detailView, governanceBodyStore }
+		const objectStore = useObjectStore()
+		const detailView = useDetailView('governance-body', props.id, {
+			objectStore,
+			listRouteName: 'GovernanceBodies',
+			detailRouteName: 'GovernanceBodyDetail',
+		})
+		return { ...detailView, objectStore }
 	},
-
-	data() {
-		return {
-			isEditing: false,
-			showDelete: false,
-			relatedMeetings: [],
-			relatedParticipants: [],
-			meetingColumns: [
-				{ key: 'title', label: this.t('decidesk', 'Title') },
-				{ key: 'meetingType', label: this.t('decidesk', 'Type') },
-				{ key: 'scheduledDate', label: this.t('decidesk', 'Date') },
-				{ key: 'lifecycle', label: this.t('decidesk', 'Status') },
-			],
-			participantColumns: [
-				{ key: 'displayName', label: this.t('decidesk', 'Name') },
-				{ key: 'role', label: this.t('decidesk', 'Role') },
-				{ key: 'party', label: this.t('decidesk', 'Party') },
-				{ key: 'email', label: this.t('decidesk', 'Email') },
-			],
-		}
-	},
-
 	computed: {
-		isNew() {
-			return this.entityId === 'new'
+		schema() {
+			return this.objectStore.getSchema('governance-body')
 		},
 		propertyItems() {
-			const d = this.detailView?.data
-			if (!d) return []
 			return [
-				{ label: this.t('decidesk', 'Name'), value: d.name },
-				{ label: this.t('decidesk', 'Body Type'), value: d.bodyType },
-				{ label: this.t('decidesk', 'Domain'), value: d.domain },
-				{ label: this.t('decidesk', 'Voting Default'), value: d.votingDefault },
-				{ label: this.t('decidesk', 'Term Start'), value: d.termStart },
-				{ label: this.t('decidesk', 'Term End'), value: d.termEnd },
+				{ label: this.t('decidesk', 'Name'), value: this.object.name },
+				{ label: this.t('decidesk', 'Type'), value: this.object.bodyType },
+				{ label: this.t('decidesk', 'Domain'), value: this.object.domain },
+				{ label: this.t('decidesk', 'Voting Default'), value: this.object.votingDefault },
+				{ label: this.t('decidesk', 'Quorum Rule'), value: this.object.quorumRule },
+				{ label: this.t('decidesk', 'Term Start'), value: this.object.termStart },
+				{ label: this.t('decidesk', 'Term End'), value: this.object.termEnd },
 			]
 		},
 	},
-
 	methods: {
-		onFormClose() {
-			if (this.isNew) {
-				this.$router.push({ name: 'GovernanceBodies' })
-			}
-			this.isEditing = false
-		},
-		onSaved(savedObject) {
-			if (this.isNew && savedObject?.id) {
-				this.$router.replace({ name: 'GovernanceBodyDetail', params: { id: savedObject.id } })
-			}
-			this.isEditing = false
+		onEditSaved() {
+			this.editing = false
+			this.objectStore.fetchObject('governance-body', this.id)
 		},
 	},
 }
 </script>
+
+<style scoped>
+.decidesk-empty {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}
+</style>

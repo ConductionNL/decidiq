@@ -6,43 +6,60 @@
 -->
 <template>
 	<CnIndexPage
-		:list-view="listView"
-		:sidebar-state="sidebarState"
+		:title="t('decidesk', 'Participants')"
+		:schema="schema"
+		:objects="objects"
+		:loading="loading"
+		:pagination="pagination"
+		:search-term="searchTerm"
+		:active-filters="activeFilters"
+		:visible-columns="columns"
+		@search="onSearch"
+		@sort="onSort"
+		@filter-change="onFilterChange"
+		@page-change="onPageChange"
 		@row-click="onRowClick"
-		@add="onAdd" />
+		@create="onCreateClick"
+		@refresh="refresh">
+		<template #create-dialog="{ close }">
+			<CnSchemaFormDialog
+				:schema="schema"
+				:title="t('decidesk', 'Create Participant')"
+				:object-store="objectStore"
+				object-type="participant"
+				@close="close"
+				@saved="onSaved" />
+		</template>
+	</CnIndexPage>
 </template>
 
 <script>
-import { CnIndexPage, useListView } from '@conduction/nextcloud-vue'
-import { useParticipantStore } from '../store/store.js'
+import { CnIndexPage, CnSchemaFormDialog, useListView } from '@conduction/nextcloud-vue'
+import { useObjectStore } from '../store/store.js'
 
-/**
- * Index page for participants.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-8.1
- */
 export default {
 	name: 'Participants',
-	components: { CnIndexPage },
-
-	inject: {
-		sidebarState: { default: () => ({ active: false }) },
-	},
-
+	components: { CnIndexPage, CnSchemaFormDialog },
 	setup() {
-		const participantStore = useParticipantStore()
+		const objectStore = useObjectStore()
 		const listView = useListView('participant', {
-			objectStore: participantStore,
+			objectStore,
+			sidebarState: null,
 		})
-		return { listView }
+		return { ...listView, objectStore }
 	},
-
+	data() {
+		return {
+			columns: ['displayName', 'role', 'party', 'email'],
+		}
+	},
 	methods: {
 		onRowClick(row) {
 			this.$router.push({ name: 'ParticipantDetail', params: { id: row.id } })
 		},
-		onAdd() {
-			this.$router.push({ name: 'ParticipantDetail', params: { id: 'new' } })
+		onCreateClick() { /* handled by create-dialog slot */ },
+		onSaved() {
+			this.refresh()
 		},
 	},
 }
