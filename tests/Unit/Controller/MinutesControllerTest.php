@@ -27,8 +27,11 @@ use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 
 /**
  * Tests for MinutesController.
@@ -60,6 +63,20 @@ class MinutesControllerTest extends TestCase
     private MinutesGenerationService&MockObject $minutesGenerationService;
 
     /**
+     * Mock IUserSession.
+     *
+     * @var IUserSession&MockObject
+     */
+    private IUserSession&MockObject $userSession;
+
+    /**
+     * Mock ContainerInterface.
+     *
+     * @var ContainerInterface&MockObject
+     */
+    private ContainerInterface&MockObject $container;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -70,10 +87,19 @@ class MinutesControllerTest extends TestCase
 
         $this->request                  = $this->createMock(IRequest::class);
         $this->minutesGenerationService = $this->createMock(MinutesGenerationService::class);
+        $this->userSession              = $this->createMock(IUserSession::class);
+        $this->container                = $this->createMock(ContainerInterface::class);
+
+        // Default: authenticated user.
+        $user = $this->createMock(IUser::class);
+        $user->method('getDisplayName')->willReturn('Test User');
+        $this->userSession->method('getUser')->willReturn($user);
 
         $this->controller = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
+            userSession: $this->userSession,
+            container: $this->container,
         );
 
     }//end setUp()
@@ -146,5 +172,36 @@ class MinutesControllerTest extends TestCase
         self::assertArrayHasKey('message', $result->getData());
 
     }//end testGenerateDraftWhenOpenRegisterUnavailableReturns503()
+
+    /**
+     * generateDraft with unauthenticated request returns 401.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+     *
+     * @return void
+     */
+    public function testGenerateDraftUnauthenticatedReturns401(): void
+    {
+        // Create a fresh controller with a session that has no authenticated user.
+        $unauthSession = $this->createMock(IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
+        $controller = new MinutesController(
+            request: $this->request,
+            minutesGenerationService: $this->minutesGenerationService,
+            userSession: $unauthSession,
+            container: $this->container,
+        );
+
+        // The generation service should never be called for unauthenticated requests.
+        $this->minutesGenerationService->expects($this->never())->method('generateDraft');
+
+        $result = $controller->generateDraft('minutes-uuid-003');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
+
+    }//end testGenerateDraftUnauthenticatedReturns401()
 
 }//end class

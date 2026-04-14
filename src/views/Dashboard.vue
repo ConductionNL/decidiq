@@ -12,41 +12,8 @@ Copyright (C) 2026 Conduction B.V.
 			</p>
 		</header>
 
-		<CnKpiGrid :columns="4">
-			<!-- Original KPIs -->
-			<CnStatsBlock
-				:title="t('decidesk', 'Open items')"
-				:count="openActionItemCount"
-				:count-label="t('decidesk', 'actiepunten')"
-				:icon="FolderOutline"
-				variant="primary"
-				horizontal />
-			<CnStatsBlock
-				:title="t('decidesk', 'Verlopen')"
-				:count="overdueActionItemCount"
-				:count-label="t('decidesk', 'actiepunten')"
-				:icon="AlertCircleOutline"
-				variant="warning"
-				horizontal />
-			<CnStatsBlock
-				:title="t('decidesk', 'Afgerond')"
-				:count="completedActionItemCount"
-				:count-label="t('decidesk', 'actiepunten')"
-				:icon="CheckCircleOutline"
-				variant="success"
-				horizontal />
-			<CnStatsBlock
-				:title="t('decidesk', 'Gepubliceerde besluiten')"
-				:count="publishedDecisionCount"
-				:count-label="t('decidesk', 'besluiten')"
-				:icon="CheckDecagramIcon"
-				variant="default"
-				horizontal />
-		</CnKpiGrid>
-
-		<!-- New KPI row for p2-minutes-and-decisions -->
-		<!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8 -->
-		<CnKpiGrid :columns="3" class="decidesk-dashboard__kpi-row">
+		<!-- KPI row: spec-required tiles — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8 -->
+		<CnKpiGrid :columns="3">
 			<CnStatsBlock
 				:title="t('decidesk', 'Notulen ter goedkeuring')"
 				:count="minutesInReviewCount"
@@ -73,14 +40,14 @@ Copyright (C) 2026 Conduction B.V.
 		<div class="decidesk-dashboard__columns">
 			<CnConfigurationCard :title="t('decidesk', 'Notulen')">
 				<p class="decidesk-dashboard__hint">
-					<a @click="$router.push({ name: 'Minutes' })" class="decidesk-link">
+					<a class="decidesk-link" @click="$router.push({ name: 'Minutes' })">
 						{{ t('decidesk', 'Bekijk alle notulen →') }}
 					</a>
 				</p>
 			</CnConfigurationCard>
 			<CnConfigurationCard :title="t('decidesk', 'Besluiten')">
 				<p class="decidesk-dashboard__hint">
-					<a @click="$router.push({ name: 'Decisions' })" class="decidesk-link">
+					<a class="decidesk-link" @click="$router.push({ name: 'Decisions' })">
 						{{ t('decidesk', 'Bekijk alle besluiten →') }}
 					</a>
 				</p>
@@ -91,17 +58,10 @@ Copyright (C) 2026 Conduction B.V.
 
 <script>
 import { CnConfigurationCard, CnKpiGrid, CnStatsBlock } from '@conduction/nextcloud-vue'
-import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
-import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
-import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
-import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import CheckDecagramIcon from 'vue-material-design-icons/CheckDecagram.vue'
 import CheckboxMarkedOutlineIcon from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
 import FileDocumentOutlineIcon from 'vue-material-design-icons/FileDocumentOutline.vue'
-import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
-import { useMinutesStore } from '../store/modules/minutes.js'
-import { useDecisionStore } from '../store/modules/decisions.js'
-import { useActionItemStore } from '../store/modules/actionItems.js'
+import { useObjectStore } from '../store/store.js'
 
 export default {
 	name: 'Dashboard',
@@ -112,14 +72,9 @@ export default {
 	},
 	data() {
 		return {
-			AccountGroupOutline,
-			AlertCircleOutline,
-			CalendarClock,
-			CheckCircleOutline,
 			CheckDecagramIcon,
 			CheckboxMarkedOutlineIcon,
 			FileDocumentOutlineIcon,
-			FolderOutline,
 		}
 	},
 	computed: {
@@ -129,7 +84,7 @@ export default {
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
 		 */
 		minutesInReviewCount() {
-			return useMinutesStore().minutes.filter((m) => m.lifecycle === 'review').length
+			return (useObjectStore().getObjects('minutes') ?? []).filter((m) => m.lifecycle === 'review').length
 		},
 		/**
 		 * Count of Decisions with isPublished=true.
@@ -137,7 +92,7 @@ export default {
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
 		 */
 		publishedDecisionCount() {
-			return useDecisionStore().decisions.filter((d) => d.isPublished).length
+			return (useObjectStore().getObjects('decision') ?? []).filter((d) => d.isPublished).length
 		},
 		/**
 		 * Count of ActionItems with taskStatus open or in-progress.
@@ -145,24 +100,19 @@ export default {
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
 		 */
 		openActionItemCount() {
-			return useActionItemStore().actionItems.filter(
+			return (useObjectStore().getObjects('action-item') ?? []).filter(
 				(ai) => ai.taskStatus === 'open' || ai.taskStatus === 'in-progress'
 			).length
-		},
-		overdueActionItemCount() {
-			return useActionItemStore().actionItems.filter((ai) => ai.taskStatus === 'overdue').length
-		},
-		completedActionItemCount() {
-			return useActionItemStore().actionItems.filter((ai) => ai.taskStatus === 'completed').length
 		},
 	},
 	created() {
 		// Fetch all KPI counts in parallel.
 		// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
+		const objectStore = useObjectStore()
 		Promise.all([
-			useMinutesStore().fetchMinutes({ limit: 200 }),
-			useDecisionStore().fetchDecisions({ limit: 200 }),
-			useActionItemStore().fetchActionItems({ limit: 200 }),
+			objectStore.fetchObjects('minutes', { limit: 200 }),
+			objectStore.fetchObjects('decision', { limit: 200 }),
+			objectStore.fetchObjects('action-item', { limit: 200 }),
 		])
 	},
 }
@@ -188,10 +138,6 @@ export default {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 	line-height: 1.5;
-}
-
-.decidesk-dashboard__kpi-row {
-	margin-top: 16px;
 }
 
 .decidesk-dashboard__columns {
