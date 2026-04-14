@@ -531,9 +531,9 @@ export default {
 }
 
 .decidesk-dialog select,
-.decidesk-dialog input[type="datetime-local"],
-.decidesk-dialog input[type="text"],
-.decidesk-dialog input[type="number"] {
+.decidesk-dialog input[type='datetime-local'],
+.decidesk-dialog input[type='text'],
+.decidesk-dialog input[type='number'] {
 	width: 100%;
 	max-width: 300px;
 }
