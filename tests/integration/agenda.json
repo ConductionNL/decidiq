@@ -199,6 +199,136 @@
 					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "reorder"]
 				}
 			}
+		},
+		{
+			"name": "POST /api/agendas/{meetingId}/publish — 401 when unauthenticated",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 401 for unauthenticated request', function () {",
+							"  pm.response.to.have.status(401);",
+							"});",
+							"pm.test('Error message present', function () {",
+							"  pm.expect(pm.response.json()).to.have.property('message');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "POST",
+				"header": [
+					{ "key": "OCS-APIRequest", "value": "true" },
+					{ "key": "Content-Type",   "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/publish",
+					"host": ["{{base_url}}"],
+					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "publish"]
+				}
+			}
+		},
+		{
+			"name": "PUT /api/agenda-items/{id}/bob-phase — 401 when unauthenticated",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 401 for unauthenticated request', function () {",
+							"  pm.response.to.have.status(401);",
+							"});",
+							"pm.test('Error message present', function () {",
+							"  pm.expect(pm.response.json()).to.have.property('message');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "PUT",
+				"header": [
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{base_url}}/index.php/apps/decidesk/api/agenda-items/{{item_id}}/bob-phase",
+					"host": ["{{base_url}}"],
+					"path": ["index.php", "apps", "decidesk", "api", "agenda-items", "{{item_id}}", "bob-phase"]
+				}
+			}
+		},
+		{
+			"name": "POST /api/agendas/{meetingId}/hamerstukken — 401 when unauthenticated",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 401 for unauthenticated request', function () {",
+							"  pm.response.to.have.status(401);",
+							"});",
+							"pm.test('Error message present', function () {",
+							"  pm.expect(pm.response.json()).to.have.property('message');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "POST",
+				"header": [
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/hamerstukken",
+					"host": ["{{base_url}}"],
+					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "hamerstukken"]
+				}
+			}
+		},
+		{
+			"name": "PUT /api/agendas/{meetingId}/reorder — 401 when unauthenticated",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 401 for unauthenticated request', function () {",
+							"  pm.response.to.have.status(401);",
+							"});",
+							"pm.test('Error message present', function () {",
+							"  pm.expect(pm.response.json()).to.have.property('message');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "PUT",
+				"header": [
+					{ "key": "OCS-APIRequest", "value": "true" },
+					{ "key": "Content-Type",   "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"ids\": [\"{{item_id}}\"]}"
+				},
+				"url": {
+					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/reorder",
+					"host": ["{{base_url}}"],
+					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "reorder"]
+				}
+			}
 		}
 	]
 }

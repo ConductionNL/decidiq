@@ -88,7 +88,7 @@ class AgendaController extends Controller
     {
         $user = $this->userSession->getUser();
         if ($user === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_FORBIDDEN);
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
         }
 
         $userId = $user->getUID();
@@ -178,35 +178,41 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function advanceBobPhase(string $id): JSONResponse
     {
-        // Resolve the meeting for authorization; fail closed if the relation is absent.
-        $item = $this->objectService->find($id);
-        if (is_array($item) === true) {
-            $itemData = $item;
-        } else if ($item !== null) {
-            $itemData = (array) $item;
-        } else {
-            $itemData = [];
-        }
-
-        $meetingId = $itemData['@self']['relations']['meeting'] ?? null;
-
-        if ($meetingId === null) {
-            return new JSONResponse(['message' => 'Could not resolve meeting for authorization.'], Http::STATUS_FORBIDDEN);
-        }
-
-        $denied = $this->requireChairOrAdmin(meetingId: (string) $meetingId);
-        if ($denied !== null) {
-            return $denied;
-        }
-
         try {
+            // Resolve the meeting for authorization; fail closed if the relation is absent.
+            $item = $this->objectService->find($id);
+            if (is_array($item) === true) {
+                $itemData = $item;
+            } else if ($item !== null) {
+                $itemData = (array) $item;
+            } else {
+                $itemData = [];
+            }
+
+            $meetingId = $itemData['@self']['relations']['meeting'] ?? null;
+
+            if ($meetingId === null) {
+                return new JSONResponse(['message' => 'Could not resolve meeting for authorization.'], Http::STATUS_FORBIDDEN);
+            }
+
+            $denied = $this->requireChairOrAdmin(meetingId: (string) $meetingId);
+            if ($denied !== null) {
+                return $denied;
+            }
+
             $this->agendaService->advanceBobPhase($id);
             return new JSONResponse(['success' => true]);
         } catch (NotFoundException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
-        }
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'advanceBobPhase failed for item {id}: {error}',
+                ['id' => $id, 'error' => $e->getMessage(), 'exception' => $e]
+            );
+            return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+        }//end try
 
     }//end advanceBobPhase()
 
