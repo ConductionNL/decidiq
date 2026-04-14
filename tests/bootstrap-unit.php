@@ -42,3 +42,11 @@ if (is_dir($serverTestsLib) === true) {
 if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
     require_once __DIR__.'/Stubs/DeepLinkRegistrationEvent.php';
 }
+
+if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
+    require_once __DIR__.'/Stubs/ObjectService.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
+    require_once __DIR__.'/Stubs/ObjectEntity.php';
+}

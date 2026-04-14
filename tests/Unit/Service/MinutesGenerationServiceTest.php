@@ -131,12 +131,12 @@ class MinutesGenerationServiceTest extends TestCase
         $agendaEntity  = $this->createEntityMock($agendaItemData);
 
         $this->objectService->method('find')
-            ->willReturnCallback(static function (string $id, mixed $extend = null, string $register = '', string $schema = '') use ($minutesEntity, $meetingEntity): ?object {
-                if ($schema === 'minutes') {
+            ->willReturnCallback(static function (string $id) use ($minutesEntity, $meetingEntity): ?object {
+                if ($id === 'minutes-001') {
                     return $minutesEntity;
                 }
 
-                if ($schema === 'meeting') {
+                if ($id === 'meeting-001') {
                     return $meetingEntity;
                 }
 
@@ -187,12 +187,12 @@ class MinutesGenerationServiceTest extends TestCase
         $meetingEntity = $this->createEntityMock($meetingData);
 
         $this->objectService->method('find')
-            ->willReturnCallback(static function (string $id, mixed $extend = null, string $register = '', string $schema = '') use ($minutesEntity, $meetingEntity): ?object {
-                if ($schema === 'minutes') {
+            ->willReturnCallback(static function (string $id) use ($minutesEntity, $meetingEntity): ?object {
+                if ($id === 'minutes-002') {
                     return $minutesEntity;
                 }
 
-                if ($schema === 'meeting') {
+                if ($id === 'meeting-002') {
                     return $meetingEntity;
                 }
 
@@ -242,8 +242,8 @@ class MinutesGenerationServiceTest extends TestCase
         $minutesEntity = $this->createEntityMock($minutesData);
 
         $this->objectService->method('find')
-            ->willReturnCallback(static function (string $id, mixed $extend = null, string $register = '', string $schema = '') use ($minutesEntity): ?object {
-                if ($schema === 'minutes') {
+            ->willReturnCallback(static function (string $id) use ($minutesEntity): ?object {
+                if ($id === 'minutes-003') {
                     return $minutesEntity;
                 }
 
