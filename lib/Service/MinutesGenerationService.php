@@ -37,6 +37,22 @@ use Psr\Log\LoggerInterface;
  */
 class MinutesGenerationService
 {
+
+    /**
+     * Allowed lifecycle transitions: current state → next state.
+     *
+     * Only sequential single-step transitions are permitted to ensure
+     * proper workflow enforcement (OWASP A04 — Insecure Design).
+     *
+     * @var array<string,string>
+     */
+    private const LIFECYCLE_TRANSITIONS = [
+        'draft'    => 'review',
+        'review'   => 'approved',
+        'approved' => 'signed',
+        'signed'   => 'published',
+    ];
+
     /**
      * Constructor for MinutesGenerationService.
      *
@@ -73,10 +89,10 @@ class MinutesGenerationService
 
         // Fetch the Minutes object.
         $minutesEntity = $objectService->find(
-            id: $minutesId,
-            extend: ['meeting'],
-            register: 'decidesk',
-            schema: 'minutes'
+            $minutesId,
+            ['meeting'],
+            'decidesk',
+            'minutes'
         );
 
         if ($minutesEntity === null) {
@@ -127,6 +143,86 @@ class MinutesGenerationService
     }//end generateDraft()
 
     /**
+     * Transition a Minutes object to the next lifecycle state (server-side enforcement).
+     *
+     * Validates that the requested transition follows the allowed sequence
+     * (draft → review → approved → signed → published). Populates server-side
+     * fields: approvedAt for the "approved" transition and signedBy (with the
+     * authenticated user's display name) for the "approved" and "signed" transitions.
+     *
+     * @param string $minutesId    UUID of the Minutes object
+     * @param string $newLifecycle The target lifecycle state
+     * @param string $displayName  Display name of the authenticated user (from server session)
+     *
+     * @throws \InvalidArgumentException When the Minutes object is not found or the transition is invalid
+     * @throws \RuntimeException         When OpenRegister is not available
+     *
+     * @return array<string,mixed> The updated Minutes object data
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     */
+    public function transition(string $minutesId, string $newLifecycle, string $displayName): array
+    {
+        $objectService = $this->getObjectService();
+
+        $minutesEntity = $objectService->find(
+            id: $minutesId,
+            register: 'decidesk',
+            schema: 'minutes'
+        );
+
+        if ($minutesEntity === null) {
+            throw new \InvalidArgumentException(
+                sprintf('Minutes object "%s" not found.', $minutesId)
+            );
+        }
+
+        $minutes          = $minutesEntity->getObject();
+        $currentLifecycle = $minutes['lifecycle'] ?? 'draft';
+
+        if ((self::LIFECYCLE_TRANSITIONS[$currentLifecycle] ?? null) !== $newLifecycle) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Invalid lifecycle transition: "%s" → "%s". Expected next state: "%s".',
+                    $currentLifecycle,
+                    $newLifecycle,
+                    self::LIFECYCLE_TRANSITIONS[$currentLifecycle] ?? 'none'
+                )
+            );
+        }
+
+        $updated = array_merge($minutes, ['lifecycle' => $newLifecycle]);
+
+        if ($newLifecycle === 'approved') {
+            $updated['approvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        }
+
+        if (in_array($newLifecycle, ['approved', 'signed'], true) === true) {
+            if (is_array($minutes['signedBy'] ?? null) === true) {
+                $signers = $minutes['signedBy'];
+            } else {
+                $signers = [];
+            }
+
+            if (in_array($displayName, $signers, true) === false) {
+                $signers[] = $displayName;
+            }
+
+            $updated['signedBy'] = $signers;
+        }
+
+        $objectService->saveObject(
+            object: $updated,
+            register: 'decidesk',
+            schema: 'minutes',
+            uuid: $minutesId
+        );
+
+        return $updated;
+
+    }//end transition()
+
+    /**
      * Resolve the linked Meeting from the Minutes object.
      *
      * @param array<string,mixed> $minutes       The Minutes object data
@@ -165,9 +261,10 @@ class MinutesGenerationService
 
         try {
             $meetingEntity = $objectService->find(
-                id: $meetingId,
-                register: 'decidesk',
-                schema: 'meeting'
+                $meetingId,
+                null,
+                'decidesk',
+                'meeting'
             );
             if ($meetingEntity === null) {
                 return null;
@@ -205,7 +302,7 @@ class MinutesGenerationService
             $objectService->setRegister('decidesk');
             $objectService->setSchema($schema);
             $entities = $objectService->findAll(
-                config: [
+                [
                     'filters' => [
                         'register' => 'decidesk',
                         'schema'   => $schema,
