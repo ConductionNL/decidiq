@@ -29,8 +29,12 @@
 </template>
 
 <script>
-import { NcButton, NcBadge } from '@nextcloud/vue'
+import axios from '@nextcloud/axios'
+import { showError } from '@nextcloud/dialogs'
 import { generateUrl } from '@nextcloud/router'
+// NcButton and NcBadge are not re-exported by @conduction/nextcloud-vue (only Cn* components are);
+// imported directly from @nextcloud/vue until the wrapper layer adds them.
+import { NcButton, NcBadge } from '@nextcloud/vue'
 
 /**
  * Meeting lifecycle component — renders valid transition buttons for the current state.
@@ -115,19 +119,14 @@ export default {
 			try {
 				const meetingId = this.meeting['@self']?.id ?? this.meeting.id
 				const url = generateUrl(`/apps/decidesk/api/meetings/${meetingId}/lifecycle`)
-				const response = await fetch(url, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ action }),
-				})
-				const data = await response.json()
-				if (response.ok && data.success) {
+				const { data } = await axios.post(url, { action })
+				if (data.success) {
 					this.$emit('lifecycle-updated', data.meeting)
 				} else {
-					console.error('Decidesk: lifecycle transition failed', data.message)
+					showError(data.message ?? t('decidesk', 'Lifecycle transition failed.'))
 				}
 			} catch (error) {
-				console.error('Decidesk: lifecycle transition error', error)
+				showError(error.response?.data?.message ?? t('decidesk', 'Lifecycle transition failed.'))
 			} finally {
 				this.loading = false
 			}

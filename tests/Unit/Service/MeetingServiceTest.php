@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
+use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -204,6 +205,32 @@ class MeetingServiceTest extends TestCase
         self::assertStringContainsString(needle: 'not found', haystack: $result['message']);
 
     }//end testMeetingNotFoundReturnsFailure()
+
+    /**
+     * Test that a DoesNotExistException thrown by ObjectService is handled gracefully.
+     *
+     * Covers the catch (DoesNotExistException) path in MeetingService::transition().
+     *
+     * @spec openspec/changes/p2-meeting-management/tasks.md#task-3.1
+     *
+     * @return void
+     */
+    public function testDoesNotExistExceptionReturnsFailure(): void
+    {
+        $uuid = 'aaaaaaaa-0000-0000-0000-000000000098';
+
+        $this->objectService->expects($this->once())
+            ->method('find')
+            ->with(id: $uuid)
+            ->willThrowException(new DoesNotExistException('Meeting not found'));
+
+        $result = $this->service->transition(meetingId: $uuid, action: 'open');
+
+        self::assertFalse(condition: $result['success']);
+        self::assertNull(actual: $result['meeting']);
+        self::assertStringContainsString(needle: 'not found', haystack: $result['message']);
+
+    }//end testDoesNotExistExceptionReturnsFailure()
 
     /**
      * Test that the full close path (opened → close → closed) works correctly.
