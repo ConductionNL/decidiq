@@ -152,9 +152,15 @@ class VotingController extends Controller
     public function cast(string $id): JSONResponse
     {
         // Derive participant identity from the authenticated session — never trust client input.
-        $participantId = $this->userSession->getUser()?->getUID() ?? '';
-        if ($participantId === '') {
+        $nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
+        if ($nextcloudUid === '') {
             return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        // Resolve the OpenRegister participant UUID for this Nextcloud user.
+        $participantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
+        if ($participantId === null) {
+            return new JSONResponse(['message' => 'Geen deelnemersprofiel gevonden voor de ingelogde gebruiker'], Http::STATUS_FORBIDDEN);
         }
 
         $params      = $this->request->getParams();

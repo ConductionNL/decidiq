@@ -267,9 +267,21 @@ class VotingServiceTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
 
+        // Round must contain a proxy grant so authorization passes before the duplicate check runs.
         $round = [
             'openedAt' => '2025-04-14T20:05:00+02:00',
             'closedAt' => null,
+            'notes'    => [
+                [
+                    'title' => 'Proxy',
+                    'body'  => json_encode([
+                        'fromParticipantId' => 'delegator-uuid',
+                        'toParticipantId'   => 'delegate-uuid',
+                        'votingRoundId'     => 'round-uuid',
+                        'grantedAt'         => '2025-04-14T19:00:00+02:00',
+                    ]),
+                ],
+            ],
         ];
 
         $existingProxyVote = [
@@ -286,7 +298,7 @@ class VotingServiceTest extends TestCase
             ->method('getObject')
             ->willReturn($round);
 
-        // First findObjects call is for proxy check — return an existing proxy.
+        // findObjects call is for the duplicate proxy check — returns an existing proxy.
         $this->objectService->expects($this->once())
             ->method('findObjects')
             ->willReturn(['results' => [$existingProxyVote]]);

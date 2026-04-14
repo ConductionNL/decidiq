@@ -74,15 +74,15 @@ class VotingService
     }//end objectService()
 
     /**
-     * Resolve OpenRegister NotificationService.
+     * Resolve Nextcloud Notification IManager.
      *
-     * @return object
+     * @return \OCP\Notification\IManager
      */
-    private function notificationService(): object
+    private function notificationManager(): \OCP\Notification\IManager
     {
-        return $this->container->get('OCA\OpenRegister\Service\NotificationService');
+        return $this->container->get(\OCP\Notification\IManager::class);
 
-    }//end notificationService()
+    }//end notificationManager()
 
     /**
      * Resolve OpenRegister FileService.
@@ -94,6 +94,35 @@ class VotingService
         return $this->container->get('OCA\OpenRegister\Service\FileService');
 
     }//end fileService()
+
+    /**
+     * Resolve the OpenRegister participant UUID for a given Nextcloud user ID.
+     *
+     * Queries the participant register by nextcloudUserId field. Returns null
+     * when no matching participant object is found.
+     *
+     * @param string $nextcloudUid The Nextcloud user login name (UID)
+     *
+     * @return string|null The participant object UUID, or null if not found
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+     */
+    public function resolveParticipantUuid(string $nextcloudUid): ?string
+    {
+        $objectService = $this->objectService();
+        $results       = $objectService->findObjects(
+            register: 'decidesk',
+            schema: 'participant',
+            filters: ['nextcloudUserId' => $nextcloudUid]
+        );
+
+        foreach (($results['results'] ?? []) as $participant) {
+            return ($participant['uuid'] ?? $participant['id'] ?? null);
+        }
+
+        return null;
+
+    }//end resolveParticipantUuid()
 
     /**
      * Check whether quorum is met for a given meeting.
@@ -248,8 +277,28 @@ class VotingService
             throw new \RuntimeException('Stemronde is nog niet geopend');
         }
 
-        // Enforce one-proxy-per-round: check for existing proxy vote from this delegator.
+        $isSecret = (bool) ($round['isSecret'] ?? false);
+
+        // For proxy votes: verify the casting participant holds a granted proxy from the claimed delegator.
         if ($isProxy === true && $delegatorId !== null) {
+            $proxyGrantFound = false;
+            foreach (($round['notes'] ?? []) as $note) {
+                if (($note['title'] ?? '') !== 'Proxy') {
+                    continue;
+                }
+
+                $body = json_decode($note['body'] ?? '{}', true);
+                if (($body['fromParticipantId'] ?? '') === $delegatorId && ($body['toParticipantId'] ?? '') === $participantId) {
+                    $proxyGrantFound = true;
+                    break;
+                }
+            }
+
+            if ($proxyGrantFound === false) {
+                throw new \RuntimeException('Geen geldige volmacht gevonden: de deelnemer heeft geen volmacht ontvangen van deze volmachtgever');
+            }
+
+            // Enforce one-proxy-per-round: check for existing proxy vote from this delegator.
             $existingProxies = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'vote',
@@ -266,22 +315,31 @@ class VotingService
                     }
                 }
             }
-        }
+        }//end if
 
-        // Check for existing vote by this participant — overwrite if found.
-        $existingVotes = $objectService->findObjects(
-            register: 'decidesk',
-            schema: 'vote',
-            filters: ['relations.voting-round' => $votingRoundId, 'relations.participant' => $participantId]
-        );
+        // Check for existing vote — overwrite if found.
+        // For secret rounds the participant relation is suppressed for anonymity,
+        // so dedup is keyed on a deterministic voterToken instead.
+        if ($isSecret === true) {
+            $voterToken    = hash('sha256', $participantId.':'.$votingRoundId);
+            $existingVotes = $objectService->findObjects(
+                register: 'decidesk',
+                schema: 'vote',
+                filters: ['relations.voting-round' => $votingRoundId, 'voterToken' => $voterToken]
+            );
+        } else {
+            $existingVotes = $objectService->findObjects(
+                register: 'decidesk',
+                schema: 'vote',
+                filters: ['relations.voting-round' => $votingRoundId, 'relations.participant' => $participantId]
+            );
+        }
 
         $existingVote = null;
         foreach (($existingVotes['results'] ?? []) as $v) {
             $existingVote = $v;
             break;
         }
-
-        $isSecret = (bool) ($round['isSecret'] ?? false);
 
         $relations = [
             ['register' => 'decidesk', 'schema' => 'voting-round', 'id' => $votingRoundId],
@@ -304,6 +362,11 @@ class VotingService
             'castAt'    => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
             'relations' => $relations,
         ];
+
+        // Store opaque dedup token for secret rounds (never contains participant identity).
+        if ($isSecret === true) {
+            $vote['voterToken'] = hash('sha256', $participantId.':'.$votingRoundId);
+        }
 
         if ($existingVote !== null) {
             $vote['id']   = ($existingVote['id'] ?? null);
@@ -553,19 +616,35 @@ class VotingService
             $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
         }
 
-        // Notify delegate — use the participant UUID as Nextcloud UID, not the email address.
+        // Notify delegate — resolve the Nextcloud UID from the participant object.
         try {
-            $this->notificationService()->createNotification(
-                userId: $toParticipantId,
-                app: 'decidesk',
-                subject: 'proxy_granted',
-                subjectParameters: ['from' => $fromParticipantId, 'votingRoundId' => $votingRoundId],
-                object: 'voting-round',
-                objectId: $votingRoundId
-            );
+            $nextcloudUserId = $toParticipant['nextcloudUserId'] ?? null;
+
+            // Fall back to email lookup when nextcloudUserId is not stored on the participant.
+            if ($nextcloudUserId === null) {
+                $email = $toParticipant['email'] ?? null;
+                if ($email !== null) {
+                    $userManager = $this->container->get(\OCP\IUserManager::class);
+                    $users       = $userManager->getByEmail($email);
+                    if (count($users) === 1) {
+                        $nextcloudUserId = $users[0]->getUID();
+                    }
+                }
+            }
+
+            if ($nextcloudUserId !== null) {
+                $notificationManager = $this->notificationManager();
+                $notification        = $notificationManager->createNotification();
+                $notification->setApp('decidesk')
+                    ->setUser($nextcloudUserId)
+                    ->setDateTime(new \DateTime())
+                    ->setObject('voting-round', $votingRoundId)
+                    ->setSubject('proxy_granted', ['from' => $fromParticipantId, 'votingRoundId' => $votingRoundId]);
+                $notificationManager->notify($notification);
+            }
         } catch (\Throwable $e) {
             $this->logger->warning('Decidesk: proxy grant notification failed', ['error' => $e->getMessage()]);
-        }
+        }//end try
 
     }//end grantProxy()
 

@@ -95,19 +95,6 @@ class MotionService
     }//end getObjectService()
 
     /**
-     * Get the NotificationService from the container.
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
-     *
-     * @return object
-     */
-    private function getNotificationService(): object
-    {
-        return $this->container->get('OCA\OpenRegister\Service\NotificationService');
-
-    }//end getNotificationService()
-
-    /**
      * Transition a Motion or Amendment to a new lifecycle state.
      *
      * Validates that the transition is allowed for the object type, then
@@ -192,13 +179,7 @@ class MotionService
 
         $motionData = $motionObject->getObject();
         $title      = $motionData['title'] ?? 'Motie';
-
-        try {
-            $notificationService = $this->getNotificationService();
-        } catch (\Throwable $e) {
-            $this->logger->warning("Decidesk: NotificationService unavailable: {$e->getMessage()}");
-            return;
-        }
+        $pendingSignerUids = [];
 
         foreach ($participantIds as $participantId) {
             try {
@@ -224,13 +205,22 @@ class MotionService
                 }
 
                 if ($nextcloudUserId !== null) {
-                    $notificationService->sendNotification(
-                        userId: $nextcloudUserId,
-                        subject: "Co-ondertekeningsverzoek: $title",
-                        message: "U bent uitgenodigd om de motie '$title' mede te ondertekenen.",
-                        objectType: 'motion',
-                        objectId: $motionId,
-                    );
+                    $pendingSignerUids[] = $nextcloudUserId;
+
+                    try {
+                        $notificationManager = $this->container->get(\OCP\Notification\IManager::class);
+                        $notification        = $notificationManager->createNotification();
+                        $notification->setApp('decidesk')
+                            ->setUser($nextcloudUserId)
+                            ->setDateTime(new \DateTime())
+                            ->setObject('motion', $motionId)
+                            ->setSubject('co_sign_request', ['motionTitle' => $title, 'motionId' => $motionId]);
+                        $notificationManager->notify($notification);
+                    } catch (\Throwable $notifyEx) {
+                        $this->logger->warning(
+                            "Decidesk: Could not send co-sign notification to $nextcloudUserId: {$notifyEx->getMessage()}"
+                        );
+                    }
                 }
             } catch (\Throwable $e) {
                 $this->logger->warning(
@@ -238,6 +228,24 @@ class MotionService
                 );
             }//end try
         }//end foreach
+
+        // Persist the set of invited Nextcloud UIDs so coSignConfirm can verify authorization.
+        if (empty($pendingSignerUids) === false) {
+            $existing = array_unique(
+                array_merge(
+                    $motionData['pendingCoSignerUids'] ?? [],
+                    $pendingSignerUids,
+                )
+            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('motion');
+            $objectService->saveObject(
+                object: array_merge($motionData, ['pendingCoSignerUids' => array_values($existing)]),
+                register: 'decidesk',
+                schema: 'motion',
+                uuid: $motionId,
+            );
+        }
 
     }//end requestCoSignature()
 
@@ -281,6 +289,34 @@ class MotionService
     }//end addCoSigner()
 
     /**
+     * Check whether a Nextcloud user was invited to co-sign a Motion.
+     *
+     * Returns true when the user's UID appears in the motion's pendingCoSignerUids list.
+     *
+     * @param string $motionId     UUID of the Motion
+     * @param string $nextcloudUid The Nextcloud user ID to verify
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+     *
+     * @return bool True when the user was invited
+     */
+    public function isPendingCoSigner(string $motionId, string $nextcloudUid): bool
+    {
+        $objectService = $this->getObjectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('motion');
+
+        $motionObject = $objectService->find($motionId);
+        if ($motionObject === null) {
+            return false;
+        }
+
+        $motionData = $motionObject->getObject();
+        return in_array($nextcloudUid, $motionData['pendingCoSignerUids'] ?? [], true);
+
+    }//end isPendingCoSigner()
+
+    /**
      * Create or update a structured "Budget impact" note on a Motion.
      *
      * Stores budget line reference, amount delta, and rationale as a JSON
@@ -310,15 +346,20 @@ class MotionService
         $motionData = $motionObject->getObject();
         $notes      = $motionData['notes'] ?? [];
 
+        $budgetPayload = json_encode(
+            [
+                'budgetLine'  => $budgetLine,
+                'amountDelta' => $amountDelta,
+                'rationale'   => $rationale,
+            ]
+        );
+        if ($budgetPayload === false) {
+            throw new \RuntimeException('JSON encoding of budget impact failed: '.json_last_error_msg());
+        }
+
         $budgetNote = [
             'title' => 'Budget impact',
-            'body'  => json_encode(
-                    [
-                        'budgetLine'  => $budgetLine,
-                        'amountDelta' => $amountDelta,
-                        'rationale'   => $rationale,
-                    ]
-                    ),
+            'body'  => $budgetPayload,
         ];
 
         // Replace existing budget impact note or append.
@@ -428,8 +469,19 @@ class MotionService
             $existingText = strtolower($amendmentData['text'] ?? '');
 
             // Naive overlap: check for common significant words (>4 chars).
-            $newWords      = array_filter(str_word_count($newText, 1), fn($w) => strlen($w) > 4);
-            $existingWords = array_filter(str_word_count($existingText, 1), fn($w) => strlen($w) > 4);
+            // Use Unicode-aware split so Dutch diacritics (é, ó, ë, etc.) are treated as word characters.
+            $splitNew  = preg_split('/[^\pL\pN]+/u', $newText, -1, PREG_SPLIT_NO_EMPTY);
+            $splitExst = preg_split('/[^\pL\pN]+/u', $existingText, -1, PREG_SPLIT_NO_EMPTY);
+            if ($splitNew === false) {
+                $splitNew = [];
+            }
+
+            if ($splitExst === false) {
+                $splitExst = [];
+            }
+
+            $newWords      = array_filter($splitNew, fn($w) => mb_strlen($w) > 4);
+            $existingWords = array_filter($splitExst, fn($w) => mb_strlen($w) > 4);
             $overlap       = array_intersect($newWords, $existingWords);
 
             if (count($overlap) > 3) {
