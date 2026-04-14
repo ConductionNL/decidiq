@@ -23,14 +23,16 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\MinutesController;
+use OCA\Decidesk\Exception\MissingRelationException;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 
 /**
  * Tests for MinutesController.
@@ -62,18 +64,25 @@ class MinutesControllerTest extends TestCase
     private MinutesGenerationService&MockObject $minutesGenerationService;
 
     /**
-     * Mock ContainerInterface.
-     *
-     * @var ContainerInterface&MockObject
-     */
-    private ContainerInterface&MockObject $container;
-
-    /**
      * Mock IUserSession.
      *
      * @var IUserSession&MockObject
      */
     private IUserSession&MockObject $userSession;
+
+    /**
+     * Mock IGroupManager.
+     *
+     * @var IGroupManager&MockObject
+     */
+    private IGroupManager&MockObject $groupManager;
+
+    /**
+     * Mock IUser (authenticated user).
+     *
+     * @var IUser&MockObject
+     */
+    private IUser&MockObject $user;
 
     /**
      * Set up test fixtures.
@@ -86,15 +95,19 @@ class MinutesControllerTest extends TestCase
 
         $this->request                  = $this->createMock(IRequest::class);
         $this->minutesGenerationService = $this->createMock(MinutesGenerationService::class);
-        $this->container                = $this->createMock(ContainerInterface::class);
         $this->userSession              = $this->createMock(IUserSession::class);
+        $this->groupManager             = $this->createMock(IGroupManager::class);
+        $this->user                     = $this->createMock(IUser::class);
+
+        $this->user->method('getUID')->willReturn('testuser');
+        $this->user->method('getDisplayName')->willReturn('Test User');
+        $this->userSession->method('getUser')->willReturn($this->user);
 
         $this->controller = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
-            container: $this->container,
             userSession: $this->userSession,
-            userId: 'testuser',
+            groupManager: $this->groupManager,
         );
 
     }//end setUp()
@@ -147,6 +160,27 @@ class MinutesControllerTest extends TestCase
     }//end testGenerateDraftWithInvalidIdReturns404()
 
     /**
+     * generateDraft when the linked Meeting is missing returns 422.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+     *
+     * @return void
+     */
+    public function testGenerateDraftWithMissingMeetingReturns422(): void
+    {
+        $this->minutesGenerationService->expects($this->once())
+            ->method('generateDraft')
+            ->willThrowException(new MissingRelationException('No linked Meeting found.'));
+
+        $result = $this->controller->generateDraft('minutes-uuid-004');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
+
+    }//end testGenerateDraftWithMissingMeetingReturns422()
+
+    /**
      * generateDraft when OpenRegister is unavailable returns 503.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
@@ -171,21 +205,20 @@ class MinutesControllerTest extends TestCase
     /**
      * generateDraft for an unauthenticated request returns 401.
      *
-     * Simulates a call where userId is null — i.e. no active session — which can
-     * occur when the Nextcloud authentication middleware is bypassed in tests.
-     *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
     public function testGenerateDraftUnauthenticatedReturns401(): void
     {
+        $unauthSession = $this->createMock(IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
         $unauthController = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
-            container: $this->container,
-            userSession: $this->userSession,
-            userId: null,
+            userSession: $unauthSession,
+            groupManager: $this->groupManager,
         );
 
         // The service must NOT be called for an unauthenticated request.
@@ -198,5 +231,84 @@ class MinutesControllerTest extends TestCase
         self::assertArrayHasKey('message', $result->getData());
 
     }//end testGenerateDraftUnauthenticatedReturns401()
+
+    /**
+     * transition() with a non-admin user attempting a restricted state returns 403.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+     *
+     * @return void
+     */
+    public function testTransitionToApprovedByNonAdminReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->request->method('getParam')->with('lifecycle')->willReturn('approved');
+
+        // Service must NOT be called — access check happens before delegation.
+        $this->minutesGenerationService->expects($this->never())->method('transition');
+
+        $result = $this->controller->transition('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
+
+    }//end testTransitionToApprovedByNonAdminReturns403()
+
+    /**
+     * transition() by an admin succeeds and returns the updated minutes.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+     *
+     * @return void
+     */
+    public function testTransitionByAdminSucceeds(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('lifecycle')->willReturn('approved');
+
+        $updated = ['id' => 'minutes-uuid-001', 'lifecycle' => 'approved', 'approvedAt' => '2026-04-14T10:00:00+00:00'];
+        $this->minutesGenerationService->expects($this->once())
+            ->method('transition')
+            ->with(
+                minutesId: 'minutes-uuid-001',
+                newLifecycle: 'approved',
+                displayName: 'Test User'
+            )
+            ->willReturn($updated);
+
+        $result = $this->controller->transition('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertSame('approved', $result->getData()['lifecycle']);
+
+    }//end testTransitionByAdminSucceeds()
+
+    /**
+     * transition() with an invalid state returns 422.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+     *
+     * @return void
+     */
+    public function testTransitionWithInvalidStateReturns422(): void
+    {
+        // 'draft' → 'published' is not a valid single-step transition.
+        $this->request->method('getParam')->with('lifecycle')->willReturn('published');
+
+        // 'draft' → 'published' is RESTRICTED, so admin check fires first.
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+
+        $this->minutesGenerationService->expects($this->once())
+            ->method('transition')
+            ->willThrowException(new \InvalidArgumentException('Invalid lifecycle transition.', 422));
+
+        $result = $this->controller->transition('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $result->getStatus());
+
+    }//end testTransitionWithInvalidStateReturns422()
 
 }//end class

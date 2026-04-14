@@ -65,11 +65,6 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </navigation>
     </navigations>
 
-    <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.2 -->
-    <background-jobs>
-        <job>OCA\Decidesk\BackgroundJob\OverdueActionItemsJob</job>
-    </background-jobs>
-
     <repair-steps>
         <install>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>
