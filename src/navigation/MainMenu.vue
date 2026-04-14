@@ -3,6 +3,7 @@
 
 <!--
  @spec openspec/changes/p1-crud-operations/tasks.md#task-4.1
+ @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.4
 -->
 <template>
 	<NcAppNavigation>
@@ -43,6 +44,15 @@
 					<FormatListNumberedIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
+			<!-- Motions navigation item -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.4 -->
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Motions')"
+				:to="{ name: 'Motions' }">
+				<template #icon>
+					<FileDocumentEditIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
 		</template>
 		<template #footer>
 			<NcAppNavigationSettings :name="t('decidesk', 'Settings')">
@@ -59,6 +69,7 @@ import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@
 import AccountGroupIcon from 'vue-material-design-icons/AccountGroupOutline.vue'
 import CalendarBlankIcon from 'vue-material-design-icons/CalendarBlank.vue'
 import DomainIcon from 'vue-material-design-icons/Domain.vue'
+import FileDocumentEditIcon from 'vue-material-design-icons/FileDocumentEdit.vue'
 import FormatListNumberedIcon from 'vue-material-design-icons/FormatListNumbered.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
@@ -71,6 +82,7 @@ export default {
 		AccountGroupIcon,
 		CalendarBlankIcon,
 		DomainIcon,
+		FileDocumentEditIcon,
 		FormatListNumberedIcon,
 		HomeIcon,
 	},
