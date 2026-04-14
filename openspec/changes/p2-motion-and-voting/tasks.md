@@ -108,7 +108,7 @@
 
 - [x] 11.1 Write PHPUnit tests for `MotionServiceTest`: lifecycle transition allowed and blocked; addCoSigner idempotency; detectConflicts with and without overlap; applyAmendment text update
 - [x] 11.2 Write PHPUnit tests for `VotingServiceTest`: checkQuorum met and not met; openVotingRound quorum block; castVote update on duplicate; proxy one-per-round enforcement; tallyResults adopted/rejected/tied; closeVotingRound lifecycle; grantProxy observer rejection
-- [ ] 11.3 Write Newman/Postman integration tests in `tests/integration/motion-voting.json` for all 11 new API endpoints (motion transition, co-sign-request, co-sign-confirm, budget-impact, amendment transition, voting-round open, cast, close, publish, proxy grant, proxy revoke)
+- [x] 11.3 Write Newman/Postman integration tests in `tests/integration/motion-voting.json` for all 11 new API endpoints (motion transition, co-sign-request, co-sign-confirm, budget-impact, amendment transition, voting-round open, cast, close, publish, proxy grant, proxy revoke)
 - [ ] 11.4 Write Playwright browser tests for: REQ-MOT-001 (motion submission), REQ-MOT-004 (co-signature collection), REQ-AMD-003 (conflict detection notification), REQ-VRM-002 (quorum block), REQ-VCT-001 (vote cast and overwrite), REQ-VCT-005 (keyboard accessible voting), REQ-RES-001 (result display after close), REQ-RES-003 (dossier folder created), REQ-PRX-001 (proxy delegation), REQ-PRX-003 (proxy revocation before open)
 
 ## 12. Verification
