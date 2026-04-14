@@ -102,7 +102,7 @@ class SettingsService
     public function getSettings(): array
     {
         // Default schema slugs match the slugs defined in decidesk_register.json.
-        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.
         $defaults = [
             'minutesSchema'    => 'minutes',
             'decisionSchema'   => 'decision',
@@ -112,7 +112,11 @@ class SettingsService
         $settings = [];
         foreach (self::CONFIG_KEYS as $key) {
             $value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
-            $settings[$key] = ($value !== '') ? $value : ($defaults[$key] ?? '');
+            if ($value !== '') {
+                $settings[$key] = $value;
+            } else {
+                $settings[$key] = ($defaults[$key] ?? '');
+            }
         }
 
         $user    = $this->userSession->getUser();

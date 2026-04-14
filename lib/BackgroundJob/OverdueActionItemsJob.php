@@ -38,7 +38,9 @@ use Psr\Log\LoggerInterface;
 class OverdueActionItemsJob extends TimedJob
 {
 
-    /** Run once per day (86400 seconds). */
+    /**
+     * Run once per day (86400 seconds).
+     */
     private const INTERVAL_SECONDS = 86400;
 
     /**
@@ -55,8 +57,8 @@ class OverdueActionItemsJob extends TimedJob
         private ContainerInterface $container,
         private LoggerInterface $logger,
     ) {
-        parent::__construct($time);
-        $this->setInterval(self::INTERVAL_SECONDS);
+        parent::__construct(time: $time);
+        $this->setInterval(seconds: self::INTERVAL_SECONDS);
     }//end __construct()
 
     /**
@@ -150,5 +152,4 @@ class OverdueActionItemsJob extends TimedJob
         );
 
     }//end run()
-
 }//end class

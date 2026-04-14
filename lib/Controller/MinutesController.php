@@ -41,11 +41,10 @@ use OCP\IRequest;
  */
 class MinutesController extends Controller
 {
-
     /**
      * Constructor for MinutesController.
      *
-     * @param IRequest                 $request                 The HTTP request
+     * @param IRequest                 $request                  The HTTP request
      * @param MinutesGenerationService $minutesGenerationService The generation service
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
@@ -92,5 +91,4 @@ class MinutesController extends Controller
         }
 
     }//end generateDraft()
-
 }//end class

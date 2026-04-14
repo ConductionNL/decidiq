@@ -37,7 +37,6 @@ use Psr\Log\LoggerInterface;
  */
 class MinutesGenerationService
 {
-
     /**
      * Constructor for MinutesGenerationService.
      *
@@ -97,23 +96,34 @@ class MinutesGenerationService
                 } catch (\Throwable $e) {
                     $this->logger->warning('Decidesk: could not resolve linked Meeting', ['exception' => $e->getMessage()]);
                 }
+
                 break;
             }
         }
 
         if ($meeting !== null) {
-            $agendaItems  = $this->fetchRelated($objectService, 'agenda-item', $meeting);
-            $motions      = $this->fetchRelated($objectService, 'motion', $meeting);
-            $votingRounds = $this->fetchRelated($objectService, 'voting-round', $meeting);
-            $decisions    = $this->fetchRelated($objectService, 'decision', $meeting);
+            $agendaItems  = $this->fetchRelated(objectService: $objectService, schema: 'agenda-item', parentObject: $meeting);
+            $motions      = $this->fetchRelated(objectService: $objectService, schema: 'motion', parentObject: $meeting);
+            $votingRounds = $this->fetchRelated(objectService: $objectService, schema: 'voting-round', parentObject: $meeting);
+            $decisions    = $this->fetchRelated(objectService: $objectService, schema: 'decision', parentObject: $meeting);
 
             // Sort agenda items by orderNumber.
-            usort($agendaItems, static function (array $a, array $b): int {
-                return ($a['orderNumber'] ?? 0) <=> ($b['orderNumber'] ?? 0);
-            });
+            usort(
+                $agendaItems,
+                static function (array $a, array $b): int {
+                    return ($a['orderNumber'] ?? 0) <=> ($b['orderNumber'] ?? 0);
+                }
+            );
         }
 
-        return $this->renderTemplate($minutes, $meeting, $agendaItems, $motions, $votingRounds, $decisions);
+        return $this->renderTemplate(
+            minutes: $minutes,
+            meeting: $meeting,
+            agendaItems: $agendaItems,
+            motions: $motions,
+            votingRounds: $votingRounds,
+            decisions: $decisions
+        );
 
     }//end generateDraft()
 
@@ -154,7 +164,7 @@ class MinutesGenerationService
                     ['id' => $objectId, 'exception' => $e->getMessage()]
                 );
             }
-        }
+        }//end foreach
 
         return $results;
 
@@ -184,22 +194,24 @@ class MinutesGenerationService
     ): string {
         $lines = [];
 
-        $title = $minutes['title'] ?? 'Concept notulen';
-        $lines[] = "# $title";
-        $lines[] = '';
-        $lines[] = '*Dit is een automatisch gegenereerd concept. De griffier dient dit concept te controleren en aan te vullen voor indiening ter goedkeuring.*';
-        $lines[] = '';
+        $title       = $minutes['title'] ?? 'Concept notulen';
+        $lines[]     = "# $title";
+        $lines[]     = '';
+        $disclaimer  = '*Dit is een automatisch gegenereerd concept. De griffier dient dit concept';
+        $disclaimer .= ' te controleren en aan te vullen voor indiening ter goedkeuring.*';
+        $lines[]     = $disclaimer;
+        $lines[]     = '';
 
         if ($meeting !== null) {
             $lines[] = '## Vergadergegevens';
             $lines[] = '';
             $lines[] = '| Gegeven | Waarde |';
             $lines[] = '|---------|--------|';
-            $lines[] = '| Vergadering | ' . ($meeting['title'] ?? '—') . ' |';
-            $lines[] = '| Datum | ' . $this->formatDate($meeting['scheduledDate'] ?? null) . ' |';
-            $lines[] = '| Locatie | ' . ($meeting['location'] ?? '—') . ' |';
-            $lines[] = '| Type | ' . ($meeting['meetingType'] ?? '—') . ' |';
-            $lines[] = '| Modus | ' . ($meeting['meetingMode'] ?? '—') . ' |';
+            $lines[] = '| Vergadering | '.($meeting['title'] ?? '—').' |';
+            $lines[] = '| Datum | '.$this->formatDate(datetime: ($meeting['scheduledDate'] ?? null)).' |';
+            $lines[] = '| Locatie | '.($meeting['location'] ?? '—').' |';
+            $lines[] = '| Type | '.($meeting['meetingType'] ?? '—').' |';
+            $lines[] = '| Modus | '.($meeting['meetingMode'] ?? '—').' |';
             $lines[] = '';
         }
 
@@ -212,10 +224,15 @@ class MinutesGenerationService
             $lines[] = '## Agenda';
             $lines[] = '';
             foreach ($agendaItems as $index => $item) {
-                $number  = $item['orderNumber'] ?? ($index + 1);
-                $itemTitle = $item['title'] ?? "Agendapunt $number";
-                $itemType  = $item['itemType'] ?? '';
-                $lines[] = "### {$number}. {$itemTitle}" . ($itemType !== '' ? " *(${itemType})*" : '');
+                $number     = $item['orderNumber'] ?? ($index + 1);
+                $itemTitle  = $item['title'] ?? "Agendapunt $number";
+                $itemType   = $item['itemType'] ?? '';
+                $typeSuffix = '';
+                if ($itemType !== '') {
+                    $typeSuffix = " *(${itemType})*";
+                }
+
+                $lines[] = "### {$number}. {$itemTitle}".$typeSuffix;
                 $lines[] = '';
                 if (empty($item['description']) === false) {
                     $lines[] = $item['description'];
@@ -223,19 +240,22 @@ class MinutesGenerationService
                 }
 
                 // Find motions linked to this agenda item.
-                $agendaItemId      = $item['id'] ?? $item['uuid'] ?? '';
-                $linkedMotions     = array_filter($motions, static function (array $m) use ($agendaItemId): bool {
-                    foreach (($m['relations'] ?? []) as $rel) {
-                        if (($rel['schema'] ?? '') === 'agenda-item' && ($rel['objectId'] ?? $rel['id'] ?? '') === $agendaItemId) {
-                            return true;
-                        }
-                    }
+                $agendaItemId  = $item['id'] ?? $item['uuid'] ?? '';
+                $linkedMotions = array_filter(
+                        $motions,
+                        static function (array $m) use ($agendaItemId): bool {
+                            foreach (($m['relations'] ?? []) as $rel) {
+                                if (($rel['schema'] ?? '') === 'agenda-item' && ($rel['objectId'] ?? $rel['id'] ?? '') === $agendaItemId) {
+                                    return true;
+                                }
+                            }
 
-                    return false;
-                });
+                            return false;
+                        }
+                        );
 
                 foreach ($linkedMotions as $motion) {
-                    $lines[] = '**Motie/voorstel:** ' . ($motion['title'] ?? '—');
+                    $lines[] = '**Motie/voorstel:** '.($motion['title'] ?? '—');
                     $lines[] = '';
                     if (empty($motion['text']) === false) {
                         $lines[] = $motion['text'];
@@ -243,24 +263,27 @@ class MinutesGenerationService
                     }
 
                     // Find voting rounds for this motion.
-                    $motionId          = $motion['id'] ?? $motion['uuid'] ?? '';
-                    $linkedVotingRounds = array_filter($votingRounds, static function (array $vr) use ($motionId): bool {
-                        foreach (($vr['relations'] ?? []) as $rel) {
-                            if (($rel['schema'] ?? '') === 'motion' && ($rel['objectId'] ?? $rel['id'] ?? '') === $motionId) {
-                                return true;
-                            }
-                        }
+                    $motionId           = $motion['id'] ?? $motion['uuid'] ?? '';
+                    $linkedVotingRounds = array_filter(
+                            $votingRounds,
+                            static function (array $vr) use ($motionId): bool {
+                                foreach (($vr['relations'] ?? []) as $rel) {
+                                    if (($rel['schema'] ?? '') === 'motion' && ($rel['objectId'] ?? $rel['id'] ?? '') === $motionId) {
+                                        return true;
+                                    }
+                                }
 
-                        return false;
-                    });
+                                return false;
+                            }
+                            );
 
                     foreach ($linkedVotingRounds as $vr) {
-                        $result      = $vr['result'] ?? '—';
-                        $votesFor    = $vr['votesFor'] ?? '—';
+                        $result       = $vr['result'] ?? '—';
+                        $votesFor     = $vr['votesFor'] ?? '—';
                         $votesAgainst = $vr['votesAgainst'] ?? '—';
                         $votesAbstain = $vr['votesAbstain'] ?? '—';
-                        $lines[] = "**Stemuitslag:** {$result} (voor: {$votesFor}, tegen: {$votesAgainst}, onthoudingen: {$votesAbstain})";
-                        $lines[] = '';
+                        $lines[]      = "**Stemuitslag:** {$result} (voor: {$votesFor}, tegen: {$votesAgainst}, onthoudingen: {$votesAbstain})";
+                        $lines[]      = '';
                     }
                 }//end foreach
             }//end foreach
@@ -270,9 +293,9 @@ class MinutesGenerationService
             $lines[] = '## Besluiten';
             $lines[] = '';
             foreach ($decisions as $index => $decision) {
-                $num    = $index + 1;
-                $dTitle = $decision['title'] ?? "Besluit $num";
-                $dText  = $decision['text'] ?? '—';
+                $num     = $index + 1;
+                $dTitle  = $decision['title'] ?? "Besluit $num";
+                $dText   = $decision['text'] ?? '—';
                 $outcome = $decision['outcome'] ?? '—';
                 $lines[] = "**Besluit {$num}:** {$dTitle}";
                 $lines[] = '';
@@ -293,7 +316,7 @@ class MinutesGenerationService
         $lines[] = '';
         $lines[] = '---';
         $lines[] = '';
-        $lines[] = '*Concept opgesteld op: ' . date('d-m-Y H:i') . '*';
+        $lines[] = '*Concept opgesteld op: '.date('d-m-Y H:i').'*';
 
         return implode("\n", $lines);
 
@@ -345,5 +368,4 @@ class MinutesGenerationService
         }
 
     }//end getObjectService()
-
 }//end class
