@@ -22,6 +22,8 @@
 			<NcButton
 				v-if="motionLifecycle === 'debating'"
 				type="primary"
+				:disabled="!meetingId"
+				:title="!meetingId ? t('decidesk', 'Vergadering niet gekoppeld — stemronde kan niet worden geopend') : undefined"
 				@click="showOpenRoundDialog = true">
 				{{ t('decidesk', 'Stemronde openen') }}
 			</NcButton>
@@ -146,16 +148,16 @@
 				</template>
 			</div>
 
-			<!-- Proxy management -->
+			<!-- Proxy management — only available before the round opens -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7 -->
-			<div v-if="isRoundOpen" class="decidesk-proxy">
-				<NcButton v-if="!activeProxy" type="secondary" @click="showProxyDialog = true">
+			<div class="decidesk-proxy">
+				<NcButton v-if="!activeProxy && !isRoundOpen" type="secondary" @click="showProxyDialog = true">
 					{{ t('decidesk', 'Volmacht verlenen') }}
 				</NcButton>
-				<NcButton v-if="activeProxy" type="error" @click="revokeProxy">
+				<NcButton v-if="activeProxy && !isRoundOpen" type="error" @click="revokeProxy">
 					{{ t('decidesk', 'Volmacht intrekken') }}
 				</NcButton>
-				<div v-if="showProxyDialog"
+				<div v-if="showProxyDialog && !isRoundOpen"
 					class="decidesk-dialog"
 					role="dialog"
 					:aria-label="t('decidesk', 'Volmacht verlenen')">
@@ -231,6 +233,7 @@ export default {
 	props: {
 		motionId: { type: String, required: true },
 		motionLifecycle: { type: String, default: '' },
+		meetingId: { type: String, default: '' },
 	},
 	setup() {
 		const objectStore = useObjectStore()
@@ -276,8 +279,7 @@ export default {
 			return (this.currentRound.votesFor || 0) + (this.currentRound.votesAgainst || 0) + (this.currentRound.votesAbstain || 0)
 		},
 		isChairOrSecretary() {
-			// TODO: integrate with session/settings store for role check.
-			return true
+			return !!(window.OC?.isUserAdmin?.())
 		},
 		oriStatusLabel() {
 			const labels = {
@@ -358,7 +360,7 @@ export default {
 						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
 						body: JSON.stringify({
 							motionId: this.motionId,
-							meetingId: '', // TODO: pass meeting ID from parent context.
+							meetingId: this.meetingId,
 							votingMethod: this.newRound.votingMethod,
 							isSecret: this.newRound.isSecret,
 							closedAt: this.newRound.closedAt || null,

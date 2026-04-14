@@ -28,6 +28,7 @@ use OCA\Decidesk\Service\MotionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -44,6 +45,7 @@ class MotionController extends Controller
      * @param IRequest      $request       The request object
      * @param MotionService $motionService The motion service
      * @param IUserSession  $userSession   The user session
+     * @param IGroupManager $groupManager  The group manager
      *
      * @return void
      *
@@ -53,10 +55,31 @@ class MotionController extends Controller
         IRequest $request,
         private readonly MotionService $motionService,
         private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
+
+    /**
+     * Require the current user to be an admin (chair/secretary equivalent).
+     *
+     * Returns a 403 JSONResponse when the check fails, null on success.
+     *
+     * @return JSONResponse|null
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+     */
+    private function requireChairOrSecretary(): ?JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
+        }
+
+        return null;
+
+    }//end requireChairOrSecretary()
 
     /**
      * Transition the lifecycle state of a Motion.
@@ -74,6 +97,11 @@ class MotionController extends Controller
      */
     public function transition(string $id): JSONResponse
     {
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
         $params   = $this->request->getParams();
         $newState = ($params['newState'] ?? '');
         $actorId  = ($this->userSession->getUser()?->getUID() ?? ($params['actorId'] ?? ''));
@@ -216,6 +244,11 @@ class MotionController extends Controller
      */
     public function amendmentTransition(string $id): JSONResponse
     {
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
         $params   = $this->request->getParams();
         $newState = ($params['newState'] ?? '');
         $actorId  = ($this->userSession->getUser()?->getUID() ?? '');

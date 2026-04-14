@@ -337,19 +337,29 @@ class VotingService
                         try {
                             $motion = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
                             if ($motion !== null) {
-                                $motion['lifecycle'] = $result;
-                                $motion['status']    = $result;
-                                $objectService->saveObject(register: 'decidesk', schema: 'motion', object: $motion);
+                                // Only transition to defined terminal states; tied/invalid leaves lifecycle unchanged.
+                                $motionLifecycle = match ($result) {
+                                    'adopted'  => 'adopted',
+                                    'rejected' => 'rejected',
+                                    default    => null,
+                                };
 
-                                // Create dossier folder if adopted.
-                                if ($result === 'adopted') {
-                                    $this->createDossierFolder(motionId: $motionId, motionTitle: ($motion['title'] ?? $motionId));
+                                if ($motionLifecycle !== null) {
+                                    $motionTitle         = (string) ($motion['title'] ?? $motionId);
+                                    $motion['lifecycle'] = $motionLifecycle;
+                                    $motion['status']    = $motionLifecycle;
+                                    $objectService->saveObject(register: 'decidesk', schema: 'motion', object: $motion);
+
+                                    // Create dossier folder if adopted.
+                                    if ($motionLifecycle === 'adopted') {
+                                        $this->createDossierFolder(motionId: $motionId, motionTitle: $motionTitle);
+                                    }
                                 }
                             }
                         } catch (\Throwable $e) {
                             $this->logger->warning('Decidesk: lifecycle transition after close failed', ['error' => $e->getMessage()]);
-                        }
-                    }
+                        }//end try
+                    }//end if
 
                     break;
                 }//end if
@@ -481,10 +491,10 @@ class VotingService
             $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
         }
 
-        // Notify delegate.
+        // Notify delegate — use the participant UUID as Nextcloud UID, not the email address.
         try {
             $this->notificationService()->createNotification(
-                userId: ($toParticipant['email'] ?? $toParticipantId),
+                userId: $toParticipantId,
                 app: 'decidesk',
                 subject: 'proxy_granted',
                 subjectParameters: ['from' => $fromParticipantId, 'votingRoundId' => $votingRoundId],

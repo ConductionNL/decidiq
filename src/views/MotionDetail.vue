@@ -100,7 +100,8 @@
 			<VotingRoundPanel
 				v-if="!isNew"
 				:motion-id="id"
-				:motion-lifecycle="object.lifecycle" />
+				:motion-lifecycle="object.lifecycle"
+				:meeting-id="meetingId" />
 		</template>
 
 		<template #sidebar>
@@ -224,9 +225,18 @@ export default {
 				{ label: this.t('decidesk', 'Rationale'), value: this.budgetImpact.rationale },
 			]
 		},
+		meetingId() {
+			const relations = this.object.relations || []
+			const meetingRel = relations.find(r => r.schema === 'meeting' || r.type === 'meeting')
+			return meetingRel?.id || ''
+		},
 		canCoSign() {
-			// Show if current user is in the coSigners invite list but not yet confirmed.
-			return false // TODO: compare with current user display name from session.
+			const user = window.OC?.getCurrentUser?.()
+			if (!user) return false
+			const displayName = user.displayName || ''
+			const pending = this.object.pendingCoSigners || []
+			const confirmed = this.object.coSigners || []
+			return displayName !== '' && pending.includes(displayName) && !confirmed.includes(displayName)
 		},
 	},
 	methods: {

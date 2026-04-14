@@ -159,14 +159,14 @@ class MailReplyHandler extends TimedJob
      */
     private function processRoundMailReplies(object $objectService, array $round, string $roundId): void
     {
-        $mailMeta = ($round['_mail'] ?? []);
-        if (empty($mailMeta) === true) {
+        if (empty($round['_mail'] ?? []) === true) {
             return;
         }
 
         $notificationService = $this->container->get('OCA\OpenRegister\Service\NotificationService');
+        $dirty = false;
 
-        foreach ($mailMeta as $mailEntry) {
+        foreach ($round['_mail'] as &$mailEntry) {
             $participantId = ($mailEntry['participantId'] ?? null);
             $replyBody     = ($mailEntry['replyBody'] ?? '');
             $processed     = (bool) ($mailEntry['processed'] ?? false);
@@ -198,6 +198,7 @@ class MailReplyHandler extends TimedJob
                     );
 
                     $mailEntry['processed'] = true;
+                    $dirty = true;
                     $this->logger->info('Decidesk: email vote processed', ['participant' => $participantId, 'value' => $keyword]);
                 } catch (\Throwable $e) {
                     $this->logger->warning('Decidesk: email vote cast failed', ['error' => $e->getMessage()]);
@@ -209,6 +210,7 @@ class MailReplyHandler extends TimedJob
                 if ($retries >= self::MAX_RETRIES) {
                     $mailEntry['processed'] = true;
                     $mailEntry['abandoned'] = true;
+                    $dirty = true;
                     try {
                         $notificationService->createNotification(
                             userId: $participantId,
@@ -223,6 +225,7 @@ class MailReplyHandler extends TimedJob
                     }
                 } else {
                     $mailEntry['retries'] = $retries;
+                    $dirty = true;
                     try {
                         $notificationService->createNotification(
                             userId: $participantId,
@@ -238,6 +241,13 @@ class MailReplyHandler extends TimedJob
                 }//end if
             }//end if
         }//end foreach
+
+        unset($mailEntry);
+
+        // Persist mutations: write the updated _mail metadata back to OpenRegister.
+        if ($dirty === true) {
+            $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+        }
 
     }//end processRoundMailReplies()
 
