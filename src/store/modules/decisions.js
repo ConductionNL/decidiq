@@ -152,15 +152,19 @@ export const useDecisionStore = defineStore('decision', {
 		 * Publish a Decision by setting isPublished=true and publishedAt=now.
 		 *
 		 * Only valid when outcome='adopted' and isPublished=false.
+		 * If the Decision matching id is not already current, it is fetched first.
 		 *
-		 * @param {string} id - UUID of the Decision object
+		 * @param {string} id - UUID of the Decision object to publish
 		 *
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
-		async publishDecision(_id) {
-			if (!this.currentDecision) return null
+		async publishDecision(id) {
+			const decision = this.currentDecision?.id === id
+				? this.currentDecision
+				: await this.fetchDecisionById(id)
+			if (!decision) return null
 			return this.saveDecision({
-				...this.currentDecision,
+				...decision,
 				isPublished: true,
 				publishedAt: new Date().toISOString(),
 			})

@@ -90,6 +90,9 @@ class Application extends App implements IBootstrap
                     return new MinutesController(
                     request: $c->get(\OCP\IRequest::class),
                     minutesGenerationService: $c->get(MinutesGenerationService::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    userId: $c->get(\OCP\IUserSession::class)->getUser()?->getUID(),
                     );
                 }
                 );

@@ -155,7 +155,10 @@ class OverdueActionItemsJob extends TimedJob
     }//end run()
 
     /**
-     * Fetch ActionItems matching a given taskStatus from OpenRegister.
+     * Fetch all ActionItems matching a given taskStatus from OpenRegister.
+     *
+     * Uses offset-based pagination so that installations with more than
+     * PAGE_SIZE items are fully traversed rather than silently truncated.
      *
      * @param object $objectService The ObjectService instance
      * @param string $status        The taskStatus to filter on ("open" or "in-progress")
@@ -166,37 +169,52 @@ class OverdueActionItemsJob extends TimedJob
      */
     private function fetchActionItemsByStatus(object $objectService, string $status): array
     {
-        try {
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('action-item');
-            $entities = $objectService->findAll(
-                config: [
-                    'filters' => [
-                        'register'   => 'decidesk',
-                        'schema'     => 'action-item',
-                        'taskStatus' => $status,
-                    ],
-                    'limit'   => 1000,
-                ]
-            );
+        $pageSize = 100;
+        $offset   = 0;
+        $result   = [];
 
-            $result = [];
-            foreach ($entities as $entity) {
-                if (method_exists($entity, 'getObject') === true) {
-                    $result[] = $entity->getObject();
-                } else if (is_array($entity) === true) {
-                    $result[] = $entity;
+        while (true) {
+            try {
+                $objectService->setRegister('decidesk');
+                $objectService->setSchema('action-item');
+                $entities = $objectService->findAll(
+                    config: [
+                        'filters' => [
+                            'register'   => 'decidesk',
+                            'schema'     => 'action-item',
+                            'taskStatus' => $status,
+                        ],
+                        'limit'   => $pageSize,
+                        'offset'  => $offset,
+                    ]
+                );
+
+                $batch = [];
+                foreach ($entities as $entity) {
+                    if (method_exists($entity, 'getObject') === true) {
+                        $batch[] = $entity->getObject();
+                    } else if (is_array($entity) === true) {
+                        $batch[] = $entity;
+                    }
                 }
-            }
 
-            return $result;
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk OverdueActionItemsJob: Failed to fetch ActionItems',
-                ['status' => $status, 'exception' => $e->getMessage()]
-            );
-            return [];
-        }//end try
+                $result  = array_merge($result, $batch);
+                $offset += count($batch);
+
+                // Fewer results than page size means we have reached the last page.
+                if (count($batch) < $pageSize) {
+                    break;
+                }
+            } catch (\Throwable $e) {
+                $this->logger->error(
+                    'Decidesk OverdueActionItemsJob: Failed to fetch ActionItems',
+                    ['status' => $status, 'offset' => $offset, 'exception' => $e->getMessage()]
+                );
+                break;
+            }//end try
+        }//end while
+
+        return $result;
 
     }//end fetchActionItemsByStatus()
 }//end class

@@ -14,6 +14,10 @@ return [
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
         ['name' => 'minutes#generateDraft', 'url' => '/api/minutes/{minutesId}/generate-draft', 'verb' => 'POST'],
 
+        // Minutes lifecycle transition — server-side enforcement of workflow state machine.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+        ['name' => 'minutes#transition', 'url' => '/api/minutes/{minutesId}/transition', 'verb' => 'POST'],
+
         // Prometheus metrics endpoint.
         ['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
         // Health check endpoint.

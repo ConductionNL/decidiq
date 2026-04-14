@@ -27,8 +27,10 @@ use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 
 /**
  * Tests for MinutesController.
@@ -39,7 +41,7 @@ class MinutesControllerTest extends TestCase
 {
 
     /**
-     * The controller under test.
+     * The controller under test (authenticated user).
      *
      * @var MinutesController
      */
@@ -60,6 +62,20 @@ class MinutesControllerTest extends TestCase
     private MinutesGenerationService&MockObject $minutesGenerationService;
 
     /**
+     * Mock ContainerInterface.
+     *
+     * @var ContainerInterface&MockObject
+     */
+    private ContainerInterface&MockObject $container;
+
+    /**
+     * Mock IUserSession.
+     *
+     * @var IUserSession&MockObject
+     */
+    private IUserSession&MockObject $userSession;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -70,10 +86,15 @@ class MinutesControllerTest extends TestCase
 
         $this->request                  = $this->createMock(IRequest::class);
         $this->minutesGenerationService = $this->createMock(MinutesGenerationService::class);
+        $this->container                = $this->createMock(ContainerInterface::class);
+        $this->userSession              = $this->createMock(IUserSession::class);
 
         $this->controller = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
+            container: $this->container,
+            userSession: $this->userSession,
+            userId: 'testuser',
         );
 
     }//end setUp()
@@ -146,5 +167,36 @@ class MinutesControllerTest extends TestCase
         self::assertArrayHasKey('message', $result->getData());
 
     }//end testGenerateDraftWhenOpenRegisterUnavailableReturns503()
+
+    /**
+     * generateDraft for an unauthenticated request returns 401.
+     *
+     * Simulates a call where userId is null — i.e. no active session — which can
+     * occur when the Nextcloud authentication middleware is bypassed in tests.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+     *
+     * @return void
+     */
+    public function testGenerateDraftUnauthenticatedReturns401(): void
+    {
+        $unauthController = new MinutesController(
+            request: $this->request,
+            minutesGenerationService: $this->minutesGenerationService,
+            container: $this->container,
+            userSession: $this->userSession,
+            userId: null,
+        );
+
+        // The service must NOT be called for an unauthenticated request.
+        $this->minutesGenerationService->expects($this->never())->method('generateDraft');
+
+        $result = $unauthController->generateDraft('minutes-uuid-003');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
+
+    }//end testGenerateDraftUnauthenticatedReturns401()
 
 }//end class

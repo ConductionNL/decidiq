@@ -21,13 +21,13 @@ export default new Router({
 		{ path: '/settings', name: 'Settings', component: AdminRoot },
 		// Minutes routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		{ path: '/minutes', name: 'Minutes', component: Minutes },
-		{ path: '/minutes/:id', name: 'MinutesDetail', component: MinutesDetail, props: (route) => ({ minutesId: route.params.id }) },
+		{ path: '/minutes/:id', name: 'MinutesDetail', component: MinutesDetail, props: true },
 		// Decision routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		{ path: '/decisions', name: 'Decisions', component: Decisions },
-		{ path: '/decisions/:id', name: 'DecisionDetail', component: DecisionDetail, props: (route) => ({ decisionId: route.params.id }) },
+		{ path: '/decisions/:id', name: 'DecisionDetail', component: DecisionDetail, props: true },
 		// Action item routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		{ path: '/action-items', name: 'ActionItems', component: ActionItems },
-		{ path: '/action-items/:id', name: 'ActionItemDetail', component: ActionItemDetail, props: (route) => ({ actionItemId: route.params.id }) },
+		{ path: '/action-items/:id', name: 'ActionItemDetail', component: ActionItemDetail, props: true },
 		{ path: '*', redirect: '/' },
 	],
 })
