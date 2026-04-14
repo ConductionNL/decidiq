@@ -24,7 +24,7 @@
 					{{ t('decidesk', 'No agenda items.') }}
 				</p>
 				<ul v-else class="decidesk-relations">
-					<li v-for="item in object.relations['agenda-item']" :key="item.id || item">
+					<li v-for="item in agendaItemsSorted" :key="item.id || item">
 						<router-link :to="{ name: 'AgendaItemDetail', params: { id: item.id || item } }">
 							{{ item.title || item.name || item.id || item }}
 						</router-link>
@@ -81,6 +81,11 @@ export default {
 	computed: {
 		schema() {
 			return this.objectStore.getSchema('meeting')
+		},
+		agendaItemsSorted() {
+			return (this.object.relations?.['agenda-item'] ?? [])
+				.slice()
+				.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
 		},
 		propertyItems() {
 			return [
