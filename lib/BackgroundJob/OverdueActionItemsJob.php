@@ -5,22 +5,21 @@
  *
  * Daily background job that detects overdue ActionItems and updates their status.
  *
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
+ *
  * @category BackgroundJob
  * @package  OCA\Decidesk\BackgroundJob
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
  *
  * @author    Conduction Development Team <dev@conductio.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * @version GIT: <git-id>
- *
  * @link https://conduction.nl
- *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
  */
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\BackgroundJob;
@@ -38,7 +37,7 @@ use Psr\Log\LoggerInterface;
  * (dueDate < today) for immediate feedback; this job is a best-effort
  * persistent status sync. Job errors are logged to the Nextcloud log.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.1
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
  */
 class OverdueActionItemsJob extends TimedJob
 {
@@ -55,7 +54,7 @@ class OverdueActionItemsJob extends TimedJob
      * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
      * @param LoggerInterface    $logger    The logger
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
      */
     public function __construct(
         ITimeFactory $time,
@@ -76,10 +75,12 @@ class OverdueActionItemsJob extends TimedJob
      *
      * @return void
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
      */
     protected function run(mixed $argument): void
     {
+        $this->logger->info('Decidesk: OverdueActionItemsJob started');
+
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable $e) {
@@ -161,7 +162,7 @@ class OverdueActionItemsJob extends TimedJob
      *
      * @return array<int,array<string,mixed>> Array of ActionItem data arrays
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
      */
     private function fetchActionItemsByStatus(object $objectService, string $status): array
     {

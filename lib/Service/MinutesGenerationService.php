@@ -5,22 +5,21 @@
  *
  * Service for generating initial minutes drafts from linked meeting data.
  *
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
+ *
  * @category Service
  * @package  OCA\Decidesk\Service
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  *
  * @author    Conduction Development Team <dev@conductio.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * @version GIT: <git-id>
- *
  * @link https://conduction.nl
- *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -34,7 +33,7 @@ use Psr\Log\LoggerInterface;
  * Fetches the linked Meeting's AgendaItems, Motions, VotingRounds, and Decisions via
  * OpenRegister ObjectService and renders them into a structured Dutch text template.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.1
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
 class MinutesGenerationService
 {
@@ -44,7 +43,7 @@ class MinutesGenerationService
      * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
      * @param LoggerInterface    $logger    The logger
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function __construct(
         private ContainerInterface $container,
@@ -61,11 +60,12 @@ class MinutesGenerationService
      *
      * @param string $minutesId UUID of the Minutes object
      *
-     * @throws \RuntimeException When the Minutes object or its linked Meeting cannot be found
+     * @throws \InvalidArgumentException When the Minutes object cannot be found
+     * @throws \RuntimeException         When OpenRegister is not available
      *
      * @return string The generated Dutch minutes text
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function generateDraft(string $minutesId): string
     {
@@ -80,7 +80,7 @@ class MinutesGenerationService
         );
 
         if ($minutesEntity === null) {
-            throw new \RuntimeException(
+            throw new \InvalidArgumentException(
                 sprintf('Minutes object with id "%s" not found.', $minutesId)
             );
         }
@@ -134,7 +134,7 @@ class MinutesGenerationService
      *
      * @return array<string,mixed>|null The Meeting data array or null if not found
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     private function resolveMeeting(array $minutes, object $objectService): ?array
     {
@@ -193,7 +193,7 @@ class MinutesGenerationService
      *
      * @return array<int,array<string,mixed>> Array of object data arrays
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     private function fetchRelatedObjects(object $objectService, string $schema, string $meetingId): array
     {
@@ -247,7 +247,7 @@ class MinutesGenerationService
      *
      * @return string The rendered Dutch minutes text
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     private function renderTemplate(
         array $minutes,
@@ -409,7 +409,7 @@ class MinutesGenerationService
      *
      * @return string Dutch formatted date (dd-mm-yyyy HH:MM) or original string on failure
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     private function formatDate(string $isoDate): string
     {
@@ -429,7 +429,7 @@ class MinutesGenerationService
      *
      * @return object The OpenRegister ObjectService instance
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.1
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     private function getObjectService(): object
     {

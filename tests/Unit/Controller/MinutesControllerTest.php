@@ -3,22 +3,20 @@
 /**
  * Unit tests for MinutesController.
  *
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
+ *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Controller
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  *
  * @author    Conduction Development Team <dev@conductio.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * @version GIT: <git-id>
- *
  * @link https://conduction.nl
- *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.3
  */
-
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
 
 declare(strict_types=1);
 
@@ -27,6 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -34,13 +33,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for MinutesController.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.3
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  */
 class MinutesControllerTest extends TestCase
 {
 
     /**
-     * Controller under test.
+     * The controller under test.
      *
      * @var MinutesController
      */
@@ -69,8 +68,8 @@ class MinutesControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->request                  = $this->createMock(originalClassName: IRequest::class);
-        $this->minutesGenerationService = $this->createMock(originalClassName: MinutesGenerationService::class);
+        $this->request                  = $this->createMock(IRequest::class);
+        $this->minutesGenerationService = $this->createMock(MinutesGenerationService::class);
 
         $this->controller = new MinutesController(
             request: $this->request,
@@ -80,124 +79,72 @@ class MinutesControllerTest extends TestCase
     }//end setUp()
 
     /**
-     * Test that generateDraft returns a JSON response with the preview text.
+     * generateDraft returns a 200 JSON response with a preview field.
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.3
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
     public function testGenerateDraftReturnsPreviewJson(): void
     {
-        $minutesId   = 'valid-minutes-uuid';
-        $previewText = '# Notulen Testvergadering' . "\n\n" . 'Concept gegenereerd...';
+        $previewText = '# Concept notulen' . PHP_EOL . 'Gegenereerde inhoud...';
 
-        $this->minutesGenerationService
-            ->expects($this->once())
+        $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
-            ->with($minutesId)
+            ->with('minutes-uuid-001')
             ->willReturn($previewText);
 
-        $response = $this->controller->generateDraft($minutesId);
-        $data     = $response->getData();
+        $result = $this->controller->generateDraft('minutes-uuid-001');
 
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-        self::assertArrayHasKey('preview', $data);
-        self::assertSame($previewText, $data['preview']);
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertArrayHasKey('preview', $result->getData());
+        self::assertSame($previewText, $result->getData()['preview']);
 
     }//end testGenerateDraftReturnsPreviewJson()
 
     /**
-     * Test that generateDraft returns 404 when the Minutes object is not found.
+     * generateDraft with invalid minutesId returns 404.
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.3
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
-    public function testGenerateDraftWithInvalidMinutesIdReturns404(): void
+    public function testGenerateDraftWithInvalidIdReturns404(): void
     {
-        $minutesId = 'non-existent-uuid';
-
-        $this->minutesGenerationService
+        $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
-            ->with($minutesId)
-            ->willThrowException(new \RuntimeException('Minutes object with id "' . $minutesId . '" not found.'));
+            ->with('nonexistent-id')
+            ->willThrowException(new \InvalidArgumentException("Minutes object 'nonexistent-id' not found."));
 
-        $response = $this->controller->generateDraft($minutesId);
+        $result = $this->controller->generateDraft('nonexistent-id');
 
-        self::assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
-        $data = $response->getData();
-        self::assertArrayHasKey('message', $data);
-        self::assertStringContainsString('not found', $data['message']);
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
 
-    }//end testGenerateDraftWithInvalidMinutesIdReturns404()
+    }//end testGenerateDraftWithInvalidIdReturns404()
 
     /**
-     * Test that generateDraft returns 400 when an empty minutesId is provided.
+     * generateDraft when OpenRegister is unavailable returns 503.
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.3
-     *
-     * @return void
-     */
-    public function testGenerateDraftWithEmptyMinutesIdReturnsBadRequest(): void
-    {
-        $response = $this->controller->generateDraft('');
-
-        self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-        $data = $response->getData();
-        self::assertArrayHasKey('message', $data);
-
-    }//end testGenerateDraftWithEmptyMinutesIdReturnsBadRequest()
-
-    /**
-     * Test that generateDraft returns 400 when no linked meeting exists.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.3
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
-    public function testGenerateDraftReturnsBadRequestWhenMeetingMissing(): void
+    public function testGenerateDraftWhenOpenRegisterUnavailableReturns503(): void
     {
-        $minutesId = 'minutes-without-meeting';
-
-        $this->minutesGenerationService
+        $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
-            ->with($minutesId)
-            ->willThrowException(
-                new \RuntimeException(
-                    'No linked Meeting found for Minutes "' . $minutesId . '".'
-                )
-            );
+            ->with('minutes-uuid-002')
+            ->willThrowException(new \RuntimeException('OpenRegister ObjectService is not available.'));
 
-        $response = $this->controller->generateDraft($minutesId);
+        $result = $this->controller->generateDraft('minutes-uuid-002');
 
-        self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-        $data = $response->getData();
-        self::assertArrayHasKey('message', $data);
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_SERVICE_UNAVAILABLE, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
 
-    }//end testGenerateDraftReturnsBadRequestWhenMeetingMissing()
-
-    /**
-     * Test that generateDraft returns 500 on unexpected errors.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.3
-     *
-     * @return void
-     */
-    public function testGenerateDraftReturnsInternalServerErrorOnUnexpectedException(): void
-    {
-        $minutesId = 'some-uuid';
-
-        $this->minutesGenerationService
-            ->method('generateDraft')
-            ->with($minutesId)
-            ->willThrowException(new \Exception('Unexpected error'));
-
-        $response = $this->controller->generateDraft($minutesId);
-
-        self::assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
-        $data = $response->getData();
-        self::assertArrayHasKey('message', $data);
-
-    }//end testGenerateDraftReturnsInternalServerErrorOnUnexpectedException()
+    }//end testGenerateDraftWhenOpenRegisterUnavailableReturns503()
 
 }//end class

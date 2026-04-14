@@ -1,9 +1,7 @@
-<!-- SPDX-License-Identifier: EUPL-1.2 -->
-<!-- Copyright (C) 2026 Conduction B.V. -->
-
 <!--
- @spec openspec/changes/p1-crud-operations/tasks.md#task-4.1
- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4.4
+SPDX-License-Identifier: EUPL-1.2
+Copyright (C) 2026 Conduction B.V.
+@spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 -->
 <template>
 	<NcAppNavigation>
@@ -16,92 +14,79 @@
 					<HomeIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
-			<NcAppNavigationItem
-				:name="t('decidesk', 'Governance Bodies')"
-				:to="{ name: 'GovernanceBodies' }">
-				<template #icon>
-					<DomainIcon :size="20" />
-				</template>
-			</NcAppNavigationItem>
-			<NcAppNavigationItem
-				:name="t('decidesk', 'Meetings')"
-				:to="{ name: 'Meetings' }">
-				<template #icon>
-					<CalendarBlankIcon :size="20" />
-				</template>
-			</NcAppNavigationItem>
-			<NcAppNavigationItem
-				:name="t('decidesk', 'Participants')"
-				:to="{ name: 'Participants' }">
-				<template #icon>
-					<AccountGroupIcon :size="20" />
-				</template>
-			</NcAppNavigationItem>
-			<NcAppNavigationItem
-				:name="t('decidesk', 'Agenda Items')"
-				:to="{ name: 'AgendaItems' }">
-				<template #icon>
-					<FormatListNumberedIcon :size="20" />
-				</template>
-			</NcAppNavigationItem>
-			<!-- Minutes, Decisions, Action Items — p2-minutes-and-decisions -->
+
+			<!-- Minutes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4 -->
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Notulen')"
 				:to="{ name: 'Minutes' }">
 				<template #icon>
-					<NotebookOutlineIcon :size="20" />
+					<FileDocumentOutline :size="20" />
 				</template>
 			</NcAppNavigationItem>
+
+			<!-- Decisions — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4 -->
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Besluiten')"
 				:to="{ name: 'Decisions' }">
 				<template #icon>
-					<GavelIcon :size="20" />
+					<CheckDecagramIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
+
+			<!-- Action Items — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4 -->
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Actiepunten')"
 				:to="{ name: 'ActionItems' }">
 				<template #icon>
-					<CheckboxMarkedOutlineIcon :size="20" />
+					<CheckboxMarkedOutline :size="20" />
+				</template>
+			</NcAppNavigationItem>
+
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Documentation')"
+				@click="openLink('https://conduction.nl', '_blank')">
+				<template #icon>
+					<BookOpenVariantOutline :size="20" />
 				</template>
 			</NcAppNavigationItem>
 		</template>
 		<template #footer>
-			<NcAppNavigationSettings :name="t('decidesk', 'Settings')">
-				<NcAppNavigationItem
-					:name="t('decidesk', 'Settings')"
-					:to="{ name: 'Settings' }" />
-			</NcAppNavigationSettings>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Settings')"
+				:to="{ name: 'Settings' }">
+				<template #icon>
+					<CogIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
 		</template>
 	</NcAppNavigation>
 </template>
 
 <script>
-import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
-import AccountGroupIcon from 'vue-material-design-icons/AccountGroupOutline.vue'
-import CalendarBlankIcon from 'vue-material-design-icons/CalendarBlank.vue'
-import CheckboxMarkedOutlineIcon from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
-import DomainIcon from 'vue-material-design-icons/Domain.vue'
-import FormatListNumberedIcon from 'vue-material-design-icons/FormatListNumbered.vue'
-import GavelIcon from 'vue-material-design-icons/Gavel.vue'
+import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
+import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
+import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
+import CheckDecagramIcon from 'vue-material-design-icons/CheckDecagram.vue'
+import CogIcon from 'vue-material-design-icons/Cog.vue'
+import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
-import NotebookOutlineIcon from 'vue-material-design-icons/NotebookOutline.vue'
 
 export default {
 	name: 'MainMenu',
 	components: {
 		NcAppNavigation,
 		NcAppNavigationItem,
-		NcAppNavigationSettings,
-		AccountGroupIcon,
-		CalendarBlankIcon,
-		CheckboxMarkedOutlineIcon,
-		DomainIcon,
-		FormatListNumberedIcon,
-		GavelIcon,
+		BookOpenVariantOutline,
+		CheckboxMarkedOutline,
+		CheckDecagramIcon,
+		CogIcon,
+		FileDocumentOutline,
 		HomeIcon,
-		NotebookOutlineIcon,
+	},
+	methods: {
+		openLink(url, target = '_blank') {
+			window.open(url, target)
+		},
 	},
 }
 </script>

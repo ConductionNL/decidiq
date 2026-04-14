@@ -59,16 +59,16 @@
 
 ## 11. Verification
 
-- [ ] 11.1 Verify Minutes CRUD: create, read, update, delete via UI; confirm `lifecycle: draft` on creation
-- [ ] 11.2 Verify Minutes lifecycle: transition draft → review → approved → signed → published; confirm `signedBy` is updated on approve and sign; confirm `approvedAt` is set on approve; confirm audit trail entries are created for each transition
-- [ ] 11.3 Verify "Concept genereren": click button, confirm preview modal appears, confirm `content` is populated after confirmation, confirm `lifecycle` stays `draft`
-- [ ] 11.4 Verify Decision CRUD: create, read, update, delete; confirm linked Motion appears in detail view; confirm ActionItems table in detail view
-- [ ] 11.5 Verify Decision publication: "Publiceren" button visible only for `outcome: adopted` and `isPublished: false`; clicking sets `isPublished: true` and `publishedAt`; button replaced by timestamp after publish
-- [ ] 11.6 Verify Decision search: search by text, filter by outcome, filter by isPublished — correct results returned
-- [ ] 11.7 Verify ActionItem CRUD: create with assignee and dueDate, update status, complete with completedAt set
-- [ ] 11.8 Verify overdue detection: create an ActionItem with `dueDate` in the past; trigger background job manually (or set dueDate < today and refresh list); confirm `taskStatus` is `overdue` and badge is displayed
-- [ ] 11.9 Verify Dashboard KPI cards show correct counts; confirm counts update when objects are created or status changes
-- [ ] 11.10 Verify MainMenu shows Notulen, Besluiten, and Actiepunten navigation entries; confirm routes are navigable
-- [ ] 11.11 Verify all user-visible strings use `t(appName, 'text')` — no hardcoded strings
-- [ ] 11.12 Verify no hardcoded CSS colours — only Nextcloud CSS variables used for status badges and highlights
-- [ ] 11.13 Confirm all `@spec` PHPDoc tags are present on new PHP classes and public methods linking to `openspec/changes/p2-minutes-and-decisions/tasks.md`
+- [x] 11.1 Verify Minutes CRUD: create, read, update, delete via UI; confirm `lifecycle: draft` on creation
+- [x] 11.2 Verify Minutes lifecycle: transition draft → review → approved → signed → published; confirm `signedBy` is updated on approve and sign; confirm `approvedAt` is set on approve; confirm audit trail entries are created for each transition
+- [x] 11.3 Verify "Concept genereren": click button, confirm preview modal appears, confirm `content` is populated after confirmation, confirm `lifecycle` stays `draft`
+- [x] 11.4 Verify Decision CRUD: create, read, update, delete; confirm linked Motion appears in detail view; confirm ActionItems table in detail view
+- [x] 11.5 Verify Decision publication: "Publiceren" button visible only for `outcome: adopted` and `isPublished: false`; clicking sets `isPublished: true` and `publishedAt`; button replaced by timestamp after publish
+- [x] 11.6 Verify Decision search: search by text, filter by outcome, filter by isPublished — correct results returned
+- [x] 11.7 Verify ActionItem CRUD: create with assignee and dueDate, update status, complete with completedAt set
+- [x] 11.8 Verify overdue detection: create an ActionItem with `dueDate` in the past; trigger background job manually (or set dueDate < today and refresh list); confirm `taskStatus` is `overdue` and badge is displayed
+- [x] 11.9 Verify Dashboard KPI cards show correct counts; confirm counts update when objects are created or status changes
+- [x] 11.10 Verify MainMenu shows Notulen, Besluiten, and Actiepunten navigation entries; confirm routes are navigable
+- [x] 11.11 Verify all user-visible strings use `t(appName, 'text')` — no hardcoded strings
+- [x] 11.12 Verify no hardcoded CSS colours — only Nextcloud CSS variables used for status badges and highlights
+- [x] 11.13 Confirm all `@spec` PHPDoc tags are present on new PHP classes and public methods linking to `openspec/changes/p2-minutes-and-decisions/tasks.md`

@@ -3,22 +3,20 @@
 /**
  * Unit tests for OverdueActionItemsJob.
  *
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
+ *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\BackgroundJob
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  *
  * @author    Conduction Development Team <dev@conductio.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * @version GIT: <git-id>
- *
  * @link https://conduction.nl
- *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.2
  */
-
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
 
 declare(strict_types=1);
 
@@ -34,20 +32,22 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for OverdueActionItemsJob.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.2
+ * Tests use a custom subclass that exposes the protected run() method.
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
  */
 class OverdueActionItemsJobTest extends TestCase
 {
 
     /**
-     * Mock ContainerInterface.
+     * Mock DI container.
      *
      * @var ContainerInterface&MockObject
      */
     private ContainerInterface&MockObject $container;
 
     /**
-     * Mock LoggerInterface.
+     * Mock logger.
      *
      * @var LoggerInterface&MockObject
      */
@@ -69,9 +69,9 @@ class OverdueActionItemsJobTest extends TestCase
     {
         parent::setUp();
 
-        $this->container   = $this->createMock(originalClassName: ContainerInterface::class);
-        $this->logger      = $this->createMock(originalClassName: LoggerInterface::class);
-        $this->timeFactory = $this->createMock(originalClassName: ITimeFactory::class);
+        $this->container   = $this->createMock(ContainerInterface::class);
+        $this->logger      = $this->createMock(LoggerInterface::class);
+        $this->timeFactory = $this->createMock(ITimeFactory::class);
         $this->timeFactory->method('getTime')->willReturn(time());
 
     }//end setUp()
@@ -79,7 +79,7 @@ class OverdueActionItemsJobTest extends TestCase
     /**
      * Test that ActionItems with a past dueDate are set to overdue.
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.2
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
@@ -123,7 +123,7 @@ class OverdueActionItemsJobTest extends TestCase
     /**
      * Test that completed ActionItems are not modified.
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.2
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
@@ -154,7 +154,7 @@ class OverdueActionItemsJobTest extends TestCase
     /**
      * Test that ActionItems with no dueDate are not modified.
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.2
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
@@ -193,7 +193,7 @@ class OverdueActionItemsJobTest extends TestCase
     /**
      * Test that ActionItems with a future dueDate are not modified.
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.2
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
@@ -231,7 +231,7 @@ class OverdueActionItemsJobTest extends TestCase
     /**
      * Test that the job handles missing OpenRegister gracefully (no exception thrown).
      *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9.2
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
