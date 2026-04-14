@@ -122,6 +122,7 @@ class MinutesControllerTest extends TestCase
      */
     public function testGenerateDraftReturnsPreviewJson(): void
     {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $previewText = '# Concept notulen' . PHP_EOL . 'Gegenereerde inhoud...';
 
         $this->minutesGenerationService->expects($this->once())
@@ -147,6 +148,7 @@ class MinutesControllerTest extends TestCase
      */
     public function testGenerateDraftWithInvalidIdReturns404(): void
     {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
             ->with('nonexistent-id')
@@ -169,6 +171,7 @@ class MinutesControllerTest extends TestCase
      */
     public function testGenerateDraftWithMissingMeetingReturns422(): void
     {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
             ->willThrowException(new MissingRelationException('No linked Meeting found.'));
@@ -190,6 +193,7 @@ class MinutesControllerTest extends TestCase
      */
     public function testGenerateDraftWhenOpenRegisterUnavailableReturns503(): void
     {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
             ->with('minutes-uuid-002')
@@ -202,6 +206,28 @@ class MinutesControllerTest extends TestCase
         self::assertArrayHasKey('message', $result->getData());
 
     }//end testGenerateDraftWhenOpenRegisterUnavailableReturns503()
+
+    /**
+     * generateDraft by a non-admin returns 403.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+     *
+     * @return void
+     */
+    public function testGenerateDraftByNonAdminReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+
+        // Service must NOT be called — access check happens before delegation.
+        $this->minutesGenerationService->expects($this->never())->method('generateDraft');
+
+        $result = $this->controller->generateDraft('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
+
+    }//end testGenerateDraftByNonAdminReturns403()
 
     /**
      * generateDraft for an unauthenticated request returns 401.
@@ -318,6 +344,7 @@ class MinutesControllerTest extends TestCase
      */
     public function testTransitionWhenOpenRegisterUnavailableReturns503(): void
     {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $this->request->method('getParam')->with('lifecycle')->willReturn('review');
 
         $this->minutesGenerationService->expects($this->once())
@@ -341,6 +368,7 @@ class MinutesControllerTest extends TestCase
      */
     public function testTransitionMinutesNotFoundReturns404(): void
     {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $this->request->method('getParam')->with('lifecycle')->willReturn('review');
 
         $this->minutesGenerationService->expects($this->once())

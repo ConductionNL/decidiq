@@ -51,11 +51,11 @@ class MinutesController extends Controller
     /**
      * Lifecycle states that require a governance role (admin) to execute.
      *
-     * Any authenticated user may move minutes to "review"; the remaining
-     * privileged states require Nextcloud admin rights (OWASP A01 — Broken
-     * Access Control).
+     * All lifecycle transitions require Nextcloud admin rights to prevent
+     * cross-tenant manipulation by arbitrary authenticated users (OWASP A01 —
+     * Broken Access Control / ADR-005 tenant isolation).
      */
-    private const RESTRICTED_TRANSITIONS = ['approved', 'signed', 'published'];
+    private const RESTRICTED_TRANSITIONS = ['review', 'approved', 'signed', 'published'];
 
     /**
      * Constructor for MinutesController.
@@ -88,6 +88,7 @@ class MinutesController extends Controller
      *
      * Returns { "preview": "<generated text>" } on success.
      * Returns 401 when the request is not authenticated.
+     * Returns 403 when the caller is not a Nextcloud admin.
      * Returns 404 when the Minutes object is not found.
      * Returns 422 when no Meeting is linked to the Minutes record.
      * Returns 503 when OpenRegister is unavailable.
@@ -102,10 +103,20 @@ class MinutesController extends Controller
      */
     public function generateDraft(string $minutesId): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
             return new JSONResponse(
                 ['message' => 'Unauthenticated.'],
                 Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        // Require admin rights to prevent information disclosure across governance bodies
+        // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may generate minutes drafts.'],
+                Http::STATUS_FORBIDDEN
             );
         }
 
@@ -178,12 +189,12 @@ class MinutesController extends Controller
             );
         }
 
-        // Gate approve/sign/publish behind admin — only designated signatories may
-        // drive official minutes through these states (OWASP A01 — Broken Access Control).
+        // Gate all lifecycle transitions behind admin — prevents cross-tenant manipulation
+        // by arbitrary authenticated users (OWASP A01 — Broken Access Control / ADR-005).
         if (in_array($newLifecycle, self::RESTRICTED_TRANSITIONS, true) === true) {
             if ($this->groupManager->isAdmin($user->getUID()) === false) {
                 return new JSONResponse(
-                    ['message' => 'Forbidden: only administrators may approve, sign, or publish minutes.'],
+                    ['message' => 'Forbidden: only administrators may perform lifecycle transitions on minutes.'],
                     Http::STATUS_FORBIDDEN
                 );
             }
