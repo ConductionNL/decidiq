@@ -123,10 +123,10 @@ export default {
 				if (data.success) {
 					this.$emit('lifecycle-updated', data.meeting)
 				} else {
-					showError(data.message ?? t('decidesk', 'Lifecycle transition failed.'))
+					showError(data.message ?? this.t('decidesk', 'Lifecycle transition failed.'))
 				}
 			} catch (error) {
-				showError(error.response?.data?.message ?? t('decidesk', 'Lifecycle transition failed.'))
+				showError(error.response?.data?.message ?? this.t('decidesk', 'Lifecycle transition failed.'))
 			} finally {
 				this.loading = false
 			}
