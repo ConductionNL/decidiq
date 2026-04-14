@@ -40,14 +40,21 @@ class SettingsService
     /**
      * Configuration keys managed by this service.
      *
+     * Includes the main register slug plus schema slugs for Minutes, Decision,
+     * and ActionItem so the frontend initializeStores() can register object stores.
+     *
      * @var array<string>
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
      */
     private const CONFIG_KEYS = [
         'register',
         'ori_endpoint',
         'email_voting_enabled',
+        'minutesSchema',
+        'decisionSchema',
+        'actionItemSchema',
     ];
 
     /**
@@ -90,16 +97,35 @@ class SettingsService
      * Returns a flat array containing all app config values plus metadata
      * fields (openregisters, isAdmin) consumed by the frontend.
      *
+     * The Minutes, Decision, and ActionItem schema/register slugs are registered
+     * directly in src/store/store.js::OBJECT_TYPES (alongside all other entity types)
+     * and do not require additional settings keys — the frontend resolves them from the
+     * static OBJECT_TYPES map after confirming OpenRegister is available.
+     *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.1
      *
      * @return array<string,mixed>
      */
     public function getSettings(): array
     {
+        // Default schema slugs match the slugs defined in decidesk_register.json.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.
+        $defaults = [
+            'minutesSchema'    => 'minutes',
+            'decisionSchema'   => 'decision',
+            'actionItemSchema' => 'action-item',
+        ];
+
         $settings = [];
         foreach (self::CONFIG_KEYS as $key) {
-            $settings[$key] = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            if ($value !== '') {
+                $settings[$key] = $value;
+            } else {
+                $settings[$key] = ($defaults[$key] ?? '');
+            }
         }
 
         $user    = $this->userSession->getUser();

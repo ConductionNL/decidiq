@@ -1,3 +1,5 @@
+**status:** pr-created
+
 ## Context
 
 Decidesk is a thin-client Nextcloud app: all domain data is stored in OpenRegister. The three entities for this spec — Minutes, Decision, and ActionItem — are already declared as OpenRegister schemas in `decidesk_register.json` (from p1-schemas-and-data-model). This change builds the post-meeting workflow on top of those existing schemas.

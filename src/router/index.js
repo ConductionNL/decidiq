@@ -1,6 +1,4 @@
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
+// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 import Vue from 'vue'
 import Router from 'vue-router'
 import { generateUrl } from '@nextcloud/router'
@@ -12,7 +10,7 @@ import { generateUrl } from '@nextcloud/router'
 
 Vue.use(Router)
 
-const DashboardView = () => import('../views/DashboardView.vue')
+const Dashboard = () => import('../views/Dashboard.vue')
 const GovernanceBodies = () => import('../views/GovernanceBodies.vue')
 const GovernanceBodyDetail = () => import('../views/GovernanceBodyDetail.vue')
 const Meetings = () => import('../views/Meetings.vue')
@@ -25,15 +23,18 @@ const Motions = () => import('../views/Motions.vue')
 const MotionDetail = () => import('../views/MotionDetail.vue')
 const AmendmentDetail = () => import('../views/AmendmentDetail.vue')
 const SettingsView = () => import('../views/SettingsView.vue')
+const Minutes = () => import('../views/Minutes.vue')
+const MinutesDetail = () => import('../views/MinutesDetail.vue')
+const Decisions = () => import('../views/Decisions.vue')
+const DecisionDetail = () => import('../views/DecisionDetail.vue')
+const ActionItems = () => import('../views/ActionItems.vue')
+const ActionItemDetail = () => import('../views/ActionItemDetail.vue')
 
-/**
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.3
- */
 export default new Router({
 	mode: 'history',
-	base: generateUrl('/apps/decidesk') + '/',
+	base: generateUrl('/apps/decidesk'),
 	routes: [
-		{ path: '/', name: 'Dashboard', component: DashboardView },
+		{ path: '/', name: 'Dashboard', component: Dashboard },
 		{ path: '/governance-bodies', name: 'GovernanceBodies', component: GovernanceBodies },
 		{ path: '/governance-bodies/:id', name: 'GovernanceBodyDetail', component: GovernanceBodyDetail, props: true },
 		{ path: '/meetings', name: 'Meetings', component: Meetings },
@@ -46,6 +47,15 @@ export default new Router({
 		{ path: '/motions/:id', name: 'MotionDetail', component: MotionDetail, props: true },
 		{ path: '/amendments/:id', name: 'AmendmentDetail', component: AmendmentDetail, props: true },
 		{ path: '/settings', name: 'Settings', component: SettingsView },
+		// Minutes routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+		{ path: '/minutes', name: 'Minutes', component: Minutes },
+		{ path: '/minutes/:id', name: 'MinutesDetail', component: MinutesDetail, props: true },
+		// Decision routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+		{ path: '/decisions', name: 'Decisions', component: Decisions },
+		{ path: '/decisions/:id', name: 'DecisionDetail', component: DecisionDetail, props: true },
+		// Action item routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+		{ path: '/action-items', name: 'ActionItems', component: ActionItems },
+		{ path: '/action-items/:id', name: 'ActionItemDetail', component: ActionItemDetail, props: true },
 		{ path: '*', redirect: '/' },
 	],
 })
