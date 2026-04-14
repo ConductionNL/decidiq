@@ -277,13 +277,20 @@ class VotingService
             break;
         }
 
+        $isSecret = (bool) ($round['isSecret'] ?? false);
+
         $relations = [
             ['register' => 'decidesk', 'schema' => 'voting-round', 'id' => $votingRoundId],
-            ['register' => 'decidesk', 'schema' => 'participant', 'id' => $participantId],
         ];
 
-        if ($isProxy === true && $delegatorId !== null) {
-            $relations[] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $delegatorId, 'type' => 'delegator'];
+        // For non-secret rounds, link the vote to the casting participant.
+        // For secret rounds, omit the participant relation to preserve anonymity.
+        if ($isSecret === false) {
+            $relations[] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $participantId];
+
+            if ($isProxy === true && $delegatorId !== null) {
+                $relations[] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $delegatorId, 'type' => 'delegator'];
+            }
         }
 
         $vote = [

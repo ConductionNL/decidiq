@@ -157,7 +157,7 @@ export default {
 			try {
 				await fetch(`/index.php/apps/decidesk/api/amendments/${this.id}/transition`, {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+					headers: { 'Content-Type': 'application/json', Accept: 'application/json', requesttoken: OC.requestToken },
 					body: JSON.stringify({ newState }),
 				})
 				await this.objectStore.fetchObject('amendment', this.id)

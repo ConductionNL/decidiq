@@ -100,10 +100,10 @@ class OriPublicationService
         // Block RFC-1918 and reserved ranges.
         $ip = gethostbyname($host);
         if ($ip === $host) {
-            // GethostbyName returns the original string on failure — treat as unsafe.
+            // GethostbyName returns the original string on failure.
             if (filter_var($host, FILTER_VALIDATE_IP) === false) {
-                // Not an IP either — cannot validate, allow through (hostname DNS not resolvable in test envs).
-                return true;
+                // Not a bare IP and DNS did not resolve — reject to prevent DNS-rebinding bypasses.
+                return false;
             }
         }
 

@@ -358,7 +358,7 @@
 							"script": {
 								"exec": [
 									"pm.test('Voting round opened', function () {",
-									"    pm.response.to.have.status(200);",
+									"    pm.response.to.have.status(201);",
 									"    const body = pm.response.json();",
 									"    pm.expect(body.id ?? body.uuid).to.be.a('string');",
 									"    pm.collectionVariables.set('voting_round_id', body.id ?? body.uuid);",
@@ -390,7 +390,7 @@
 							"script": {
 								"exec": [
 									"pm.test('Vote cast successfully', function () {",
-									"    pm.response.to.have.status(200);",
+									"    pm.response.to.have.status(201);",
 									"    const body = pm.response.json();",
 									"    pm.expect(body.value).to.equal('for');",
 									"});"

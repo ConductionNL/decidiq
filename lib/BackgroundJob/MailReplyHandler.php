@@ -175,6 +175,21 @@ class MailReplyHandler extends TimedJob
                 continue;
             }
 
+            // Validate that the participantId from _mail metadata refers to an existing Participant
+            // object before casting any vote. This prevents manipulated metadata from casting
+            // votes on behalf of arbitrary or non-existent participants (OWASP A07:2021).
+            $participant = $objectService->getObject(register: 'decidesk', schema: 'participant', uuid: $participantId);
+            if ($participant === null) {
+                $this->logger->warning(
+                    'Decidesk: MailReplyHandler — unknown participantId in _mail metadata, skipping',
+                    [
+                        'participantId' => $participantId,
+                        'votingRoundId' => $roundId,
+                    ]
+                );
+                continue;
+            }
+
             $keyword = $this->parseVoteKeyword(body: $replyBody);
 
             if ($keyword !== null) {
