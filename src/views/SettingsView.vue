@@ -4,6 +4,7 @@
 <!--
  @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-7.1
  @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-7.2
+ @spec openspec/changes/p1-crud-operations/tasks.md#task-10.1
 -->
 <template>
 	<div class="decidesk-settings">

@@ -17,28 +17,28 @@
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Governance Bodies')"
-				:to="{ name: 'GovernanceBodyList' }">
+				:to="{ name: 'GovernanceBodies' }">
 				<template #icon>
 					<DomainIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Meetings')"
-				:to="{ name: 'MeetingList' }">
+				:to="{ name: 'Meetings' }">
 				<template #icon>
 					<CalendarBlank :size="20" />
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Participants')"
-				:to="{ name: 'ParticipantList' }">
+				:to="{ name: 'Participants' }">
 				<template #icon>
 					<AccountGroupOutline :size="20" />
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Agenda Items')"
-				:to="{ name: 'AgendaItemList' }">
+				:to="{ name: 'AgendaItems' }">
 				<template #icon>
 					<FormatListBulleted :size="20" />
 				</template>
@@ -67,11 +67,6 @@ import DomainIcon from 'vue-material-design-icons/Domain.vue'
 import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
-/**
- * Main sidebar navigation with links to all p1 entity views.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-4.1
- */
 export default {
 	name: 'MainMenu',
 	components: {

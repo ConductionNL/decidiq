@@ -31,6 +31,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Service for managing Decidesk application configuration and settings.
+ *
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
  */
 class SettingsService
 {
