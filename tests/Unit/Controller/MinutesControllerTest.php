@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\MinutesController;
+use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use OCA\Decidesk\Service\MinutesGenerationService;
@@ -127,7 +128,7 @@ class MinutesControllerTest extends TestCase
 
         $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
-            ->with('minutes-uuid-001')
+            ->with('minutes-uuid-001', 'testuser')
             ->willReturn($previewText);
 
         $result = $this->controller->generateDraft('minutes-uuid-001');
@@ -151,7 +152,7 @@ class MinutesControllerTest extends TestCase
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
-            ->with('nonexistent-id')
+            ->with('nonexistent-id', 'testuser')
             ->willThrowException(new \InvalidArgumentException("Minutes object 'nonexistent-id' not found."));
 
         $result = $this->controller->generateDraft('nonexistent-id');
@@ -196,7 +197,7 @@ class MinutesControllerTest extends TestCase
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
-            ->with('minutes-uuid-002')
+            ->with('minutes-uuid-002', 'testuser')
             ->willThrowException(new \RuntimeException('OpenRegister ObjectService is not available.'));
 
         $result = $this->controller->generateDraft('minutes-uuid-002');
@@ -300,7 +301,8 @@ class MinutesControllerTest extends TestCase
             ->with(
                 minutesId: 'minutes-uuid-001',
                 newLifecycle: 'approved',
-                displayName: 'Test User'
+                displayName: 'Test User',
+                userId: 'testuser'
             )
             ->willReturn($updated);
 

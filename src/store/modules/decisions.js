@@ -173,12 +173,15 @@ export const useDecisionStore = defineStore('decision', {
 					await this.fetchDecisions()
 					return saved
 				}
+				// Surface server error to caller for user-visible feedback.
+				const errorBody = await response.json().catch(() => ({}))
+				throw new Error(errorBody.message || `Publish failed with status ${response.status}`)
 			} catch (error) {
 				console.error('Failed to publish Decision:', error)
+				throw error
 			} finally {
 				this.loading = false
 			}
-			return null
 		},
 	},
 })

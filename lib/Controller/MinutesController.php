@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use OCA\Decidesk\Service\MinutesGenerationService;
@@ -121,8 +122,13 @@ class MinutesController extends Controller
         }
 
         try {
-            $preview = $this->minutesGenerationService->generateDraft($minutesId);
+            $preview = $this->minutesGenerationService->generateDraft($minutesId, $user->getUID());
             return new JSONResponse(['preview' => $preview]);
+        } catch (AccessDeniedException $e) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: you do not have access to this Minutes record.'],
+                Http::STATUS_FORBIDDEN
+            );
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
@@ -138,7 +144,7 @@ class MinutesController extends Controller
                 ['message' => $e->getMessage()],
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
-        }
+        }//end try
 
     }//end generateDraft()
 
@@ -206,9 +212,15 @@ class MinutesController extends Controller
             $updated = $this->minutesGenerationService->transition(
                 minutesId: $minutesId,
                 newLifecycle: $newLifecycle,
-                displayName: $displayName
+                displayName: $displayName,
+                userId: $user->getUID()
             );
             return new JSONResponse($updated);
+        } catch (AccessDeniedException $e) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: you do not have access to this Minutes record.'],
+                Http::STATUS_FORBIDDEN
+            );
         } catch (MissingObjectException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],

@@ -3,7 +3,8 @@
 /**
  * Decidesk Decision Controller
  *
- * Controller for Decision-specific operations such as server-side publication.
+ * Controller for Decision-specific operations such as server-side publication
+ * enforcement (OWASP A01 — Broken Access Control).
  *
  * SPDX-License-Identifier: EUPL-1.2
  * Copyright (C) 2026 Conduction B.V.
@@ -101,6 +102,7 @@ class DecisionController extends Controller
             );
         }
 
+        // Only administrators may publish decisions (OWASP A01 — Broken Access Control).
         if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(
                 ['message' => 'Forbidden: only administrators may publish decisions.'],
@@ -130,6 +132,7 @@ class DecisionController extends Controller
 
         $decision = $entity->getObject();
 
+        // Server-side guard: only adopted, unpublished decisions may be published.
         if (($decision['outcome'] ?? '') !== 'adopted') {
             return new JSONResponse(
                 ['message' => 'Only decisions with outcome "adopted" may be published.'],
@@ -144,11 +147,11 @@ class DecisionController extends Controller
             );
         }
 
-        try {
-            $updated = $decision;
-            $updated['isPublished'] = true;
-            $updated['publishedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $updated = $decision;
+        $updated['isPublished'] = true;
+        $updated['publishedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
 
+        try {
             $saved = $objectService->saveObject(
                 object: $updated,
                 register: 'decidesk',

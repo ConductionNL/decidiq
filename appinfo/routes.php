@@ -15,7 +15,7 @@ return [
         ['name' => 'minutes#generateDraft', 'url' => '/api/minutes/{minutesId}/generate-draft', 'verb' => 'POST'],
         ['name' => 'minutes#transition',    'url' => '/api/minutes/{minutesId}/transition',      'verb' => 'POST'],
 
-        // Decision endpoints.
+        // Decision endpoints — server-side publish enforces governance access control.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
 

@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use Psr\Container\ContainerInterface;
@@ -77,15 +78,17 @@ class MinutesGenerationService
      * Decisions. Renders these into a structured Dutch text template.
      *
      * @param string $minutesId UUID of the Minutes object
+     * @param string $userId    UID of the authenticated caller (for ownership check)
      *
      * @throws \InvalidArgumentException When the Minutes object cannot be found
+     * @throws AccessDeniedException     When the caller does not own the Minutes object
      * @throws \RuntimeException         When OpenRegister is not available
      *
      * @return string The generated Dutch minutes text
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
-    public function generateDraft(string $minutesId): string
+    public function generateDraft(string $minutesId, string $userId): string
     {
         $objectService = $this->getObjectService();
 
@@ -103,6 +106,9 @@ class MinutesGenerationService
         }
 
         $minutes = $minutesEntity->getObject();
+
+        // Verify caller owns this Minutes object (OWASP A01 — Broken Access Control).
+        $this->assertOwnership(object: $minutes, userId: $userId, objectId: $minutesId);
 
         // Resolve the linked Meeting.
         $meeting = $this->resolveMeeting(minutes: $minutes, objectService: $objectService);
@@ -154,15 +160,17 @@ class MinutesGenerationService
      * @param string $minutesId    UUID of the Minutes object
      * @param string $newLifecycle The target lifecycle state
      * @param string $displayName  Display name of the authenticated user (from server session)
+     * @param string $userId       UID of the authenticated caller (for ownership check)
      *
      * @throws \InvalidArgumentException When the Minutes object is not found or the transition is invalid
+     * @throws AccessDeniedException     When the caller does not own the Minutes object
      * @throws \RuntimeException         When OpenRegister is not available
      *
      * @return array<string,mixed> The updated Minutes object data
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
-    public function transition(string $minutesId, string $newLifecycle, string $displayName): array
+    public function transition(string $minutesId, string $newLifecycle, string $displayName, string $userId): array
     {
         $objectService = $this->getObjectService();
 
@@ -178,7 +186,10 @@ class MinutesGenerationService
             );
         }
 
-        $minutes          = $minutesEntity->getObject();
+        $minutes = $minutesEntity->getObject();
+
+        // Verify caller owns this Minutes object (OWASP A01 — Broken Access Control).
+        $this->assertOwnership(object: $minutes, userId: $userId, objectId: $minutesId);
         $currentLifecycle = $minutes['lifecycle'] ?? 'draft';
 
         if ((self::LIFECYCLE_TRANSITIONS[$currentLifecycle] ?? null) !== $newLifecycle) {
@@ -282,6 +293,8 @@ class MinutesGenerationService
                 'Decidesk: Failed to fetch linked Meeting for minutes draft generation',
                 ['exception' => $e->getMessage(), 'meetingId' => $meetingId]
             );
+            // Re-throw as RuntimeException (503) so the caller distinguishes a transient
+            // OpenRegister outage from a genuinely missing relation (null return above).
             throw new \RuntimeException(
                 'OpenRegister service is temporarily unavailable. Please try again later.',
                 503,
@@ -292,7 +305,10 @@ class MinutesGenerationService
     }//end resolveMeeting()
 
     /**
-     * Fetch all objects of a given type linked to a meeting.
+     * Fetch ALL objects of a given type linked to a meeting using offset-based pagination.
+     *
+     * Iterates pages of 100 items until an empty page is returned, preventing silent
+     * truncation for governance bodies with more than 100 items per meeting.
      *
      * @param object $objectService The OpenRegister ObjectService instance
      * @param string $schema        The schema slug
@@ -312,10 +328,11 @@ class MinutesGenerationService
         $offset   = 0;
         $result   = [];
 
-        while (true) {
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema($schema);
+
+        do {
             try {
-                $objectService->setRegister('decidesk');
-                $objectService->setSchema($schema);
                 $entities = $objectService->findAll(
                     config: [
                         'filters' => [
@@ -327,31 +344,27 @@ class MinutesGenerationService
                         'offset'  => $offset,
                     ]
                 );
-
-                $batch = [];
-                foreach ($entities as $entity) {
-                    if (method_exists($entity, 'getObject') === true) {
-                        $batch[] = $entity->getObject();
-                    } else if (is_array($entity) === true) {
-                        $batch[] = $entity;
-                    }
-                }
-
-                $result  = array_merge($result, $batch);
-                $offset += count($batch);
-
-                // Fewer results than page size means we have reached the last page.
-                if (count($batch) < $pageSize) {
-                    break;
-                }
             } catch (\Throwable $e) {
                 $this->logger->warning(
                     'Decidesk: Failed to fetch related objects for minutes draft',
                     ['schema' => $schema, 'meetingId' => $meetingId, 'offset' => $offset, 'exception' => $e->getMessage()]
                 );
                 break;
-            }//end try
-        }//end while
+            }
+
+            $page = [];
+            foreach ($entities as $entity) {
+                if (method_exists($entity, 'getObject') === true) {
+                    $page[] = $entity->getObject();
+                } else if (is_array($entity) === true) {
+                    $page[] = $entity;
+                }
+            }
+
+            $pageCount = count($page);
+            $result    = array_merge($result, $page);
+            $offset   += $pageSize;
+        } while ($pageCount === $pageSize);
 
         return $result;
 
@@ -543,6 +556,35 @@ class MinutesGenerationService
         }
 
     }//end formatDate()
+
+    /**
+     * Assert that the authenticated user owns the given object.
+     *
+     * Compares the `owner` (or `createdBy`) field on the persisted object against
+     * the caller's UID. Objects without an owner field are allowed (legacy objects
+     * pre-dating multi-tenancy). Throws AccessDeniedException on mismatch so that
+     * the controller can return HTTP 403 (OWASP A01 — Broken Access Control).
+     *
+     * @param array<string,mixed> $object   The persisted object data
+     * @param string              $userId   UID of the authenticated caller
+     * @param string              $objectId Object UUID (used in the exception message)
+     *
+     * @throws AccessDeniedException When the caller does not own the object
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     */
+    private function assertOwnership(array $object, string $userId, string $objectId): void
+    {
+        $ownerId = $object['owner'] ?? $object['createdBy'] ?? null;
+        if ($ownerId !== null && $ownerId !== $userId) {
+            throw new AccessDeniedException(
+                message: sprintf('Access denied: Minutes object "%s" is not accessible by the current user.', $objectId)
+            );
+        }
+
+    }//end assertOwnership()
 
     /**
      * Lazy-load the OpenRegister ObjectService from the container.

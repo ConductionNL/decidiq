@@ -21,6 +21,9 @@
 						@click="publish">
 						{{ t('decidesk', 'Publiceren') }}
 					</NcButton>
+					<p v-if="publishError" class="decidesk-publish-error">
+						{{ publishError }}
+					</p>
 				</div>
 				<CnDetailGrid :items="propertyItems" />
 			</CnDetailCard>
@@ -82,8 +85,8 @@
 <script>
 import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import { useDecisionStore } from '../store/modules/decisions.js'
 import { useObjectStore } from '../store/store.js'
+import { useDecisionStore } from '../store/modules/decisions.js'
 
 export default {
 	name: 'DecisionDetail',
@@ -104,6 +107,7 @@ export default {
 	data() {
 		return {
 			publishing: false,
+			publishError: null,
 		}
 	},
 	computed: {
@@ -138,9 +142,12 @@ export default {
 		},
 		async publish() {
 			this.publishing = true
+			this.publishError = null
 			try {
 				await this.decisionStore.publishDecision(this.id)
 				await this.objectStore.fetchObject('decision', this.id)
+			} catch (error) {
+				this.publishError = error.message || this.t('decidesk', 'Publiceren mislukt.')
 			} finally {
 				this.publishing = false
 			}
@@ -176,5 +183,11 @@ export default {
 
 .decidesk-publish-action {
 	margin-bottom: 12px;
+}
+
+.decidesk-publish-error {
+	color: var(--color-error);
+	margin: 4px 0 0;
+	font-size: 0.875em;
 }
 </style>
