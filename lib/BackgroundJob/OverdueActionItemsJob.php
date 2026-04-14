@@ -186,8 +186,8 @@ class OverdueActionItemsJob extends TimedJob
                             'schema'     => 'action-item',
                             'taskStatus' => $status,
                         ],
-                        'limit'  => $pageSize,
-                        'offset' => $offset,
+                        'limit'   => $pageSize,
+                        'offset'  => $offset,
                     ]
                 );
             } catch (\Throwable $e) {
