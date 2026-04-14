@@ -81,13 +81,6 @@ class VotingServiceTest extends TestCase
     private ObjectService&MockObject $objectService;
 
     /**
-     * Mock MotionService.
-     *
-     * @var MotionService&MockObject
-     */
-    private MotionService&MockObject $motionService;
-
-    /**
      * Set up test fixtures.
      *
      * @return void
