@@ -1,3 +1,5 @@
+<!-- status: pr-created -->
+
 ## Context
 
 Decidesk is a Nextcloud app using the **thin-client** pattern: all domain data is stored in OpenRegister; the backend provides only settings, business-rule services, and PDF generation. The `Motion`, `Amendment`, `Vote`, and `VotingRound` entities were introduced in ADR-000 as primary entities for this spec with full CRUD now available via p1-crud-operations. This change adds the full governance motion-and-voting lifecycle on top of that foundation: motion submission, co-signatory collection, amendment workflow, quorum enforcement, vote casting (in-person and email), proxy delegation, real-time tallying, and result publication to the ORI API.

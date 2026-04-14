@@ -43,6 +43,13 @@
 					<FormatListNumberedIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Motions')"
+				:to="{ name: 'MotionIndex' }">
+				<template #icon>
+					<FileDocumentEditIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
 		</template>
 		<template #footer>
 			<NcAppNavigationSettings :name="t('decidesk', 'Settings')">
@@ -61,6 +68,7 @@ import CalendarBlankIcon from 'vue-material-design-icons/CalendarBlank.vue'
 import DomainIcon from 'vue-material-design-icons/Domain.vue'
 import FormatListNumberedIcon from 'vue-material-design-icons/FormatListNumbered.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
+import FileDocumentEditIcon from 'vue-material-design-icons/FileDocumentEdit.vue'
 
 export default {
 	name: 'MainMenu',
@@ -73,6 +81,7 @@ export default {
 		DomainIcon,
 		FormatListNumberedIcon,
 		HomeIcon,
+		FileDocumentEditIcon,
 	},
 }
 </script>

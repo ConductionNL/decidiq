@@ -1,4 +1,7 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!--
+ @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+-->
 <template>
 	<CnSettingsSection
 		:name="t('decidesk', 'Configuration')"
@@ -11,6 +14,28 @@
 					v-model="form.register"
 					type="text"
 					:placeholder="t('decidesk', 'OpenRegister register ID')">
+			</div>
+
+			<!-- ORI endpoint (task-10) -->
+			<div class="form-group">
+				<label for="ori-endpoint">{{ t('decidesk', 'ORI-eindpunt') }}</label>
+				<input
+					id="ori-endpoint"
+					v-model="form.ori_endpoint"
+					type="url"
+					:placeholder="t('decidesk', 'ORI Endpoint URL')"
+					:aria-label="t('decidesk', 'ORI Endpoint URL')">
+			</div>
+
+			<!-- Email voting toggle (task-10) -->
+			<div class="form-group form-group--checkbox">
+				<label>
+					<input
+						v-model="form.email_voting_enabled"
+						type="checkbox"
+						:aria-label="t('decidesk', 'Enable email voting')">
+					{{ t('decidesk', 'E-mail stemmen') }}
+				</label>
 			</div>
 
 			<div v-if="successMessage" class="success-message">
@@ -42,6 +67,8 @@ export default {
 		return {
 			form: {
 				register: '',
+				ori_endpoint: '',
+				email_voting_enabled: false,
 			},
 			saving: false,
 			successMessage: '',
@@ -50,6 +77,8 @@ export default {
 	created() {
 		const settingsStore = useSettingsStore()
 		this.form.register = settingsStore.settings?.register || ''
+		this.form.ori_endpoint = settingsStore.settings?.ori_endpoint || ''
+		this.form.email_voting_enabled = settingsStore.settings?.email_voting_enabled === 'true'
 	},
 	methods: {
 		async save() {

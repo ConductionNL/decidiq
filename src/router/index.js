@@ -21,6 +21,9 @@ const ParticipantDetail = () => import('../views/ParticipantDetail.vue')
 const AgendaItems = () => import('../views/AgendaItems.vue')
 const AgendaItemDetail = () => import('../views/AgendaItemDetail.vue')
 const SettingsView = () => import('../views/SettingsView.vue')
+const MotionIndex = () => import('../views/MotionIndex.vue')
+const MotionDetail = () => import('../views/MotionDetail.vue')
+const AmendmentDetail = () => import('../views/AmendmentDetail.vue')
 
 export default new Router({
 	mode: 'history',
@@ -36,6 +39,9 @@ export default new Router({
 		{ path: '/agenda-items', name: 'AgendaItems', component: AgendaItems },
 		{ path: '/agenda-items/:id', name: 'AgendaItemDetail', component: AgendaItemDetail, props: true },
 		{ path: '/settings', name: 'Settings', component: SettingsView },
+		{ path: '/motions', name: 'MotionIndex', component: MotionIndex },
+		{ path: '/motions/:id', name: 'MotionDetail', component: MotionDetail, props: true },
+		{ path: '/amendments/:id', name: 'AmendmentDetail', component: AmendmentDetail, props: true },
 		{ path: '*', redirect: '/' },
 	],
 })
