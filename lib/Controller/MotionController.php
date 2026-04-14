@@ -3,7 +3,7 @@
 /**
  * Decidesk Motion Controller
  *
- * Thin controller for motion lifecycle, co-signatory, and budget-impact endpoints.
+ * Thin REST controller for motion lifecycle, co-signature, and budget impact endpoints.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -32,208 +32,206 @@ use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
- * Thin controller for motion lifecycle, co-signatory, and budget-impact endpoints.
+ * Thin controller for motion lifecycle and co-signature API endpoints.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+ * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
  */
 class MotionController extends Controller
 {
     /**
      * Constructor for MotionController.
      *
-     * @param IRequest      $request       The HTTP request
+     * @param IRequest      $request       The request object
      * @param MotionService $motionService The motion service
      * @param IUserSession  $userSession   The user session
      *
      * @return void
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
      */
     public function __construct(
         IRequest $request,
-        private MotionService $motionService,
-        private IUserSession $userSession,
+        private readonly MotionService $motionService,
+        private readonly IUserSession $userSession,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
+
     }//end __construct()
 
     /**
-     * Transition a motion to a new lifecycle state.
+     * Transition the lifecycle state of a Motion.
      *
      * POST /api/motions/{id}/transition
+     * Body: { "newState": "debating", "actorId": "uid" }
      *
      * @param string $id The motion UUID
      *
-     * @return JSONResponse
-     *
      * @NoAdminRequired
-     * @NoCSRFRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+     *
+     * @return JSONResponse
      */
     public function transition(string $id): JSONResponse
     {
-        $actor    = ($this->userSession->getUser()?->getUID() ?? '');
-        $newState = $this->request->getParam('newState', '');
-
-        if ($newState === '') {
-            return new JSONResponse(['error' => 'newState is required'], Http::STATUS_BAD_REQUEST);
-        }
+        $params   = $this->request->getParams();
+        $newState = ($params['newState'] ?? '');
+        $actorId  = ($this->userSession->getUser()?->getUID() ?? ($params['actorId'] ?? ''));
 
         try {
             $this->motionService->transitionLifecycle(
                 objectId: $id,
                 objectType: 'motion',
                 newState: $newState,
-                actorId: $actor,
+                actorId: $actorId
             );
-            return new JSONResponse(['status' => 'ok', 'newState' => $newState]);
+            return new JSONResponse(['success' => true, 'newState' => $newState]);
         } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
 
     }//end transition()
 
     /**
-     * Send co-signature requests to a list of participants.
+     * Request co-signature from one or more participants for a Motion.
      *
      * POST /api/motions/{id}/co-sign-request
+     * Body: { "participantIds": ["uid1", "uid2"] }
      *
      * @param string $id The motion UUID
      *
-     * @return JSONResponse
-     *
      * @NoAdminRequired
-     * @NoCSRFRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+     *
+     * @return JSONResponse
      */
     public function coSignRequest(string $id): JSONResponse
     {
-        $participantIds = $this->request->getParam('participantIds', []);
+        $params         = $this->request->getParams();
+        $participantIds = ($params['participantIds'] ?? []);
 
         if (empty($participantIds) === true) {
-            return new JSONResponse(['error' => 'participantIds is required'], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(['message' => 'participantIds is required'], Http::STATUS_BAD_REQUEST);
         }
 
         try {
             $this->motionService->requestCoSignature(motionId: $id, participantIds: $participantIds);
-            return new JSONResponse(['status' => 'ok']);
+            return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
 
     }//end coSignRequest()
 
     /**
-     * Confirm co-signature by the current user.
+     * Confirm co-signature on a Motion.
      *
      * POST /api/motions/{id}/co-sign-confirm
+     * Body: { "displayName": "A. de Vries" }
      *
      * @param string $id The motion UUID
      *
-     * @return JSONResponse
-     *
      * @NoAdminRequired
-     * @NoCSRFRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+     *
+     * @return JSONResponse
      */
     public function coSignConfirm(string $id): JSONResponse
     {
-        $displayName = $this->request->getParam('displayName', '');
+        $params      = $this->request->getParams();
+        $displayName = ($params['displayName'] ?? '');
+
         if ($displayName === '') {
-            $displayName = ($this->userSession->getUser()?->getDisplayName() ?? '');
+            $user = $this->userSession->getUser();
+            if ($user !== null) {
+                $displayName = $user->getDisplayName();
+            }
         }
 
         if ($displayName === '') {
-            return new JSONResponse(['error' => 'displayName is required'], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(['message' => 'displayName is required'], Http::STATUS_BAD_REQUEST);
         }
 
         try {
             $this->motionService->addCoSigner(motionId: $id, participantDisplayName: $displayName);
-            return new JSONResponse(['status' => 'ok']);
+            return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
 
     }//end coSignConfirm()
 
     /**
-     * Save or update budget impact data on a motion.
+     * Store budget impact details on a Motion.
      *
      * POST /api/motions/{id}/budget-impact
+     * Body: { "budgetLine": "string", "amountDelta": float, "rationale": "string" }
      *
      * @param string $id The motion UUID
      *
-     * @return JSONResponse
-     *
      * @NoAdminRequired
-     * @NoCSRFRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+     *
+     * @return JSONResponse
      */
     public function budgetImpact(string $id): JSONResponse
     {
-        $budgetLine  = $this->request->getParam('budgetLine', '');
-        $amountDelta = (float) $this->request->getParam('amountDelta', 0);
-        $rationale   = $this->request->getParam('rationale', '');
-
-        if ($budgetLine === '') {
-            return new JSONResponse(['error' => 'budgetLine is required'], Http::STATUS_BAD_REQUEST);
-        }
+        $params      = $this->request->getParams();
+        $budgetLine  = ($params['budgetLine'] ?? '');
+        $amountDelta = (float) ($params['amountDelta'] ?? 0.0);
+        $rationale   = ($params['rationale'] ?? '');
 
         try {
             $this->motionService->saveBudgetImpact(
                 motionId: $id,
                 budgetLine: $budgetLine,
                 amountDelta: $amountDelta,
-                rationale: $rationale,
+                rationale: $rationale
             );
-            return new JSONResponse(['status' => 'ok']);
+            return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
 
     }//end budgetImpact()
 
     /**
-     * Transition an amendment to a new lifecycle state.
+     * Transition the lifecycle state of an Amendment.
      *
      * POST /api/amendments/{id}/transition
+     * Body: { "newState": "debating" }
      *
      * @param string $id The amendment UUID
      *
-     * @return JSONResponse
-     *
      * @NoAdminRequired
-     * @NoCSRFRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+     *
+     * @return JSONResponse
      */
     public function amendmentTransition(string $id): JSONResponse
     {
-        $actor    = ($this->userSession->getUser()?->getUID() ?? '');
-        $newState = $this->request->getParam('newState', '');
-
-        if ($newState === '') {
-            return new JSONResponse(['error' => 'newState is required'], Http::STATUS_BAD_REQUEST);
-        }
+        $params   = $this->request->getParams();
+        $newState = ($params['newState'] ?? '');
+        $actorId  = ($this->userSession->getUser()?->getUID() ?? '');
 
         try {
             $this->motionService->transitionLifecycle(
                 objectId: $id,
                 objectType: 'amendment',
                 newState: $newState,
-                actorId: $actor,
+                actorId: $actorId
             );
-            return new JSONResponse(['status' => 'ok', 'newState' => $newState]);
+            return new JSONResponse(['success' => true, 'newState' => $newState]);
         } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
 
     }//end amendmentTransition()

@@ -2,57 +2,48 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-5
+ AmendmentList component — embedded in MotionDetail, lists amendments for a motion.
+ @spec openspec/changes/p2-motion-and-voting/tasks.md#task-5.1
 -->
 <template>
-	<CnDetailCard :title="t('decidesk', 'Amendments') + (amendments.length ? ` (${amendments.length})` : '')">
-		<p v-if="!amendments.length" class="decidesk-empty">
-			{{ t('decidesk', 'No amendments.') }}
+	<CnDetailCard :title="t('decidesk', 'Amendementen') + (amendments.length ? ` (${amendments.length})` : '')">
+		<p v-if="loading" class="decidesk-empty">
+			{{ t('decidesk', 'Laden…') }}
 		</p>
-		<ul v-else class="decidesk-relations" aria-label="Amendments">
-			<li v-for="amendment in amendments" :key="amendment.id">
-				<router-link :to="{ name: 'AmendmentDetail', params: { id: amendment.id } }">
-					{{ amendment.title || amendment.id }}
+		<p v-else-if="!amendments.length" class="decidesk-empty">
+			{{ t('decidesk', 'Geen amendementen.') }}
+		</p>
+		<ul v-else class="decidesk-amendment-list" role="list">
+			<li v-for="amendment in amendments" :key="amendment.id || amendment.uuid" class="decidesk-amendment-item">
+				<router-link :to="{ name: 'AmendmentDetail', params: { id: amendment.id || amendment.uuid } }">
+					<span class="decidesk-amendment-title">{{ amendment.title }}</span>
 				</router-link>
-				<span class="decidesk-badge decidesk-lifecycle">{{ amendment.lifecycle || '—' }}</span>
-				<span class="decidesk-proposer">{{ amendment.proposer }}</span>
+				<span class="decidesk-amendment-meta">
+					{{ amendment.proposer }} &middot;
+					<CnStatusBadge :status="amendment.lifecycle" />
+				</span>
 			</li>
 		</ul>
 		<NcButton
 			v-if="canSubmitAmendment"
 			type="secondary"
-			:aria-label="t('decidesk', 'Submit amendment')"
-			@click="showCreateDialog = true">
+			@click="goNewAmendment">
 			{{ t('decidesk', 'Amendement indienen') }}
 		</NcButton>
-
-		<!-- Create amendment dialog -->
-		<CnSchemaFormDialog
-			v-if="showCreateDialog"
-			:schema="objectStore.getSchema('amendment')"
-			:title="t('decidesk', 'Submit Amendment')"
-			:object-store="objectStore"
-			object-type="amendment"
-			:initial-data="{ motionId: motionId, lifecycle: 'submitted', status: 'submitted' }"
-			@close="showCreateDialog = false"
-			@saved="onAmendmentSaved" />
 	</CnDetailCard>
 </template>
 
 <script>
-import { CnDetailCard, CnSchemaFormDialog } from '@conduction/nextcloud-vue'
+import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import { useObjectStore } from '../store/store.js'
 
-/**
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-5
- */
 export default {
 	name: 'AmendmentList',
-	components: { CnDetailCard, CnSchemaFormDialog, NcButton },
+	components: { CnDetailCard, CnStatusBadge, NcButton },
 	props: {
 		motionId: { type: String, required: true },
-		motionLifecycle: { type: String, default: 'submitted' },
+		motionLifecycle: { type: String, default: '' },
 	},
 	setup() {
 		const objectStore = useObjectStore()
@@ -60,7 +51,6 @@ export default {
 	},
 	data() {
 		return {
-			showCreateDialog: false,
 			amendments: [],
 			loading: false,
 		}
@@ -70,65 +60,63 @@ export default {
 			return ['submitted', 'debating'].includes(this.motionLifecycle)
 		},
 	},
-	watch: {
-		motionId: {
-			immediate: true,
-			handler() {
-				this.fetchAmendments()
-			},
-		},
+	async mounted() {
+		await this.fetchAmendments()
 	},
 	methods: {
 		async fetchAmendments() {
-			if (!this.motionId) return
 			this.loading = true
 			try {
-				const results = await this.objectStore.fetchObjects('amendment', { motionId: this.motionId })
-				this.amendments = results ?? []
+				const result = await this.objectStore.fetchObjects('amendment', {
+					'relations.motion': this.motionId,
+				})
+				this.amendments = result?.results || []
 			} catch (e) {
-				console.error('Failed to fetch amendments', e)
+				this.amendments = []
 			} finally {
 				this.loading = false
 			}
 		},
-		onAmendmentSaved() {
-			this.showCreateDialog = false
-			this.fetchAmendments()
+		goNewAmendment() {
+			this.$router.push({ name: 'AmendmentDetail', params: { id: 'new' } })
 		},
 	},
 }
 </script>
 
 <style scoped>
-.decidesk-relations {
-	list-style: none;
-	padding: 0;
-	margin: 0 0 0.5rem;
+.decidesk-empty {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
 }
 
-.decidesk-relations li {
+.decidesk-amendment-list {
+	list-style: none;
+	margin: 0 0 var(--default-grid-baseline);
+	padding: 0;
+}
+
+.decidesk-amendment-item {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
-	padding: 0.25rem 0;
+	justify-content: space-between;
+	padding: var(--default-grid-baseline) 0;
 	border-bottom: 1px solid var(--color-border);
 }
 
-.decidesk-badge {
-	font-size: 0.75rem;
-	padding: 0.1rem 0.4rem;
-	border-radius: var(--border-radius);
-	background: var(--color-background-dark);
-	color: var(--color-text-maxcontrast);
+.decidesk-amendment-item:last-child {
+	border-bottom: none;
 }
 
-.decidesk-proposer {
-	color: var(--color-text-maxcontrast);
-	font-size: 0.85rem;
-	margin-left: auto;
+.decidesk-amendment-title {
+	font-weight: bold;
 }
 
-.decidesk-empty {
+.decidesk-amendment-meta {
 	color: var(--color-text-maxcontrast);
+	font-size: 0.875em;
+	display: flex;
+	align-items: center;
+	gap: calc(var(--default-grid-baseline) / 2);
 }
 </style>
