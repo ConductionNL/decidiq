@@ -25,6 +25,7 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\SettingsService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -81,6 +82,7 @@ class SettingsController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function index(): JSONResponse
     {
         return new JSONResponse(

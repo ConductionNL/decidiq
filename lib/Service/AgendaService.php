@@ -132,12 +132,13 @@ class AgendaService
 
         // Notify each active participant (leftAt is null = still active).
         foreach ($participants as $participant) {
-            $leftAt = $participant['leftAt'] ?? null;
+            $participantData = $this->toArray(item: $participant);
+            $leftAt          = $participantData['leftAt'] ?? null;
             if ($leftAt !== null) {
                 continue;
             }
 
-            $userId = $participant['owner'] ?? null;
+            $userId = $participantData['owner'] ?? null;
             if ($userId === null) {
                 continue;
             }
