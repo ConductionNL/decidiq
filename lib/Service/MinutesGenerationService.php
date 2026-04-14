@@ -72,7 +72,7 @@ class MinutesGenerationService
         $objectService = $this->getObjectService();
 
         // Fetch the Minutes object.
-        $minutes = $objectService->getObject(register: 'decidesk', schema: 'minutes', id: $minutesId);
+        $minutes = $objectService->getObject('decidesk', 'minutes', $minutesId);
         if ($minutes === null) {
             throw new \InvalidArgumentException("Minutes object '$minutesId' not found.");
         }
@@ -89,9 +89,9 @@ class MinutesGenerationService
             if (($relation['schema'] ?? '') === 'meeting') {
                 try {
                     $meeting = $objectService->getObject(
-                        register: 'decidesk',
-                        schema: 'meeting',
-                        id: ($relation['objectId'] ?? $relation['id'] ?? '')
+                        'decidesk',
+                        'meeting',
+                        ($relation['objectId'] ?? $relation['id'] ?? '')
                     );
                 } catch (\Throwable $e) {
                     $this->logger->warning('Decidesk: could not resolve linked Meeting', ['exception' => $e->getMessage()]);
@@ -102,10 +102,10 @@ class MinutesGenerationService
         }
 
         if ($meeting !== null) {
-            $agendaItems  = $this->fetchRelated(objectService: $objectService, schema: 'agenda-item', parentObject: $meeting);
-            $motions      = $this->fetchRelated(objectService: $objectService, schema: 'motion', parentObject: $meeting);
-            $votingRounds = $this->fetchRelated(objectService: $objectService, schema: 'voting-round', parentObject: $meeting);
-            $decisions    = $this->fetchRelated(objectService: $objectService, schema: 'decision', parentObject: $meeting);
+            $agendaItems  = $this->fetchRelated($objectService, 'agenda-item', $meeting);
+            $motions      = $this->fetchRelated($objectService, 'motion', $meeting);
+            $votingRounds = $this->fetchRelated($objectService, 'voting-round', $meeting);
+            $decisions    = $this->fetchRelated($objectService, 'decision', $meeting);
 
             // Sort agenda items by orderNumber.
             usort(
@@ -117,12 +117,12 @@ class MinutesGenerationService
         }
 
         return $this->renderTemplate(
-            minutes: $minutes,
-            meeting: $meeting,
-            agendaItems: $agendaItems,
-            motions: $motions,
-            votingRounds: $votingRounds,
-            decisions: $decisions
+            $minutes,
+            $meeting,
+            $agendaItems,
+            $motions,
+            $votingRounds,
+            $decisions
         );
 
     }//end generateDraft()
@@ -154,7 +154,7 @@ class MinutesGenerationService
             }
 
             try {
-                $obj = $objectService->getObject(register: 'decidesk', schema: $schema, id: $objectId);
+                $obj = $objectService->getObject('decidesk', $schema, $objectId);
                 if ($obj !== null) {
                     $results[] = $obj;
                 }
