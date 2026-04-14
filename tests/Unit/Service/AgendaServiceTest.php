@@ -603,8 +603,55 @@ class AgendaServiceTest extends TestCase
 
         self::assertTrue(condition: $result['success']);
         self::assertSame(expected: 3, actual: $result['count']);
+        // Verify actual orderNumber values: item-c→1, item-a→2, item-b→3.
+        self::assertSame(expected: 1, actual: $savedItems[0][2]['orderNumber']);
+        self::assertSame(expected: 2, actual: $savedItems[1][2]['orderNumber']);
+        self::assertSame(expected: 3, actual: $savedItems[2][2]['orderNumber']);
 
     }//end testReorderItemsAssignsSequentialNumbers()
+
+    /**
+     * Test reorderItems throws 400 when the ordered IDs list contains duplicates.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
+     */
+    public function testReorderItemsThrowsOnDuplicateIds(): void
+    {
+        $items = [
+            ['id' => 'item-a', 'orderNumber' => 1],
+            ['id' => 'item-b', 'orderNumber' => 2],
+            ['id' => 'item-c', 'orderNumber' => 3],
+        ];
+
+        $this->objectService->method('getObject')
+            ->willReturn(
+                [
+                    'id'        => 'meeting-1',
+                    'relations' => [['schema' => 'governance-body', 'id' => 'gb-1']],
+                ]
+            );
+
+        $this->objectService->method('getObjects')
+            ->willReturnCallback(
+                static function () use ($items) {
+                    $schema = func_get_arg(1);
+                    return match ($schema) {
+                        'participant' => [['owner' => 'user-1', 'role' => 'chair', 'leftAt' => null]],
+                        'agenda-item' => $items,
+                        default       => [],
+                    };
+                }
+            );
+
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionCode(code: 400);
+        $this->expectExceptionMessage(message: 'Duplicate IDs in ordered list');
+
+        $this->service->reorderItems(meetingId: 'meeting-1', orderedIds: ['item-a', 'item-a', 'item-b']);
+
+    }//end testReorderItemsThrowsOnDuplicateIds()
 
     /**
      * Test assertChairOrSecretary throws 403 for a non-chair user.

@@ -102,9 +102,13 @@ class AgendaService
             throw new \RuntimeException('Service unavailable: OpenRegister is not installed', 503);
         }
 
-        // Fetch meeting and participants first so auth runs before any data is revealed.
-        $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
-        $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        // Fetch meeting and participants; normalise not-found to 403 to prevent meeting-ID enumeration (OWASP A01:2021).
+        try {
+            $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
+            $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        } catch (\Throwable) {
+            throw new \RuntimeException('Forbidden: meeting not found or access denied', 403);
+        }
 
         // Enforce chair/secretary role before revealing meeting state (info-disclosure guard).
         $this->assertChairOrSecretary(participants: $participants);
@@ -278,8 +282,14 @@ class AgendaService
             throw new \RuntimeException('Service unavailable: OpenRegister is not installed', 503);
         }
 
-        $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
-        $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        // Normalise not-found to 403 to prevent meeting-ID enumeration (OWASP A01:2021).
+        try {
+            $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
+            $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        } catch (\Throwable) {
+            throw new \RuntimeException('Forbidden: meeting not found or access denied', 403);
+        }
+
         $this->assertChairOrSecretary(participants: $participants);
 
         $agendaItems = $objectService->getObjects(
@@ -340,8 +350,14 @@ class AgendaService
             throw new \RuntimeException('Service unavailable: OpenRegister is not installed', 503);
         }
 
-        $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
-        $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        // Normalise not-found to 403 to prevent meeting-ID enumeration (OWASP A01:2021).
+        try {
+            $meeting      = $objectService->getObject('decidesk', 'meeting', $meetingId);
+            $participants = $this->getActiveParticipants(objectService: $objectService, meeting: $meeting);
+        } catch (\Throwable) {
+            throw new \RuntimeException('Forbidden: meeting not found or access denied', 403);
+        }
+
         $this->assertChairOrSecretary(participants: $participants);
 
         $agendaItems = $objectService->getObjects(
@@ -357,12 +373,9 @@ class AgendaService
             $itemsById[$id] = $item;
         }
 
-        // Validate that the provided list covers every agenda item to prevent duplicate orderNumbers.
-        if (count($orderedIds) !== count($agendaItems)) {
-            throw new \RuntimeException(
-                'The ordered IDs list must include all '.count($agendaItems).' agenda items; '.count($orderedIds).' provided',
-                400
-            );
+        // Reject duplicate IDs — a repeated ID would silently corrupt order numbers.
+        if (count($orderedIds) !== count(array_unique($orderedIds))) {
+            throw new \RuntimeException('Duplicate IDs in ordered list', 400);
         }
 
         // Assign sequential orderNumber based on provided order.
