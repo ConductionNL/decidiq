@@ -13,6 +13,7 @@ return [
         // Meeting lifecycle transitions.
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
 
+
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],
         ['name' => 'agenda#advanceBobPhase',     'url' => '/api/agenda-items/{id}/bob-phase',      'verb' => 'PUT'],

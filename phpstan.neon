@@ -20,7 +20,8 @@ parameters:
         - '#on an unknown class OCA\\OpenRegister\\#'
         - '#has invalid return type OCA\\OpenRegister\\#'
         - '#has invalid type OCA\\OpenRegister\\#'
-        # CalendarEventService is an OpenRegister class; PHPStan cannot resolve it and may flag the injected property as never read.
+        # CalendarEventService is an OpenRegister type unknown to PHPStan; the property IS
+        # read in publishAgenda() but PHPStan cannot resolve calls through an unknown class.
         - '#Property OCA\\Decidesk\\Service\\AgendaService::\$calendarEventService is never read#'
         # GuzzleHttp is available at runtime via Nextcloud but not in composer require
         - '#unknown class GuzzleHttp\\#'
