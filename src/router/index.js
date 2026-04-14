@@ -5,7 +5,19 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import { generateUrl } from '@nextcloud/router'
 
+/**
+ * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-3.4
+ */
+
 Vue.use(Router)
+
+/**
+ * Lazy-load view components to reduce initial bundle size.
+ */
+const MotionList = () => import('../views/MotionList.vue')
+const MotionDetail = () => import('../views/MotionDetail.vue')
+const DecisionList = () => import('../views/DecisionList.vue')
+const DecisionDetail = () => import('../views/DecisionDetail.vue')
 
 export default new Router({
 	mode: 'hash',
@@ -24,6 +36,12 @@ export default new Router({
 
 		{ path: '/agenda-items', name: 'AgendaItems', component: () => import('../views/AgendaItems.vue') },
 		{ path: '/agenda-items/:id', name: 'AgendaItemDetail', component: () => import('../views/AgendaItemDetail.vue'), props: true },
+
+		{ path: '/motions', name: 'MotionList', component: MotionList },
+		{ path: '/motions/:id', name: 'MotionDetail', component: MotionDetail, props: true },
+
+		{ path: '/decisions', name: 'DecisionList', component: DecisionList },
+		{ path: '/decisions/:id', name: 'DecisionDetail', component: DecisionDetail, props: true },
 
 		{ path: '/settings', name: 'Settings', component: () => import('../views/Settings.vue') },
 

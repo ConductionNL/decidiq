@@ -61,9 +61,26 @@ class SettingsController extends Controller
     }//end __construct()
 
     /**
+     * Check whether the current user is an admin. Returns a 403 JSONResponse if not.
+     *
+     * @return JSONResponse|null Null if admin, 403 response if not.
+     */
+    private function requireAdmin(): ?JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(['message' => 'Admin required'], Http::STATUS_FORBIDDEN);
+        }
+
+        return null;
+    }//end requireAdmin()
+
+    /**
      * Retrieve all current settings.
      *
      * @NoAdminRequired
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      *
      * @return JSONResponse
      *
@@ -79,8 +96,7 @@ class SettingsController extends Controller
     /**
      * Update settings with provided data.
      *
-     * Admin-only: no @NoAdminRequired annotation by design.
-     * Explicitly enforced via IGroupManager::isAdmin() as defence-in-depth.
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
      *
      * @return JSONResponse
      *
@@ -89,9 +105,9 @@ class SettingsController extends Controller
     #[AuthorizedAdminSetting(AdminSettings::class)]
     public function create(): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(['message' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        $denied = $this->requireAdmin();
+        if ($denied !== null) {
+            return $denied;
         }
 
         $data   = $this->request->getParams();
@@ -111,8 +127,8 @@ class SettingsController extends Controller
      * Forces a fresh import regardless of version, auto-configuring
      * all schema and register IDs from the import result.
      *
-     * Admin-only: no @NoAdminRequired annotation by design.
-     * Explicitly enforced via IGroupManager::isAdmin() as defence-in-depth.
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
      *
      * @return JSONResponse
      *
@@ -121,9 +137,9 @@ class SettingsController extends Controller
     #[AuthorizedAdminSetting(AdminSettings::class)]
     public function load(): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(['message' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        $denied = $this->requireAdmin();
+        if ($denied !== null) {
+            return $denied;
         }
 
         $result = $this->settingsService->loadConfiguration(force: true);
