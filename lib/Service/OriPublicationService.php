@@ -65,11 +65,28 @@ class OriPublicationService
     private function getEndpoint(): ?string
     {
         $endpoint = $this->appConfig->getValueString(Application::APP_ID, 'ori_endpoint', '');
-        if (empty($endpoint) === false) {
-            return $endpoint;
+        if (empty($endpoint) === true) {
+            return null;
         }
 
-        return null;
+        // Validate URL: must use HTTPS and must not target loopback or RFC-1918 addresses.
+        if (str_starts_with($endpoint, 'https://') === false) {
+            $this->logger->warning('Decidesk ORI: ori_endpoint must use HTTPS, skipping publication');
+            return null;
+        }
+
+        $host = parse_url($endpoint, PHP_URL_HOST);
+        if ($host === false || $host === null) {
+            return null;
+        }
+
+        $ip = gethostbyname($host);
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            $this->logger->warning("Decidesk ORI: ori_endpoint resolves to a private/reserved address ($ip), skipping publication");
+            return null;
+        }
+
+        return $endpoint;
 
     }//end getEndpoint()
 
@@ -178,6 +195,20 @@ class OriPublicationService
                 schema: 'voting-round',
                 uuid: $votingRoundId,
             );
+
+            // Stamp oriPublishedAt so getPublicationStatus() can distinguish a published round.
+            try {
+                $objectService->setRegister('decidesk');
+                $objectService->setSchema('voting-round');
+                $roundObject = $objectService->find($votingRoundId);
+                if ($roundObject !== null) {
+                    $data = $roundObject->getObject();
+                    $data['oriPublishedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+                    $objectService->saveObject($data);
+                }
+            } catch (\Throwable $stampError) {
+                $this->logger->warning("Decidesk ORI: could not stamp oriPublishedAt for round $votingRoundId: {$stampError->getMessage()}");
+            }
 
             $this->logger->info("Decidesk ORI: VotingRound $votingRoundId published successfully to $endpoint");
         } catch (\Throwable $e) {
