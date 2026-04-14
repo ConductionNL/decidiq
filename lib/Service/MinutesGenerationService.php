@@ -400,14 +400,16 @@ class MinutesGenerationService
             $lines[] = '**Locatie:** '.$location;
         }
 
-        $lines[]       = '';
-        $lines[]       = '---';
-        $lines[]       = '';
+        $lines[] = '';
+        $lines[] = '---';
+        $lines[] = '';
+        $lines[] = '## 1. Opening';
+        $lines[] = '';
+        $lines[] = 'De vergadering wordt geopend door de voorzitter.';
+        $lines[] = '';
+
+        // Track the current section number — incremented each time a section is emitted.
         $sectionNumber = 1;
-        $lines[]       = '## '.$sectionNumber.'. Opening';
-        $lines[]       = '';
-        $lines[]       = 'De vergadering wordt geopend door de voorzitter.';
-        $lines[]       = '';
 
         // Agenda items section.
         if (count($agendaItems) > 0) {
@@ -509,7 +511,7 @@ class MinutesGenerationService
             }//end foreach
         }//end if
 
-        // Closing section — always follows the last emitted section.
+        // Closing section — number follows whichever sections were actually emitted.
         $sectionNumber++;
         $lines[] = '## '.$sectionNumber.'. Sluiting';
         $lines[] = '';

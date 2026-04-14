@@ -37,9 +37,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Tests for DecisionController::publish().
- *
- * Covers all five distinct code paths: 401, 403, 404, 422, 200, and 503.
+ * Tests for DecisionController.
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
  */
@@ -47,7 +45,7 @@ class DecisionControllerTest extends TestCase
 {
 
     /**
-     * The controller under test.
+     * The controller under test (authenticated admin user).
      *
      * @var DecisionController
      */
@@ -61,7 +59,7 @@ class DecisionControllerTest extends TestCase
     private IRequest&MockObject $request;
 
     /**
-     * Mock ContainerInterface.
+     * Mock ContainerInterface (DI container).
      *
      * @var ContainerInterface&MockObject
      */
@@ -89,7 +87,7 @@ class DecisionControllerTest extends TestCase
     private LoggerInterface&MockObject $logger;
 
     /**
-     * Mock IUser (authenticated admin).
+     * Mock IUser (authenticated user).
      *
      * @var IUser&MockObject
      */
@@ -103,7 +101,7 @@ class DecisionControllerTest extends TestCase
     private ObjectService&MockObject $objectService;
 
     /**
-     * Set up test fixtures for an authenticated admin user.
+     * Set up test fixtures.
      *
      * @return void
      */
@@ -111,22 +109,16 @@ class DecisionControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->request      = $this->createMock(IRequest::class);
-        $this->container    = $this->createMock(ContainerInterface::class);
-        $this->userSession  = $this->createMock(IUserSession::class);
-        $this->groupManager = $this->createMock(IGroupManager::class);
-        $this->logger       = $this->createMock(LoggerInterface::class);
-        $this->user         = $this->createMock(IUser::class);
+        $this->request       = $this->createMock(IRequest::class);
+        $this->container     = $this->createMock(ContainerInterface::class);
+        $this->userSession   = $this->createMock(IUserSession::class);
+        $this->groupManager  = $this->createMock(IGroupManager::class);
+        $this->logger        = $this->createMock(LoggerInterface::class);
+        $this->user          = $this->createMock(IUser::class);
         $this->objectService = $this->createMock(ObjectService::class);
 
-        $this->user->method('getUID')->willReturn('adminuser');
+        $this->user->method('getUID')->willReturn('admin');
         $this->userSession->method('getUser')->willReturn($this->user);
-        $this->groupManager->method('isAdmin')->with('adminuser')->willReturn(true);
-        $this->container->method('get')
-            ->with('OCA\OpenRegister\Service\ObjectService')
-            ->willReturn($this->objectService);
-        $this->objectService->method('setRegister')->willReturnSelf();
-        $this->objectService->method('setSchema')->willReturnSelf();
 
         $this->controller = new DecisionController(
             request: $this->request,
@@ -139,7 +131,7 @@ class DecisionControllerTest extends TestCase
     }//end setUp()
 
     /**
-     * publish() returns 401 when the user is not authenticated.
+     * publish() for an unauthenticated request returns 401.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      *
@@ -158,6 +150,9 @@ class DecisionControllerTest extends TestCase
             logger: $this->logger,
         );
 
+        // Container must NOT be called for an unauthenticated request.
+        $this->container->expects($this->never())->method('get');
+
         $result = $unauthController->publish('decision-uuid-001');
 
         self::assertInstanceOf(JSONResponse::class, $result);
@@ -167,7 +162,7 @@ class DecisionControllerTest extends TestCase
     }//end testPublishUnauthenticatedReturns401()
 
     /**
-     * publish() returns 403 when the caller is not a Nextcloud administrator.
+     * publish() by a non-admin returns 403.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      *
@@ -175,18 +170,12 @@ class DecisionControllerTest extends TestCase
      */
     public function testPublishByNonAdminReturns403(): void
     {
-        $nonAdminGroupManager = $this->createMock(IGroupManager::class);
-        $nonAdminGroupManager->method('isAdmin')->with('adminuser')->willReturn(false);
+        $this->groupManager->method('isAdmin')->with('admin')->willReturn(false);
 
-        $nonAdminController = new DecisionController(
-            request: $this->request,
-            container: $this->container,
-            userSession: $this->userSession,
-            groupManager: $nonAdminGroupManager,
-            logger: $this->logger,
-        );
+        // Container must NOT be called — admin check happens before delegation.
+        $this->container->expects($this->never())->method('get');
 
-        $result = $nonAdminController->publish('decision-uuid-001');
+        $result = $this->controller->publish('decision-uuid-001');
 
         self::assertInstanceOf(JSONResponse::class, $result);
         self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
@@ -195,7 +184,7 @@ class DecisionControllerTest extends TestCase
     }//end testPublishByNonAdminReturns403()
 
     /**
-     * publish() returns 503 when OpenRegister is not available.
+     * publish() when OpenRegister is unavailable returns 503.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      *
@@ -203,20 +192,13 @@ class DecisionControllerTest extends TestCase
      */
     public function testPublishWhenOpenRegisterUnavailableReturns503(): void
     {
-        $unavailableContainer = $this->createMock(ContainerInterface::class);
-        $unavailableContainer->method('get')
+        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
+
+        $this->container->method('get')
             ->with('OCA\OpenRegister\Service\ObjectService')
-            ->willThrowException(new \RuntimeException('OpenRegister not available'));
+            ->willThrowException(new \RuntimeException('OpenRegister is not available.'));
 
-        $unavailableController = new DecisionController(
-            request: $this->request,
-            container: $unavailableContainer,
-            userSession: $this->userSession,
-            groupManager: $this->groupManager,
-            logger: $this->logger,
-        );
-
-        $result = $unavailableController->publish('decision-uuid-001');
+        $result = $this->controller->publish('decision-uuid-001');
 
         self::assertInstanceOf(JSONResponse::class, $result);
         self::assertSame(Http::STATUS_SERVICE_UNAVAILABLE, $result->getStatus());
@@ -225,7 +207,7 @@ class DecisionControllerTest extends TestCase
     }//end testPublishWhenOpenRegisterUnavailableReturns503()
 
     /**
-     * publish() returns 404 when the Decision object is not found.
+     * publish() when the Decision object is not found returns 404.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      *
@@ -233,7 +215,14 @@ class DecisionControllerTest extends TestCase
      */
     public function testPublishDecisionNotFoundReturns404(): void
     {
-        $this->objectService->method('find')->with(id: 'nonexistent-uuid')->willReturn(null);
+        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
+
+        $this->container->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($this->objectService);
+
+        // find() returns null — decision does not exist.
+        $this->objectService->method('find')->willReturn(null);
 
         $result = $this->controller->publish('nonexistent-uuid');
 
@@ -244,7 +233,7 @@ class DecisionControllerTest extends TestCase
     }//end testPublishDecisionNotFoundReturns404()
 
     /**
-     * publish() returns 422 when the decision outcome is not "adopted".
+     * publish() for a decision with a non-adopted outcome returns 422.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      *
@@ -252,13 +241,20 @@ class DecisionControllerTest extends TestCase
      */
     public function testPublishRejectedDecisionReturns422(): void
     {
+        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
+
+        $this->container->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($this->objectService);
+
         $entity = $this->createMock(ObjectEntity::class);
         $entity->method('getObject')->willReturn([
             'id'          => 'decision-uuid-002',
             'outcome'     => 'rejected',
             'isPublished' => false,
         ]);
-        $this->objectService->method('find')->with(id: 'decision-uuid-002')->willReturn($entity);
+
+        $this->objectService->method('find')->willReturn($entity);
 
         $result = $this->controller->publish('decision-uuid-002');
 
@@ -269,7 +265,7 @@ class DecisionControllerTest extends TestCase
     }//end testPublishRejectedDecisionReturns422()
 
     /**
-     * publish() returns 422 when the decision is already published.
+     * publish() for an already-published decision returns 422.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      *
@@ -277,14 +273,20 @@ class DecisionControllerTest extends TestCase
      */
     public function testPublishAlreadyPublishedDecisionReturns422(): void
     {
+        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
+
+        $this->container->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($this->objectService);
+
         $entity = $this->createMock(ObjectEntity::class);
         $entity->method('getObject')->willReturn([
             'id'          => 'decision-uuid-003',
             'outcome'     => 'adopted',
             'isPublished' => true,
-            'publishedAt' => '2026-01-01T00:00:00+00:00',
         ]);
-        $this->objectService->method('find')->with(id: 'decision-uuid-003')->willReturn($entity);
+
+        $this->objectService->method('find')->willReturn($entity);
 
         $result = $this->controller->publish('decision-uuid-003');
 
@@ -295,7 +297,7 @@ class DecisionControllerTest extends TestCase
     }//end testPublishAlreadyPublishedDecisionReturns422()
 
     /**
-     * publish() returns 200 with the updated Decision object on success.
+     * publish() happy path returns 200 with the updated Decision.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      *
@@ -303,31 +305,42 @@ class DecisionControllerTest extends TestCase
      */
     public function testPublishSucceedsReturns200(): void
     {
+        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
+
+        $this->container->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($this->objectService);
+
         $entity = $this->createMock(ObjectEntity::class);
         $entity->method('getObject')->willReturn([
             'id'          => 'decision-uuid-004',
+            'title'       => 'Besluit A',
             'outcome'     => 'adopted',
             'isPublished' => false,
         ]);
-        $this->objectService->method('find')->with(id: 'decision-uuid-004')->willReturn($entity);
 
-        $saved = new \stdClass();
-        $saved->id          = 'decision-uuid-004';
-        $saved->outcome     = 'adopted';
-        $saved->isPublished = true;
-        $saved->publishedAt = '2026-04-14T19:00:00+00:00';
-        $this->objectService->method('saveObject')->willReturn($saved);
+        $this->objectService->method('find')->willReturn($entity);
+
+        $savedStdClass              = new \stdClass();
+        $savedStdClass->id          = 'decision-uuid-004';
+        $savedStdClass->isPublished = true;
+        $savedStdClass->publishedAt = '2026-04-14T00:00:00+00:00';
+
+        $this->objectService->expects($this->once())
+            ->method('saveObject')
+            ->willReturn($savedStdClass);
 
         $result = $this->controller->publish('decision-uuid-004');
 
         self::assertInstanceOf(JSONResponse::class, $result);
         self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertArrayHasKey('isPublished', $result->getData());
         self::assertTrue($result->getData()['isPublished']);
 
     }//end testPublishSucceedsReturns200()
 
     /**
-     * publish() returns 503 when saveObject throws an exception.
+     * publish() when saveObject throws returns 503.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      *
@@ -335,15 +348,23 @@ class DecisionControllerTest extends TestCase
      */
     public function testPublishWhenSaveFailsReturns503(): void
     {
+        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
+
+        $this->container->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($this->objectService);
+
         $entity = $this->createMock(ObjectEntity::class);
         $entity->method('getObject')->willReturn([
             'id'          => 'decision-uuid-005',
             'outcome'     => 'adopted',
             'isPublished' => false,
         ]);
-        $this->objectService->method('find')->with(id: 'decision-uuid-005')->willReturn($entity);
+
+        $this->objectService->method('find')->willReturn($entity);
+
         $this->objectService->method('saveObject')
-            ->willThrowException(new \RuntimeException('Database error'));
+            ->willThrowException(new \RuntimeException('Database connection lost.'));
 
         $result = $this->controller->publish('decision-uuid-005');
 

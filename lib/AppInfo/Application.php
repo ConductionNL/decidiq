@@ -101,9 +101,8 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionController for DI.
-        // All constructor dependencies are platform-managed; explicit registration
-        // ensures reliable resolution on the decision#publish route across all
-        // Nextcloud ≥28 environments (consistent with MinutesController pattern).
+        // Explicit registration matches the MinutesController pattern and ensures
+        // reliable resolution in all Nextcloud environments (≥28).
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
         $context->registerService(
                 DecisionController::class,
