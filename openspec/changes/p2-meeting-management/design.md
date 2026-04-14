@@ -1,6 +1,6 @@
 # Design: Meeting Management (p2-meeting-management)
 
-**Status:** in-progress
+**Status:** pr-created
 **App:** Decidesk
 **Platform:** Nextcloud + OpenRegister
 **Depends on:** p1-schemas-and-data-model, p1-dashboard-and-navigation, p1-crud-operations
