@@ -10,10 +10,8 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
-        // Prometheus metrics endpoint.
-        ['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
-        // Health check endpoint.
-        ['name' => 'health#index', 'url' => '/api/health', 'verb' => 'GET'],
+        // Meeting lifecycle transitions.
+        ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],

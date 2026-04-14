@@ -21,6 +21,11 @@
 			<CnDetailCard :title="t('decidesk', 'Properties')">
 				<CnDetailGrid :items="propertyItems" />
 			</CnDetailCard>
+			<CnDetailCard :title="t('decidesk', 'Lifecycle')">
+				<MeetingLifecycle
+					:meeting="object"
+					@lifecycle-updated="onLifecycleUpdated" />
+			</CnDetailCard>
 		</template>
 
 		<template #relations>
@@ -135,10 +140,11 @@ import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaForm
 import { getCurrentUser } from '@nextcloud/auth'
 import { useObjectStore } from '../store/store.js'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
+import MeetingLifecycle from '../components/MeetingLifecycle.vue'
 
 export default {
 	name: 'MeetingDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, CnMassExportDialog, NcButton, AgendaBuilder },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, CnMassExportDialog, NcButton, AgendaBuilder, MeetingLifecycle },
 	props: {
 		id: { type: String, required: true },
 	},
@@ -197,7 +203,6 @@ export default {
 				{ label: this.t('decidesk', 'End Date'), value: this.object.endDate },
 				{ label: this.t('decidesk', 'Location'), value: this.object.location },
 				{ label: this.t('decidesk', 'Mode'), value: this.object.meetingMode },
-				{ label: this.t('decidesk', 'Lifecycle'), value: this.object.lifecycle },
 				{ label: this.t('decidesk', 'Quorum Required'), value: this.object.quorumRequired },
 				{ label: this.t('decidesk', 'Series'), value: this.object.series },
 			]
@@ -252,6 +257,9 @@ export default {
 		},
 		coiNotes(item) {
 			return (item?.notes ?? []).filter(n => (n.title ?? '').startsWith('COI:'))
+		},
+		onLifecycleUpdated() {
+			this.objectStore.fetchObject('meeting', this.id)
 		},
 	},
 
