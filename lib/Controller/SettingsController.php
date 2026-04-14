@@ -79,12 +79,10 @@ class SettingsController extends Controller
      * Retrieve all current settings.
      *
      * @NoAdminRequired
-     *
-     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec            openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec            openspec/changes/p1-crud-operations/tasks.md#task-2.4
      *
      * @return JSONResponse
-     *
-     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      */
     public function index(): JSONResponse
     {
@@ -97,10 +95,9 @@ class SettingsController extends Controller
      * Update settings with provided data.
      *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      *
      * @return JSONResponse
-     *
-     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      */
     #[AuthorizedAdminSetting(AdminSettings::class)]
     public function create(): JSONResponse
@@ -129,10 +126,9 @@ class SettingsController extends Controller
      *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      *
      * @return JSONResponse
-     *
-     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      */
     #[AuthorizedAdminSetting(AdminSettings::class)]
     public function load(): JSONResponse
