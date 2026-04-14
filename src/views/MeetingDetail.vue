@@ -16,6 +16,11 @@
 			<CnDetailCard :title="t('decidesk', 'Properties')">
 				<CnDetailGrid :items="propertyItems" />
 			</CnDetailCard>
+			<CnDetailCard :title="t('decidesk', 'Lifecycle')">
+				<MeetingLifecycle
+					:meeting="object"
+					@lifecycle-updated="onLifecycleUpdated" />
+			</CnDetailCard>
 		</template>
 
 		<template #relations>
@@ -62,10 +67,11 @@
 <script>
 import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
+import MeetingLifecycle from '../components/MeetingLifecycle.vue'
 
 export default {
 	name: 'MeetingDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, MeetingLifecycle },
 	props: {
 		id: { type: String, required: true },
 	},
@@ -104,6 +110,9 @@ export default {
 	methods: {
 		onEditSaved() {
 			this.editing = false
+			this.objectStore.fetchObject('meeting', this.id)
+		},
+		onLifecycleUpdated() {
 			this.objectStore.fetchObject('meeting', this.id)
 		},
 	},
