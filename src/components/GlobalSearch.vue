@@ -157,7 +157,7 @@ export default {
 
 			try {
 				const fetches = SEARCH_TYPES.map(async (type) => {
-					const items = await objectStore.fetchObjects(type, { _search: this.query })
+					const items = await objectStore.fetchCollection(type, { _search: this.query })
 					return (items || []).map((item) => ({ ...item, _type: type }))
 				})
 				const allResults = await Promise.all(fetches)
