@@ -21,8 +21,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
 
+use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
+use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Service\OriPublicationService;
+use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -66,6 +70,35 @@ class Application extends App implements IBootstrap
 
         // Initialize register and schemas on install/upgrade.
         $context->registerRepairStep(InitializeSettings::class);
+
+        // Register motion and voting services (task-1.4 / task-2.4).
+        $context->registerService(MotionService::class, static function ($c) {
+            return new MotionService(
+                container: $c,
+                logger: $c->get(\Psr\Log\LoggerInterface::class),
+            );
+        });
+
+        $context->registerService(OriPublicationService::class, static function ($c) {
+            return new OriPublicationService(
+                appConfig: $c->get(\OCP\IAppConfig::class),
+                clientService: $c->get(\OCP\Http\Client\IClientService::class),
+                container: $c,
+                logger: $c->get(\Psr\Log\LoggerInterface::class),
+            );
+        });
+
+        $context->registerService(VotingService::class, static function ($c) {
+            return new VotingService(
+                container: $c,
+                logger: $c->get(\Psr\Log\LoggerInterface::class),
+                motionService: $c->get(MotionService::class),
+                oriPublicationService: $c->get(OriPublicationService::class),
+            );
+        });
+
+        // Register MailReplyHandler background job (task-3.3).
+        $context->registerBackgroundJob(MailReplyHandler::class);
 
     }//end register()
 
