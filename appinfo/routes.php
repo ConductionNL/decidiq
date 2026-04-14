@@ -10,6 +10,10 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
+        // Meeting lifecycle management endpoints (p2-meeting-management).
+        ['name' => 'meeting#transitionLifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'PUT'],
+        ['name' => 'meeting#userRole', 'url' => '/api/meetings/{id}/user-role', 'verb' => 'GET'],
+
         // Prometheus metrics endpoint.
         ['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
         // Health check endpoint.

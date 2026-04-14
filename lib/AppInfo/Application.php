@@ -21,13 +21,20 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
 
+use OCA\Decidesk\Controller\MeetingController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
+use OCA\Decidesk\Service\MeetingService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\IL10N;
+use OCP\IRequest;
+use OCP\IUserSession;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Main application class for the Decidesk Nextcloud app.
@@ -66,6 +73,29 @@ class Application extends App implements IBootstrap
 
         // Initialize register and schemas on install/upgrade.
         $context->registerRepairStep(InitializeSettings::class);
+
+        // Explicit DI bindings for meeting management (p2-meeting-management §3.1).
+        $context->registerService(
+            name: MeetingService::class,
+            factory: function ($c) {
+                return new MeetingService(
+                    container: $c->get(ContainerInterface::class),
+                    logger: $c->get(LoggerInterface::class),
+                    l10n: $c->get(IL10N::class),
+                    userSession: $c->get(IUserSession::class),
+                );
+            }
+        );
+        $context->registerService(
+            name: MeetingController::class,
+            factory: function ($c) {
+                return new MeetingController(
+                    request: $c->get(IRequest::class),
+                    meetingService: $c->get(MeetingService::class),
+                    l10n: $c->get(IL10N::class),
+                );
+            }
+        );
 
     }//end register()
 

@@ -11,6 +11,13 @@
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
+				:name="t('decidesk', 'Meetings')"
+				:to="{ name: 'MeetingList' }">
+				<template #icon>
+					<CalendarBlank :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
 				:name="t('decidesk', 'Documentation')"
 				@click="openLink('https://conduction.nl', '_blank')">
 				<template #icon>
@@ -33,6 +40,7 @@
 <script>
 import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
+import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
 import CogIcon from 'vue-material-design-icons/Cog.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
@@ -42,6 +50,7 @@ export default {
 		NcAppNavigation,
 		NcAppNavigationItem,
 		BookOpenVariantOutline,
+		CalendarBlank,
 		CogIcon,
 		HomeIcon,
 	},
