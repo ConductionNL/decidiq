@@ -58,7 +58,7 @@ export default {
 			const settingsStore = useSettingsStore()
 			const result = await settingsStore.saveSettings(this.form)
 			if (result) {
-				this.successMessage = t('decidesk', 'Settings saved successfully')
+				this.successMessage = this.t('decidesk', 'Settings saved successfully')
 			}
 			this.saving = false
 		},
