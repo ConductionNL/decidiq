@@ -109,6 +109,10 @@ class SettingsService
             $settings,
             [
                 'openregisters' => $this->isOpenRegisterAvailable(),
+                // UI-HINT ONLY: isAdmin is used exclusively to control frontend rendering
+                // (e.g. showing/hiding admin-only settings panels). It MUST NOT be used
+                // for server-side access control decisions. All admin-gated backend routes
+                // enforce the admin check independently via IGroupManager::isAdmin().
                 'isAdmin'       => $isAdmin,
             ]
         );
