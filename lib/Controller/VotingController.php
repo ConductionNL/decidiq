@@ -270,10 +270,15 @@ class VotingController extends Controller
      */
     public function proxy(string $id): JSONResponse
     {
-        // Derive delegating participant identity from the authenticated session.
-        $fromParticipantId = $this->userSession->getUser()?->getUID() ?? '';
-        if ($fromParticipantId === '') {
+        // Resolve Nextcloud UID to OpenRegister participant UUID — same pattern as cast().
+        $nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
+        if ($nextcloudUid === '') {
             return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $fromParticipantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
+        if ($fromParticipantId === null) {
+            return new JSONResponse(['message' => 'Geen deelnemersprofiel gevonden'], Http::STATUS_FORBIDDEN);
         }
 
         $params          = $this->request->getParams();
@@ -356,10 +361,15 @@ class VotingController extends Controller
      */
     public function revokeProxy(string $id): JSONResponse
     {
-        // Derive revoking participant identity from the authenticated session.
-        $fromParticipantId = $this->userSession->getUser()?->getUID() ?? '';
-        if ($fromParticipantId === '') {
+        // Resolve Nextcloud UID to OpenRegister participant UUID — same pattern as cast().
+        $nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
+        if ($nextcloudUid === '') {
             return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $fromParticipantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
+        if ($fromParticipantId === null) {
+            return new JSONResponse(['message' => 'Geen deelnemersprofiel gevonden'], Http::STATUS_FORBIDDEN);
         }
 
         try {

@@ -96,6 +96,32 @@ class VotingService
     }//end fileService()
 
     /**
+     * Return the per-app HMAC secret for secret-ballot voter token generation.
+     *
+     * The secret is generated once with random_bytes() and persisted in app config
+     * so that the HMAC is stable across requests while remaining server-side only.
+     * Using HMAC instead of a bare SHA-256 hash means the mapping from
+     * (participantId, votingRoundId) → voterToken cannot be computed without
+     * knowledge of this secret, preventing store-admin-level ballot de-anonymisation.
+     *
+     * @return string 64-character hex secret
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+     */
+    private function voterTokenSecret(): string
+    {
+        $appConfig = $this->container->get(\OCP\IAppConfig::class);
+        $secret    = $appConfig->getValueString('decidesk', 'voter_token_secret', '');
+        if ($secret === '') {
+            $secret = bin2hex(random_bytes(32));
+            $appConfig->setValueString('decidesk', 'voter_token_secret', $secret);
+        }
+
+        return $secret;
+
+    }//end voterTokenSecret()
+
+    /**
      * Resolve the OpenRegister participant UUID for a given Nextcloud user ID.
      *
      * Queries the participant register by nextcloudUserId field. Returns null
@@ -321,7 +347,7 @@ class VotingService
         // For secret rounds the participant relation is suppressed for anonymity,
         // so dedup is keyed on a deterministic voterToken instead.
         if ($isSecret === true) {
-            $voterToken    = hash('sha256', $participantId.':'.$votingRoundId);
+            $voterToken    = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
             $existingVotes = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'vote',
@@ -365,7 +391,7 @@ class VotingService
 
         // Store opaque dedup token for secret rounds (never contains participant identity).
         if ($isSecret === true) {
-            $vote['voterToken'] = hash('sha256', $participantId.':'.$votingRoundId);
+            $vote['voterToken'] = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
         }
 
         if ($existingVote !== null) {

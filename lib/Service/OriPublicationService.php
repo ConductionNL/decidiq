@@ -199,7 +199,7 @@ class OriPublicationService
     private function buildJsonLd(string $votingRoundId, array $roundData): array
     {
         return [
-            '@context'  => 'http://schema.org/',
+            '@context'  => 'https://schema.org/',
             '@type'     => 'VoteAction',
             '@id'       => 'urn:voting-round:'.$votingRoundId,
             'name'      => 'Stemuitslag '.$votingRoundId,

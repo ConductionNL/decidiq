@@ -190,6 +190,20 @@ class MailReplyHandler extends TimedJob
                 continue;
             }
 
+            // Resolve the Nextcloud UID so notifications reach the correct account.
+            // Prefer the stored nextcloudUserId; fall back to email lookup when absent.
+            $nextcloudUserId = $participant['nextcloudUserId'] ?? null;
+            if ($nextcloudUserId === null) {
+                $email = $participant['email'] ?? null;
+                if ($email !== null) {
+                    $userManager = $this->container->get(\OCP\IUserManager::class);
+                    $users       = $userManager->getByEmail($email);
+                    if (count($users) === 1) {
+                        $nextcloudUserId = $users[0]->getUID();
+                    }
+                }
+            }
+
             $keyword = $this->parseVoteKeyword(body: $replyBody);
 
             if ($keyword !== null) {
@@ -202,15 +216,17 @@ class MailReplyHandler extends TimedJob
                         delegatorId: null
                     );
 
-                    // Send confirmation.
-                    $notificationService->createNotification(
-                        userId: $participantId,
-                        app: 'decidesk',
-                        subject: 'email_vote_confirmed',
-                        subjectParameters: ['value' => $keyword, 'votingRoundId' => $roundId],
-                        object: 'voting-round',
-                        objectId: $roundId
-                    );
+                    // Send confirmation to the resolved Nextcloud user (skip silently if unresolvable).
+                    if ($nextcloudUserId !== null) {
+                        $notificationService->createNotification(
+                            userId: $nextcloudUserId,
+                            app: 'decidesk',
+                            subject: 'email_vote_confirmed',
+                            subjectParameters: ['value' => $keyword, 'votingRoundId' => $roundId],
+                            object: 'voting-round',
+                            objectId: $roundId
+                        );
+                    }
 
                     $mailEntry['processed'] = true;
                     $dirty = true;
@@ -226,32 +242,36 @@ class MailReplyHandler extends TimedJob
                     $mailEntry['processed'] = true;
                     $mailEntry['abandoned'] = true;
                     $dirty = true;
-                    try {
-                        $notificationService->createNotification(
-                            userId: $participantId,
-                            app: 'decidesk',
-                            subject: 'email_vote_abandoned',
-                            subjectParameters: ['votingRoundId' => $roundId],
-                            object: 'voting-round',
-                            objectId: $roundId
-                        );
-                    } catch (\Throwable $e) {
-                        $this->logger->warning('Decidesk: abandoned vote notification failed', ['error' => $e->getMessage()]);
+                    if ($nextcloudUserId !== null) {
+                        try {
+                            $notificationService->createNotification(
+                                userId: $nextcloudUserId,
+                                app: 'decidesk',
+                                subject: 'email_vote_abandoned',
+                                subjectParameters: ['votingRoundId' => $roundId],
+                                object: 'voting-round',
+                                objectId: $roundId
+                            );
+                        } catch (\Throwable $e) {
+                            $this->logger->warning('Decidesk: abandoned vote notification failed', ['error' => $e->getMessage()]);
+                        }
                     }
                 } else {
                     $mailEntry['retries'] = $retries;
                     $dirty = true;
-                    try {
-                        $notificationService->createNotification(
-                            userId: $participantId,
-                            app: 'decidesk',
-                            subject: 'email_vote_reprompt',
-                            subjectParameters: ['votingRoundId' => $roundId, 'attempt' => $retries],
-                            object: 'voting-round',
-                            objectId: $roundId
-                        );
-                    } catch (\Throwable $e) {
-                        $this->logger->warning('Decidesk: reprompt notification failed', ['error' => $e->getMessage()]);
+                    if ($nextcloudUserId !== null) {
+                        try {
+                            $notificationService->createNotification(
+                                userId: $nextcloudUserId,
+                                app: 'decidesk',
+                                subject: 'email_vote_reprompt',
+                                subjectParameters: ['votingRoundId' => $roundId, 'attempt' => $retries],
+                                object: 'voting-round',
+                                objectId: $roundId
+                            );
+                        } catch (\Throwable $e) {
+                            $this->logger->warning('Decidesk: reprompt notification failed', ['error' => $e->getMessage()]);
+                        }
                     }
                 }//end if
             }//end if
