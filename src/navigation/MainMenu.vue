@@ -43,6 +43,14 @@
 					<FormatListNumberedIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.4 -->
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Motions')"
+				:to="{ name: 'Motions' }">
+				<template #icon>
+					<GavelIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
 		</template>
 		<template #footer>
 			<NcAppNavigationSettings :name="t('decidesk', 'Settings')">
@@ -60,6 +68,7 @@ import AccountGroupIcon from 'vue-material-design-icons/AccountGroupOutline.vue'
 import CalendarBlankIcon from 'vue-material-design-icons/CalendarBlank.vue'
 import DomainIcon from 'vue-material-design-icons/Domain.vue'
 import FormatListNumberedIcon from 'vue-material-design-icons/FormatListNumbered.vue'
+import GavelIcon from 'vue-material-design-icons/Gavel.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
 export default {
@@ -72,6 +81,7 @@ export default {
 		CalendarBlankIcon,
 		DomainIcon,
 		FormatListNumberedIcon,
+		GavelIcon,
 		HomeIcon,
 	},
 }

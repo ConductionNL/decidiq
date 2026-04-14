@@ -13,6 +13,29 @@
 					:placeholder="t('decidesk', 'OpenRegister register ID')">
 			</div>
 
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
+			<div class="form-group">
+				<label for="ori-endpoint">{{ t('decidesk', 'ORI Endpoint') }}</label>
+				<input
+					id="ori-endpoint"
+					v-model="form.ori_endpoint"
+					type="url"
+					:placeholder="t('decidesk', 'ORI endpoint URL for publishing voting results')">
+			</div>
+
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
+			<div class="form-group">
+				<label>
+					<input
+						v-model="form.email_voting_enabled"
+						type="checkbox"
+						true-value="1"
+						false-value="0">
+					{{ t('decidesk', 'Email Voting') }}
+				</label>
+				<p class="form-hint">{{ t('decidesk', 'Enable email vote reply parsing') }}</p>
+			</div>
+
 			<div v-if="successMessage" class="success-message">
 				{{ successMessage }}
 			</div>
@@ -42,6 +65,8 @@ export default {
 		return {
 			form: {
 				register: '',
+				ori_endpoint: '',
+				email_voting_enabled: '0',
 			},
 			saving: false,
 			successMessage: '',
@@ -50,6 +75,8 @@ export default {
 	created() {
 		const settingsStore = useSettingsStore()
 		this.form.register = settingsStore.settings?.register || ''
+		this.form.ori_endpoint = settingsStore.settings?.ori_endpoint || ''
+		this.form.email_voting_enabled = settingsStore.settings?.email_voting_enabled || '0'
 	},
 	methods: {
 		async save() {

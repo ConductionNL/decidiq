@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
 
+use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
@@ -66,6 +67,9 @@ class Application extends App implements IBootstrap
 
         // Initialize register and schemas on install/upgrade.
         $context->registerRepairStep(InitializeSettings::class);
+
+        // Register background job for email vote reply polling.
+        $context->registerBackgroundJob(MailReplyHandler::class);
 
     }//end register()
 
