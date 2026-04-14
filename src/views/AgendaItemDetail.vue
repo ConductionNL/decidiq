@@ -2,13 +2,13 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- @spec openspec/changes/p1-crud-operations/tasks.md#task-7.2
+ @spec openspec/changes/p1-crud-operations/tasks.md#task-9.2
 -->
 <template>
 	<CnDetailPage
 		:object="object"
 		:loading="loading"
-		:title="object.title || t('decidesk', 'Meeting')"
+		:title="object.title || t('decidesk', 'Agenda Item')"
 		:show-sidebar="true"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
@@ -19,14 +19,14 @@
 		</template>
 
 		<template #relations>
-			<CnDetailCard :title="t('decidesk', 'Agenda Items')">
-				<p v-if="!object.relations?.['agenda-item']?.length" class="decidesk-empty">
-					{{ t('decidesk', 'No agenda items.') }}
+			<CnDetailCard :title="t('decidesk', 'Linked Meeting')">
+				<p v-if="!object.relations?.meeting?.length" class="decidesk-empty">
+					{{ t('decidesk', 'No linked meeting.') }}
 				</p>
 				<ul v-else class="decidesk-relations">
-					<li v-for="item in agendaItemsSorted" :key="item.id || item">
-						<router-link :to="{ name: 'AgendaItemDetail', params: { id: item.id || item } }">
-							{{ item.title || item.name || item.id || item }}
+					<li v-for="meeting in object.relations.meeting" :key="meeting.id || meeting">
+						<router-link :to="{ name: 'MeetingDetail', params: { id: meeting.id || meeting } }">
+							{{ meeting.title || meeting.name || meeting.id || meeting }}
 						</router-link>
 					</li>
 				</ul>
@@ -42,9 +42,9 @@
 				v-if="editing"
 				:schema="schema"
 				:object="object"
-				:title="t('decidesk', 'Edit Meeting')"
+				:title="t('decidesk', 'Edit Agenda Item')"
 				:object-store="objectStore"
-				object-type="meeting"
+				object-type="agenda-item"
 				@close="editing = false"
 				@saved="onEditSaved" />
 		</template>
@@ -64,47 +64,40 @@ import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaForm
 import { useObjectStore } from '../store/store.js'
 
 export default {
-	name: 'MeetingDetail',
+	name: 'AgendaItemDetail',
 	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog },
 	props: {
 		id: { type: String, required: true },
 	},
 	setup(props) {
 		const objectStore = useObjectStore()
-		const detailView = useDetailView('meeting', props.id, {
+		const detailView = useDetailView('agenda-item', props.id, {
 			objectStore,
-			listRouteName: 'Meetings',
-			detailRouteName: 'MeetingDetail',
+			listRouteName: 'AgendaItems',
+			detailRouteName: 'AgendaItemDetail',
 		})
 		return { ...detailView, objectStore }
 	},
 	computed: {
 		schema() {
-			return this.objectStore.getSchema('meeting')
-		},
-		agendaItemsSorted() {
-			return (this.object.relations?.['agenda-item'] ?? [])
-				.slice()
-				.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
+			return this.objectStore.getSchema('agenda-item')
 		},
 		propertyItems() {
 			return [
 				{ label: this.t('decidesk', 'Title'), value: this.object.title },
-				{ label: this.t('decidesk', 'Type'), value: this.object.meetingType },
-				{ label: this.t('decidesk', 'Scheduled Date'), value: this.object.scheduledDate },
-				{ label: this.t('decidesk', 'End Date'), value: this.object.endDate },
-				{ label: this.t('decidesk', 'Location'), value: this.object.location },
-				{ label: this.t('decidesk', 'Mode'), value: this.object.meetingMode },
-				{ label: this.t('decidesk', 'Lifecycle'), value: this.object.lifecycle },
-				{ label: this.t('decidesk', 'Quorum Required'), value: this.object.quorumRequired },
-				{ label: this.t('decidesk', 'Series'), value: this.object.series },
+				{ label: this.t('decidesk', 'Type'), value: this.object.itemType },
+				{ label: this.t('decidesk', 'Order'), value: this.object.orderNumber },
+				{ label: this.t('decidesk', 'Estimated Duration'), value: this.object.estimatedDuration ? `${this.object.estimatedDuration} min` : '' },
+				{ label: this.t('decidesk', 'Actual Duration'), value: this.object.actualDuration ? `${this.object.actualDuration} min` : '' },
+				{ label: this.t('decidesk', 'Description'), value: this.object.description },
+				{ label: this.t('decidesk', 'Recurring'), value: this.object.isRecurring ? this.t('decidesk', 'Yes') : this.t('decidesk', 'No') },
 			]
 		},
 	},
 	methods: {
 		onEditSaved() {
 			this.editing = false
-			this.objectStore.fetchObject('meeting', this.id)
+			this.objectStore.fetchObject('agenda-item', this.id)
 		},
 	},
 }

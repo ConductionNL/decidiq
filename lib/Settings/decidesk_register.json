@@ -86,43 +86,62 @@
                         "@self": {
                             "register": "decidesk",
                             "schema": "GovernanceBody",
-                            "slug": "gemeenteraad-westerkwartier"
+                            "slug": "gemeenteraad-amsterdam"
                         },
-                        "name": "Gemeenteraad Westerkwartier",
+                        "name": "Gemeenteraad Amsterdam",
                         "bodyType": "legislative",
-                        "domain": "municipal",
-                        "quorumRule": "majority",
+                        "domain": "municipality",
                         "votingDefault": "for-against-abstain",
-                        "termStart": "2022-03-30T00:00:00Z",
-                        "termEnd": "2026-03-29T23:59:59Z"
+                        "termStart": "2022-03-16T00:00:00Z",
+                        "termEnd": "2026-03-15T00:00:00Z"
                     },
                     {
                         "@self": {
                             "register": "decidesk",
                             "schema": "GovernanceBody",
-                            "slug": "algemeen-bestuur-waterschap-aa-en-maas"
+                            "slug": "rvc-waterschap-amstel"
                         },
-                        "name": "Algemeen Bestuur Waterschap Aa en Maas",
-                        "bodyType": "legislative",
-                        "domain": "water-board",
-                        "quorumRule": "majority",
+                        "name": "Raad van Commissarissen Waterschap Amstel, Gooi en Vecht",
+                        "bodyType": "corporate-board",
+                        "domain": "water-authority",
                         "votingDefault": "for-against-abstain",
                         "termStart": "2023-01-01T00:00:00Z",
-                        "termEnd": "2026-12-31T23:59:59Z"
+                        "termEnd": "2026-12-31T00:00:00Z"
                     },
                     {
                         "@self": {
                             "register": "decidesk",
                             "schema": "GovernanceBody",
-                            "slug": "ledenraad-vereniging-eigen-huis"
+                            "slug": "directieteam-gemeente-utrecht"
                         },
-                        "name": "Ledenraad Vereniging Eigen Huis",
+                        "name": "Directieteam Gemeente Utrecht",
+                        "bodyType": "operational",
+                        "domain": "municipality",
+                        "votingDefault": "show-of-hands"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "GovernanceBody",
+                            "slug": "ledenraad-vng"
+                        },
+                        "name": "Ledenraad VNG",
                         "bodyType": "association",
                         "domain": "association",
-                        "quorumRule": "two-thirds",
                         "votingDefault": "for-against-abstain",
                         "termStart": "2024-01-01T00:00:00Z",
-                        "termEnd": "2027-12-31T23:59:59Z"
+                        "termEnd": "2025-12-31T00:00:00Z"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "GovernanceBody",
+                            "slug": "auditcommissie-provincie-nh"
+                        },
+                        "name": "Auditcommissie Provincie Noord-Holland",
+                        "bodyType": "legislative",
+                        "domain": "province",
+                        "votingDefault": "for-against-abstain"
                     }
                 ]
             },
@@ -224,46 +243,58 @@
                         "@self": {
                             "register": "decidesk",
                             "schema": "Meeting",
-                            "slug": "gemeenteraad-westerkwartier-2025-04-10"
+                            "slug": "raadsvergadering-2025-01-15"
                         },
-                        "title": "Raadsvergadering 10 april 2025",
+                        "title": "Raadsvergadering 15 januari 2025",
                         "meetingType": "regular",
-                        "scheduledDate": "2025-04-10T19:30:00Z",
-                        "endDate": "2025-04-10T22:30:00Z",
-                        "location": "Raadzaal, Gemeentehuis Leek",
-                        "meetingMode": "in-person",
-                        "lifecycle": "closed",
-                        "quorumRequired": 19
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Meeting",
-                            "slug": "commissie-ruimte-2025-05-06"
-                        },
-                        "title": "Commissievergadering Ruimte & Wonen 6 mei 2025",
-                        "meetingType": "committee",
-                        "scheduledDate": "2025-05-06T19:00:00Z",
-                        "endDate": "2025-05-06T22:00:00Z",
-                        "location": "https://meet.westerkwartier.nl/commissie-ruimte",
+                        "scheduledDate": "2025-01-15T19:30:00Z",
+                        "endDate": "2025-01-15T23:00:00Z",
+                        "location": "Stadhuis Amsterdam, Raadzaal",
                         "meetingMode": "hybrid",
-                        "lifecycle": "scheduled",
-                        "quorumRequired": 5
+                        "lifecycle": "closed"
                     },
                     {
                         "@self": {
                             "register": "decidesk",
                             "schema": "Meeting",
-                            "slug": "ab-waterschap-2025-06-12"
+                            "slug": "rvc-vergadering-q1-2025"
                         },
-                        "title": "Vergadering Algemeen Bestuur 12 juni 2025",
+                        "title": "RvC Vergadering Q1 2025 — Waterschap",
                         "meetingType": "regular",
-                        "scheduledDate": "2025-06-12T14:00:00Z",
-                        "endDate": "2025-06-12T17:00:00Z",
-                        "location": "'s-Hertogenbosch, hoofdkantoor",
+                        "scheduledDate": "2025-02-05T10:00:00Z",
+                        "endDate": "2025-02-05T13:00:00Z",
+                        "location": "Waternet Kantoor, Amstel 1",
                         "meetingMode": "in-person",
-                        "lifecycle": "draft",
-                        "quorumRequired": 13
+                        "lifecycle": "closed"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Meeting",
+                            "slug": "directieoverleg-2025-04-14"
+                        },
+                        "title": "Directieoverleg week 16 — Gemeente Utrecht",
+                        "meetingType": "regular",
+                        "scheduledDate": "2025-04-14T09:00:00Z",
+                        "endDate": "2025-04-14T11:00:00Z",
+                        "location": "Stadskantoor Utrecht, Kamer 3.12",
+                        "meetingMode": "hybrid",
+                        "lifecycle": "draft"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Meeting",
+                            "slug": "ledenvergadering-vng-voorjaar-2025"
+                        },
+                        "title": "Algemene Ledenvergadering VNG — Voorjaar 2025",
+                        "meetingType": "public hearing",
+                        "scheduledDate": "2025-06-18T13:00:00Z",
+                        "endDate": "2025-06-18T17:00:00Z",
+                        "location": "World Forum Den Haag",
+                        "meetingMode": "in-person",
+                        "lifecycle": "scheduled",
+                        "quorumRequired": 50
                     }
                 ]
             },
@@ -342,50 +373,61 @@
                         "@self": {
                             "register": "decidesk",
                             "schema": "Participant",
-                            "slug": "participant-roos-de-vries"
+                            "slug": "femke-halsema"
                         },
-                        "displayName": "Roos de Vries",
+                        "displayName": "Femke Halsema",
                         "role": "chair",
-                        "party": "GroenLinks",
-                        "email": "r.devries@example.gemeente.nl",
-                        "joinedAt": "2022-03-30T00:00:00Z",
+                        "email": "f.halsema@amsterdam.nl",
+                        "joinedAt": "2018-05-30T00:00:00Z",
                         "votingWeight": 1
                     },
                     {
                         "@self": {
                             "register": "decidesk",
                             "schema": "Participant",
-                            "slug": "participant-jan-bakker"
+                            "slug": "jan-de-vries"
                         },
-                        "displayName": "Jan Bakker",
+                        "displayName": "Jan de Vries",
                         "role": "secretary",
-                        "email": "j.bakker@example.gemeente.nl",
-                        "joinedAt": "2022-03-30T00:00:00Z",
-                        "votingWeight": 0
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Participant",
-                            "slug": "participant-fatima-el-amrani"
-                        },
-                        "displayName": "Fatima El-Amrani",
-                        "role": "member",
-                        "party": "PvdA",
-                        "email": "f.elamrani@example.gemeente.nl",
-                        "joinedAt": "2022-03-30T00:00:00Z",
+                        "email": "j.devries@waterschap.nl",
+                        "joinedAt": "2021-01-15T00:00:00Z",
                         "votingWeight": 1
                     },
                     {
                         "@self": {
                             "register": "decidesk",
                             "schema": "Participant",
-                            "slug": "participant-pieter-van-dam"
+                            "slug": "marie-janssen"
                         },
-                        "displayName": "Pieter van Dam",
+                        "displayName": "Marie Janssen",
+                        "role": "member",
+                        "party": "D66",
+                        "email": "m.janssen@amsterdam.nl",
+                        "joinedAt": "2022-03-16T00:00:00Z",
+                        "votingWeight": 1
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Participant",
+                            "slug": "pieter-bakker"
+                        },
+                        "displayName": "Pieter Bakker",
+                        "role": "chair",
+                        "email": "p.bakker@utrecht.nl",
+                        "joinedAt": "2020-06-01T00:00:00Z",
+                        "votingWeight": 1
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Participant",
+                            "slug": "ans-rutten"
+                        },
+                        "displayName": "Ans Rutten",
                         "role": "observer",
-                        "email": "p.vandam@example.waterschap.nl",
-                        "joinedAt": "2024-01-15T00:00:00Z",
+                        "email": "a.rutten@vng.nl",
+                        "joinedAt": "2024-01-10T00:00:00Z",
                         "votingWeight": 0
                     }
                 ]
@@ -461,11 +503,22 @@
                         "@self": {
                             "register": "decidesk",
                             "schema": "AgendaItem",
-                            "slug": "agendaitem-opening-2025-04-10"
+                            "slug": "opening-raad-2025-01-15"
                         },
-                        "title": "Opening en mededelingen",
+                        "title": "Opening vergadering",
                         "itemType": "informational",
                         "orderNumber": 1,
+                        "estimatedDuration": 5
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "AgendaItem",
+                            "slug": "notulen-2024-12-18"
+                        },
+                        "title": "Vaststellen notulen vergadering 18 december 2024",
+                        "itemType": "decision",
+                        "orderNumber": 2,
                         "estimatedDuration": 10,
                         "isRecurring": true
                     },
@@ -473,25 +526,36 @@
                         "@self": {
                             "register": "decidesk",
                             "schema": "AgendaItem",
-                            "slug": "agendaitem-begroting-2026"
+                            "slug": "jaarrekening-2024"
                         },
-                        "title": "Vaststelling Programmabegroting 2026",
+                        "title": "Jaarrekening 2024 — ter goedkeuring",
                         "itemType": "decision",
-                        "orderNumber": 5,
+                        "orderNumber": 3,
                         "estimatedDuration": 45,
-                        "description": "De raad wordt gevraagd de programmabegroting 2026 vast te stellen.",
-                        "isRecurring": false
+                        "description": "Bespreking en vaststelling van de jaarrekening over het boekjaar 2024"
                     },
                     {
                         "@self": {
                             "register": "decidesk",
                             "schema": "AgendaItem",
-                            "slug": "agendaitem-rondvraag-2025-04-10"
+                            "slug": "begroting-2026-bespreking"
+                        },
+                        "title": "Kadernota begroting 2026",
+                        "itemType": "discussion",
+                        "orderNumber": 4,
+                        "estimatedDuration": 60,
+                        "description": "Eerste bespreking van de financiële kaders voor begrotingsjaar 2026"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "AgendaItem",
+                            "slug": "rondvraag"
                         },
                         "title": "Rondvraag",
-                        "itemType": "discussion",
+                        "itemType": "informational",
                         "orderNumber": 99,
-                        "estimatedDuration": 15,
+                        "estimatedDuration": 10,
                         "isRecurring": true
                     }
                 ]

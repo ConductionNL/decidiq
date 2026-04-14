@@ -32,6 +32,8 @@ use OCP\IUserSession;
 
 /**
  * Controller for managing Decidesk application settings.
+ *
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
  */
 class SettingsController extends Controller
 {
@@ -75,6 +77,7 @@ class SettingsController extends Controller
      * @NoAdminRequired
      *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      *
      * @return JSONResponse
      */
@@ -118,6 +121,7 @@ class SettingsController extends Controller
      *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      *
      * @return JSONResponse
      */

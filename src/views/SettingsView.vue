@@ -4,11 +4,10 @@
 <!--
  @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-7.1
  @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-7.2
+ @spec openspec/changes/p1-crud-operations/tasks.md#task-10.1
 -->
 <template>
 	<div class="decidesk-settings">
-		<h1>{{ t('decidesk', 'Instellingen') }}</h1>
-
 		<CnVersionInfoCard
 			:app-name="'Decidesk'"
 			:app-version="appVersion"
@@ -43,7 +42,7 @@
 				type="secondary"
 				:disabled="reimporting"
 				@click="reimportRegister">
-				{{ reimporting ? t('decidesk', 'Importing...') : t('decidesk', 'Register opnieuw importeren') }}
+				{{ reimporting ? t('decidesk', 'Importing...') : t('decidesk', 'Reimport Register') }}
 			</NcButton>
 		</CnSettingsSection>
 	</div>
@@ -54,7 +53,7 @@ import { NcButton } from '@nextcloud/vue'
 import { CnVersionInfoCard, CnRegisterMapping, CnSettingsSection } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
-import axios from '@nextcloud/axios'
+import { getRequestToken } from '@nextcloud/auth'
 import { useSettingsStore } from '../store/modules/settings.js'
 
 /**
@@ -79,19 +78,19 @@ export default {
 				{
 					name: this.t('decidesk', 'Decidesk'),
 					types: [
-						{ slug: 'governanceBody', label: this.t('decidesk', 'Governance Bodies') },
+						{ slug: 'governance-body', label: this.t('decidesk', 'Governance Bodies') },
 						{ slug: 'meeting', label: this.t('decidesk', 'Meetings') },
 						{ slug: 'participant', label: this.t('decidesk', 'Participants') },
-						{ slug: 'agendaItem', label: this.t('decidesk', 'Agenda Items') },
+						{ slug: 'agenda-item', label: this.t('decidesk', 'Agenda Items') },
 						{ slug: 'motion', label: this.t('decidesk', 'Motions') },
 						{ slug: 'amendment', label: this.t('decidesk', 'Amendments') },
-						{ slug: 'votingRound', label: this.t('decidesk', 'Voting Rounds') },
+						{ slug: 'voting-round', label: this.t('decidesk', 'Voting Rounds') },
 						{ slug: 'vote', label: this.t('decidesk', 'Votes') },
 						{ slug: 'decision', label: this.t('decidesk', 'Decisions') },
-						{ slug: 'actionItem', label: this.t('decidesk', 'Action Items') },
+						{ slug: 'action-item', label: this.t('decidesk', 'Action Items') },
 						{ slug: 'minutes', label: this.t('decidesk', 'Minutes') },
-						{ slug: 'digitalDocument', label: this.t('decidesk', 'Digital Documents') },
-						{ slug: 'monetaryAmount', label: this.t('decidesk', 'Monetary Amounts') },
+						{ slug: 'digital-document', label: this.t('decidesk', 'Digital Documents') },
+						{ slug: 'monetary-amount', label: this.t('decidesk', 'Monetary Amounts') },
 						{ slug: 'offer', label: this.t('decidesk', 'Offers') },
 						{ slug: 'order', label: this.t('decidesk', 'Orders') },
 						{ slug: 'product', label: this.t('decidesk', 'Products') },
@@ -131,7 +130,11 @@ export default {
 		async reimportRegister() {
 			this.reimporting = true
 			try {
-				const { data } = await axios.post(generateUrl('/apps/decidesk/api/settings/load'))
+				const response = await fetch(generateUrl('/apps/decidesk/api/settings/load'), {
+					method: 'POST',
+					headers: { requesttoken: getRequestToken() },
+				})
+				const data = await response.json()
 				if (data.success) {
 					showSuccess(this.t('decidesk', 'Register successfully reimported.'))
 				} else {
@@ -150,13 +153,7 @@ export default {
 
 <style scoped>
 .decidesk-settings {
-	max-width: 900px;
-	padding: 0 4px;
-}
-
-.decidesk-settings h1 {
-	margin: 0 0 20px;
-	font-size: 22px;
-	font-weight: 600;
+	max-width: 56.25rem;
+	padding: 0 var(--default-grid-baseline);
 }
 </style>
