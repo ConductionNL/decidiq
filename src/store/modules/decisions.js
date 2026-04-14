@@ -157,7 +157,7 @@ export const useDecisionStore = defineStore('decision', {
 		 *
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
-		async publishDecision(id) {
+		async publishDecision(_id) {
 			if (!this.currentDecision) return null
 			return this.saveDecision({
 				...this.currentDecision,

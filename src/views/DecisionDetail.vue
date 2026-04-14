@@ -324,12 +324,19 @@ export default {
 }
 
 .decidesk-status-badge--adopted { background: var(--color-success-light); color: var(--color-success-text); }
+
 .decidesk-status-badge--rejected { background: var(--color-error-light); color: var(--color-error-text); }
+
 .decidesk-status-badge--published { background: var(--color-success); color: var(--color-main-background); }
+
 .decidesk-status-badge--unpublished { background: var(--color-background-dark); color: var(--color-text-maxcontrast); }
+
 .decidesk-status-badge--open { background: var(--color-background-dark); color: var(--color-text-maxcontrast); }
+
 .decidesk-status-badge--in-progress { background: var(--color-warning-light); color: var(--color-warning-text); }
+
 .decidesk-status-badge--completed { background: var(--color-success-light); color: var(--color-success-text); }
+
 .decidesk-status-badge--overdue { background: var(--color-error-light); color: var(--color-error-text); }
 
 .decidesk-related-table {

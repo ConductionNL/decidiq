@@ -379,9 +379,13 @@ export default {
 }
 
 .decidesk-status-badge--draft { color: var(--color-text-maxcontrast); }
+
 .decidesk-status-badge--review { background: var(--color-warning-light); color: var(--color-warning-text); }
+
 .decidesk-status-badge--approved { background: var(--color-success-light); color: var(--color-success-text); }
+
 .decidesk-status-badge--signed { background: var(--color-primary-light); color: var(--color-primary-text); }
+
 .decidesk-status-badge--published { background: var(--color-success); color: var(--color-main-background); }
 
 .decidesk-minutes-content,
