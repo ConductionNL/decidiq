@@ -24,6 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidesk\Exception\MissingRelationException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -107,8 +109,8 @@ class MinutesGenerationService
         $meeting = $this->resolveMeeting(minutes: $minutes, objectService: $objectService);
 
         if ($meeting === null) {
-            throw new \RuntimeException(
-                sprintf(
+            throw new MissingRelationException(
+                message: sprintf(
                     'No linked Meeting found for Minutes "%s". '
                     .'Please link a Meeting before generating a draft.',
                     $minutesId
@@ -172,8 +174,8 @@ class MinutesGenerationService
         );
 
         if ($minutesEntity === null) {
-            throw new \InvalidArgumentException(
-                sprintf('Minutes object "%s" not found.', $minutesId)
+            throw new MissingObjectException(
+                message: sprintf('Minutes object "%s" not found.', $minutesId)
             );
         }
 

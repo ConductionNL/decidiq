@@ -26,13 +26,15 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidesk\Exception\MissingRelationException;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
 
 /**
  * Controller for Minutes-specific operations.
@@ -47,32 +49,28 @@ class MinutesController extends Controller
 {
 
     /**
-     * Allowed sequential lifecycle transitions: current => next.
+     * Lifecycle transitions that require a governance role (chair or secretary).
+     *
+     * Any authenticated user may move minutes to "review"; the remaining
+     * privileged states require Nextcloud admin rights.
      */
-    private const LIFECYCLE_TRANSITIONS = [
-        'draft'    => 'review',
-        'review'   => 'approved',
-        'approved' => 'signed',
-        'signed'   => 'published',
-    ];
+    private const PRIVILEGED_TRANSITIONS = ['approved', 'signed', 'published'];
 
     /**
      * Constructor for MinutesController.
      *
      * @param IRequest                 $request                  The HTTP request
      * @param MinutesGenerationService $minutesGenerationService The generation service
-     * @param ContainerInterface       $container                DI container (lazy-loads ObjectService)
      * @param IUserSession             $userSession              The current user session
-     * @param string|null              $userId                   The current user ID (null = unauthenticated)
+     * @param IGroupManager            $groupManager             Group manager for role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function __construct(
         IRequest $request,
         private MinutesGenerationService $minutesGenerationService,
-        private ContainerInterface $container,
         private IUserSession $userSession,
-        private ?string $userId,
+        private IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -85,6 +83,7 @@ class MinutesController extends Controller
      * Returns { "preview": "<generated text>" } on success.
      * Returns 401 when the request is not authenticated.
      * Returns 404 when the Minutes object is not found.
+     * Returns 422 when no Meeting is linked to the Minutes record.
      * Returns 503 when OpenRegister is unavailable.
      *
      * @param string $minutesId The UUID of the Minutes object
@@ -97,7 +96,7 @@ class MinutesController extends Controller
      */
     public function generateDraft(string $minutesId): JSONResponse
     {
-        if ($this->userId === null) {
+        if ($this->userSession->getUser() === null) {
             return new JSONResponse(
                 ['message' => 'Unauthenticated.'],
                 Http::STATUS_UNAUTHORIZED
@@ -111,6 +110,11 @@ class MinutesController extends Controller
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_NOT_FOUND
+            );
+        } catch (MissingRelationException $e) {
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_UNPROCESSABLE_ENTITY
             );
         } catch (\RuntimeException $e) {
             return new JSONResponse(
@@ -132,8 +136,12 @@ class MinutesController extends Controller
      * "approved" and "signed" transitions so that forged client-side attribution
      * is impossible.
      *
+     * The "approved", "signed", and "published" transitions require the caller
+     * to hold Nextcloud admin rights (governance-role enforcement).
+     *
      * Returns 200 with the updated Minutes object on success.
      * Returns 401 when the request is not authenticated.
+     * Returns 403 when the user lacks the required governance role.
      * Returns 404 when the Minutes object is not found.
      * Returns 422 when the requested transition is not the valid next step.
      * Returns 503 when OpenRegister is unavailable.
@@ -148,7 +156,8 @@ class MinutesController extends Controller
      */
     public function transition(string $minutesId): JSONResponse
     {
-        if ($this->userId === null) {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
             return new JSONResponse(
                 ['message' => 'Unauthenticated.'],
                 Http::STATUS_UNAUTHORIZED
@@ -163,98 +172,39 @@ class MinutesController extends Controller
             );
         }
 
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        } catch (\Throwable $e) {
-            return new JSONResponse(
-                ['message' => 'Service temporarily unavailable.'],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
+        // Privileged transitions (approved, signed, published) require admin rights.
+        // This prevents any authenticated user from signing or publishing official records.
+        if (in_array($newLifecycle, self::PRIVILEGED_TRANSITIONS, true) === true) {
+            if ($this->groupManager->isAdmin($user->getUID()) === false) {
+                return new JSONResponse(
+                    ['message' => 'Insufficient permissions: governance role required for this transition.'],
+                    Http::STATUS_FORBIDDEN
+                );
+            }
         }
 
-        // Fetch the current Minutes object.
-        try {
-            $minutesEntity = $objectService->find(
-                id: $minutesId,
-                register: 'decidesk',
-                schema: 'minutes'
-            );
-        } catch (\Throwable $e) {
-            return new JSONResponse(
-                ['message' => 'Service temporarily unavailable.'],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }
+        $displayName = $user->getDisplayName();
 
-        if ($minutesEntity === null) {
+        try {
+            $result = $this->minutesGenerationService->transition(
+                minutesId: $minutesId,
+                newLifecycle: $newLifecycle,
+                displayName: $displayName
+            );
+            return new JSONResponse($result);
+        } catch (MissingObjectException $e) {
             return new JSONResponse(
-                ['message' => 'Minutes not found.'],
+                ['message' => $e->getMessage()],
                 Http::STATUS_NOT_FOUND
             );
-        }
-
-        $minutes          = $minutesEntity->getObject();
-        $currentLifecycle = $minutes['lifecycle'] ?? 'draft';
-        $allowedNext      = self::LIFECYCLE_TRANSITIONS[$currentLifecycle] ?? null;
-
-        if ($allowedNext !== $newLifecycle) {
+        } catch (\InvalidArgumentException $e) {
             return new JSONResponse(
-                [
-                    'message' => sprintf(
-                        'Invalid transition: "%s" → "%s". Expected next step: "%s".',
-                        $currentLifecycle,
-                        $newLifecycle,
-                        $allowedNext ?? '(terminal)'
-                    ),
-                ],
+                ['message' => $e->getMessage()],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
-        }
-
-        $minutes['lifecycle'] = $newLifecycle;
-
-        // Populate signedBy from the server-side user session — never from the client.
-        if ($newLifecycle === 'approved' || $newLifecycle === 'signed') {
-            $user = $this->userSession->getUser();
-            if ($user !== null) {
-                $displayName = $user->getDisplayName();
-            } else {
-                $displayName = $this->userId;
-            }
-
-            $signedBy = $minutes['signedBy'] ?? [];
-            if (in_array($displayName, $signedBy, true) === false) {
-                $signedBy[] = $displayName;
-            }
-
-            $minutes['signedBy'] = $signedBy;
-        }
-
-        if ($newLifecycle === 'approved') {
-            $minutes['approvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
-        }
-
-        // Save the updated Minutes object via ObjectService.
-        try {
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('minutes');
-            $saved = $objectService->saveObject(
-                object: $minutes,
-                register: 'decidesk',
-                schema: 'minutes',
-                uuid: $minutesId
-            );
-
-            if (is_array($saved) === true) {
-                $responseData = $saved;
-            } else {
-                $responseData = $minutes;
-            }
-
-            return new JSONResponse($responseData);
-        } catch (\Throwable $e) {
+        } catch (\RuntimeException $e) {
             return new JSONResponse(
-                ['message' => 'Service temporarily unavailable.'],
+                ['message' => $e->getMessage()],
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
         }//end try
