@@ -47,14 +47,16 @@ if (defined('OC_CONSOLE') === false && is_readable($ncConfig) === true) {
 // (which the stub extends) is already resolvable — either via the Nextcloud
 // autoloader (full NC environment) or via the vendor/nextcloud/ocp fallback
 // registered above (standalone mode).
+// The stubs are also registered via autoload-dev PSR-4 in composer.json so that
+// Composer's autoloader can find them without needing Nextcloud to be bootstrapped.
 if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
-    include_once __DIR__.'/Stubs/DeepLinkRegistrationEvent.php';
+    include_once __DIR__.'/Stubs/Event/DeepLinkRegistrationEvent.php';
 }
 
 if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
-    include_once __DIR__.'/Stubs/ObjectService.php';
+    include_once __DIR__.'/Stubs/Service/ObjectService.php';
 }
 
 if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
-    include_once __DIR__.'/Stubs/ObjectEntity.php';
+    include_once __DIR__.'/Stubs/Db/ObjectEntity.php';
 }
