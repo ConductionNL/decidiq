@@ -20,6 +20,10 @@ const Participants = () => import('../views/Participants.vue')
 const ParticipantDetail = () => import('../views/ParticipantDetail.vue')
 const AgendaItems = () => import('../views/AgendaItems.vue')
 const AgendaItemDetail = () => import('../views/AgendaItemDetail.vue')
+/**
+ * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.5
+ */
+const LiveMeeting = () => import('../views/LiveMeeting.vue')
 const SettingsView = () => import('../views/SettingsView.vue')
 
 export default new Router({
@@ -31,6 +35,7 @@ export default new Router({
 		{ path: '/governance-bodies/:id', name: 'GovernanceBodyDetail', component: GovernanceBodyDetail, props: true },
 		{ path: '/meetings', name: 'Meetings', component: Meetings },
 		{ path: '/meetings/:id', name: 'MeetingDetail', component: MeetingDetail, props: true },
+		{ path: '/meetings/:id/live', name: 'LiveMeeting', component: LiveMeeting, props: true },
 		{ path: '/participants', name: 'Participants', component: Participants },
 		{ path: '/participants/:id', name: 'ParticipantDetail', component: ParticipantDetail, props: true },
 		{ path: '/agenda-items', name: 'AgendaItems', component: AgendaItems },

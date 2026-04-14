@@ -1,0 +1,16 @@
+{
+  "round": 1,
+  "timestamp": "2026-04-13T19:59:27.101818+00:00",
+  "pr": 24,
+  "commit": "5fa2fef",
+  "code_review": {
+    "pass": null,
+    "turns": 0,
+    "findings": []
+  },
+  "security_review": {
+    "pass": null,
+    "turns": 0,
+    "findings": []
+  }
+}
