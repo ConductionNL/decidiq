@@ -31,7 +31,6 @@ use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -137,14 +136,12 @@ class AgendaController extends Controller
      * @param string $meetingId UUID of the Meeting
      *
      * @NoAdminRequired
-     * @NoCSRFRequired
      *
      * @return JSONResponse
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
      */
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function publish(string $meetingId): JSONResponse
     {
         $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
@@ -157,6 +154,12 @@ class AgendaController extends Controller
             return new JSONResponse(['success' => true]);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'publishAgenda failed for meeting {id}: {error}',
+                ['id' => $meetingId, 'error' => $e->getMessage(), 'exception' => $e]
+            );
+            return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
 
     }//end publish()
@@ -167,17 +170,15 @@ class AgendaController extends Controller
      * @param string $id UUID of the AgendaItem
      *
      * @NoAdminRequired
-     * @NoCSRFRequired
      *
      * @return JSONResponse
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
      */
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function advanceBobPhase(string $id): JSONResponse
     {
-        // Resolve the meeting to authorise against; fall back to no guard if unresolvable.
+        // Resolve the meeting for authorization; fail closed if the relation is absent.
         $item = $this->objectService->find($id);
         if (is_array($item) === true) {
             $itemData = $item;
@@ -189,11 +190,13 @@ class AgendaController extends Controller
 
         $meetingId = $itemData['@self']['relations']['meeting'] ?? null;
 
-        if ($meetingId !== null) {
-            $denied = $this->requireChairOrAdmin(meetingId: (string) $meetingId);
-            if ($denied !== null) {
-                return $denied;
-            }
+        if ($meetingId === null) {
+            return new JSONResponse(['message' => 'Could not resolve meeting for authorization.'], Http::STATUS_FORBIDDEN);
+        }
+
+        $denied = $this->requireChairOrAdmin(meetingId: (string) $meetingId);
+        if ($denied !== null) {
+            return $denied;
         }
 
         try {
@@ -215,14 +218,12 @@ class AgendaController extends Controller
      * @param string $meetingId UUID of the Meeting
      *
      * @NoAdminRequired
-     * @NoCSRFRequired
      *
      * @return JSONResponse
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
      */
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function processHamerstukken(string $meetingId): JSONResponse
     {
         $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
@@ -252,14 +253,12 @@ class AgendaController extends Controller
      * @param string $meetingId UUID of the Meeting
      *
      * @NoAdminRequired
-     * @NoCSRFRequired
      *
      * @return JSONResponse
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
      */
     #[NoAdminRequired]
-    #[NoCSRFRequired]
     public function reorder(string $meetingId): JSONResponse
     {
         $denied = $this->requireChairOrAdmin(meetingId: $meetingId);

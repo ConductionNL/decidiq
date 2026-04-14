@@ -282,13 +282,17 @@ export default {
 			this.processingHamerstukken = true
 			this.confirmHamerstukken = false
 			try {
-				await fetch(
+				const response = await fetch(
 					OC.generateUrl(`/apps/decidesk/api/agendas/${this.id}/hamerstukken`),
 					{
 						method: 'POST',
 						headers: { requesttoken: OC.requestToken },
 					},
 				)
+				if (!response.ok) {
+					console.error('Failed to process hamerstukken:', response.status)
+					return
+				}
 				await this.refreshItems()
 			} catch (e) {
 				console.error('Error processing hamerstukken:', e)
@@ -315,7 +319,9 @@ export default {
 					'@self.relations.meeting': this.id,
 				})
 				this.allItems = items ?? []
-				const parts = await this.objectStore.fetchObjects('participant')
+				const parts = await this.objectStore.fetchObjects('participant', {
+					'@self.relations.meeting': this.id,
+				})
 				this.participants = parts ?? []
 			} catch (e) {
 				console.error('Error fetching live meeting data:', e)

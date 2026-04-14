@@ -72,13 +72,13 @@
 				v-for="(item, index) in sortedItems"
 				:key="item.id"
 				class="agenda-builder__item"
-				draggable="true"
+				:draggable="isChair"
 				role="listitem"
 				:aria-label="t('decidesk', 'Agenda item {n}: {title}', { n: item.orderNumber, title: item.title })"
-				@dragstart="onDragStart($event, index)"
-				@dragover.prevent="onDragOver($event, index)"
-				@drop="onDrop($event, index)"
-				@dragend="onDragEnd"
+				@dragstart="isChair ? onDragStart($event, index) : null"
+				@dragover.prevent="isChair ? onDragOver($event, index) : null"
+				@drop="isChair ? onDrop($event, index) : null"
+				@dragend="isChair ? onDragEnd() : null"
 				@keydown.up.prevent="moveUp(index)"
 				@keydown.down.prevent="moveDown(index)">
 				<span class="agenda-builder__item-order" aria-hidden="true">
@@ -373,7 +373,7 @@ export default {
 		async persistReorder() {
 			const ids = this.sortedItems.map(i => i.id)
 			try {
-				await fetch(
+				const response = await fetch(
 					OC.generateUrl(`/apps/decidesk/api/agendas/${this.meetingId}/reorder`),
 					{
 						method: 'PUT',
@@ -381,6 +381,10 @@ export default {
 						body: JSON.stringify({ ids }),
 					},
 				)
+				if (!response.ok) {
+					console.error('Failed to persist agenda reorder:', response.status)
+					return
+				}
 				this.$emit('reordered', ids)
 			} catch (e) {
 				console.error('Failed to persist agenda reorder:', e)
