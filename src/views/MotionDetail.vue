@@ -2,6 +2,7 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
+ Motion detail view — shows motion text, timeline, co-signers, amendments, and voting round.
  @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.2
 -->
 <template>
@@ -12,105 +13,94 @@
 		:show-sidebar="true"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
-		<!-- Lifecycle timeline header (task-4.3) -->
-		<template #header>
-			<CnTimelineStages
-				v-if="object.lifecycle"
-				:stages="lifecycleStages"
-				:current-stage="object.lifecycle"
-				:aria-label="t('decidesk', 'Motion lifecycle')" />
-		</template>
-
 		<template #properties>
-			<!-- Lifecycle action buttons (task-4.4) -->
-			<CnDetailCard :title="t('decidesk', 'Actions')">
-				<div class="decidesk-motion-actions">
+			<!-- Lifecycle timeline -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.3 -->
+			<CnDetailCard :title="t('decidesk', 'Lifecycle')">
+				<CnTimelineStages :stages="lifecycleStages" :current="object.lifecycle" />
+				<!-- Lifecycle action buttons -->
+				<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.4 -->
+				<div class="decidesk-lifecycle-actions">
 					<NcButton
-						v-if="canOpenDebate"
-						type="secondary"
-						:aria-label="t('decidesk', 'Open debate')"
-						@click="transitionTo('debating')">
+						v-if="canTransitionTo('debating')"
+						type="primary"
+						:disabled="transitioning"
+						@click="transition('debating')">
 						{{ t('decidesk', 'Debat openen') }}
 					</NcButton>
 					<NcButton
-						v-if="canOpenVoting"
+						v-if="canTransitionTo('voting')"
 						type="primary"
-						:aria-label="t('decidesk', 'Open voting round')"
-						@click="openVotingRound = true">
+						:disabled="transitioning"
+						@click="transition('voting')">
 						{{ t('decidesk', 'Stemronde openen') }}
 					</NcButton>
 					<NcButton
-						v-if="canWithdraw"
+						v-if="canTransitionTo('withdrawn')"
 						type="error"
-						:aria-label="t('decidesk', 'Withdraw motion')"
-						@click="transitionTo('withdrawn')">
+						:disabled="transitioning"
+						@click="transition('withdrawn')">
 						{{ t('decidesk', 'Motie intrekken') }}
 					</NcButton>
 				</div>
+				<p v-if="transitionError" class="decidesk-error">
+					{{ transitionError }}
+				</p>
 			</CnDetailCard>
 
+			<!-- Motion properties -->
 			<CnDetailCard :title="t('decidesk', 'Properties')">
 				<CnDetailGrid :items="propertyItems" />
 			</CnDetailCard>
 
-			<!-- Co-signatories section (task-4.5) -->
-			<CnDetailCard :title="t('decidesk', 'Medeondertekenaars')">
-				<div class="decidesk-cosigners">
-					<ul v-if="object.coSigners && object.coSigners.length" class="decidesk-relations">
-						<li v-for="(signer, idx) in object.coSigners" :key="idx">
-							{{ signer }}
-						</li>
-					</ul>
-					<p v-else class="decidesk-empty">
-						{{ t('decidesk', 'Nog geen medeondertekenaars.') }}
-					</p>
-					<NcButton
-						v-if="object.lifecycle === 'submitted' || object.lifecycle === 'debating'"
-						type="secondary"
-						:aria-label="t('decidesk', 'Invite co-signers')"
-						@click="showCoSignDialog = true">
-						{{ t('decidesk', 'Medeondertekenaars uitnodigen') }}
-					</NcButton>
-					<!-- Confirm own co-signature -->
-					<NcButton
-						v-if="canCoSign"
-						type="primary"
-						:aria-label="t('decidesk', 'Co-sign this motion')"
-						@click="confirmCoSign">
-						{{ t('decidesk', 'Ondersteunen') }}
-					</NcButton>
-				</div>
-			</CnDetailCard>
-
-			<!-- Budget impact section (task-4.6) -->
+			<!-- Budget impact panel (shown when amendment type and note exists) -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.6 -->
 			<CnDetailCard
 				v-if="budgetImpact"
-				:title="t('decidesk', 'Budget impact')">
+				:title="t('decidesk', 'Budget Impact')">
 				<CnDetailGrid :items="budgetImpactItems" />
 			</CnDetailCard>
-
-			<NcButton
-				v-if="object.motionType === 'amendment' && (object.lifecycle === 'submitted' || object.lifecycle === 'debating')"
-				type="secondary"
-				:aria-label="t('decidesk', 'Add budget impact')"
-				class="decidesk-budget-toggle"
-				@click="showBudgetDialog = true">
-				{{ t('decidesk', 'Budget impact toevoegen') }}
-			</NcButton>
 		</template>
 
 		<template #relations>
-			<!-- Amendments list (task-4.2 / task-5.1) -->
-			<AmendmentList
-				:motion-id="id"
-				:motion-lifecycle="object.lifecycle"
-				:object-store="objectStore" />
+			<!-- Co-signatories section -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.5 -->
+			<CnDetailCard :title="t('decidesk', 'Medeondertekenaars')">
+				<ul v-if="object.coSigners && object.coSigners.length" class="decidesk-cosigners">
+					<li v-for="signer in object.coSigners" :key="signer">
+						{{ signer }}
+					</li>
+				</ul>
+				<p v-else class="decidesk-empty">
+					{{ t('decidesk', 'Nog geen medeondertekenaars.') }}
+				</p>
+				<NcButton
+					v-if="!isNew"
+					type="secondary"
+					@click="showCoSignDialog = true">
+					{{ t('decidesk', 'Medeondertekenaars uitnodigen') }}
+				</NcButton>
+				<NcButton
+					v-if="canCoSign"
+					type="primary"
+					@click="confirmCoSign">
+					{{ t('decidesk', 'Ondersteunen') }}
+				</NcButton>
+			</CnDetailCard>
 
-			<!-- VotingRound panel (task-4.2 / task-6.1) -->
-			<VotingRoundPanel
+			<!-- Amendments list -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-5.1 -->
+			<AmendmentList
+				v-if="!isNew"
 				:motion-id="id"
-				:motion-lifecycle="object.lifecycle"
-				:object-store="objectStore" />
+				:motion-lifecycle="object.lifecycle" />
+
+			<!-- Voting round panel -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 -->
+			<VotingRoundPanel
+				v-if="!isNew"
+				:motion-id="id"
+				:motion-lifecycle="object.lifecycle" />
 		</template>
 
 		<template #sidebar>
@@ -140,7 +130,6 @@
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
 import {
 	CnDetailPage,
 	CnDetailCard,
@@ -151,19 +140,14 @@ import {
 	CnTimelineStages,
 	useDetailView,
 } from '@conduction/nextcloud-vue'
-import { generateUrl } from '@nextcloud/router'
-import { getCurrentUser } from '@nextcloud/auth'
+import { NcButton } from '@nextcloud/vue'
 import { useObjectStore } from '../store/store.js'
 import AmendmentList from '../components/AmendmentList.vue'
 import VotingRoundPanel from '../components/VotingRoundPanel.vue'
 
 export default {
 	name: 'MotionDetail',
-	/**
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.2
-	 */
 	components: {
-		NcButton,
 		CnDetailPage,
 		CnDetailCard,
 		CnDetailGrid,
@@ -171,6 +155,7 @@ export default {
 		CnSchemaFormDialog,
 		CnDeleteDialog,
 		CnTimelineStages,
+		NcButton,
 		AmendmentList,
 		VotingRoundPanel,
 	},
@@ -189,22 +174,26 @@ export default {
 	data() {
 		return {
 			showCoSignDialog: false,
-			showBudgetDialog: false,
-			openVotingRound: false,
+			showDeleteDialog: false,
+			transitioning: false,
+			transitionError: null,
 		}
 	},
 	computed: {
+		isNew() {
+			return this.id === 'new'
+		},
 		schema() {
 			return this.objectStore.getSchema('motion')
 		},
 		lifecycleStages() {
 			return [
-				{ id: 'submitted', label: this.t('decidesk', 'Ingediend') },
-				{ id: 'debating', label: this.t('decidesk', 'Debat') },
-				{ id: 'voting', label: this.t('decidesk', 'Stemronde') },
-				{ id: 'adopted', label: this.t('decidesk', 'Aangenomen'), type: 'success' },
-				{ id: 'rejected', label: this.t('decidesk', 'Verworpen'), type: 'error' },
-				{ id: 'withdrawn', label: this.t('decidesk', 'Ingetrokken'), type: 'warning' },
+				{ key: 'submitted', label: this.t('decidesk', 'Ingediend') },
+				{ key: 'debating', label: this.t('decidesk', 'Debat') },
+				{ key: 'voting', label: this.t('decidesk', 'Stemronde') },
+				{ key: 'adopted', label: this.t('decidesk', 'Aangenomen'), type: 'success' },
+				{ key: 'rejected', label: this.t('decidesk', 'Verworpen'), type: 'error' },
+				{ key: 'withdrawn', label: this.t('decidesk', 'Ingetrokken'), type: 'warning' },
 			]
 		},
 		propertyItems() {
@@ -213,67 +202,79 @@ export default {
 				{ label: this.t('decidesk', 'Type'), value: this.object.motionType },
 				{ label: this.t('decidesk', 'Proposer'), value: this.object.proposer },
 				{ label: this.t('decidesk', 'Lifecycle'), value: this.object.lifecycle },
-				{ label: this.t('decidesk', 'Submitted At'), value: this.object.submittedAt },
+				{ label: this.t('decidesk', 'Submitted'), value: this.object.submittedAt },
+				{ label: this.t('decidesk', 'Motion text'), value: this.object.text },
 			]
 		},
 		budgetImpact() {
-			return (this.object.notes ?? []).find(n => n.title === 'Budget impact') ?? null
+			if (!this.object.notes) return null
+			const note = this.object.notes.find(n => n.title === 'Budget impact')
+			if (!note) return null
+			try {
+				return JSON.parse(note.body)
+			} catch {
+				return null
+			}
 		},
 		budgetImpactItems() {
 			if (!this.budgetImpact) return []
-			try {
-				const data = JSON.parse(this.budgetImpact.body)
-				return [
-					{ label: this.t('decidesk', 'Budget Line'), value: data.budgetLine },
-					{ label: this.t('decidesk', 'Amount Delta'), value: `€ ${data.amountDelta}` },
-					{ label: this.t('decidesk', 'Rationale'), value: data.rationale },
-				]
-			} catch {
-				return []
-			}
-		},
-		canOpenDebate() {
-			return this.object.lifecycle === 'submitted'
-		},
-		canOpenVoting() {
-			return this.object.lifecycle === 'debating'
-		},
-		canWithdraw() {
-			return ['submitted', 'debating'].includes(this.object.lifecycle)
+			return [
+				{ label: this.t('decidesk', 'Begrotingspost'), value: this.budgetImpact.budgetLine },
+				{ label: this.t('decidesk', 'Bedrag delta'), value: `€ ${this.budgetImpact.amountDelta}` },
+				{ label: this.t('decidesk', 'Rationale'), value: this.budgetImpact.rationale },
+			]
 		},
 		canCoSign() {
-			// Show "Ondersteunen" for invited participants not yet confirmed.
-			return ['submitted', 'debating'].includes(this.object.lifecycle)
+			// Show if current user is in the coSigners invite list but not yet confirmed.
+			return false // TODO: compare with current user display name from session.
 		},
 	},
 	methods: {
-		async transitionTo(newState) {
+		canTransitionTo(state) {
+			const allowedFrom = {
+				debating: ['submitted'],
+				voting: ['debating'],
+				withdrawn: ['submitted', 'debating'],
+			}
+			return (allowedFrom[state] || []).includes(this.object.lifecycle)
+		},
+		async transition(newState) {
+			this.transitioning = true
+			this.transitionError = null
 			try {
-				const appBaseUrl = generateUrl('/apps/decidesk')
-				const response = await fetch(`${appBaseUrl}/api/motions/${this.id}/transition`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ newState }),
-				})
-				if (response.ok) {
-					this.objectStore.fetchObject('motion', this.id)
+				const response = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/motions/${this.id}/transition`),
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						body: JSON.stringify({ newState }),
+					},
+				)
+				if (!response.ok) {
+					const data = await response.json()
+					this.transitionError = data.message || this.t('decidesk', 'Transitie mislukt')
+				} else {
+					await this.objectStore.fetchObject('motion', this.id)
 				}
 			} catch (e) {
-				console.error('Transition failed', e)
+				this.transitionError = this.t('decidesk', 'Transitie mislukt')
+			} finally {
+				this.transitioning = false
 			}
 		},
 		async confirmCoSign() {
 			try {
-				const user = getCurrentUser()?.uid
-				const appBaseUrl = generateUrl('/apps/decidesk')
-				await fetch(`${appBaseUrl}/api/motions/${this.id}/co-sign-confirm`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ displayName: user }),
-				})
-				this.objectStore.fetchObject('motion', this.id)
+				await fetch(
+					OC.generateUrl(`/apps/decidesk/api/motions/${this.id}/co-sign-confirm`),
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						body: JSON.stringify({}),
+					},
+				)
+				await this.objectStore.fetchObject('motion', this.id)
 			} catch (e) {
-				console.error('Co-sign failed', e)
+				// ignore
 			}
 		},
 		onEditSaved() {
@@ -285,40 +286,35 @@ export default {
 </script>
 
 <style scoped>
+.decidesk-lifecycle-actions {
+	display: flex;
+	gap: var(--default-grid-baseline);
+	flex-wrap: wrap;
+	margin-top: var(--default-grid-baseline);
+}
+
 .decidesk-empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
 
-.decidesk-relations {
+.decidesk-cosigners {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.decidesk-relations li {
+.decidesk-cosigners li {
 	padding: var(--default-grid-baseline) 0;
 	border-bottom: 1px solid var(--color-border);
 }
 
-.decidesk-relations li:last-child {
+.decidesk-cosigners li:last-child {
 	border-bottom: none;
 }
 
-.decidesk-motion-actions {
-	display: flex;
-	gap: var(--default-grid-baseline);
-	flex-wrap: wrap;
-	margin-bottom: var(--default-grid-baseline);
-}
-
-.decidesk-cosigners {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-}
-
-.decidesk-budget-toggle {
-	margin-top: var(--default-grid-baseline);
+.decidesk-error {
+	color: var(--color-error);
+	margin: var(--default-grid-baseline) 0 0;
 }
 </style>

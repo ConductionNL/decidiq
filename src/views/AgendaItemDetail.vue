@@ -3,6 +3,7 @@
 
 <!--
  @spec openspec/changes/p1-crud-operations/tasks.md#task-9.2
+ @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.7
 -->
 <template>
 	<CnDetailPage
@@ -30,6 +31,55 @@
 						</router-link>
 					</li>
 				</ul>
+			</CnDetailCard>
+
+			<!-- Motion linking — only for 'decision'-type agenda items -->
+			<CnDetailCard v-if="object.itemType === 'decision'" :title="t('decidesk', 'Linked Motion')">
+				<p v-if="!linkedMotions.length" class="decidesk-empty">
+					{{ t('decidesk', 'No motion linked to this decision item.') }}
+				</p>
+				<ul v-else class="decidesk-relations">
+					<li v-for="motion in linkedMotions" :key="motion.id || motion">
+						<router-link :to="{ name: 'MotionDetail', params: { id: motion.id || motion } }">
+							{{ motion.title || motion.id || motion }}
+						</router-link>
+					</li>
+				</ul>
+
+				<button class="decidesk-link-btn" @click="showLinkMotion = true">
+					{{ t('decidesk', 'Motie koppelen') }}
+				</button>
+
+				<!-- Inline motion search dialog -->
+				<div v-if="showLinkMotion" class="decidesk-link-dialog">
+					<h3>{{ t('decidesk', 'Motie koppelen') }}</h3>
+					<input
+						v-model="motionSearch"
+						type="text"
+						:placeholder="t('decidesk', 'Zoek op motietitel…')"
+						class="decidesk-search-input"
+						@input="fetchMotions">
+					<ul v-if="motionResults.length" class="decidesk-motion-list">
+						<li
+							v-for="m in motionResults"
+							:key="m.id || m.uuid"
+							:class="{ selected: selectedMotionId === (m.id || m.uuid) }"
+							@click="selectedMotionId = m.id || m.uuid">
+							{{ m.title || m.id }}
+						</li>
+					</ul>
+					<p v-else-if="motionSearch.length > 1" class="decidesk-empty">
+						{{ t('decidesk', 'Geen moties gevonden.') }}
+					</p>
+					<div class="decidesk-dialog-actions">
+						<button :disabled="!selectedMotionId" @click="linkMotion">
+							{{ t('decidesk', 'Koppelen') }}
+						</button>
+						<button @click="closeLinkDialog">
+							{{ t('decidesk', 'Annuleren') }}
+						</button>
+					</div>
+				</div>
 			</CnDetailCard>
 		</template>
 
@@ -78,6 +128,14 @@ export default {
 		})
 		return { ...detailView, objectStore }
 	},
+	data() {
+		return {
+			showLinkMotion: false,
+			motionSearch: '',
+			motionResults: [],
+			selectedMotionId: null,
+		}
+	},
 	computed: {
 		schema() {
 			return this.objectStore.getSchema('agenda-item')
@@ -93,11 +151,57 @@ export default {
 				{ label: this.t('decidesk', 'Recurring'), value: this.object.isRecurring ? this.t('decidesk', 'Yes') : this.t('decidesk', 'No') },
 			]
 		},
+		linkedMotions() {
+			return this.object.relations?.motion || []
+		},
 	},
 	methods: {
 		onEditSaved() {
 			this.editing = false
 			this.objectStore.fetchObject('agenda-item', this.id)
+		},
+		async fetchMotions() {
+			if (this.motionSearch.length < 2) {
+				this.motionResults = []
+				return
+			}
+			try {
+				const resp = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/objects/motion?search=${encodeURIComponent(this.motionSearch)}`),
+					{ headers: { requesttoken: OC.requestToken } },
+				)
+				if (resp.ok) {
+					const data = await resp.json()
+					this.motionResults = data.results || data || []
+				}
+			} catch (e) {
+				this.motionResults = []
+			}
+		},
+		async linkMotion() {
+			if (!this.selectedMotionId) return
+			const updated = { ...this.object }
+			if (!updated.relations) updated.relations = {}
+			if (!updated.relations.motion) updated.relations.motion = []
+			const alreadyLinked = updated.relations.motion.some(
+				(m) => (m.id || m) === this.selectedMotionId,
+			)
+			if (!alreadyLinked) {
+				updated.relations.motion.push({ id: this.selectedMotionId })
+			}
+			try {
+				await this.objectStore.saveObject('agenda-item', updated)
+				await this.objectStore.fetchObject('agenda-item', this.id)
+			} catch (e) {
+				// ignore
+			}
+			this.closeLinkDialog()
+		},
+		closeLinkDialog() {
+			this.showLinkMotion = false
+			this.motionSearch = ''
+			this.motionResults = []
+			this.selectedMotionId = null
 		},
 	},
 }
@@ -122,5 +226,52 @@ export default {
 
 .decidesk-relations li:last-child {
 	border-bottom: none;
+}
+
+.decidesk-link-btn {
+	margin-top: var(--default-grid-baseline);
+}
+
+.decidesk-link-dialog {
+	margin-top: calc(var(--default-grid-baseline) * 2);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	padding: var(--default-grid-baseline);
+}
+
+.decidesk-link-dialog h3 {
+	font-size: var(--default-font-size);
+	font-weight: bold;
+	margin: 0 0 var(--default-grid-baseline);
+}
+
+.decidesk-search-input {
+	width: 100%;
+	margin-bottom: var(--default-grid-baseline);
+}
+
+.decidesk-motion-list {
+	list-style: none;
+	margin: 0 0 var(--default-grid-baseline);
+	padding: 0;
+	max-height: 200px;
+	overflow-y: auto;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+}
+
+.decidesk-motion-list li {
+	padding: var(--default-grid-baseline);
+	cursor: pointer;
+}
+
+.decidesk-motion-list li:hover,
+.decidesk-motion-list li.selected {
+	background-color: var(--color-background-hover);
+}
+
+.decidesk-dialog-actions {
+	display: flex;
+	gap: var(--default-grid-baseline);
 }
 </style>

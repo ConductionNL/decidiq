@@ -41,9 +41,13 @@ class SettingsService
      * Configuration keys managed by this service.
      *
      * @var array<string>
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
      */
     private const CONFIG_KEYS = [
         'register',
+        'ori_endpoint',
+        'email_voting_enabled',
     ];
 
     /**

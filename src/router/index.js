@@ -7,6 +7,7 @@ import { generateUrl } from '@nextcloud/router'
 
 /**
  * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.4
+ * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.3
  */
 
 Vue.use(Router)
@@ -20,11 +21,10 @@ const Participants = () => import('../views/Participants.vue')
 const ParticipantDetail = () => import('../views/ParticipantDetail.vue')
 const AgendaItems = () => import('../views/AgendaItems.vue')
 const AgendaItemDetail = () => import('../views/AgendaItemDetail.vue')
-const SettingsView = () => import('../views/SettingsView.vue')
-// Motion and voting views (task-8.3)
 const Motions = () => import('../views/Motions.vue')
 const MotionDetail = () => import('../views/MotionDetail.vue')
 const AmendmentDetail = () => import('../views/AmendmentDetail.vue')
+const SettingsView = () => import('../views/SettingsView.vue')
 
 export default new Router({
 	mode: 'history',
@@ -39,7 +39,6 @@ export default new Router({
 		{ path: '/participants/:id', name: 'ParticipantDetail', component: ParticipantDetail, props: true },
 		{ path: '/agenda-items', name: 'AgendaItems', component: AgendaItems },
 		{ path: '/agenda-items/:id', name: 'AgendaItemDetail', component: AgendaItemDetail, props: true },
-		// Motion and voting routes (task-8.3)
 		{ path: '/motions', name: 'Motions', component: Motions },
 		{ path: '/motions/:id', name: 'MotionDetail', component: MotionDetail, props: true },
 		{ path: '/amendments/:id', name: 'AmendmentDetail', component: AmendmentDetail, props: true },

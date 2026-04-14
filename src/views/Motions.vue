@@ -2,67 +2,47 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
+ Motion index view — lists all motions with lifecycle and type filtering.
  @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.1
 -->
 <template>
 	<CnIndexPage
-		:title="t('decidesk', 'Motions')"
-		:schema="schema"
-		:objects="objects"
-		:loading="loading"
-		:pagination="pagination"
-		:search-term="searchTerm"
-		:active-filters="activeFilters"
-		:visible-columns="columns"
-		@search="onSearch"
-		@sort="onSort"
-		@filter-change="onFilterChange"
-		@page-change="onPageChange"
-		@row-click="onRowClick"
-		@create="onCreateClick"
-		@refresh="refresh">
-		<template #create-dialog="{ close }">
-			<CnSchemaFormDialog
-				:schema="schema"
-				:title="t('decidesk', 'Create Motion')"
-				:object-store="objectStore"
-				object-type="motion"
-				@close="close"
-				@saved="onSaved" />
-		</template>
-	</CnIndexPage>
+		object-type="motion"
+		:columns="columns"
+		:object-store="objectStore"
+		:sidebar-state="sidebarState"
+		:new-route="{ name: 'MotionDetail', params: { id: 'new' } }"
+		@row-click="onRowClick" />
 </template>
 
 <script>
-import { CnIndexPage, CnSchemaFormDialog, useListView } from '@conduction/nextcloud-vue'
+import { CnIndexPage, useListView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
+import { inject } from 'vue'
 
 export default {
 	name: 'Motions',
-	/**
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.1
-	 */
-	components: { CnIndexPage, CnSchemaFormDialog },
+	components: { CnIndexPage },
 	setup() {
 		const objectStore = useObjectStore()
-		const listView = useListView('motion', {
-			objectStore,
-			sidebarState: null,
-		})
-		return { ...listView, objectStore }
+		const sidebarState = inject('sidebarState', null)
+		const listView = useListView('motion', { sidebarState, objectStore })
+		return { ...listView, objectStore, sidebarState }
 	},
-	data() {
-		return {
-			columns: ['title', 'motionType', 'proposer', 'lifecycle', 'submittedAt'],
-		}
+	computed: {
+		columns() {
+			return [
+				{ key: 'title', label: this.t('decidesk', 'Title') },
+				{ key: 'motionType', label: this.t('decidesk', 'Type'), type: 'badge' },
+				{ key: 'proposer', label: this.t('decidesk', 'Proposer') },
+				{ key: 'lifecycle', label: this.t('decidesk', 'Lifecycle'), type: 'badge' },
+				{ key: 'submittedAt', label: this.t('decidesk', 'Submitted'), type: 'datetime' },
+			]
+		},
 	},
 	methods: {
-		onRowClick(row) {
-			this.$router.push({ name: 'MotionDetail', params: { id: row.id } })
-		},
-		onCreateClick() { /* handled by create-dialog slot */ },
-		onSaved() {
-			this.refresh()
+		onRowClick(motion) {
+			this.$router.push({ name: 'MotionDetail', params: { id: motion.id || motion.uuid } })
 		},
 	},
 }

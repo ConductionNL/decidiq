@@ -3,6 +3,7 @@
 
 <!--
  @spec openspec/changes/p1-crud-operations/tasks.md#task-4.1
+ @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.4
 -->
 <template>
 	<NcAppNavigation>
@@ -43,7 +44,8 @@
 					<FormatListNumberedIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
-			<!-- Moties navigation item (task-8.4) -->
+			<!-- Motions navigation item -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.4 -->
 			<NcAppNavigationItem
 				:name="t('decidesk', 'Motions')"
 				:to="{ name: 'Motions' }">
