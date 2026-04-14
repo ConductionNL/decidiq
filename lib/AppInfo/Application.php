@@ -83,6 +83,9 @@ class Application extends App implements IBootstrap
                 );
 
         // Register MinutesController for DI.
+        // userId is NOT injected here — it must be resolved per-request inside each
+        // action method via $this->userSession->getUser()?->getUID() to avoid the
+        // DI singleton caching a null uid from an early unauthenticated bootstrap.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
         $context->registerService(
                 MinutesController::class,

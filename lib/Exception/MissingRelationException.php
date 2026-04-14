@@ -3,6 +3,10 @@
 /**
  * Decidesk MissingRelationException
  *
+ * Thrown when a required object relation (e.g. a linked Meeting) cannot be
+ * resolved. Maps to HTTP 422 Unprocessable Entity — this is a client data
+ * problem, not a server availability issue.
+ *
  * SPDX-License-Identifier: EUPL-1.2
  * Copyright (C) 2026 Conduction B.V.
  *
@@ -23,7 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Exception;
 
 /**
- * Thrown when a required relation (e.g., a linked Meeting) is missing from an object.
+ * Thrown when a required object relation cannot be resolved.
  *
  * Distinct from \RuntimeException (service unavailable). Controllers map this to
  * HTTP 422 (Unprocessable Entity) because the object exists but its data is incomplete.

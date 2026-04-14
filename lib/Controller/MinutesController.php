@@ -49,15 +49,21 @@ class MinutesController extends Controller
 {
 
     /**
-     * Lifecycle transitions that require a governance role (chair or secretary).
+     * Lifecycle states that require a governance role (admin) to execute.
      *
      * Any authenticated user may move minutes to "review"; the remaining
-     * privileged states require Nextcloud admin rights.
+     * privileged states require Nextcloud admin rights (OWASP A01 — Broken
+     * Access Control).
      */
-    private const PRIVILEGED_TRANSITIONS = ['approved', 'signed', 'published'];
+    private const RESTRICTED_TRANSITIONS = ['approved', 'signed', 'published'];
 
     /**
      * Constructor for MinutesController.
+     *
+     * Note: userId is intentionally NOT injected via DI. The Nextcloud container
+     * caches service instances as singletons; resolving the UID at construction
+     * time would freeze it as null when the container is first built in a cron or
+     * pre-flight context. The UID is resolved per-request via $this->userSession.
      *
      * @param IRequest                 $request                  The HTTP request
      * @param MinutesGenerationService $minutesGenerationService The generation service
@@ -172,12 +178,12 @@ class MinutesController extends Controller
             );
         }
 
-        // Privileged transitions (approved, signed, published) require admin rights.
-        // This prevents any authenticated user from signing or publishing official records.
-        if (in_array($newLifecycle, self::PRIVILEGED_TRANSITIONS, true) === true) {
+        // Gate approve/sign/publish behind admin — only designated signatories may
+        // drive official minutes through these states (OWASP A01 — Broken Access Control).
+        if (in_array($newLifecycle, self::RESTRICTED_TRANSITIONS, true) === true) {
             if ($this->groupManager->isAdmin($user->getUID()) === false) {
                 return new JSONResponse(
-                    ['message' => 'Insufficient permissions: governance role required for this transition.'],
+                    ['message' => 'Forbidden: only administrators may approve, sign, or publish minutes.'],
                     Http::STATUS_FORBIDDEN
                 );
             }
@@ -186,12 +192,12 @@ class MinutesController extends Controller
         $displayName = $user->getDisplayName();
 
         try {
-            $result = $this->minutesGenerationService->transition(
+            $updated = $this->minutesGenerationService->transition(
                 minutesId: $minutesId,
                 newLifecycle: $newLifecycle,
                 displayName: $displayName
             );
-            return new JSONResponse($result);
+            return new JSONResponse($updated);
         } catch (MissingObjectException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],

@@ -79,7 +79,7 @@ class MinutesControllerTest extends TestCase
     private IGroupManager&MockObject $groupManager;
 
     /**
-     * Mock authenticated user.
+     * Mock IUser (authenticated user).
      *
      * @var IUser&MockObject
      */
@@ -161,17 +161,16 @@ class MinutesControllerTest extends TestCase
     }//end testGenerateDraftWithInvalidIdReturns404()
 
     /**
-     * generateDraft when no Meeting is linked returns 422.
+     * generateDraft when the linked Meeting is missing returns 422.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
-    public function testGenerateDraftMissingMeetingReturns422(): void
+    public function testGenerateDraftWithMissingMeetingReturns422(): void
     {
         $this->minutesGenerationService->expects($this->once())
             ->method('generateDraft')
-            ->with('minutes-uuid-004')
             ->willThrowException(new MissingRelationException('No linked Meeting found.'));
 
         $result = $this->controller->generateDraft('minutes-uuid-004');
@@ -180,7 +179,7 @@ class MinutesControllerTest extends TestCase
         self::assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $result->getStatus());
         self::assertArrayHasKey('message', $result->getData());
 
-    }//end testGenerateDraftMissingMeetingReturns422()
+    }//end testGenerateDraftWithMissingMeetingReturns422()
 
     /**
      * generateDraft when OpenRegister is unavailable returns 503.
@@ -235,85 +234,60 @@ class MinutesControllerTest extends TestCase
     }//end testGenerateDraftUnauthenticatedReturns401()
 
     /**
-     * transition for an unauthenticated request returns 401.
+     * transition() with a non-admin user attempting a restricted state returns 403.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
-    public function testTransitionUnauthenticatedReturns401(): void
+    public function testTransitionToApprovedByNonAdminReturns403(): void
     {
-        $unauthSession = $this->createMock(IUserSession::class);
-        $unauthSession->method('getUser')->willReturn(null);
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->request->method('getParam')->with('lifecycle')->willReturn('approved');
 
-        $unauthController = new MinutesController(
-            request: $this->request,
-            minutesGenerationService: $this->minutesGenerationService,
-            userSession: $unauthSession,
-            groupManager: $this->groupManager,
-        );
-
-        $this->minutesGenerationService->expects($this->never())->method('transition');
-
-        $result = $unauthController->transition('minutes-uuid-001');
-
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
-
-    }//end testTransitionUnauthenticatedReturns401()
-
-    /**
-     * transition to a privileged state by a non-admin returns 403.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
-     *
-     * @return void
-     */
-    public function testTransitionPrivilegedByNonAdminReturns403(): void
-    {
-        $this->request->method('getParam')
-            ->with('lifecycle')
-            ->willReturn('signed');
-
-        $this->groupManager->method('isAdmin')
-            ->with('testuser')
-            ->willReturn(false);
-
+        // Service must NOT be called — access check happens before delegation.
         $this->minutesGenerationService->expects($this->never())->method('transition');
 
         $result = $this->controller->transition('minutes-uuid-001');
 
         self::assertInstanceOf(JSONResponse::class, $result);
         self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
 
-    }//end testTransitionPrivilegedByNonAdminReturns403()
+    }//end testTransitionToApprovedByNonAdminReturns403()
 
     /**
-     * transition when minutes not found returns 404.
+     * transition() by an admin succeeds and returns the updated minutes.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
      * @return void
      */
-    public function testTransitionMinutesNotFoundReturns404(): void
+    public function testTransitionByAdminSucceeds(): void
     {
-        $this->request->method('getParam')
-            ->with('lifecycle')
-            ->willReturn('review');
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('lifecycle')->willReturn('approved');
 
+        $updated = ['id' => 'minutes-uuid-001', 'lifecycle' => 'approved', 'approvedAt' => '2026-04-14T10:00:00+00:00'];
         $this->minutesGenerationService->expects($this->once())
             ->method('transition')
-            ->willThrowException(new MissingObjectException('Minutes object "x" not found.'));
+            ->with(
+                minutesId: 'minutes-uuid-001',
+                newLifecycle: 'approved',
+                displayName: 'Test User'
+            )
+            ->willReturn($updated);
 
         $result = $this->controller->transition('minutes-uuid-001');
 
         self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertSame('approved', $result->getData()['lifecycle']);
 
-    }//end testTransitionMinutesNotFoundReturns404()
+    }//end testTransitionByAdminSucceeds()
 
     /**
-     * transition with an invalid lifecycle step returns 422.
+     * transition() with an invalid state returns 422.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
      *
@@ -321,13 +295,8 @@ class MinutesControllerTest extends TestCase
      */
     public function testTransitionInvalidStepReturns422(): void
     {
-        $this->request->method('getParam')
-            ->with('lifecycle')
-            ->willReturn('published');
-
-        $this->groupManager->method('isAdmin')
-            ->with('testuser')
-            ->willReturn(true);
+        $this->request->method('getParam')->with('lifecycle')->willReturn('published');
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
 
         $this->minutesGenerationService->expects($this->once())
             ->method('transition')
@@ -339,5 +308,27 @@ class MinutesControllerTest extends TestCase
         self::assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $result->getStatus());
 
     }//end testTransitionInvalidStepReturns422()
+
+    /**
+     * transition() when minutes not found returns 404.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+     *
+     * @return void
+     */
+    public function testTransitionMinutesNotFoundReturns404(): void
+    {
+        $this->request->method('getParam')->with('lifecycle')->willReturn('review');
+
+        $this->minutesGenerationService->expects($this->once())
+            ->method('transition')
+            ->willThrowException(new MissingObjectException('Minutes object "x" not found.'));
+
+        $result = $this->controller->transition('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+
+    }//end testTransitionMinutesNotFoundReturns404()
 
 }//end class

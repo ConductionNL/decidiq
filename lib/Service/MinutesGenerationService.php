@@ -189,7 +189,8 @@ class MinutesGenerationService
                     $currentLifecycle,
                     $newLifecycle,
                     self::LIFECYCLE_TRANSITIONS[$currentLifecycle] ?? 'none'
-                )
+                ),
+                422
             );
         }
 
