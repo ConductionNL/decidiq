@@ -3,6 +3,7 @@
 
 import { defineStore } from 'pinia'
 import { generateUrl } from '@nextcloud/router'
+import { getRequestToken } from '@nextcloud/auth'
 
 /**
  * Store for agenda management operations.
@@ -30,7 +31,7 @@ export const useAgendaStore = defineStore('agenda', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
+						requesttoken: getRequestToken(),
 					},
 				})
 				if (!response.ok) {
@@ -59,7 +60,7 @@ export const useAgendaStore = defineStore('agenda', {
 					method: 'PUT',
 					headers: {
 						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
+						requesttoken: getRequestToken(),
 					},
 				})
 				if (!response.ok) {
@@ -88,7 +89,7 @@ export const useAgendaStore = defineStore('agenda', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
+						requesttoken: getRequestToken(),
 					},
 				})
 				if (!response.ok) {
@@ -118,7 +119,7 @@ export const useAgendaStore = defineStore('agenda', {
 					method: 'PUT',
 					headers: {
 						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
+						requesttoken: getRequestToken(),
 					},
 					body: JSON.stringify({ ids }),
 				})
@@ -144,7 +145,7 @@ export const useAgendaStore = defineStore('agenda', {
 			try {
 				const url = generateUrl(`/apps/decidesk/api/agendas/${meetingId}/user-role`)
 				const response = await fetch(url, {
-					headers: { requesttoken: OC.requestToken },
+					headers: { requesttoken: getRequestToken() },
 				})
 				if (!response.ok) return 'none'
 				const data = await response.json()

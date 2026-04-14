@@ -76,6 +76,8 @@ class AgendaController extends Controller
             $code = $e->getCode();
             if ($code === 403) {
                 $status = 403;
+            } else if ($code === 404) {
+                $status = 404;
             } else if ($code === 503) {
                 $status = 503;
             } else {
@@ -110,6 +112,8 @@ class AgendaController extends Controller
             $code = $e->getCode();
             if ($code === 403) {
                 $status = 403;
+            } else if ($code === 404) {
+                $status = 404;
             } else if ($code === 503) {
                 $status = 503;
             } else {
@@ -144,6 +148,8 @@ class AgendaController extends Controller
             $code = $e->getCode();
             if ($code === 403) {
                 $status = 403;
+            } else if ($code === 404) {
+                $status = 404;
             } else if ($code === 503) {
                 $status = 503;
             } else {
@@ -171,18 +177,23 @@ class AgendaController extends Controller
      */
     public function reorder(string $meetingId): JSONResponse
     {
-        $ids = $this->request->getParam('ids', []);
+        $ids = array_filter(
+            (array) $this->request->getParam('ids', []),
+            'is_string'
+        );
 
         try {
             $result = $this->agendaService->reorderItems(
                 meetingId: $meetingId,
-                orderedIds: $ids
+                orderedIds: array_values($ids)
             );
             return new JSONResponse($result);
         } catch (\Throwable $e) {
             $code = $e->getCode();
             if ($code === 403) {
                 $status = 403;
+            } else if ($code === 404) {
+                $status = 404;
             } else if ($code === 503) {
                 $status = 503;
             } else {

@@ -115,6 +115,7 @@ import CnObjectSidebar from '@conduction/nextcloud-vue/src/components/CnObjectSi
 import CnStatusBadge from '@conduction/nextcloud-vue/src/components/CnStatusBadge/CnStatusBadge.vue'
 import CnTimelineStages from '@conduction/nextcloud-vue/src/components/CnTimelineStages/CnTimelineStages.vue'
 import { useObjectStore } from '../store/modules/object.js'
+import { getCurrentUser } from '@nextcloud/auth'
 
 /**
  * Extended agenda item detail view with BOB phases, COI, and motion linking.
@@ -266,7 +267,8 @@ export default {
 		},
 
 		async onCoiSubmit(formData) {
-			const displayName = OC.getCurrentUser().displayName || OC.getCurrentUser().uid || ''
+			const user = getCurrentUser()
+			const displayName = user?.displayName || user?.uid || ''
 			const note = {
 				title: 'COI: ' + displayName,
 				body: (formData.reason || '').trim(),

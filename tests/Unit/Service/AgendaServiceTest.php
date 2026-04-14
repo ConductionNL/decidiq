@@ -131,7 +131,7 @@ class AgendaServiceTest extends TestCase
             );
 
         // Inject a chair user so assertChairOrSecretary does not silently bypass.
-        $mockUser               = $this->createMock(originalClassName: IUser::class);
+        $mockUser = $this->createMock(originalClassName: IUser::class);
         $mockUser->method('getUID')->willReturn('user-1');
         $this->chairUserSession = $this->createMock(originalClassName: IUserSession::class);
         $this->chairUserSession->method('getUser')->willReturn($mockUser);
@@ -766,6 +766,60 @@ class AgendaServiceTest extends TestCase
         $service->reorderItems(meetingId: 'meeting-1', orderedIds: ['item-a']);
 
     }//end testReorderItemsThrowsWith403ForNonChairUser()
+
+    /**
+     * Test advanceBobPhase throws 403 for a non-chair user.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-9
+     */
+    public function testAdvanceBobPhaseThrowsWith403ForNonChairUser(): void
+    {
+        $mockUser = $this->createMock(originalClassName: IUser::class);
+        $mockUser->method('getUID')->willReturn('non-chair-user');
+
+        $memberSession = $this->createMock(originalClassName: IUserSession::class);
+        $memberSession->method('getUser')->willReturn($mockUser);
+
+        $container     = $this->createMock(originalClassName: ContainerInterface::class);
+        $objectService = $this->createMockObjectService();
+        $container->method('get')->willReturn($objectService);
+
+        $objectService->method('getObject')
+            ->willReturnCallback(
+                static function () {
+                    $schema = func_get_arg(1);
+                    if ($schema === 'agenda-item') {
+                        return [
+                            'id'      => 'item-1',
+                            'meeting' => 'meeting-1',
+                        ];
+                    }
+
+                    return [
+                        'id'        => 'meeting-1',
+                        'relations' => [['schema' => 'governance-body', 'id' => 'gb-1']],
+                    ];
+                }
+            );
+
+        $objectService->method('getObjects')
+            ->willReturn([['owner' => 'non-chair-user', 'role' => 'member', 'leftAt' => null]]);
+
+        $service = new AgendaService(
+            container: $container,
+            logger: $this->logger,
+            l10n: $this->l10n,
+            userSession: $memberSession,
+        );
+
+        $this->expectException(exception: \RuntimeException::class);
+        $this->expectExceptionCode(code: 403);
+
+        $service->advanceBobPhase(agendaItemId: 'item-1');
+
+    }//end testAdvanceBobPhaseThrowsWith403ForNonChairUser()
 
     /**
      * Create a mock ObjectService.

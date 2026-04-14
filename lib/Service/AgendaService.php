@@ -357,6 +357,14 @@ class AgendaService
             $itemsById[$id] = $item;
         }
 
+        // Validate that the provided list covers every agenda item to prevent duplicate orderNumbers.
+        if (count($orderedIds) !== count($agendaItems)) {
+            throw new \RuntimeException(
+                'The ordered IDs list must include all '.count($agendaItems).' agenda items; '.count($orderedIds).' provided',
+                400
+            );
+        }
+
         // Assign sequential orderNumber based on provided order.
         $orderNumber = 1;
         foreach ($orderedIds as $id) {
