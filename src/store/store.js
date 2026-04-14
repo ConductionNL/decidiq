@@ -1,63 +1,32 @@
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
-import { createObjectStore, filesPlugin, auditTrailsPlugin, relationsPlugin } from '@conduction/nextcloud-vue'
+// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+import { generateUrl } from '@nextcloud/router'
+import { useObjectStore } from './modules/object.js'
 import { useSettingsStore } from './modules/settings.js'
+import { useMinutesStore } from './modules/minutes.js'
+import { useDecisionStore } from './modules/decisions.js'
+import { useActionItemStore } from './modules/actionItems.js'
 
-/**
- * Object store with files, auditTrails, and relations plugins.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.3
- */
-export const useObjectStore = createObjectStore('decidesk-objects', {
-	plugins: [filesPlugin(), auditTrailsPlugin(), relationsPlugin()],
-})
-
-/**
- * Object types to register with OpenRegister.
- * Each entry maps a logical slug to its schema slug and register slug.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.2
- */
-const OBJECT_TYPES = {
-	'governance-body': { schema: 'governance-body', register: 'decidesk' },
-	meeting: { schema: 'meeting', register: 'decidesk' },
-	participant: { schema: 'participant', register: 'decidesk' },
-	'agenda-item': { schema: 'agenda-item', register: 'decidesk' },
-	motion: { schema: 'motion', register: 'decidesk' },
-	amendment: { schema: 'amendment', register: 'decidesk' },
-	'voting-round': { schema: 'voting-round', register: 'decidesk' },
-	vote: { schema: 'vote', register: 'decidesk' },
-	decision: { schema: 'decision', register: 'decidesk' },
-	'action-item': { schema: 'action-item', register: 'decidesk' },
-	minutes: { schema: 'minutes', register: 'decidesk' },
-	'digital-document': { schema: 'digital-document', register: 'decidesk' },
-	'monetary-amount': { schema: 'monetary-amount', register: 'decidesk' },
-	offer: { schema: 'offer', register: 'decidesk' },
-	order: { schema: 'order', register: 'decidesk' },
-	product: { schema: 'product', register: 'decidesk' },
-	report: { schema: 'report', register: 'decidesk' },
-}
-
-/**
- * Initialize all stores: fetch settings, then register entity types.
- *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.2
- * @return {Promise<{settingsStore: object, objectStore: object}>}
- */
 export async function initializeStores() {
 	const settingsStore = useSettingsStore()
 	const objectStore = useObjectStore()
 
+	objectStore.configure({
+		baseUrl: generateUrl('/apps/openregister/api/objects'),
+		schemaBaseUrl: generateUrl('/apps/openregister/api/schemas'),
+	})
+
 	await settingsStore.fetchSettings()
 
-	if (settingsStore.hasOpenRegisters) {
-		for (const [slug, { schema, register }] of Object.entries(OBJECT_TYPES)) {
-			objectStore.registerObjectType(slug, schema, register)
-		}
-	}
+	const settings = settingsStore.getSettings
+	const register = settings.register || 'decidesk'
+
+	// Register Minutes, Decision, and ActionItem object types.
+	// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+	objectStore.registerObjectType('minutes', settings.minutesSchema || 'minutes', register)
+	objectStore.registerObjectType('decision', settings.decisionSchema || 'decision', register)
+	objectStore.registerObjectType('action-item', settings.actionItemSchema || 'action-item', register)
 
 	return { settingsStore, objectStore }
 }
 
-export { useSettingsStore }
+export { useObjectStore, useSettingsStore, useMinutesStore, useDecisionStore, useActionItemStore }
