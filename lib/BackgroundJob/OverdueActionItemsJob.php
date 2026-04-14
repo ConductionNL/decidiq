@@ -128,10 +128,10 @@ class OverdueActionItemsJob extends TimedJob
                     $objectService->setRegister('decidesk');
                     $objectService->setSchema('action-item');
                     $objectService->saveObject(
-                        object: array_merge($item, ['taskStatus' => 'overdue']),
-                        register: 'decidesk',
-                        schema: 'action-item',
-                        uuid: $uuid
+                        array_merge($item, ['taskStatus' => 'overdue']),
+                        'decidesk',
+                        'action-item',
+                        $uuid
                     );
                     $updatedCount++;
                 } catch (\Throwable $e) {
@@ -170,7 +170,7 @@ class OverdueActionItemsJob extends TimedJob
             $objectService->setRegister('decidesk');
             $objectService->setSchema('action-item');
             $entities = $objectService->findAll(
-                config: [
+                [
                     'filters' => [
                         'register'   => 'decidesk',
                         'schema'     => 'action-item',
