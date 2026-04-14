@@ -40,10 +40,18 @@ class SettingsService
     /**
      * Configuration keys managed by this service.
      *
+     * Includes the main register slug plus schema slugs for Minutes, Decision,
+     * and ActionItem so the frontend initializeStores() can register object stores.
+     *
      * @var array<string>
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
      */
     private const CONFIG_KEYS = [
         'register',
+        'minutesSchema',
+        'decisionSchema',
+        'actionItemSchema',
     ];
 
     /**
@@ -93,9 +101,18 @@ class SettingsService
      */
     public function getSettings(): array
     {
+        // Default schema slugs match the slugs defined in decidesk_register.json.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
+        $defaults = [
+            'minutesSchema'    => 'minutes',
+            'decisionSchema'   => 'decision',
+            'actionItemSchema' => 'action-item',
+        ];
+
         $settings = [];
         foreach (self::CONFIG_KEYS as $key) {
-            $settings[$key] = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $settings[$key] = ($value !== '') ? $value : ($defaults[$key] ?? '');
         }
 
         $user    = $this->userSession->getUser();
