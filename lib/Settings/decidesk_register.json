@@ -1136,6 +1136,72 @@
                         "outcome": "adopted",
                         "isPublished": false,
                         "legalBasis": "Wet ruimtelijke ordening art. 3.1"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Decision",
+                            "slug": "besluit-woningbouwplan-oost"
+                        },
+                        "title": "Vaststelling Woningbouwplan Oost 2025-2030",
+                        "text": "De gemeenteraad van Westerkwartier stelt het Woningbouwplan Oost 2025-2030 vast en machtigt het college tot uitvoering conform bijgaande planning en budgettering.",
+                        "decisionDate": "2025-03-20T21:15:00Z",
+                        "outcome": "adopted",
+                        "isPublished": true,
+                        "publishedAt": "2025-03-21T09:00:00Z",
+                        "legalBasis": "Wet ruimtelijke ordening art. 3.1"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Decision",
+                            "slug": "besluit-duurzaamheidsagenda-2026"
+                        },
+                        "title": "Vaststelling Duurzaamheidsagenda 2026",
+                        "text": "De raad stelt de Duurzaamheidsagenda Westerkwartier 2026 vast en stelt €200.000 beschikbaar voor uitvoering van de daarin opgenomen maatregelen.",
+                        "decisionDate": "2025-03-20T20:45:00Z",
+                        "outcome": "adopted",
+                        "isPublished": true,
+                        "publishedAt": "2025-03-21T09:00:00Z",
+                        "legalBasis": "Gemeentewet art. 147"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Decision",
+                            "slug": "besluit-bezwaar-kapvergunning"
+                        },
+                        "title": "Besluit op bezwaar kapvergunning Dorpsstraat 12",
+                        "text": "De gemeenteraad verklaart het bezwaar van de bewonersvereniging gegrond en herroept de verleende kapvergunning voor de eik aan Dorpsstraat 12.",
+                        "decisionDate": "2025-04-01T14:30:00Z",
+                        "outcome": "adopted",
+                        "isPublished": false,
+                        "legalBasis": "Algemene wet bestuursrecht art. 7:11"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Decision",
+                            "slug": "besluit-amendement-cultuursubsidie-afgewezen"
+                        },
+                        "title": "Amendement verhoging cultuursubsidie — niet aanvaard",
+                        "text": "Het amendement tot verhoging van het cultuursubsidiebudget 2026 met €75.000 wordt niet aanvaard.",
+                        "decisionDate": "2025-04-10T21:00:00Z",
+                        "outcome": "rejected",
+                        "isPublished": false
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Decision",
+                            "slug": "besluit-fusie-dorpsraden"
+                        },
+                        "title": "Instemming fusie dorpsraden Noord en Oost per 1 januari 2026",
+                        "text": "De raad stemt in met de samenvoeging van dorpsraad Noord en dorpsraad Oost tot één dorpsraad Noord-Oost, ingaande 1 januari 2026.",
+                        "decisionDate": "2025-04-10T20:30:00Z",
+                        "outcome": "adopted",
+                        "isPublished": true,
+                        "publishedAt": "2025-04-11T08:30:00Z"
                     }
                 ]
             },
@@ -1241,6 +1307,68 @@
                         "assignee": "Ruimtelijke Ordening",
                         "dueDate": "2025-04-10T00:00:00Z",
                         "taskStatus": "overdue"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "ActionItem",
+                            "slug": "actie-woningbouw-uitvoeringsplan"
+                        },
+                        "title": "Uitvoeringsplan Woningbouwplan Oost opstellen",
+                        "description": "College stelt uitvoeringsplan op inclusief fasering, budgetten en planning en presenteert dit aan de raad per 1 juli 2025.",
+                        "assignee": "Wethouder Wonen",
+                        "dueDate": "2025-07-01T00:00:00Z",
+                        "taskStatus": "in-progress"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "ActionItem",
+                            "slug": "actie-duurzaamheid-offerteverzoek"
+                        },
+                        "title": "Offerteverzoek zonnepanelen gemeentelijke gebouwen uitzetten",
+                        "description": "Inkoopteam vraagt offertes op bij minimaal 3 leveranciers conform gemeentelijk aanbestedingsbeleid.",
+                        "assignee": "Inkoopcoördinator",
+                        "dueDate": "2025-05-15T00:00:00Z",
+                        "taskStatus": "completed",
+                        "completedAt": "2025-05-10T16:00:00Z"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "ActionItem",
+                            "slug": "actie-notulen-distribueren"
+                        },
+                        "title": "Definitieve notulen raadsvergadering 20 maart distribueren",
+                        "description": "Griffier verstuurt vastgestelde notulen aan alle raadsleden en publiceert op gemeentelijke website.",
+                        "assignee": "Griffier",
+                        "dueDate": "2025-04-11T00:00:00Z",
+                        "taskStatus": "completed",
+                        "completedAt": "2025-04-11T09:30:00Z"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "ActionItem",
+                            "slug": "actie-besluiten-ori-publicatie"
+                        },
+                        "title": "Besluiten raadsvergadering publiceren via ORI-koppeling",
+                        "description": "Informatiemanager controleert ORI-export en bevestigt succesvolle aanlevering bij PLOOI.",
+                        "assignee": "Informatiemanager",
+                        "dueDate": "2025-03-22T00:00:00Z",
+                        "taskStatus": "overdue"
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "ActionItem",
+                            "slug": "actie-fusie-dorpsraden-convenant"
+                        },
+                        "title": "Convenant fusie dorpsraden Noord en Oost opstellen en laten ondertekenen",
+                        "description": "Gemeentelijke contactpersoon stelt convenant op in samenspraak met beide dorpsraden en legt het ter ondertekening voor.",
+                        "assignee": "Beleidsmedewerker Participatie",
+                        "dueDate": "2025-10-01T00:00:00Z",
+                        "taskStatus": "open"
                     }
                 ]
             },
@@ -1352,6 +1480,58 @@
                             "slug": "notulen-ab-waterschap-2025-02-13"
                         },
                         "title": "Notulen AB Waterschap Aa en Maas 13 februari 2025",
+                        "lifecycle": "draft",
+                        "version": 1
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Minutes",
+                            "slug": "notulen-raad-2025-03-20"
+                        },
+                        "title": "Notulen Gemeenteraadsvergadering 20 maart 2025",
+                        "lifecycle": "published",
+                        "content": "De vergadering wordt geopend door de voorzitter om 19:30 uur. Aanwezig: 33 van 37 raadsleden. De agenda wordt ongewijzigd vastgesteld. Punt 1 — opening en mededelingen: de voorzitter meldt dat de gemeente een subsidie heeft ontvangen voor verduurzaming. Punt 5 — Woningbouwplan Oost 2025-2030: na bespreking wordt het plan aangenomen met 30 stemmen voor en 3 tegen...",
+                        "approvedAt": "2025-04-10T19:45:00Z",
+                        "signedBy": [
+                            "Roos de Vries",
+                            "Jan Bakker"
+                        ],
+                        "version": 2
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Minutes",
+                            "slug": "notulen-commissie-wonen-2025-04-01"
+                        },
+                        "title": "Notulen Commissievergadering Wonen & Ruimte 1 april 2025",
+                        "lifecycle": "signed",
+                        "content": "Aanvang: 19:00 uur. Voorzitter: Henk Bakker. Commissieleden aanwezig: 7 van 9. Agendapunt 2 — bestemmingsplan Groningen-Noord: de commissie adviseert de raad het plan ongewijzigd vast te stellen. Agendapunt 3 — huurbeleid sociale woningbouw: de commissie wenst aanvullende informatie van het college...",
+                        "approvedAt": "2025-04-15T10:00:00Z",
+                        "signedBy": [
+                            "Henk Bakker"
+                        ],
+                        "version": 1
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Minutes",
+                            "slug": "notulen-ab-waterschap-2025-04-10"
+                        },
+                        "title": "Notulen Vergadering Algemeen Bestuur Waterschap Aa en Maas 10 april 2025",
+                        "lifecycle": "review",
+                        "content": "Concept-verslag ter vaststelling. De vergadering van het Algemeen Bestuur wordt geopend door de dijkgraaf om 14:00 uur. Aanwezig: 21 van 23 leden. Agendapunt 3 — Waterbeheerprogramma 2026: bespreking over de financiering van dijkversterking...",
+                        "version": 1
+                    },
+                    {
+                        "@self": {
+                            "register": "decidesk",
+                            "schema": "Minutes",
+                            "slug": "notulen-directieoverleg-2025-04-14"
+                        },
+                        "title": "Verslag Directieoverleg Gemeente Utrecht 14 april 2025",
                         "lifecycle": "draft",
                         "version": 1
                     }

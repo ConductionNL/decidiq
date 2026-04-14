@@ -3,6 +3,7 @@
 
 <!--
  @spec openspec/changes/p1-crud-operations/tasks.md#task-4.1
+ @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4.4
 -->
 <template>
 	<NcAppNavigation>
@@ -43,6 +44,28 @@
 					<FormatListNumberedIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
+			<!-- Minutes, Decisions, Action Items — p2-minutes-and-decisions -->
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Notulen')"
+				:to="{ name: 'Minutes' }">
+				<template #icon>
+					<NotebookOutlineIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Besluiten')"
+				:to="{ name: 'Decisions' }">
+				<template #icon>
+					<GavelIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Actiepunten')"
+				:to="{ name: 'ActionItems' }">
+				<template #icon>
+					<CheckboxMarkedOutlineIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
 		</template>
 		<template #footer>
 			<NcAppNavigationSettings :name="t('decidesk', 'Settings')">
@@ -58,9 +81,12 @@
 import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
 import AccountGroupIcon from 'vue-material-design-icons/AccountGroupOutline.vue'
 import CalendarBlankIcon from 'vue-material-design-icons/CalendarBlank.vue'
+import CheckboxMarkedOutlineIcon from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
 import DomainIcon from 'vue-material-design-icons/Domain.vue'
 import FormatListNumberedIcon from 'vue-material-design-icons/FormatListNumbered.vue'
+import GavelIcon from 'vue-material-design-icons/Gavel.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
+import NotebookOutlineIcon from 'vue-material-design-icons/NotebookOutline.vue'
 
 export default {
 	name: 'MainMenu',
@@ -70,9 +96,12 @@ export default {
 		NcAppNavigationSettings,
 		AccountGroupIcon,
 		CalendarBlankIcon,
+		CheckboxMarkedOutlineIcon,
 		DomainIcon,
 		FormatListNumberedIcon,
+		GavelIcon,
 		HomeIcon,
+		NotebookOutlineIcon,
 	},
 }
 </script>

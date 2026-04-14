@@ -5,6 +5,9 @@
  @spec openspec/changes/p1-crud-operations/tasks.md#task-5.1
  @spec openspec/changes/p1-crud-operations/tasks.md#task-5.2
  @spec openspec/changes/p1-crud-operations/tasks.md#task-5.3
+ @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8.1
+ @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8.2
+ @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8.3
 -->
 <template>
 	<CnDashboardPage
@@ -12,7 +15,7 @@
 		:widgets="dashboardWidgets"
 		:layout="dashboardLayout"
 		:loading="loading">
-		<!-- KPI cards -->
+		<!-- KPI cards — existing + new p2 cards -->
 		<template #widget-kpi-stats>
 			<CnKpiGrid :columns="4">
 				<CnStatsBlock
@@ -46,6 +49,33 @@
 			</CnKpiGrid>
 		</template>
 
+		<!-- Post-meeting KPI cards (p2-minutes-and-decisions) -->
+		<template #widget-post-meeting-kpi>
+			<CnKpiGrid :columns="3">
+				<CnStatsBlock
+					:title="t('decidesk', 'Notulen ter goedkeuring')"
+					:count="kpi.minutesInReview"
+					:count-label="t('decidesk', 'ter beoordeling')"
+					:icon="NotebookOutlineIcon"
+					variant="warning"
+					horizontal />
+				<CnStatsBlock
+					:title="t('decidesk', 'Gepubliceerde besluiten')"
+					:count="kpi.publishedDecisions"
+					:count-label="t('decidesk', 'gepubliceerd')"
+					:icon="GavelIcon"
+					variant="success"
+					horizontal />
+				<CnStatsBlock
+					:title="t('decidesk', 'Open actiepunten')"
+					:count="kpi.openActionItems"
+					:count-label="t('decidesk', 'open')"
+					:icon="CheckboxMarkedOutlineIcon"
+					variant="default"
+					horizontal />
+			</CnKpiGrid>
+		</template>
+
 		<!-- Meeting lifecycle distribution chart -->
 		<template #widget-meeting-chart>
 			<CnChartWidget
@@ -67,12 +97,16 @@ import { useObjectStore } from '../store/store.js'
 import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
 import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import CheckboxMarkedOutlineIcon from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
 import DomainIcon from 'vue-material-design-icons/Domain.vue'
+import GavelIcon from 'vue-material-design-icons/Gavel.vue'
+import NotebookOutlineIcon from 'vue-material-design-icons/NotebookOutline.vue'
 
 /**
  * Dashboard view showing KPI cards and meeting status chart.
  *
  * @spec openspec/changes/p1-crud-operations/tasks.md#task-5.1
+ * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8.1
  */
 export default {
 	name: 'DashboardView',
@@ -90,20 +124,29 @@ export default {
 			CalendarBlank,
 			CalendarClock,
 			AccountGroupOutline,
+			CheckboxMarkedOutlineIcon,
+			GavelIcon,
+			NotebookOutlineIcon,
 			kpi: {
 				governanceBodies: 0,
 				meetings: 0,
 				participants: 0,
 				upcomingMeetings: 0,
+				// p2-minutes-and-decisions KPIs
+				minutesInReview: 0,
+				publishedDecisions: 0,
+				openActionItems: 0,
 			},
 			meetings: [],
 			dashboardWidgets: [
 				{ id: 'kpi-stats', title: '', type: 'custom' },
+				{ id: 'post-meeting-kpi', title: this.t('decidesk', 'Vergaderresultaten'), type: 'custom' },
 				{ id: 'meeting-chart', title: this.t('decidesk', 'Meeting status distribution'), type: 'custom' },
 			],
 			dashboardLayout: [
 				{ id: 1, widgetId: 'kpi-stats', gridX: 0, gridY: 0, gridWidth: 12, gridHeight: 3, showTitle: false },
-				{ id: 2, widgetId: 'meeting-chart', gridX: 0, gridY: 3, gridWidth: 12, gridHeight: 5 },
+				{ id: 2, widgetId: 'post-meeting-kpi', gridX: 0, gridY: 3, gridWidth: 12, gridHeight: 3 },
+				{ id: 3, widgetId: 'meeting-chart', gridX: 0, gridY: 6, gridWidth: 12, gridHeight: 5 },
 			],
 		}
 	},
@@ -149,18 +192,29 @@ export default {
 	},
 
 	/**
-	 * Fetch all KPI data in parallel on mount.
+	 * Fetch all KPI data in parallel on mount, including p2 post-meeting KPIs.
 	 *
 	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-5.3
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8.2
 	 */
 	async created() {
 		const objectStore = useObjectStore()
 
 		try {
-			const [governanceBodyData, meetingData, participantData] = await Promise.all([
+			const [
+				governanceBodyData,
+				meetingData,
+				participantData,
+				minutesData,
+				decisionData,
+				actionItemData,
+			] = await Promise.all([
 				objectStore.fetchCollection('governance-body'),
 				objectStore.fetchCollection('meeting'),
 				objectStore.fetchCollection('participant'),
+				objectStore.fetchCollection('minutes'),
+				objectStore.fetchCollection('decision'),
+				objectStore.fetchCollection('action-item'),
 			])
 
 			this.meetings = meetingData || []
@@ -170,6 +224,14 @@ export default {
 			this.kpi.participants = (participantData || []).length
 			this.kpi.upcomingMeetings = (meetingData || [])
 				.filter((m) => m.lifecycle === 'scheduled').length
+
+			// p2-minutes-and-decisions KPIs
+			this.kpi.minutesInReview = (minutesData || [])
+				.filter((m) => m.lifecycle === 'review').length
+			this.kpi.publishedDecisions = (decisionData || [])
+				.filter((d) => d.isPublished === true).length
+			this.kpi.openActionItems = (actionItemData || [])
+				.filter((a) => a.taskStatus === 'open' || a.taskStatus === 'in-progress').length
 		} catch (error) {
 			console.error('Failed to fetch dashboard data:', error)
 		} finally {

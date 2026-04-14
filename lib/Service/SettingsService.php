@@ -86,8 +86,14 @@ class SettingsService
      * Returns a flat array containing all app config values plus metadata
      * fields (openregisters, isAdmin) consumed by the frontend.
      *
+     * The Minutes, Decision, and ActionItem schema/register slugs are registered
+     * directly in src/store/store.js::OBJECT_TYPES (alongside all other entity types)
+     * and do not require additional settings keys — the frontend resolves them from the
+     * static OBJECT_TYPES map after confirming OpenRegister is available.
+     *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.1
      *
      * @return array<string,mixed>
      */
