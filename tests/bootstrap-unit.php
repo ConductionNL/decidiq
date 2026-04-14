@@ -23,10 +23,15 @@ if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
     $autoloader->addPsr4('NCU\\', __DIR__.'/../vendor/nextcloud/ocp/NCU/');
 }
 
-// Bootstrap Nextcloud — since we run inside the Docker container,
-// the full environment (including \OC::$server) is available.
+// Bootstrap Nextcloud when a full server environment is available.
+// The base.php include is wrapped in a try/catch so that unit tests can
+// run in standalone mode (e.g. a bare container without an installed NC).
 if (file_exists(__DIR__.'/../../../lib/base.php') === true) {
-    include_once __DIR__.'/../../../lib/base.php';
+    try {
+        include_once __DIR__.'/../../../lib/base.php';
+    } catch (\Throwable $e) {
+        // NC not fully installed — unit tests continue with vendor stubs only.
+    }
 }
 
 // Register Test\ namespace for NC test classes.
@@ -41,4 +46,11 @@ if (is_dir($serverTestsLib) === true) {
 // (e.g. OCA\OpenRegister classes that are only present when the app is installed).
 if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
     require_once __DIR__.'/Stubs/DeepLinkRegistrationEvent.php';
+}
+
+// OpenRegister service stubs — loaded when running without a live NC+OpenRegister install.
+if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false
+    || class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false
+) {
+    require_once __DIR__.'/Stubs/OpenRegisterServices.php';
 }

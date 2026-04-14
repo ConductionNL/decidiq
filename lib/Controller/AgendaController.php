@@ -25,13 +25,18 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Exception\NotFoundException;
 use OCA\Decidesk\Service\AgendaService;
+use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
 
 /**
  * REST controller for agenda lifecycle operations.
@@ -49,8 +54,12 @@ class AgendaController extends Controller
     /**
      * Constructor for AgendaController.
      *
-     * @param IRequest      $request       The HTTP request
-     * @param AgendaService $agendaService The agenda service
+     * @param IRequest        $request       The HTTP request
+     * @param AgendaService   $agendaService The agenda service
+     * @param ObjectService   $objectService OpenRegister object service (used for auth checks)
+     * @param IUserSession    $userSession   The current user session
+     * @param IGroupManager   $groupManager  Group manager for admin checks
+     * @param LoggerInterface $logger        PSR-3 logger
      *
      * @return void
      *
@@ -59,9 +68,66 @@ class AgendaController extends Controller
     public function __construct(
         IRequest $request,
         private readonly AgendaService $agendaService,
+        private readonly ObjectService $objectService,
+        private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
+
+    /**
+     * Verify the current user is an admin or holds a chair/secretary role for a meeting.
+     *
+     * @param string $meetingId UUID of the meeting to check
+     *
+     * @return JSONResponse|null Null if authorised, 403 JSONResponse if not.
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+     */
+    private function requireChairOrAdmin(string $meetingId): ?JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_FORBIDDEN);
+        }
+
+        $userId = $user->getUID();
+
+        if ($this->groupManager->isAdmin($userId) === true) {
+            return null;
+        }
+
+        $participants = $this->objectService->findAll(
+            [
+                'filters' => [
+                    'register'                => 'decidesk',
+                    'schema'                  => 'participant',
+                    '@self.relations.meeting' => $meetingId,
+                ],
+            ]
+        );
+
+        foreach ($participants as $p) {
+            if (is_array($p) === true) {
+                $pData = $p;
+            } else {
+                $pData = (array) $p;
+            }
+
+            $owner = $pData['owner'] ?? null;
+            $role  = $pData['role'] ?? null;
+            if ($owner === $userId && in_array(needle: $role, haystack: ['chair', 'secretary'], strict: true) === true) {
+                return null;
+            }
+        }
+
+        return new JSONResponse(
+            ['message' => 'Chair or secretary role required for this meeting'],
+            Http::STATUS_FORBIDDEN
+        );
+
+    }//end requireChairOrAdmin()
 
     /**
      * Publish the agenda for a meeting.
@@ -81,6 +147,11 @@ class AgendaController extends Controller
     #[NoCSRFRequired]
     public function publish(string $meetingId): JSONResponse
     {
+        $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
+        if ($denied !== null) {
+            return $denied;
+        }
+
         try {
             $this->agendaService->publishAgenda($meetingId);
             return new JSONResponse(['success' => true]);
@@ -106,9 +177,30 @@ class AgendaController extends Controller
     #[NoCSRFRequired]
     public function advanceBobPhase(string $id): JSONResponse
     {
+        // Resolve the meeting to authorise against; fall back to no guard if unresolvable.
+        $item = $this->objectService->find($id);
+        if (is_array($item) === true) {
+            $itemData = $item;
+        } else if ($item !== null) {
+            $itemData = (array) $item;
+        } else {
+            $itemData = [];
+        }
+
+        $meetingId = $itemData['@self']['relations']['meeting'] ?? null;
+
+        if ($meetingId !== null) {
+            $denied = $this->requireChairOrAdmin(meetingId: (string) $meetingId);
+            if ($denied !== null) {
+                return $denied;
+            }
+        }
+
         try {
             $this->agendaService->advanceBobPhase($id);
             return new JSONResponse(['success' => true]);
+        } catch (NotFoundException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
         }
@@ -133,11 +225,20 @@ class AgendaController extends Controller
     #[NoCSRFRequired]
     public function processHamerstukken(string $meetingId): JSONResponse
     {
+        $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
+        if ($denied !== null) {
+            return $denied;
+        }
+
         try {
             $this->agendaService->processHamerstukken($meetingId);
             return new JSONResponse(['success' => true]);
         } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
+            $this->logger->error(
+                'processHamerstukken failed for meeting {meetingId}: {error}',
+                ['meetingId' => $meetingId, 'error' => $e->getMessage(), 'exception' => $e]
+            );
+            return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
 
     }//end processHamerstukken()
@@ -161,6 +262,11 @@ class AgendaController extends Controller
     #[NoCSRFRequired]
     public function reorder(string $meetingId): JSONResponse
     {
+        $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
+        if ($denied !== null) {
+            return $denied;
+        }
+
         $body = $this->request->getParams();
         $ids  = $body['ids'] ?? [];
 
@@ -172,7 +278,11 @@ class AgendaController extends Controller
             $this->agendaService->reorderItems($meetingId, $ids);
             return new JSONResponse(['success' => true]);
         } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
+            $this->logger->error(
+                'reorderItems failed for meeting {meetingId}: {error}',
+                ['meetingId' => $meetingId, 'error' => $e->getMessage(), 'exception' => $e]
+            );
+            return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
 
     }//end reorder()

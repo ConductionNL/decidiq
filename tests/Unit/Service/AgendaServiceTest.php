@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AgendaService;
+use OCA\OpenRegister\Service\CalendarEventService;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\Notification\IManager as INotificationManager;
 use OCP\Notification\INotification;
@@ -54,6 +55,13 @@ class AgendaServiceTest extends TestCase
     private ObjectService&MockObject $objectService;
 
     /**
+     * Mock CalendarEventService.
+     *
+     * @var CalendarEventService&MockObject
+     */
+    private CalendarEventService&MockObject $calendarEventService;
+
+    /**
      * Mock INotificationManager.
      *
      * @var INotificationManager&MockObject
@@ -78,11 +86,13 @@ class AgendaServiceTest extends TestCase
         parent::setUp();
 
         $this->objectService       = $this->createMock(ObjectService::class);
+        $this->calendarEventService = $this->createMock(CalendarEventService::class);
         $this->notificationManager = $this->createMock(INotificationManager::class);
         $this->logger              = $this->createMock(LoggerInterface::class);
 
         $this->service = new AgendaService(
             objectService: $this->objectService,
+            calendarEventService: $this->calendarEventService,
             notificationManager: $this->notificationManager,
             logger: $this->logger,
         );
@@ -201,11 +211,10 @@ class AgendaServiceTest extends TestCase
             $itemId   = 'item-' . $t['from'];
             $itemData = ['id' => $itemId, 'itemType' => 'decision', 'status' => $t['from']];
 
-            $this->objectService
-                ->method('find')
-                ->willReturn($itemData);
-
-            $this->objectService
+            // Use a fresh mock per iteration to prevent expectation accumulation.
+            $objectService = $this->createMock(ObjectService::class);
+            $objectService->method('find')->willReturn($itemData);
+            $objectService
                 ->expects($this->once())
                 ->method('saveObject')
                 ->with(
@@ -216,7 +225,8 @@ class AgendaServiceTest extends TestCase
                 );
 
             $freshService = new AgendaService(
-                objectService: $this->objectService,
+                objectService: $objectService,
+                calendarEventService: $this->calendarEventService,
                 notificationManager: $this->notificationManager,
                 logger: $this->logger,
             );
@@ -333,6 +343,15 @@ class AgendaServiceTest extends TestCase
     {
         $meetingId  = 'meeting-uuid-1';
         $orderedIds = ['item-c', 'item-a', 'item-b'];
+
+        // Return the meeting's items so all IDs pass the ownership check.
+        $this->objectService
+            ->method('findAll')
+            ->willReturn([
+                ['id' => 'item-a'],
+                ['id' => 'item-b'],
+                ['id' => 'item-c'],
+            ]);
 
         $savedObjects = [];
         $this->objectService

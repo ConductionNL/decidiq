@@ -26,6 +26,8 @@ namespace OCA\Decidesk\Service;
 
 use DateTime;
 use InvalidArgumentException;
+use OCA\Decidesk\Exception\NotFoundException;
+use OCA\OpenRegister\Service\CalendarEventService;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
@@ -68,9 +70,10 @@ class AgendaService
     /**
      * Constructor for AgendaService.
      *
-     * @param ObjectService        $objectService       OpenRegister object service
-     * @param INotificationManager $notificationManager Nextcloud notification manager
-     * @param LoggerInterface      $logger              PSR-3 logger
+     * @param ObjectService        $objectService        OpenRegister object service
+     * @param CalendarEventService $calendarEventService OpenRegister calendar event service
+     * @param INotificationManager $notificationManager  Nextcloud notification manager
+     * @param LoggerInterface      $logger               PSR-3 logger
      *
      * @return void
      *
@@ -78,6 +81,7 @@ class AgendaService
      */
     public function __construct(
         private readonly ObjectService $objectService,
+        private readonly CalendarEventService $calendarEventService,
         private readonly INotificationManager $notificationManager,
         private readonly LoggerInterface $logger,
     ) {
@@ -115,12 +119,13 @@ class AgendaService
             throw new InvalidArgumentException('Cannot publish agenda: no agenda items exist for this meeting.');
         }
 
-        // Fetch all participants.
+        // Fetch participants for this specific meeting only.
         $participants = $this->objectService->findAll(
             [
                 'filters' => [
-                    'register' => 'decidesk',
-                    'schema'   => 'participant',
+                    'register'                => 'decidesk',
+                    'schema'                  => 'participant',
+                    '@self.relations.meeting' => $meetingId,
                 ],
             ]
         );
@@ -142,6 +147,9 @@ class AgendaService
                 meetingId: $meetingId
             );
         }
+
+        // Update the meeting calendar entry to reflect the published agenda.
+        $this->calendarEventService->updateMeetingEvent(meetingId: $meetingId);
 
         // Update meeting lifecycle to 'opened'.
         $this->objectService->saveObject(
@@ -225,6 +233,7 @@ class AgendaService
      *
      * @return void
      *
+     * @throws NotFoundException        When the agenda item does not exist
      * @throws InvalidArgumentException When item is informational or already at final phase
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
@@ -233,7 +242,7 @@ class AgendaService
     {
         $item = $this->objectService->find($agendaItemId);
         if ($item === null) {
-            throw new InvalidArgumentException("AgendaItem {$agendaItemId} not found.");
+            throw new NotFoundException(message: "AgendaItem {$agendaItemId} not found.");
         }
 
         $itemData = $this->toArray(item: $item);
@@ -343,8 +352,36 @@ class AgendaService
      */
     public function reorderItems(string $meetingId, array $orderedIds): void
     {
+        // Build a set of valid UUIDs that belong to this meeting.
+        $meetingItems = $this->objectService->findAll(
+            [
+                'filters' => [
+                    'register'                => 'decidesk',
+                    'schema'                  => 'agenda-item',
+                    '@self.relations.meeting' => $meetingId,
+                ],
+            ]
+        );
+
+        $validIds = [];
+        foreach ($meetingItems as $item) {
+            $itemData = $this->toArray(item: $item);
+            $itemId   = $itemData['id'] ?? ($itemData['@self']['id'] ?? ($itemData['uuid'] ?? null));
+            if ($itemId !== null) {
+                $validIds[(string) $itemId] = true;
+            }
+        }
+
         $orderNumber = 1;
         foreach ($orderedIds as $itemId) {
+            if (isset($validIds[(string) $itemId]) === false) {
+                $this->logger->warning(
+                    'reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped',
+                    ['id' => $itemId, 'meetingId' => $meetingId]
+                );
+                continue;
+            }
+
             $this->objectService->saveObject(
                 object: [
                     'id'          => $itemId,
@@ -356,7 +393,7 @@ class AgendaService
             );
 
             $orderNumber++;
-        }
+        }//end foreach
 
         $this->logger->info(
             'Reordered {count} agenda items for meeting {meetingId}',

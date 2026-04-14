@@ -166,7 +166,7 @@
 </template>
 
 <script>
-import { NcButton, NcDialog } from '@nextcloud/vue'
+import { NcButton, NcDialog, NcTextArea } from '@nextcloud/vue'
 import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, CnStatusBadge, CnTimelineStages, useDetailView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 
@@ -189,6 +189,7 @@ export default {
 		CnTimelineStages,
 		NcButton,
 		NcDialog,
+		NcTextArea,
 	},
 	props: {
 		id: { type: String, required: true },

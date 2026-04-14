@@ -163,6 +163,7 @@
 <script>
 import { NcButton, NcDialog, NcLoadingIcon } from '@nextcloud/vue'
 import { CnStatusBadge, CnTimelineStages } from '@conduction/nextcloud-vue'
+import { getCurrentUser } from '@nextcloud/auth'
 import { useObjectStore } from '../store/store.js'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
 
@@ -209,12 +210,18 @@ export default {
 			processingHamerstukken: false,
 			confirmHamerstukken: false,
 			refreshInterval: null,
-			/** Treat chair as true for now; production wires to AuthorizationService */
-			isChair: true,
 		}
 	},
 
 	computed: {
+		isChair() {
+			const currentUser = getCurrentUser()
+			if (!currentUser) return false
+			return this.participants.some(
+				p => p.owner === currentUser.uid && p.role === 'chair',
+			)
+		},
+
 		bobStages() {
 			return BOB_STAGES.map(s => ({ ...s, label: this.t('decidesk', s.label) }))
 		},

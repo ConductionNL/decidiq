@@ -229,7 +229,7 @@
 </template>
 
 <script>
-import { NcButton, NcDialog, NcTextField, NcCheckboxRadioSwitch, NcUserBubble } from '@nextcloud/vue'
+import { NcButton, NcDialog, NcTextField, NcTextArea, NcCheckboxRadioSwitch, NcUserBubble } from '@nextcloud/vue'
 import { CnStatusBadge } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 
@@ -243,6 +243,7 @@ export default {
 		NcButton,
 		NcDialog,
 		NcTextField,
+		NcTextArea,
 		NcCheckboxRadioSwitch,
 		NcUserBubble,
 		CnStatusBadge,

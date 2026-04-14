@@ -129,6 +129,7 @@
 <script>
 import { NcButton } from '@nextcloud/vue'
 import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, CnMassExportDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { getCurrentUser } from '@nextcloud/auth'
 import { useObjectStore } from '../store/store.js'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
 
@@ -167,8 +168,11 @@ export default {
 			return this.object.lifecycle === 'opened'
 		},
 		isChairOrSecretary() {
-			// For now derive from settings; full role-based check is implemented via AuthorizationService.
-			return true
+			const currentUser = getCurrentUser()
+			if (!currentUser) return false
+			return this.meetingParticipants.some(
+				p => p.owner === currentUser.uid && ['chair', 'secretary'].includes(p.role),
+			)
 		},
 		coiItems() {
 			return this.agendaItemsSorted.filter(item => this.coiNotes(item).length > 0)
@@ -246,6 +250,17 @@ export default {
 		coiNotes(item) {
 			return (item?.notes ?? []).filter(n => (n.title ?? '').startsWith('COI:'))
 		},
+	},
+
+	async created() {
+		try {
+			const parts = await this.objectStore.fetchObjects('participant', {
+				'@self.relations.meeting': this.id,
+			})
+			this.meetingParticipants = parts ?? []
+		} catch (e) {
+			console.error('Failed to fetch meeting participants:', e)
+		}
 	},
 }
 </script>
