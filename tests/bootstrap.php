@@ -46,3 +46,11 @@ if (defined('OC_CONSOLE') === false) {
 if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
     include_once __DIR__.'/Stubs/DeepLinkRegistrationEvent.php';
 }
+
+if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
+    include_once __DIR__.'/Stubs/ObjectService.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
+    include_once __DIR__.'/Stubs/ObjectEntity.php';
+}

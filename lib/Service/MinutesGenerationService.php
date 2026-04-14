@@ -93,11 +93,11 @@ class MinutesGenerationService
         $objectService = $this->getObjectService();
 
         // Fetch the Minutes object.
-        // Using setRegister/setSchema + find(id:) so that OpenRegister's session-based
+        // setRegister/setSchema are called first so that OpenRegister's session-based
         // ACL is applied — any caller without read access gets null (same as MeetingService).
         $objectService->setRegister('decidesk');
         $objectService->setSchema('minutes');
-        $minutesEntity = $objectService->find(id: $minutesId);
+        $minutesEntity = $objectService->find($minutesId);
 
         if ($minutesEntity === null) {
             throw new \InvalidArgumentException(
@@ -174,11 +174,11 @@ class MinutesGenerationService
     {
         $objectService = $this->getObjectService();
 
-        // Using setRegister/setSchema + find(id:) so that OpenRegister's session-based
+        // setRegister/setSchema are called first so that OpenRegister's session-based
         // ACL is applied — callers without access to this object get null (OWASP A01).
         $objectService->setRegister('decidesk');
         $objectService->setSchema('minutes');
-        $minutesEntity = $objectService->find(id: $minutesId);
+        $minutesEntity = $objectService->find($minutesId);
 
         if ($minutesEntity === null) {
             throw new MissingObjectException(
@@ -224,12 +224,7 @@ class MinutesGenerationService
             $updated['signedBy'] = $signers;
         }
 
-        $saved = $objectService->saveObject(
-            object: $updated,
-            register: 'decidesk',
-            schema: 'minutes',
-            uuid: $minutesId
-        );
+        $saved = $objectService->saveObject($updated, 'decidesk', 'minutes', $minutesId);
 
         if ($saved instanceof \stdClass === true || is_array($saved) === true) {
             return (array) $saved;
@@ -333,17 +328,15 @@ class MinutesGenerationService
 
         do {
             try {
-                $entities = $objectService->findAll(
-                    config: [
-                        'filters' => [
-                            'register' => 'decidesk',
-                            'schema'   => $schema,
-                            'meeting'  => $meetingId,
-                        ],
-                        'limit'   => $pageSize,
-                        'offset'  => $offset,
-                    ]
-                );
+                $entities = $objectService->findAll([
+                    'filters' => [
+                        'register' => 'decidesk',
+                        'schema'   => $schema,
+                        'meeting'  => $meetingId,
+                    ],
+                    'limit'   => $pageSize,
+                    'offset'  => $offset,
+                ]);
             } catch (\Throwable $e) {
                 $this->logger->warning(
                     'Decidesk: Failed to fetch related objects for minutes draft',

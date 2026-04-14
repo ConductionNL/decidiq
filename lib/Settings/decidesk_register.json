@@ -1140,7 +1140,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "decision",
+              "schema": "Decision",
               "slug": "besluit-woningbouwplan-oost"
             },
             "title": "Vaststelling Woningbouwplan Oost 2025-2030",
@@ -1154,7 +1154,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "decision",
+              "schema": "Decision",
               "slug": "besluit-duurzaamheidsagenda-2026"
             },
             "title": "Vaststelling Duurzaamheidsagenda 2026",
@@ -1168,7 +1168,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "decision",
+              "schema": "Decision",
               "slug": "besluit-bezwaar-kapvergunning"
             },
             "title": "Besluit op bezwaar kapvergunning Dorpsstraat 12",
@@ -1181,7 +1181,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "decision",
+              "schema": "Decision",
               "slug": "besluit-amendement-cultuursubsidie-afgewezen"
             },
             "title": "Amendement verhoging cultuursubsidie — niet aanvaard",
@@ -1193,7 +1193,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "decision",
+              "schema": "Decision",
               "slug": "besluit-fusie-dorpsraden"
             },
             "title": "Instemming fusie dorpsraden Noord en Oost per 1 januari 2026",
@@ -1311,7 +1311,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "action-item",
+              "schema": "ActionItem",
               "slug": "actie-woningbouw-uitvoeringsplan"
             },
             "title": "Uitvoeringsplan Woningbouwplan Oost opstellen",
@@ -1323,7 +1323,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "action-item",
+              "schema": "ActionItem",
               "slug": "actie-duurzaamheid-offerteverzoek"
             },
             "title": "Offerteverzoek zonnepanelen gemeentelijke gebouwen uitzetten",
@@ -1336,7 +1336,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "action-item",
+              "schema": "ActionItem",
               "slug": "actie-notulen-distribueren"
             },
             "title": "Definitieve notulen raadsvergadering 20 maart distribueren",
@@ -1349,7 +1349,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "action-item",
+              "schema": "ActionItem",
               "slug": "actie-besluiten-ori-publicatie"
             },
             "title": "Besluiten raadsvergadering publiceren via ORI-koppeling",
@@ -1361,7 +1361,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "action-item",
+              "schema": "ActionItem",
               "slug": "actie-fusie-dorpsraden-convenant"
             },
             "title": "Convenant fusie dorpsraden Noord en Oost opstellen en laten ondertekenen",
@@ -1486,7 +1486,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "minutes",
+              "schema": "Minutes",
               "slug": "notulen-raad-2025-03-20"
             },
             "title": "Notulen Gemeenteraadsvergadering 20 maart 2025",
@@ -1502,7 +1502,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "minutes",
+              "schema": "Minutes",
               "slug": "notulen-commissie-wonen-2025-04-01"
             },
             "title": "Notulen Commissievergadering Wonen & Ruimte 1 april 2025",
@@ -1517,7 +1517,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "minutes",
+              "schema": "Minutes",
               "slug": "notulen-ab-waterschap-2025-04-10"
             },
             "title": "Notulen Vergadering Algemeen Bestuur Waterschap Aa en Maas 10 april 2025",
@@ -1528,7 +1528,7 @@
           {
             "@self": {
               "register": "decidesk",
-              "schema": "minutes",
+              "schema": "Minutes",
               "slug": "notulen-directieoverleg-2025-04-14"
             },
             "title": "Verslag Directieoverleg Gemeente Utrecht 14 april 2025",
