@@ -23,6 +23,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\MotionService;
 use OCA\OpenRegister\Service\ObjectService;
+use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -65,6 +66,13 @@ class MotionServiceTest extends TestCase
     private ObjectService&MockObject $objectService;
 
     /**
+     * Mock IUserManager.
+     *
+     * @var IUserManager&MockObject
+     */
+    private IUserManager&MockObject $userManager;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -73,8 +81,9 @@ class MotionServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->container = $this->createMock(ContainerInterface::class);
-        $this->logger    = $this->createMock(LoggerInterface::class);
+        $this->container    = $this->createMock(ContainerInterface::class);
+        $this->logger       = $this->createMock(LoggerInterface::class);
+        $this->userManager  = $this->createMock(IUserManager::class);
         $this->objectService = $this->createMock(ObjectService::class);
 
         $this->objectService->method('setRegister')->willReturnSelf();
@@ -88,6 +97,7 @@ class MotionServiceTest extends TestCase
         $this->service = new MotionService(
             container: $this->container,
             logger: $this->logger,
+            userManager: $this->userManager,
         );
 
     }//end setUp()
