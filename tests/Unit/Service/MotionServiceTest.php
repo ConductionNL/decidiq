@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\MotionService;
+use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -59,9 +60,9 @@ class MotionServiceTest extends TestCase
     /**
      * Mock ObjectService.
      *
-     * @var object&MockObject
+     * @var ObjectService&MockObject
      */
-    private object $objectService;
+    private ObjectService&MockObject $objectService;
 
     /**
      * Set up test fixtures.
@@ -74,9 +75,7 @@ class MotionServiceTest extends TestCase
 
         $this->container = $this->createMock(ContainerInterface::class);
         $this->logger    = $this->createMock(LoggerInterface::class);
-        $this->objectService = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['setRegister', 'setSchema', 'find', 'findAll', 'saveObject'])
-            ->getMock();
+        $this->objectService = $this->createMock(ObjectService::class);
 
         $this->objectService->method('setRegister')->willReturnSelf();
         $this->objectService->method('setSchema')->willReturnSelf();
@@ -127,12 +126,12 @@ class MotionServiceTest extends TestCase
         $this->objectService->expects($this->once())
             ->method('saveObject')
             ->with(
+                $this->anything(),
+                $this->anything(),
                 $this->callback(fn($obj) => ($obj['lifecycle'] ?? '') === 'debating'),
                 $this->anything(),
-                $this->anything(),
-                $this->anything(),
             )
-            ->willReturn($motionEntity);
+            ->willReturn(null);
 
         $this->service->transitionLifecycle('motion-uuid', 'motion', 'debating', 'user1');
 
@@ -178,12 +177,12 @@ class MotionServiceTest extends TestCase
         $this->objectService->expects($this->once())
             ->method('saveObject')
             ->with(
+                $this->anything(),
+                $this->anything(),
                 $this->callback(fn($obj) => in_array('M. de Vries', $obj['coSigners'] ?? [], true)),
                 $this->anything(),
-                $this->anything(),
-                $this->anything(),
             )
-            ->willReturn($motionEntity);
+            ->willReturn(null);
 
         $this->service->addCoSigner('motion-uuid', 'M. de Vries');
 
@@ -283,15 +282,15 @@ class MotionServiceTest extends TestCase
         $this->objectService->expects($this->once())
             ->method('saveObject')
             ->with(
+                $this->anything(),
+                $this->anything(),
                 $this->callback(fn($obj) => !empty(array_filter(
                     $obj['notes'] ?? [],
                     fn($n) => str_starts_with($n['title'] ?? '', 'Conflict:')
                 ))),
                 $this->anything(),
-                $this->anything(),
-                $this->anything(),
             )
-            ->willReturn($newAmendment);
+            ->willReturn(null);
 
         $this->service->detectConflicts('motion-uuid', 'new-amendment-uuid');
 
@@ -323,12 +322,12 @@ class MotionServiceTest extends TestCase
         $this->objectService->expects($this->once())
             ->method('saveObject')
             ->with(
+                $this->anything(),
+                $this->anything(),
                 $this->callback(fn($obj) => str_contains($obj['text'] ?? '', 'Vervangende tekst voor artikel 2.')),
                 $this->anything(),
-                $this->anything(),
-                $this->anything(),
             )
-            ->willReturn($motionEntity);
+            ->willReturn(null);
 
         $this->service->applyAmendment('motion-uuid', 'amendment-uuid');
 
