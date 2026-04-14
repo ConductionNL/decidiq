@@ -128,7 +128,7 @@ class SettingsController extends Controller
             return $denied;
         }
 
-        $result = $this->settingsService->loadConfiguration(force: true);
+        $result = $this->settingsService->forceLoadConfiguration();
 
         return new JSONResponse($result);
     }//end load()

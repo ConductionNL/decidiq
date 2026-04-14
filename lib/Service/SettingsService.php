@@ -130,14 +130,41 @@ class SettingsService
     /**
      * Load configuration from decidesk_register.json via OpenRegister.
      *
-     * @param bool $force Force re-import even if already configured.
+     * Skips import when the configuration is already present (no force).
      *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      *
      * @return array<string,mixed> Result with success flag, message, and version.
      */
-    public function loadConfiguration(bool $force=false): array
+    public function loadConfiguration(): array
+    {
+        return $this->performLoadConfiguration(force: false);
+    }//end loadConfiguration()
+
+    /**
+     * Force a re-import of decidesk_register.json via OpenRegister.
+     *
+     * Always imports regardless of whether configuration is already present.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     */
+    public function forceLoadConfiguration(): array
+    {
+        return $this->performLoadConfiguration(force: true);
+    }//end forceLoadConfiguration()
+
+    /**
+     * Internal implementation for loading/importing Decidesk configuration.
+     *
+     * @param bool $force When true, re-imports even if already configured.
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     */
+    private function performLoadConfiguration(bool $force): array
     {
         if ($this->isOpenRegisterAvailable() === false) {
             $this->logger->warning('Decidesk: OpenRegister not available, skipping register initialization');
@@ -174,5 +201,5 @@ class SettingsService
                 'message' => 'Configuration import failed. See server log for details.',
             ];
         }//end try
-    }//end loadConfiguration()
+    }//end performLoadConfiguration()
 }//end class

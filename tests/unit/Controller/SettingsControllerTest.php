@@ -244,8 +244,7 @@ class SettingsControllerTest extends TestCase
             ->willReturn(true);
 
         $this->settingsService->expects($this->once())
-            ->method('loadConfiguration')
-            ->with(force: true)
+            ->method('forceLoadConfiguration')
             ->willReturn($loadResult);
 
         $result = $this->controller->load();
@@ -272,7 +271,7 @@ class SettingsControllerTest extends TestCase
             ->willReturn(false);
 
         $this->settingsService->expects($this->never())
-            ->method('loadConfiguration');
+            ->method('forceLoadConfiguration');
 
         $result = $this->controller->load();
 
@@ -293,7 +292,7 @@ class SettingsControllerTest extends TestCase
             ->willReturn(null);
 
         $this->settingsService->expects($this->never())
-            ->method('loadConfiguration');
+            ->method('forceLoadConfiguration');
 
         $result = $this->controller->load();
 

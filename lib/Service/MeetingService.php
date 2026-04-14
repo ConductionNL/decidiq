@@ -30,6 +30,7 @@ use OCP\IL10N;
 use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Service for meeting lifecycle management.
@@ -98,10 +99,10 @@ class MeetingService
      *
      * @return array<string,mixed> Result with previous and current lifecycle state
      *
-     * @throws \RuntimeException When transition is invalid (HTTP 400)
-     * @throws \RuntimeException When the caller is not chair or secretary (HTTP 403)
-     * @throws \RuntimeException When the meeting is not found (HTTP 404)
-     * @throws \RuntimeException When OpenRegister is unavailable (HTTP 503)
+     * @throws RuntimeException When transition is invalid (HTTP 400)
+     * @throws RuntimeException When the caller is not chair or secretary (HTTP 403)
+     * @throws RuntimeException When the meeting is not found (HTTP 404)
+     * @throws RuntimeException When OpenRegister is unavailable (HTTP 503)
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1
      */
@@ -110,7 +111,7 @@ class MeetingService
         $objectService = $this->getObjectService();
 
         if ($objectService === null) {
-            throw new \RuntimeException('Service unavailable: OpenRegister is not installed', 503);
+            throw new RuntimeException('Service unavailable: OpenRegister is not installed', 503);
         }
 
         try {
@@ -120,7 +121,7 @@ class MeetingService
                 'Decidesk: Failed to retrieve meeting',
                 ['meetingId' => $meetingId, 'exception' => $e->getMessage()]
             );
-            throw new \RuntimeException('Meeting not found', 404);
+            throw new RuntimeException('Meeting not found', 404);
         }
 
         // Enforce chair/secretary role before revealing meeting state (info-disclosure guard).
@@ -131,7 +132,7 @@ class MeetingService
 
         // Validate the transition against the state machine.
         if (isset(self::LIFECYCLE_TRANSITIONS[$currentState]) === false) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 $this->l10n->t('Meeting is in a terminal state and cannot be transitioned'),
                 400
             );
@@ -140,7 +141,7 @@ class MeetingService
         $allowedTransitions = self::LIFECYCLE_TRANSITIONS[$currentState];
         if (isset($allowedTransitions[$transition]) === false) {
             $allowed = implode(', ', array_keys($allowedTransitions));
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 $this->l10n->t(
                     'Invalid transition "%1$s" from state "%2$s". Allowed: %3$s',
                     [$transition, $currentState, $allowed]
@@ -153,7 +154,7 @@ class MeetingService
         if ($transition === 'schedule') {
             $scheduledDate = ($meeting['scheduledDate'] ?? '');
             if ($scheduledDate === '') {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     $this->l10n->t('A scheduled date is required before scheduling a meeting'),
                     400
                 );
@@ -273,10 +274,10 @@ class MeetingService
 
             $notificationService->sendNotification(
                 $owner,
-                $meetingTitle.' — '.$stateLabel,
+                $meetingTitle.' — '.ucfirst($transition),
                 $this->l10n->t(
-                    'The meeting "%1$s" has been %2$s.',
-                    [$meetingTitle, $newState]
+                    'The meeting "%1$s" has been %2$s (now: %3$s).',
+                    [$meetingTitle, $transition, $stateLabel]
                 )
             );
         }
@@ -336,7 +337,7 @@ class MeetingService
      *
      * @return void
      *
-     * @throws \RuntimeException With code 403 when not authorised
+     * @throws RuntimeException With code 403 when not authorised
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1
      */
@@ -344,7 +345,7 @@ class MeetingService
     {
         $userId = $this->userSession->getUser()?->getUID() ?? '';
         if ($userId === '') {
-            throw new \RuntimeException('Forbidden: unauthenticated request', 403);
+            throw new RuntimeException('Forbidden: unauthenticated request', 403);
         }
 
         foreach ($participants as $participant) {
@@ -358,7 +359,7 @@ class MeetingService
             }
         }
 
-        throw new \RuntimeException('Forbidden: chair or secretary role required', 403);
+        throw new RuntimeException('Forbidden: chair or secretary role required', 403);
 
     }//end assertChairOrSecretary()
 

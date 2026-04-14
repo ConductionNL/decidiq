@@ -117,7 +117,7 @@ class InitializeSettingsTest extends TestCase
             ->method(constraint: 'warning');
 
         $this->settingsService->expects($this->never())
-            ->method(constraint: 'loadConfiguration');
+            ->method(constraint: 'forceLoadConfiguration');
 
         $this->repairStep->run(output: $this->output);
 
@@ -137,8 +137,7 @@ class InitializeSettingsTest extends TestCase
             ->willReturn(true);
 
         $this->settingsService->expects($this->once())
-            ->method(constraint: 'loadConfiguration')
-            ->with(true)
+            ->method(constraint: 'forceLoadConfiguration')
             ->willReturn(
                     [
                         'success' => true,
@@ -167,7 +166,7 @@ class InitializeSettingsTest extends TestCase
             ->willReturn(true);
 
         $this->settingsService->expects($this->once())
-            ->method(constraint: 'loadConfiguration')
+            ->method(constraint: 'forceLoadConfiguration')
             ->willThrowException(new \RuntimeException('Connection failed'));
 
         $this->output->expects($this->atLeastOnce())

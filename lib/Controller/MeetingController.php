@@ -84,16 +84,11 @@ class MeetingController extends Controller
             $result = $this->meetingService->transitionLifecycle(meetingId: $id, transition: $transition);
             return new JSONResponse($result);
         } catch (\Throwable $e) {
-            $code = $e->getCode();
-            if ($code === 403) {
-                $status = 403;
-            } else if ($code === 404) {
-                $status = 404;
-            } else if ($code === 503) {
-                $status = 503;
-            } else {
-                $status = 400;
-            }
+            $code   = $e->getCode();
+            $status = match (true) {
+                $code === 403, $code === 404, $code === 503 => $code,
+                default => 400,
+            };
 
             return new JSONResponse(
                 ['success' => false, 'error' => $this->l10n->t('An error occurred')],
