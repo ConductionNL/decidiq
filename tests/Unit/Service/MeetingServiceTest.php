@@ -180,7 +180,7 @@ class MeetingServiceTest extends TestCase
 
         self::assertFalse(condition: $result['success']);
         self::assertNull(actual: $result['meeting']);
-        self::assertStringContainsString(needle: 'fly-to-the-moon', haystack: $result['message']);
+        self::assertStringContainsString(needle: 'Unknown action', haystack: $result['message']);
 
     }//end testUnknownActionReturnsFailure()
 

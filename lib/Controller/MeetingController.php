@@ -57,9 +57,10 @@ class MeetingController extends Controller
      * Apply a lifecycle transition to a meeting.
      *
      * Any authenticated Nextcloud user may call this endpoint. Meeting-level
-     * permission (e.g. only the clerk/chair may advance the state) is enforced
-     * at the service layer via OpenRegister, not via the Nextcloud admin role.
-     * In Dutch local government the meeting clerk is typically not a Nextcloud
+     * permission is enforced by OpenRegister's ObjectService: find() returns null
+     * (→ 422) when the caller lacks read access, and updateFromArray() throws an
+     * exception (→ 422 generic) when the caller lacks write access on the specific
+     * meeting object. In Dutch local government the meeting clerk is not a Nextcloud
      * system administrator, so this route must be available to all logged-in users.
      *
      * Expects JSON body: { "action": "<schedule|open|pause|resume|adjourn|close>" }
