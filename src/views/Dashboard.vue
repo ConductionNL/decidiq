@@ -58,12 +58,10 @@ Copyright (C) 2026 Conduction B.V.
 
 <script>
 import { CnConfigurationCard, CnKpiGrid, CnStatsBlock } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
 import CheckDecagramIcon from 'vue-material-design-icons/CheckDecagram.vue'
 import CheckboxMarkedOutlineIcon from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
 import FileDocumentOutlineIcon from 'vue-material-design-icons/FileDocumentOutline.vue'
-import { useMinutesStore } from '../store/modules/minutes.js'
-import { useDecisionStore } from '../store/modules/decisions.js'
-import { useActionItemStore } from '../store/modules/actionItems.js'
 
 export default {
 	name: 'Dashboard',
@@ -77,44 +75,28 @@ export default {
 			CheckDecagramIcon,
 			CheckboxMarkedOutlineIcon,
 			FileDocumentOutlineIcon,
+			minutesInReviewCount: 0,
+			publishedDecisionCount: 0,
+			openActionItemCount: 0,
 		}
 	},
-	computed: {
-		/**
-		 * Count of Minutes with lifecycle=review.
-		 *
-		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
-		 */
-		minutesInReviewCount() {
-			return useMinutesStore().minutes.filter((m) => m.lifecycle === 'review').length
-		},
-		/**
-		 * Count of Decisions with isPublished=true.
-		 *
-		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
-		 */
-		publishedDecisionCount() {
-			return useDecisionStore().decisions.filter((d) => d.isPublished).length
-		},
-		/**
-		 * Count of ActionItems with taskStatus open or in-progress.
-		 *
-		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
-		 */
-		openActionItemCount() {
-			return useActionItemStore().actionItems.filter(
-				(ai) => ai.taskStatus === 'open' || ai.taskStatus === 'in-progress',
-			).length
-		},
-	},
-	created() {
-		// Fetch all KPI counts in parallel.
+	async created() {
+		// Fetch accurate KPI totals using _limit=1 + data.total so that counts are
+		// never silently truncated on large installations (fixes 200-object cap).
 		// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
-		Promise.all([
-			useMinutesStore().fetchMinutes({ limit: 200 }),
-			useDecisionStore().fetchDecisions({ limit: 200 }),
-			useActionItemStore().fetchActionItems({ limit: 200 }),
+		const base = generateUrl('/apps/openregister/api/objects')
+		const headers = { requesttoken: OC.requestToken }
+		const [minutesRes, decisionsRes, openRes, inProgressRes] = await Promise.all([
+			fetch(`${base}?register=decidesk&schema=minutes&lifecycle=review&_limit=1`, { headers }),
+			fetch(`${base}?register=decidesk&schema=decision&isPublished=true&_limit=1`, { headers }),
+			fetch(`${base}?register=decidesk&schema=action-item&taskStatus=open&_limit=1`, { headers }),
+			fetch(`${base}?register=decidesk&schema=action-item&taskStatus=in-progress&_limit=1`, { headers }),
 		])
+		if (minutesRes.ok) this.minutesInReviewCount = ((await minutesRes.json()).total ?? 0)
+		if (decisionsRes.ok) this.publishedDecisionCount = ((await decisionsRes.json()).total ?? 0)
+		const openCount = openRes.ok ? ((await openRes.json()).total ?? 0) : 0
+		const inProgressCount = inProgressRes.ok ? ((await inProgressRes.json()).total ?? 0) : 0
+		this.openActionItemCount = openCount + inProgressCount
 	},
 }
 </script>

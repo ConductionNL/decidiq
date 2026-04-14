@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use OCA\Decidesk\Service\MinutesGenerationService;
@@ -48,16 +47,6 @@ use OCP\IUserSession;
  */
 class MinutesController extends Controller
 {
-
-    /**
-     * Lifecycle states that require a governance role (admin) to execute.
-     *
-     * All lifecycle transitions require Nextcloud admin rights to prevent
-     * cross-tenant manipulation by arbitrary authenticated users (OWASP A01 —
-     * Broken Access Control / ADR-005 tenant isolation).
-     */
-    private const RESTRICTED_TRANSITIONS = ['review', 'approved', 'signed', 'published'];
-
     /**
      * Constructor for MinutesController.
      *
@@ -122,13 +111,8 @@ class MinutesController extends Controller
         }
 
         try {
-            $preview = $this->minutesGenerationService->generateDraft($minutesId, $user->getUID());
+            $preview = $this->minutesGenerationService->generateDraft($minutesId);
             return new JSONResponse(['preview' => $preview]);
-        } catch (AccessDeniedException $e) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: you do not have access to this Minutes record.'],
-                Http::STATUS_FORBIDDEN
-            );
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
@@ -159,8 +143,8 @@ class MinutesController extends Controller
      * "approved" and "signed" transitions so that forged client-side attribution
      * is impossible.
      *
-     * The "approved", "signed", and "published" transitions require the caller
-     * to hold Nextcloud admin rights (governance-role enforcement).
+     * All lifecycle transitions require the caller to hold Nextcloud admin rights
+     * (governance-role enforcement / OWASP A01 — Broken Access Control).
      *
      * Returns 200 with the updated Minutes object on success.
      * Returns 401 when the request is not authenticated.
@@ -195,15 +179,14 @@ class MinutesController extends Controller
             );
         }
 
-        // Gate all lifecycle transitions behind admin — prevents cross-tenant manipulation
-        // by arbitrary authenticated users (OWASP A01 — Broken Access Control / ADR-005).
-        if (in_array($newLifecycle, self::RESTRICTED_TRANSITIONS, true) === true) {
-            if ($this->groupManager->isAdmin($user->getUID()) === false) {
-                return new JSONResponse(
-                    ['message' => 'Forbidden: only administrators may perform lifecycle transitions on minutes.'],
-                    Http::STATUS_FORBIDDEN
-                );
-            }
+        // Gate ALL lifecycle transitions behind admin — prevents cross-tenant manipulation
+        // by arbitrary authenticated users regardless of the lifecycle value passed
+        // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may perform lifecycle transitions on minutes.'],
+                Http::STATUS_FORBIDDEN
+            );
         }
 
         $displayName = $user->getDisplayName();
@@ -213,14 +196,8 @@ class MinutesController extends Controller
                 minutesId: $minutesId,
                 newLifecycle: $newLifecycle,
                 displayName: $displayName,
-                userId: $user->getUID()
             );
             return new JSONResponse($updated);
-        } catch (AccessDeniedException $e) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: you do not have access to this Minutes record.'],
-                Http::STATUS_FORBIDDEN
-            );
         } catch (MissingObjectException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],

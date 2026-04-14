@@ -33,6 +33,12 @@
 							@click="generateDraft">
 							{{ t('decidesk', 'Concept genereren') }}
 						</NcButton>
+						<p v-if="transitionError" class="decidesk-error">
+							{{ transitionError }}
+						</p>
+						<p v-if="generateError" class="decidesk-error">
+							{{ generateError }}
+						</p>
 					</div>
 				</CnDetailCard>
 				<CnDetailCard :title="t('decidesk', 'Eigenschappen')">
@@ -111,6 +117,8 @@ export default {
 		return {
 			transitioning: false,
 			generating: false,
+			transitionError: null,
+			generateError: null,
 			showDraftModal: false,
 			draftPreview: '',
 			lifecycleStages: [
@@ -165,6 +173,7 @@ export default {
 		 */
 		async transitionLifecycle(newLifecycle) {
 			this.transitioning = true
+			this.transitionError = null
 			try {
 				const url = generateUrl(`/apps/decidesk/api/minutes/${this.id}/transition`)
 				const response = await fetch(url, {
@@ -177,6 +186,9 @@ export default {
 				})
 				if (response.ok) {
 					await this.objectStore.fetchObject('minutes', this.id)
+				} else {
+					const err = await response.json().catch(() => ({}))
+					this.transitionError = err.message || this.t('decidesk', 'Verzoek mislukt.')
 				}
 			} finally {
 				this.transitioning = false
@@ -184,6 +196,7 @@ export default {
 		},
 		async generateDraft() {
 			this.generating = true
+			this.generateError = null
 			try {
 				const url = generateUrl(`/apps/decidesk/api/minutes/${this.id}/generate-draft`)
 				const response = await fetch(url, {
@@ -194,6 +207,9 @@ export default {
 					const data = await response.json()
 					this.draftPreview = data.preview
 					this.showDraftModal = true
+				} else {
+					const err = await response.json().catch(() => ({}))
+					this.generateError = err.message || this.t('decidesk', 'Genereren mislukt.')
 				}
 			} finally {
 				this.generating = false
@@ -230,5 +246,12 @@ export default {
 	line-height: 1.6;
 	max-height: 400px;
 	overflow-y: auto;
+}
+
+.decidesk-error {
+	color: var(--color-error);
+	margin: 4px 0 0;
+	font-size: 0.875em;
+	width: 100%;
 }
 </style>

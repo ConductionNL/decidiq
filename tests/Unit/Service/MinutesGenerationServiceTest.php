@@ -153,7 +153,7 @@ class MinutesGenerationServiceTest extends TestCase
                 return [];
             });
 
-        $result = $this->service->generateDraft(minutesId: 'minutes-001', userId: 'testuser');
+        $result = $this->service->generateDraft(minutesId: 'minutes-001');
 
         self::assertStringContainsString('Notulen Testgemeente 1 april 2025', $result);
         self::assertStringContainsString('Raadsvergadering 1 april 2025', $result);
@@ -201,7 +201,7 @@ class MinutesGenerationServiceTest extends TestCase
 
         $this->objectService->method('findAll')->willReturn([]);
 
-        $result = $this->service->generateDraft(minutesId: 'minutes-002', userId: 'testuser');
+        $result = $this->service->generateDraft(minutesId: 'minutes-002');
 
         self::assertStringContainsString('Concept notulen zonder agenda', $result);
         self::assertStringContainsString('Opening', $result);
@@ -225,7 +225,7 @@ class MinutesGenerationServiceTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('minutes-999');
 
-        $this->service->generateDraft(minutesId: 'minutes-999', userId: 'testuser');
+        $this->service->generateDraft(minutesId: 'minutes-999');
 
     }//end testGenerateDraftMissingMinutesThrowsInvalidArgumentException()
 
@@ -253,7 +253,7 @@ class MinutesGenerationServiceTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('No linked Meeting');
 
-        $this->service->generateDraft(minutesId: 'minutes-003', userId: 'testuser');
+        $this->service->generateDraft(minutesId: 'minutes-003');
 
     }//end testGenerateDraftMissingMeetingThrowsRuntimeException()
 
@@ -278,7 +278,7 @@ class MinutesGenerationServiceTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('OpenRegister ObjectService is not available');
 
-        $service->generateDraft(minutesId: 'any-id', userId: 'testuser');
+        $service->generateDraft(minutesId: 'any-id');
 
     }//end testGenerateDraftThrowsRuntimeExceptionWhenOpenRegisterUnavailable()
 
