@@ -155,7 +155,7 @@ export default {
 		async transition(newState) {
 			this.transitioning = true
 			try {
-				await fetch(`/index.php/apps/decidesk/api/amendments/${this.id}/transition`, {
+				await fetch(OC.generateUrl(`/apps/decidesk/api/amendments/${this.id}/transition`), {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json', Accept: 'application/json', requesttoken: OC.requestToken },
 					body: JSON.stringify({ newState }),

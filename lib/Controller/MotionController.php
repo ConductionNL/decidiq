@@ -104,7 +104,7 @@ class MotionController extends Controller
 
         $params   = $this->request->getParams();
         $newState = ($params['newState'] ?? '');
-        $actorId  = ($this->userSession->getUser()?->getUID() ?? ($params['actorId'] ?? ''));
+        $actorId  = ($this->userSession->getUser()?->getUID() ?? '');
 
         try {
             $this->motionService->transitionLifecycle(

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -67,14 +68,16 @@ class MotionService
     /**
      * Construct the MotionService.
      *
-     * @param ContainerInterface $container The DI container for lazy-loading OR services
-     * @param LoggerInterface    $logger    Logger interface
+     * @param ContainerInterface $container   The DI container for lazy-loading OR services
+     * @param LoggerInterface    $logger      Logger interface
+     * @param IUserManager       $userManager Nextcloud user manager for UID lookup
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
+        private readonly IUserManager $userManager,
     ) {
     }//end __construct()
 
@@ -207,11 +210,22 @@ class MotionService
                 }
 
                 $participantData = $participant->getObject();
-                $email           = $participantData['email'] ?? null;
+                $nextcloudUserId = $participantData['nextcloudUserId'] ?? null;
 
-                if ($email !== null) {
+                // Resolve Nextcloud UID: prefer stored nextcloudUserId, fall back to email lookup.
+                if ($nextcloudUserId === null) {
+                    $email = $participantData['email'] ?? null;
+                    if ($email !== null) {
+                        $users = $this->userManager->getByEmail($email);
+                        if (count($users) === 1) {
+                            $nextcloudUserId = $users[0]->getUID();
+                        }
+                    }
+                }
+
+                if ($nextcloudUserId !== null) {
                     $notificationService->sendNotification(
-                        userId: $email,
+                        userId: $nextcloudUserId,
                         subject: "Co-ondertekeningsverzoek: $title",
                         message: "U bent uitgenodigd om de motie '$title' mede te ondertekenen.",
                         objectType: 'motion',

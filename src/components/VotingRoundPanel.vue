@@ -280,7 +280,7 @@ export default {
 			return (this.currentRound.votesFor || 0) + (this.currentRound.votesAgainst || 0) + (this.currentRound.votesAbstain || 0)
 		},
 		isChairOrSecretary() {
-			return !!(window.OC?.isUserAdmin?.())
+			return !!(window.OC?.isAdmin)
 		},
 		oriStatusLabel() {
 			const labels = {
@@ -405,15 +405,22 @@ export default {
 			}
 		},
 		async saveShowOfHands() {
-			const updated = {
-				...this.currentRound,
-				votesFor: this.showOfHands.for,
-				votesAgainst: this.showOfHands.against,
-				votesAbstain: this.showOfHands.abstain,
-			}
 			try {
-				await this.objectStore.saveObject('voting-round', updated)
-				await this.fetchCurrentRound()
+				const resp = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/tally`),
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						body: JSON.stringify({
+							votesFor: this.showOfHands.for,
+							votesAgainst: this.showOfHands.against,
+							votesAbstain: this.showOfHands.abstain,
+						}),
+					},
+				)
+				if (resp.ok) {
+					await this.fetchCurrentRound()
+				}
 			} catch (e) {
 				// ignore
 			}

@@ -74,11 +74,15 @@ class OriPublicationService
     }//end getEndpoint()
 
     /**
-     * Validate that an ORI endpoint URL is safe to call (HTTPS-only, no RFC-1918/loopback).
+     * Validate that an ORI endpoint URL is safe to call (HTTPS-only, non-empty host).
+     *
+     * IP-range SSRF protection is intentionally delegated to Nextcloud's IClientService,
+     * which enforces the `allow_local_remote_servers` system config at request time and
+     * avoids DNS TOCTOU races that arise from resolving the hostname twice.
      *
      * @param string $url The URL to validate
      *
-     * @return bool True when the URL is safe to use
+     * @return bool True when the URL passes basic format checks
      */
     private function isValidOriEndpoint(string $url): bool
     {
@@ -92,28 +96,7 @@ class OriPublicationService
             return false;
         }
 
-        // Block loopback addresses.
-        if (in_array($host, ['localhost', '127.0.0.1', '::1'], true) === true) {
-            return false;
-        }
-
-        // Block RFC-1918 and reserved ranges.
-        $ip = gethostbyname($host);
-        if ($ip === $host) {
-            // GethostbyName returns the original string on failure.
-            if (filter_var($host, FILTER_VALIDATE_IP) === false) {
-                // Not a bare IP and DNS did not resolve — reject to prevent DNS-rebinding bypasses.
-                return false;
-            }
-        }
-
-        $isPublic = filter_var(
-            $ip,
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
-        );
-
-        return $isPublic !== false;
+        return true;
 
     }//end isValidOriEndpoint()
 

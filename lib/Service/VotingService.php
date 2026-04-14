@@ -48,6 +48,7 @@ class VotingService
      * @param ContainerInterface    $container             The DI container
      * @param LoggerInterface       $logger                The logger
      * @param OriPublicationService $oriPublicationService The ORI publication service
+     * @param MotionService         $motionService         The motion service for lifecycle transitions
      *
      * @return void
      *
@@ -57,6 +58,7 @@ class VotingService
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly OriPublicationService $oriPublicationService,
+        private readonly MotionService $motionService,
     ) {
     }//end __construct()
 
@@ -193,14 +195,16 @@ class VotingService
 
         $created = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $votingRound);
 
-        // Transition motion lifecycle to 'voting'.
+        // Transition motion lifecycle to 'voting' via the guarded state machine.
         try {
-            $motion = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
-            if ($motion !== null) {
-                $motion['lifecycle'] = 'voting';
-                $motion['status']    = 'voting';
-                $objectService->saveObject(register: 'decidesk', schema: 'motion', object: $motion);
-            }
+            $this->motionService->transitionLifecycle(
+                objectId: $motionId,
+                objectType: 'motion',
+                newState: 'voting',
+                actorId: 'system',
+            );
+        } catch (\InvalidArgumentException $e) {
+            throw new \RuntimeException('Cannot open voting round: '.$e->getMessage(), 0, $e);
         } catch (\Throwable $e) {
             $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
         }
@@ -342,25 +346,26 @@ class VotingService
                     $motionId = ($rel['id'] ?? null);
                     if ($motionId !== null) {
                         try {
-                            $motion = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
-                            if ($motion !== null) {
-                                // Only transition to defined terminal states; tied/invalid leaves lifecycle unchanged.
-                                $motionLifecycle = match ($result) {
-                                    'adopted'  => 'adopted',
-                                    'rejected' => 'rejected',
-                                    default    => null,
-                                };
+                            // Only transition to defined terminal states via the guarded state machine.
+                            $motionLifecycle = match ($result) {
+                                'adopted'  => 'adopted',
+                                'rejected' => 'rejected',
+                                default    => null,
+                            };
 
-                                if ($motionLifecycle !== null) {
-                                    $motionTitle         = (string) ($motion['title'] ?? $motionId);
-                                    $motion['lifecycle'] = $motionLifecycle;
-                                    $motion['status']    = $motionLifecycle;
-                                    $objectService->saveObject(register: 'decidesk', schema: 'motion', object: $motion);
+                            if ($motionLifecycle !== null) {
+                                $this->motionService->transitionLifecycle(
+                                    objectId: $motionId,
+                                    objectType: 'motion',
+                                    newState: $motionLifecycle,
+                                    actorId: 'system',
+                                );
 
-                                    // Create dossier folder if adopted.
-                                    if ($motionLifecycle === 'adopted') {
-                                        $this->createDossierFolder(motionId: $motionId, motionTitle: $motionTitle);
-                                    }
+                                // Create dossier folder if adopted.
+                                if ($motionLifecycle === 'adopted') {
+                                    $motion      = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
+                                    $motionTitle = (string) ($motion['title'] ?? $motionId);
+                                    $this->createDossierFolder(motionId: $motionId, motionTitle: $motionTitle);
                                 }
                             }
                         } catch (\Throwable $e) {
@@ -407,13 +412,14 @@ class VotingService
         $abstain = 0;
 
         foreach (($votes['results'] ?? []) as $vote) {
-            $val = ($vote['value'] ?? '');
+            $val    = ($vote['value'] ?? '');
+            $weight = (int) ($vote['weight'] ?? 1);
             if ($val === 'for') {
-                $for++;
+                $for += $weight;
             } else if ($val === 'against') {
-                $against++;
+                $against += $weight;
             } else if ($val === 'abstain') {
-                $abstain++;
+                $abstain += $weight;
             }
         }
 
@@ -448,6 +454,55 @@ class VotingService
         ];
 
     }//end tallyResults()
+
+    /**
+     * Record a show-of-hands tally for an open VotingRound.
+     *
+     * Only valid for rounds with votingMethod == 'show-of-hands'.
+     * Saves the chair-entered counts directly as aggregate totals and computes result.
+     *
+     * @param string $votingRoundId The voting round UUID
+     * @param int    $votesFor      Count of raised hands for
+     * @param int    $votesAgainst  Count of raised hands against
+     * @param int    $votesAbstain  Count of abstentions
+     *
+     * @return array<string,mixed> Updated VotingRound data
+     *
+     * @throws \RuntimeException When the round is not found or is not a show-of-hands round
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     */
+    public function saveShowOfHandsTally(string $votingRoundId, int $votesFor, int $votesAgainst, int $votesAbstain): array
+    {
+        $objectService = $this->objectService();
+        $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+
+        if ($round === null) {
+            throw new \RuntimeException("VotingRound $votingRoundId not found");
+        }
+
+        if (($round['votingMethod'] ?? '') !== 'show-of-hands') {
+            throw new \RuntimeException('saveShowOfHandsTally is only valid for show-of-hands rounds');
+        }
+
+        $total  = ($votesFor + $votesAgainst + $votesAbstain);
+        $result = match (true) {
+            $total === 0      => 'invalid',
+            $votesFor > $votesAgainst  => 'adopted',
+            $votesAgainst > $votesFor  => 'rejected',
+            default           => 'tied',
+        };
+
+        $round['votesFor']     = $votesFor;
+        $round['votesAgainst'] = $votesAgainst;
+        $round['votesAbstain'] = $votesAbstain;
+        $round['result']       = $result;
+
+        $saved = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+
+        return ($saved ?? $round);
+
+    }//end saveShowOfHandsTally()
 
     /**
      * Grant proxy: delegate voting right from one participant to another for a VotingRound.

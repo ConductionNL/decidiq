@@ -293,6 +293,48 @@ class VotingController extends Controller
     }//end proxy()
 
     /**
+     * Save a show-of-hands aggregate tally for an open VotingRound.
+     *
+     * POST /api/voting-rounds/{id}/tally
+     * Body: { "votesFor": int, "votesAgainst": int, "votesAbstain": int }
+     *
+     * Restricted to chair/secretary. Only valid for show-of-hands rounds.
+     *
+     * @param string $id The voting round UUID
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     *
+     * @return JSONResponse
+     */
+    public function tally(string $id): JSONResponse
+    {
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        $params       = $this->request->getParams();
+        $votesFor     = (int) ($params['votesFor'] ?? 0);
+        $votesAgainst = (int) ($params['votesAgainst'] ?? 0);
+        $votesAbstain = (int) ($params['votesAbstain'] ?? 0);
+
+        try {
+            $round = $this->votingService->saveShowOfHandsTally(
+                votingRoundId: $id,
+                votesFor: $votesFor,
+                votesAgainst: $votesAgainst,
+                votesAbstain: $votesAbstain,
+            );
+            return new JSONResponse($round);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+        }
+
+    }//end tally()
+
+    /**
      * Revoke proxy delegation.
      *
      * DELETE /api/voting-rounds/{id}/proxy

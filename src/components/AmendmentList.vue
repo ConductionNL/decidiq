@@ -81,11 +81,7 @@ export default {
 	methods: {
 		async loadAmendments() {
 			try {
-				const all = await this.objectStore.fetchObjects('amendment')
-				this.amendments = (all ?? []).filter(a => {
-					const rels = a.relations?.motion ?? []
-					return rels.some(r => (r.id ?? r.uuid ?? r) === this.motionId)
-				})
+				this.amendments = await this.objectStore.fetchObjects('amendment', { 'relations.motion': this.motionId }) ?? []
 			} catch { /* ignore */ }
 		},
 		onAmendmentSaved() {

@@ -55,6 +55,11 @@
 			"key": "participant_id",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "meeting_id",
+			"value": "",
+			"type": "string"
 		}
 	],
 	"item": [
@@ -66,7 +71,10 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{"key": "Accept", "value": "application/json"}
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/motion?limit=1"
 					},
@@ -92,7 +100,10 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{"key": "Accept", "value": "application/json"}
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/amendment?limit=1"
 					},
@@ -118,7 +129,10 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{"key": "Accept", "value": "application/json"}
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/participant?limit=1"
 					},
@@ -138,6 +152,35 @@
 							}
 						}
 					]
+				},
+				{
+					"name": "Fetch seed Meeting",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/meeting?limit=1"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Seed Meeting exists', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.results).to.be.an('array').with.lengthOf.at.least(1);",
+									"    pm.collectionVariables.set('meeting_id', body.results[0].id ?? body.results[0].uuid);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -149,9 +192,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -180,9 +232,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -209,9 +270,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -238,9 +308,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -269,9 +348,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -306,9 +394,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -342,13 +439,22 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"motionId\": \"{{motion_id}}\", \"votingMethod\": \"for-against-abstain\", \"isSecret\": false}"
+							"raw": "{\"motionId\": \"{{motion_id}}\", \"votingMethod\": \"for-against-abstain\", \"isSecret\": false, \"meetingId\": \"{{meeting_id}}\"}"
 						},
 						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds"
 					},
@@ -374,9 +480,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -405,9 +520,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -434,9 +558,18 @@
 					"request": {
 						"method": "DELETE",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -463,9 +596,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
@@ -495,9 +637,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"},
-							{"key": "Accept", "value": "application/json"},
-							{"key": "requesttoken", "value": "{{requesttoken}}"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
 						],
 						"body": {
 							"mode": "raw",
