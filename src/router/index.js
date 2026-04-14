@@ -10,7 +10,7 @@ import { generateUrl } from '@nextcloud/router'
 
 Vue.use(Router)
 
-const DashboardView = () => import('../views/DashboardView.vue')
+const Dashboard = () => import('../views/Dashboard.vue')
 const GovernanceBodies = () => import('../views/GovernanceBodies.vue')
 const GovernanceBodyDetail = () => import('../views/GovernanceBodyDetail.vue')
 const Meetings = () => import('../views/Meetings.vue')
@@ -23,14 +23,12 @@ const Motions = () => import('../views/Motions.vue')
 const MotionDetail = () => import('../views/MotionDetail.vue')
 const AmendmentDetail = () => import('../views/AmendmentDetail.vue')
 const SettingsView = () => import('../views/SettingsView.vue')
-import Dashboard from '../views/Dashboard.vue'
-import AdminRoot from '../views/settings/AdminRoot.vue'
-import Minutes from '../views/Minutes.vue'
-import MinutesDetail from '../views/MinutesDetail.vue'
-import Decisions from '../views/Decisions.vue'
-import DecisionDetail from '../views/DecisionDetail.vue'
-import ActionItems from '../views/ActionItems.vue'
-import ActionItemDetail from '../views/ActionItemDetail.vue'
+const Minutes = () => import('../views/Minutes.vue')
+const MinutesDetail = () => import('../views/MinutesDetail.vue')
+const Decisions = () => import('../views/Decisions.vue')
+const DecisionDetail = () => import('../views/DecisionDetail.vue')
+const ActionItems = () => import('../views/ActionItems.vue')
+const ActionItemDetail = () => import('../views/ActionItemDetail.vue')
 
 /**
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.3
@@ -39,7 +37,7 @@ export default new Router({
 	mode: 'history',
 	base: generateUrl('/apps/decidesk'),
 	routes: [
-		{ path: '/', name: 'Dashboard', component: DashboardView },
+		{ path: '/', name: 'Dashboard', component: Dashboard },
 		{ path: '/governance-bodies', name: 'GovernanceBodies', component: GovernanceBodies },
 		{ path: '/governance-bodies/:id', name: 'GovernanceBodyDetail', component: GovernanceBodyDetail, props: true },
 		{ path: '/meetings', name: 'Meetings', component: Meetings },

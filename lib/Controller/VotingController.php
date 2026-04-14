@@ -270,10 +270,16 @@ class VotingController extends Controller
      */
     public function proxy(string $id): JSONResponse
     {
-        // Derive delegating participant identity from the authenticated session.
-        $fromParticipantId = $this->userSession->getUser()?->getUID() ?? '';
-        if ($fromParticipantId === '') {
+        // Resolve the Nextcloud UID to an OpenRegister participant UUID before storing —
+        // the proxy record must reference the same identifier type as castVote() uses.
+        $nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
+        if ($nextcloudUid === '') {
             return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $fromParticipantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
+        if ($fromParticipantId === null) {
+            return new JSONResponse(['message' => 'Geen deelnemersprofiel gevonden'], Http::STATUS_FORBIDDEN);
         }
 
         $params          = $this->request->getParams();
@@ -356,10 +362,16 @@ class VotingController extends Controller
      */
     public function revokeProxy(string $id): JSONResponse
     {
-        // Derive revoking participant identity from the authenticated session.
-        $fromParticipantId = $this->userSession->getUser()?->getUID() ?? '';
-        if ($fromParticipantId === '') {
+        // Resolve the Nextcloud UID to an OpenRegister participant UUID — must match
+        // the identifier type stored by proxy() when the grant was created.
+        $nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
+        if ($nextcloudUid === '') {
             return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $fromParticipantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
+        if ($fromParticipantId === null) {
+            return new JSONResponse(['message' => 'Geen deelnemersprofiel gevonden'], Http::STATUS_FORBIDDEN);
         }
 
         try {

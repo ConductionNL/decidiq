@@ -233,10 +233,11 @@ export default {
 		canCoSign() {
 			const user = window.OC?.getCurrentUser?.()
 			if (!user) return false
-			const displayName = user.displayName || ''
-			const pending = this.object.pendingCoSigners || []
+			// pendingCoSignerUids stores Nextcloud UIDs (set by MotionService::requestCoSignature).
+			// Compare against user.uid, not displayName, to match the stored value correctly.
+			const pending = this.object.pendingCoSignerUids || []
 			const confirmed = this.object.coSigners || []
-			return displayName !== '' && pending.includes(displayName) && !confirmed.includes(displayName)
+			return pending.includes(user.uid) && !confirmed.includes(user.uid)
 		},
 	},
 	methods: {

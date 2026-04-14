@@ -319,9 +319,18 @@ class VotingService
 
         // Check for existing vote — overwrite if found.
         // For secret rounds the participant relation is suppressed for anonymity,
-        // so dedup is keyed on a deterministic voterToken instead.
+        // so dedup is keyed on a voterToken. HMAC with a server-side secret makes
+        // the token non-derivable by store administrators (OWASP A04:2021).
+        // The HMAC key is generated once per install and stored in app config.
         if ($isSecret === true) {
-            $voterToken    = hash('sha256', $participantId.':'.$votingRoundId);
+            $appConfig = $this->container->get(\OCP\IAppConfig::class);
+            $hmacKey   = $appConfig->getValueString('decidesk', 'ballot_hmac_secret', '');
+            if ($hmacKey === '') {
+                $hmacKey = bin2hex(random_bytes(32));
+                $appConfig->setValueString('decidesk', 'ballot_hmac_secret', $hmacKey);
+            }
+
+            $voterToken    = hash_hmac('sha256', $participantId.':'.$votingRoundId, $hmacKey);
             $existingVotes = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'vote',
@@ -333,7 +342,7 @@ class VotingService
                 schema: 'vote',
                 filters: ['relations.voting-round' => $votingRoundId, 'relations.participant' => $participantId]
             );
-        }
+        }//end if
 
         $existingVote = null;
         foreach (($existingVotes['results'] ?? []) as $v) {
