@@ -176,14 +176,21 @@ class MotionController extends Controller
     public function coSignConfirm(string $id): JSONResponse
     {
         // Always derive identity from the authenticated session — never trust client-supplied displayName.
-        $user        = $this->userSession->getUser();
-        $displayName = '';
-        if ($user !== null) {
-            $displayName = $user->getDisplayName();
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
         }
+
+        $uid         = $user->getUID();
+        $displayName = $user->getDisplayName();
 
         if ($displayName === '') {
             return new JSONResponse(['message' => 'displayName is required'], Http::STATUS_BAD_REQUEST);
+        }
+
+        // Verify that this user was explicitly invited to co-sign (OWASP A01 — Broken Access Control).
+        if ($this->motionService->isPendingCoSigner(motionId: $id, nextcloudUid: $uid) === false) {
+            return new JSONResponse(['message' => 'U bent niet uitgenodigd om deze motie mede te ondertekenen'], Http::STATUS_FORBIDDEN);
         }
 
         try {

@@ -280,7 +280,7 @@ export default {
 			return (this.currentRound.votesFor || 0) + (this.currentRound.votesAgainst || 0) + (this.currentRound.votesAbstain || 0)
 		},
 		isChairOrSecretary() {
-			return !!(window.OC?.isAdmin)
+			return typeof window.OC?.isUserAdmin === 'function' ? window.OC.isUserAdmin() : false
 		},
 		oriStatusLabel() {
 			const labels = {

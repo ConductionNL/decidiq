@@ -219,7 +219,7 @@
 									"pm.test('Motion transitioned to debating', function () {",
 									"    pm.response.to.have.status(200);",
 									"    const body = pm.response.json();",
-									"    pm.expect(body.lifecycle ?? body.status).to.equal('debating');",
+									"    pm.expect(body.newState).to.equal('debating');",
 									"});"
 								],
 								"type": "text/javascript"
@@ -421,7 +421,7 @@
 									"pm.test('Amendment transitioned to debating', function () {",
 									"    pm.response.to.have.status(200);",
 									"    const body = pm.response.json();",
-									"    pm.expect(body.lifecycle ?? body.status).to.equal('debating');",
+									"    pm.expect(body.newState).to.equal('debating');",
 									"});"
 								],
 								"type": "text/javascript"
