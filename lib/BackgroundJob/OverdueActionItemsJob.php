@@ -97,63 +97,51 @@ class OverdueActionItemsJob extends TimedJob
         $errorCount   = 0;
 
         foreach (['open', 'in-progress'] as $status) {
-            $offset   = 0;
-            $pageSize = 100;
+            $actionItems = $this->fetchActionItemsByStatus(objectService: $objectService, status: $status);
 
-            do {
-                $actionItems = $this->fetchActionItemsByStatus(
-                    objectService: $objectService,
-                    status: $status,
-                    offset: $offset,
-                    pageSize: $pageSize,
-                );
+            foreach ($actionItems as $item) {
+                $dueDate = $item['dueDate'] ?? null;
+                if ($dueDate === null || $dueDate === '') {
+                    // No dueDate — cannot be overdue.
+                    continue;
+                }
 
-                foreach ($actionItems as $item) {
-                    $dueDate = $item['dueDate'] ?? null;
-                    if ($dueDate === null || $dueDate === '') {
-                        // No dueDate — cannot be overdue.
-                        continue;
-                    }
+                try {
+                    $dueDatetime = new \DateTimeImmutable($dueDate);
+                    $nowDatetime = new \DateTimeImmutable($now);
+                } catch (\Throwable) {
+                    // Unparseable dueDate — skip.
+                    continue;
+                }
 
-                    try {
-                        $dueDatetime = new \DateTimeImmutable($dueDate);
-                        $nowDatetime = new \DateTimeImmutable($now);
-                    } catch (\Throwable) {
-                        // Unparseable dueDate — skip.
-                        continue;
-                    }
+                if ($dueDatetime >= $nowDatetime) {
+                    // Not yet overdue.
+                    continue;
+                }
 
-                    if ($dueDatetime >= $nowDatetime) {
-                        // Not yet overdue.
-                        continue;
-                    }
+                $uuid = $item['id'] ?? $item['uuid'] ?? null;
+                if ($uuid === null || $uuid === '') {
+                    continue;
+                }
 
-                    $uuid = $item['id'] ?? $item['uuid'] ?? null;
-                    if ($uuid === null || $uuid === '') {
-                        continue;
-                    }
-
-                    try {
-                        $objectService->setRegister('decidesk');
-                        $objectService->setSchema('action-item');
-                        $objectService->saveObject(
-                            object: array_merge($item, ['taskStatus' => 'overdue']),
-                            register: 'decidesk',
-                            schema: 'action-item',
-                            uuid: $uuid
-                        );
-                        $updatedCount++;
-                    } catch (\Throwable $e) {
-                        $errorCount++;
-                        $this->logger->error(
-                            'Decidesk OverdueActionItemsJob: Failed to update ActionItem to overdue',
-                            ['uuid' => $uuid, 'exception' => $e->getMessage()]
-                        );
-                    }//end try
-                }//end foreach
-
-                $offset += count($actionItems);
-            } while (count($actionItems) === $pageSize);
+                try {
+                    $objectService->setRegister('decidesk');
+                    $objectService->setSchema('action-item');
+                    $objectService->saveObject(
+                        array_merge($item, ['taskStatus' => 'overdue']),
+                        'decidesk',
+                        'action-item',
+                        $uuid
+                    );
+                    $updatedCount++;
+                } catch (\Throwable $e) {
+                    $errorCount++;
+                    $this->logger->error(
+                        'Decidesk OverdueActionItemsJob: Failed to update ActionItem to overdue',
+                        ['uuid' => $uuid, 'exception' => $e->getMessage()]
+                    );
+                }//end try
+            }//end foreach
         }//end foreach
 
         $this->logger->info(
@@ -167,55 +155,63 @@ class OverdueActionItemsJob extends TimedJob
     }//end run()
 
     /**
-     * Fetch one page of ActionItems matching a given taskStatus from OpenRegister.
+     * Fetch all ActionItems matching a given taskStatus from OpenRegister using
+     * offset-based pagination to avoid silently truncating large result sets.
+     *
+     * Iterates pages until fewer results than PAGE_SIZE are returned, indicating
+     * the final page. Logs a warning if the first page is already at the limit
+     * so operators can detect unusually large datasets.
      *
      * @param object $objectService The ObjectService instance
      * @param string $status        The taskStatus to filter on ("open" or "in-progress")
-     * @param int    $offset        Number of records to skip (for pagination)
-     * @param int    $pageSize      Maximum records to return per page
      *
-     * @return array<int,array<string,mixed>> Array of ActionItem data arrays (at most $pageSize items)
+     * @return array<int,array<string,mixed>> Array of ActionItem data arrays
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
      */
-    private function fetchActionItemsByStatus(
-        object $objectService,
-        string $status,
-        int $offset = 0,
-        int $pageSize = 100,
-    ): array {
-        try {
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('action-item');
-            $entities = $objectService->findAll(
-                config: [
-                    'filters' => [
-                        'register'   => 'decidesk',
-                        'schema'     => 'action-item',
-                        'taskStatus' => $status,
-                    ],
-                    'limit'  => $pageSize,
-                    'offset' => $offset,
-                ]
-            );
+    private function fetchActionItemsByStatus(object $objectService, string $status): array
+    {
+        $pageSize = 100;
+        $offset   = 0;
+        $result   = [];
 
-            $result = [];
+        do {
+            try {
+                $objectService->setRegister('decidesk');
+                $objectService->setSchema('action-item');
+                $entities = $objectService->findAll(
+                    [
+                        'filters' => [
+                            'register'   => 'decidesk',
+                            'schema'     => 'action-item',
+                            'taskStatus' => $status,
+                        ],
+                        'limit'   => $pageSize,
+                        'offset'  => $offset,
+                    ]
+                );
+            } catch (\Throwable $e) {
+                $this->logger->error(
+                    'Decidesk OverdueActionItemsJob: Failed to fetch ActionItems',
+                    ['status' => $status, 'offset' => $offset, 'exception' => $e->getMessage()]
+                );
+                break;
+            }//end try
+
+            $page = [];
             foreach ($entities as $entity) {
                 if (method_exists($entity, 'getObject') === true) {
-                    $result[] = $entity->getObject();
+                    $page[] = $entity->getObject();
                 } else if (is_array($entity) === true) {
-                    $result[] = $entity;
+                    $page[] = $entity;
                 }
             }
 
-            return $result;
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk OverdueActionItemsJob: Failed to fetch ActionItems',
-                ['status' => $status, 'exception' => $e->getMessage()]
-            );
-            return [];
-        }//end try
+            $result  = array_merge($result, $page);
+            $offset += $pageSize;
+        } while (count($page) === $pageSize);
+
+        return $result;
 
     }//end fetchActionItemsByStatus()
 }//end class

@@ -89,10 +89,10 @@ class MinutesGenerationService
 
         // Fetch the Minutes object.
         $minutesEntity = $objectService->find(
-            id: $minutesId,
-            extend: ['meeting'],
-            register: 'decidesk',
-            schema: 'minutes'
+            $minutesId,
+            ['meeting'],
+            'decidesk',
+            'minutes'
         );
 
         if ($minutesEntity === null) {
@@ -261,9 +261,10 @@ class MinutesGenerationService
 
         try {
             $meetingEntity = $objectService->find(
-                id: $meetingId,
-                register: 'decidesk',
-                schema: 'meeting'
+                $meetingId,
+                null,
+                'decidesk',
+                'meeting'
             );
             if ($meetingEntity === null) {
                 return null;
@@ -301,7 +302,7 @@ class MinutesGenerationService
             $objectService->setRegister('decidesk');
             $objectService->setSchema($schema);
             $entities = $objectService->findAll(
-                config: [
+                [
                     'filters' => [
                         'register' => 'decidesk',
                         'schema'   => $schema,
