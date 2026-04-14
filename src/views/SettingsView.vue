@@ -8,7 +8,7 @@
 -->
 <template>
 	<div class="decidesk-settings">
-		<h1>{{ t('decidesk', 'Instellingen') }}</h1>
+		<h1>{{ t('decidesk', 'Settings') }}</h1>
 
 		<CnVersionInfoCard
 			:app-name="'Decidesk'"
@@ -44,7 +44,7 @@
 				type="secondary"
 				:disabled="reimporting"
 				@click="reimportRegister">
-				{{ reimporting ? t('decidesk', 'Importing...') : t('decidesk', 'Register opnieuw importeren') }}
+				{{ reimporting ? t('decidesk', 'Importing...') : t('decidesk', 'Reimport Register') }}
 			</NcButton>
 		</CnSettingsSection>
 	</div>
@@ -55,7 +55,6 @@ import { NcButton } from '@nextcloud/vue'
 import { CnVersionInfoCard, CnRegisterMapping, CnSettingsSection } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
-import axios from '@nextcloud/axios'
 import { useSettingsStore } from '../store/modules/settings.js'
 
 /**
@@ -132,7 +131,11 @@ export default {
 		async reimportRegister() {
 			this.reimporting = true
 			try {
-				const { data } = await axios.post(generateUrl('/apps/decidesk/api/settings/load'))
+				const response = await fetch(generateUrl('/apps/decidesk/api/settings/load'), {
+					method: 'POST',
+					headers: { requesttoken: OC.requestToken },
+				})
+				const data = await response.json()
 				if (data.success) {
 					showSuccess(this.t('decidesk', 'Register successfully reimported.'))
 				} else {

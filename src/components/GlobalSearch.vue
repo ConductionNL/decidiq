@@ -46,7 +46,7 @@
 			</template>
 			<template v-else-if="results.length === 0 && hasSearched">
 				<div class="global-search__status" role="status">
-					{{ t('decidesk', 'Geen resultaten gevonden') }}
+					{{ t('decidesk', 'No results found') }}
 				</div>
 			</template>
 			<template v-else>
@@ -93,7 +93,7 @@ import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue
  *
  * @type {string[]}
  */
-const SEARCH_TYPES = ['meeting', 'motion', 'decision', 'agendaItem', 'participant']
+const SEARCH_TYPES = ['meeting', 'motion', 'decision', 'agenda-item', 'participant']
 
 /**
  * Global search bar with floating dropdown for governance data.
@@ -228,7 +228,7 @@ export default {
 				meeting: 'MeetingDetail',
 				motion: 'MotionDetail',
 				decision: 'DecisionDetail',
-				agendaItem: 'MeetingDetail',
+				'agenda-item': 'AgendaItemDetail',
 				participant: 'ParticipantDetail',
 			}
 			const routeName = routeMap[result._type]
@@ -245,18 +245,18 @@ export default {
 				motion: FileDocumentOutline,
 				decision: GavelIcon,
 				participant: AccountGroupOutline,
-				agendaItem: FormatListBulleted,
+				'agenda-item': FormatListBulleted,
 			}
 			return icons[type] || FormatListBulleted
 		},
 
 		getTypeLabel(type) {
 			const labels = {
-				meeting: this.t('decidesk', 'Vergadering'),
-				motion: this.t('decidesk', 'Motie'),
-				decision: this.t('decidesk', 'Besluit'),
-				participant: this.t('decidesk', 'Deelnemer'),
-				agendaItem: this.t('decidesk', 'Agendapunt'),
+				meeting: this.t('decidesk', 'Meeting'),
+				motion: this.t('decidesk', 'Motion'),
+				decision: this.t('decidesk', 'Decision'),
+				participant: this.t('decidesk', 'Participant'),
+				'agenda-item': this.t('decidesk', 'Agenda Item'),
 			}
 			return labels[type] || type
 		},

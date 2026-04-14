@@ -45,22 +45,15 @@
 			</NcAppNavigationItem>
 		</template>
 		<template #footer>
-			<NcAppNavigationItem
-				:name="t('decidesk', 'Settings')"
-				:to="{ name: 'Settings' }">
-				<template #icon>
-					<CogIcon :size="20" />
-				</template>
-			</NcAppNavigationItem>
+			<NcAppNavigationSettings :name="t('decidesk', 'Settings')" :to="{ name: 'Settings' }" />
 		</template>
 	</NcAppNavigation>
 </template>
 
 <script>
-import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
+import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
 import AccountGroupIcon from 'vue-material-design-icons/AccountGroupOutline.vue'
 import CalendarBlankIcon from 'vue-material-design-icons/CalendarBlank.vue'
-import CogIcon from 'vue-material-design-icons/Cog.vue'
 import DomainIcon from 'vue-material-design-icons/Domain.vue'
 import FormatListNumberedIcon from 'vue-material-design-icons/FormatListNumbered.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
@@ -70,9 +63,9 @@ export default {
 	components: {
 		NcAppNavigation,
 		NcAppNavigationItem,
+		NcAppNavigationSettings,
 		AccountGroupIcon,
 		CalendarBlankIcon,
-		CogIcon,
 		DomainIcon,
 		FormatListNumberedIcon,
 		HomeIcon,
