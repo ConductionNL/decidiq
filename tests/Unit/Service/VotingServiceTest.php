@@ -272,12 +272,15 @@ class VotingServiceTest extends TestCase
      */
     public function testCastVoteProxyOnePerRound(): void
     {
-        // Voting round is open.
+        // Voting round is open and has a valid proxy grant from delegator-1 to participant-2.
         $this->objectService->method('getObject')
             ->willReturn(
                     [
                         'id'       => 'round-2',
                         'closedAt' => null,
+                        'notes'    => [
+                            ['type' => 'proxy', 'from' => 'delegator-1', 'to' => 'participant-2'],
+                        ],
                     ]
                     );
 
