@@ -25,10 +25,7 @@ use OCA\Decidesk\Controller\MeetingController;
 use OCA\Decidesk\Service\MeetingService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUser;
-use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -62,20 +59,6 @@ class MeetingControllerTest extends TestCase
     private MeetingService&MockObject $meetingService;
 
     /**
-     * Mock IGroupManager.
-     *
-     * @var IGroupManager&MockObject
-     */
-    private IGroupManager&MockObject $groupManager;
-
-    /**
-     * Mock IUserSession.
-     *
-     * @var IUserSession&MockObject
-     */
-    private IUserSession&MockObject $userSession;
-
-    /**
      * Set up test fixtures.
      *
      * @return void
@@ -86,19 +69,10 @@ class MeetingControllerTest extends TestCase
 
         $this->request        = $this->createMock(originalClassName: IRequest::class);
         $this->meetingService = $this->createMock(originalClassName: MeetingService::class);
-        $this->groupManager   = $this->createMock(originalClassName: IGroupManager::class);
-        $this->userSession    = $this->createMock(originalClassName: IUserSession::class);
-
-        $mockUser = $this->createMock(originalClassName: IUser::class);
-        $mockUser->method('getUID')->willReturn('admin');
-        $this->userSession->method('getUser')->willReturn($mockUser);
-        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
 
         $this->controller = new MeetingController(
             request: $this->request,
             meetingService: $this->meetingService,
-            groupManager: $this->groupManager,
-            userSession: $this->userSession,
         );
 
     }//end setUp()

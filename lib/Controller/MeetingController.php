@@ -29,9 +29,7 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for meeting lifecycle transitions.
@@ -45,22 +43,24 @@ class MeetingController extends Controller
      *
      * @param IRequest       $request        The HTTP request
      * @param MeetingService $meetingService The meeting service
-     * @param IGroupManager  $groupManager   The group manager for authorization checks
-     * @param IUserSession   $userSession    The user session
      *
      * @return void
      */
     public function __construct(
         IRequest $request,
         private readonly MeetingService $meetingService,
-        private readonly IGroupManager $groupManager,
-        private readonly IUserSession $userSession,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 
     /**
      * Apply a lifecycle transition to a meeting.
+     *
+     * Any authenticated Nextcloud user may call this endpoint. Meeting-level
+     * permission (e.g. only the clerk/chair may advance the state) is enforced
+     * at the service layer via OpenRegister, not via the Nextcloud admin role.
+     * In Dutch local government the meeting clerk is typically not a Nextcloud
+     * system administrator, so this route must be available to all logged-in users.
      *
      * Expects JSON body: { "action": "<schedule|open|pause|resume|adjourn|close>" }
      *
@@ -75,14 +75,6 @@ class MeetingController extends Controller
     #[NoAdminRequired]
     public function lifecycle(string $id): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(
-                ['message' => 'Admin access required to perform lifecycle transitions.'],
-                Http::STATUS_FORBIDDEN
-            );
-        }
-
         $action = $this->request->getParam('action', '');
 
         if (empty($action) === true) {

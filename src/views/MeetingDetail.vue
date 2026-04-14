@@ -101,7 +101,6 @@ export default {
 				{ label: this.t('decidesk', 'End Date'), value: this.object.endDate },
 				{ label: this.t('decidesk', 'Location'), value: this.object.location },
 				{ label: this.t('decidesk', 'Mode'), value: this.object.meetingMode },
-				{ label: this.t('decidesk', 'Lifecycle'), value: this.object.lifecycle },
 				{ label: this.t('decidesk', 'Quorum Required'), value: this.object.quorumRequired },
 				{ label: this.t('decidesk', 'Series'), value: this.object.series },
 			]

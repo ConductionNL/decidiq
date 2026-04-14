@@ -112,7 +112,7 @@ class MeetingService
             return [
                 'success' => false,
                 'meeting' => null,
-                'message' => "Unknown action '$action'. Valid actions: ".implode(', ', array_keys(self::TRANSITIONS)),
+                'message' => 'Unknown action. Valid actions: '.implode(', ', array_keys(self::TRANSITIONS)).'.',
             ];
         }
 

@@ -86,6 +86,10 @@ export default {
 			return types[this.currentLifecycle] ?? 'default'
 		},
 		availableActions() {
+			// WARNING: This transition map is a client-side mirror of MeetingService::TRANSITIONS
+			// on the backend (lib/Service/MeetingService.php). If a state or action is added or
+			// removed on the backend, this map MUST be updated in the same PR to stay in sync.
+			// Divergence will cause buttons to appear/disappear incorrectly without any error.
 			const transitions = {
 				draft: [
 					{ name: 'schedule', label: this.t('decidesk', 'Schedule'), type: 'primary' },
