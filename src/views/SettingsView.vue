@@ -153,7 +153,7 @@ export default {
 
 <style scoped>
 .decidesk-settings {
-	max-width: 900px;
+	max-width: 56.25rem;
 	padding: 0 var(--default-grid-baseline);
 }
 </style>
