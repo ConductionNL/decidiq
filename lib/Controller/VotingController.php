@@ -210,7 +210,7 @@ class VotingController extends DecideskController
             $this->votingService->grantProxy($id, $fromParticipantId, $toParticipantId);
             return new JSONResponse(['success' => true]);
         } catch (\InvalidArgumentException | \RuntimeException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(['error' => 'Proxy grant failed'], Http::STATUS_BAD_REQUEST);
         }
     }//end grantProxy()
 
@@ -241,7 +241,7 @@ class VotingController extends DecideskController
             $this->votingService->revokeProxy($id, $fromParticipantId);
             return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
-            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(['error' => 'Proxy revocation failed'], Http::STATUS_BAD_REQUEST);
         }
     }//end revokeProxy()
 
