@@ -1,8 +1,5 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 /**
  * Decidesk Motion Service
  *
@@ -28,7 +25,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -72,7 +68,6 @@ class MotionService
      * Constructor for MotionService.
      *
      * @param ContainerInterface $container The DI container (to lazily resolve OpenRegister services)
-     * @param IAppConfig         $appConfig The app config interface
      * @param LoggerInterface    $logger    The logger
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
@@ -81,7 +76,6 @@ class MotionService
      */
     public function __construct(
         private ContainerInterface $container,
-        private IAppConfig $appConfig,
         private LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -213,7 +207,7 @@ class MotionService
      * This method is idempotent — if the display name is already in the array,
      * no duplicate is added.
      *
-     * @param string $motionId             The motion UUID
+     * @param string $motionId               The motion UUID
      * @param string $participantDisplayName The display name to append
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
@@ -228,8 +222,8 @@ class MotionService
         $coSigners = ($motion['coSigners'] ?? []);
 
         if (in_array(needle: $participantDisplayName, haystack: $coSigners, strict: true) === false) {
-            $coSigners[]          = $participantDisplayName;
-            $motion['coSigners']  = $coSigners;
+            $coSigners[]         = $participantDisplayName;
+            $motion['coSigners'] = $coSigners;
 
             $objectService->saveObject(
                 register: 'decidesk',
@@ -274,12 +268,12 @@ class MotionService
         );
 
         // Find existing budget impact note or create new one.
-        $notes      = ($motion['notes'] ?? []);
-        $noteFound  = false;
+        $notes     = ($motion['notes'] ?? []);
+        $noteFound = false;
         foreach ($notes as $index => $note) {
             if (($note['title'] ?? '') === 'Budget impact') {
                 $notes[$index]['body'] = $noteBody;
-                $noteFound             = true;
+                $noteFound = true;
                 break;
             }
         }
@@ -317,8 +311,8 @@ class MotionService
      */
     public function detectConflicts(string $motionId, string $newAmendmentId): void
     {
-        $objectService   = $this->getObjectService();
-        $newAmendment    = $objectService->getObject(register: 'decidesk', schema: 'amendment', id: $newAmendmentId);
+        $objectService    = $this->getObjectService();
+        $newAmendment     = $objectService->getObject(register: 'decidesk', schema: 'amendment', id: $newAmendmentId);
         $newAmendmentText = strtolower(trim(($newAmendment['text'] ?? '')));
 
         if ($newAmendmentText === '') {
@@ -347,8 +341,8 @@ class MotionService
             }
 
             // Check for word-level overlap (at least 5 consecutive words in common).
-            $newWords      = explode(' ', $newAmendmentText);
-            $hasOverlap    = false;
+            $newWords   = explode(' ', $newAmendmentText);
+            $hasOverlap = false;
 
             for ($i = 0; $i <= (count($newWords) - 5); $i++) {
                 $phrase = implode(' ', array_slice($newWords, $i, 5));
@@ -365,7 +359,7 @@ class MotionService
 
         if (empty($conflicts) === false) {
             // Add conflict note to the new amendment.
-            $conflictNote = implode(', ', $conflicts);
+            $conflictNote          = implode(', ', $conflicts);
             $newAmendment['notes'] = array_merge(
                 ($newAmendment['notes'] ?? []),
                 [['title' => 'Conflict:', 'body' => $conflictNote]]
@@ -403,7 +397,7 @@ class MotionService
         $amendmentText  = ($amendment['text'] ?? '');
 
         $annotation     = "\n\n[Amendement: {$amendmentTitle}]\n{$amendmentText}";
-        $motion['text'] = ($motion['text'] ?? '') . $annotation;
+        $motion['text'] = ($motion['text'] ?? '').$annotation;
 
         $objectService->saveObject(
             register: 'decidesk',
@@ -412,5 +406,4 @@ class MotionService
         );
 
     }//end applyAmendment()
-
 }//end class

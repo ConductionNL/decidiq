@@ -1,8 +1,5 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 /**
  * Decidesk Mail Reply Handler Background Job
  *
@@ -53,9 +50,9 @@ class MailReplyHandler extends TimedJob
      * @var array<string, string>
      */
     private const VOTE_KEYWORDS = [
-        'voor'         => 'for',
-        'tegen'        => 'against',
-        'onthouding'   => 'abstain',
+        'voor'       => 'for',
+        'tegen'      => 'against',
+        'onthouding' => 'abstain',
     ];
 
     /**
@@ -88,7 +85,7 @@ class MailReplyHandler extends TimedJob
         parent::__construct(time: $time);
 
         // Run every 5 minutes.
-        $this->setInterval(interval: 300);
+        $this->setInterval(seconds: 300);
 
     }//end __construct()
 
@@ -127,7 +124,7 @@ class MailReplyHandler extends TimedJob
             );
 
             foreach ($openRounds as $round) {
-                $this->processRoundReplies(round: $round, objectService: $objectService);
+                $this->processRoundReplies(round: $round);
             }
         } catch (\Throwable $e) {
             $this->logger->error(
@@ -141,17 +138,16 @@ class MailReplyHandler extends TimedJob
     /**
      * Process email replies for a single open VotingRound.
      *
-     * @param array<string,mixed> $round         The VotingRound object
-     * @param object              $objectService The ObjectService instance
+     * @param array<string,mixed> $round The VotingRound object
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
      *
      * @return void
      */
-    private function processRoundReplies(array $round, object $objectService): void
+    private function processRoundReplies(array $round): void
     {
-        $roundId   = ($round['id'] ?? '');
-        $mailMeta  = ($round['_mail'] ?? []);
+        $roundId  = ($round['id'] ?? '');
+        $mailMeta = ($round['_mail'] ?? []);
 
         if (empty($mailMeta) === true) {
             return;
@@ -293,5 +289,4 @@ class MailReplyHandler extends TimedJob
         }
 
     }//end sendRepromptEmail()
-
 }//end class

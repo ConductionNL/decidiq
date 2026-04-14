@@ -1,8 +1,5 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 /**
  * Decidesk ORI Publication Service
  *
@@ -153,7 +150,7 @@ class OriPublicationService
                 'Decidesk: ORI publication failed',
                 ['exception' => $e->getMessage(), 'votingRoundId' => $votingRoundId]
             );
-        }
+        }//end try
 
     }//end publish()
 
@@ -180,7 +177,11 @@ class OriPublicationService
                 id: $votingRoundId,
             );
 
-            return (($round['oriPublishedAt'] ?? null) !== null) ? 'published' : 'pending';
+            if (($round['oriPublishedAt'] ?? null) !== null) {
+                return 'published';
+            }
+
+            return 'pending';
         } catch (\Throwable $e) {
             return 'pending';
         }
@@ -200,19 +201,18 @@ class OriPublicationService
     private function buildJsonLdPayload(array $round, string $votingRoundId): array
     {
         return [
-            '@context'    => 'https://schema.org',
-            '@type'       => 'VoteAction',
-            '@id'         => "urn:decidesk:voting-round:{$votingRoundId}",
-            'name'        => "Stemronde {$votingRoundId}",
-            'startTime'   => ($round['openedAt'] ?? null),
-            'endTime'     => ($round['closedAt'] ?? null),
-            'result'      => ($round['result'] ?? null),
-            'votesFor'    => ($round['votesFor'] ?? 0),
+            '@context'     => 'https://schema.org',
+            '@type'        => 'VoteAction',
+            '@id'          => "urn:decidesk:voting-round:{$votingRoundId}",
+            'name'         => "Stemronde {$votingRoundId}",
+            'startTime'    => ($round['openedAt'] ?? null),
+            'endTime'      => ($round['closedAt'] ?? null),
+            'result'       => ($round['result'] ?? null),
+            'votesFor'     => ($round['votesFor'] ?? 0),
             'votesAgainst' => ($round['votesAgainst'] ?? 0),
             'votesAbstain' => ($round['votesAbstain'] ?? 0),
             'actionStatus' => 'CompletedActionStatus',
         ];
 
     }//end buildJsonLdPayload()
-
 }//end class

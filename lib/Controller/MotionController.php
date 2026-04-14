@@ -1,8 +1,5 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 /**
  * Decidesk Motion Controller
  *
@@ -48,7 +45,6 @@ use OCP\IRequest;
  */
 class MotionController extends Controller
 {
-
     /**
      * Constructor for the MotionController.
      *
@@ -81,9 +77,9 @@ class MotionController extends Controller
     public function transition(string $id): JSONResponse
     {
         try {
-            $params    = $this->request->getParams();
-            $newState  = (string) ($params['newState'] ?? '');
-            $actorId   = (string) ($params['actorId'] ?? '');
+            $params   = $this->request->getParams();
+            $newState = (string) ($params['newState'] ?? '');
+            $actorId  = (string) ($params['actorId'] ?? '');
 
             $this->motionService->transitionLifecycle(
                 objectId: $id,
@@ -225,5 +221,4 @@ class MotionController extends Controller
         }
 
     }//end amendmentTransition()
-
 }//end class

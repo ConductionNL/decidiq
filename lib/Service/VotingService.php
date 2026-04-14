@@ -1,8 +1,5 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 /**
  * Decidesk Voting Service
  *
@@ -28,7 +25,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -60,10 +56,9 @@ class VotingService
     /**
      * Constructor for VotingService.
      *
-     * @param ContainerInterface     $container             The DI container
-     * @param IAppConfig             $appConfig             The app config interface
-     * @param LoggerInterface        $logger                The logger
-     * @param OriPublicationService  $oriPublicationService The ORI publication service
+     * @param ContainerInterface    $container             The DI container
+     * @param LoggerInterface       $logger                The logger
+     * @param OriPublicationService $oriPublicationService The ORI publication service
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      *
@@ -71,7 +66,6 @@ class VotingService
      */
     public function __construct(
         private ContainerInterface $container,
-        private IAppConfig $appConfig,
         private LoggerInterface $logger,
         private OriPublicationService $oriPublicationService,
     ) {
@@ -193,6 +187,7 @@ class VotingService
         );
 
         // Transition motion lifecycle to 'voting'.
+        $motionTitle         = (string) (($motion['title'] ?? null) ?? $motionId);
         $motion['lifecycle'] = 'voting';
         $motion['status']    = 'voting';
         $objectService->saveObject(register: 'decidesk', schema: 'motion', object: $motion);
@@ -202,7 +197,7 @@ class VotingService
             try {
                 $calendarService = $this->container->get('OCA\OpenRegister\Service\CalendarEventService');
                 $calendarService->createEvent(
-                    title: "Stemronde sluit: " . ($motion['title'] ?? $motionId),
+                    title: "Stemronde sluit: ".$motionTitle,
                     startAt: $closedAt,
                     endAt: $closedAt,
                     objectType: 'voting-round',
@@ -356,8 +351,13 @@ class VotingService
         // Find the linked Motion via relations and update its lifecycle.
         $motionId = ($round['relations']['motion'][0]['id'] ?? null);
         if ($motionId !== null) {
-            $motion              = $objectService->getObject(register: 'decidesk', schema: 'motion', id: $motionId);
-            $lifecycleState      = ($result === 'adopted' ? 'adopted' : ($result === 'rejected' ? 'rejected' : 'rejected'));
+            $motion = $objectService->getObject(register: 'decidesk', schema: 'motion', id: $motionId);
+            if ($result === 'adopted') {
+                $lifecycleState = 'adopted';
+            } else {
+                $lifecycleState = 'rejected';
+            }
+
             $motion['lifecycle'] = $lifecycleState;
             $motion['status']    = $lifecycleState;
             $objectService->saveObject(register: 'decidesk', schema: 'motion', object: $motion);
@@ -427,9 +427,9 @@ class VotingService
         $result = 'invalid';
         if ($votesFor > $votesAgainst) {
             $result = 'adopted';
-        } elseif ($votesAgainst > $votesFor) {
+        } else if ($votesAgainst > $votesFor) {
             $result = 'rejected';
-        } elseif ($votesFor === $votesAgainst && ($votesFor + $votesAgainst) > 0) {
+        } else if ($votesFor === $votesAgainst && ($votesFor + $votesAgainst) > 0) {
             $result = 'tied';
         }
 
@@ -452,9 +452,9 @@ class VotingService
      * Validates both Participants are active GovernanceBody members (not
      * observer/guest), stores the proxy relation, and notifies the delegate.
      *
-     * @param string $votingRoundId      The voting round UUID
-     * @param string $fromParticipantId  The delegating participant UUID
-     * @param string $toParticipantId    The receiving participant UUID
+     * @param string $votingRoundId     The voting round UUID
+     * @param string $fromParticipantId The delegating participant UUID
+     * @param string $toParticipantId   The receiving participant UUID
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
      *
@@ -479,12 +479,12 @@ class VotingService
 
         // Store proxy as a Vote placeholder with isProxy=true and no value yet.
         $proxyRecord = [
-            'isProxy'      => true,
-            'votingRound'  => $votingRoundId,
-            'participant'  => $toParticipantId,
-            'delegator'    => $fromParticipantId,
-            'value'        => null,
-            'weight'       => 1,
+            'isProxy'     => true,
+            'votingRound' => $votingRoundId,
+            'participant' => $toParticipantId,
+            'delegator'   => $fromParticipantId,
+            'value'       => null,
+            'weight'      => 1,
         ];
 
         $objectService->saveObject(
@@ -589,7 +589,7 @@ class VotingService
                     );
                 }
             }
-        }
+        }//end foreach
 
         $this->logger->info(
             "Decidesk: Proxy revoked by {$fromParticipantId} for round {$votingRoundId}"
@@ -603,8 +603,8 @@ class VotingService
      * Calls FileService.createFolder() under motions/{motionSlug}/
      * and attaches a _files metadata link to the Motion.
      *
-     * @param array<string,mixed> $motion    The motion object array
-     * @param string              $motionId  The motion UUID
+     * @param array<string,mixed> $motion   The motion object array
+     * @param string              $motionId The motion UUID
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
      *
@@ -636,5 +636,4 @@ class VotingService
         }
 
     }//end createDossierFolder()
-
 }//end class

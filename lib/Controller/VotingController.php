@@ -1,8 +1,5 @@
 <?php
 
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
 /**
  * Decidesk Voting Controller
  *
@@ -50,13 +47,12 @@ use OCP\IRequest;
  */
 class VotingController extends Controller
 {
-
     /**
      * Constructor for the VotingController.
      *
-     * @param IRequest               $request               The request object
-     * @param VotingService          $votingService         The voting service
-     * @param OriPublicationService  $oriPublicationService The ORI publication service
+     * @param IRequest              $request               The request object
+     * @param VotingService         $votingService         The voting service
+     * @param OriPublicationService $oriPublicationService The ORI publication service
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
      *
@@ -87,7 +83,10 @@ class VotingController extends Controller
             $motionId     = (string) ($params['motionId'] ?? '');
             $votingMethod = (string) ($params['votingMethod'] ?? 'for-against-abstain');
             $isSecret     = (bool) ($params['isSecret'] ?? false);
-            $closedAt     = isset($params['closedAt']) ? (string) $params['closedAt'] : null;
+            $closedAt     = null;
+            if (isset($params['closedAt']) === true) {
+                $closedAt = (string) $params['closedAt'];
+            }
 
             $round = $this->votingService->openVotingRound(
                 motionId: $motionId,
@@ -101,7 +100,7 @@ class VotingController extends Controller
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\Throwable $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
 
     }//end openRound()
 
@@ -123,7 +122,10 @@ class VotingController extends Controller
             $participantId = (string) ($params['participantId'] ?? '');
             $value         = (string) ($params['value'] ?? '');
             $isProxy       = (bool) ($params['isProxy'] ?? false);
-            $delegatorId   = isset($params['delegatorId']) ? (string) $params['delegatorId'] : null;
+            $delegatorId   = null;
+            if (isset($params['delegatorId']) === true) {
+                $delegatorId = (string) $params['delegatorId'];
+            }
 
             $vote = $this->votingService->castVote(
                 votingRoundId: $id,
@@ -140,7 +142,7 @@ class VotingController extends Controller
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\Throwable $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
 
     }//end cast()
 
@@ -205,9 +207,9 @@ class VotingController extends Controller
     public function grantProxy(string $id): JSONResponse
     {
         try {
-            $params              = $this->request->getParams();
-            $fromParticipantId   = (string) ($params['fromParticipantId'] ?? '');
-            $toParticipantId     = (string) ($params['toParticipantId'] ?? '');
+            $params            = $this->request->getParams();
+            $fromParticipantId = (string) ($params['fromParticipantId'] ?? '');
+            $toParticipantId   = (string) ($params['toParticipantId'] ?? '');
 
             $this->votingService->grantProxy(
                 votingRoundId: $id,
@@ -254,5 +256,4 @@ class VotingController extends Controller
         }
 
     }//end revokeProxy()
-
 }//end class
