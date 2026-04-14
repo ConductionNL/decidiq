@@ -1,0 +1,204 @@
+{
+	"info": {
+		"_postman_id": "decidesk-agenda-collection",
+		"name": "Decidesk Agenda Integration Tests",
+		"description": "Integration tests for the p2-agenda-management API endpoints.\nTests the 4 agenda lifecycle REST endpoints against a live Nextcloud instance.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "{{admin_user}}",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "{{admin_password}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{ "key": "base_url",       "value": "http://localhost:8080", "type": "string" },
+		{ "key": "admin_user",     "value": "admin",                 "type": "string" },
+		{ "key": "admin_password", "value": "admin",                 "type": "string" },
+		{ "key": "meeting_id",     "value": "test-meeting-uuid",     "type": "string" },
+		{ "key": "item_id",        "value": "test-item-uuid",        "type": "string" }
+	],
+	"item": [
+		{
+			"name": "POST /api/agendas/{meetingId}/publish — publish agenda",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 200 or 422', function () {",
+							"  pm.expect([200, 422]).to.include(pm.response.code);",
+							"});",
+							"pm.test('Response is JSON', function () {",
+							"  pm.response.to.be.json;",
+							"});",
+							"if (pm.response.code === 422) {",
+							"  pm.test('Error message present when no items', function () {",
+							"    pm.expect(pm.response.json()).to.have.property('message');",
+							"  });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "OCS-APIRequest", "value": "true" },
+					{ "key": "Content-Type",   "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/publish",
+					"host": ["{{base_url}}"],
+					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "publish"]
+				}
+			}
+		},
+		{
+			"name": "PUT /api/agenda-items/{id}/bob-phase — advance BOB phase",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 200 or 422', function () {",
+							"  pm.expect([200, 422]).to.include(pm.response.code);",
+							"});",
+							"pm.test('Response is JSON', function () {",
+							"  pm.response.to.be.json;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{base_url}}/index.php/apps/decidesk/api/agenda-items/{{item_id}}/bob-phase",
+					"host": ["{{base_url}}"],
+					"path": ["index.php", "apps", "decidesk", "api", "agenda-items", "{{item_id}}", "bob-phase"]
+				}
+			}
+		},
+		{
+			"name": "POST /api/agendas/{meetingId}/hamerstukken — process consent items",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 200', function () {",
+							"  pm.response.to.have.status(200);",
+							"});",
+							"pm.test('Response is JSON', function () {",
+							"  pm.response.to.be.json;",
+							"});",
+							"pm.test('Success flag present', function () {",
+							"  pm.expect(pm.response.json()).to.have.property('success', true);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "OCS-APIRequest", "value": "true" }
+				],
+				"url": {
+					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/hamerstukken",
+					"host": ["{{base_url}}"],
+					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "hamerstukken"]
+				}
+			}
+		},
+		{
+			"name": "PUT /api/agendas/{meetingId}/reorder — reorder items",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 200', function () {",
+							"  pm.response.to.have.status(200);",
+							"});",
+							"pm.test('Response is JSON', function () {",
+							"  pm.response.to.be.json;",
+							"});",
+							"pm.test('Success flag present', function () {",
+							"  pm.expect(pm.response.json()).to.have.property('success', true);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "OCS-APIRequest",  "value": "true" },
+					{ "key": "Content-Type",    "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"ids\": [\"{{item_id}}\"]}"
+				},
+				"url": {
+					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/reorder",
+					"host": ["{{base_url}}"],
+					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "reorder"]
+				}
+			}
+		},
+		{
+			"name": "PUT /api/agendas/{meetingId}/reorder — 400 when ids missing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status is 400', function () {",
+							"  pm.response.to.have.status(400);",
+							"});",
+							"pm.test('Error message present', function () {",
+							"  pm.expect(pm.response.json()).to.have.property('message');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "OCS-APIRequest", "value": "true" },
+					{ "key": "Content-Type",   "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{base_url}}/index.php/apps/decidesk/api/agendas/{{meeting_id}}/reorder",
+					"host": ["{{base_url}}"],
+					"path": ["index.php", "apps", "decidesk", "api", "agendas", "{{meeting_id}}", "reorder"]
+				}
+			}
+		}
+	]
+}
