@@ -3,11 +3,9 @@
 
 <!--
  @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.1
- @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.2
- @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.3
- @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.4
- @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.5
- @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.6
+ @spec openspec/changes/p1-crud-operations/tasks.md#task-5.1
+ @spec openspec/changes/p1-crud-operations/tasks.md#task-5.2
+ @spec openspec/changes/p1-crud-operations/tasks.md#task-5.3
 -->
 <template>
 	<CnDashboardPage
@@ -19,31 +17,31 @@
 		<template #widget-kpi-stats>
 			<CnKpiGrid :columns="4">
 				<CnStatsBlock
+					:title="t('decidesk', 'Governance Bodies')"
+					:count="kpi.governanceBodies"
+					:count-label="t('decidesk', 'total')"
+					:icon="DomainIcon"
+					variant="primary"
+					horizontal />
+				<CnStatsBlock
+					:title="t('decidesk', 'Meetings')"
+					:count="kpi.meetings"
+					:count-label="t('decidesk', 'total')"
+					:icon="CalendarClock"
+					variant="default"
+					horizontal />
+				<CnStatsBlock
+					:title="t('decidesk', 'Participants')"
+					:count="kpi.participants"
+					:count-label="t('decidesk', 'total')"
+					:icon="AccountGroupIcon"
+					variant="default"
+					horizontal />
+				<CnStatsBlock
 					:title="t('decidesk', 'Upcoming meetings')"
 					:count="kpi.upcomingMeetings"
 					:count-label="t('decidesk', 'scheduled')"
 					:icon="CalendarClock"
-					variant="primary"
-					horizontal />
-				<CnStatsBlock
-					:title="t('decidesk', 'Pending motions')"
-					:count="kpi.pendingMotions"
-					:count-label="t('decidesk', 'in progress')"
-					:icon="FileDocumentOutline"
-					variant="warning"
-					horizontal />
-				<CnStatsBlock
-					:title="t('decidesk', 'Open action items')"
-					:count="kpi.openActionItems"
-					:count-label="t('decidesk', 'to do')"
-					:icon="ClipboardCheckOutline"
-					variant="default"
-					horizontal />
-				<CnStatsBlock
-					:title="t('decidesk', 'Recent decisions')"
-					:count="kpi.recentDecisions"
-					:count-label="t('decidesk', 'last 30 days')"
-					:icon="GavelIcon"
 					variant="success"
 					horizontal />
 			</CnKpiGrid>
@@ -79,14 +77,13 @@ import { generateUrl } from '@nextcloud/router'
 import { useObjectStore } from '../store/modules/object.js'
 
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
-import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
-import ClipboardCheckOutline from 'vue-material-design-icons/ClipboardCheckOutline.vue'
-import GavelIcon from 'vue-material-design-icons/Gavel.vue'
+import DomainIcon from 'vue-material-design-icons/Domain.vue'
+import AccountGroupIcon from 'vue-material-design-icons/AccountGroup.vue'
 
 /**
  * Dashboard view showing KPI cards, meeting status chart, and quick-access tiles.
  *
- * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.1
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-5.1
  */
 export default {
 	name: 'DashboardView',
@@ -102,17 +99,26 @@ export default {
 		return {
 			loading: true,
 			CalendarClock,
-			FileDocumentOutline,
-			ClipboardCheckOutline,
-			GavelIcon,
+			DomainIcon,
+			AccountGroupIcon,
 			kpi: {
+				governanceBodies: 0,
+				meetings: 0,
+				participants: 0,
 				upcomingMeetings: 0,
-				pendingMotions: 0,
-				openActionItems: 0,
-				recentDecisions: 0,
 			},
 			meetings: [],
 			tiles: [
+				{
+					route: 'GovernanceBodyList',
+					tileConfig: {
+						title: this.t('decidesk', 'Bestuursorganen'),
+						icon: 'mdi:domain',
+						iconType: 'class',
+						linkType: 'url',
+						linkValue: generateUrl('/apps/decidesk/governance-bodies'),
+					},
+				},
 				{
 					route: 'MeetingList',
 					tileConfig: {
@@ -121,26 +127,6 @@ export default {
 						iconType: 'class',
 						linkType: 'url',
 						linkValue: generateUrl('/apps/decidesk/meetings'),
-					},
-				},
-				{
-					route: 'MotionList',
-					tileConfig: {
-						title: this.t('decidesk', 'Moties'),
-						icon: 'mdi:file-document-outline',
-						iconType: 'class',
-						linkType: 'url',
-						linkValue: generateUrl('/apps/decidesk/motions'),
-					},
-				},
-				{
-					route: 'DecisionList',
-					tileConfig: {
-						title: this.t('decidesk', 'Besluiten'),
-						icon: 'mdi:gavel',
-						iconType: 'class',
-						linkType: 'url',
-						linkValue: generateUrl('/apps/decidesk/decisions'),
 					},
 				},
 				{
@@ -154,13 +140,13 @@ export default {
 					},
 				},
 				{
-					route: 'GovernanceBodyList',
+					route: 'AgendaItemList',
 					tileConfig: {
-						title: this.t('decidesk', 'Bestuursorganen'),
-						icon: 'mdi:domain',
+						title: this.t('decidesk', 'Agendapunten'),
+						icon: 'mdi:format-list-bulleted',
 						iconType: 'class',
 						linkType: 'url',
-						linkValue: generateUrl('/apps/decidesk/governance-bodies'),
+						linkValue: generateUrl('/apps/decidesk/agenda-items'),
 					},
 				},
 			],
@@ -181,7 +167,7 @@ export default {
 		/**
 		 * Chart series for meeting lifecycle distribution donut.
 		 *
-		 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.4
+		 * @spec openspec/changes/p1-crud-operations/tasks.md#task-5.2
 		 * @return {Array<number>} Counts per lifecycle state.
 		 */
 		chartSeries() {
@@ -220,34 +206,25 @@ export default {
 	/**
 	 * Fetch all KPI data in parallel on mount.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-5.3
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-5.3
 	 */
 	async created() {
 		const objectStore = useObjectStore()
 
 		try {
-			const [meetingData, motionData, actionItemData, decisionData] = await Promise.all([
-				objectStore.fetchObjects('meeting'),
-				objectStore.fetchObjects('motion'),
-				objectStore.fetchObjects('actionItem'),
-				objectStore.fetchObjects('decision'),
+			const [governanceBodyData, meetingData, participantData] = await Promise.all([
+				objectStore.fetchCollection('governanceBody'),
+				objectStore.fetchCollection('meeting'),
+				objectStore.fetchCollection('participant'),
 			])
 
 			this.meetings = meetingData || []
 
+			this.kpi.governanceBodies = (governanceBodyData || []).length
+			this.kpi.meetings = (meetingData || []).length
+			this.kpi.participants = (participantData || []).length
 			this.kpi.upcomingMeetings = (meetingData || [])
 				.filter((m) => m.lifecycle === 'scheduled').length
-
-			this.kpi.pendingMotions = (motionData || [])
-				.filter((m) => m.lifecycle === 'submitted' || m.lifecycle === 'debating').length
-
-			this.kpi.openActionItems = (actionItemData || [])
-				.filter((a) => a.taskStatus === 'open' || a.taskStatus === 'in-progress').length
-
-			const thirtyDaysAgo = new Date()
-			thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-			this.kpi.recentDecisions = (decisionData || [])
-				.filter((d) => d.outcome === 'adopted' && new Date(d.decisionDate) >= thirtyDaysAgo).length
 		} catch (error) {
 			console.error('Failed to fetch dashboard data:', error)
 		} finally {

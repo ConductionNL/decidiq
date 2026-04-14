@@ -7,6 +7,7 @@ import { generateUrl } from '@nextcloud/router'
 
 /**
  * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-3.4
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.4
  */
 
 Vue.use(Router)
@@ -25,6 +26,8 @@ const ParticipantList = () => import('../views/ParticipantList.vue')
 const ParticipantDetail = () => import('../views/ParticipantDetail.vue')
 const GovernanceBodyList = () => import('../views/GovernanceBodyList.vue')
 const GovernanceBodyDetail = () => import('../views/GovernanceBodyDetail.vue')
+const AgendaItemList = () => import('../views/AgendaItemList.vue')
+const AgendaItemDetail = () => import('../views/AgendaItemDetail.vue')
 const SettingsView = () => import('../views/SettingsView.vue')
 
 export default new Router({
@@ -42,6 +45,8 @@ export default new Router({
 		{ path: '/participants/:id', name: 'ParticipantDetail', component: ParticipantDetail, props: true },
 		{ path: '/governance-bodies', name: 'GovernanceBodyList', component: GovernanceBodyList },
 		{ path: '/governance-bodies/:id', name: 'GovernanceBodyDetail', component: GovernanceBodyDetail, props: true },
+		{ path: '/agenda-items', name: 'AgendaItemList', component: AgendaItemList },
+		{ path: '/agenda-items/:id', name: 'AgendaItemDetail', component: AgendaItemDetail, props: true },
 		{ path: '/settings', name: 'Settings', component: SettingsView },
 		{ path: '*', redirect: '/' },
 	],

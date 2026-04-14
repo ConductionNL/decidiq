@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2026 Conduction B.V.
+
 import { generateUrl } from '@nextcloud/router'
 import { useObjectStore } from './modules/object.js'
 import { useSettingsStore } from './modules/settings.js'
@@ -7,6 +10,7 @@ import { useSettingsStore } from './modules/settings.js'
  * Each entry maps a logical name to its schema slug and register slug.
  *
  * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.2
  */
 const OBJECT_TYPES = {
 	governanceBody: { schema: 'governance-body', register: 'decidesk' },
@@ -28,13 +32,18 @@ const OBJECT_TYPES = {
 	report: { schema: 'report', register: 'decidesk' },
 }
 
+/**
+ * Initialise the settings store and register all object types.
+ *
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.2
+ * @return {Promise<{settingsStore: object, objectStore: object}>}
+ */
 export async function initializeStores() {
 	const settingsStore = useSettingsStore()
 	const objectStore = useObjectStore()
 
 	objectStore.configure({
 		baseUrl: generateUrl('/apps/openregister/api/objects'),
-		schemaBaseUrl: generateUrl('/apps/openregister/api/schemas'),
 	})
 
 	await settingsStore.fetchSettings()

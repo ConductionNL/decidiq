@@ -2,7 +2,7 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- @spec openspec/changes/p1-crud-operations/tasks.md#task-6.2
+ @spec openspec/changes/p1-crud-operations/tasks.md#task-9.2
 -->
 <template>
 	<div class="decidesk-detail">
@@ -41,29 +41,15 @@
 				</template>
 
 				<template #sections>
-					<CnDetailCard :title="t('decidesk', 'Related Meetings')">
-						<p v-if="!relatedMeetings.length">
-							{{ t('decidesk', 'No meetings linked to this governance body.') }}
+					<CnDetailCard :title="t('decidesk', 'Linked Meeting')">
+						<p v-if="!relatedMeeting">
+							{{ t('decidesk', 'No meeting linked to this agenda item.') }}
 						</p>
-						<ul v-else>
-							<li v-for="meeting in relatedMeetings" :key="meeting.id">
-								<router-link :to="{ name: 'MeetingDetail', params: { id: meeting.id } }">
-									{{ meeting.title }}
-								</router-link>
-							</li>
-						</ul>
-					</CnDetailCard>
-					<CnDetailCard :title="t('decidesk', 'Related Participants')">
-						<p v-if="!relatedParticipants.length">
-							{{ t('decidesk', 'No participants linked to this governance body.') }}
-						</p>
-						<ul v-else>
-							<li v-for="participant in relatedParticipants" :key="participant.id">
-								<router-link :to="{ name: 'ParticipantDetail', params: { id: participant.id } }">
-									{{ participant.displayName }} — {{ participant.role }}
-								</router-link>
-							</li>
-						</ul>
+						<router-link
+							v-else
+							:to="{ name: 'MeetingDetail', params: { id: relatedMeeting.id } }">
+							{{ relatedMeeting.title || relatedMeeting.id }}
+						</router-link>
 					</CnDetailCard>
 				</template>
 
@@ -71,7 +57,7 @@
 					<CnObjectSidebar
 						:object="detail.object.value"
 						:schema="schema"
-						object-type="governanceBody"
+						object-type="agendaItem"
 						:store="objectStore" />
 				</template>
 			</CnDetailPage>
@@ -79,7 +65,7 @@
 			<CnDeleteDialog
 				v-if="detail.showDeleteDialog.value"
 				:item="detail.object.value"
-				name-field="name"
+				name-field="title"
 				@confirm="onDeleteConfirm"
 				@close="detail.showDeleteDialog.value = false" />
 		</template>
@@ -95,12 +81,12 @@ import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import { useObjectStore } from '../store/modules/object.js'
 
 /**
- * Governance body detail view with edit/delete and related entities.
+ * Agenda item detail view with linked Meeting and edit/delete actions.
  *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-6.2
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-9.2
  */
 export default {
-	name: 'GovernanceBodyDetail',
+	name: 'AgendaItemDetail',
 	components: {
 		NcButton,
 		NcLoadingIcon,
@@ -119,36 +105,31 @@ export default {
 
 	setup(props) {
 		const objectStore = useObjectStore()
-		const detail = useDetailView('governanceBody', ref(props.id), {
+		const detail = useDetailView('agendaItem', ref(props.id), {
 			objectStore: useObjectStore,
 			router: null,
 		})
-		const schema = computed(() => objectStore.getSchema('governanceBody'))
+		const schema = computed(() => objectStore.getSchema('agendaItem'))
 
 		return { detail, objectStore, schema }
 	},
 
 	computed: {
-		relatedMeetings() {
+		relatedMeeting() {
 			const obj = this.detail.object.value
-			if (!obj?.relations) return []
-			return (obj.relations || []).filter((r) => r.schema === 'meeting')
-		},
-		relatedParticipants() {
-			const obj = this.detail.object.value
-			if (!obj?.relations) return []
-			return (obj.relations || []).filter((r) => r.schema === 'participant')
+			if (!obj?.relations) return null
+			return (obj.relations || []).find((r) => r.schema === 'meeting') || null
 		},
 	},
 
 	methods: {
 		goBack() {
-			this.$router.push({ name: 'GovernanceBodyList' })
+			this.$router.push({ name: 'AgendaItemList' })
 		},
 		async onDeleteConfirm() {
 			const success = await this.detail.confirmDelete()
 			if (success) {
-				this.$router.push({ name: 'GovernanceBodyList' })
+				this.$router.push({ name: 'AgendaItemList' })
 			}
 		},
 	},
