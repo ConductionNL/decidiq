@@ -45,7 +45,11 @@
 			</NcAppNavigationItem>
 		</template>
 		<template #footer>
-			<NcAppNavigationSettings :name="t('decidesk', 'Settings')" :to="{ name: 'Settings' }" />
+			<NcAppNavigationSettings :name="t('decidesk', 'Settings')">
+				<NcAppNavigationItem
+					:name="t('decidesk', 'Settings')"
+					:to="{ name: 'Settings' }" />
+			</NcAppNavigationSettings>
 		</template>
 	</NcAppNavigation>
 </template>

@@ -55,6 +55,7 @@ import { NcButton } from '@nextcloud/vue'
 import { CnVersionInfoCard, CnRegisterMapping, CnSettingsSection } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
+import { getRequestToken } from '@nextcloud/auth'
 import { useSettingsStore } from '../store/modules/settings.js'
 
 /**
@@ -133,7 +134,7 @@ export default {
 			try {
 				const response = await fetch(generateUrl('/apps/decidesk/api/settings/load'), {
 					method: 'POST',
-					headers: { requesttoken: OC.requestToken },
+					headers: { requesttoken: getRequestToken() },
 				})
 				const data = await response.json()
 				if (data.success) {
