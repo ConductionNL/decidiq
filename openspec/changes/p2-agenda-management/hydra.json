@@ -12,9 +12,9 @@
   "pipeline": {
     "review_rounds": 8,
     "build_count": 1,
-    "fix_iterations": 0,
+    "fix_iterations": 3,
     "total_cost_eur": 0,
-    "total_turns": 116,
+    "total_turns": 321,
     "findings_open": 0,
     "findings_fixed": 0,
     "suggestions_open": 0,
