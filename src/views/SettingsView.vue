@@ -8,8 +8,6 @@
 -->
 <template>
 	<div class="decidesk-settings">
-		<h1>{{ t('decidesk', 'Settings') }}</h1>
-
 		<CnVersionInfoCard
 			:app-name="'Decidesk'"
 			:app-version="appVersion"
@@ -156,12 +154,6 @@ export default {
 <style scoped>
 .decidesk-settings {
 	max-width: 900px;
-	padding: 0 4px;
-}
-
-.decidesk-settings h1 {
-	margin: 0 0 20px;
-	font-size: 22px;
-	font-weight: 600;
+	padding: 0 var(--default-grid-baseline);
 }
 </style>

@@ -23,6 +23,13 @@
 				<p v-if="!object.relations?.['governance-body']?.length" class="decidesk-empty">
 					{{ t('decidesk', 'No linked governance body.') }}
 				</p>
+				<ul v-else class="decidesk-relations">
+					<li v-for="body in object.relations['governance-body']" :key="body.id || body">
+						<router-link :to="{ name: 'GovernanceBodyDetail', params: { id: body.id || body } }">
+							{{ body.name || body.displayName || body.id || body }}
+						</router-link>
+					</li>
+				</ul>
 			</CnDetailCard>
 		</template>
 
@@ -100,5 +107,20 @@ export default {
 .decidesk-empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
+}
+
+.decidesk-relations {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.decidesk-relations li {
+	padding: var(--default-grid-baseline) 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.decidesk-relations li:last-child {
+	border-bottom: none;
 }
 </style>

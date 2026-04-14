@@ -23,6 +23,13 @@
 				<p v-if="!object.relations?.['agenda-item']?.length" class="decidesk-empty">
 					{{ t('decidesk', 'No agenda items.') }}
 				</p>
+				<ul v-else class="decidesk-relations">
+					<li v-for="item in object.relations['agenda-item']" :key="item.id || item">
+						<router-link :to="{ name: 'AgendaItemDetail', params: { id: item.id || item } }">
+							{{ item.title || item.name || item.id || item }}
+						</router-link>
+					</li>
+				</ul>
 			</CnDetailCard>
 		</template>
 
@@ -102,5 +109,20 @@ export default {
 .decidesk-empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
+}
+
+.decidesk-relations {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.decidesk-relations li {
+	padding: var(--default-grid-baseline) 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.decidesk-relations li:last-child {
+	border-bottom: none;
 }
 </style>

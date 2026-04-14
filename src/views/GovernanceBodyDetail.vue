@@ -23,11 +23,25 @@
 				<p v-if="!object.relations?.meeting?.length" class="decidesk-empty">
 					{{ t('decidesk', 'No related meetings.') }}
 				</p>
+				<ul v-else class="decidesk-relations">
+					<li v-for="meeting in object.relations.meeting" :key="meeting.id || meeting">
+						<router-link :to="{ name: 'MeetingDetail', params: { id: meeting.id || meeting } }">
+							{{ meeting.title || meeting.name || meeting.id || meeting }}
+						</router-link>
+					</li>
+				</ul>
 			</CnDetailCard>
 			<CnDetailCard :title="t('decidesk', 'Related Participants')">
 				<p v-if="!object.relations?.participant?.length" class="decidesk-empty">
 					{{ t('decidesk', 'No related participants.') }}
 				</p>
+				<ul v-else class="decidesk-relations">
+					<li v-for="participant in object.relations.participant" :key="participant.id || participant">
+						<router-link :to="{ name: 'ParticipantDetail', params: { id: participant.id || participant } }">
+							{{ participant.displayName || participant.name || participant.id || participant }}
+						</router-link>
+					</li>
+				</ul>
 			</CnDetailCard>
 		</template>
 
@@ -105,5 +119,20 @@ export default {
 .decidesk-empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
+}
+
+.decidesk-relations {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.decidesk-relations li {
+	padding: var(--default-grid-baseline) 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.decidesk-relations li:last-child {
+	border-bottom: none;
 }
 </style>

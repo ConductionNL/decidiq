@@ -93,7 +93,7 @@ import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue
  *
  * @type {string[]}
  */
-const SEARCH_TYPES = ['meeting', 'motion', 'decision', 'agenda-item', 'participant']
+const SEARCH_TYPES = ['meeting', 'agenda-item', 'participant']
 
 /**
  * Global search bar with floating dropdown for governance data.
@@ -226,8 +226,6 @@ export default {
 		navigateToResult(result) {
 			const routeMap = {
 				meeting: 'MeetingDetail',
-				motion: 'MotionDetail',
-				decision: 'DecisionDetail',
 				'agenda-item': 'AgendaItemDetail',
 				participant: 'ParticipantDetail',
 			}
