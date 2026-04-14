@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
+use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
@@ -95,6 +96,23 @@ class Application extends App implements IBootstrap
                     minutesGenerationService: $c->get(MinutesGenerationService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
+                    );
+                }
+                );
+
+        // Register DecisionController for DI.
+        // Explicit registration matches the MinutesController pattern and ensures
+        // reliable resolution in all Nextcloud environments (≥28).
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
+        $context->registerService(
+                DecisionController::class,
+                static function ($c): DecisionController {
+                    return new DecisionController(
+                    request: $c->get(\OCP\IRequest::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
                 );

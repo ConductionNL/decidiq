@@ -408,9 +408,13 @@ class MinutesGenerationService
         $lines[] = 'De vergadering wordt geopend door de voorzitter.';
         $lines[] = '';
 
+        // Track the current section number — incremented each time a section is emitted.
+        $sectionNumber = 1;
+
         // Agenda items section.
         if (count($agendaItems) > 0) {
-            $lines[] = '## 2. Agenda';
+            $sectionNumber++;
+            $lines[] = '## '.$sectionNumber.'. Agenda';
             $lines[] = '';
             $lines[] = 'De agenda wordt vastgesteld met de volgende punten:';
             $lines[] = '';
@@ -425,7 +429,8 @@ class MinutesGenerationService
 
         // Per-agenda-item treatment.
         if (count($agendaItems) > 0) {
-            $lines[] = '## 3. Behandeling agendapunten';
+            $sectionNumber++;
+            $lines[] = '## '.$sectionNumber.'. Behandeling agendapunten';
             $lines[] = '';
             foreach ($agendaItems as $index => $item) {
                 $order       = $item['orderNumber'] ?? ($index + 1);
@@ -445,7 +450,8 @@ class MinutesGenerationService
 
         // Motions section.
         if (count($motions) > 0) {
-            $lines[] = '## 4. Moties en voorstellen';
+            $sectionNumber++;
+            $lines[] = '## '.$sectionNumber.'. Moties en voorstellen';
             $lines[] = '';
             foreach ($motions as $motion) {
                 $title   = $motion['title'] ?? $motion['name'] ?? 'Motie';
@@ -462,7 +468,8 @@ class MinutesGenerationService
 
         // Voting rounds section.
         if (count($votingRounds) > 0) {
-            $lines[] = '## 5. Stemmingen';
+            $sectionNumber++;
+            $lines[] = '## '.$sectionNumber.'. Stemmingen';
             $lines[] = '';
             foreach ($votingRounds as $round) {
                 $title   = $round['title'] ?? $round['name'] ?? 'Stemming';
@@ -478,7 +485,8 @@ class MinutesGenerationService
 
         // Decisions section.
         if (count($decisions) > 0) {
-            $lines[] = '## 6. Besluiten';
+            $sectionNumber++;
+            $lines[] = '## '.$sectionNumber.'. Besluiten';
             $lines[] = '';
             foreach ($decisions as $decision) {
                 $title   = $decision['title'] ?? 'Besluit';
@@ -503,14 +511,9 @@ class MinutesGenerationService
             }//end foreach
         }//end if
 
-        // Closing section.
-        if (count($agendaItems) > 0) {
-            $closingSectionNumber = '7';
-        } else {
-            $closingSectionNumber = '4';
-        }
-
-        $lines[] = '## '.$closingSectionNumber.'. Sluiting';
+        // Closing section — number follows whichever sections were actually emitted.
+        $sectionNumber++;
+        $lines[] = '## '.$sectionNumber.'. Sluiting';
         $lines[] = '';
         $lines[] = 'De voorzitter sluit de vergadering.';
         $lines[] = '';
