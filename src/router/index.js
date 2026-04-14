@@ -30,9 +30,6 @@ const DecisionDetail = () => import('../views/DecisionDetail.vue')
 const ActionItems = () => import('../views/ActionItems.vue')
 const ActionItemDetail = () => import('../views/ActionItemDetail.vue')
 
-/**
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.3
- */
 export default new Router({
 	mode: 'history',
 	base: generateUrl('/apps/decidesk'),

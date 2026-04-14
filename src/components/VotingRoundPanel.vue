@@ -225,8 +225,7 @@
 <script>
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import { useObjectStore } from '../store/store.js'
-import { useSettingsStore } from '../store/modules/settings.js'
+import { useObjectStore, useSettingsStore } from '../store/store.js'
 
 export default {
 	name: 'VotingRoundPanel',
@@ -238,7 +237,8 @@ export default {
 	},
 	setup() {
 		const objectStore = useObjectStore()
-		return { objectStore }
+		const settingsStore = useSettingsStore()
+		return { objectStore, settingsStore }
 	},
 	data() {
 		return {
@@ -281,9 +281,7 @@ export default {
 			return (this.currentRound.votesFor || 0) + (this.currentRound.votesAgainst || 0) + (this.currentRound.votesAbstain || 0)
 		},
 		isChairOrSecretary() {
-			// Derive admin state from the settings store (loaded from SettingsService::getSettings),
-			// not from OC.isUserAdmin() which was deprecated and removed in Nextcloud 28.
-			return useSettingsStore().getIsAdmin === true
+			return this.settingsStore.isAdmin === true
 		},
 		oriStatusLabel() {
 			const labels = {

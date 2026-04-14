@@ -50,11 +50,11 @@ class SettingsService
      */
     private const CONFIG_KEYS = [
         'register',
+        'ori_endpoint',
+        'email_voting_enabled',
         'minutesSchema',
         'decisionSchema',
         'actionItemSchema',
-        'ori_endpoint',
-        'email_voting_enabled',
     ];
 
     /**
