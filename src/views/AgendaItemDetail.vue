@@ -171,9 +171,9 @@ import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaForm
 import { useObjectStore } from '../store/store.js'
 
 const BOB_STAGES = [
-	{ id: 'beeldvorming',   label: 'Beeldvorming' },
+	{ id: 'beeldvorming', label: 'Beeldvorming' },
 	{ id: 'oordeelsvorming', label: 'Oordeelsvorming' },
-	{ id: 'besluitvorming',  label: 'Besluitvorming' },
+	{ id: 'besluitvorming', label: 'Besluitvorming' },
 ]
 
 export default {

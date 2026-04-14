@@ -377,7 +377,7 @@ export default {
 					OC.generateUrl(`/apps/decidesk/api/agendas/${this.meetingId}/reorder`),
 					{
 						method: 'PUT',
-						headers: { 'Content-Type': 'application/json', 'requesttoken': OC.requestToken },
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
 						body: JSON.stringify({ ids }),
 					},
 				)

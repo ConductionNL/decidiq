@@ -87,7 +87,10 @@
 				v-if="isChairOrSecretary && coiItems.length > 0"
 				:title="t('decidesk', 'Conflict of interest declarations')">
 				<ul class="meeting-detail__coi-list" role="list">
-					<li v-for="item in coiItems" :key="item.id" class="meeting-detail__coi-item" role="listitem">
+					<li v-for="item in coiItems"
+						:key="item.id"
+						class="meeting-detail__coi-item"
+						role="listitem">
 						<strong>{{ item.title }}</strong>
 						<ul class="meeting-detail__coi-declarations" role="list">
 							<li v-for="note in coiNotes(item)" :key="note.id" role="listitem">
@@ -180,8 +183,8 @@ export default {
 		exportColumns() {
 			return [
 				{ key: 'orderNumber', label: this.t('decidesk', 'Number') },
-				{ key: 'title',       label: this.t('decidesk', 'Title') },
-				{ key: 'itemType',    label: this.t('decidesk', 'Type') },
+				{ key: 'title', label: this.t('decidesk', 'Title') },
+				{ key: 'itemType', label: this.t('decidesk', 'Type') },
 				{ key: 'estimatedDuration', label: this.t('decidesk', 'Duration (min)') },
 				{ key: 'spokesperson', label: this.t('decidesk', 'Spokesperson') },
 			]

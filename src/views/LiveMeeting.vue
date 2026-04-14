@@ -168,9 +168,9 @@ import { useObjectStore } from '../store/store.js'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
 
 const BOB_STAGES = [
-	{ id: 'beeldvorming',    label: 'Beeldvorming' },
+	{ id: 'beeldvorming', label: 'Beeldvorming' },
 	{ id: 'oordeelsvorming', label: 'Oordeelsvorming' },
-	{ id: 'besluitvorming',  label: 'Besluitvorming' },
+	{ id: 'besluitvorming', label: 'Besluitvorming' },
 ]
 
 const BOB_FINAL = 'afgerond'
