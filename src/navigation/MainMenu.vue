@@ -74,16 +74,12 @@ Copyright (C) 2026 Conduction B.V.
 </template>
 
 <script>
-import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
-import AccountGroupIcon from 'vue-material-design-icons/AccountGroupOutline.vue'
+import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
-import CalendarBlankIcon from 'vue-material-design-icons/CalendarBlank.vue'
 import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
 import CheckDecagramIcon from 'vue-material-design-icons/CheckDecagram.vue'
 import CogIcon from 'vue-material-design-icons/Cog.vue'
-import DomainIcon from 'vue-material-design-icons/Domain.vue'
 import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
-import FormatListNumberedIcon from 'vue-material-design-icons/FormatListNumbered.vue'
 import GavelIcon from 'vue-material-design-icons/Gavel.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
@@ -92,16 +88,11 @@ export default {
 	components: {
 		NcAppNavigation,
 		NcAppNavigationItem,
-		NcAppNavigationSettings,
-		AccountGroupIcon,
 		BookOpenVariantOutline,
-		CalendarBlankIcon,
 		CheckboxMarkedOutline,
 		CheckDecagramIcon,
 		CogIcon,
-		DomainIcon,
 		FileDocumentOutline,
-		FormatListNumberedIcon,
 		GavelIcon,
 		HomeIcon,
 	},
