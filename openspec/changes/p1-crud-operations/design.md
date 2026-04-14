@@ -256,3 +256,7 @@ This change is the greenfield foundation. There are no prior Decidesk migrations
 
 - Should the Dashboard fetch counts from all 17 entities or only the 4 p1 entities? (Recommendation: only p1 entities for now; extend in later phases)
 - Should AgendaItem list be a standalone page or only accessible from the Meeting detail view? (Recommendation: both — standalone for admin use, embedded in Meeting detail for day-to-day use)
+
+## Status
+
+status: pr-created

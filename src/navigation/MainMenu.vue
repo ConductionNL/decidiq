@@ -1,3 +1,9 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- Copyright (C) 2026 Conduction B.V. -->
+
+<!--
+ @spec openspec/changes/p1-crud-operations/tasks.md#task-4.1
+-->
 <template>
 	<NcAppNavigation>
 		<template #list>
@@ -10,29 +16,50 @@
 				</template>
 			</NcAppNavigationItem>
 			<NcAppNavigationItem
-				:name="t('decidesk', 'Documentation')"
-				@click="openLink('https://conduction.nl', '_blank')">
+				:name="t('decidesk', 'Governance Bodies')"
+				:to="{ name: 'GovernanceBodies' }">
 				<template #icon>
-					<BookOpenVariantOutline :size="20" />
+					<DomainIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Meetings')"
+				:to="{ name: 'Meetings' }">
+				<template #icon>
+					<CalendarBlankIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Participants')"
+				:to="{ name: 'Participants' }">
+				<template #icon>
+					<AccountGroupIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Agenda Items')"
+				:to="{ name: 'AgendaItems' }">
+				<template #icon>
+					<FormatListNumberedIcon :size="20" />
 				</template>
 			</NcAppNavigationItem>
 		</template>
 		<template #footer>
-			<NcAppNavigationItem
-				:name="t('decidesk', 'Settings')"
-				:to="{ name: 'Settings' }">
-				<template #icon>
-					<CogIcon :size="20" />
-				</template>
-			</NcAppNavigationItem>
+			<NcAppNavigationSettings :name="t('decidesk', 'Settings')">
+				<NcAppNavigationItem
+					:name="t('decidesk', 'Settings')"
+					:to="{ name: 'Settings' }" />
+			</NcAppNavigationSettings>
 		</template>
 	</NcAppNavigation>
 </template>
 
 <script>
-import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
-import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
-import CogIcon from 'vue-material-design-icons/Cog.vue'
+import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
+import AccountGroupIcon from 'vue-material-design-icons/AccountGroupOutline.vue'
+import CalendarBlankIcon from 'vue-material-design-icons/CalendarBlank.vue'
+import DomainIcon from 'vue-material-design-icons/Domain.vue'
+import FormatListNumberedIcon from 'vue-material-design-icons/FormatListNumbered.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
 export default {
@@ -40,14 +67,12 @@ export default {
 	components: {
 		NcAppNavigation,
 		NcAppNavigationItem,
-		BookOpenVariantOutline,
-		CogIcon,
+		NcAppNavigationSettings,
+		AccountGroupIcon,
+		CalendarBlankIcon,
+		DomainIcon,
+		FormatListNumberedIcon,
 		HomeIcon,
-	},
-	methods: {
-		openLink(url, target = '_blank') {
-			window.open(url, target)
-		},
 	},
 }
 </script>
