@@ -7,6 +7,7 @@ import { generateUrl } from '@nextcloud/router'
 
 /**
  * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.4
+ * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.3
  */
 
 Vue.use(Router)

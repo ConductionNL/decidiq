@@ -45,6 +45,42 @@
 				{{ reimporting ? t('decidesk', 'Importing...') : t('decidesk', 'Reimport Register') }}
 			</NcButton>
 		</CnSettingsSection>
+
+		<!-- ORI endpoint setting (task-10.1) -->
+		<CnSettingsSection
+			v-if="isAdmin"
+			:name="t('decidesk', 'ORI-eindpunt')"
+			:description="t('decidesk', 'ORI API endpoint URL for publishing voting results')">
+			<div class="decidesk-settings-field">
+				<input
+					v-model="oriEndpoint"
+					type="url"
+					class="decidesk-settings-input"
+					:placeholder="t('decidesk', 'https://ori.example.nl/api/v1/votes')"
+					:aria-label="t('decidesk', 'ORI endpoint URL')">
+				<NcButton
+					type="primary"
+					:disabled="savingOri"
+					@click="saveOriEndpoint">
+					{{ t('decidesk', 'Save') }}
+				</NcButton>
+			</div>
+		</CnSettingsSection>
+
+		<!-- Email voting toggle (task-10.2) -->
+		<CnSettingsSection
+			v-if="isAdmin"
+			:name="t('decidesk', 'E-mail stemmen')"
+			:description="t('decidesk', 'Enable email reply voting')">
+			<label class="decidesk-toggle-label">
+				<input
+					v-model="emailVotingEnabled"
+					type="checkbox"
+					:aria-label="t('decidesk', 'Enable email reply voting')"
+					@change="saveEmailVoting">
+				{{ t('decidesk', 'E-mail stemmen inschakelen') }}
+			</label>
+		</CnSettingsSection>
 	</div>
 </template>
 
@@ -73,6 +109,9 @@ export default {
 	data() {
 		return {
 			reimporting: false,
+			savingOri: false,
+			oriEndpoint: '',
+			emailVotingEnabled: false,
 			appVersion: document.getElementById('content')?.dataset?.version || '0.1.0',
 			registerGroups: [
 				{
@@ -123,6 +162,38 @@ export default {
 		},
 
 		/**
+		 * Save ORI endpoint configuration.
+		 *
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1
+		 */
+		async saveOriEndpoint() {
+			this.savingOri = true
+			try {
+				const settingsStore = useSettingsStore()
+				await settingsStore.saveSettings({ ori_endpoint: this.oriEndpoint })
+				showSuccess(this.t('decidesk', 'Settings saved successfully'))
+			} catch (error) {
+				showError(this.t('decidesk', 'Saving...'))
+			} finally {
+				this.savingOri = false
+			}
+		},
+
+		/**
+		 * Toggle email voting setting.
+		 *
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2
+		 */
+		async saveEmailVoting() {
+			try {
+				const settingsStore = useSettingsStore()
+				await settingsStore.saveSettings({ email_voting_enabled: this.emailVotingEnabled ? '1' : '0' })
+			} catch (error) {
+				showError(this.t('decidesk', 'Saving...'))
+			}
+		},
+
+		/**
 		 * Re-import the register configuration.
 		 *
 		 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-7.2
@@ -155,5 +226,27 @@ export default {
 .decidesk-settings {
 	max-width: 56.25rem;
 	padding: 0 var(--default-grid-baseline);
+}
+
+.decidesk-settings-field {
+	display: flex;
+	gap: var(--default-grid-baseline);
+	align-items: center;
+}
+
+.decidesk-settings-input {
+	flex: 1;
+	padding: var(--default-grid-baseline);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+}
+
+.decidesk-toggle-label {
+	display: flex;
+	align-items: center;
+	gap: var(--default-grid-baseline);
+	cursor: pointer;
 }
 </style>

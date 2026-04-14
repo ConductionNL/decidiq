@@ -1,53 +1,78 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- Copyright (C) 2026 Conduction B.V. -->
+
+<!--
+ Admin settings — includes ORI endpoint and email voting toggle.
+ @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+-->
 <template>
-	<CnSettingsSection
-		:name="t('decidesk', 'Configuration')"
-		:description="t('decidesk', 'Configure the app settings')">
-		<form @submit.prevent="save">
-			<div class="form-group">
-				<label for="register">{{ t('decidesk', 'Register') }}</label>
-				<input
-					id="register"
-					v-model="form.register"
-					type="text"
-					:placeholder="t('decidesk', 'OpenRegister register ID')">
-			</div>
-
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
-			<div class="form-group">
-				<label for="ori-endpoint">{{ t('decidesk', 'ORI Endpoint') }}</label>
-				<input
-					id="ori-endpoint"
-					v-model="form.ori_endpoint"
-					type="url"
-					:placeholder="t('decidesk', 'ORI endpoint URL for publishing voting results')">
-			</div>
-
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
-			<div class="form-group">
-				<label>
+	<div>
+		<CnSettingsSection
+			:name="t('decidesk', 'Configuration')"
+			:description="t('decidesk', 'Configure the app settings')">
+			<form @submit.prevent="save">
+				<div class="form-group">
+					<label for="register">{{ t('decidesk', 'Register') }}</label>
 					<input
-						v-model="form.email_voting_enabled"
-						type="checkbox"
-						true-value="1"
-						false-value="0">
-					{{ t('decidesk', 'Email Voting') }}
-				</label>
-				<p class="form-hint">{{ t('decidesk', 'Enable email vote reply parsing') }}</p>
-			</div>
+						id="register"
+						v-model="form.register"
+						type="text"
+						:placeholder="t('decidesk', 'OpenRegister register ID')">
+				</div>
 
-			<div v-if="successMessage" class="success-message">
-				{{ successMessage }}
-			</div>
+				<div v-if="successMessage" class="success-message">
+					{{ successMessage }}
+				</div>
 
-			<NcButton
-				type="primary"
-				native-type="submit"
-				:disabled="saving">
-				{{ saving ? t('decidesk', 'Saving...') : t('decidesk', 'Save') }}
-			</NcButton>
-		</form>
-	</CnSettingsSection>
+				<NcButton
+					type="primary"
+					native-type="submit"
+					:disabled="saving">
+					{{ saving ? t('decidesk', 'Saving...') : t('decidesk', 'Save') }}
+				</NcButton>
+			</form>
+		</CnSettingsSection>
+
+		<!-- ORI publication settings -->
+		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
+		<CnSettingsSection
+			:name="t('decidesk', 'ORI-eindpunt')"
+			:description="t('decidesk', 'ORI API endpoint URL')">
+			<form @submit.prevent="saveOri">
+				<div class="form-group">
+					<label for="ori_endpoint">{{ t('decidesk', 'ORI-eindpunt') }}</label>
+					<input
+						id="ori_endpoint"
+						v-model="form.ori_endpoint"
+						type="url"
+						:placeholder="t('decidesk', 'https://api.ori.example.nl/v1/stemmingen')">
+				</div>
+
+				<NcButton
+					type="primary"
+					native-type="submit"
+					:disabled="savingOri">
+					{{ savingOri ? t('decidesk', 'Saving...') : t('decidesk', 'Save') }}
+				</NcButton>
+			</form>
+		</CnSettingsSection>
+
+		<!-- Email voting toggle -->
+		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
+		<CnSettingsSection
+			:name="t('decidesk', 'E-mail stemmen')"
+			:description="t('decidesk', 'Enable voting by email reply')">
+			<div class="form-group form-group--checkbox">
+				<input
+					id="email_voting_enabled"
+					v-model="form.email_voting_enabled"
+					type="checkbox"
+					:aria-label="t('decidesk', 'E-mail stemmen')"
+					@change="saveEmailVoting">
+				<label for="email_voting_enabled">{{ t('decidesk', 'Enable voting by email reply') }}</label>
+			</div>
+		</CnSettingsSection>
+	</div>
 </template>
 
 <script>
@@ -66,9 +91,10 @@ export default {
 			form: {
 				register: '',
 				ori_endpoint: '',
-				email_voting_enabled: '0',
+				email_voting_enabled: false,
 			},
 			saving: false,
+			savingOri: false,
 			successMessage: '',
 		}
 	},
@@ -76,18 +102,30 @@ export default {
 		const settingsStore = useSettingsStore()
 		this.form.register = settingsStore.settings?.register || ''
 		this.form.ori_endpoint = settingsStore.settings?.ori_endpoint || ''
-		this.form.email_voting_enabled = settingsStore.settings?.email_voting_enabled || '0'
+		this.form.email_voting_enabled = settingsStore.settings?.email_voting_enabled === '1' || settingsStore.settings?.email_voting_enabled === true
 	},
 	methods: {
 		async save() {
 			this.saving = true
 			this.successMessage = ''
 			const settingsStore = useSettingsStore()
-			const result = await settingsStore.saveSettings(this.form)
+			const result = await settingsStore.saveSettings({ register: this.form.register })
 			if (result) {
 				this.successMessage = t('decidesk', 'Settings saved successfully')
 			}
 			this.saving = false
+		},
+		async saveOri() {
+			this.savingOri = true
+			const settingsStore = useSettingsStore()
+			await settingsStore.saveSettings({ ori_endpoint: this.form.ori_endpoint })
+			this.savingOri = false
+		},
+		async saveEmailVoting() {
+			const settingsStore = useSettingsStore()
+			await settingsStore.saveSettings({
+				email_voting_enabled: this.form.email_voting_enabled ? '1' : '0',
+			})
 		},
 	},
 }
@@ -97,11 +135,23 @@ export default {
 .form-group {
 	margin-bottom: 12px;
 }
+
 .form-group label {
 	display: block;
 	margin-bottom: 4px;
 	font-weight: 600;
 }
+
+.form-group--checkbox {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.form-group--checkbox label {
+	margin-bottom: 0;
+}
+
 .success-message {
 	color: var(--color-success);
 	margin-bottom: 8px;
