@@ -79,7 +79,7 @@
 
 <script>
 import { NcLoadingIcon } from '@nextcloud/vue'
-import { useObjectStore } from '../store/modules/object.js'
+import { useObjectStore } from '../store/store.js'
 
 import Magnify from 'vue-material-design-icons/Magnify.vue'
 import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'

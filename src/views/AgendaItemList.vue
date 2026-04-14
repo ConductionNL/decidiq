@@ -27,7 +27,7 @@
 
 <script>
 import { CnIndexPage, useListView } from '@conduction/nextcloud-vue'
-import { useObjectStore } from '../store/modules/object.js'
+import { useObjectStore } from '../store/store.js'
 
 /**
  * Agenda item list view using CnIndexPage + useListView.
