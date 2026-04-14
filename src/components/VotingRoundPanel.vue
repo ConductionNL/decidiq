@@ -2,175 +2,238 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
+ VotingRoundPanel component — embedded in MotionDetail and AmendmentDetail.
+ Shows the current open voting round, vote casting, live tally, proxy controls, and results.
  @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6
 -->
 <template>
-	<CnDetailCard :title="t('decidesk', 'Voting Round')">
-		<!-- Open voting round dialog trigger (chair/secretary, motion in debating) -->
-		<div v-if="canOpenRound" class="decidesk-actions">
-			<NcButton
-				type="primary"
-				@click="showOpenDialog = true">
-				{{ t('decidesk', 'Open Voting Round') }}
-			</NcButton>
-		</div>
-
-		<!-- Open voting round form -->
-		<div v-if="showOpenDialog" class="decidesk-voting-form">
-			<h4>{{ t('decidesk', 'Open Voting Round') }}</h4>
-			<label :for="'voting-method-' + motionId">{{ t('decidesk', 'Voting Method') }}</label>
-			<select :id="'voting-method-' + motionId" v-model="openForm.votingMethod">
-				<option value="for-against-abstain">{{ t('decidesk', 'For / Against / Abstain') }}</option>
-				<option value="show-of-hands">{{ t('decidesk', 'Show of Hands') }}</option>
-				<option value="weighted">{{ t('decidesk', 'Weighted') }}</option>
-				<option value="ranked-choice">{{ t('decidesk', 'Ranked Choice') }}</option>
-			</select>
-			<label>
-				<input v-model="openForm.isSecret" type="checkbox" />
-				{{ t('decidesk', 'Secret Ballot') }}
-			</label>
-			<label :for="'closed-at-' + motionId">{{ t('decidesk', 'Close At (optional)') }}</label>
-			<input
-				:id="'closed-at-' + motionId"
-				v-model="openForm.closedAt"
-				type="datetime-local" />
-			<p v-if="openError" class="decidesk-error" role="alert">
-				{{ openError }}
-			</p>
-			<div class="decidesk-actions">
-				<NcButton type="primary" :disabled="opening" @click="openVotingRound">
-					{{ t('decidesk', 'Open') }}
-				</NcButton>
-				<NcButton type="tertiary" @click="showOpenDialog = false">
-					{{ t('decidesk', 'Cancel') }}
-				</NcButton>
-			</div>
-		</div>
-
-		<!-- No active round -->
-		<p v-if="!currentRound && !showOpenDialog" class="decidesk-empty">
-			{{ t('decidesk', 'No voting round for this item.') }}
+	<CnDetailCard :title="t('decidesk', 'Stemronde')">
+		<!-- Loading state -->
+		<p v-if="loading" class="decidesk-empty">
+			{{ t('decidesk', 'Laden…') }}
 		</p>
 
-		<!-- Active or most-recent round -->
-		<div v-if="currentRound" class="decidesk-round">
-			<!-- Live tally (chair/secretary only) -->
-			<div v-if="isChairOrSecretary && isRoundOpen" class="decidesk-tally-live">
-				{{ t('decidesk', 'Cast') }}: {{ totalVotesCast }} /
-				{{ t('decidesk', 'For') }}: {{ currentRound.votesFor }},
-				{{ t('decidesk', 'Against') }}: {{ currentRound.votesAgainst }},
-				{{ t('decidesk', 'Abstain') }}: {{ currentRound.votesAbstain }}
-			</div>
-			<!-- Members see total only -->
-			<div v-else-if="isRoundOpen" class="decidesk-tally-partial">
-				{{ t('decidesk', 'Votes cast') }}: {{ totalVotesCast }}
-			</div>
+		<!-- No round yet — chair can open one -->
+		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 -->
+		<template v-else-if="!currentRound">
+			<p class="decidesk-empty">
+				{{ t('decidesk', 'Geen actieve stemronde.') }}
+			</p>
+			<NcButton
+				v-if="motionLifecycle === 'debating'"
+				type="primary"
+				:disabled="!meetingId"
+				:title="!meetingId ? t('decidesk', 'Vergadering niet gekoppeld — stemronde kan niet worden geopend') : undefined"
+				@click="showOpenRoundDialog = true">
+				{{ t('decidesk', 'Stemronde openen') }}
+			</NcButton>
 
-			<!-- Show-of-hands data entry -->
-			<div v-if="isShowOfHands && isRoundOpen && isChairOrSecretary" class="decidesk-show-of-hands">
-				<h5>{{ t('decidesk', 'Show of Hands') }}</h5>
-				<label :for="'soh-for-' + motionId">{{ t('decidesk', 'For') }}</label>
-				<input :id="'soh-for-' + motionId" v-model.number="sohForm.for" type="number" min="0" :aria-label="t('decidesk', 'Votes for')" />
-				<label :for="'soh-against-' + motionId">{{ t('decidesk', 'Against') }}</label>
-				<input :id="'soh-against-' + motionId" v-model.number="sohForm.against" type="number" min="0" :aria-label="t('decidesk', 'Votes against')" />
-				<label :for="'soh-abstain-' + motionId">{{ t('decidesk', 'Abstain') }}</label>
-				<input :id="'soh-abstain-' + motionId" v-model.number="sohForm.abstain" type="number" min="0" :aria-label="t('decidesk', 'Votes abstain')" />
-				<NcButton type="secondary" @click="saveShowOfHandsResult">
-					{{ t('decidesk', 'Save Result') }}
+			<!-- Open round dialog -->
+			<div v-if="showOpenRoundDialog"
+				class="decidesk-dialog"
+				role="dialog"
+				:aria-label="t('decidesk', 'Stemronde openen')">
+				<h3>{{ t('decidesk', 'Stemronde openen') }}</h3>
+				<label for="votingMethod">{{ t('decidesk', 'Stemmethode') }}</label>
+				<select id="votingMethod" v-model="newRound.votingMethod">
+					<option value="for-against-abstain">
+						{{ t('decidesk', 'Voor / Tegen / Onthouding') }}
+					</option>
+					<option value="show-of-hands">
+						{{ t('decidesk', 'Handopsteking') }}
+					</option>
+					<option value="weighted">
+						{{ t('decidesk', 'Gewogen stemming') }}
+					</option>
+				</select>
+				<label>
+					<input v-model="newRound.isSecret" type="checkbox">
+					{{ t('decidesk', 'Geheime stemming') }}
+				</label>
+				<label for="closedAt">{{ t('decidesk', 'Sluitingstijd (optioneel)') }}</label>
+				<input id="closedAt" v-model="newRound.closedAt" type="datetime-local">
+				<p v-if="openRoundError" class="decidesk-error" role="alert">
+					{{ openRoundError }}
+				</p>
+				<div class="decidesk-dialog-actions">
+					<NcButton type="primary" :disabled="openingRound" @click="openRound">
+						{{ t('decidesk', 'Openen') }}
+					</NcButton>
+					<NcButton @click="showOpenRoundDialog = false">
+						{{ t('decidesk', 'Annuleren') }}
+					</NcButton>
+				</div>
+			</div>
+		</template>
+
+		<!-- Active or closed round -->
+		<template v-else>
+			<!-- Show-of-hands entry (chair/secretary when round is open) -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 -->
+			<div v-if="isRoundOpen && currentRound.votingMethod === 'show-of-hands'" class="decidesk-show-of-hands">
+				<h4>{{ t('decidesk', 'Handopsteking resultaat opslaan') }}</h4>
+				<label for="showFor">{{ t('decidesk', 'Voor') }}</label>
+				<input id="showFor"
+					v-model.number="showOfHands.for"
+					type="number"
+					min="0"
+					:aria-label="t('decidesk', 'Stemmen voor')">
+				<label for="showAgainst">{{ t('decidesk', 'Tegen') }}</label>
+				<input id="showAgainst"
+					v-model.number="showOfHands.against"
+					type="number"
+					min="0"
+					:aria-label="t('decidesk', 'Stemmen tegen')">
+				<label for="showAbstain">{{ t('decidesk', 'Onthouding') }}</label>
+				<input id="showAbstain"
+					v-model.number="showOfHands.abstain"
+					type="number"
+					min="0"
+					:aria-label="t('decidesk', 'Onthoudingen')">
+				<NcButton type="primary" @click="saveShowOfHands">
+					{{ t('decidesk', 'Resultaat opslaan') }}
 				</NcButton>
 			</div>
 
-			<!-- Vote buttons for standard rounds -->
-			<div v-if="isRoundOpen && !isShowOfHands && canVote" class="decidesk-vote-buttons" role="group" :aria-label="t('decidesk', 'Cast your vote')">
+			<!-- Vote casting buttons -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 -->
+			<div v-if="isRoundOpen && currentRound.votingMethod !== 'show-of-hands' && !voteCast" class="decidesk-vote-buttons">
+				<!-- Proxy notice -->
+				<p v-if="activeProxy" class="decidesk-proxy-notice">
+					{{ t('decidesk', 'U stemt namens: {name}', { name: activeProxy }) }}
+				</p>
 				<NcButton
-					:class="{ 'decidesk-voted': myVote === 'for' }"
 					type="primary"
-					:aria-pressed="myVote === 'for'"
-					:disabled="voting"
+					class="decidesk-vote-btn"
+					:aria-label="t('decidesk', 'Stem voor')"
 					@click="castVote('for')">
-					{{ t('decidesk', 'For') }}
+					{{ t('decidesk', 'Voor') }}
 				</NcButton>
 				<NcButton
-					:class="{ 'decidesk-voted': myVote === 'against' }"
 					type="error"
-					:aria-pressed="myVote === 'against'"
-					:disabled="voting"
+					class="decidesk-vote-btn"
+					:aria-label="t('decidesk', 'Stem tegen')"
 					@click="castVote('against')">
-					{{ t('decidesk', 'Against') }}
+					{{ t('decidesk', 'Tegen') }}
 				</NcButton>
 				<NcButton
-					:class="{ 'decidesk-voted': myVote === 'abstain' }"
 					type="secondary"
-					:aria-pressed="myVote === 'abstain'"
-					:disabled="voting"
+					class="decidesk-vote-btn"
+					:aria-label="t('decidesk', 'Onthouding')"
 					@click="castVote('abstain')">
-					{{ t('decidesk', 'Abstain') }}
+					{{ t('decidesk', 'Onthouding') }}
 				</NcButton>
+				<p v-if="castVoteError" class="decidesk-error" role="alert">
+					{{ castVoteError }}
+				</p>
 			</div>
-			<p v-if="myVote && isRoundOpen" class="decidesk-vote-confirmation" role="status">
-				{{ t('decidesk', 'Your vote has been recorded') }}: <strong>{{ myVote }}</strong>
+
+			<!-- Vote confirmation message -->
+			<p v-if="voteCast" class="decidesk-vote-confirmed" role="status">
+				{{ t('decidesk', 'Uw stem is geregistreerd.') }}
 			</p>
 
-			<!-- Proxy section: grant/revoke before round opens -->
-			<div v-if="!isRoundOpen && canVote" class="decidesk-proxy">
-				<NcButton type="secondary" @click="showProxyDialog = true">
-					{{ t('decidesk', 'Grant Proxy') }}
-				</NcButton>
-				<NcButton v-if="hasProxy" type="tertiary" @click="revokeProxy">
-					{{ t('decidesk', 'Revoke Proxy') }}
-				</NcButton>
+			<!-- Live tally (chair/secretary see full tally; members see only total count) -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 -->
+			<div v-if="isRoundOpen" class="decidesk-tally">
+				<p>{{ t('decidesk', 'Uitgebracht: {cast} / {total}', { cast: tallyTotal, total: participantCount }) }}</p>
+				<template v-if="isChairOrSecretary">
+					<p>
+						{{ t('decidesk', 'Voor: {for} — Tegen: {against} — Onthouding: {abstain}', {
+							for: currentRound.votesFor || 0,
+							against: currentRound.votesAgainst || 0,
+							abstain: currentRound.votesAbstain || 0,
+						}) }}
+					</p>
+				</template>
 			</div>
-			<p v-if="receivedProxy" class="decidesk-proxy-notice">
-				{{ t('decidesk', 'You are voting on behalf of') }}: <strong>{{ receivedProxy }}</strong>
-			</p>
+
+			<!-- Proxy management — only available before the round opens -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7 -->
+			<div class="decidesk-proxy">
+				<NcButton v-if="!activeProxy && !isRoundOpen" type="secondary" @click="showProxyDialog = true">
+					{{ t('decidesk', 'Volmacht verlenen') }}
+				</NcButton>
+				<NcButton v-if="activeProxy && !isRoundOpen" type="error" @click="revokeProxy">
+					{{ t('decidesk', 'Volmacht intrekken') }}
+				</NcButton>
+				<div v-if="showProxyDialog && !isRoundOpen"
+					class="decidesk-dialog"
+					role="dialog"
+					:aria-label="t('decidesk', 'Volmacht verlenen')">
+					<h4>{{ t('decidesk', 'Volmacht verlenen aan') }}</h4>
+					<input v-model="proxyToId" type="text" :placeholder="t('decidesk', 'Deelnemer UUID')">
+					<div class="decidesk-dialog-actions">
+						<NcButton type="primary" @click="grantProxy">
+							{{ t('decidesk', 'Verlenen') }}
+						</NcButton>
+						<NcButton @click="showProxyDialog = false">
+							{{ t('decidesk', 'Annuleren') }}
+						</NcButton>
+					</div>
+				</div>
+			</div>
 
 			<!-- Close round button (chair/secretary) -->
-			<div v-if="isRoundOpen && isChairOrSecretary" class="decidesk-actions">
-				<NcButton
-					type="error"
-					:disabled="closing"
-					@click="confirmClose">
-					{{ t('decidesk', 'Close Voting Round') }}
-				</NcButton>
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 -->
+			<NcButton
+				v-if="isRoundOpen && isChairOrSecretary"
+				type="error"
+				@click="confirmCloseRound = true">
+				{{ t('decidesk', 'Stemronde sluiten') }}
+			</NcButton>
+			<div v-if="confirmCloseRound" class="decidesk-dialog" role="dialog">
+				<p>{{ t('decidesk', 'Stemronde sluiten? {notVoted} van {total} leden hebben nog niet gestemd.', { notVoted: participantCount - tallyTotal, total: participantCount }) }}</p>
+				<div class="decidesk-dialog-actions">
+					<NcButton type="error" @click="closeRound">
+						{{ t('decidesk', 'Sluiten') }}
+					</NcButton>
+					<NcButton @click="confirmCloseRound = false">
+						{{ t('decidesk', 'Annuleren') }}
+					</NcButton>
+				</div>
 			</div>
 
-			<!-- Result display (closed round) -->
+			<!-- Result display (closed rounds) -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 -->
 			<div v-if="!isRoundOpen && currentRound.result" class="decidesk-result">
-				<CnStatusBadge :status="currentRound.result" />
-				<div class="decidesk-tally-final">
-					{{ t('decidesk', 'For') }}: {{ currentRound.votesFor }} |
-					{{ t('decidesk', 'Against') }}: {{ currentRound.votesAgainst }} |
-					{{ t('decidesk', 'Abstain') }}: {{ currentRound.votesAbstain }}
-				</div>
+				<p>
+					<strong>{{ t('decidesk', 'Uitslag:') }}</strong>
+					<CnStatusBadge :status="currentRound.result" />
+				</p>
+				<p>
+					{{ t('decidesk', 'Voor: {for} — Tegen: {against} — Onthouding: {abstain}', {
+						for: currentRound.votesFor || 0,
+						against: currentRound.votesAgainst || 0,
+						abstain: currentRound.votesAbstain || 0,
+					}) }}
+				</p>
 				<NcButton
 					v-if="isChairOrSecretary"
 					type="secondary"
 					@click="publishToOri">
-					{{ t('decidesk', 'Publish to ORI') }}
+					{{ t('decidesk', 'Publiceren naar ORI') }}
 				</NcButton>
-				<span v-if="publicationStatus === 'published'" class="decidesk-published">
-					{{ t('decidesk', 'Published') }}
-				</span>
-				<span v-else-if="publicationStatus === 'pending'" class="decidesk-pending">
-					{{ t('decidesk', 'Publication pending') }}
-				</span>
+				<p v-if="oriStatus" class="decidesk-ori-status">
+					{{ oriStatusLabel }}
+				</p>
 			</div>
-		</div>
+		</template>
 	</CnDetailCard>
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
+import { NcButton } from '@nextcloud/vue'
 import { useObjectStore } from '../store/store.js'
 
 export default {
 	name: 'VotingRoundPanel',
-	components: { NcButton, CnDetailCard, CnStatusBadge },
+	components: { CnDetailCard, CnStatusBadge, NcButton },
 	props: {
 		motionId: { type: String, required: true },
 		motionLifecycle: { type: String, default: '' },
-		motionSchema: { type: String, default: 'motion' },
+		meetingId: { type: String, default: '' },
 	},
 	setup() {
 		const objectStore = useObjectStore()
@@ -178,192 +241,230 @@ export default {
 	},
 	data() {
 		return {
+			loading: false,
 			currentRound: null,
-			myVote: null,
-			hasProxy: false,
-			receivedProxy: null,
-			publicationStatus: null,
-			showOpenDialog: false,
+			voteCast: false,
+			castVoteError: null,
+			showOpenRoundDialog: false,
+			openingRound: false,
+			openRoundError: null,
+			confirmCloseRound: false,
 			showProxyDialog: false,
-			openError: null,
-			opening: false,
-			voting: false,
-			closing: false,
-			pollInterval: null,
-			openForm: {
+			proxyToId: '',
+			activeProxy: null,
+			oriStatus: null,
+			showOfHands: { for: 0, against: 0, abstain: 0 },
+			newRound: {
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
-				closedAt: null,
+				closedAt: '',
 			},
-			sohForm: { for: 0, against: 0, abstain: 0 },
-			// Simplified role detection — real implementation reads from settings store.
-			isChairOrSecretary: false,
-			canVote: true,
-			participantId: null,
+			pollInterval: null,
+			participantCount: 0,
 		}
 	},
 	computed: {
+		roundId() {
+			if (!this.currentRound) return null
+			return this.currentRound.id || this.currentRound.uuid || null
+		},
 		isRoundOpen() {
-			return this.currentRound !== null
-				&& this.currentRound.openedAt !== null
-				&& this.currentRound.closedAt === null
+			if (!this.currentRound) return false
+			if (!this.currentRound.openedAt) return false
+			if (this.currentRound.closedAt) return false
+			return true
 		},
-		isShowOfHands() {
-			return (this.currentRound?.votingMethod ?? '') === 'show-of-hands'
-		},
-		canOpenRound() {
-			return this.motionLifecycle === 'debating' && !this.currentRound
-		},
-		totalVotesCast() {
+		tallyTotal() {
 			if (!this.currentRound) return 0
-			return (this.currentRound.votesFor ?? 0)
-				+ (this.currentRound.votesAgainst ?? 0)
-				+ (this.currentRound.votesAbstain ?? 0)
+			return (this.currentRound.votesFor || 0) + (this.currentRound.votesAgainst || 0) + (this.currentRound.votesAbstain || 0)
+		},
+		isChairOrSecretary() {
+			return !!(window.OC?.isUserAdmin?.())
+		},
+		oriStatusLabel() {
+			const labels = {
+				published: this.t('decidesk', 'Gepubliceerd naar ORI'),
+				pending: this.t('decidesk', 'Publicatie in behandeling'),
+				not_configured: this.t('decidesk', 'ORI niet geconfigureerd'),
+			}
+			return labels[this.oriStatus] || this.oriStatus
 		},
 	},
-	mounted() {
-		this.loadCurrentRound()
+	async mounted() {
+		await this.fetchCurrentRound()
+		// Poll every 5 seconds when round is open.
+		this.pollInterval = setInterval(async () => {
+			if (this.isRoundOpen) {
+				await this.fetchCurrentRound()
+			}
+		}, 5000)
 	},
 	beforeDestroy() {
-		if (this.pollInterval) clearInterval(this.pollInterval)
-	},
-	watch: {
-		motionId() { this.loadCurrentRound() },
-		isRoundOpen(val) {
-			if (val) {
-				this.startPolling()
-			} else {
-				this.stopPolling()
-			}
-		},
+		if (this.pollInterval) {
+			clearInterval(this.pollInterval)
+		}
 	},
 	methods: {
-		async loadCurrentRound() {
+		async fetchCurrentRound() {
+			this.loading = true
 			try {
-				const rounds = await this.objectStore.fetchObjects('voting-round')
-				// Find open or most recent round linked to this motion.
-				const linked = (rounds ?? []).filter(r => {
-					const rels = r.relations?.motion ?? r.relations?.amendment ?? []
-					return rels.some(rel => (rel.id ?? rel.uuid ?? rel) === this.motionId)
+				const result = await this.objectStore.fetchObjects('voting-round', {
+					'relations.motion': this.motionId,
 				})
-				const open = linked.find(r => r.openedAt && !r.closedAt)
-				this.currentRound = open ?? (linked.sort((a, b) => new Date(b.openedAt ?? 0) - new Date(a.openedAt ?? 0))[0] ?? null)
-
-				if (this.currentRound?.result) {
-					await this.checkPublicationStatus()
-				}
-			} catch { /* ignore */ }
-		},
-		startPolling() {
-			if (this.pollInterval) return
-			this.pollInterval = setInterval(() => this.loadCurrentRound(), 5000)
-		},
-		stopPolling() {
-			if (this.pollInterval) {
-				clearInterval(this.pollInterval)
-				this.pollInterval = null
-			}
-		},
-		async openVotingRound() {
-			this.opening = true
-			this.openError = null
-			try {
-				const response = await fetch('/index.php/apps/decidesk/api/voting-rounds', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-					body: JSON.stringify({
-						motionId: this.motionId,
-						votingMethod: this.openForm.votingMethod,
-						isSecret: this.openForm.isSecret,
-						closedAt: this.openForm.closedAt || null,
-					}),
-				})
-				const data = await response.json()
-				if (!response.ok) {
-					this.openError = data.message ?? this.t('decidesk', 'Failed to open voting round')
-					return
-				}
-
-				this.showOpenDialog = false
-				await this.loadCurrentRound()
+				const rounds = result?.results || []
+				// Show most recent open round, then most recent closed.
+				const open = rounds.find(r => r.openedAt && !r.closedAt)
+				const recent = rounds.sort((a, b) => new Date(b.openedAt || 0) - new Date(a.openedAt || 0))[0]
+				this.currentRound = open || recent || null
+			} catch (e) {
+				this.currentRound = null
 			} finally {
-				this.opening = false
+				this.loading = false
 			}
 		},
 		async castVote(value) {
-			this.voting = true
+			this.castVoteError = null
 			try {
-				const roundId = this.currentRound?.id ?? this.currentRound?.uuid
-				await fetch(`/index.php/apps/decidesk/api/voting-rounds/${roundId}/cast`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-					body: JSON.stringify({
-						participantId: this.participantId ?? '',
-						value,
-						isProxy: false,
-						delegatorId: null,
-					}),
-				})
-				this.myVote = value
-				await this.loadCurrentRound()
-			} finally {
-				this.voting = false
+				const resp = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/cast`),
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						body: JSON.stringify({
+							participantId: OC.currentUser,
+							value,
+							isProxy: false,
+							delegatorId: null,
+						}),
+					},
+				)
+				if (resp.ok) {
+					this.voteCast = true
+					await this.fetchCurrentRound()
+				} else {
+					const data = await resp.json()
+					this.castVoteError = data.message || this.t('decidesk', 'Stem uitbrengen mislukt')
+				}
+			} catch (e) {
+				this.castVoteError = this.t('decidesk', 'Stem uitbrengen mislukt')
 			}
 		},
-		async saveShowOfHandsResult() {
-			const roundId = this.currentRound?.id ?? this.currentRound?.uuid
-			// Update voting round totals directly.
-			await this.objectStore.saveObject('voting-round', {
-				...(this.currentRound ?? {}),
-				votesFor: this.sohForm.for,
-				votesAgainst: this.sohForm.against,
-				votesAbstain: this.sohForm.abstain,
-			})
-			await this.loadCurrentRound()
-		},
-		async confirmClose() {
-			if (!confirm(this.t('decidesk', 'Close the voting round now? Members who have not voted yet will not be counted.'))) return
-			this.closing = true
+		async openRound() {
+			this.openingRound = true
+			this.openRoundError = null
 			try {
-				const roundId = this.currentRound?.id ?? this.currentRound?.uuid
-				await fetch(`/index.php/apps/decidesk/api/voting-rounds/${roundId}/close`, {
-					method: 'POST',
-					headers: { 'Accept': 'application/json' },
-				})
-				await this.loadCurrentRound()
+				const resp = await fetch(
+					OC.generateUrl('/apps/decidesk/api/voting-rounds'),
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						body: JSON.stringify({
+							motionId: this.motionId,
+							meetingId: this.meetingId,
+							votingMethod: this.newRound.votingMethod,
+							isSecret: this.newRound.isSecret,
+							closedAt: this.newRound.closedAt || null,
+						}),
+					},
+				)
+				if (resp.ok) {
+					this.showOpenRoundDialog = false
+					await this.fetchCurrentRound()
+				} else {
+					const data = await resp.json()
+					this.openRoundError = data.message || this.t('decidesk', 'Stemronde openen mislukt')
+				}
+			} catch (e) {
+				this.openRoundError = this.t('decidesk', 'Stemronde openen mislukt')
 			} finally {
-				this.closing = false
+				this.openingRound = false
+			}
+		},
+		async closeRound() {
+			this.confirmCloseRound = false
+			try {
+				const resp = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/close`),
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+					},
+				)
+				if (resp.ok) {
+					await this.fetchCurrentRound()
+				}
+			} catch (e) {
+				// ignore
+			}
+		},
+		async saveShowOfHands() {
+			const updated = {
+				...this.currentRound,
+				votesFor: this.showOfHands.for,
+				votesAgainst: this.showOfHands.against,
+				votesAbstain: this.showOfHands.abstain,
+			}
+			try {
+				await this.objectStore.saveObject('voting-round', updated)
+				await this.fetchCurrentRound()
+			} catch (e) {
+				// ignore
+			}
+		},
+		async grantProxy() {
+			try {
+				const resp = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/proxy`),
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						body: JSON.stringify({
+							fromParticipantId: OC.currentUser,
+							toParticipantId: this.proxyToId,
+						}),
+					},
+				)
+				if (resp.ok) {
+					this.activeProxy = this.proxyToId
+					this.showProxyDialog = false
+				}
+			} catch (e) {
+				// ignore
+			}
+		},
+		async revokeProxy() {
+			try {
+				const resp = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/proxy`),
+					{
+						method: 'DELETE',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						body: JSON.stringify({ fromParticipantId: OC.currentUser }),
+					},
+				)
+				if (resp.ok) {
+					this.activeProxy = null
+				}
+			} catch (e) {
+				// ignore
 			}
 		},
 		async publishToOri() {
-			const roundId = this.currentRound?.id ?? this.currentRound?.uuid
-			const response = await fetch(`/index.php/apps/decidesk/api/voting-rounds/${roundId}/publish`, {
-				method: 'POST',
-				headers: { 'Accept': 'application/json' },
-			})
-			const data = await response.json()
-			this.publicationStatus = data.status ?? null
-		},
-		async revokeProxy() {
-			const roundId = this.currentRound?.id ?? this.currentRound?.uuid
-			await fetch(`/index.php/apps/decidesk/api/voting-rounds/${roundId}/proxy`, {
-				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-				body: JSON.stringify({ fromParticipantId: this.participantId ?? '' }),
-			})
-			this.hasProxy = false
-		},
-		async checkPublicationStatus() {
-			const roundId = this.currentRound?.id ?? this.currentRound?.uuid
-			if (!roundId) return
 			try {
-				const response = await fetch(`/index.php/apps/decidesk/api/voting-rounds/${roundId}/publish`, {
-					method: 'POST',
-					headers: { 'Accept': 'application/json' },
-				})
-				const data = await response.json()
-				this.publicationStatus = data.status ?? null
-			} catch { /* ignore */ }
+				const resp = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/publish`),
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+					},
+				)
+				if (resp.ok) {
+					const data = await resp.json()
+					this.oriStatus = data.status
+				}
+			} catch (e) {
+				// ignore
+			}
 		},
 	},
 }
@@ -375,94 +476,97 @@ export default {
 	margin: 0;
 }
 
-.decidesk-actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--default-grid-baseline);
-	margin-top: var(--default-grid-baseline);
-}
-
 .decidesk-vote-buttons {
 	display: flex;
 	gap: var(--default-grid-baseline);
-	margin: calc(var(--default-grid-baseline) * 2) 0;
+	flex-wrap: wrap;
+	align-items: center;
+	margin: var(--default-grid-baseline) 0;
 }
 
-.decidesk-voted {
-	outline: 3px solid var(--color-primary);
+.decidesk-vote-btn {
+	min-width: 100px;
 }
 
-.decidesk-vote-confirmation {
+.decidesk-vote-confirmed {
 	color: var(--color-success);
 	font-weight: bold;
-	margin-top: var(--default-grid-baseline);
 }
 
-.decidesk-tally-live,
-.decidesk-tally-partial,
-.decidesk-tally-final {
+.decidesk-tally {
+	background: var(--color-background-dark);
+	padding: var(--default-grid-baseline);
+	border-radius: var(--border-radius);
 	margin: var(--default-grid-baseline) 0;
-	font-size: 0.95em;
-	color: var(--color-text-light);
-}
-
-.decidesk-tally-live {
-	font-weight: bold;
-	color: var(--color-text);
 }
 
 .decidesk-result {
-	margin-top: calc(var(--default-grid-baseline) * 2);
-}
-
-.decidesk-published {
-	color: var(--color-success);
-	font-size: 0.9em;
-	margin-left: var(--default-grid-baseline);
-}
-
-.decidesk-pending {
-	color: var(--color-warning);
-	font-size: 0.9em;
-	margin-left: var(--default-grid-baseline);
+	background: var(--color-background-dark);
+	padding: var(--default-grid-baseline) calc(var(--default-grid-baseline) * 2);
+	border-radius: var(--border-radius);
+	margin: var(--default-grid-baseline) 0;
 }
 
 .decidesk-proxy-notice {
-	color: var(--color-primary);
-	font-size: 0.9em;
-	margin: var(--default-grid-baseline) 0;
+	background: var(--color-primary-element-light);
+	padding: calc(var(--default-grid-baseline) / 2) var(--default-grid-baseline);
+	border-radius: var(--border-radius);
+	color: var(--color-primary-text);
+	width: 100%;
 }
 
 .decidesk-proxy {
 	margin: var(--default-grid-baseline) 0;
 }
 
-.decidesk-voting-form {
+.decidesk-dialog {
+	background: var(--color-main-background);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-large);
+	padding: calc(var(--default-grid-baseline) * 2);
+	margin: var(--default-grid-baseline) 0;
+}
+
+.decidesk-dialog label {
+	display: block;
+	margin: var(--default-grid-baseline) 0 calc(var(--default-grid-baseline) / 2);
+}
+
+.decidesk-dialog select,
+.decidesk-dialog input[type='datetime-local'],
+.decidesk-dialog input[type='text'],
+.decidesk-dialog input[type='number'] {
+	width: 100%;
+	max-width: 300px;
+}
+
+.decidesk-dialog-actions {
 	display: flex;
-	flex-direction: column;
 	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-	background: var(--color-background-hover);
-	border-radius: var(--border-radius);
-	margin-bottom: var(--default-grid-baseline);
+	margin-top: var(--default-grid-baseline);
 }
 
 .decidesk-error {
 	color: var(--color-error);
-	font-weight: bold;
+	margin: var(--default-grid-baseline) 0 0;
+}
+
+.decidesk-ori-status {
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
 }
 
 .decidesk-show-of-hands {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
 	margin: var(--default-grid-baseline) 0;
 }
 
-.decidesk-round {
-	margin-top: var(--default-grid-baseline);
+.decidesk-show-of-hands label {
+	display: inline-block;
+	width: 100px;
+}
+
+.decidesk-show-of-hands input {
+	width: 80px;
+	margin-bottom: var(--default-grid-baseline);
 }
 </style>

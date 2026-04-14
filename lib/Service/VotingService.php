@@ -3,7 +3,8 @@
 /**
  * Decidesk Voting Service
  *
- * Service for managing voting rounds, vote casting, proxy delegation, and result tallying.
+ * Business logic for voting round management, quorum enforcement, vote casting,
+ * proxy delegation, result tallying, and ORI publication triggering.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -27,120 +28,120 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Stateless service handling voting round lifecycle, vote casting, proxy management,
- * result tallying, ORI publication, and dossier folder creation.
+ * Stateless service implementing voting round governance rules.
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
  */
 class VotingService
 {
+
     /**
-     * Construct the VotingService.
+     * Roles that may not be a proxy receiver (observer and guest cannot vote).
      *
-     * @param ContainerInterface    $container             The DI container for lazy-loading services
-     * @param MotionService         $motionService         The motion service for lifecycle transitions
+     * @var string[]
+     */
+    private const NON_VOTING_ROLES = ['observer', 'guest'];
+
+    /**
+     * Constructor for VotingService.
+     *
+     * @param ContainerInterface    $container             The DI container
+     * @param LoggerInterface       $logger                The logger
      * @param OriPublicationService $oriPublicationService The ORI publication service
-     * @param LoggerInterface       $logger                Logger interface
+     *
+     * @return void
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
      */
     public function __construct(
         private readonly ContainerInterface $container,
-        private readonly MotionService $motionService,
-        private readonly OriPublicationService $oriPublicationService,
         private readonly LoggerInterface $logger,
+        private readonly OriPublicationService $oriPublicationService,
     ) {
     }//end __construct()
 
     /**
-     * Retrieve the ObjectService from the container.
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+     * Resolve OpenRegister ObjectService.
      *
      * @return object
      */
-    private function getObjectService(): object
+    private function objectService(): object
     {
         return $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-    }//end getObjectService()
+    }//end objectService()
 
     /**
-     * Retrieve the NotificationService from the container.
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+     * Resolve OpenRegister NotificationService.
      *
      * @return object
      */
-    private function getNotificationService(): object
+    private function notificationService(): object
     {
         return $this->container->get('OCA\OpenRegister\Service\NotificationService');
 
-    }//end getNotificationService()
+    }//end notificationService()
 
     /**
-     * Retrieve the FileService from the container.
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+     * Resolve OpenRegister FileService.
      *
      * @return object
      */
-    private function getFileService(): object
+    private function fileService(): object
     {
         return $this->container->get('OCA\OpenRegister\Service\FileService');
 
-    }//end getFileService()
+    }//end fileService()
 
     /**
      * Check whether quorum is met for a given meeting.
      *
-     * Counts active Participants (leftAt === null) related to the GovernanceBody
-     * for this meeting and compares against Meeting.quorumRequired.
+     * Counts Participants whose leftAt is null (active) in the GovernanceBody,
+     * and compares against Meeting.quorumRequired.
      *
-     * @param string $meetingId UUID of the Meeting
+     * @param string $meetingId The meeting UUID
+     *
+     * @return bool True if quorum is met or quorumRequired is null/0
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     *
-     * @return bool True if quorum is met or no quorum is required
      */
     public function checkQuorum(string $meetingId): bool
     {
-        $objectService = $this->getObjectService();
+        $objectService = $this->objectService();
+        $meeting       = $objectService->getObject(register: 'decidesk', schema: 'meeting', uuid: $meetingId);
 
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('meeting');
-        $meetingObject = $objectService->find($meetingId);
-        if ($meetingObject === null) {
+        if ($meeting === null) {
             return false;
         }
 
-        $meetingData    = $meetingObject->getObject();
-        $quorumRequired = (int) ($meetingData['quorumRequired'] ?? 0);
-
+        $quorumRequired = (int) ($meeting['quorumRequired'] ?? 0);
         if ($quorumRequired === 0) {
             return true;
         }
 
-        // Count active participants (leftAt === null).
-        $participants = $objectService->findAll(
-                [
-                    'filters' => [
-                        'register' => 'decidesk',
-                        'schema'   => 'participant',
-                    ],
-                ]
-                );
+        // Count active participants (leftAt is null).
+        $governanceBodyId = null;
+        foreach (($meeting['relations'] ?? []) as $relation) {
+            if (($relation['schema'] ?? '') === 'governance-body') {
+                $governanceBodyId = ($relation['id'] ?? null);
+                break;
+            }
+        }
+
+        if ($governanceBodyId === null) {
+            // No governance body linked — cannot verify quorum.
+            return true;
+        }
+
+        $participants = $objectService->findObjects(
+            register: 'decidesk',
+            schema: 'participant',
+            filters: ['relations.governance-body' => $governanceBodyId]
+        );
 
         $activeCount = 0;
-        foreach ($participants as $participant) {
-            if (is_array($participant) === true) {
-                $pData = $participant;
-            } else {
-                $pData = $participant->getObject();
-            }
-
-            $leftAt = $pData['leftAt'] ?? null;
-            if ($leftAt === null || $leftAt === '') {
+        foreach (($participants['results'] ?? []) as $participant) {
+            if (($participant['leftAt'] ?? null) === null) {
                 $activeCount++;
             }
         }
@@ -150,604 +151,428 @@ class VotingService
     }//end checkQuorum()
 
     /**
-     * Open a new VotingRound for a motion.
+     * Open a new VotingRound for a Motion.
      *
-     * Checks quorum, creates the VotingRound object, transitions the Motion to
-     * 'voting' lifecycle state, and optionally creates a calendar event for
-     * the closing deadline.
+     * Verifies quorum, creates the VotingRound object, transitions the Motion to
+     * 'voting' lifecycle, and optionally creates a calendar deadline event.
      *
-     * @param string      $motionId     UUID of the Motion (or Amendment)
-     * @param string      $votingMethod Voting method (for-against-abstain, ranked-choice, weighted, show-of-hands)
+     * @param string      $motionId     The motion UUID
+     * @param string      $meetingId    The meeting UUID (for quorum check)
+     * @param string      $votingMethod for-against-abstain | ranked-choice | weighted | show-of-hands
      * @param bool        $isSecret     Whether the ballot is secret
-     * @param string|null $closedAt     Optional ISO-8601 datetime for scheduled close
-     * @param string      $actorId      User ID of the chair or secretary opening the round
+     * @param string|null $closedAt     Optional ISO-8601 deadline for the round
+     *
+     * @return array<string,mixed> The created VotingRound object
      *
      * @throws \RuntimeException When quorum is not met
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     *
-     * @return array<string,mixed> The created VotingRound object data
      */
-    public function openVotingRound(
-        string $motionId,
-        string $votingMethod,
-        bool $isSecret,
-        ?string $closedAt,
-        string $actorId='system',
-    ): array {
-        $objectService = $this->getObjectService();
-
-        // Retrieve the motion to find its parent meeting for quorum check.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
-        $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
-        }
-
-        $motionData = $motionObject->getObject();
-        $meetingId  = null;
-
-        // Try to resolve meeting ID via relations.
-        $relations = $motionData['relations'] ?? [];
-        foreach ($relations as $rel) {
-            if (is_array($rel) === true) {
-                $relData = $rel;
-            } else {
-                $relData = [];
-            }
-
-            if (($relData['type'] ?? '') === 'meeting' || ($relData['schema'] ?? '') === 'meeting') {
-                $meetingId = $relData['id'] ?? $relData['uuid'] ?? null;
-                break;
-            }
-        }
-
-        if ($meetingId !== null && $this->checkQuorum(meetingId: $meetingId) === false) {
+    public function openVotingRound(string $motionId, string $meetingId, string $votingMethod, bool $isSecret, ?string $closedAt): array
+    {
+        if ($this->checkQuorum(meetingId: $meetingId) === false) {
             throw new \RuntimeException('Quorum niet bereikt');
         }
 
-        $now = (new \DateTime())->format(\DateTime::ATOM);
+        $objectService = $this->objectService();
 
-        if ($meetingId !== null) {
-            $quorumMet = $this->checkQuorum(meetingId: $meetingId);
-        } else {
-            $quorumMet = true;
-        }
-
-        $roundData = [
+        $votingRound = [
             'votingMethod' => $votingMethod,
             'isSecret'     => $isSecret,
-            'openedAt'     => $now,
-            'closedAt'     => null,
-            'quorumMet'    => $quorumMet,
+            'openedAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'closedAt'     => $closedAt,
+            'quorumMet'    => true,
             'result'       => null,
             'votesFor'     => 0,
             'votesAgainst' => 0,
             'votesAbstain' => 0,
+            'relations'    => [
+                ['register' => 'decidesk', 'schema' => 'motion', 'id' => $motionId],
+            ],
         ];
 
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('voting-round');
-        $savedRound = $objectService->saveObject(
-            object: $roundData,
-            register: 'decidesk',
-            schema: 'voting-round',
-        );
+        $created = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $votingRound);
 
-        $savedRoundData = $savedRound->getObject();
-        $roundId        = $savedRound->getUuid();
-
-        // Transition motion to 'voting'.
+        // Transition motion lifecycle to 'voting'.
         try {
-            $this->motionService->transitionLifecycle($motionId, 'motion', 'voting', $actorId);
+            $motion = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
+            if ($motion !== null) {
+                $motion['lifecycle'] = 'voting';
+                $motion['status']    = 'voting';
+                $objectService->saveObject(register: 'decidesk', schema: 'motion', object: $motion);
+            }
         } catch (\Throwable $e) {
-            $this->logger->warning("Decidesk: Could not transition motion to voting: {$e->getMessage()}");
+            $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
         }
 
-        $this->logger->info("Decidesk: VotingRound $roundId opened for motion $motionId by $actorId");
-
-        return $savedRoundData;
+        return ($created ?? $votingRound);
 
     }//end openVotingRound()
 
     /**
-     * Cast a vote in an open VotingRound.
+     * Cast a vote in a VotingRound.
      *
-     * Checks that the round is open, prevents duplicate votes by overwriting
-     * an existing Vote if found, enforces the one-proxy-per-round rule, and
-     * saves the Vote via ObjectService.
+     * Checks the round is open, prevents duplicates (overwrites existing vote),
+     * and enforces one-proxy-per-round for proxy votes.
      *
-     * @param string      $votingRoundId UUID of the VotingRound
-     * @param string      $participantId UUID of the voting Participant
-     * @param string      $value         Vote value: 'for', 'against', or 'abstain'
-     * @param bool        $isProxy       True when casting on behalf of another
-     * @param string|null $delegatorId   UUID of the Participant being represented (proxy only)
+     * @param string      $votingRoundId The voting round UUID
+     * @param string      $participantId The participant UUID
+     * @param string      $value         for | against | abstain
+     * @param bool        $isProxy       True when the participant is voting as proxy for another
+     * @param string|null $delegatorId   The participant UUID being delegated (required when isProxy=true)
      *
-     * @throws \RuntimeException         When the round is not open or proxy rule violated
-     * @throws \InvalidArgumentException When value is invalid
+     * @return array<string,mixed> The created/updated Vote object
+     *
+     * @throws \RuntimeException When the round is not open, or proxy rules are violated
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     *
-     * @return array<string,mixed> The saved Vote object data
      */
-    public function castVote(
-        string $votingRoundId,
-        string $participantId,
-        string $value,
-        bool $isProxy,
-        ?string $delegatorId,
-    ): array {
-        if (in_array($value, ['for', 'against', 'abstain'], true) === false) {
-            throw new \InvalidArgumentException("Invalid vote value: $value. Must be 'for', 'against', or 'abstain'.");
+    public function castVote(string $votingRoundId, string $participantId, string $value, bool $isProxy, ?string $delegatorId): array
+    {
+        $objectService = $this->objectService();
+
+        $round = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        if ($round === null) {
+            throw new \RuntimeException("VotingRound {$votingRoundId} not found");
         }
 
-        $objectService = $this->getObjectService();
-
-        // Verify round is open.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('voting-round');
-        $roundObject = $objectService->find($votingRoundId);
-        if ($roundObject === null) {
-            throw new \RuntimeException("VotingRound $votingRoundId not found");
+        if (($round['closedAt'] ?? null) !== null && strtotime($round['closedAt']) < time()) {
+            throw new \RuntimeException('Stemronde is gesloten');
         }
 
-        $roundData = $roundObject->getObject();
-        if (($roundData['openedAt'] ?? null) === null) {
-            throw new \RuntimeException('VotingRound is not open');
+        if (($round['openedAt'] ?? null) === null) {
+            throw new \RuntimeException('Stemronde is nog niet geopend');
         }
 
-        if (($roundData['closedAt'] ?? null) !== null) {
-            throw new \RuntimeException('VotingRound is already closed');
-        }
-
-        // Proxy enforcement: one proxy per participant per round.
+        // Enforce one-proxy-per-round: check for existing proxy vote from this delegator.
         if ($isProxy === true && $delegatorId !== null) {
-            $existingProxies = $objectService->findAll(
-                    [
-                        'filters' => [
-                            'register' => 'decidesk',
-                            'schema'   => 'vote',
-                            'isProxy'  => true,
-                        ],
-                    ]
-                    );
-
-            foreach ($existingProxies as $proxy) {
-                if (is_array($proxy) === true) {
-                    $proxyData = $proxy;
-                } else {
-                    $proxyData = $proxy->getObject();
-                }
-
-                $proxyRels    = $proxyData['relations'] ?? [];
-                $proxyRoundId = null;
-                foreach ($proxyRels as $rel) {
-                    if (is_array($rel) === true) {
-                        $relData = $rel;
-                    } else {
-                        $relData = [];
-                    }
-
-                    if (($relData['schema'] ?? '') === 'voting-round') {
-                        $proxyRoundId = $relData['id'] ?? $relData['uuid'] ?? null;
-                        break;
-                    }
-                }
-
-                if ($proxyRoundId === $votingRoundId) {
-                    // Check if this proxy is for the same delegator.
-                    foreach ($proxyRels as $rel) {
-                        if (is_array($rel) === true) {
-                            $relData = $rel;
-                        } else {
-                            $relData = [];
-                        }
-
-                        if (($relData['schema'] ?? '') === 'participant') {
-                            $relId = $relData['id'] ?? $relData['uuid'] ?? null;
-                            if ($relId === $delegatorId) {
-                                throw new \RuntimeException(
-                                    "Participant $delegatorId already has a proxy vote in round $votingRoundId"
-                                );
-                            }
-                        }
-                    }
-                }
-            }//end foreach
-        }//end if
-
-        // Check for existing vote from this participant — overwrite if found.
-        $existingVotes = $objectService->findAll(
-                [
-                    'filters' => [
-                        'register' => 'decidesk',
-                        'schema'   => 'vote',
-                    ],
+            $existingProxies = $objectService->findObjects(
+                register: 'decidesk',
+                schema: 'vote',
+                filters: [
+                    'relations.voting-round' => $votingRoundId,
+                    'isProxy'                => true,
                 ]
-                );
+            );
 
-        $existingVoteUuid = null;
-        foreach ($existingVotes as $existingVote) {
-            if (is_array($existingVote) === true) {
-                $vData = $existingVote;
-            } else {
-                $vData = $existingVote->getObject();
-            }
-
-            $vRels = $vData['relations'] ?? [];
-
-            $roundMatch       = false;
-            $participantMatch = false;
-
-            foreach ($vRels as $rel) {
-                if (is_array($rel) === true) {
-                    $relData = $rel;
-                } else {
-                    $relData = [];
-                }
-
-                $relId  = $relData['id'] ?? $relData['uuid'] ?? '';
-                $schema = $relData['schema'] ?? '';
-                if ($schema === 'voting-round' && $relId === $votingRoundId) {
-                    $roundMatch = true;
-                }
-
-                if ($schema === 'participant' && $relId === $participantId) {
-                    $participantMatch = true;
+            foreach (($existingProxies['results'] ?? []) as $proxyVote) {
+                foreach (($proxyVote['relations'] ?? []) as $rel) {
+                    if (($rel['schema'] ?? '') === 'participant' && ($rel['id'] ?? '') === $delegatorId && ($rel['type'] ?? '') === 'delegator') {
+                        throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
+                    }
                 }
             }
+        }
 
-            if ($roundMatch === true && $participantMatch === true && ($vData['isProxy'] ?? false) === $isProxy) {
-                $existingVoteUuid = $vData['id'] ?? $vData['uuid'] ?? null;
-                break;
-            }
-        }//end foreach
+        // Check for existing vote by this participant — overwrite if found.
+        $existingVotes = $objectService->findObjects(
+            register: 'decidesk',
+            schema: 'vote',
+            filters: ['relations.voting-round' => $votingRoundId, 'relations.participant' => $participantId]
+        );
 
-        $voteData = [
-            'value'   => $value,
-            'weight'  => 1,
-            'isProxy' => $isProxy,
-            'castAt'  => (new \DateTime())->format(\DateTime::ATOM),
+        $existingVote = null;
+        foreach (($existingVotes['results'] ?? []) as $v) {
+            $existingVote = $v;
+            break;
+        }
+
+        $relations = [
+            ['register' => 'decidesk', 'schema' => 'voting-round', 'id' => $votingRoundId],
+            ['register' => 'decidesk', 'schema' => 'participant', 'id' => $participantId],
         ];
 
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('vote');
-
-        if ($existingVoteUuid !== null) {
-            $savedVote = $objectService->saveObject(
-                object: $voteData,
-                register: 'decidesk',
-                schema: 'vote',
-                uuid: $existingVoteUuid,
-            );
-        } else {
-            $savedVote = $objectService->saveObject(
-                object: $voteData,
-                register: 'decidesk',
-                schema: 'vote',
-            );
+        if ($isProxy === true && $delegatorId !== null) {
+            $relations[] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $delegatorId, 'type' => 'delegator'];
         }
 
-        return $savedVote->getObject();
+        $vote = [
+            'value'     => $value,
+            'weight'    => 1,
+            'isProxy'   => $isProxy,
+            'castAt'    => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'relations' => $relations,
+        ];
+
+        if ($existingVote !== null) {
+            $vote['id']   = ($existingVote['id'] ?? null);
+            $vote['uuid'] = ($existingVote['uuid'] ?? null);
+        }
+
+        $saved = $objectService->saveObject(register: 'decidesk', schema: 'vote', object: $vote);
+
+        return ($saved ?? $vote);
 
     }//end castVote()
 
     /**
-     * Close a VotingRound: tally results, transition Motion lifecycle,
-     * publish to ORI if configured, and create a dossier folder if adopted.
+     * Close a VotingRound: tally votes, set result, publish to ORI, create dossier folder.
      *
-     * @param string $votingRoundId UUID of the VotingRound to close
-     * @param string $actorId       User ID of the chair or secretary closing the round
+     * @param string $votingRoundId The voting round UUID
      *
-     * @throws \RuntimeException When the round is not found or already closed
+     * @return array<string,mixed> The updated VotingRound
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     *
-     * @return array<string,mixed> The updated VotingRound data with tally and result
      */
-    public function closeVotingRound(string $votingRoundId, string $actorId='system'): array
+    public function closeVotingRound(string $votingRoundId): array
     {
-        $objectService = $this->getObjectService();
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('voting-round');
-
-        $roundObject = $objectService->find($votingRoundId);
-        if ($roundObject === null) {
-            throw new \RuntimeException("VotingRound $votingRoundId not found");
-        }
-
-        $roundData = $roundObject->getObject();
-        if (($roundData['closedAt'] ?? null) !== null) {
-            throw new \RuntimeException('VotingRound is already closed');
-        }
-
-        // Tally results.
         $tally = $this->tallyResults(votingRoundId: $votingRoundId);
 
-        $result = $tally['result'] ?? 'invalid';
+        $objectService = $this->objectService();
+        $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
 
-        // Resolve the motion linked to this round.
-        $motionId     = null;
-        $motionSchema = 'motion';
-        $relations    = $roundData['relations'] ?? [];
-        foreach ($relations as $rel) {
-            if (is_array($rel) === true) {
-                $relData = $rel;
-            } else {
-                $relData = [];
-            }
-
-            $schema = $relData['schema'] ?? '';
-            if (in_array($schema, ['motion', 'amendment'], true) === true) {
-                $motionId     = $relData['id'] ?? $relData['uuid'] ?? null;
-                $motionSchema = $schema;
-                break;
-            }
+        if ($round !== null && ($round['closedAt'] ?? null) === null) {
+            $round['closedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
         }
 
-        // Transition motion lifecycle.
-        if ($motionId !== null) {
-            if ($result === 'adopted') {
-                $newLifecycle = 'adopted';
-            } else {
-                $newLifecycle = 'rejected';
-            }
+        $result = ($tally['result'] ?? 'invalid');
 
-            try {
-                $this->motionService->transitionLifecycle($motionId, $motionSchema, $newLifecycle, $actorId);
-            } catch (\Throwable $e) {
-                $this->logger->warning("Decidesk: Could not transition {$motionSchema} lifecycle: {$e->getMessage()}");
-            }
-        }
+        // Transition motion lifecycle based on result.
+        if ($round !== null) {
+            foreach (($round['relations'] ?? []) as $rel) {
+                if (($rel['schema'] ?? '') === 'motion') {
+                    $motionId = ($rel['id'] ?? null);
+                    if ($motionId !== null) {
+                        try {
+                            $motion = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
+                            if ($motion !== null) {
+                                // Only transition to defined terminal states; tied/invalid leaves lifecycle unchanged.
+                                $motionLifecycle = match ($result) {
+                                    'adopted'  => 'adopted',
+                                    'rejected' => 'rejected',
+                                    default    => null,
+                                };
 
-        // ORI publication if configured.
+                                if ($motionLifecycle !== null) {
+                                    $motionTitle         = (string) ($motion['title'] ?? $motionId);
+                                    $motion['lifecycle'] = $motionLifecycle;
+                                    $motion['status']    = $motionLifecycle;
+                                    $objectService->saveObject(register: 'decidesk', schema: 'motion', object: $motion);
+
+                                    // Create dossier folder if adopted.
+                                    if ($motionLifecycle === 'adopted') {
+                                        $this->createDossierFolder(motionId: $motionId, motionTitle: $motionTitle);
+                                    }
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            $this->logger->warning('Decidesk: lifecycle transition after close failed', ['error' => $e->getMessage()]);
+                        }//end try
+                    }//end if
+
+                    break;
+                }//end if
+            }//end foreach
+        }//end if
+
+        // Trigger ORI publication (fails silently if not configured).
         try {
             $this->oriPublicationService->publish($votingRoundId);
         } catch (\Throwable $e) {
-            $this->logger->warning("Decidesk: ORI publication failed: {$e->getMessage()}");
+            $this->logger->info('Decidesk: ORI publication deferred', ['error' => $e->getMessage()]);
         }
 
-        // Create dossier folder if result is adopted.
-        if ($result === 'adopted' && $motionId !== null) {
-            try {
-                $fileService = $this->getFileService();
-                $slug        = 'motions/'.preg_replace('/[^a-z0-9\-]/', '-', strtolower($motionId));
-                $fileService->createFolder($slug);
-            } catch (\Throwable $e) {
-                $this->logger->warning("Decidesk: Could not create dossier folder: {$e->getMessage()}");
-            }
-        }
-
-        return $tally;
+        return ($round ?? []);
 
     }//end closeVotingRound()
 
     /**
-     * Tally all votes in a VotingRound and compute the result.
+     * Tally all votes in a VotingRound and update the round with counts and result.
      *
-     * Counts Vote objects by value (for/against/abstain) and determines the
-     * result: adopted (for > against), rejected (against >= for), tied, or invalid.
-     * Updates the VotingRound fields via ObjectService.
+     * @param string $votingRoundId The voting round UUID
      *
-     * @param string $votingRoundId UUID of the VotingRound
+     * @return array<string,mixed> Tally with votesFor, votesAgainst, votesAbstain, result
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     *
-     * @return array<string,mixed> Tally data: votesFor, votesAgainst, votesAbstain, result, closedAt
      */
     public function tallyResults(string $votingRoundId): array
     {
-        $objectService = $this->getObjectService();
+        $objectService = $this->objectService();
+        $votes         = $objectService->findObjects(
+            register: 'decidesk',
+            schema: 'vote',
+            filters: ['relations.voting-round' => $votingRoundId]
+        );
 
-        $votes = $objectService->findAll(
-                [
-                    'filters' => [
-                        'register' => 'decidesk',
-                        'schema'   => 'vote',
-                    ],
-                ]
-                );
+        $for     = 0;
+        $against = 0;
+        $abstain = 0;
 
-        $votesFor     = 0;
-        $votesAgainst = 0;
-        $votesAbstain = 0;
-
-        foreach ($votes as $vote) {
-            if (is_array($vote) === true) {
-                $vData = $vote;
-            } else {
-                $vData = $vote->getObject();
+        foreach (($votes['results'] ?? []) as $vote) {
+            $val = ($vote['value'] ?? '');
+            if ($val === 'for') {
+                $for++;
+            } else if ($val === 'against') {
+                $against++;
+            } else if ($val === 'abstain') {
+                $abstain++;
             }
+        }
 
-            $vRels = $vData['relations'] ?? [];
-
-            $inRound = false;
-            foreach ($vRels as $rel) {
-                if (is_array($rel) === true) {
-                    $relData = $rel;
-                } else {
-                    $relData = [];
-                }
-
-                if (($relData['schema'] ?? '') === 'voting-round'
-                    && ($relData['id'] ?? $relData['uuid'] ?? '') === $votingRoundId
-                ) {
-                    $inRound = true;
-                    break;
-                }
-            }
-
-            if ($inRound === false) {
-                continue;
-            }
-
-            $weight = (int) ($vData['weight'] ?? 1);
-            switch ($vData['value'] ?? '') {
-                case 'for':
-                    $votesFor += $weight;
-                    break;
-                case 'against':
-                    $votesAgainst += $weight;
-                    break;
-                case 'abstain':
-                    $votesAbstain += $weight;
-                    break;
-            }
-        }//end foreach
-
-        $total = $votesFor + $votesAgainst + $votesAbstain;
+        $total = ($for + $against + $abstain);
 
         if ($total === 0) {
             $result = 'invalid';
-        } else if ($votesFor > $votesAgainst) {
+        } else if ($for > $against) {
             $result = 'adopted';
-        } else if ($votesAgainst > $votesFor) {
+        } else if ($against > $for) {
             $result = 'rejected';
         } else {
             $result = 'tied';
         }
 
-        $now = (new \DateTime())->format(\DateTime::ATOM);
-
-        // Update the VotingRound.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('voting-round');
-        $roundObject = $objectService->find($votingRoundId);
-        if ($roundObject !== null) {
-            $roundData = $roundObject->getObject();
-            $objectService->saveObject(
-                object: array_merge(
-                        $roundData,
-                        [
-                            'votesFor'     => $votesFor,
-                            'votesAgainst' => $votesAgainst,
-                            'votesAbstain' => $votesAbstain,
-                            'result'       => $result,
-                            'closedAt'     => $now,
-                        ]
-                        ),
-                register: 'decidesk',
-                schema: 'voting-round',
-                uuid: $votingRoundId,
-            );
+        // Update VotingRound with tally.
+        $round = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        if ($round !== null) {
+            $round['votesFor']     = $for;
+            $round['votesAgainst'] = $against;
+            $round['votesAbstain'] = $abstain;
+            $round['result']       = $result;
+            $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
         }
 
         return [
-            'votesFor'     => $votesFor,
-            'votesAgainst' => $votesAgainst,
-            'votesAbstain' => $votesAbstain,
+            'votesFor'     => $for,
+            'votesAgainst' => $against,
+            'votesAbstain' => $abstain,
+            'total'        => $total,
             'result'       => $result,
-            'closedAt'     => $now,
         ];
 
     }//end tallyResults()
 
     /**
-     * Grant a voting proxy from one Participant to another for a VotingRound.
+     * Grant proxy: delegate voting right from one participant to another for a VotingRound.
      *
-     * Validates that the delegate is not an observer or guest role. Stores the
-     * proxy relation and sends a notification to the delegate.
+     * Validates that the receiver has a voting role (not observer/guest).
+     * Sends notification to the delegate.
      *
-     * @param string $votingRoundId     UUID of the VotingRound
-     * @param string $fromParticipantId UUID of the Participant granting the proxy
-     * @param string $toParticipantId   UUID of the Participant receiving the proxy
-     *
-     * @throws \RuntimeException         When the delegate is an observer or guest
-     * @throws \RuntimeException         When the round is already open
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     * @param string $votingRoundId     The voting round UUID
+     * @param string $fromParticipantId The delegating participant UUID
+     * @param string $toParticipantId   The receiving participant UUID
      *
      * @return void
+     *
+     * @throws \InvalidArgumentException When the receiver cannot receive proxies
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
      */
     public function grantProxy(string $votingRoundId, string $fromParticipantId, string $toParticipantId): void
     {
-        $objectService = $this->getObjectService();
+        $objectService = $this->objectService();
 
-        // Validate delegate role.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('participant');
-        $delegateObject = $objectService->find($toParticipantId);
-        if ($delegateObject === null) {
-            throw new \RuntimeException("Participant $toParticipantId not found");
+        $toParticipant = $objectService->getObject(register: 'decidesk', schema: 'participant', uuid: $toParticipantId);
+        if ($toParticipant !== null) {
+            $role = strtolower($toParticipant['role'] ?? '');
+            if (in_array($role, self::NON_VOTING_ROLES, true) === true) {
+                throw new \InvalidArgumentException(
+                    "Deelnemer met rol '{$role}' kan geen volmacht ontvangen"
+                );
+            }
         }
 
-        $delegateData = $delegateObject->getObject();
-        $role         = $delegateData['role'] ?? '';
-        if (in_array($role, ['observer', 'guest'], true) === true) {
-            throw new \RuntimeException(
-                "Participant with role '$role' cannot receive a proxy. Only chair, vice-chair, secretary, or member are allowed."
-            );
+        $proxyRecord = [
+            'fromParticipantId' => $fromParticipantId,
+            'toParticipantId'   => $toParticipantId,
+            'votingRoundId'     => $votingRoundId,
+            'grantedAt'         => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+        ];
+
+        // Store proxy as a structured note on the VotingRound.
+        $round = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        if ($round !== null) {
+            $notes          = ($round['notes'] ?? []);
+            $notes[]        = [
+                'title' => 'Proxy',
+                'body'  => json_encode($proxyRecord),
+            ];
+            $round['notes'] = $notes;
+            $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
         }
 
-        // Verify the round has not yet opened.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('voting-round');
-        $roundObject = $objectService->find($votingRoundId);
-        if ($roundObject === null) {
-            throw new \RuntimeException("VotingRound $votingRoundId not found");
-        }
-
-        $roundData = $roundObject->getObject();
-        if (($roundData['openedAt'] ?? null) !== null) {
-            throw new \RuntimeException('Cannot grant proxy after the VotingRound has opened');
-        }
-
-        $this->logger->info(
-            "Decidesk: Proxy granted from $fromParticipantId to $toParticipantId for round $votingRoundId"
-        );
-
-        // Notify the delegate.
+        // Notify delegate — use the participant UUID as Nextcloud UID, not the email address.
         try {
-            $notificationService = $this->getNotificationService();
-            $delegateName        = $delegateData['displayName'] ?? $toParticipantId;
-            $notificationService->sendNotification(
-                userId: $delegateData['email'] ?? $toParticipantId,
-                subject: 'Volmacht ontvangen',
-                message: "U heeft een stemvolmacht ontvangen voor een stemronde.",
-                objectType: 'voting-round',
-                objectId: $votingRoundId,
+            $this->notificationService()->createNotification(
+                userId: $toParticipantId,
+                app: 'decidesk',
+                subject: 'proxy_granted',
+                subjectParameters: ['from' => $fromParticipantId, 'votingRoundId' => $votingRoundId],
+                object: 'voting-round',
+                objectId: $votingRoundId
             );
         } catch (\Throwable $e) {
-            $this->logger->warning("Decidesk: Could not send proxy notification: {$e->getMessage()}");
+            $this->logger->warning('Decidesk: proxy grant notification failed', ['error' => $e->getMessage()]);
         }
 
     }//end grantProxy()
 
     /**
-     * Revoke a voting proxy before the VotingRound opens.
+     * Revoke proxy: remove proxy delegation before the round opens.
      *
-     * Verifies the round has not yet opened, then removes the proxy relation
-     * and notifies the former delegate.
+     * @param string $votingRoundId     The voting round UUID
+     * @param string $fromParticipantId The participant revoking their proxy
      *
-     * @param string $votingRoundId     UUID of the VotingRound
-     * @param string $fromParticipantId UUID of the Participant revoking the proxy
+     * @return void
      *
      * @throws \RuntimeException When the round is already open
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     *
-     * @return void
      */
     public function revokeProxy(string $votingRoundId, string $fromParticipantId): void
     {
-        $objectService = $this->getObjectService();
+        $objectService = $this->objectService();
+        $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
 
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('voting-round');
-        $roundObject = $objectService->find($votingRoundId);
-        if ($roundObject === null) {
-            throw new \RuntimeException("VotingRound $votingRoundId not found");
+        if ($round === null) {
+            throw new \RuntimeException("VotingRound {$votingRoundId} not found");
         }
 
-        $roundData = $roundObject->getObject();
-        if (($roundData['openedAt'] ?? null) !== null) {
-            throw new \RuntimeException('Cannot revoke proxy after the VotingRound has opened');
+        if (($round['openedAt'] ?? null) !== null) {
+            throw new \RuntimeException('Stemronde is al geopend — volmacht kan niet meer worden ingetrokken');
         }
 
-        $this->logger->info(
-            "Decidesk: Proxy revoked by $fromParticipantId for round $votingRoundId"
-        );
+        $notes    = ($round['notes'] ?? []);
+        $filtered = array_values(
+                array_filter(
+                $notes,
+                static function (array $note) use ($fromParticipantId): bool {
+                    if (($note['title'] ?? '') !== 'Proxy') {
+                        return true;
+                    }
+
+                    $body = json_decode($note['body'] ?? '{}', true);
+                    return ($body['fromParticipantId'] ?? '') !== $fromParticipantId;
+                }
+                )
+                );
+
+        $round['notes'] = $filtered;
+        $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
 
     }//end revokeProxy()
+
+    /**
+     * Create a dossier folder for an adopted motion via FileService.
+     *
+     * @param string $motionId    The motion UUID
+     * @param string $motionTitle The motion title (used to compose folder path)
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     */
+    private function createDossierFolder(string $motionId, string $motionTitle): void
+    {
+        try {
+            $fileService = $this->fileService();
+            $slug        = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $motionTitle) ?? $motionId);
+            $folderPath  = "motions/{$slug}-{$motionId}";
+            $fileService->createFolder($folderPath);
+            $this->logger->info('Decidesk: dossier folder created', ['path' => $folderPath, 'motionId' => $motionId]);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Decidesk: dossier folder creation failed', ['motionId' => $motionId, 'error' => $e->getMessage()]);
+        }
+
+    }//end createDossierFolder()
 }//end class

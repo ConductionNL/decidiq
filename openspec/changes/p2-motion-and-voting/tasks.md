@@ -118,5 +118,5 @@
 - [x] 12.3 Verify no hardcoded CSS colors — only Nextcloud CSS variables (ADR-010)
 - [x] 12.4 Verify WCAG 2.1 AA: keyboard navigation in vote casting, ARIA labels on all interactive controls, colour not the sole indicator of vote selection or lifecycle state (REQ-VCT-005)
 - [x] 12.5 Verify `Motion`, `Amendment`, `Vote`, and `VotingRound` schemas in OpenRegister still match ADR-000 exactly after implementation — no extra properties added
-- [ ] 12.6 Verify seed data (5 Motion, 3 Amendment, 4 VotingRound, 4 Vote objects) is present after fresh install
+- [x] 12.6 Verify seed data (5 Motion, 3 Amendment, 4 VotingRound, 4 Vote objects) is present after fresh install
 - [x] 12.7 Verify `OriPublicationService` gracefully handles missing config (no ORI endpoint set) without throwing an exception

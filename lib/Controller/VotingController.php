@@ -3,7 +3,7 @@
 /**
  * Decidesk Voting Controller
  *
- * Thin controller for voting round management, vote casting, and proxy delegation.
+ * Thin REST controller for voting round management, vote casting, and proxy delegation.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -29,23 +29,29 @@ use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
 
 /**
- * Thin REST controller for voting round open/close, vote casting, and proxy management.
+ * Thin controller for voting round API endpoints.
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
  */
 class VotingController extends Controller
 {
     /**
-     * Construct the VotingController.
+     * Constructor for VotingController.
      *
      * @param IRequest              $request               The request object
      * @param VotingService         $votingService         The voting service
      * @param OriPublicationService $oriPublicationService The ORI publication service
      * @param IUserSession          $userSession           The user session
+     * @param IGroupManager         $groupManager          The group manager
+     * @param LoggerInterface       $logger                The logger
+     *
+     * @return void
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
      */
@@ -54,34 +60,38 @@ class VotingController extends Controller
         private readonly VotingService $votingService,
         private readonly OriPublicationService $oriPublicationService,
         private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
 
     /**
-     * Get the current authenticated user ID.
+     * Require the current user to be an admin (chair/secretary equivalent).
+     *
+     * Returns a 403 JSONResponse when the check fails, null on success.
+     *
+     * @return JSONResponse|null
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
-     *
-     * @return string
      */
-    private function getActorId(): string
+    private function requireChairOrSecretary(): ?JSONResponse
     {
         $user = $this->userSession->getUser();
-        if ($user !== null) {
-            return $user->getUID();
+        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
         }
 
-        return 'system';
+        return null;
 
-    }//end getActorId()
+    }//end requireChairOrSecretary()
 
     /**
-     * Open a new VotingRound for a motion.
+     * Open a new VotingRound.
      *
      * POST /api/voting-rounds
-     * Body: { "motionId": "uuid", "votingMethod": "for-against-abstain", "isSecret": false, "closedAt": null }
+     * Body: { "motionId": "uuid", "meetingId": "uuid", "votingMethod": "for-against-abstain", "isSecret": false, "closedAt": null }
      *
      * @NoAdminRequired
      *
@@ -89,41 +99,49 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
-    public function create(): JSONResponse
+    public function open(): JSONResponse
     {
-        $motionId     = $this->request->getParam('motionId', '');
-        $votingMethod = $this->request->getParam('votingMethod', 'for-against-abstain');
-        $isSecret     = (bool) $this->request->getParam('isSecret', false);
-        $closedAt     = $this->request->getParam('closedAt', null);
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        $params       = $this->request->getParams();
+        $motionId     = ($params['motionId'] ?? '');
+        $meetingId    = ($params['meetingId'] ?? '');
+        $votingMethod = ($params['votingMethod'] ?? 'for-against-abstain');
+        $isSecret     = (bool) ($params['isSecret'] ?? false);
+        $closedAt     = null;
+        if (isset($params['closedAt']) === true && $params['closedAt'] !== '') {
+            $closedAt = $params['closedAt'];
+        }
+
+        if ($motionId === '' || $meetingId === '') {
+            return new JSONResponse(['message' => 'motionId and meetingId are required'], Http::STATUS_BAD_REQUEST);
+        }
 
         try {
             $round = $this->votingService->openVotingRound(
-                $motionId,
-                $votingMethod,
-                $isSecret,
-                $closedAt,
-                $this->getActorId()
+                motionId: $motionId,
+                meetingId: $meetingId,
+                votingMethod: $votingMethod,
+                isSecret: $isSecret,
+                closedAt: $closedAt
             );
             return new JSONResponse($round, Http::STATUS_CREATED);
         } catch (\RuntimeException $e) {
-            if (str_contains($e->getMessage(), 'Quorum') === true) {
-                $status = Http::STATUS_BAD_REQUEST;
-            } else {
-                $status = Http::STATUS_NOT_FOUND;
-            }
-
-            return new JSONResponse(['message' => $e->getMessage()], $status);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
 
-    }//end create()
+    }//end open()
 
     /**
-     * Cast a vote in an open VotingRound.
+     * Cast a vote in a VotingRound.
      *
      * POST /api/voting-rounds/{id}/cast
      * Body: { "participantId": "uuid", "value": "for", "isProxy": false, "delegatorId": null }
      *
-     * @param string $id The VotingRound UUID
+     * @param string $id The voting round UUID
      *
      * @NoAdminRequired
      *
@@ -133,28 +151,49 @@ class VotingController extends Controller
      */
     public function cast(string $id): JSONResponse
     {
-        $participantId = $this->request->getParam('participantId', '');
-        $value         = $this->request->getParam('value', '');
-        $isProxy       = (bool) $this->request->getParam('isProxy', false);
-        $delegatorId   = $this->request->getParam('delegatorId', null);
+        // Derive participant identity from the authenticated session — never trust client input.
+        $participantId = $this->userSession->getUser()?->getUID() ?? '';
+        if ($participantId === '') {
+            return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $params      = $this->request->getParams();
+        $value       = ($params['value'] ?? '');
+        $isProxy     = (bool) ($params['isProxy'] ?? false);
+        $delegatorId = null;
+        if (isset($params['delegatorId']) === true && $params['delegatorId'] !== '') {
+            $delegatorId = $params['delegatorId'];
+        }
+
+        if ($value === '') {
+            return new JSONResponse(['message' => 'value is required'], Http::STATUS_BAD_REQUEST);
+        }
+
+        if (in_array($value, ['for', 'against', 'abstain'], true) === false) {
+            return new JSONResponse(['message' => 'value must be for, against, or abstain'], Http::STATUS_BAD_REQUEST);
+        }
 
         try {
-            $vote = $this->votingService->castVote($id, $participantId, $value, $isProxy, $delegatorId);
+            $vote = $this->votingService->castVote(
+                votingRoundId: $id,
+                participantId: $participantId,
+                value: $value,
+                isProxy: $isProxy,
+                delegatorId: $delegatorId
+            );
             return new JSONResponse($vote, Http::STATUS_CREATED);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
 
     }//end cast()
 
     /**
-     * Close an open VotingRound and tally results.
+     * Close a VotingRound.
      *
      * POST /api/voting-rounds/{id}/close
      *
-     * @param string $id The VotingRound UUID
+     * @param string $id The voting round UUID
      *
      * @NoAdminRequired
      *
@@ -164,21 +203,26 @@ class VotingController extends Controller
      */
     public function close(string $id): JSONResponse
     {
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
         try {
-            $result = $this->votingService->closeVotingRound($id, $this->getActorId());
-            return new JSONResponse($result);
+            $round = $this->votingService->closeVotingRound(votingRoundId: $id);
+            return new JSONResponse($round);
         } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
 
     }//end close()
 
     /**
-     * Publish a closed VotingRound's results to the ORI API.
+     * Publish VotingRound result to ORI.
      *
      * POST /api/voting-rounds/{id}/publish
      *
-     * @param string $id The VotingRound UUID
+     * @param string $id The voting round UUID
      *
      * @NoAdminRequired
      *
@@ -188,19 +232,29 @@ class VotingController extends Controller
      */
     public function publish(string $id): JSONResponse
     {
-        $this->oriPublicationService->publish($id);
-        $status = $this->oriPublicationService->getPublicationStatus($id);
-        return new JSONResponse(['status' => $status]);
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        try {
+            $this->oriPublicationService->publish(votingRoundId: $id);
+            $status = $this->oriPublicationService->getPublicationStatus(votingRoundId: $id);
+            return new JSONResponse(['status' => $status]);
+        } catch (\Throwable $e) {
+            $this->logger->error('Decidesk: ORI publication failed', ['votingRoundId' => $id, 'error' => $e->getMessage()]);
+            return new JSONResponse(['message' => 'Publication failed'], Http::STATUS_INTERNAL_SERVER_ERROR);
+        }
 
     }//end publish()
 
     /**
-     * Grant a voting proxy from the current user to another Participant.
+     * Grant proxy delegation.
      *
      * POST /api/voting-rounds/{id}/proxy
      * Body: { "fromParticipantId": "uuid", "toParticipantId": "uuid" }
      *
-     * @param string $id The VotingRound UUID
+     * @param string $id The voting round UUID
      *
      * @NoAdminRequired
      *
@@ -208,27 +262,43 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
-    public function grantProxy(string $id): JSONResponse
+    public function proxy(string $id): JSONResponse
     {
-        $fromParticipantId = $this->request->getParam('fromParticipantId', '');
-        $toParticipantId   = $this->request->getParam('toParticipantId', '');
-
-        try {
-            $this->votingService->grantProxy($id, $fromParticipantId, $toParticipantId);
-            return new JSONResponse(['success' => true]);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+        // Derive delegating participant identity from the authenticated session.
+        $fromParticipantId = $this->userSession->getUser()?->getUID() ?? '';
+        if ($fromParticipantId === '') {
+            return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
         }
 
-    }//end grantProxy()
+        $params          = $this->request->getParams();
+        $toParticipantId = ($params['toParticipantId'] ?? '');
+
+        if ($toParticipantId === '') {
+            return new JSONResponse(['message' => 'toParticipantId is required'], Http::STATUS_BAD_REQUEST);
+        }
+
+        try {
+            $this->votingService->grantProxy(
+                votingRoundId: $id,
+                fromParticipantId: $fromParticipantId,
+                toParticipantId: $toParticipantId
+            );
+            return new JSONResponse(['success' => true]);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+        }
+
+    }//end proxy()
 
     /**
-     * Revoke a voting proxy before the VotingRound opens.
+     * Revoke proxy delegation.
      *
      * DELETE /api/voting-rounds/{id}/proxy
      * Body: { "fromParticipantId": "uuid" }
      *
-     * @param string $id The VotingRound UUID
+     * @param string $id The voting round UUID
      *
      * @NoAdminRequired
      *
@@ -238,10 +308,14 @@ class VotingController extends Controller
      */
     public function revokeProxy(string $id): JSONResponse
     {
-        $fromParticipantId = $this->request->getParam('fromParticipantId', '');
+        // Derive revoking participant identity from the authenticated session.
+        $fromParticipantId = $this->userSession->getUser()?->getUID() ?? '';
+        if ($fromParticipantId === '') {
+            return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+        }
 
         try {
-            $this->votingService->revokeProxy($id, $fromParticipantId);
+            $this->votingService->revokeProxy(votingRoundId: $id, fromParticipantId: $fromParticipantId);
             return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);

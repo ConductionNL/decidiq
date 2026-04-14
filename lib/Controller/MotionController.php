@@ -3,7 +3,7 @@
 /**
  * Decidesk Motion Controller
  *
- * Thin controller exposing motion lifecycle, co-signature, and budget-impact endpoints.
+ * Thin REST controller for motion lifecycle, co-signature, and budget impact endpoints.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -28,22 +28,26 @@ use OCA\Decidesk\Service\MotionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
- * Thin REST controller for motion lifecycle transitions and co-signature management.
+ * Thin controller for motion lifecycle and co-signature API endpoints.
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
  */
 class MotionController extends Controller
 {
     /**
-     * Construct the MotionController.
+     * Constructor for MotionController.
      *
      * @param IRequest      $request       The request object
      * @param MotionService $motionService The motion service
      * @param IUserSession  $userSession   The user session
+     * @param IGroupManager $groupManager  The group manager
+     *
+     * @return void
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
      */
@@ -51,36 +55,39 @@ class MotionController extends Controller
         IRequest $request,
         private readonly MotionService $motionService,
         private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
 
     /**
-     * Get the current authenticated user ID.
+     * Require the current user to be an admin (chair/secretary equivalent).
+     *
+     * Returns a 403 JSONResponse when the check fails, null on success.
+     *
+     * @return JSONResponse|null
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
-     *
-     * @return string
      */
-    private function getActorId(): string
+    private function requireChairOrSecretary(): ?JSONResponse
     {
         $user = $this->userSession->getUser();
-        if ($user !== null) {
-            return $user->getUID();
+        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
         }
 
-        return 'system';
+        return null;
 
-    }//end getActorId()
+    }//end requireChairOrSecretary()
 
     /**
-     * Transition a Motion to a new lifecycle state.
+     * Transition the lifecycle state of a Motion.
      *
      * POST /api/motions/{id}/transition
-     * Body: { "newState": "debating" }
+     * Body: { "newState": "debating", "actorId": "uid" }
      *
-     * @param string $id The Motion UUID
+     * @param string $id The motion UUID
      *
      * @NoAdminRequired
      *
@@ -90,10 +97,22 @@ class MotionController extends Controller
      */
     public function transition(string $id): JSONResponse
     {
-        $newState = $this->request->getParam('newState', '');
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        $params   = $this->request->getParams();
+        $newState = ($params['newState'] ?? '');
+        $actorId  = ($this->userSession->getUser()?->getUID() ?? ($params['actorId'] ?? ''));
 
         try {
-            $this->motionService->transitionLifecycle($id, 'motion', $newState, $this->getActorId());
+            $this->motionService->transitionLifecycle(
+                objectId: $id,
+                objectType: 'motion',
+                newState: $newState,
+                actorId: $actorId
+            );
             return new JSONResponse(['success' => true, 'newState' => $newState]);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
@@ -104,12 +123,12 @@ class MotionController extends Controller
     }//end transition()
 
     /**
-     * Send co-signature invitation notifications to Participants.
+     * Request co-signature from one or more participants for a Motion.
      *
      * POST /api/motions/{id}/co-sign-request
-     * Body: { "participantIds": ["uuid1", "uuid2"] }
+     * Body: { "participantIds": ["uid1", "uid2"] }
      *
-     * @param string $id The Motion UUID
+     * @param string $id The motion UUID
      *
      * @NoAdminRequired
      *
@@ -119,13 +138,15 @@ class MotionController extends Controller
      */
     public function coSignRequest(string $id): JSONResponse
     {
-        $participantIds = $this->request->getParam('participantIds', []);
-        if (is_array($participantIds) === false) {
-            return new JSONResponse(['message' => 'participantIds must be an array'], Http::STATUS_BAD_REQUEST);
+        $params         = $this->request->getParams();
+        $participantIds = ($params['participantIds'] ?? []);
+
+        if (empty($participantIds) === true) {
+            return new JSONResponse(['message' => 'participantIds is required'], Http::STATUS_BAD_REQUEST);
         }
 
         try {
-            $this->motionService->requestCoSignature($id, $participantIds);
+            $this->motionService->requestCoSignature(motionId: $id, participantIds: $participantIds);
             return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
@@ -134,12 +155,12 @@ class MotionController extends Controller
     }//end coSignRequest()
 
     /**
-     * Confirm co-signature by appending the user's display name to coSigners.
+     * Confirm co-signature on a Motion.
      *
      * POST /api/motions/{id}/co-sign-confirm
-     * Body: { "displayName": "M. de Vries" }
+     * Body: { "displayName": "A. de Vries" }
      *
-     * @param string $id The Motion UUID
+     * @param string $id The motion UUID
      *
      * @NoAdminRequired
      *
@@ -149,19 +170,23 @@ class MotionController extends Controller
      */
     public function coSignConfirm(string $id): JSONResponse
     {
-        $displayName = $this->request->getParam('displayName', '');
-        if (empty($displayName) === true) {
+        $params      = $this->request->getParams();
+        $displayName = ($params['displayName'] ?? '');
+
+        if ($displayName === '') {
             $user = $this->userSession->getUser();
             if ($user !== null) {
                 $displayName = $user->getDisplayName();
-            } else {
-                $displayName = '';
             }
         }
 
+        if ($displayName === '') {
+            return new JSONResponse(['message' => 'displayName is required'], Http::STATUS_BAD_REQUEST);
+        }
+
         try {
-            $this->motionService->addCoSigner($id, $displayName);
-            return new JSONResponse(['success' => true, 'displayName' => $displayName]);
+            $this->motionService->addCoSigner(motionId: $id, participantDisplayName: $displayName);
+            return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
@@ -169,12 +194,12 @@ class MotionController extends Controller
     }//end coSignConfirm()
 
     /**
-     * Save budget impact details as a structured note on a Motion.
+     * Store budget impact details on a Motion.
      *
      * POST /api/motions/{id}/budget-impact
-     * Body: { "budgetLine": "Programma 4", "amountDelta": 250000, "rationale": "..." }
+     * Body: { "budgetLine": "string", "amountDelta": float, "rationale": "string" }
      *
-     * @param string $id The Motion UUID
+     * @param string $id The motion UUID
      *
      * @NoAdminRequired
      *
@@ -184,12 +209,18 @@ class MotionController extends Controller
      */
     public function budgetImpact(string $id): JSONResponse
     {
-        $budgetLine  = $this->request->getParam('budgetLine', '');
-        $amountDelta = (float) $this->request->getParam('amountDelta', 0);
-        $rationale   = $this->request->getParam('rationale', '');
+        $params      = $this->request->getParams();
+        $budgetLine  = ($params['budgetLine'] ?? '');
+        $amountDelta = (float) ($params['amountDelta'] ?? 0.0);
+        $rationale   = ($params['rationale'] ?? '');
 
         try {
-            $this->motionService->saveBudgetImpact($id, $budgetLine, $amountDelta, $rationale);
+            $this->motionService->saveBudgetImpact(
+                motionId: $id,
+                budgetLine: $budgetLine,
+                amountDelta: $amountDelta,
+                rationale: $rationale
+            );
             return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
@@ -198,12 +229,12 @@ class MotionController extends Controller
     }//end budgetImpact()
 
     /**
-     * Transition an Amendment to a new lifecycle state.
+     * Transition the lifecycle state of an Amendment.
      *
      * POST /api/amendments/{id}/transition
      * Body: { "newState": "debating" }
      *
-     * @param string $id The Amendment UUID
+     * @param string $id The amendment UUID
      *
      * @NoAdminRequired
      *
@@ -213,10 +244,22 @@ class MotionController extends Controller
      */
     public function amendmentTransition(string $id): JSONResponse
     {
-        $newState = $this->request->getParam('newState', '');
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        $params   = $this->request->getParams();
+        $newState = ($params['newState'] ?? '');
+        $actorId  = ($this->userSession->getUser()?->getUID() ?? '');
 
         try {
-            $this->motionService->transitionLifecycle($id, 'amendment', $newState, $this->getActorId());
+            $this->motionService->transitionLifecycle(
+                objectId: $id,
+                objectType: 'amendment',
+                newState: $newState,
+                actorId: $actorId
+            );
             return new JSONResponse(['success' => true, 'newState' => $newState]);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);

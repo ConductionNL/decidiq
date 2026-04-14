@@ -25,6 +25,9 @@ const Motions = () => import('../views/Motions.vue')
 const MotionDetail = () => import('../views/MotionDetail.vue')
 const AmendmentDetail = () => import('../views/AmendmentDetail.vue')
 const SettingsView = () => import('../views/SettingsView.vue')
+const MotionIndex = () => import('../views/MotionIndex.vue')
+const MotionDetail = () => import('../views/MotionDetail.vue')
+const AmendmentDetail = () => import('../views/AmendmentDetail.vue')
 
 /**
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.3
@@ -46,6 +49,9 @@ export default new Router({
 		{ path: '/motions/:id', name: 'MotionDetail', component: MotionDetail, props: true },
 		{ path: '/amendments/:id', name: 'AmendmentDetail', component: AmendmentDetail, props: true },
 		{ path: '/settings', name: 'Settings', component: SettingsView },
+		{ path: '/motions', name: 'MotionIndex', component: MotionIndex },
+		{ path: '/motions/:id', name: 'MotionDetail', component: MotionDetail, props: true },
+		{ path: '/amendments/:id', name: 'AmendmentDetail', component: AmendmentDetail, props: true },
 		{ path: '*', redirect: '/' },
 	],
 })

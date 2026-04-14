@@ -3,7 +3,8 @@
 /**
  * Decidesk Mail Reply Handler Background Job
  *
- * Background job that polls for email vote replies and registers them via VotingService.
+ * Polls for email replies to voting notification threads and casts votes
+ * based on the first non-empty line of the reply body.
  *
  * @category BackgroundJob
  * @package  OCA\Decidesk\BackgroundJob
@@ -32,12 +33,11 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Timed background job that polls for email replies to voting notification threads.
+ * Background job that polls for email vote replies on open VotingRounds.
  *
- * Parses the first non-empty line of each reply for recognised vote keywords
- * ("Voor", "Tegen", "Onthouding") and calls VotingService::castVote(). After
- * 3 unrecognised replies per round per Participant, the email voting path is
- * abandoned and the member is asked to vote via the UI.
+ * Parses the first non-empty line of each reply for recognised vote keywords:
+ * "Voor" (for), "Tegen" (against), "Onthouding" (abstain).
+ * On unrecognised reply, sends re-prompt (max 3 retries per member per round).
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
  */
@@ -45,7 +45,7 @@ class MailReplyHandler extends TimedJob
 {
 
     /**
-     * Recognised vote keywords mapped to canonical vote values.
+     * Recognised vote keywords mapped to canonical values.
      *
      * @var array<string, string>
      */
@@ -56,31 +56,34 @@ class MailReplyHandler extends TimedJob
         'against'    => 'against',
         'onthouding' => 'abstain',
         'abstain'    => 'abstain',
+        'abstention' => 'abstain',
     ];
 
     /**
-     * Maximum number of failed parse attempts before abandoning email voting.
+     * Maximum unrecognised reply attempts before email voting is abandoned.
      *
-     * @psalm-suppress UnusedConstant
+     * @var int
      */
-    private const MAX_FAILURES = 3;
+    private const MAX_RETRIES = 3;
 
     /**
-     * Construct the MailReplyHandler background job.
+     * Constructor for MailReplyHandler.
      *
-     * @param ITimeFactory       $time          Time factory for timed jobs
-     * @param ContainerInterface $container     DI container for lazy-loading services
-     * @param VotingService      $votingService Voting service for casting votes
-     * @param IAppConfig         $appConfig     App config to check if email voting is enabled
-     * @param LoggerInterface    $logger        Logger interface
+     * @param ITimeFactory       $time          Nextcloud time factory
+     * @param VotingService      $votingService The voting service
+     * @param IAppConfig         $appConfig     The app config
+     * @param ContainerInterface $container     The DI container
+     * @param LoggerInterface    $logger        The logger
+     *
+     * @return void
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
      */
     public function __construct(
         ITimeFactory $time,
-        private readonly ContainerInterface $container,
         private readonly VotingService $votingService,
         private readonly IAppConfig $appConfig,
+        private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(time: $time);
@@ -90,125 +93,194 @@ class MailReplyHandler extends TimedJob
     }//end __construct()
 
     /**
-     * Execute the mail reply polling job.
+     * Run the background job: poll email replies and process votes.
      *
-     * Checks whether email voting is enabled in app settings. Fetches all open
-     * VotingRounds with `_mail` metadata and processes any unhandled reply threads.
-     *
-     * @param mixed $argument Job argument (unused)
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     * @param mixed $argument The job argument (unused)
      *
      * @return void
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
      */
     protected function run(mixed $argument): void
     {
-        $emailVotingEnabled = $this->appConfig->getValueString(
-            Application::APP_ID,
-            'email_voting_enabled',
-            '0'
-        );
-
+        $emailVotingEnabled = $this->appConfig->getValueString(Application::APP_ID, 'email_voting_enabled', '0');
         if ($emailVotingEnabled !== '1') {
             return;
         }
 
         try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('voting-round');
-
-            $openRounds = $objectService->findAll(
-                    [
-                        'filters' => [
-                            'register' => 'decidesk',
-                            'schema'   => 'voting-round',
-                        ],
-                    ]
-                    );
-
-            foreach ($openRounds as $round) {
-                if (is_array($round) === true) {
-                    $roundData = $round;
-                } else {
-                    $roundData = $round->getObject();
-                }
-
-                // Skip closed rounds.
-                if (($roundData['closedAt'] ?? null) !== null) {
-                    continue;
-                }
-
-                if (($roundData['openedAt'] ?? null) === null) {
-                    continue;
-                }
-
-                $roundId = $roundData['id'] ?? $roundData['uuid'] ?? null;
-                if ($roundId === null) {
-                    continue;
-                }
-
-                $this->processRoundMailReplies(roundId: $roundId, roundData: $roundData);
-            }//end foreach
+            $this->processOpenRounds();
         } catch (\Throwable $e) {
-            $this->logger->warning("Decidesk MailReplyHandler: {$e->getMessage()}");
-        }//end try
+            $this->logger->error('Decidesk: MailReplyHandler failed', ['error' => $e->getMessage()]);
+        }
 
     }//end run()
 
     /**
-     * Process email reply threads for a single open VotingRound.
-     *
-     * In a real implementation this would query Nextcloud Mail for replies
-     * to threads associated with this VotingRound via `_mail` metadata.
-     * This stub logs that the round is being processed.
-     *
-     * @param string              $roundId   UUID of the VotingRound
-     * @param array<string,mixed> $roundData VotingRound data array
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
-     *
-     * @psalm-suppress UnusedParam
+     * Find open VotingRounds and process their email reply metadata.
      *
      * @return void
-     */
-    private function processRoundMailReplies(string $roundId, array $roundData=[]): void
-    {
-        $this->logger->debug("Decidesk MailReplyHandler: processing round $roundId for email vote replies");
-        // Full implementation requires Nextcloud Mail API access (IMailManager).
-        // Polls mail threads linked via _mail metadata on the VotingRound object.
-    }//end processRoundMailReplies()
-
-    /**
-     * Parse a reply body for a recognised vote keyword.
-     *
-     * Reads the first non-empty line of the reply body, case-insensitively
-     * matches against VOTE_KEYWORDS, and returns the canonical value or null.
-     *
-     * @param string $replyBody Raw email reply body text
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
-     *
-     * @return string|null Canonical vote value ('for', 'against', 'abstain') or null
      */
-    public function parseReply(string $replyBody): ?string
+    private function processOpenRounds(): void
     {
-        $lines = explode("\n", $replyBody);
-        foreach ($lines as $line) {
-            $trimmed = trim($line);
-            if ($trimmed === '') {
+        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+        $openRounds = $objectService->findObjects(
+            register: 'decidesk',
+            schema: 'voting-round',
+            filters: ['closedAt' => null, 'openedAt' => ['!=' => null]]
+        );
+
+        foreach (($openRounds['results'] ?? []) as $round) {
+            $roundId = ($round['uuid'] ?? $round['id'] ?? null);
+            if ($roundId === null) {
                 continue;
             }
 
-            $keyword = strtolower($trimmed);
-            if (isset(self::VOTE_KEYWORDS[$keyword]) === true) {
-                return self::VOTE_KEYWORDS[$keyword];
+            $this->processRoundMailReplies(objectService: $objectService, round: $round, roundId: $roundId);
+        }
+
+    }//end processOpenRounds()
+
+    /**
+     * Process mail reply metadata on a single VotingRound.
+     *
+     * Looks for _mail metadata entries, parses vote keywords, and calls castVote.
+     *
+     * @param object              $objectService The OpenRegister ObjectService
+     * @param array<string,mixed> $round         The VotingRound object
+     * @param string              $roundId       The VotingRound UUID
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function processRoundMailReplies(object $objectService, array $round, string $roundId): void
+    {
+        if (empty($round['_mail'] ?? []) === true) {
+            return;
+        }
+
+        $notificationService = $this->container->get('OCA\OpenRegister\Service\NotificationService');
+        $dirty = false;
+
+        foreach ($round['_mail'] as &$mailEntry) {
+            $participantId = ($mailEntry['participantId'] ?? null);
+            $replyBody     = ($mailEntry['replyBody'] ?? '');
+            $processed     = (bool) ($mailEntry['processed'] ?? false);
+
+            if ($processed === true || $participantId === null) {
+                continue;
             }
 
-            break;
+            $keyword = $this->parseVoteKeyword(body: $replyBody);
+
+            if ($keyword !== null) {
+                try {
+                    $this->votingService->castVote(
+                        votingRoundId: $roundId,
+                        participantId: $participantId,
+                        value: $keyword,
+                        isProxy: false,
+                        delegatorId: null
+                    );
+
+                    // Send confirmation.
+                    $notificationService->createNotification(
+                        userId: $participantId,
+                        app: 'decidesk',
+                        subject: 'email_vote_confirmed',
+                        subjectParameters: ['value' => $keyword, 'votingRoundId' => $roundId],
+                        object: 'voting-round',
+                        objectId: $roundId
+                    );
+
+                    $mailEntry['processed'] = true;
+                    $dirty = true;
+                    $this->logger->info('Decidesk: email vote processed', ['participant' => $participantId, 'value' => $keyword]);
+                } catch (\Throwable $e) {
+                    $this->logger->warning('Decidesk: email vote cast failed', ['error' => $e->getMessage()]);
+                }//end try
+            } else {
+                $retries = (int) ($mailEntry['retries'] ?? 0);
+                $retries++;
+
+                if ($retries >= self::MAX_RETRIES) {
+                    $mailEntry['processed'] = true;
+                    $mailEntry['abandoned'] = true;
+                    $dirty = true;
+                    try {
+                        $notificationService->createNotification(
+                            userId: $participantId,
+                            app: 'decidesk',
+                            subject: 'email_vote_abandoned',
+                            subjectParameters: ['votingRoundId' => $roundId],
+                            object: 'voting-round',
+                            objectId: $roundId
+                        );
+                    } catch (\Throwable $e) {
+                        $this->logger->warning('Decidesk: abandoned vote notification failed', ['error' => $e->getMessage()]);
+                    }
+                } else {
+                    $mailEntry['retries'] = $retries;
+                    $dirty = true;
+                    try {
+                        $notificationService->createNotification(
+                            userId: $participantId,
+                            app: 'decidesk',
+                            subject: 'email_vote_reprompt',
+                            subjectParameters: ['votingRoundId' => $roundId, 'attempt' => $retries],
+                            object: 'voting-round',
+                            objectId: $roundId
+                        );
+                    } catch (\Throwable $e) {
+                        $this->logger->warning('Decidesk: reprompt notification failed', ['error' => $e->getMessage()]);
+                    }
+                }//end if
+            }//end if
+        }//end foreach
+
+        unset($mailEntry);
+
+        // Persist mutations: write the updated _mail metadata back to OpenRegister.
+        if ($dirty === true) {
+            $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+        }
+
+    }//end processRoundMailReplies()
+
+    /**
+     * Parse the first non-empty line of an email reply for a vote keyword.
+     *
+     * Returns the canonical vote value (for/against/abstain) or null if unrecognised.
+     *
+     * @param string $body The email reply body
+     *
+     * @return string|null The canonical vote value or null
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    public function parseVoteKeyword(string $body): ?string
+    {
+        $lines = explode("\n", $body);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+
+            $normalised = strtolower($line);
+            if (isset(self::VOTE_KEYWORDS[$normalised]) === true) {
+                return self::VOTE_KEYWORDS[$normalised];
+            }
+
+            // First non-empty line is not recognised.
+            return null;
         }
 
         return null;
 
-    }//end parseReply()
+    }//end parseVoteKeyword()
 }//end class
