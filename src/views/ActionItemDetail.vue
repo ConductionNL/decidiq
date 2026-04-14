@@ -32,6 +32,33 @@
 			</CnDetailCard>
 		</template>
 
+		<template #relations>
+			<CnDetailCard :title="t('decidesk', 'Gerelateerd besluit')">
+				<p v-if="!object.relations?.decision" class="decidesk-empty">
+					{{ t('decidesk', 'Geen gerelateerd besluit.') }}
+				</p>
+				<ul v-else class="decidesk-relations">
+					<li>
+						<router-link :to="{ name: 'DecisionDetail', params: { id: object.relations.decision.id || object.relations.decision } }">
+							{{ object.relations.decision.title || object.relations.decision.id || object.relations.decision }}
+						</router-link>
+					</li>
+				</ul>
+			</CnDetailCard>
+			<CnDetailCard :title="t('decidesk', 'Gerelateerde vergadering')">
+				<p v-if="!object.relations?.meeting" class="decidesk-empty">
+					{{ t('decidesk', 'Geen gerelateerde vergadering.') }}
+				</p>
+				<ul v-else class="decidesk-relations">
+					<li>
+						<router-link :to="{ name: 'MeetingDetail', params: { id: object.relations.meeting.id || object.relations.meeting } }">
+							{{ object.relations.meeting.title || object.relations.meeting.id || object.relations.meeting }}
+						</router-link>
+					</li>
+				</ul>
+			</CnDetailCard>
+		</template>
+
 		<template #sidebar>
 			<CnObjectSidebar :object="object" :loading="loading" />
 		</template>
@@ -84,6 +111,7 @@ export default {
 		},
 		propertyItems() {
 			return [
+				{ label: this.t('decidesk', 'Omschrijving'), value: this.object.description },
 				{ label: this.t('decidesk', 'Status'), value: this.object.taskStatus },
 				{ label: this.t('decidesk', 'Verantwoordelijke'), value: this.object.assignee },
 				{ label: this.t('decidesk', 'Deadline'), value: this.formatDate(this.object.dueDate) },
@@ -122,5 +150,25 @@ export default {
 	display: flex;
 	gap: 8px;
 	margin-bottom: 12px;
+}
+
+.decidesk-empty {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}
+
+.decidesk-relations {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.decidesk-relations li {
+	padding: var(--default-grid-baseline) 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.decidesk-relations li:last-child {
+	border-bottom: none;
 }
 </style>

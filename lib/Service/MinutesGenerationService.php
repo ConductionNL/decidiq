@@ -90,12 +90,11 @@ class MinutesGenerationService
         $objectService = $this->getObjectService();
 
         // Fetch the Minutes object.
-        $minutesEntity = $objectService->find(
-            $minutesId,
-            ['meeting'],
-            'decidesk',
-            'minutes'
-        );
+        // Using setRegister/setSchema + find(id:) so that OpenRegister's session-based
+        // ACL is applied — any caller without read access gets null (same as MeetingService).
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('minutes');
+        $minutesEntity = $objectService->find(id: $minutesId);
 
         if ($minutesEntity === null) {
             throw new \InvalidArgumentException(
@@ -167,11 +166,11 @@ class MinutesGenerationService
     {
         $objectService = $this->getObjectService();
 
-        $minutesEntity = $objectService->find(
-            id: $minutesId,
-            register: 'decidesk',
-            schema: 'minutes'
-        );
+        // Using setRegister/setSchema + find(id:) so that OpenRegister's session-based
+        // ACL is applied — callers without access to this object get null (OWASP A01).
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('minutes');
+        $minutesEntity = $objectService->find(id: $minutesId);
 
         if ($minutesEntity === null) {
             throw new MissingObjectException(
@@ -214,12 +213,16 @@ class MinutesGenerationService
             $updated['signedBy'] = $signers;
         }
 
-        $objectService->saveObject(
+        $saved = $objectService->saveObject(
             object: $updated,
             register: 'decidesk',
             schema: 'minutes',
             uuid: $minutesId
         );
+
+        if ($saved instanceof \stdClass === true || is_array($saved) === true) {
+            return (array) $saved;
+        }
 
         return $updated;
 
@@ -279,8 +282,12 @@ class MinutesGenerationService
                 'Decidesk: Failed to fetch linked Meeting for minutes draft generation',
                 ['exception' => $e->getMessage(), 'meetingId' => $meetingId]
             );
-            return null;
-        }
+            throw new \RuntimeException(
+                'OpenRegister service is temporarily unavailable. Please try again later.',
+                503,
+                $e
+            );
+        }//end try
 
     }//end resolveMeeting()
 
@@ -301,37 +308,52 @@ class MinutesGenerationService
             return [];
         }
 
-        try {
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema($schema);
-            $entities = $objectService->findAll(
-                [
-                    'filters' => [
-                        'register' => 'decidesk',
-                        'schema'   => $schema,
-                        'meeting'  => $meetingId,
-                    ],
-                    'limit'   => 100,
-                ]
-            );
+        $pageSize = 100;
+        $offset   = 0;
+        $result   = [];
 
-            $result = [];
-            foreach ($entities as $entity) {
-                if (method_exists($entity, 'getObject') === true) {
-                    $result[] = $entity->getObject();
-                } else if (is_array($entity) === true) {
-                    $result[] = $entity;
+        while (true) {
+            try {
+                $objectService->setRegister('decidesk');
+                $objectService->setSchema($schema);
+                $entities = $objectService->findAll(
+                    config: [
+                        'filters' => [
+                            'register' => 'decidesk',
+                            'schema'   => $schema,
+                            'meeting'  => $meetingId,
+                        ],
+                        'limit'   => $pageSize,
+                        'offset'  => $offset,
+                    ]
+                );
+
+                $batch = [];
+                foreach ($entities as $entity) {
+                    if (method_exists($entity, 'getObject') === true) {
+                        $batch[] = $entity->getObject();
+                    } else if (is_array($entity) === true) {
+                        $batch[] = $entity;
+                    }
                 }
-            }
 
-            return $result;
-        } catch (\Throwable $e) {
-            $this->logger->warning(
-                'Decidesk: Failed to fetch related objects for minutes draft',
-                ['schema' => $schema, 'meetingId' => $meetingId, 'exception' => $e->getMessage()]
-            );
-            return [];
-        }//end try
+                $result  = array_merge($result, $batch);
+                $offset += count($batch);
+
+                // Fewer results than page size means we have reached the last page.
+                if (count($batch) < $pageSize) {
+                    break;
+                }
+            } catch (\Throwable $e) {
+                $this->logger->warning(
+                    'Decidesk: Failed to fetch related objects for minutes draft',
+                    ['schema' => $schema, 'meetingId' => $meetingId, 'offset' => $offset, 'exception' => $e->getMessage()]
+                );
+                break;
+            }//end try
+        }//end while
+
+        return $result;
 
     }//end fetchRelatedObjects()
 

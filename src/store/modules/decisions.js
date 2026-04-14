@@ -149,25 +149,36 @@ export const useDecisionStore = defineStore('decision', {
 		},
 
 		/**
-		 * Publish a Decision by setting isPublished=true and publishedAt=now.
+		 * Publish a Decision via the dedicated server-side publish endpoint.
 		 *
-		 * Only valid when outcome='adopted' and isPublished=false.
-		 * If the Decision matching id is not already current, it is fetched first.
+		 * Calls POST /apps/decidesk/api/decisions/{id}/publish which enforces
+		 * server-side admin check, outcome validation, and isPublished guard —
+		 * preventing frontend-only bypass (OWASP A01 / ADR-005).
 		 *
 		 * @param {string} id - UUID of the Decision object to publish
 		 *
-		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
 		 */
 		async publishDecision(id) {
-			const decision = this.currentDecision?.id === id
-				? this.currentDecision
-				: await this.fetchDecisionById(id)
-			if (!decision) return null
-			return this.saveDecision({
-				...decision,
-				isPublished: true,
-				publishedAt: new Date().toISOString(),
-			})
+			this.loading = true
+			try {
+				const url = generateUrl(`/apps/decidesk/api/decisions/${id}/publish`)
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: { requesttoken: OC.requestToken },
+				})
+				if (response.ok) {
+					const saved = await response.json()
+					this.currentDecision = saved
+					await this.fetchDecisions()
+					return saved
+				}
+			} catch (error) {
+				console.error('Failed to publish Decision:', error)
+			} finally {
+				this.loading = false
+			}
+			return null
 		},
 	},
 })

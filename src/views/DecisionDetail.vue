@@ -27,6 +27,18 @@
 		</template>
 
 		<template #relations>
+			<CnDetailCard :title="t('decidesk', 'Gerelateerde motie')">
+				<p v-if="!object.relations?.motion" class="decidesk-empty">
+					{{ t('decidesk', 'Geen gerelateerde motie.') }}
+				</p>
+				<ul v-else class="decidesk-relations">
+					<li>
+						<router-link :to="{ name: 'MotionDetail', params: { id: object.relations.motion.id || object.relations.motion } }">
+							{{ object.relations.motion.title || object.relations.motion.id || object.relations.motion }}
+						</router-link>
+					</li>
+				</ul>
+			</CnDetailCard>
 			<CnDetailCard :title="t('decidesk', 'Gerelateerde actiepunten')">
 				<p v-if="!object.relations?.['action-item']?.length" class="decidesk-empty">
 					{{ t('decidesk', 'Geen gerelateerde actiepunten.') }}
@@ -70,6 +82,7 @@
 <script>
 import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
+import { useDecisionStore } from '../store/modules/decisions.js'
 import { useObjectStore } from '../store/store.js'
 
 export default {
@@ -80,12 +93,13 @@ export default {
 	},
 	setup(props) {
 		const objectStore = useObjectStore()
+		const decisionStore = useDecisionStore()
 		const detailView = useDetailView('decision', props.id, {
 			objectStore,
 			listRouteName: 'Decisions',
 			detailRouteName: 'DecisionDetail',
 		})
-		return { ...detailView, objectStore }
+		return { ...detailView, objectStore, decisionStore }
 	},
 	data() {
 		return {
@@ -109,6 +123,7 @@ export default {
 				? this.t('decidesk', 'Ja') + (this.object.publishedAt ? ' (' + this.formatDate(this.object.publishedAt) + ')' : '')
 				: this.t('decidesk', 'Nee')
 			return [
+				{ label: this.t('decidesk', 'Besluit'), value: this.object.text },
 				{ label: this.t('decidesk', 'Uitkomst'), value: outcomeLabel },
 				{ label: this.t('decidesk', 'Besluitdatum'), value: this.formatDate(this.object.decisionDate) },
 				{ label: this.t('decidesk', 'Juridische grondslag'), value: this.object.legalBasis },
@@ -124,11 +139,8 @@ export default {
 		async publish() {
 			this.publishing = true
 			try {
-				await this.objectStore.saveObject('decision', {
-					...this.object,
-					isPublished: true,
-					publishedAt: new Date().toISOString(),
-				})
+				await this.decisionStore.publishDecision(this.id)
+				await this.objectStore.fetchObject('decision', this.id)
 			} finally {
 				this.publishing = false
 			}

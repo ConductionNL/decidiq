@@ -310,6 +310,29 @@ class MinutesControllerTest extends TestCase
     }//end testTransitionInvalidStepReturns422()
 
     /**
+     * transition() when OpenRegister is unavailable returns 503.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
+     *
+     * @return void
+     */
+    public function testTransitionWhenOpenRegisterUnavailableReturns503(): void
+    {
+        $this->request->method('getParam')->with('lifecycle')->willReturn('review');
+
+        $this->minutesGenerationService->expects($this->once())
+            ->method('transition')
+            ->willThrowException(new \RuntimeException('OpenRegister ObjectService is not available.'));
+
+        $result = $this->controller->transition('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_SERVICE_UNAVAILABLE, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
+
+    }//end testTransitionWhenOpenRegisterUnavailableReturns503()
+
+    /**
      * transition() when minutes not found returns 404.
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-9
