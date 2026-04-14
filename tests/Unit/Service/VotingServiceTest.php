@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Service\ObjectService;
@@ -73,6 +74,13 @@ class VotingServiceTest extends TestCase
     private ObjectService&MockObject $objectService;
 
     /**
+     * Mock MotionService.
+     *
+     * @var MotionService&MockObject
+     */
+    private MotionService&MockObject $motionService;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -81,9 +89,10 @@ class VotingServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->container  = $this->createMock(ContainerInterface::class);
-        $this->logger     = $this->createMock(LoggerInterface::class);
-        $this->oriService = $this->createMock(OriPublicationService::class);
+        $this->container     = $this->createMock(ContainerInterface::class);
+        $this->logger        = $this->createMock(LoggerInterface::class);
+        $this->oriService    = $this->createMock(OriPublicationService::class);
+        $this->motionService = $this->createMock(MotionService::class);
 
         $this->objectService = $this->createMock(ObjectService::class);
 
@@ -98,6 +107,7 @@ class VotingServiceTest extends TestCase
             container: $this->container,
             oriPublicationService: $this->oriService,
             logger: $this->logger,
+            motionService: $this->motionService,
         );
 
     }//end setUp()

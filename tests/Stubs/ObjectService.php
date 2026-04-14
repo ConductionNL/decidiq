@@ -41,11 +41,23 @@ abstract class ObjectService
     /**
      * Fetch a single object by UUID (old fluent API).
      *
-     * @param string $uuid Object UUID
+     * @param string $id Object UUID
      *
      * @return object|null
      */
-    abstract public function find(string $uuid): ?object;
+    abstract public function find(string $id): ?object;
+
+    /**
+     * Update an object from an array patch (new named-parameter API).
+     *
+     * @param string              $id            Object UUID
+     * @param array<string,mixed> $object        Patch data
+     * @param bool                $updateVersion Whether to bump the object version
+     * @param bool                $patch         Whether this is a partial update (PATCH)
+     *
+     * @return object|null
+     */
+    abstract public function updateFromArray(string $id, array $object, bool $updateVersion = false, bool $patch = false): ?object;
 
     /**
      * Fetch all objects matching filters (old API, used by MotionService).

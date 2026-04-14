@@ -23,10 +23,13 @@ if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
     $autoloader->addPsr4('NCU\\', __DIR__.'/../vendor/nextcloud/ocp/NCU/');
 }
 
-// Bootstrap Nextcloud — since we run inside the Docker container,
-// the full environment (including \OC::$server) is available.
-if (file_exists(__DIR__.'/../../../lib/base.php') === true) {
-    include_once __DIR__.'/../../../lib/base.php';
+// Bootstrap Nextcloud only when the config file is readable (i.e., in a properly
+// provisioned CI environment). Skip silently when running standalone — OCP stubs
+// registered above are sufficient for unit-only test suites.
+$ncBase   = __DIR__.'/../../../lib/base.php';
+$ncConfig = __DIR__.'/../../../config/config.php';
+if (file_exists($ncBase) === true && is_readable($ncConfig) === true) {
+    include_once $ncBase;
 }
 
 // Register Test\ namespace for NC test classes.
@@ -45,4 +48,8 @@ if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === f
 
 if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
     require_once __DIR__.'/Stubs/ObjectService.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
+    require_once __DIR__.'/Stubs/ObjectEntity.php';
 }
