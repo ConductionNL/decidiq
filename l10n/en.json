@@ -206,7 +206,12 @@
         "Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde": "A proxy has already been registered for this participant in this voting round",
         "Stemronde is gesloten": "Voting round is closed",
         "Stemronde is nog niet geopend": "Voting round has not been opened yet",
-        "Stemronde is al geopend \u2014 volmacht kan niet meer worden ingetrokken": "Voting round already opened \u2014 proxy can no longer be revoked"
+        "Stemronde is al geopend \u2014 volmacht kan niet meer worden ingetrokken": "Voting round already opened \u2014 proxy can no longer be revoked",
+        "Motie koppelen": "Link motion",
+        "No motion linked to this decision item.": "No motion linked to this decision item.",
+        "Zoek op motietitel\u2026": "Search by motion title\u2026",
+        "Geen moties gevonden.": "No motions found.",
+        "Koppelen": "Link"
     },
     "plurals": ""
 }

@@ -207,7 +207,12 @@
         "Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde": "Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde",
         "Stemronde is gesloten": "Stemronde is gesloten",
         "Stemronde is nog niet geopend": "Stemronde is nog niet geopend",
-        "Stemronde is al geopend \u2014 volmacht kan niet meer worden ingetrokken": "Stemronde is al geopend \u2014 volmacht kan niet meer worden ingetrokken"
+        "Stemronde is al geopend \u2014 volmacht kan niet meer worden ingetrokken": "Stemronde is al geopend \u2014 volmacht kan niet meer worden ingetrokken",
+        "Motie koppelen": "Motie koppelen",
+        "No motion linked to this decision item.": "Geen motie gekoppeld aan dit besluitpunt.",
+        "Zoek op motietitel\u2026": "Zoek op motietitel\u2026",
+        "Geen moties gevonden.": "Geen moties gevonden.",
+        "Koppelen": "Koppelen"
     },
     "plurals": ""
 }

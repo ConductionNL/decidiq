@@ -64,7 +64,7 @@
 - [x] 4.4 Add lifecycle action buttons to `MotionDetail.vue` — "Debat openen" (chair/secretary, from submitted), "Stemronde openen" (chair/secretary, from debating), "Motie intrekken" (proposer only, before voting); each button calls `POST /api/motions/{id}/transition` with `newState`
 - [x] 4.5 Add "Medeondertekenaars uitnodigen" section to `MotionDetail.vue` — Participant multi-select (filtered to GovernanceBody members); on submit calls `POST /api/motions/{id}/co-sign-request`; shows current `coSigners` list; shows "Ondersteunen" button for invited Participants not yet confirmed (calls `POST /api/motions/{id}/co-sign-confirm`)
 - [x] 4.6 Add "Budget impact toevoegen" toggle to the MotionDetail edit form for `motionType: "amendment"` — shows three fields: budgetLine (text), amountDelta (number), rationale (text area); on save calls `POST /api/motions/{id}/budget-impact`; budget impact panel rendered in view mode below motion text
-- [ ] 4.7 Add "Motie koppelen" action to `AgendaItemDetail.vue` for `decision`-type items (extends p2-agenda-management) — search dialog listing Motions for the same Meeting; creates OpenRegister relation AgendaItem → Motion
+- [x] 4.7 Add "Motie koppelen" action to `AgendaItemDetail.vue` for `decision`-type items (extends p2-agenda-management) — search dialog listing Motions for the same Meeting; creates OpenRegister relation AgendaItem → Motion
 
 ## 5. Frontend — Amendment Views
 
