@@ -78,16 +78,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </post-migration>
     </repair-steps>
 
-    <background-jobs>
-        <job>OCA\Decidesk\BackgroundJob\MailReplyHandler</job>
-    </background-jobs>
-
     <settings>
         <admin>OCA\Decidesk\Settings\AdminSettings</admin>
         <admin-section>OCA\Decidesk\Sections\SettingsSection</admin-section>
     </settings>
-
-    <background-jobs>
-        <job>OCA\Decidesk\BackgroundJob\MailReplyHandler</job>
-    </background-jobs>
 </info>

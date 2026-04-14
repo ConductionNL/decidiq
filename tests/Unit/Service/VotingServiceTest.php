@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\VotingService;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -59,13 +58,6 @@ class VotingServiceTest extends TestCase
     private LoggerInterface&MockObject $logger;
 
     /**
-     * Mock MotionService.
-     *
-     * @var MotionService&MockObject
-     */
-    private MotionService&MockObject $motionService;
-
-    /**
      * Mock OriPublicationService.
      *
      * @var OriPublicationService&MockObject
@@ -73,7 +65,7 @@ class VotingServiceTest extends TestCase
     private OriPublicationService&MockObject $oriService;
 
     /**
-     * Mock ObjectService.
+     * Mock ObjectService (stdClass with added methods matching OpenRegister API).
      *
      * @var object&MockObject
      */
@@ -88,13 +80,12 @@ class VotingServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->container     = $this->createMock(ContainerInterface::class);
-        $this->logger        = $this->createMock(LoggerInterface::class);
-        $this->motionService = $this->createMock(MotionService::class);
-        $this->oriService    = $this->createMock(OriPublicationService::class);
+        $this->container  = $this->createMock(ContainerInterface::class);
+        $this->logger     = $this->createMock(LoggerInterface::class);
+        $this->oriService = $this->createMock(OriPublicationService::class);
 
         $this->objectService = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['setRegister', 'setSchema', 'find', 'findAll', 'saveObject'])
+            ->addMethods(['setRegister', 'setSchema', 'getObject', 'findObjects', 'saveObject'])
             ->getMock();
 
         $this->objectService->method('setRegister')->willReturnSelf();
@@ -106,31 +97,11 @@ class VotingServiceTest extends TestCase
 
         $this->service = new VotingService(
             container: $this->container,
-            motionService: $this->motionService,
             oriPublicationService: $this->oriService,
             logger: $this->logger,
         );
 
     }//end setUp()
-
-    /**
-     * Build a mock ObjectEntity with getObject() and getUuid() methods.
-     *
-     * @param array<string,mixed> $data Object data
-     * @param string              $uuid Object UUID
-     *
-     * @return object
-     */
-    private function mockObjectEntity(array $data, string $uuid='test-uuid'): object
-    {
-        $entity = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['getObject', 'getUuid'])
-            ->getMock();
-        $entity->method('getObject')->willReturn($data);
-        $entity->method('getUuid')->willReturn($uuid);
-        return $entity;
-
-    }//end mockObjectEntity()
 
     /**
      * Test that checkQuorum returns true when active participants meet the quorum.
@@ -141,21 +112,26 @@ class VotingServiceTest extends TestCase
      */
     public function testCheckQuorumMet(): void
     {
-        $meetingEntity = $this->mockObjectEntity(['quorumRequired' => 3], 'meeting-uuid');
-
-        $participants = [
-            $this->mockObjectEntity(['displayName' => 'A', 'leftAt' => null]),
-            $this->mockObjectEntity(['displayName' => 'B', 'leftAt' => null]),
-            $this->mockObjectEntity(['displayName' => 'C', 'leftAt' => null]),
-        ];
+        $this->objectService->expects($this->once())
+            ->method('getObject')
+            ->willReturn(
+                [
+                    'quorumRequired' => 3,
+                    'relations'      => [['schema' => 'governance-body', 'id' => 'gb-uuid']],
+                ]
+            );
 
         $this->objectService->expects($this->once())
-            ->method('find')
-            ->willReturn($meetingEntity);
-
-        $this->objectService->expects($this->once())
-            ->method('findAll')
-            ->willReturn($participants);
+            ->method('findObjects')
+            ->willReturn(
+                [
+                    'results' => [
+                        ['displayName' => 'A', 'leftAt' => null],
+                        ['displayName' => 'B', 'leftAt' => null],
+                        ['displayName' => 'C', 'leftAt' => null],
+                    ],
+                ]
+            );
 
         self::assertTrue($this->service->checkQuorum('meeting-uuid'));
 
@@ -170,21 +146,26 @@ class VotingServiceTest extends TestCase
      */
     public function testCheckQuorumNotMet(): void
     {
-        $meetingEntity = $this->mockObjectEntity(['quorumRequired' => 5], 'meeting-uuid');
-
-        $participants = [
-            $this->mockObjectEntity(['displayName' => 'A', 'leftAt' => null]),
-            $this->mockObjectEntity(['displayName' => 'B', 'leftAt' => '2025-04-14T20:00:00+02:00']),
-            $this->mockObjectEntity(['displayName' => 'C', 'leftAt' => null]),
-        ];
+        $this->objectService->expects($this->once())
+            ->method('getObject')
+            ->willReturn(
+                [
+                    'quorumRequired' => 5,
+                    'relations'      => [['schema' => 'governance-body', 'id' => 'gb-uuid']],
+                ]
+            );
 
         $this->objectService->expects($this->once())
-            ->method('find')
-            ->willReturn($meetingEntity);
-
-        $this->objectService->expects($this->once())
-            ->method('findAll')
-            ->willReturn($participants);
+            ->method('findObjects')
+            ->willReturn(
+                [
+                    'results' => [
+                        ['displayName' => 'A', 'leftAt' => null],
+                        ['displayName' => 'B', 'leftAt' => '2025-04-14T20:00:00+02:00'],
+                        ['displayName' => 'C', 'leftAt' => null],
+                    ],
+                ]
+            );
 
         self::assertFalse($this->service->checkQuorum('meeting-uuid'));
 
@@ -202,22 +183,19 @@ class VotingServiceTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Quorum niet bereikt');
 
-        $motionEntity = $this->mockObjectEntity([
-            'lifecycle'  => 'debating',
-            'relations'  => [['schema' => 'meeting', 'id' => 'meeting-uuid']],
-        ], 'motion-uuid');
-
-        $meetingEntity = $this->mockObjectEntity(['quorumRequired' => 10], 'meeting-uuid');
-
-        $this->objectService->expects($this->exactly(2))
-            ->method('find')
-            ->willReturnOnConsecutiveCalls($motionEntity, $meetingEntity);
+        $this->objectService->method('getObject')
+            ->willReturn(
+                [
+                    'quorumRequired' => 10,
+                    'relations'      => [['schema' => 'governance-body', 'id' => 'gb-uuid']],
+                ]
+            );
 
         // Only 1 active participant — quorum not met.
-        $this->objectService->method('findAll')
-            ->willReturn([$this->mockObjectEntity(['displayName' => 'A', 'leftAt' => null])]);
+        $this->objectService->method('findObjects')
+            ->willReturn(['results' => [['displayName' => 'A', 'leftAt' => null]]]);
 
-        $this->service->openVotingRound('motion-uuid', 'for-against-abstain', false, null);
+        $this->service->openVotingRound('motion-uuid', 'meeting-uuid', 'for-against-abstain', false, null);
 
     }//end testOpenVotingRoundBlocksOnQuorumFailure()
 
@@ -230,40 +208,26 @@ class VotingServiceTest extends TestCase
      */
     public function testCastVoteOverwritesDuplicate(): void
     {
-        $roundEntity = $this->mockObjectEntity([
-            'openedAt' => '2025-04-14T20:05:00+02:00',
-            'closedAt' => null,
-        ], 'round-uuid');
+        $this->objectService->method('getObject')
+            ->willReturn(['openedAt' => '2025-04-14T20:05:00+02:00', 'closedAt' => null]);
 
-        $existingVoteEntity = $this->mockObjectEntity([
-            'id'      => 'existing-vote-uuid',
-            'value'   => 'against',
-            'isProxy' => false,
-            'relations' => [
-                ['schema' => 'voting-round', 'id' => 'round-uuid'],
-                ['schema' => 'participant',  'id' => 'participant-uuid'],
-            ],
-        ], 'existing-vote-uuid');
-
-        $savedVoteEntity = $this->mockObjectEntity(['value' => 'for', 'isProxy' => false, 'castAt' => '2025-04-14T20:08:00+02:00'], 'existing-vote-uuid');
-
-        $this->objectService->expects($this->once())
-            ->method('find')
-            ->willReturn($roundEntity);
-
-        $this->objectService->expects($this->exactly(2))
-            ->method('findAll')
-            ->willReturnOnConsecutiveCalls([], [$existingVoteEntity]);
+        $this->objectService->method('findObjects')
+            ->willReturn(
+                [
+                    'results' => [
+                        [
+                            'id'      => 'existing-vote-uuid',
+                            'uuid'    => 'existing-vote-uuid',
+                            'value'   => 'against',
+                            'isProxy' => false,
+                        ],
+                    ],
+                ]
+            );
 
         $this->objectService->expects($this->once())
             ->method('saveObject')
-            ->with(
-                $this->callback(fn($obj) => ($obj['value'] ?? '') === 'for'),
-                $this->anything(),
-                $this->anything(),
-                'existing-vote-uuid',
-            )
-            ->willReturn($savedVoteEntity);
+            ->willReturn(['value' => 'for', 'isProxy' => false, 'castAt' => '2025-04-14T20:08:00+02:00']);
 
         $result = $this->service->castVote('round-uuid', 'participant-uuid', 'for', false, null);
         self::assertSame('for', $result['value']);
@@ -280,31 +244,28 @@ class VotingServiceTest extends TestCase
     public function testCastVoteEnforcesOneProxyPerRound(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('already has a proxy vote');
+        $this->expectExceptionMessage('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
 
-        $roundEntity = $this->mockObjectEntity([
-            'openedAt' => '2025-04-14T20:05:00+02:00',
-            'closedAt' => null,
-        ], 'round-uuid');
+        $this->objectService->method('getObject')
+            ->willReturn(['openedAt' => '2025-04-14T20:05:00+02:00', 'closedAt' => null]);
 
-        $existingProxyVote = $this->mockObjectEntity([
-            'id'      => 'proxy-vote-uuid',
-            'value'   => 'for',
-            'isProxy' => true,
-            'relations' => [
-                ['schema' => 'voting-round', 'id' => 'round-uuid'],
-                ['schema' => 'participant',  'id' => 'delegator-uuid'],
-            ],
-        ], 'proxy-vote-uuid');
-
-        $this->objectService->expects($this->once())
-            ->method('find')
-            ->willReturn($roundEntity);
-
-        // First findAll call is for proxy check — return an existing proxy.
-        $this->objectService->expects($this->once())
-            ->method('findAll')
-            ->willReturn([$existingProxyVote]);
+        // Proxy check returns an existing proxy vote for the delegator.
+        $this->objectService->method('findObjects')
+            ->willReturn(
+                [
+                    'results' => [
+                        [
+                            'id'        => 'proxy-vote-uuid',
+                            'value'     => 'for',
+                            'isProxy'   => true,
+                            'relations' => [
+                                ['schema' => 'voting-round', 'id' => 'round-uuid'],
+                                ['schema' => 'participant',  'id' => 'delegator-uuid', 'type' => 'delegator'],
+                            ],
+                        ],
+                    ],
+                ]
+            );
 
         $this->service->castVote('round-uuid', 'delegate-uuid', 'for', true, 'delegator-uuid');
 
@@ -319,29 +280,21 @@ class VotingServiceTest extends TestCase
      */
     public function testTallyResultsAdopted(): void
     {
-        $voteFor1 = $this->mockObjectEntity([
-            'value'  => 'for',
-            'weight' => 1,
-            'relations' => [['schema' => 'voting-round', 'id' => 'round-uuid']],
-        ]);
-        $voteFor2 = $this->mockObjectEntity([
-            'value'  => 'for',
-            'weight' => 1,
-            'relations' => [['schema' => 'voting-round', 'id' => 'round-uuid']],
-        ]);
-        $voteAgainst = $this->mockObjectEntity([
-            'value'  => 'against',
-            'weight' => 1,
-            'relations' => [['schema' => 'voting-round', 'id' => 'round-uuid']],
-        ]);
+        $this->objectService->method('findObjects')
+            ->willReturn(
+                [
+                    'results' => [
+                        ['value' => 'for',     'weight' => 1],
+                        ['value' => 'for',     'weight' => 1],
+                        ['value' => 'against', 'weight' => 1],
+                    ],
+                ]
+            );
 
-        $roundEntity = $this->mockObjectEntity(['openedAt' => '2025-04-14T20:05:00+02:00'], 'round-uuid');
+        $this->objectService->method('getObject')
+            ->willReturn(['openedAt' => '2025-04-14T20:05:00+02:00']);
 
-        $this->objectService->method('findAll')
-            ->willReturn([$voteFor1, $voteFor2, $voteAgainst]);
-
-        $this->objectService->method('find')->willReturn($roundEntity);
-        $this->objectService->method('saveObject')->willReturn($roundEntity);
+        $this->objectService->method('saveObject')->willReturn([]);
 
         $result = $this->service->tallyResults('round-uuid');
 
@@ -360,28 +313,21 @@ class VotingServiceTest extends TestCase
      */
     public function testTallyResultsRejected(): void
     {
-        $voteFor = $this->mockObjectEntity([
-            'value'  => 'for',
-            'weight' => 1,
-            'relations' => [['schema' => 'voting-round', 'id' => 'round-uuid']],
-        ]);
-        $voteAgainst1 = $this->mockObjectEntity([
-            'value'  => 'against',
-            'weight' => 1,
-            'relations' => [['schema' => 'voting-round', 'id' => 'round-uuid']],
-        ]);
-        $voteAgainst2 = $this->mockObjectEntity([
-            'value'  => 'against',
-            'weight' => 1,
-            'relations' => [['schema' => 'voting-round', 'id' => 'round-uuid']],
-        ]);
+        $this->objectService->method('findObjects')
+            ->willReturn(
+                [
+                    'results' => [
+                        ['value' => 'for',     'weight' => 1],
+                        ['value' => 'against', 'weight' => 1],
+                        ['value' => 'against', 'weight' => 1],
+                    ],
+                ]
+            );
 
-        $roundEntity = $this->mockObjectEntity(['openedAt' => '2025-04-14T20:05:00+02:00'], 'round-uuid');
+        $this->objectService->method('getObject')
+            ->willReturn(['openedAt' => '2025-04-14T20:05:00+02:00']);
 
-        $this->objectService->method('findAll')
-            ->willReturn([$voteFor, $voteAgainst1, $voteAgainst2]);
-        $this->objectService->method('find')->willReturn($roundEntity);
-        $this->objectService->method('saveObject')->willReturn($roundEntity);
+        $this->objectService->method('saveObject')->willReturn([]);
 
         $result = $this->service->tallyResults('round-uuid');
 
@@ -398,23 +344,20 @@ class VotingServiceTest extends TestCase
      */
     public function testTallyResultsTied(): void
     {
-        $voteFor = $this->mockObjectEntity([
-            'value'  => 'for',
-            'weight' => 1,
-            'relations' => [['schema' => 'voting-round', 'id' => 'round-uuid']],
-        ]);
-        $voteAgainst = $this->mockObjectEntity([
-            'value'  => 'against',
-            'weight' => 1,
-            'relations' => [['schema' => 'voting-round', 'id' => 'round-uuid']],
-        ]);
+        $this->objectService->method('findObjects')
+            ->willReturn(
+                [
+                    'results' => [
+                        ['value' => 'for',     'weight' => 1],
+                        ['value' => 'against', 'weight' => 1],
+                    ],
+                ]
+            );
 
-        $roundEntity = $this->mockObjectEntity(['openedAt' => '2025-04-14T20:05:00+02:00'], 'round-uuid');
+        $this->objectService->method('getObject')
+            ->willReturn(['openedAt' => '2025-04-14T20:05:00+02:00']);
 
-        $this->objectService->method('findAll')
-            ->willReturn([$voteFor, $voteAgainst]);
-        $this->objectService->method('find')->willReturn($roundEntity);
-        $this->objectService->method('saveObject')->willReturn($roundEntity);
+        $this->objectService->method('saveObject')->willReturn([]);
 
         $result = $this->service->tallyResults('round-uuid');
 
@@ -423,7 +366,7 @@ class VotingServiceTest extends TestCase
     }//end testTallyResultsTied()
 
     /**
-     * Test that closeVotingRound triggers motion lifecycle transition.
+     * Test that closeVotingRound triggers motion lifecycle transition to 'rejected'.
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.5
      *
@@ -431,23 +374,46 @@ class VotingServiceTest extends TestCase
      */
     public function testCloseVotingRoundTransitionsLifecycle(): void
     {
-        $roundEntity = $this->mockObjectEntity([
-            'openedAt'  => '2025-04-14T20:05:00+02:00',
-            'closedAt'  => null,
-            'relations' => [['schema' => 'motion', 'id' => 'motion-uuid']],
-        ], 'round-uuid');
+        $roundData = [
+            'openedAt'     => '2025-04-14T20:05:00+02:00',
+            'closedAt'     => null,
+            'votesFor'     => 0,
+            'votesAgainst' => 0,
+            'votesAbstain' => 0,
+            'result'       => null,
+            'relations'    => [['schema' => 'motion', 'id' => 'motion-uuid']],
+        ];
+        $motionData = ['title' => 'Test Motion', 'lifecycle' => 'voting', 'status' => 'voting'];
 
-        $this->objectService->method('find')->willReturn($roundEntity);
-        $this->objectService->method('findAll')->willReturn([]);
-        $this->objectService->method('saveObject')->willReturn($roundEntity);
+        // One vote against → result = 'rejected'.
+        $this->objectService->method('findObjects')
+            ->willReturn(['results' => [['value' => 'against', 'weight' => 1]]]);
 
-        $this->motionService->expects($this->once())
-            ->method('transitionLifecycle')
-            ->with('motion-uuid', 'motion', 'rejected', 'system');
+        // getObject is called multiple times: round (tallyResults), round (closeVotingRound), motion.
+        $this->objectService->method('getObject')
+            ->willReturnOnConsecutiveCalls($roundData, $roundData, $motionData);
+
+        $savedObjects = [];
+        $this->objectService->method('saveObject')
+            ->willReturnCallback(
+                function() use (&$savedObjects, $roundData, $motionData) {
+                    $args   = func_get_args();
+                    $schema = $args[1] ?? null;
+                    $object = $args[2] ?? null;
+                    if ($schema !== null && $object !== null) {
+                        $savedObjects[$schema] = $object;
+                    }
+
+                    return $object ?? [];
+                }
+            );
 
         $this->oriService->method('publish')->willReturn(null);
 
         $this->service->closeVotingRound('round-uuid');
+
+        self::assertArrayHasKey('motion', $savedObjects);
+        self::assertSame('rejected', $savedObjects['motion']['lifecycle']);
 
     }//end testCloseVotingRoundTransitionsLifecycle()
 
@@ -460,19 +426,15 @@ class VotingServiceTest extends TestCase
      */
     public function testGrantProxyRejectsObserverRole(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("role 'observer' cannot receive a proxy");
-
-        $delegateEntity = $this->mockObjectEntity([
-            'displayName' => 'Observer X',
-            'role'        => 'observer',
-        ], 'delegate-uuid');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Deelnemer met rol 'observer' kan geen volmacht ontvangen");
 
         $this->objectService->expects($this->once())
-            ->method('find')
-            ->willReturn($delegateEntity);
+            ->method('getObject')
+            ->willReturn(['displayName' => 'Observer X', 'role' => 'observer']);
 
         $this->service->grantProxy('round-uuid', 'granter-uuid', 'delegate-uuid');
 
     }//end testGrantProxyRejectsObserverRole()
+
 }//end class

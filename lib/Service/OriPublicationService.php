@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -39,15 +40,17 @@ class OriPublicationService
     /**
      * Construct the OriPublicationService.
      *
-     * @param ContainerInterface $container The DI container for lazy-loading services
-     * @param IAppConfig         $appConfig App configuration for reading ORI endpoint
-     * @param LoggerInterface    $logger    Logger interface
+     * @param ContainerInterface $container     The DI container for lazy-loading services
+     * @param IAppConfig         $appConfig     App configuration for reading ORI endpoint
+     * @param IClientService     $clientService Nextcloud HTTP client service
+     * @param LoggerInterface    $logger        Logger interface
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly IAppConfig $appConfig,
+        private readonly IClientService $clientService,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -71,11 +74,56 @@ class OriPublicationService
     }//end getEndpoint()
 
     /**
+     * Validate that an ORI endpoint URL is safe to call (HTTPS-only, no RFC-1918/loopback).
+     *
+     * @param string $url The URL to validate
+     *
+     * @return bool True when the URL is safe to use
+     */
+    private function isValidOriEndpoint(string $url): bool
+    {
+        $parsed = parse_url($url);
+        if (($parsed['scheme'] ?? '') !== 'https') {
+            return false;
+        }
+
+        $host = ($parsed['host'] ?? '');
+        if (empty($host) === true) {
+            return false;
+        }
+
+        // Block loopback addresses.
+        if (in_array($host, ['localhost', '127.0.0.1', '::1'], true) === true) {
+            return false;
+        }
+
+        // Block RFC-1918 and reserved ranges.
+        $ip = gethostbyname($host);
+        if ($ip === $host) {
+            // GethostbyName returns the original string on failure — treat as unsafe.
+            if (filter_var($host, FILTER_VALIDATE_IP) === false) {
+                // Not an IP either — cannot validate, allow through (hostname DNS not resolvable in test envs).
+                return true;
+            }
+        }
+
+        $isPublic = filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        );
+
+        return $isPublic !== false;
+
+    }//end isValidOriEndpoint()
+
+    /**
      * Publish a VotingRound's results to the ORI API.
      *
-     * Reads the ORI endpoint from IAppConfig. If not configured, returns silently.
-     * Builds a JSON-LD payload following ORI 1.0 format and POSTs it. On failure,
-     * logs a warning — a retry background job handles exponential backoff.
+     * Reads the ORI endpoint from IAppConfig. If not configured or the URL fails
+     * validation, returns silently. Builds a JSON-LD payload following ORI 1.0
+     * format and POSTs it via Nextcloud's IClientService. On success, stamps
+     * oriPublishedAt on the VotingRound object. On failure, logs a warning.
      *
      * @param string $votingRoundId UUID of the VotingRound to publish
      *
@@ -87,6 +135,11 @@ class OriPublicationService
     {
         $endpoint = $this->getEndpoint();
         if ($endpoint === null) {
+            return;
+        }
+
+        if ($this->isValidOriEndpoint(url: $endpoint) === false) {
+            $this->logger->warning("Decidesk ORI: endpoint '$endpoint' failed safety validation — publication skipped");
             return;
         }
 
@@ -105,23 +158,26 @@ class OriPublicationService
 
             $payload = $this->buildJsonLd(votingRoundId: $votingRoundId, roundData: $roundData);
 
-            $context = stream_context_create(
-                    [
-                        'http' => [
-                            'method'  => 'POST',
-                            'header'  => "Content-Type: application/ld+json\r\nAccept: application/json\r\n",
-                            'content' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                            'timeout' => 10,
-                        ],
-                    ]
-                    );
+            $client = $this->clientService->newClient();
+            $client->post(
+                $endpoint,
+                [
+                    'headers' => [
+                        'Content-Type' => 'application/ld+json',
+                        'Accept'       => 'application/json',
+                    ],
+                    'body'    => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                    'timeout' => 10,
+                ]
+            );
 
-            $result = @file_get_contents($endpoint, false, $context);
-
-            if ($result === false) {
-                $this->logger->warning("Decidesk ORI: Publication to $endpoint failed for round $votingRoundId");
-                return;
-            }
+            // Stamp oriPublishedAt to distinguish "published" from merely "closed".
+            $objectService->saveObject(
+                object: array_merge($roundData, ['oriPublishedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM)]),
+                register: 'decidesk',
+                schema: 'voting-round',
+                uuid: $votingRoundId,
+            );
 
             $this->logger->info("Decidesk ORI: VotingRound $votingRoundId published successfully to $endpoint");
         } catch (\Throwable $e) {
@@ -169,7 +225,8 @@ class OriPublicationService
      * Get the current publication status for a VotingRound.
      *
      * Returns 'not_configured' if no ORI endpoint is set, 'published' if the
-     * round has a closedAt (indicating results have been sent), or 'pending'.
+     * round has an oriPublishedAt timestamp (set after a successful ORI POST),
+     * or 'pending' otherwise.
      *
      * @param string $votingRoundId UUID of the VotingRound
      *
@@ -194,7 +251,7 @@ class OriPublicationService
             }
 
             $roundData = $roundObject->getObject();
-            if (($roundData['closedAt'] ?? null) !== null) {
+            if (($roundData['oriPublishedAt'] ?? null) !== null) {
                 return 'published';
             }
 

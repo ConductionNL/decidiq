@@ -271,7 +271,8 @@ export default {
 		isRoundOpen() {
 			if (!this.currentRound) return false
 			if (!this.currentRound.openedAt) return false
-			if (this.currentRound.closedAt) return false
+			const closedAt = this.currentRound.closedAt
+			if (closedAt && new Date(closedAt) <= new Date()) return false
 			return true
 		},
 		tallyTotal() {

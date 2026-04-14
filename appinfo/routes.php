@@ -25,7 +25,7 @@ return [
         ['name' => 'motion#amendmentTransition', 'url' => '/api/amendments/{id}/transition', 'verb' => 'POST'],
 
         // Voting round routes (specific before wildcard).
-        ['name' => 'voting#create',     'url' => '/api/voting-rounds',             'verb' => 'POST'],
+        ['name' => 'voting#open',        'url' => '/api/voting-rounds',             'verb' => 'POST'],
         ['name' => 'voting#cast',       'url' => '/api/voting-rounds/{id}/cast',   'verb' => 'POST'],
         ['name' => 'voting#close',      'url' => '/api/voting-rounds/{id}/close',  'verb' => 'POST'],
         ['name' => 'voting#publish',    'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],

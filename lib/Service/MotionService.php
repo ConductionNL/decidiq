@@ -361,12 +361,13 @@ class MotionService
         $newData = $newAmendment->getObject();
         $newText = strtolower($newData['text'] ?? '');
 
-        // Fetch existing amendments for this motion.
+        // Fetch existing amendments for this motion only (push filter to store query).
         $existing = $objectService->findAll(
                 [
                     'filters' => [
-                        'register' => 'decidesk',
-                        'schema'   => 'amendment',
+                        'register'         => 'decidesk',
+                        'schema'           => 'amendment',
+                        'relations.motion' => $motionId,
                     ],
                 ]
                 );

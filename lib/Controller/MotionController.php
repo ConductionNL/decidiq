@@ -138,6 +138,11 @@ class MotionController extends Controller
      */
     public function coSignRequest(string $id): JSONResponse
     {
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
         $params         = $this->request->getParams();
         $participantIds = ($params['participantIds'] ?? []);
 
@@ -170,14 +175,11 @@ class MotionController extends Controller
      */
     public function coSignConfirm(string $id): JSONResponse
     {
-        $params      = $this->request->getParams();
-        $displayName = ($params['displayName'] ?? '');
-
-        if ($displayName === '') {
-            $user = $this->userSession->getUser();
-            if ($user !== null) {
-                $displayName = $user->getDisplayName();
-            }
+        // Always derive identity from the authenticated session — never trust client-supplied displayName.
+        $user        = $this->userSession->getUser();
+        $displayName = '';
+        if ($user !== null) {
+            $displayName = $user->getDisplayName();
         }
 
         if ($displayName === '') {
@@ -209,6 +211,11 @@ class MotionController extends Controller
      */
     public function budgetImpact(string $id): JSONResponse
     {
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
         $params      = $this->request->getParams();
         $budgetLine  = ($params['budgetLine'] ?? '');
         $amountDelta = (float) ($params['amountDelta'] ?? 0.0);
