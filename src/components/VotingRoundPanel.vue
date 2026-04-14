@@ -225,7 +225,7 @@
 <script>
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import { useObjectStore } from '../store/store.js'
+import { useObjectStore, useSettingsStore } from '../store/store.js'
 
 export default {
 	name: 'VotingRoundPanel',
@@ -237,7 +237,8 @@ export default {
 	},
 	setup() {
 		const objectStore = useObjectStore()
-		return { objectStore }
+		const settingsStore = useSettingsStore()
+		return { objectStore, settingsStore }
 	},
 	data() {
 		return {
@@ -280,7 +281,7 @@ export default {
 			return (this.currentRound.votesFor || 0) + (this.currentRound.votesAgainst || 0) + (this.currentRound.votesAbstain || 0)
 		},
 		isChairOrSecretary() {
-			return typeof window.OC?.isUserAdmin === 'function' ? window.OC.isUserAdmin() : false
+			return this.settingsStore.isAdmin === true
 		},
 		oriStatusLabel() {
 			const labels = {
