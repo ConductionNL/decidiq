@@ -61,6 +61,6 @@
 - [ ] 11.2 Verify seed data by checking that GovernanceBody, Meeting, Participant, and AgendaItem objects are present after install
 - [ ] 11.3 Verify CRUD flows for all 4 entities: create, read, update, delete via UI
 - [ ] 11.4 Verify Dashboard KPI cards show correct counts for each entity
-- [ ] 11.5 Verify all user-visible strings use `t(appName, 'text')` — no hardcoded strings
-- [ ] 11.6 Verify no hardcoded CSS colors — only Nextcloud CSS variables used
-- [ ] 11.7 Confirm all `@spec` PHPDoc tags are present on controllers and services linking to `openspec/changes/p1-crud-operations/tasks.md`
+- [x] 11.5 Verify all user-visible strings use `t(appName, 'text')` — no hardcoded strings
+- [x] 11.6 Verify no hardcoded CSS colors — only Nextcloud CSS variables used
+- [x] 11.7 Confirm all `@spec` PHPDoc tags are present on controllers and services linking to `openspec/changes/p1-crud-operations/tasks.md`

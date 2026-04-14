@@ -17,6 +17,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.1
  */
 
 declare(strict_types=1);
@@ -32,6 +33,7 @@ use Psr\Log\LoggerInterface;
  * Repair step that initializes Decidesk configuration via SettingsService.
  *
  * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.1
  */
 class InitializeSettings implements IRepairStep
 {
