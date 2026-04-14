@@ -67,6 +67,13 @@ class VotingServiceTest extends TestCase
     private OriPublicationService&MockObject $oriService;
 
     /**
+     * Mock MotionService.
+     *
+     * @var MotionService&MockObject
+     */
+    private MotionService&MockObject $motionService;
+
+    /**
      * Mock ObjectService.
      *
      * @var ObjectService&MockObject

@@ -29,6 +29,7 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\BackgroundJob\IJobList;
 
 /**
  * Main application class for the Decidesk Nextcloud app.
@@ -68,9 +69,6 @@ class Application extends App implements IBootstrap
         // Initialize register and schemas on install/upgrade.
         $context->registerRepairStep(InitializeSettings::class);
 
-        // Register background job for email vote reply polling.
-        $context->registerBackgroundJob(MailReplyHandler::class);
-
     }//end register()
 
     /**
@@ -79,10 +77,14 @@ class Application extends App implements IBootstrap
      * @param IBootContext $context The boot context
      *
      * @return void
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function boot(IBootContext $context): void
     {
+        $serverContainer = $context->getServerContainer();
+        $jobList         = $serverContainer->get(IJobList::class);
+        if ($jobList->has(MailReplyHandler::class, null) === false) {
+            $jobList->add(MailReplyHandler::class);
+        }
+
     }//end boot()
 }//end class

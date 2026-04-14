@@ -81,10 +81,9 @@ class MotionServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->container   = $this->createMock(ContainerInterface::class);
-        $this->logger      = $this->createMock(LoggerInterface::class);
-        $this->userManager = $this->createMock(IUserManager::class);
-
+        $this->container    = $this->createMock(ContainerInterface::class);
+        $this->logger       = $this->createMock(LoggerInterface::class);
+        $this->userManager  = $this->createMock(IUserManager::class);
         $this->objectService = $this->createMock(ObjectService::class);
 
         $this->objectService->method('setRegister')->willReturnSelf();
