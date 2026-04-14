@@ -179,14 +179,16 @@ class AgendaController extends Controller
     public function advanceBobPhase(string $id): JSONResponse
     {
         try {
-            // Resolve the meeting for authorization; fail closed if the relation is absent.
+            // Resolve the meeting for authorization; 404 if item does not exist.
             $item = $this->objectService->find($id);
+            if ($item === null) {
+                return new JSONResponse(['message' => 'Agenda item not found.'], Http::STATUS_NOT_FOUND);
+            }
+
             if (is_array($item) === true) {
                 $itemData = $item;
-            } else if ($item !== null) {
-                $itemData = (array) $item;
             } else {
-                $itemData = [];
+                $itemData = (array) $item;
             }
 
             $meetingId = $itemData['@self']['relations']['meeting'] ?? null;
@@ -249,6 +251,41 @@ class AgendaController extends Controller
         }
 
     }//end processHamerstukken()
+
+    /**
+     * Revert a published agenda to draft (scheduled) state.
+     *
+     * Reverts the Meeting lifecycle back to 'scheduled', allowing further
+     * edits before a subsequent publish. Requires chair or secretary role.
+     *
+     * @param string $meetingId UUID of the Meeting
+     *
+     * @NoAdminRequired
+     *
+     * @return JSONResponse
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+     */
+    #[NoAdminRequired]
+    public function revise(string $meetingId): JSONResponse
+    {
+        $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
+        if ($denied !== null) {
+            return $denied;
+        }
+
+        try {
+            $this->agendaService->reviseAgenda($meetingId);
+            return new JSONResponse(['success' => true]);
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'reviseAgenda failed for meeting {meetingId}: {error}',
+                ['meetingId' => $meetingId, 'error' => $e->getMessage(), 'exception' => $e]
+            );
+            return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+        }
+
+    }//end revise()
 
     /**
      * Reorder agenda items for a meeting.

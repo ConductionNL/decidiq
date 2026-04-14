@@ -168,6 +168,7 @@
 <script>
 import { NcButton, NcDialog, NcTextArea } from '@nextcloud/vue'
 import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, CnStatusBadge, CnTimelineStages, useDetailView } from '@conduction/nextcloud-vue'
+import { getCurrentUser } from '@nextcloud/auth'
 import { useObjectStore } from '../store/store.js'
 
 const BOB_STAGES = [
@@ -263,10 +264,11 @@ export default {
 		},
 
 		async submitCoi() {
-			const displayName = OC?.currentUser?.displayName ?? OC?.currentUser ?? 'Unknown'
+			const currentUser = getCurrentUser()
+			const displayName = currentUser?.displayName ?? currentUser?.uid ?? 'Unknown'
 			try {
 				// COI note stored via OpenRegister built-in notes API on the AgendaItem object.
-				await fetch(
+				const response = await fetch(
 					OC.generateUrl(`/apps/openregister/api/objects/${this.id}/notes`),
 					{
 						method: 'POST',
@@ -280,6 +282,10 @@ export default {
 						}),
 					},
 				)
+				if (!response.ok) {
+					console.error('Failed to submit COI declaration:', response.status)
+					return
+				}
 				this.coiReason = ''
 				this.showCoiDialog = false
 				await this.objectStore.fetchObject('agenda-item', this.id)

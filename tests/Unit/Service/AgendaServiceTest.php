@@ -238,6 +238,26 @@ class AgendaServiceTest extends TestCase
 
 
     /**
+     * advanceBobPhase throws NotFoundException when the item does not exist.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-9.1
+     */
+    public function testAdvanceBobPhaseThrowsWhenItemNotFound(): void
+    {
+        $this->objectService
+            ->method('find')
+            ->willReturn(null);
+
+        $this->expectException(\OCA\Decidesk\Exception\NotFoundException::class);
+
+        $this->service->advanceBobPhase('missing-uuid');
+
+    }//end testAdvanceBobPhaseThrowsWhenItemNotFound()
+
+
+    /**
      * advanceBobPhase throws for informational items.
      *
      * @return void

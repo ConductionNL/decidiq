@@ -339,6 +339,34 @@ class AgendaService
     }//end processHamerstukken()
 
     /**
+     * Revert a published agenda back to draft (scheduled) state.
+     *
+     * Updates the Meeting lifecycle to 'scheduled', allowing chair/secretary to
+     * continue editing before a subsequent publish. Symmetric with publishAgenda().
+     *
+     * @param string $meetingId UUID of the Meeting to revert
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+     */
+    public function reviseAgenda(string $meetingId): void
+    {
+        $this->objectService->saveObject(
+            object: [
+                'id'        => $meetingId,
+                'lifecycle' => 'scheduled',
+            ],
+            register: 'decidesk',
+            schema: 'meeting',
+            uuid: $meetingId,
+        );
+
+        $this->logger->info('Agenda reverted to draft for meeting {meetingId}', ['meetingId' => $meetingId]);
+
+    }//end reviseAgenda()
+
+    /**
      * Atomically reorder agenda items for a meeting.
      *
      * Accepts an ordered array of AgendaItem UUIDs and assigns sequential

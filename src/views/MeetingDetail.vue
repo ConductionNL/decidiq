@@ -243,7 +243,17 @@ export default {
 		},
 		async reviseAgenda() {
 			try {
-				await this.objectStore.saveObject('meeting', { ...this.object, lifecycle: 'scheduled' })
+				const response = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/agendas/${this.id}/revise`),
+					{
+						method: 'PUT',
+						headers: { requesttoken: OC.requestToken },
+					},
+				)
+				if (!response.ok) {
+					console.error('Failed to revise agenda:', response.status)
+					return
+				}
 				await this.objectStore.fetchObject('meeting', this.id)
 			} catch (e) {
 				console.error('Failed to revise agenda:', e)
