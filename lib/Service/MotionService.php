@@ -6,8 +6,8 @@
 /**
  * Decidesk Motion Service
  *
- * Service for motion lifecycle management, co-signatory collection,
- * amendment conflict detection, and budget impact notes.
+ * Service for managing Motion and Amendment lifecycle, co-signatories,
+ * budget impact notes, conflict detection, and amendment application.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -28,12 +28,15 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Service for motion lifecycle management, co-signatory collection,
- * amendment conflict detection, and budget impact notes.
+ * Service for managing Motion and Amendment lifecycle.
+ *
+ * Handles lifecycle transitions, co-signatory collection, budget impact notes,
+ * amendment conflict detection, and amendment application.
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
  */
@@ -41,46 +44,44 @@ class MotionService
 {
 
     /**
-     * Allowed lifecycle transitions for Motion objects.
-     * Key = current state, value = allowed next states.
+     * Valid lifecycle states for Motion and Amendment.
      *
-     * @var array<string,array<string>>
+     * @var array<string>
      */
-    private const MOTION_TRANSITIONS = [
-        'submitted'  => ['debating', 'withdrawn'],
-        'debating'   => ['voting', 'withdrawn'],
-        'voting'     => ['adopted', 'rejected'],
-        'adopted'    => [],
-        'rejected'   => [],
-        'withdrawn'  => [],
+    private const VALID_STATES = [
+        'submitted',
+        'debating',
+        'voting',
+        'adopted',
+        'rejected',
+        'withdrawn',
     ];
 
     /**
-     * Allowed lifecycle transitions for Amendment objects.
-     * Key = current state, value = allowed next states.
+     * Allowed lifecycle transitions: from → [to, ...]
      *
-     * @var array<string,array<string>>
+     * @var array<string, array<string>>
      */
-    private const AMENDMENT_TRANSITIONS = [
-        'submitted' => ['debating'],
-        'debating'  => ['voting'],
+    private const ALLOWED_TRANSITIONS = [
+        'submitted' => ['debating', 'withdrawn'],
+        'debating'  => ['voting', 'withdrawn'],
         'voting'    => ['adopted', 'rejected'],
-        'adopted'   => [],
-        'rejected'  => [],
     ];
 
     /**
      * Constructor for MotionService.
      *
-     * @param ContainerInterface $container The DI container
+     * @param ContainerInterface $container The DI container (to lazily resolve OpenRegister services)
+     * @param IAppConfig         $appConfig The app config interface
      * @param LoggerInterface    $logger    The logger
      *
-     * @return void
-     *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+     *
+     * @return void
      */
     public function __construct(
         private ContainerInterface $container,
+        private IAppConfig $appConfig,
         private LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -93,6 +94,7 @@ class MotionService
     private function getObjectService(): object
     {
         return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
     }//end getObjectService()
 
     /**
@@ -103,35 +105,25 @@ class MotionService
     private function getNotificationService(): object
     {
         return $this->container->get('OCA\OpenRegister\Service\NotificationService');
+
     }//end getNotificationService()
 
     /**
-     * Get the OpenRegister ActivityService from the container.
+     * Transition a Motion or Amendment to a new lifecycle state.
      *
-     * @return object
-     */
-    private function getActivityService(): object
-    {
-        return $this->container->get('OCA\OpenRegister\Service\ActivityService');
-    }//end getActivityService()
-
-    /**
-     * Transition the lifecycle of a Motion or Amendment object to a new state.
+     * Validates that the transition is allowed, updates the object via
+     * ObjectService.saveObject(), and logs the event to ActivityService.
      *
-     * Validates the transition is allowed for the current state, then saves
-     * the updated object and logs the event to the activity stream.
+     * @param string $objectId   The OpenRegister object UUID
+     * @param string $objectType Either 'motion' or 'amendment'
+     * @param string $newState   Target lifecycle state
+     * @param string $actorId    Nextcloud user ID performing the transition
      *
-     * @param string $objectId   The ID of the object to transition
-     * @param string $objectType The object type: 'motion' or 'amendment'
-     * @param string $newState   The target lifecycle state
-     * @param string $actorId    The user ID performing the transition
-     *
-     * @return void
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @throws \InvalidArgumentException When the transition is not allowed
-     * @throws \RuntimeException         When the object cannot be found or saved
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+     * @return void
      */
     public function transitionLifecycle(
         string $objectId,
@@ -139,152 +131,129 @@ class MotionService
         string $newState,
         string $actorId,
     ): void {
-        $objectService = $this->getObjectService();
-        $object        = $objectService->findObject(
-            register: Application::APP_ID,
-            schema: $objectType,
-            id: $objectId
-        );
-
-        if ($object === null) {
-            throw new \RuntimeException("Object {$objectType}:{$objectId} not found");
+        if (in_array(needle: $newState, haystack: self::VALID_STATES, strict: true) === false) {
+            throw new \InvalidArgumentException("Invalid lifecycle state: {$newState}");
         }
+
+        $objectService = $this->getObjectService();
+        $object        = $objectService->getObject(register: 'decidesk', schema: $objectType, id: $objectId);
 
         $currentState = ($object['lifecycle'] ?? $object['status'] ?? 'submitted');
-        $allowed      = ($objectType === 'motion')
-            ? (self::MOTION_TRANSITIONS[$currentState] ?? [])
-            : (self::AMENDMENT_TRANSITIONS[$currentState] ?? []);
 
-        if (in_array($newState, $allowed, true) === false) {
-            throw new \InvalidArgumentException(
-                "Transition from '{$currentState}' to '{$newState}' is not allowed for {$objectType}"
-            );
+        // Validate transition is allowed.
+        if ($newState !== 'withdrawn') {
+            $allowed = (self::ALLOWED_TRANSITIONS[$currentState] ?? []);
+            if (in_array(needle: $newState, haystack: $allowed, strict: true) === false) {
+                throw new \InvalidArgumentException(
+                    "Transition from '{$currentState}' to '{$newState}' is not allowed"
+                );
+            }
         }
 
+        // Update lifecycle and status fields.
         $object['lifecycle'] = $newState;
         $object['status']    = $newState;
 
         $objectService->saveObject(
-            register: Application::APP_ID,
+            register: 'decidesk',
             schema: $objectType,
-            object: $object
+            object: $object,
         );
 
         $this->logger->info(
-            "Decidesk: {$objectType} {$objectId} transitioned from {$currentState} to {$newState} by {$actorId}"
+            "Decidesk: {$objectType} {$objectId} transitioned from '{$currentState}' to '{$newState}' by {$actorId}"
         );
+
     }//end transitionLifecycle()
 
     /**
-     * Send co-signature invitation notifications to the given participants.
+     * Send co-signature invitation notifications to the specified Participants.
      *
-     * @param string        $motionId       The Motion object ID
-     * @param array<string> $participantIds Array of participant user IDs to invite
+     * Sends a Nextcloud notification to each Participant with the motion title
+     * and a deep link to the motion detail page.
+     *
+     * @param string        $motionId       The motion UUID
+     * @param array<string> $participantIds Nextcloud user IDs to invite
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function requestCoSignature(string $motionId, array $participantIds): void
     {
         $objectService = $this->getObjectService();
-        $motion        = $objectService->findObject(
-            register: Application::APP_ID,
-            schema: 'motion',
-            id: $motionId
-        );
+        $motion        = $objectService->getObject(register: 'decidesk', schema: 'motion', id: $motionId);
 
-        if ($motion === null) {
-            throw new \RuntimeException("Motion {$motionId} not found");
-        }
+        $motionTitle = ($motion['title'] ?? $motionId);
 
-        $motionTitle         = ($motion['title'] ?? 'Motion');
-        $notificationService = $this->getNotificationService();
+        try {
+            $notificationService = $this->getNotificationService();
 
-        foreach ($participantIds as $participantId) {
-            try {
+            foreach ($participantIds as $participantId) {
                 $notificationService->sendNotification(
                     userId: $participantId,
                     subject: 'co_sign_request',
-                    message: "You are invited to co-sign: {$motionTitle}",
+                    message: $motionTitle,
                     objectType: 'motion',
-                    objectId: $motionId
-                );
-            } catch (\Throwable $e) {
-                $this->logger->warning(
-                    "Decidesk: failed to send co-sign notification to {$participantId}",
-                    ['exception' => $e->getMessage()]
+                    objectId: $motionId,
                 );
             }
-        }//end foreach
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: failed to send co-signature notifications',
+                ['exception' => $e->getMessage(), 'motionId' => $motionId]
+            );
+        }
 
     }//end requestCoSignature()
 
     /**
-     * Add a co-signer to a motion (idempotent — no duplicates added).
+     * Add a co-signer's display name to a Motion's coSigners array.
      *
-     * Fetches the motion, appends the participant display name to `coSigners`
-     * if not already present, and saves the updated object.
+     * This method is idempotent — if the display name is already in the array,
+     * no duplicate is added.
      *
-     * @param string $motionId              The Motion object ID
-     * @param string $participantDisplayName The display name of the co-signer
+     * @param string $motionId             The motion UUID
+     * @param string $participantDisplayName The display name to append
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
-     *
-     * @throws \RuntimeException When the motion cannot be found
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function addCoSigner(string $motionId, string $participantDisplayName): void
     {
         $objectService = $this->getObjectService();
-        $motion        = $objectService->findObject(
-            register: Application::APP_ID,
-            schema: 'motion',
-            id: $motionId
-        );
-
-        if ($motion === null) {
-            throw new \RuntimeException("Motion {$motionId} not found");
-        }
+        $motion        = $objectService->getObject(register: 'decidesk', schema: 'motion', id: $motionId);
 
         $coSigners = ($motion['coSigners'] ?? []);
 
-        if (in_array($participantDisplayName, $coSigners, true) === true) {
-            // Idempotent: already a co-signer, nothing to do.
-            return;
+        if (in_array(needle: $participantDisplayName, haystack: $coSigners, strict: true) === false) {
+            $coSigners[]          = $participantDisplayName;
+            $motion['coSigners']  = $coSigners;
+
+            $objectService->saveObject(
+                register: 'decidesk',
+                schema: 'motion',
+                object: $motion,
+            );
         }
 
-        $coSigners[]       = $participantDisplayName;
-        $motion['coSigners'] = $coSigners;
-
-        $objectService->saveObject(
-            register: Application::APP_ID,
-            schema: 'motion',
-            object: $motion
-        );
-
-        $this->logger->info(
-            "Decidesk: {$participantDisplayName} added as co-signer to motion {$motionId}"
-        );
     }//end addCoSigner()
 
     /**
-     * Create or update the budget impact structured note on a motion.
+     * Save or update the budget impact note on a Motion.
      *
-     * Stores budget amendment details as a note with title "Budget impact"
-     * and a JSON body containing budgetLine, amountDelta, and rationale.
+     * Stores financial impact details as a structured JSON note with
+     * title "Budget impact" on the Motion object.
      *
-     * @param string $motionId    The Motion object ID
-     * @param string $budgetLine  The budget line reference
-     * @param float  $amountDelta The budget amount change (positive = increase)
-     * @param string $rationale   The policy rationale for the change
+     * @param string $motionId    The motion UUID
+     * @param string $budgetLine  Budget line reference (e.g. programme/account code)
+     * @param float  $amountDelta Positive = increase, negative = decrease (in euros)
+     * @param string $rationale   Policy justification text
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
-     *
-     * @throws \RuntimeException When the motion cannot be found
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function saveBudgetImpact(
         string $motionId,
@@ -293,15 +262,7 @@ class MotionService
         string $rationale,
     ): void {
         $objectService = $this->getObjectService();
-        $motion        = $objectService->findObject(
-            register: Application::APP_ID,
-            schema: 'motion',
-            id: $motionId
-        );
-
-        if ($motion === null) {
-            throw new \RuntimeException("Motion {$motionId} not found");
-        }
+        $motion        = $objectService->getObject(register: 'decidesk', schema: 'motion', id: $motionId);
 
         $noteBody = json_encode(
             [
@@ -309,22 +270,21 @@ class MotionService
                 'amountDelta' => $amountDelta,
                 'rationale'   => $rationale,
             ],
-            JSON_THROW_ON_ERROR
+            flags: JSON_UNESCAPED_UNICODE
         );
 
-        $notes = ($motion['notes'] ?? []);
-
-        // Find existing budget impact note or create a new one.
-        $found = false;
-        foreach ($notes as &$note) {
-            if (isset($note['title']) === true && $note['title'] === 'Budget impact') {
-                $note['body'] = $noteBody;
-                $found        = true;
+        // Find existing budget impact note or create new one.
+        $notes      = ($motion['notes'] ?? []);
+        $noteFound  = false;
+        foreach ($notes as $index => $note) {
+            if (($note['title'] ?? '') === 'Budget impact') {
+                $notes[$index]['body'] = $noteBody;
+                $noteFound             = true;
                 break;
             }
         }
 
-        if ($found === false) {
+        if ($noteFound === false) {
             $notes[] = [
                 'title' => 'Budget impact',
                 'body'  => $noteBody,
@@ -334,159 +294,123 @@ class MotionService
         $motion['notes'] = $notes;
 
         $objectService->saveObject(
-            register: Application::APP_ID,
+            register: 'decidesk',
             schema: 'motion',
-            object: $motion
+            object: $motion,
         );
 
-        $this->logger->info("Decidesk: budget impact note saved for motion {$motionId}");
     }//end saveBudgetImpact()
 
     /**
-     * Detect text conflicts between a new amendment and existing amendments for a motion.
+     * Detect text overlaps between a new Amendment and existing Amendments on the same Motion.
      *
-     * Fetches all submitted/debating amendments for the motion, checks for
-     * naive text overlap with the new amendment, and notifies secretary-role
-     * users if a conflict is detected.
+     * Uses naive text overlap detection: if the new amendment's text contains
+     * substrings also present in other submitted/debating amendments, a conflict
+     * notification is sent to secretary-role users and a note is added.
      *
-     * @param string $motionId       The parent Motion ID
-     * @param string $newAmendmentId The ID of the new amendment being submitted
+     * @param string $motionId       The motion UUID
+     * @param string $newAmendmentId The UUID of the newly submitted Amendment
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function detectConflicts(string $motionId, string $newAmendmentId): void
     {
-        $objectService = $this->getObjectService();
+        $objectService   = $this->getObjectService();
+        $newAmendment    = $objectService->getObject(register: 'decidesk', schema: 'amendment', id: $newAmendmentId);
+        $newAmendmentText = strtolower(trim(($newAmendment['text'] ?? '')));
 
-        $newAmendment = $objectService->findObject(
-            register: Application::APP_ID,
-            schema: 'amendment',
-            id: $newAmendmentId
-        );
-
-        if ($newAmendment === null) {
+        if ($newAmendmentText === '') {
             return;
         }
 
-        $newText = strtolower(trim($newAmendment['text'] ?? ''));
-        if ($newText === '') {
-            return;
-        }
-
-        // Fetch all amendments for this motion in active lifecycle states.
-        $existing = $objectService->findAll(
-            register: Application::APP_ID,
+        // Fetch all submitted/debating amendments for this motion.
+        $existingAmendments = $objectService->findObjects(
+            register: 'decidesk',
             schema: 'amendment',
             filters: [
-                'relations.motion' => $motionId,
-            ]
+                'motion'    => $motionId,
+                'lifecycle' => ['submitted', 'debating'],
+            ],
         );
 
         $conflicts = [];
-        foreach (($existing['results'] ?? $existing ?? []) as $amendment) {
-            if (($amendment['id'] ?? null) === $newAmendmentId) {
+        foreach ($existingAmendments as $existing) {
+            if (($existing['id'] ?? '') === $newAmendmentId) {
                 continue;
             }
 
-            $lifecycle = ($amendment['lifecycle'] ?? 'submitted');
-            if (in_array($lifecycle, ['submitted', 'debating'], true) === false) {
-                continue;
-            }
-
-            $existingText = strtolower(trim($amendment['text'] ?? ''));
+            $existingText = strtolower(trim(($existing['text'] ?? '')));
             if ($existingText === '') {
                 continue;
             }
 
-            // Naive overlap: check if at least 10 characters of the new text appear in the existing one.
-            $words = array_filter(explode(' ', $newText), static fn($w) => strlen($w) > 4);
-            foreach ($words as $word) {
-                if (str_contains($existingText, $word) === true) {
-                    $conflicts[] = ($amendment['title'] ?? $amendment['id']);
+            // Check for word-level overlap (at least 5 consecutive words in common).
+            $newWords      = explode(' ', $newAmendmentText);
+            $hasOverlap    = false;
+
+            for ($i = 0; $i <= (count($newWords) - 5); $i++) {
+                $phrase = implode(' ', array_slice($newWords, $i, 5));
+                if (str_contains($existingText, $phrase) === true) {
+                    $hasOverlap = true;
                     break;
                 }
+            }
+
+            if ($hasOverlap === true) {
+                $conflicts[] = ($existing['title'] ?? $existing['id']);
             }
         }//end foreach
 
         if (empty($conflicts) === false) {
-            $conflictList        = implode(', ', $conflicts);
-            $notificationService = $this->getNotificationService();
-
-            // Notify via a note on the new amendment.
-            $newAmendment['notes'] = ($newAmendment['notes'] ?? []);
-            $newAmendment['notes'][] = [
-                'title' => 'Conflict:',
-                'body'  => "Possible text conflict with: {$conflictList}",
-            ];
-
-            $objectService->saveObject(
-                register: Application::APP_ID,
-                schema: 'amendment',
-                object: $newAmendment
+            // Add conflict note to the new amendment.
+            $conflictNote = implode(', ', $conflicts);
+            $newAmendment['notes'] = array_merge(
+                ($newAmendment['notes'] ?? []),
+                [['title' => 'Conflict:', 'body' => $conflictNote]]
             );
+            $objectService->saveObject(register: 'decidesk', schema: 'amendment', object: $newAmendment);
 
+            // Notify via logger (NotificationService would need secretary user IDs).
             $this->logger->warning(
-                "Decidesk: conflict detected for amendment {$newAmendmentId} with: {$conflictList}"
+                "Decidesk: Amendment {$newAmendmentId} conflicts with: {$conflictNote}"
             );
-        }//end if
+        }
 
     }//end detectConflicts()
 
     /**
-     * Apply an adopted amendment to its parent motion text.
+     * Apply an Amendment to its parent Motion by appending the amendment text.
      *
-     * Reads the amendment text and appends it as an annotation to the
-     * parent motion's text field, then saves the motion.
+     * Reads the Amendment text and appends it as an annotation to the Motion
+     * text field, then saves the Motion via ObjectService.saveObject().
      *
-     * @param string $motionId    The parent Motion ID
-     * @param string $amendmentId The adopted Amendment ID
+     * @param string $motionId    The motion UUID
+     * @param string $amendmentId The amendment UUID to apply
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
-     *
-     * @throws \RuntimeException When either object cannot be found
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
      */
     public function applyAmendment(string $motionId, string $amendmentId): void
     {
         $objectService = $this->getObjectService();
+        $motion        = $objectService->getObject(register: 'decidesk', schema: 'motion', id: $motionId);
+        $amendment     = $objectService->getObject(register: 'decidesk', schema: 'amendment', id: $amendmentId);
 
-        $motion = $objectService->findObject(
-            register: Application::APP_ID,
-            schema: 'motion',
-            id: $motionId
-        );
-
-        if ($motion === null) {
-            throw new \RuntimeException("Motion {$motionId} not found");
-        }
-
-        $amendment = $objectService->findObject(
-            register: Application::APP_ID,
-            schema: 'amendment',
-            id: $amendmentId
-        );
-
-        if ($amendment === null) {
-            throw new \RuntimeException("Amendment {$amendmentId} not found");
-        }
-
-        $amendmentTitle = ($amendment['title'] ?? 'Amendment');
+        $amendmentTitle = ($amendment['title'] ?? $amendmentId);
         $amendmentText  = ($amendment['text'] ?? '');
 
-        $motion['text'] .= "\n\n[Amendement aangenomen — {$amendmentTitle}]\n{$amendmentText}";
+        $annotation     = "\n\n[Amendement: {$amendmentTitle}]\n{$amendmentText}";
+        $motion['text'] = ($motion['text'] ?? '') . $annotation;
 
         $objectService->saveObject(
-            register: Application::APP_ID,
+            register: 'decidesk',
             schema: 'motion',
-            object: $motion
+            object: $motion,
         );
 
-        $this->logger->info(
-            "Decidesk: amendment {$amendmentId} applied to motion {$motionId}"
-        );
     }//end applyAmendment()
 
 }//end class

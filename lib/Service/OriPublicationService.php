@@ -6,8 +6,8 @@
 /**
  * Decidesk ORI Publication Service
  *
- * Handles publication of voting round results to the ORI API (Open Raadsinformatie)
- * following ORI 1.0 JSON-LD format with exponential backoff retry.
+ * Service for publishing voting round results to the ORI (Overheid.nl Register
+ * van Informatie) API endpoint in JSON-LD format.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -28,13 +28,17 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCP\IAppConfig;
 use OCP\Http\Client\IClientService;
+use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
  * Service for publishing voting results to the ORI API.
+ *
+ * Reads the configured ORI endpoint from IAppConfig, builds a JSON-LD payload
+ * following the ORI 1.0 standard, and sends it via HTTP POST. Returns silently
+ * if no ORI endpoint is configured.
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
  */
@@ -42,31 +46,28 @@ class OriPublicationService
 {
 
     /**
-     * App config key for the ORI endpoint URL.
+     * IAppConfig key for the ORI endpoint URL.
+     *
+     * @var string
      */
-    private const CONFIG_KEY_ORI_ENDPOINT = 'ori_endpoint';
-
-    /**
-     * App config key for the publication status prefix.
-     */
-    private const CONFIG_KEY_PUB_STATUS = 'ori_pub_status_';
+    private const ORI_ENDPOINT_KEY = 'ori_endpoint';
 
     /**
      * Constructor for OriPublicationService.
      *
-     * @param IAppConfig         $appConfig     The app configuration
-     * @param IClientService     $clientService The HTTP client service
      * @param ContainerInterface $container     The DI container
+     * @param IAppConfig         $appConfig     The app config interface
+     * @param IClientService     $clientService The HTTP client service
      * @param LoggerInterface    $logger        The logger
      *
-     * @return void
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.1
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
+     * @return void
      */
     public function __construct(
+        private ContainerInterface $container,
         private IAppConfig $appConfig,
         private IClientService $clientService,
-        private ContainerInterface $container,
         private LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -78,91 +79,92 @@ class OriPublicationService
      */
     private function getOriEndpoint(): string
     {
-        return $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY_ORI_ENDPOINT, '');
+        return $this->appConfig->getValueString(Application::APP_ID, self::ORI_ENDPOINT_KEY, '');
+
     }//end getOriEndpoint()
+
+    /**
+     * Get the OpenRegister ObjectService from the container.
+     *
+     * @return object
+     */
+    private function getObjectService(): object
+    {
+        return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+    }//end getObjectService()
 
     /**
      * Publish voting round results to the ORI API.
      *
-     * Reads the ORI endpoint from app config; returns silently when not configured.
-     * Builds a JSON-LD payload following ORI 1.0 format and sends a POST request.
-     * On failure, queues a retry via the background job mechanism.
+     * If no ORI endpoint is configured, returns silently. On HTTP failure,
+     * logs a warning — the retry job will handle re-publication.
      *
-     * @param string $votingRoundId The VotingRound object ID to publish
+     * @param string $votingRoundId The voting round UUID to publish
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.1
      *
      * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
      */
     public function publish(string $votingRoundId): void
     {
         $endpoint = $this->getOriEndpoint();
+
         if ($endpoint === '') {
-            $this->logger->debug('Decidesk: ORI endpoint not configured, skipping publication');
+            // ORI endpoint not configured — silent return.
             return;
         }
-
-        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        $round         = $objectService->findObject(
-            register: Application::APP_ID,
-            schema: 'voting-round',
-            id: $votingRoundId
-        );
-
-        if ($round === null) {
-            $this->logger->warning("Decidesk: VotingRound {$votingRoundId} not found for ORI publication");
-            return;
-        }
-
-        $payload = $this->buildJsonLdPayload($votingRoundId, $round);
 
         try {
+            $objectService = $this->getObjectService();
+            $round         = $objectService->getObject(
+                register: 'decidesk',
+                schema: 'voting-round',
+                id: $votingRoundId,
+            );
+
+            $payload = $this->buildJsonLdPayload(round: $round, votingRoundId: $votingRoundId);
+
             $client   = $this->clientService->newClient();
             $response = $client->post(
                 $endpoint,
                 [
                     'headers' => [
                         'Content-Type' => 'application/ld+json',
-                        'Accept'       => 'application/json',
+                        'Accept'       => 'application/ld+json',
                     ],
-                    'body'    => json_encode($payload, JSON_THROW_ON_ERROR),
-                    'timeout' => 30,
+                    'body'    => json_encode($payload, flags: JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
                 ]
             );
 
             $statusCode = $response->getStatusCode();
             if ($statusCode >= 200 && $statusCode < 300) {
-                $this->appConfig->setValueString(
-                    Application::APP_ID,
-                    self::CONFIG_KEY_PUB_STATUS . $votingRoundId,
-                    'published'
+                $this->logger->info(
+                    "Decidesk: VotingRound {$votingRoundId} published to ORI (HTTP {$statusCode})"
                 );
-                $this->logger->info("Decidesk: VotingRound {$votingRoundId} published to ORI");
             } else {
-                throw new \RuntimeException("ORI returned HTTP {$statusCode}");
+                $this->logger->warning(
+                    "Decidesk: ORI publication returned HTTP {$statusCode}",
+                    ['votingRoundId' => $votingRoundId]
+                );
             }
         } catch (\Throwable $e) {
-            $this->appConfig->setValueString(
-                Application::APP_ID,
-                self::CONFIG_KEY_PUB_STATUS . $votingRoundId,
-                'pending'
-            );
             $this->logger->error(
-                "Decidesk: ORI publication failed for round {$votingRoundId}",
-                ['exception' => $e->getMessage()]
+                'Decidesk: ORI publication failed',
+                ['exception' => $e->getMessage(), 'votingRoundId' => $votingRoundId]
             );
-        }//end try
+        }
 
     }//end publish()
 
     /**
-     * Get the publication status for a voting round.
+     * Get the publication status for a VotingRound.
      *
-     * @param string $votingRoundId The VotingRound ID
+     * @param string $votingRoundId The voting round UUID
      *
-     * @return string One of: 'pending', 'published', 'not_configured'
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.1
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
+     * @return string One of 'not_configured', 'pending', 'published'.
      */
     public function getPublicationStatus(string $votingRoundId): string
     {
@@ -170,42 +172,47 @@ class OriPublicationService
             return 'not_configured';
         }
 
-        return $this->appConfig->getValueString(
-            Application::APP_ID,
-            self::CONFIG_KEY_PUB_STATUS . $votingRoundId,
-            'pending'
-        );
+        try {
+            $objectService = $this->getObjectService();
+            $round         = $objectService->getObject(
+                register: 'decidesk',
+                schema: 'voting-round',
+                id: $votingRoundId,
+            );
+
+            return (($round['oriPublishedAt'] ?? null) !== null) ? 'published' : 'pending';
+        } catch (\Throwable $e) {
+            return 'pending';
+        }
+
     }//end getPublicationStatus()
 
     /**
-     * Build the ORI 1.0 JSON-LD payload for a voting round.
+     * Build the JSON-LD payload for an ORI 1.0 voting result publication.
      *
-     * @param string              $votingRoundId The VotingRound ID
-     * @param array<string,mixed> $round         The VotingRound object data
+     * @param array<string,mixed> $round         The VotingRound object
+     * @param string              $votingRoundId The voting round UUID
      *
-     * @return array<string,mixed> The JSON-LD payload
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.1
+     *
+     * @return array<string,mixed> JSON-LD payload
      */
-    private function buildJsonLdPayload(string $votingRoundId, array $round): array
+    private function buildJsonLdPayload(array $round, string $votingRoundId): array
     {
         return [
-            '@context'       => 'https://schema.org/',
-            '@type'          => 'VoteAction',
-            '@id'            => "urn:decidesk:voting-round:{$votingRoundId}",
-            'name'           => "Stemronde {$votingRoundId}",
-            'startTime'      => ($round['openedAt'] ?? null),
-            'endTime'        => ($round['closedAt'] ?? null),
-            'result'         => ($round['result'] ?? null),
-            'votesFor'       => ($round['votesFor'] ?? 0),
-            'votesAgainst'   => ($round['votesAgainst'] ?? 0),
-            'votesAbstain'   => ($round['votesAbstain'] ?? 0),
-            'votingMethod'   => ($round['votingMethod'] ?? null),
-            'isSecret'       => ($round['isSecret'] ?? false),
-            'quorumMet'      => ($round['quorumMet'] ?? null),
-            'publisher'      => [
-                '@type' => 'Organization',
-                'name'  => 'Decidesk',
-            ],
+            '@context'    => 'https://schema.org',
+            '@type'       => 'VoteAction',
+            '@id'         => "urn:decidesk:voting-round:{$votingRoundId}",
+            'name'        => "Stemronde {$votingRoundId}",
+            'startTime'   => ($round['openedAt'] ?? null),
+            'endTime'     => ($round['closedAt'] ?? null),
+            'result'      => ($round['result'] ?? null),
+            'votesFor'    => ($round['votesFor'] ?? 0),
+            'votesAgainst' => ($round['votesAgainst'] ?? 0),
+            'votesAbstain' => ($round['votesAbstain'] ?? 0),
+            'actionStatus' => 'CompletedActionStatus',
         ];
+
     }//end buildJsonLdPayload()
 
 }//end class
