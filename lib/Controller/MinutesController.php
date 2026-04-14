@@ -151,7 +151,7 @@ class MinutesController extends Controller
         }
 
         $to = $this->request->getParam('to');
-        if (!is_string($to) || $to === '') {
+        if (is_string($to) === false || $to === '') {
             return new JSONResponse(['message' => "Parameter 'to' is required."], Http::STATUS_BAD_REQUEST);
         }
 
@@ -184,8 +184,13 @@ class MinutesController extends Controller
 
         if ($to === 'approved') {
             $minutes['approvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
-            $signers               = is_array($minutes['signedBy'] ?? null) ? $minutes['signedBy'] : [];
-            if ($displayName !== '' && !in_array($displayName, $signers, true)) {
+            if (is_array($minutes['signedBy'] ?? null) === true) {
+                $signers = $minutes['signedBy'];
+            } else {
+                $signers = [];
+            }
+
+            if ($displayName !== '' && in_array($displayName, $signers, true) === false) {
                 $signers[] = $displayName;
             }
 
@@ -193,8 +198,13 @@ class MinutesController extends Controller
         }
 
         if ($to === 'signed') {
-            $signers = is_array($minutes['signedBy'] ?? null) ? $minutes['signedBy'] : [];
-            if ($displayName !== '' && !in_array($displayName, $signers, true)) {
+            if (is_array($minutes['signedBy'] ?? null) === true) {
+                $signers = $minutes['signedBy'];
+            } else {
+                $signers = [];
+            }
+
+            if ($displayName !== '' && in_array($displayName, $signers, true) === false) {
                 $signers[] = $displayName;
             }
 
@@ -207,7 +217,11 @@ class MinutesController extends Controller
             $objectService->setRegister('decidesk');
             $objectService->setSchema('minutes');
             $updated = $objectService->saveObject($minutes, 'decidesk', 'minutes', $minutesId);
-            return new JSONResponse($updated instanceof \ArrayAccess || is_array($updated) ? $updated : $minutes);
+            if ($updated instanceof \ArrayAccess === true || is_array($updated) === true) {
+                return new JSONResponse($updated);
+            }
+
+            return new JSONResponse($minutes);
         } catch (\Throwable) {
             return new JSONResponse(['message' => 'Service temporarily unavailable'], Http::STATUS_SERVICE_UNAVAILABLE);
         }
