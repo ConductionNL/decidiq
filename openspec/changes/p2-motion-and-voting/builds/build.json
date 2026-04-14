@@ -1,16 +1,16 @@
 {
   "phase": "build",
-  "timestamp": "2026-04-13T17:24:22.071613+00:00",
+  "timestamp": "2026-04-14T09:43:11.645282+00:00",
   "pr": 18,
-  "commit": "8009769",
-  "turns": 121,
-  "cost_usd": 9.930620049999996,
+  "commit": "90dc188",
+  "turns": 190,
+  "cost_usd": 7.231839799999999,
   "tokens": {
-    "input": 2678,
-    "output": 42613,
-    "cache_read": 7538495,
-    "cache_create": 196999
+    "input": 243,
+    "output": 92867,
+    "cache_read": 13918473,
+    "cache_create": 252422
   },
-  "model": "claude-opus-4-6",
+  "model": "claude-sonnet-4-6",
   "maxed_out": false
 }
