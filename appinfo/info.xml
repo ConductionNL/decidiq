@@ -82,4 +82,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <admin>OCA\Decidesk\Settings\AdminSettings</admin>
         <admin-section>OCA\Decidesk\Sections\SettingsSection</admin-section>
     </settings>
+    <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
+    <background-jobs>
+        <job>OCA\Decidesk\BackgroundJob\OverdueActionItemsJob</job>
+    </background-jobs>
 </info>

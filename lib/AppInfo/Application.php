@@ -22,8 +22,12 @@ declare(strict_types=1);
 namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\BackgroundJob\MailReplyHandler;
+use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
+use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
+use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -68,6 +72,65 @@ class Application extends App implements IBootstrap
 
         // Initialize register and schemas on install/upgrade.
         $context->registerRepairStep(InitializeSettings::class);
+
+        // Register MinutesGenerationService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
+        $context->registerService(
+                MinutesGenerationService::class,
+                static function ($c): MinutesGenerationService {
+                    return new MinutesGenerationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register MinutesController for DI.
+        // userId is NOT injected here — it must be resolved per-request inside each
+        // action method via $this->userSession->getUser()?->getUID() to avoid the
+        // DI singleton caching a null uid from an early unauthenticated bootstrap.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
+        $context->registerService(
+                MinutesController::class,
+                static function ($c): MinutesController {
+                    return new MinutesController(
+                    request: $c->get(\OCP\IRequest::class),
+                    minutesGenerationService: $c->get(MinutesGenerationService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    );
+                }
+                );
+
+        // Register DecisionController for DI.
+        // Explicit registration matches the MinutesController pattern and ensures
+        // reliable resolution in all Nextcloud environments (≥28).
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
+        $context->registerService(
+                DecisionController::class,
+                static function ($c): DecisionController {
+                    return new DecisionController(
+                    request: $c->get(\OCP\IRequest::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register OverdueActionItemsJob for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.
+        $context->registerService(
+                OverdueActionItemsJob::class,
+                static function ($c): OverdueActionItemsJob {
+                    return new OverdueActionItemsJob(
+                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
 
     }//end register()
 

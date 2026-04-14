@@ -1,6 +1,4 @@
-// SPDX-License-Identifier: EUPL-1.2
-// Copyright (C) 2026 Conduction B.V.
-
+// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 import Vue from 'vue'
 import Router from 'vue-router'
 import { generateUrl } from '@nextcloud/router'
@@ -25,13 +23,21 @@ const Motions = () => import('../views/Motions.vue')
 const MotionDetail = () => import('../views/MotionDetail.vue')
 const AmendmentDetail = () => import('../views/AmendmentDetail.vue')
 const SettingsView = () => import('../views/SettingsView.vue')
+import Dashboard from '../views/Dashboard.vue'
+import AdminRoot from '../views/settings/AdminRoot.vue'
+import Minutes from '../views/Minutes.vue'
+import MinutesDetail from '../views/MinutesDetail.vue'
+import Decisions from '../views/Decisions.vue'
+import DecisionDetail from '../views/DecisionDetail.vue'
+import ActionItems from '../views/ActionItems.vue'
+import ActionItemDetail from '../views/ActionItemDetail.vue'
 
 /**
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.3
  */
 export default new Router({
 	mode: 'history',
-	base: generateUrl('/apps/decidesk') + '/',
+	base: generateUrl('/apps/decidesk'),
 	routes: [
 		{ path: '/', name: 'Dashboard', component: DashboardView },
 		{ path: '/governance-bodies', name: 'GovernanceBodies', component: GovernanceBodies },
@@ -46,6 +52,15 @@ export default new Router({
 		{ path: '/motions/:id', name: 'MotionDetail', component: MotionDetail, props: true },
 		{ path: '/amendments/:id', name: 'AmendmentDetail', component: AmendmentDetail, props: true },
 		{ path: '/settings', name: 'Settings', component: SettingsView },
+		// Minutes routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+		{ path: '/minutes', name: 'Minutes', component: Minutes },
+		{ path: '/minutes/:id', name: 'MinutesDetail', component: MinutesDetail, props: true },
+		// Decision routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+		{ path: '/decisions', name: 'Decisions', component: Decisions },
+		{ path: '/decisions/:id', name: 'DecisionDetail', component: DecisionDetail, props: true },
+		// Action item routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+		{ path: '/action-items', name: 'ActionItems', component: ActionItems },
+		{ path: '/action-items/:id', name: 'ActionItemDetail', component: ActionItemDetail, props: true },
 		{ path: '*', redirect: '/' },
 	],
 })
