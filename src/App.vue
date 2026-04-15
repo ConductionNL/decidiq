@@ -28,6 +28,16 @@
 			<NcAppContent>
 				<router-view />
 			</NcAppContent>
+			<CnObjectSidebar
+				v-if="objectSidebarState.active"
+				:object-type="objectSidebarState.objectType"
+				:object-id="objectSidebarState.objectId"
+				:title="objectSidebarState.title"
+				:subtitle="objectSidebarState.subtitle"
+				:register="objectSidebarState.register"
+				:schema="objectSidebarState.schema"
+				:hidden-tabs="objectSidebarState.hiddenTabs"
+				:open.sync="objectSidebarState.open" />
 		</template>
 		<NcAppContent v-else>
 			<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
@@ -38,7 +48,9 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import { NcButton, NcContent, NcAppContent, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
+import { CnObjectSidebar } from '@conduction/nextcloud-vue'
 import { generateUrl, imagePath } from '@nextcloud/router'
 import { initializeStores } from './store/store.js'
 import { useSettingsStore } from './store/modules/settings.js'
@@ -52,12 +64,30 @@ export default {
 		NcAppContent,
 		NcEmptyContent,
 		NcLoadingIcon,
+		CnObjectSidebar,
 		MainMenu,
+	},
+
+	provide() {
+		return {
+			objectSidebarState: this.objectSidebarState,
+		}
 	},
 
 	data() {
 		return {
 			storesReady: false,
+			objectSidebarState: Vue.observable({
+				active: false,
+				open: true,
+				objectType: '',
+				objectId: '',
+				title: '',
+				subtitle: '',
+				register: '',
+				schema: '',
+				hiddenTabs: [],
+			}),
 		}
 	},
 
