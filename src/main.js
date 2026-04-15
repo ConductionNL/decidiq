@@ -3,7 +3,7 @@
 
 import Vue from 'vue'
 import { PiniaVuePlugin } from 'pinia'
-import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
+import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import pinia from './pinia.js'
 import router from './router/index.js'
 import App from './App.vue'
@@ -20,14 +20,10 @@ import './assets/app.css'
 Vue.mixin({ methods: { t, n } })
 Vue.use(PiniaVuePlugin)
 
-loadTranslations('decidesk', () => {
-	// Create Vue instance to activate Pinia context, then initialize stores.
-	const app = new Vue({
-		pinia,
-		router,
-		render: h => h(App),
-	})
-
-	// Mount immediately so the App renders (NC32 needs #content to be taken over).
-	app.$mount('#content')
+const app = new Vue({
+	pinia,
+	router,
+	render: h => h(App),
 })
+
+app.$mount('#content')

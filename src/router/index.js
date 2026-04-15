@@ -10,25 +10,25 @@ import { generateUrl } from '@nextcloud/router'
 
 Vue.use(Router)
 
-const Dashboard = () => import('../views/Dashboard.vue')
-const GovernanceBodies = () => import('../views/GovernanceBodies.vue')
-const GovernanceBodyDetail = () => import('../views/GovernanceBodyDetail.vue')
-const Meetings = () => import('../views/Meetings.vue')
-const MeetingDetail = () => import('../views/MeetingDetail.vue')
-const Participants = () => import('../views/Participants.vue')
-const ParticipantDetail = () => import('../views/ParticipantDetail.vue')
-const AgendaItems = () => import('../views/AgendaItems.vue')
-const AgendaItemDetail = () => import('../views/AgendaItemDetail.vue')
-const Motions = () => import('../views/Motions.vue')
-const MotionDetail = () => import('../views/MotionDetail.vue')
-const AmendmentDetail = () => import('../views/AmendmentDetail.vue')
-const SettingsView = () => import('../views/SettingsView.vue')
-const Minutes = () => import('../views/Minutes.vue')
-const MinutesDetail = () => import('../views/MinutesDetail.vue')
-const Decisions = () => import('../views/Decisions.vue')
-const DecisionDetail = () => import('../views/DecisionDetail.vue')
-const ActionItems = () => import('../views/ActionItems.vue')
-const ActionItemDetail = () => import('../views/ActionItemDetail.vue')
+import Dashboard from '../views/Dashboard.vue'
+import GovernanceBodies from '../views/GovernanceBodies.vue'
+import GovernanceBodyDetail from '../views/GovernanceBodyDetail.vue'
+import Meetings from '../views/Meetings.vue'
+import MeetingDetail from '../views/MeetingDetail.vue'
+import Participants from '../views/Participants.vue'
+import ParticipantDetail from '../views/ParticipantDetail.vue'
+import AgendaItems from '../views/AgendaItems.vue'
+import AgendaItemDetail from '../views/AgendaItemDetail.vue'
+import Motions from '../views/Motions.vue'
+import MotionDetail from '../views/MotionDetail.vue'
+import AmendmentDetail from '../views/AmendmentDetail.vue'
+import SettingsView from '../views/SettingsView.vue'
+import Minutes from '../views/Minutes.vue'
+import MinutesDetail from '../views/MinutesDetail.vue'
+import Decisions from '../views/Decisions.vue'
+import DecisionDetail from '../views/DecisionDetail.vue'
+import ActionItems from '../views/ActionItems.vue'
+import ActionItemDetail from '../views/ActionItemDetail.vue'
 
 export default new Router({
 	mode: 'history',

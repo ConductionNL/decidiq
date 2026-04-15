@@ -59,4 +59,10 @@ webpackConfig.plugins = [
 	}),
 ]
 
+// Disable code splitting — Nextcloud serves chunks from the wrong path
+webpackConfig.optimization = {
+	...(webpackConfig.optimization || {}),
+	splitChunks: false,
+}
+
 module.exports = webpackConfig
