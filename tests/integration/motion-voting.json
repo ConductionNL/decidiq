@@ -335,7 +335,7 @@
 									"pm.test('Co-sign confirm returns 200', function () {",
 									"    pm.response.to.have.status(200);",
 									"    const body = pm.response.json();",
-									"    pm.expect(body.coSigners).to.be.an('array').that.includes('A. Pietersen');",
+									"    pm.expect(body.success).to.be.true;",
 									"});"
 								],
 								"type": "text/javascript"

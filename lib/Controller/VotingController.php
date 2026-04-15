@@ -29,6 +29,7 @@ use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
@@ -49,6 +50,7 @@ class VotingController extends Controller
      * @param OriPublicationService $oriPublicationService The ORI publication service
      * @param IUserSession          $userSession           The user session
      * @param IGroupManager         $groupManager          The group manager
+     * @param IAppConfig            $appConfig             The app config
      * @param LoggerInterface       $logger                The logger
      *
      * @return void
@@ -61,6 +63,7 @@ class VotingController extends Controller
         private readonly OriPublicationService $oriPublicationService,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
+        private readonly IAppConfig $appConfig,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
@@ -68,7 +71,12 @@ class VotingController extends Controller
     }//end __construct()
 
     /**
-     * Require the current user to be an admin (chair/secretary equivalent).
+     * Require the current user to hold the chair/secretary governance role.
+     *
+     * By default, system-admin membership (IGroupManager::isAdmin) is used as a
+     * stand-in for the governance role. Organisations that want a dedicated group
+     * (e.g. "decidesk-chairs") can set the `chair_group` app config key; when set,
+     * membership of that group is checked instead of the system-admin group.
      *
      * Returns a 403 JSONResponse when the check fails, null on success.
      *
@@ -79,7 +87,20 @@ class VotingController extends Controller
     private function requireChairOrSecretary(): ?JSONResponse
     {
         $user = $this->userSession->getUser();
-        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
+        }
+
+        $uid        = $user->getUID();
+        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
+
+        if ($chairGroup !== '') {
+            $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
+        } else {
+            $authorized = $this->groupManager->isAdmin($uid);
+        }
+
+        if ($authorized === false) {
             return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
         }
 

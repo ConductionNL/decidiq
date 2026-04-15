@@ -148,16 +148,16 @@
 				</template>
 			</div>
 
-			<!-- Proxy management — only available before the round opens -->
+			<!-- Proxy management — proxy grant/revoke is enforced by the backend -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7 -->
 			<div class="decidesk-proxy">
-				<NcButton v-if="!activeProxy && !isRoundOpen" type="secondary" @click="showProxyDialog = true">
+				<NcButton v-if="!activeProxy" type="secondary" @click="showProxyDialog = true">
 					{{ t('decidesk', 'Volmacht verlenen') }}
 				</NcButton>
-				<NcButton v-if="activeProxy && !isRoundOpen" type="error" @click="revokeProxy">
+				<NcButton v-if="activeProxy" type="error" @click="revokeProxy">
 					{{ t('decidesk', 'Volmacht intrekken') }}
 				</NcButton>
-				<div v-if="showProxyDialog && !isRoundOpen"
+				<div v-if="showProxyDialog"
 					class="decidesk-dialog"
 					role="dialog"
 					:aria-label="t('decidesk', 'Volmacht verlenen')">

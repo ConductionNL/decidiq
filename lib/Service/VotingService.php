@@ -325,22 +325,39 @@ class VotingService
             }
 
             // Enforce one-proxy-per-round: check for existing proxy vote from this delegator.
-            $existingProxies = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'vote',
-                filters: [
-                    'relations.voting-round' => $votingRoundId,
-                    'isProxy'                => true,
-                ]
-            );
+            // For secret rounds, participant relations are suppressed for anonymity, so dedup
+            // is keyed on a deterministic delegatorToken (HMAC) to avoid DNS-style rebinding.
+            if ($isSecret === true) {
+                $delegatorToken  = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
+                $existingProxies = $objectService->findObjects(
+                    register: 'decidesk',
+                    schema: 'vote',
+                    filters: [
+                        'relations.voting-round' => $votingRoundId,
+                        'delegatorToken'         => $delegatorToken,
+                    ]
+                );
+                if (empty($existingProxies['results']) === false) {
+                    throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
+                }
+            } else {
+                $existingProxies = $objectService->findObjects(
+                    register: 'decidesk',
+                    schema: 'vote',
+                    filters: [
+                        'relations.voting-round' => $votingRoundId,
+                        'isProxy'                => true,
+                    ]
+                );
 
-            foreach (($existingProxies['results'] ?? []) as $proxyVote) {
-                foreach (($proxyVote['relations'] ?? []) as $rel) {
-                    if (($rel['schema'] ?? '') === 'participant' && ($rel['id'] ?? '') === $delegatorId && ($rel['type'] ?? '') === 'delegator') {
-                        throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
+                foreach (($existingProxies['results'] ?? []) as $proxyVote) {
+                    foreach (($proxyVote['relations'] ?? []) as $rel) {
+                        if (($rel['schema'] ?? '') === 'participant' && ($rel['id'] ?? '') === $delegatorId && ($rel['type'] ?? '') === 'delegator') {
+                            throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
+                        }
                     }
                 }
-            }
+            }//end if
         }//end if
 
         // Check for existing vote — overwrite if found.
@@ -392,6 +409,12 @@ class VotingService
         // Store opaque dedup token for secret rounds (never contains participant identity).
         if ($isSecret === true) {
             $vote['voterToken'] = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
+        }
+
+        // Store delegatorToken on secret proxy votes for one-proxy-per-round enforcement
+        // without storing the delegator's participant ID (anonymity preservation).
+        if ($isSecret === true && $isProxy === true && $delegatorId !== null) {
+            $vote['delegatorToken'] = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
         }
 
         if ($existingVote !== null) {
@@ -611,6 +634,10 @@ class VotingService
      */
     public function grantProxy(string $votingRoundId, string $fromParticipantId, string $toParticipantId): void
     {
+        if ($fromParticipantId === $toParticipantId) {
+            throw new \InvalidArgumentException('Een deelnemer kan geen volmacht aan zichzelf verlenen');
+        }
+
         $objectService = $this->objectService();
 
         $toParticipant = $objectService->getObject(register: 'decidesk', schema: 'participant', uuid: $toParticipantId);

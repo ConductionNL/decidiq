@@ -29,13 +29,6 @@
 						{{ t('decidesk', 'Debat openen') }}
 					</NcButton>
 					<NcButton
-						v-if="canTransitionTo('voting')"
-						type="primary"
-						:disabled="transitioning"
-						@click="transition('voting')">
-						{{ t('decidesk', 'Stemronde openen') }}
-					</NcButton>
-					<NcButton
 						v-if="canTransitionTo('withdrawn')"
 						type="error"
 						:disabled="transitioning"
