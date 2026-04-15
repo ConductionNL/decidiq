@@ -321,14 +321,15 @@ class DecisionControllerTest extends TestCase
 
         $this->objectService->method('find')->willReturn($entity);
 
-        $savedStdClass              = new \stdClass();
-        $savedStdClass->id          = 'decision-uuid-004';
-        $savedStdClass->isPublished = true;
-        $savedStdClass->publishedAt = '2026-04-14T00:00:00+00:00';
+        $savedData = [
+            'id'          => 'decision-uuid-004',
+            'isPublished' => true,
+            'publishedAt' => '2026-04-14T00:00:00+00:00',
+        ];
 
         $this->objectService->expects($this->once())
             ->method('saveObject')
-            ->willReturn($savedStdClass);
+            ->willReturn($savedData);
 
         $result = $this->controller->publish('decision-uuid-004');
 

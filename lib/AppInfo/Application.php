@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
 
+use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
 use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Controller\MinutesController;
@@ -32,6 +33,7 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\BackgroundJob\IJobList;
 
 /**
  * Main application class for the Decidesk Nextcloud app.
@@ -138,10 +140,14 @@ class Application extends App implements IBootstrap
      * @param IBootContext $context The boot context
      *
      * @return void
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function boot(IBootContext $context): void
     {
+        $serverContainer = $context->getServerContainer();
+        $jobList         = $serverContainer->get(IJobList::class);
+        if ($jobList->has(MailReplyHandler::class, null) === false) {
+            $jobList->add(MailReplyHandler::class);
+        }
+
     }//end boot()
 }//end class

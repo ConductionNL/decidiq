@@ -1,0 +1,676 @@
+{
+	"info": {
+		"_postman_id": "decidesk-motion-voting",
+		"name": "Decidesk — Motion and Voting Integration Tests",
+		"description": "Integration tests for the 11 new API endpoints introduced by p2-motion-and-voting.\nRequires a running Nextcloud instance with the decidesk app enabled and seed data loaded.\n\n@spec openspec/changes/p2-motion-and-voting/tasks.md#task-11.3",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "{{admin_user}}",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "{{admin_password}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "admin_user",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"key": "admin_password",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"key": "motion_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "amendment_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "voting_round_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "participant_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "meeting_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Setup — Resolve seed IDs",
+			"item": [
+				{
+					"name": "Fetch seed Motion",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/motion?limit=1"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Seed Motion exists', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.results).to.be.an('array').with.lengthOf.at.least(1);",
+									"    pm.collectionVariables.set('motion_id', body.results[0].id ?? body.results[0].uuid);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Fetch seed Amendment",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/amendment?limit=1"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Seed Amendment exists', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.results).to.be.an('array').with.lengthOf.at.least(1);",
+									"    pm.collectionVariables.set('amendment_id', body.results[0].id ?? body.results[0].uuid);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Fetch seed Participant",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/participant?limit=1"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Seed Participant exists', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.results).to.be.an('array').with.lengthOf.at.least(1);",
+									"    pm.collectionVariables.set('participant_id', body.results[0].id ?? body.results[0].uuid);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Fetch seed Meeting",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/index.php/apps/openregister/api/objects/decidesk/meeting?limit=1"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Seed Meeting exists', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.results).to.be.an('array').with.lengthOf.at.least(1);",
+									"    pm.collectionVariables.set('meeting_id', body.results[0].id ?? body.results[0].uuid);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Motion Lifecycle",
+			"item": [
+				{
+					"name": "POST /api/motions/{id}/transition — submitted → debating",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"newState\": \"debating\"}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/transition"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Motion transitioned to debating', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.newState).to.equal('debating');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/motions/{id}/transition — invalid transition returns 400",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"newState\": \"adopted\"}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/transition"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Invalid transition returns 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/motions/{id}/co-sign-request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"participantIds\": [\"{{participant_id}}\"]}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/co-sign-request"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Co-sign request returns 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/motions/{id}/co-sign-confirm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"displayName\": \"A. Pietersen\"}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/co-sign-confirm"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Co-sign confirm returns 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.success).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/motions/{id}/budget-impact",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"budgetLine\": \"Programma 4 - Jeugdzorg\", \"amountDelta\": 50000, \"rationale\": \"Extra budget voor jeugdzorg\"}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/budget-impact"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Budget impact saved', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    const budgetNote = (body.notes ?? []).find(n => n.title === 'Budget impact');",
+									"    pm.expect(budgetNote).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Amendment Lifecycle",
+			"item": [
+				{
+					"name": "POST /api/amendments/{id}/transition — submitted → debating",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"newState\": \"debating\"}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/amendments/{{amendment_id}}/transition"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Amendment transitioned to debating', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.newState).to.equal('debating');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Voting Rounds",
+			"item": [
+				{
+					"name": "POST /api/voting-rounds — open round",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"motionId\": \"{{motion_id}}\", \"votingMethod\": \"for-against-abstain\", \"isSecret\": false, \"meetingId\": \"{{meeting_id}}\"}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Voting round opened', function () {",
+									"    pm.response.to.have.status(201);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.id ?? body.uuid).to.be.a('string');",
+									"    pm.collectionVariables.set('voting_round_id', body.id ?? body.uuid);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/voting-rounds/{id}/cast — cast vote",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"participantId\": \"{{participant_id}}\", \"value\": \"for\", \"isProxy\": false}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/cast"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Vote cast successfully', function () {",
+									"    pm.response.to.have.status(201);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.value).to.equal('for');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/voting-rounds/{id}/proxy — grant proxy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"fromParticipantId\": \"{{participant_id}}\", \"toParticipantId\": \"{{participant_id}}\"}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/proxy"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Proxy grant returns 200 or 400 (self-proxy)', function () {",
+									"    pm.expect([200, 400]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "DELETE /api/voting-rounds/{id}/proxy — revoke proxy",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"fromParticipantId\": \"{{participant_id}}\"}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/proxy"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Proxy revoke returns 200 or 404', function () {",
+									"    pm.expect([200, 404]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/voting-rounds/{id}/close — close round",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/close"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Voting round closed', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.closedAt).to.be.a('string');",
+									"    pm.expect(body.result).to.be.oneOf(['adopted', 'rejected', 'tied', 'invalid']);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/voting-rounds/{id}/publish — ORI publish (no-op if not configured)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "requesttoken",
+								"value": "{{requesttoken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": "{{base_url}}/index.php/apps/decidesk/api/voting-rounds/{{voting_round_id}}/publish"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('ORI publish returns 200 (no-op if unconfigured)', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

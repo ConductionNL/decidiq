@@ -45,10 +45,13 @@ class SettingsService
      *
      * @var array<string>
      *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
      */
     private const CONFIG_KEYS = [
         'register',
+        'ori_endpoint',
+        'email_voting_enabled',
         'minutesSchema',
         'decisionSchema',
         'actionItemSchema',

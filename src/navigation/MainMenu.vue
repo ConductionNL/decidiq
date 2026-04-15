@@ -1,6 +1,8 @@
 <!--
 SPDX-License-Identifier: EUPL-1.2
 Copyright (C) 2026 Conduction B.V.
+@spec openspec/changes/p1-crud-operations/tasks.md#task-4.1
+@spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.4
 @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 -->
 <template>
@@ -49,6 +51,15 @@ Copyright (C) 2026 Conduction B.V.
 					<BookOpenVariantOutline :size="20" />
 				</template>
 			</NcAppNavigationItem>
+			<!-- Motions navigation item -->
+			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-8.4 -->
+			<NcAppNavigationItem
+				:name="t('decidesk', 'Motions')"
+				:to="{ name: 'Motions' }">
+				<template #icon>
+					<GavelIcon :size="20" />
+				</template>
+			</NcAppNavigationItem>
 		</template>
 		<template #footer>
 			<NcAppNavigationItem
@@ -69,6 +80,7 @@ import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutli
 import CheckDecagramIcon from 'vue-material-design-icons/CheckDecagram.vue'
 import CogIcon from 'vue-material-design-icons/Cog.vue'
 import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
+import GavelIcon from 'vue-material-design-icons/Gavel.vue'
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 
 export default {
@@ -81,6 +93,7 @@ export default {
 		CheckDecagramIcon,
 		CogIcon,
 		FileDocumentOutline,
+		GavelIcon,
 		HomeIcon,
 	},
 	methods: {

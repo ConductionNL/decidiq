@@ -1,3 +1,5 @@
+<!-- status: pr-created -->
+
 ## Context
 
 Decidesk is a Nextcloud app using the **thin-client** pattern: all domain data is stored in OpenRegister; the backend provides only settings, business-rule services, and PDF generation. The `Motion`, `Amendment`, `Vote`, and `VotingRound` entities were introduced in ADR-000 as primary entities for this spec with full CRUD now available via p1-crud-operations. This change adds the full governance motion-and-voting lifecycle on top of that foundation: motion submission, co-signatory collection, amendment workflow, quorum enforcement, vote casting (in-person and email), proxy delegation, real-time tallying, and result publication to the ORI API.
@@ -309,3 +311,10 @@ No new capabilities were identified that should be moved to OpenRegister core.
 - Should the vote tally be visible to all Participants in real-time, or only revealed when the round closes? (Recommendation: show live tally to chair only; reveal to all on close — this mirrors standard legislative practice)
 - Should proxy delegation be revocable before the round closes? (Recommendation: yes — a Participant can cancel their proxy up until the VotingRound is opened by the chair)
 - Should the ORI publication format follow ORI 1.0 or the draft ORI 2.0 standard? (Recommendation: ORI 1.0 as the stable standard; add ORI 2.0 as a settings toggle when ratified)
+
+## Status
+
+status: pr-created
+pr: https://github.com/ConductionNL/decidesk/pull/35
+branch: feature/18/p2-motion-and-voting
+updated: 2026-04-14

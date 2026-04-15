@@ -23,10 +23,13 @@ if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
     $autoloader->addPsr4('NCU\\', __DIR__.'/../vendor/nextcloud/ocp/NCU/');
 }
 
-// Bootstrap Nextcloud — since we run inside the Docker container,
-// the full environment (including \OC::$server) is available.
-if (file_exists(__DIR__.'/../../../lib/base.php') === true) {
-    include_once __DIR__.'/../../../lib/base.php';
+// Bootstrap Nextcloud only when the config file is readable (i.e., in a properly
+// provisioned CI environment). Skip silently when running standalone — OCP stubs
+// registered above are sufficient for unit-only test suites.
+$ncBase   = __DIR__.'/../../../lib/base.php';
+$ncConfig = __DIR__.'/../../../config/config.php';
+if (file_exists($ncBase) === true && is_readable($ncConfig) === true) {
+    include_once $ncBase;
 }
 
 // Register Test\ namespace for NC test classes.
@@ -39,8 +42,18 @@ if (is_dir($serverTestsLib) === true) {
 
 // Load test stubs for cross-app classes not available as Composer dependencies
 // (e.g. OCA\OpenRegister classes that are only present when the app is installed).
+// The stubs are also registered via autoload-dev PSR-4 in composer.json so that
+// Composer's autoloader can find them without needing Nextcloud to be bootstrapped.
 if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
-    require_once __DIR__.'/Stubs/DeepLinkRegistrationEvent.php';
+    require_once __DIR__.'/Stubs/Event/DeepLinkRegistrationEvent.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
+    require_once __DIR__.'/Stubs/Service/ObjectService.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
+    require_once __DIR__.'/Stubs/Db/ObjectEntity.php';
 }
 
 if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
