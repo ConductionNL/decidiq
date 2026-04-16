@@ -22,7 +22,8 @@ import AgendaItemDetail from '../views/AgendaItemDetail.vue'
 import Motions from '../views/Motions.vue'
 import MotionDetail from '../views/MotionDetail.vue'
 import AmendmentDetail from '../views/AmendmentDetail.vue'
-import AdminRoot from '../views/settings/AdminRoot.vue'
+// Admin settings live at /settings/admin/decidesk (NC admin panel via AdminSettings.php)
+// In-app settings use NcAppSettingsDialog modal — no route needed
 import Minutes from '../views/Minutes.vue'
 import MinutesDetail from '../views/MinutesDetail.vue'
 import Decisions from '../views/Decisions.vue'
@@ -46,7 +47,7 @@ export default new Router({
 		{ path: '/motions', name: 'Motions', component: Motions },
 		{ path: '/motions/:id', name: 'MotionDetail', component: MotionDetail, props: true },
 		{ path: '/amendments/:id', name: 'AmendmentDetail', component: AmendmentDetail, props: true },
-		{ path: '/settings', name: 'Settings', component: AdminRoot },
+		// No /settings route — settings opens as NcAppSettingsDialog modal from gear menu
 		// Minutes routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		{ path: '/minutes', name: 'Minutes', component: Minutes },
 		{ path: '/minutes/:id', name: 'MinutesDetail', component: MinutesDetail, props: true },

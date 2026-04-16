@@ -65,7 +65,7 @@ Copyright (C) 2026 Conduction B.V.
 			<NcAppNavigationSettings>
 				<NcAppNavigationItem
 					:name="t('decidesk', 'Settings')"
-					:to="{ name: 'Settings' }">
+					@click="$emit('open-settings')">
 					<template #icon>
 						<CogIcon :size="20" />
 					</template>
