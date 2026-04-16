@@ -29,11 +29,11 @@ Architecture:
 Shared specs: See ../openspec/specs/ for cross-project conventions
 Project guidelines: See ../project.md for workspace-wide standards
 
-## Change: p4-collaboration (title: Collaboration)
+## Change: p2-meeting-management (title: Meeting Management)
 
 ## Step 1: Read context
 Read these files COMPLETELY before writing anything:
-- openspec/changes/p4-collaboration/context-brief.md (features, stories, stakeholders, journeys)
+- openspec/changes/p2-meeting-management/context-brief.md (features, stories, stakeholders, journeys)
 - openspec/architecture/adr-000-data-model.md (entity definitions)
 - All files in openspec/architecture/ (app ADRs)
 - All files in .claude/openspec/architecture/ (company ADRs, if present)
@@ -45,7 +45,7 @@ Read these files COMPLETELY before writing anything:
 
 NOTE: proposal.md and tasks.md already exist — read them for context.
 
-### 1. design.md → `openspec/changes/p4-collaboration/design.md`
+### 1. design.md → `openspec/changes/p2-meeting-management/design.md`
 **Instruction:** Create the design document that explains HOW to implement the change.
 
 When to include design.md (create only if any apply):
@@ -93,7 +93,7 @@ Good design docs explain the "why" behind technical decisions.
 **Rules:** ['Uses OpenRegister API directly from frontend (no own backend CRUD)', 'Register config in lib/Settings/decidesk_register.json (OpenAPI 3.0.0 format)', 'Imported via ConfigurationService::importFromApp() in repair step', 'Workflow state machines defined as OpenRegister metadata', 'Each governance domain has a configurable workflow template']
 **MUST include:** Seed Data section (ADR-001) — 3-5 realistic Dutch example objects per entity
 
-### 2. specs/spec.md → `openspec/changes/p4-collaboration/specs/spec.md`
+### 2. specs/spec.md → `openspec/changes/p2-meeting-management/specs/spec.md`
 **Instruction:** Create specification files that define WHAT the system should do.
 
 Create one spec file per capability listed in the proposal's Capabilities section.
@@ -163,6 +163,6 @@ Specs should be testable - each scenario is a potential test case.
 3. Create the specs/ directory if needed, then write specs/spec.md
 4. Commit all artifacts:
    ```bash
-   git add openspec/changes/p4-collaboration/
-   git commit -m 'feat: Add OpenSpec change p4-collaboration from Specter'
+   git add openspec/changes/p2-meeting-management/
+   git commit -m 'feat: Add OpenSpec change p2-meeting-management from Specter'
    ```
