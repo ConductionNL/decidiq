@@ -62,19 +62,21 @@ Copyright (C) 2026 Conduction B.V.
 			</NcAppNavigationItem>
 		</template>
 		<template #footer>
-			<NcAppNavigationItem
-				:name="t('decidesk', 'Settings')"
-				:to="{ name: 'Settings' }">
-				<template #icon>
-					<CogIcon :size="20" />
-				</template>
-			</NcAppNavigationItem>
+			<NcAppNavigationSettings>
+				<NcAppNavigationItem
+					:name="t('decidesk', 'Settings')"
+					:to="{ name: 'Settings' }">
+					<template #icon>
+						<CogIcon :size="20" />
+					</template>
+				</NcAppNavigationItem>
+			</NcAppNavigationSettings>
 		</template>
 	</NcAppNavigation>
 </template>
 
 <script>
-import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
+import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
 import CheckDecagramIcon from 'vue-material-design-icons/CheckDecagram.vue'
@@ -88,6 +90,7 @@ export default {
 	components: {
 		NcAppNavigation,
 		NcAppNavigationItem,
+		NcAppNavigationSettings,
 		BookOpenVariantOutline,
 		CheckboxMarkedOutline,
 		CheckDecagramIcon,
