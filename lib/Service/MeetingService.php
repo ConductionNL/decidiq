@@ -4,6 +4,8 @@
  * Decidesk Meeting Service
  *
  * Service for managing meeting lifecycle state transitions.
+ * Meetings are stored as CalDAV VEVENTs (ADR-002). The lifecycle state
+ * is persisted as X-DECIDESK-LIFECYCLE on the VEVENT.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -23,8 +25,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use OCP\AppFramework\Db\DoesNotExistException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -32,6 +32,8 @@ use Psr\Log\LoggerInterface;
  *
  * Implements the state machine defined in design.md:
  *   draft → scheduled → opened ↔ paused → adjourned → (re-)opened → closed
+ *
+ * Storage: CalDAV VEVENT with X-DECIDESK-LIFECYCLE (ADR-002).
  *
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
  */
@@ -59,13 +61,13 @@ class MeetingService
     /**
      * Constructor for MeetingService.
      *
-     * @param ContainerInterface $container The DI container (used to retrieve ObjectService)
-     * @param LoggerInterface    $logger    The logger
+     * @param CalDavService   $calDavService The CalDAV service for VEVENT operations
+     * @param LoggerInterface $logger        The logger
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
      */
     public function __construct(
-        private readonly ContainerInterface $container,
+        private readonly CalDavService $calDavService,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -93,95 +95,128 @@ class MeetingService
     }//end getAvailableActions()
 
     /**
-     * Apply a lifecycle transition to a meeting object.
+     * Create a new meeting as a CalDAV VEVENT.
+     *
+     * @param array $meetingData Meeting fields per ADR-000
+     *
+     * @return array{success: bool, meeting: array|null, message: string}
+     */
+    public function create(array $meetingData): array
+    {
+        try {
+            $meeting = $this->calDavService->createMeeting($meetingData);
+
+            return [
+                'success' => true,
+                'meeting' => $meeting,
+                'message' => 'Meeting created.',
+            ];
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: meeting creation failed',
+                ['exception' => $e->getMessage()]
+            );
+            return [
+                'success' => false,
+                'meeting' => null,
+                'message' => 'Failed to create meeting. See server log for details.',
+            ];
+        }
+
+    }//end create()
+
+    /**
+     * Get a meeting by CalDAV UID.
+     *
+     * @param string $meetingUid CalDAV UID of the meeting VEVENT
+     *
+     * @return array|null The meeting array or null
+     */
+    public function get(string $meetingUid): ?array
+    {
+        return $this->calDavService->getMeeting($meetingUid);
+
+    }//end get()
+
+    /**
+     * List meetings, optionally filtered by governance body.
+     *
+     * @param string|null $bodyUid Optional GovernanceBody UUID filter
+     *
+     * @return array Array of meeting arrays
+     */
+    public function list(?string $bodyUid = null): array
+    {
+        return $this->calDavService->listMeetings($bodyUid);
+
+    }//end list()
+
+    /**
+     * Apply a lifecycle transition to a meeting VEVENT.
      *
      * Validates that `$action` is a known transition and that the meeting's
-     * current lifecycle state permits the transition, then patches the object
-     * via OpenRegister's ObjectService.
+     * current lifecycle state permits the transition, then updates the
+     * X-DECIDESK-LIFECYCLE property on the VEVENT via CalDavService.
      *
-     * @param string $meetingId UUID of the meeting to transition
-     * @param string $action    Transition action: schedule|open|pause|resume|adjourn|close
+     * @param string $meetingUid CalDAV UID of the meeting VEVENT
+     * @param string $action     Transition action: schedule|open|pause|resume|adjourn|close
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
      *
      * @return array{success: bool, meeting: array|null, message: string}
      */
-    public function transition(string $meetingId, string $action): array
+    public function transition(string $meetingUid, string $action): array
     {
         if (isset(self::TRANSITIONS[$action]) === false) {
             return [
                 'success' => false,
                 'meeting' => null,
-                'message' => 'Unknown action. Valid actions: '.implode(', ', array_keys(self::TRANSITIONS)).'.',
+                'message' => 'Unknown action. Valid actions: ' . implode(', ', array_keys(self::TRANSITIONS)) . '.',
             ];
         }
 
         $transition = self::TRANSITIONS[$action];
 
         try {
-            /*
-             * @var \OCA\OpenRegister\Service\ObjectService $objectService
-             */
+            $meeting = $this->calDavService->getMeeting($meetingUid);
 
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-            // Object-level read ACL: OpenRegister's ObjectService::find() resolves the
-            // current Nextcloud session user and returns null when the caller lacks read
-            // access to the requested object (same behaviour as a missing object).
-            // This prevents callers without read access from probing meeting UUIDs.
-            $entity = $objectService->find(id: $meetingId);
-
-            if ($entity === null) {
+            if ($meeting === null) {
                 return [
                     'success' => false,
                     'meeting' => null,
-                    'message' => "Meeting '$meetingId' not found.",
+                    'message' => "Meeting '$meetingUid' not found.",
                 ];
             }
 
-            $currentLifecycle = $entity->getObject()['lifecycle'] ?? 'draft';
+            $currentLifecycle = $meeting['lifecycle'] ?? 'draft';
 
             if (in_array($currentLifecycle, $transition['from'], true) === false) {
                 return [
                     'success' => false,
                     'meeting' => null,
                     'message' => "Cannot '$action' a meeting in '$currentLifecycle' state. "
-                        ."Allowed from: ".implode(', ', $transition['from']).".",
+                        . "Allowed from: " . implode(', ', $transition['from']) . ".",
                 ];
             }
 
-            // Object-level write ACL: OpenRegister's ObjectService::updateFromArray()
-            // checks that the current Nextcloud session user has write access to this
-            // specific object before applying the patch. If the caller lacks write
-            // access an exception is thrown and caught by the \Throwable handler below,
-            // returning a generic error response without leaking object details.
-            $updated = $objectService->updateFromArray(
-                id: $meetingId,
-                object: ['lifecycle' => $transition['to']],
-                updateVersion: true,
-                patch: true,
-            );
+            $updated = $this->calDavService->updateMeeting($meetingUid, [
+                'lifecycle' => $transition['to'],
+            ]);
 
             $this->logger->info(
                 'Decidesk: meeting lifecycle transitioned',
-                ['id' => $meetingId, 'action' => $action, 'to' => $transition['to']]
+                ['uid' => $meetingUid, 'action' => $action, 'to' => $transition['to']]
             );
 
             return [
                 'success' => true,
-                'meeting' => $updated->jsonSerialize(),
+                'meeting' => $updated,
                 'message' => "Meeting transitioned to '{$transition['to']}'.",
-            ];
-        } catch (DoesNotExistException) {
-            return [
-                'success' => false,
-                'meeting' => null,
-                'message' => "Meeting '$meetingId' not found.",
             ];
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: meeting lifecycle transition failed',
-                ['id' => $meetingId, 'action' => $action, 'exception' => $e->getMessage()]
+                ['uid' => $meetingUid, 'action' => $action, 'exception' => $e->getMessage()]
             );
             return [
                 'success' => false,

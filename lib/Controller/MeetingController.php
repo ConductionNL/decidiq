@@ -3,7 +3,8 @@
 /**
  * Decidesk Meeting Controller
  *
- * Controller for meeting-specific operations, particularly lifecycle transitions.
+ * Controller for meeting operations: CRUD via CalDAV VEVENTs and lifecycle transitions.
+ * Meetings are stored as CalDAV VEVENTs per ADR-002.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -33,25 +34,10 @@ use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
- * Controller for meeting lifecycle transitions.
+ * Controller for meeting CRUD and lifecycle transitions.
  *
- * ## Access control design (OWASP A01 / ADR-005)
- *
- * This controller uses OpenRegister ObjectService RBAC rather than
- * `IGroupManager::isAdmin()` for the following domain reason:
- *
- * In Dutch local government, the meeting chair and clerk are NOT Nextcloud
- * system administrators. `requireChairOrSecretary()` (which gates on
- * `IGroupManager::isAdmin()`) would incorrectly block all legitimate users.
- *
- * Access control is enforced at the OpenRegister layer:
- * - `ObjectService::getObject()` returns null if the caller lacks read permission → 422
- * - `ObjectService::saveObject()` throws if the caller lacks write permission → 422
- *
- * The meeting objects carry per-object ACLs in OpenRegister; only users with
- * clerk or chair permission on the specific meeting object can transition it.
- * This is the approved pattern per ADR-005 for resources governed by
- * OpenRegister's own RBAC instead of Nextcloud group membership.
+ * Access control: OpenRegister ObjectService RBAC for wrapper objects;
+ * CalDAV calendar permissions for VEVENT operations.
  *
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-2.1
  */
@@ -75,15 +61,94 @@ class MeetingController extends Controller
     }//end __construct()
 
     /**
+     * List all meetings for the current user.
+     *
+     * GET /api/meetings
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     */
+    #[NoAdminRequired]
+    public function index(): JSONResponse
+    {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $bodyUid  = $this->request->getParam('bodyUid');
+        $meetings = $this->meetingService->list($bodyUid);
+
+        return new JSONResponse(['results' => $meetings, 'total' => count($meetings)]);
+
+    }//end index()
+
+    /**
+     * Get a single meeting by CalDAV UID.
+     *
+     * GET /api/meetings/{id}
+     *
+     * @param string $id CalDAV UID of the meeting
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     */
+    #[NoAdminRequired]
+    public function show(string $id): JSONResponse
+    {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $meeting = $this->meetingService->get($id);
+
+        if ($meeting === null) {
+            return new JSONResponse(['message' => "Meeting '$id' not found."], Http::STATUS_NOT_FOUND);
+        }
+
+        return new JSONResponse($meeting);
+
+    }//end show()
+
+    /**
+     * Create a new meeting as a CalDAV VEVENT.
+     *
+     * POST /api/meetings
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     */
+    #[NoAdminRequired]
+    public function create(): JSONResponse
+    {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $meetingData = $this->request->getParams();
+        $result      = $this->meetingService->create($meetingData);
+
+        if ($result['success'] === false) {
+            return new JSONResponse(
+                ['message' => $result['message']],
+                Http::STATUS_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        return new JSONResponse($result['meeting'], Http::STATUS_CREATED);
+
+    }//end create()
+
+    /**
      * Apply a lifecycle transition to a meeting.
      *
-     * Access control: OpenRegister ObjectService RBAC (see class docblock).
-     * The caller must be authenticated; write-level access to the meeting object
-     * is enforced by ObjectService::saveObject() inside MeetingService::transition().
+     * POST /api/meetings/{id}/lifecycle
      *
      * Expects JSON body: { "action": "<schedule|open|pause|resume|adjourn|close>" }
      *
-     * @param string $id UUID of the meeting
+     * @param string $id CalDAV UID of the meeting
      *
      * @NoAdminRequired
      *
@@ -94,7 +159,6 @@ class MeetingController extends Controller
     #[NoAdminRequired]
     public function lifecycle(string $id): JSONResponse
     {
-        // Require authentication — anonymous callers are rejected before service call.
         if ($this->userSession->getUser() === null) {
             return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
         }
@@ -108,7 +172,7 @@ class MeetingController extends Controller
             );
         }
 
-        $result = $this->meetingService->transition(meetingId: $id, action: $action);
+        $result = $this->meetingService->transition(meetingUid: $id, action: $action);
 
         if ($result['success'] === false) {
             return new JSONResponse(

@@ -561,4 +561,67 @@ class MotionService
         );
 
     }//end applyAmendment()
+
+    /**
+     * Publish an adopted Motion's decision outcome via ORI API.
+     *
+     * Validates that lifecycle='adopted' and isPublished=false before setting
+     * isPublished=true and publishedAt to the current timestamp.
+     *
+     * Previously on DecisionController — merged here because Decision is now
+     * the outcome of a Motion (ADR-001 Popolo alignment, no separate Decision entity).
+     *
+     * @param string $motionId The motion UUID
+     *
+     * @return array{success: bool, message: string, motion?: array}
+     *
+     * @throws \RuntimeException If the motion is not found
+     */
+    public function publishDecision(string $motionId): array
+    {
+        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('motion');
+
+        $entity = $objectService->find(id: $motionId);
+
+        if ($entity === null) {
+            throw new \RuntimeException("Motion '$motionId' not found.");
+        }
+
+        $motionData = $entity->getObject();
+
+        if (($motionData['lifecycle'] ?? '') !== 'adopted') {
+            return [
+                'success' => false,
+                'message' => 'Only adopted motions may be published. Current state: ' . ($motionData['lifecycle'] ?? 'unknown'),
+            ];
+        }
+
+        if (($motionData['isPublished'] ?? false) === true) {
+            return [
+                'success' => false,
+                'message' => 'Motion decision is already published.',
+            ];
+        }
+
+        $motionData['isPublished'] = true;
+        $motionData['publishedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+
+        $objectService->saveObject(
+            object: $motionData,
+            register: 'decidesk',
+            schema: 'motion',
+            uuid: $motionId,
+        );
+
+        $this->logger->info('Decidesk: motion decision published', ['motionId' => $motionId]);
+
+        return [
+            'success' => true,
+            'message' => 'Motion decision published successfully.',
+            'motion'  => $motionData,
+        ];
+
+    }//end publishDecision()
 }//end class

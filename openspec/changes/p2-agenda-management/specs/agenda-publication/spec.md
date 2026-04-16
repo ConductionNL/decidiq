@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: REQ-PUB-001 Secretary publishes a complete agenda package
-The app SHALL allow the secretary or chair to publish the agenda for a Meeting. Publication SHALL validate that all required items are present, send Nextcloud notifications to all Participants of the GovernanceBody, and update the calendar event for the meeting via `CalendarEventService`.
+The app SHALL allow the secretary or chair to publish the agenda for a Meeting. Publication SHALL validate that all required items are present, send Nextcloud notifications to all Participants of the GovernanceBody, and update the calendar event for the meeting via `CalDavService` (ADR-002).
 
 #### Scenario: Secretary publishes agenda
 - **GIVEN** a Meeting with lifecycle `scheduled` and at least one AgendaItem with `orderNumber ≥ 1`

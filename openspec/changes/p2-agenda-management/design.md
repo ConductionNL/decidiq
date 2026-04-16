@@ -45,8 +45,8 @@ Dutch governance workflows (gemeenteraden, waterschappen, provinciale staten) fo
 **Alternative considered**: A free-text `spokesperson` string field in the schema — rejected (requires migration; relation gives type-safety and links to the Participant record).
 
 ### 5. Agenda publication via `AgendaService::publishAgenda()`
-**Decision**: A single `AgendaService::publishAgenda(meetingId)` method (a) validates all required items are present, (b) calls `NotificationService` to notify participants, (c) calls `CalendarEventService` to update the meeting calendar entry, (d) transitions Meeting lifecycle from `scheduled` to `opened` (Meeting update via ObjectService). No PDF is generated in p2 — publication = distribution of the structured agenda.
-**Rationale**: PDF generation requires docudesk or a template engine; that is out of scope for p2. Structured digital distribution (notifications + calendar) covers the demand-driven requirement. PDF export can be added via `ExportService` in a later spec.
+**Decision**: A single `AgendaService::publishAgenda(meetingId)` method (a) validates all required items are present, (b) calls `NotificationService` to notify participants, (c) updates the Meeting VEVENT via `CalDavService` (adds agenda summary to DESCRIPTION, updates X-DECIDESK-LIFECYCLE to `opened`), (d) transitions Meeting lifecycle from `scheduled` to `opened`. No PDF is generated in p2 — publication = distribution of the structured agenda.
+**Rationale**: PDF generation requires docudesk or a template engine; that is out of scope for p2. Meetings are CalDAV VEVENTs (ADR-002), so the calendar entry is updated directly via `CalDavService`, not synced via a separate service. PDF export can be added via `ExportService` in a later spec.
 **Alternative considered**: Generate a PDF board pack — deferred to p3.
 
 ### 6. Drag-and-drop ordering via `orderNumber` updates
@@ -63,7 +63,7 @@ Dutch governance workflows (gemeenteraden, waterschappen, provinciale staten) fo
 | File attachments | `FileService` + `CnObjectSidebar` `CnFilesTab` | None |
 | BOB phase display | `CnStatusBadge`, `CnTimelineStages` | `AgendaService::advanceBobPhase()` |
 | Notifications | `NotificationService` | `AgendaService::publishAgenda()` |
-| Calendar update | `CalendarEventService` | Called from `AgendaService::publishAgenda()` |
+| Calendar update | `CalDavService` (ADR-002) | Meeting is a VEVENT; updated directly from `AgendaService::publishAgenda()` |
 | Consent batch adopt | `ObjectService.saveObjects()` bulk update | `AgendaService::processHamerstukken()` |
 | COI notes | `CnObjectSidebar` `CnNotesCard` | COI note-writing helper only |
 | Spokesperson relation | `relationsPlugin` on object store | None |

@@ -87,7 +87,7 @@ Dutch governance workflows (gemeenteraden, waterschappen, provinciale staten) fo
 | Email vote | `NotificationService` (outbound) | `MailReplyHandler` background job |
 | Result tally | Computed from Vote objects via `ObjectService.findAll()` | `VotingService::tallyResults()` |
 | ORI publication | HTTP client (new) | `OriPublicationService` |
-| Calendar deadline | `CalendarEventService` | Called from `VotingService::openVotingRound()` |
+| Calendar deadline | `CalDavService` (ADR-002) | Called from `VotingService::openVotingRound()` |
 | Dossier folder | `FileService` | Called from `VotingService::closeVotingRound()` |
 | Audit trail | `ActivityService` (built-in) | None (automatic via OpenRegister) |
 | Export | `ExportService` + `CnMassExportDialog` | None |

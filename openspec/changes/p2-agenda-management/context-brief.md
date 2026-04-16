@@ -907,7 +907,7 @@ custom logic for domain-specific business rules. Everything below is provided fo
 **Notifications & Activity** (use NotificationService + ActivityService):
 - Nextcloud notifications — `NotificationService`
 - Activity feed — `ActivityService`
-- Calendar events — `CalendarEventService`
+- CalDAV storage — `CalDavService` (meetings as VEVENT, tasks as VTODO per ADR-002)
 - Deck/Kanban cards — `DeckCardService`
 
 **Store & State** (use createObjectStore + plugins):

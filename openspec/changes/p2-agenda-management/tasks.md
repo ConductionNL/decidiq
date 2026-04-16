@@ -1,12 +1,12 @@
 ## Deduplication Check (ADR-012)
 
-- [ ] 0.1 Confirm no custom CRUD, export, file, notification, or calendar code is needed: all use `ObjectService`, `ExportService`, `FileService`, `NotificationService`, `CalendarEventService` from OpenRegister platform
+- [ ] 0.1 Confirm no custom CRUD, export, file, notification, or calendar code is needed: all use `ObjectService`, `ExportService`, `FileService`, `NotificationService`, `CalDavService` (ADR-002) from OpenRegister platform
 - [ ] 0.2 Confirm `AgendaItem` entity is used as-is from ADR-000 — no schema properties added or renamed
 
 ## 1. Backend — AgendaService and AgendaController
 
 - [ ] 1.1 Create `lib/Service/AgendaService.php` — stateless service with the following public methods (each tagged `@spec openspec/changes/p2-agenda-management/tasks.md#task-1`):
-  - `publishAgenda(string $meetingId): void` — validates at least one item exists, calls `NotificationService` for all active Participants, calls `CalendarEventService` to update meeting event
+  - `publishAgenda(string $meetingId): void` — validates at least one item exists, calls `NotificationService` for all active Participants, calls `CalDavService` (ADR-002) to update meeting event
   - `advanceBobPhase(string $agendaItemId): void` — reads current `status`, maps next phase (beeldvorming → oordeelsvorming → besluitvorming → afgerond), saves via `ObjectService`
   - `processHamerstukken(string $meetingId): void` — fetches all AgendaItems tagged `hamerstuk` for the meeting, bulk-updates `status` to `afgerond` via `ObjectService`
   - `reorderItems(string $meetingId, array $orderedIds): void` — accepts ordered array of AgendaItem IDs, assigns `orderNumber` 1..n atomically

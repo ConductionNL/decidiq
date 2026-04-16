@@ -23,10 +23,12 @@ namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
-use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Controller\MeetingController;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
+use OCA\Decidesk\Service\CalDavService;
+use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
@@ -102,19 +104,37 @@ class Application extends App implements IBootstrap
                 }
                 );
 
-        // Register DecisionController for DI.
-        // Explicit registration matches the MinutesController pattern and ensures
-        // reliable resolution in all Nextcloud environments (≥28).
-        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
+        // Register CalDavService for DI (ADR-002: CalDAV-first storage).
         $context->registerService(
-                DecisionController::class,
-                static function ($c): DecisionController {
-                    return new DecisionController(
-                    request: $c->get(\OCP\IRequest::class),
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                CalDavService::class,
+                static function ($c): CalDavService {
+                    return new CalDavService(
+                    calDavBackend: $c->get(\OCA\DAV\CalDAV\CalDavBackend::class),
                     userSession: $c->get(\OCP\IUserSession::class),
-                    groupManager: $c->get(\OCP\IGroupManager::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register MeetingService for DI (uses CalDavService for VEVENT storage).
+        $context->registerService(
+                MeetingService::class,
+                static function ($c): MeetingService {
+                    return new MeetingService(
+                    calDavService: $c->get(CalDavService::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register MeetingController for DI.
+        $context->registerService(
+                MeetingController::class,
+                static function ($c): MeetingController {
+                    return new MeetingController(
+                    request: $c->get(\OCP\IRequest::class),
+                    meetingService: $c->get(MeetingService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
                     );
                 }
                 );

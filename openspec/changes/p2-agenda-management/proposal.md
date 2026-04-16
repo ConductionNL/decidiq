@@ -8,7 +8,7 @@ Governance bodies — municipal councils, water boards, corporate boards, and as
 - **New**: Propose items for the agenda (demand 98) — participants can submit agenda item proposals that the chair reviews and accepts or rejects before publication
 - **New**: Assign spokespersons per agenda item (demand 103) — secretary assigns a presenter to each AgendaItem via an OpenRegister relation to Participant
 - **New**: Agenda publication workflow (demand 137) — secretary publishes a complete agenda package (AgendaItem list + file attachments) before the meeting; Meeting lifecycle transitions from `scheduled` to `published`
-- **New**: Digital Agenda Distribution (demand 302) — distribute agenda to participants via `NotificationService` and `CalendarEventService` on publish
+- **New**: Digital Agenda Distribution (demand 302) — distribute agenda to participants via `NotificationService` and `CalDavService` (ADR-002) on publish
 - **New**: Attach financial documents and supporting files to agenda items (demand 213) via OpenRegister built-in `FileService`
 - **New**: Live agenda amendments during an open meeting (demand 137) — chair can add, remove, and reorder AgendaItems while Meeting lifecycle is `opened`, with changes broadcast in real-time
 - **New**: Consent agenda processing / hamerstukken (demand 184) — batch-adopt decision items without individual debate; items tagged `hamerstuk` are grouped and adopted by a single chair action
@@ -37,6 +37,6 @@ Governance bodies — municipal councils, water boards, corporate boards, and as
 - COI declarations stored via OpenRegister built-in `notes` on AgendaItem (structured with `type: conflict-of-interest` in the note body)
 - Spokesperson stored as an OpenRegister `relation` from AgendaItem → Participant
 - Participant proposal workflow uses OpenRegister built-in `status` field on AgendaItem with value `voorstel` (pending chair review)
-- Agenda publication triggers `NotificationService` and `CalendarEventService` — no custom notification infrastructure
+- Agenda publication triggers `NotificationService` and `CalDavService` (ADR-002) — no custom notification infrastructure
 - Downstream specs (p2-motion-and-voting, p2-minutes-and-decisions) read AgendaItem status and relations — no breaking changes
 - No new PHP controllers or services needed beyond an `AgendaService` for the publish and BOB-transition business rules

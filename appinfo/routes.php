@@ -10,20 +10,21 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
+        // Meeting endpoints — CalDAV VEVENT storage (ADR-002).
+        ['name' => 'meeting#index',     'url' => '/api/meetings',               'verb' => 'GET'],
+        ['name' => 'meeting#create',    'url' => '/api/meetings',               'verb' => 'POST'],
+        ['name' => 'meeting#show',      'url' => '/api/meetings/{id}',          'verb' => 'GET'],
+        ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
+
         // Minutes endpoints — specific routes must precede the wildcard catch-all.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
         ['name' => 'minutes#generateDraft', 'url' => '/api/minutes/{minutesId}/generate-draft', 'verb' => 'POST'],
         ['name' => 'minutes#transition',    'url' => '/api/minutes/{minutesId}/transition',      'verb' => 'POST'],
 
-        // Decision endpoints — server-side publish enforces governance access control.
-        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
-        ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
-
-        // Meeting lifecycle transitions.
-        ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
-
-        // Motion lifecycle and co-signature routes (specific before wildcard).
+        // Motion lifecycle, co-signature, budget impact, and publish routes.
+        // Decision publish is on Motion (ADR-001: Decision merged into Motion, Popolo alignment).
         ['name' => 'motion#transition',     'url' => '/api/motions/{id}/transition',      'verb' => 'POST'],
+        ['name' => 'motion#publish',        'url' => '/api/motions/{id}/publish',          'verb' => 'POST'],
         ['name' => 'motion#coSignRequest',  'url' => '/api/motions/{id}/co-sign-request', 'verb' => 'POST'],
         ['name' => 'motion#coSignConfirm',  'url' => '/api/motions/{id}/co-sign-confirm', 'verb' => 'POST'],
         ['name' => 'motion#budgetImpact',   'url' => '/api/motions/{id}/budget-impact',   'verb' => 'POST'],

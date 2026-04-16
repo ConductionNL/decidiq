@@ -264,6 +264,48 @@ class MotionController extends Controller
     }//end budgetImpact()
 
     /**
+     * Publish an adopted Motion's decision via ORI API.
+     *
+     * POST /api/motions/{id}/publish
+     *
+     * Validates server-side that lifecycle='adopted' and isPublished=false before
+     * persisting — preventing frontend-only guard bypass (OWASP A01 / ADR-005).
+     * Requires chair or secretary role.
+     *
+     * Previously on DecisionController — merged here because Decision is now
+     * the outcome of a Motion (ADR-001 Popolo alignment).
+     *
+     * @param string $id The motion UUID
+     *
+     * @NoAdminRequired
+     *
+     * @return JSONResponse
+     */
+    public function publish(string $id): JSONResponse
+    {
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        try {
+            $result = $this->motionService->publishDecision($id);
+
+            if ($result['success'] === false) {
+                return new JSONResponse(
+                    ['message' => $result['message']],
+                    Http::STATUS_UNPROCESSABLE_ENTITY
+                );
+            }
+
+            return new JSONResponse($result);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+        }
+
+    }//end publish()
+
+    /**
      * Transition the lifecycle state of an Amendment.
      *
      * POST /api/amendments/{id}/transition
