@@ -26,6 +26,8 @@ use OCA\Decidesk\Service\MeetingService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -59,6 +61,13 @@ class MeetingControllerTest extends TestCase
     private MeetingService&MockObject $meetingService;
 
     /**
+     * Mock IUserSession.
+     *
+     * @var IUserSession&MockObject
+     */
+    private IUserSession&MockObject $userSession;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -69,10 +78,17 @@ class MeetingControllerTest extends TestCase
 
         $this->request        = $this->createMock(originalClassName: IRequest::class);
         $this->meetingService = $this->createMock(originalClassName: MeetingService::class);
+        $this->userSession    = $this->createMock(originalClassName: IUserSession::class);
+
+        // Default: authenticated user present.
+        $mockUser = $this->createMock(originalClassName: IUser::class);
+        $mockUser->method('getUID')->willReturn('testuser');
+        $this->userSession->method('getUser')->willReturn($mockUser);
 
         $this->controller = new MeetingController(
             request: $this->request,
             meetingService: $this->meetingService,
+            userSession: $this->userSession,
         );
 
     }//end setUp()
@@ -186,5 +202,36 @@ class MeetingControllerTest extends TestCase
         );
 
     }//end testLifecycleReturnsUnprocessableWhenMeetingNotFound()
+
+    /**
+     * Test that an unauthenticated request returns HTTP 401.
+     *
+     * @return void
+     */
+    public function testLifecycleReturnsUnauthorizedWhenNotAuthenticated(): void
+    {
+        // Override the default mock to return null (unauthenticated).
+        $unauthSession = $this->createMock(originalClassName: IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
+        $controller = new MeetingController(
+            request: $this->request,
+            meetingService: $this->meetingService,
+            userSession: $unauthSession,
+        );
+
+        $this->request->method('getParam')
+            ->with('action', '')
+            ->willReturn('open');
+
+        $this->meetingService->expects($this->never())
+            ->method('transition');
+
+        $result = $controller->lifecycle(id: 'some-uuid');
+
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $result->getStatus());
+
+    }//end testLifecycleReturnsUnauthorizedWhenNotAuthenticated()
 
 }//end class

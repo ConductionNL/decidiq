@@ -44,8 +44,26 @@ if (is_dir($serverTestsLib) === true) {
 
 // Load test stubs for cross-app classes not available as Composer dependencies
 // (e.g. OCA\OpenRegister classes that are only present when the app is installed).
+// The stubs are also registered via autoload-dev PSR-4 in composer.json so that
+// Composer's autoloader can find them without needing Nextcloud to be bootstrapped.
 if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === false) {
-    require_once __DIR__.'/Stubs/DeepLinkRegistrationEvent.php';
+    require_once __DIR__.'/Stubs/Event/DeepLinkRegistrationEvent.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
+    require_once __DIR__.'/Stubs/Service/ObjectService.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
+    require_once __DIR__.'/Stubs/Db/ObjectEntity.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
+    require_once __DIR__.'/Stubs/ObjectService.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
+    require_once __DIR__.'/Stubs/ObjectEntity.php';
 }
 
 // OpenRegister service stubs — loaded when running without a live NC+OpenRegister install.

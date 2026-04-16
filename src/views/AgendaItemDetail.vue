@@ -9,6 +9,7 @@
  @spec openspec/changes/p2-agenda-management/tasks.md#task-7.1
  @spec openspec/changes/p2-agenda-management/tasks.md#task-7.2
  @spec openspec/changes/p2-agenda-management/tasks.md#task-7.3
+ @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.7
 -->
 <template>
 	<CnDetailPage
@@ -210,6 +211,10 @@ export default {
 			coiReason: '',
 			showMotionLinkDialog: false,
 			availableMotions: [],
+			showLinkMotion: false,
+			motionSearch: '',
+			motionResults: [],
+			selectedMotionId: null,
 		}
 	},
 	computed: {
@@ -256,6 +261,9 @@ export default {
 				{ label: this.t('decidesk', 'Status'), value: this.object.status },
 			]
 		},
+	},
+	created() {
+		this.loadAvailableMotions()
 	},
 	methods: {
 		onEditSaved() {
@@ -323,10 +331,32 @@ export default {
 				console.error('Failed to link motion:', e)
 			}
 		},
-	},
 
-	created() {
-		this.loadAvailableMotions()
+		async fetchMotions() {
+			if (this.motionSearch.length < 2) {
+				this.motionResults = []
+				return
+			}
+			try {
+				const resp = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/objects/motion?search=${encodeURIComponent(this.motionSearch)}`),
+					{ headers: { requesttoken: OC.requestToken } },
+				)
+				if (resp.ok) {
+					const data = await resp.json()
+					this.motionResults = data.results || data || []
+				}
+			} catch (e) {
+				this.motionResults = []
+			}
+		},
+
+		closeLinkDialog() {
+			this.showLinkMotion = false
+			this.motionSearch = ''
+			this.motionResults = []
+			this.selectedMotionId = null
+		},
 	},
 }
 </script>
