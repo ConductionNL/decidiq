@@ -43,7 +43,7 @@ These specs were already decided/implemented. Use them as context.
 **Spec:** p1-schemas-and-data-model
 **Platform:** Nextcloud + OpenRegister
 
-## Features (6 total, sorted by market demand)
+## Features (6 total, spec-linked, sorted by market demand)
 
 ### Resolution Register
 **demand: 206** (66 tender mentions) | Category: core
@@ -109,7 +109,7 @@ Unsubscribe link visible in email footer; single click completes unsubscribe (no
 Managing AV infrastructure in raadzaal and commissiekamers. Discussion systems, PTZ cameras, AV control, webcast/streaming, microphone management.
 **Trigger:** Meeting scheduled requiring AV support; system maintenance/upgrade
 **Desired outcome:** Reliable AV infrastructure supporting meetings with high-quality recording and streaming
-**Current pain:** Complex multi-vendor systems; AV-RIS integration for in
+**Current pain:** Complex multi-vendor systems; AV-RIS integ
 ... (truncated)
 
 ### p3-citizen-participation
@@ -145,7 +145,7 @@ These specs were already decided/implemented. Use them as context.
 **Spec:** p1-schemas-and-data-model
 **Platform:** Nextcloud + OpenRegister
 
-## Features (6 total, sorted by market demand)
+## Features (6 total, spec-linked, sorted by market demand)
 
 ### Resolution Register
 **demand: 206** (66 tender mentions) | Category: core
@@ -211,7 +211,7 @@ Unsubscribe link visible in email footer; single click completes unsubscribe (no
 Managing AV infrastructure in raadzaal and commissiekamers. Discussion systems, PTZ cameras, AV control, webcast/streaming, microphone management.
 **Trigger:** Meeting scheduled requiring AV support; system maintenance/upgrade
 **Desired outcome:** Reliable AV infrastructure supporting meetings with high-quality recording and streaming
-**Current pain:** Complex multi-vendor systems; AV-RIS integratio
+**Current pain:** Complex multi-vendor systems; AV-R
 ... (truncated)
 
 ### p3-document-management
@@ -247,7 +247,7 @@ These specs were already decided/implemented. Use them as context.
 **Spec:** p1-schemas-and-data-model
 **Platform:** Nextcloud + OpenRegister
 
-## Features (6 total, sorted by market demand)
+## Features (6 total, spec-linked, sorted by market demand)
 
 ### Resolution Register
 **demand: 206** (66 tender mentions) | Category: core
@@ -313,10 +313,10 @@ Unsubscribe link visible in email footer; single click completes unsubscribe (no
 Managing AV infrastructure in raadzaal and commissiekamers. Discussion systems, PTZ cameras, AV control, webcast/streaming, microphone management.
 **Trigger:** Meeting scheduled requiring AV support; system maintenance/upgrade
 **Desired outcome:** Reliable AV infrastructure supporting meetings with high-quality recording and streaming
-**Current pain:** Complex multi-vendor systems; AV-RIS integration fo
+**Current pain:** Complex multi-vendor systems; AV-RIS i
 ... (truncated)
 
-## Features (23 total, sorted by market demand)
+## Features (23 total, spec-linked, sorted by market demand)
 
 ### Reclaim a delegated task
 **demand: 2250** (750 tender mentions) | Category: other
@@ -986,6 +986,16 @@ All Conduction Nextcloud apps serve Dutch government users but must support mult
 - `l10n/en.json` is the identity-mapped source file (key == value).
 - Hardcoded Dutch strings in code MUST be converted to English keys with Dutch translations in `nl.json`.
 
+### Sentence Case for All UI Strings
+- All translation keys and user-facing strings MUST use **sentence case**: only the first word is capitalized.
+- Correct: `"Add directory"`, `"No results found"`, `"Delete selected"`, `"Save configuration"`
+- Wrong (title case): `"Add Directory"`, `"No Results Found"`, `"Delete Selected"`
+- Wrong (all lowercase): `"add directory"`, `"no results found"`
+- **Exceptions** that keep their capitalization:
+  - Proper nouns and product names: `"OpenRegister"`, `"Nextcloud"`, `"GitHub"`, `"DocuDesk"`
+  - Acronyms: `"API"`, `"URL"`, `"PDF"`, `"SOLR"`, `"JSON"`, `"RBAC"`, `"OAS"`
+  - Single-word strings still start with a capital: `"Delete"`, `"Search"`, `"Save"`
+
 ### Required Languages
 - Minimum: English (en) + Dutch (nl) translations.
 - `l10n/en.json` and `l10n/nl.json` MUST exist in every app with a UI.
@@ -1006,9 +1016,16 @@ All Conduction Nextcloud apps serve Dutch government users but must support mult
 - Date/number formatting: respect user locale via Nextcloud core.
 - Each app with OpenRegister: define `register-i18n` spec listing translatable fields.
 
+### Shared Component Library (@conduction/nextcloud-vue)
+- The shared library does NOT translate internally — it accepts pre-translated strings via props.
+- Components have English defaults for all label/text props (e.g., `addLabel="Add"`, `cancelLabel="Cancel"`).
+- Consumer apps are responsible for passing `t()` results as prop values.
+- The library lists `@nextcloud/l10n` as a peer dependency, not a direct dependency.
+
 ## Consequences
 - All apps maintain two translation files that must stay in sync.
 - Dutch strings used as translation keys (e.g., `t('app', 'Besluiten')`) are a violation — the English equivalent must be the key.
+- Title case in translation keys (e.g., `"Add Directory"`) is a violation — use sentence case (`"Add directory"`).
 - New features must include both `en.json` and `nl.json` entries before merging.
 
 ### ADR-008-testing
@@ -1090,18 +1107,34 @@ We want to unify these into a **single priority-scheduled container pool** so th
 
 ### Container types (priority order)
 
-| Priority | Type | Source | Container image | Model |
-|----------|------|--------|-----------------|-------|
-| 1 | **bugfix** | Hydra: fix iteration after review failure | `hydra-builder` | sonnet |
-| 2 | **code-review** | Hydra: PR code review | `hydra-reviewer` | sonnet |
-| 3 | **security-review** | Hydra: PR security review | `hydra-security` | sonnet |
-| 4 | **build** | Hydra: initial spec build | `hydra-builder` | sonnet |
-| 5 | **audit** | Hydra: codebase audit | `hydra-builder` | sonnet |
-| 6 | **spec-generation** | Specter: push_spec_pipeline | `specter-llm-worker` | sonnet |
-| 7 | **schema-synthesis** | Specter: generate/dedup schemas | `specter-llm-worker` | haiku |
-| 8 | **classification** | Specter: classify/redistribute features | `specter-llm-worker` | haiku |
-| 9 | **translation** | Specter: translate requirements | `specter-llm-worker` | haiku |
-| 10 | **discovery** | Specter: research, feature extraction | `specter-llm-worker` | haiku |
+| Priority | Type | Source | Container image | Model | Fallback |
+|----------|------|--------|-----------------|-------|----------|
+| 1 | **bugfix** | Hydra: fix iteration after review failure | `hydra-builder` | haiku | — |
+| 2 | **code-review** | Hydra: PR code review | `hydra-reviewer` | sonnet | opus |
+| 3 | **security-review** | Hydra: PR security review | `hydra-security` | sonnet | opus |
+| 4 | **build** | Hydra: initial spec build | `hydra-builder` | haiku | — |
+| 5 | **audit** | Hydra: codebase audit | `hydra-builder` | sonnet | opus |
+| 6 | **spec-generation** | Specter: push_spec_pipeline | `specter-llm-worker` | sonnet | haiku |
+| 7 | **schema-synthesis** | Specter: generate/dedup schemas | `specter-llm-worker` | haiku | — |
+| 8 | **classification** | Specter: classify/redistribute features | `specter-llm-worker` | haiku | — |
+| 9 | **translation** | Specter: translate requirements | `specter-llm-worker` | haiku | — |
+| 10 | **discovery** | Specter: research, feature extraction | `specter-llm-worker` | haiku | — |
+
+### Model strategy
+
+**Principle:** Use the cheapest model that can do the job. Reserve expensive models for judgment work.
+
+| Work type | Model | Rationale |
+|-----------|-------|-----------|
+| Build (implementation) | **Haiku** | Clear instructions (tasks.md, design.md). Pattern-following, not judgment. Faster and cheaper — 5 parallel Haiku builds burn far less quota than Sonnet. |
+| Fix (quality/browser/review) | **Haiku** | "Fix this PHPCS error" or "fix this review finding" — explicit, targeted corrections. |
+| Code review | **Sonnet → Opus** | Judgment work: spotting architectural issues, missed edge cases, style problems. Falls back to deeper model (Opus) when Sonnet quota is exhausted. |
+| Security review | **Sonnet → Opus** | Critical: injection vectors, auth bypasses, secret leaks. Same fallback logic. |
+| Audit | **Sonnet → Opus** | Full codebase analysis — needs depth. |
+
+**Quota optimization:** Claude Max plans have separate "Sonnet only" and "all models" weekly limits. By defaulting builders to Haiku, the Sonnet quota is reserved for reviews only (~20 turns each, 2 per PR). When Sonnet runs out, reviews fall back to the **deeper** model (Opus), not the shallower one — because reviews are the last line of defense before human approval.
+
+**Overrides:** Set `HYDRA_BUILDER_MODEL`, `HYDRA_REVIEWER_MODEL`, or `HYDRA_REVIEWER_FALLBACK_MODEL` env vars to change defaults.
 
 ### Architecture
 
