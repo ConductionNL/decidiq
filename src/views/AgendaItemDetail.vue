@@ -3,6 +3,12 @@
 
 <!--
  @spec openspec/changes/p1-crud-operations/tasks.md#task-9.2
+ @spec openspec/changes/p2-agenda-management/tasks.md#task-5.1
+ @spec openspec/changes/p2-agenda-management/tasks.md#task-6.1
+ @spec openspec/changes/p2-agenda-management/tasks.md#task-6.2
+ @spec openspec/changes/p2-agenda-management/tasks.md#task-7.1
+ @spec openspec/changes/p2-agenda-management/tasks.md#task-7.2
+ @spec openspec/changes/p2-agenda-management/tasks.md#task-7.3
  @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.7
 -->
 <template>
@@ -15,11 +21,31 @@
 		@delete="showDeleteDialog = true">
 		<template #properties>
 			<CnDetailCard :title="t('decidesk', 'Properties')">
+				<!-- Item type badge -->
+				<CnStatusBadge
+					v-if="object.itemType"
+					:status="object.itemType"
+					class="agenda-item-detail__type-badge"
+					:aria-label="t('decidesk', 'Type: {type}', { type: itemTypeLabel })" />
 				<CnDetailGrid :items="propertyItems" />
+			</CnDetailCard>
+
+			<!-- BOB phase timeline (discussion/decision only) -->
+			<CnDetailCard
+				v-if="hasBobPhase"
+				:title="t('decidesk', 'BOB phase')">
+				<CnTimelineStages
+					:stages="bobStages"
+					:current="currentBobStageIndex"
+					:aria-label="t('decidesk', 'BOB phase progression')" />
+				<p v-if="coiCount > 0" class="agenda-item-detail__coi-count" aria-live="polite">
+					{{ t('decidesk', 'COI ({n})', { n: coiCount }) }}
+				</p>
 			</CnDetailCard>
 		</template>
 
 		<template #relations>
+			<!-- Linked meeting -->
 			<CnDetailCard :title="t('decidesk', 'Linked Meeting')">
 				<p v-if="!object.relations?.meeting?.length" class="decidesk-empty">
 					{{ t('decidesk', 'No linked meeting.') }}
@@ -33,57 +59,88 @@
 				</ul>
 			</CnDetailCard>
 
-			<!-- Motion linking — only for 'decision'-type agenda items -->
-			<CnDetailCard v-if="object.itemType === 'decision'" :title="t('decidesk', 'Linked Motion')">
+			<!-- Spokesperson -->
+			<CnDetailCard :title="t('decidesk', 'Spokesperson')">
+				<p v-if="!spokespersonName" class="decidesk-empty">
+					{{ t('decidesk', 'No spokesperson assigned.') }}
+				</p>
+				<p v-else>{{ spokespersonName }}</p>
+			</CnDetailCard>
+
+			<!-- Linked Motions (decision type only) -->
+			<CnDetailCard
+				v-if="object.itemType === 'decision'"
+				:title="t('decidesk', 'Linked motions')">
 				<p v-if="!linkedMotions.length" class="decidesk-empty">
-					{{ t('decidesk', 'No motion linked to this decision item.') }}
+					{{ t('decidesk', 'No linked motions.') }}
 				</p>
 				<ul v-else class="decidesk-relations">
 					<li v-for="motion in linkedMotions" :key="motion.id || motion">
 						<router-link :to="{ name: 'MotionDetail', params: { id: motion.id || motion } }">
-							{{ motion.title || motion.id || motion }}
+							{{ motion.title || motion.name || motion.id || motion }}
 						</router-link>
 					</li>
 				</ul>
 
-				<button class="decidesk-link-btn" @click="showLinkMotion = true">
-					{{ t('decidesk', 'Motie koppelen') }}
-				</button>
+				<NcButton
+					:aria-label="t('decidesk', 'Link a motion to this agenda item')"
+					@click="showMotionLinkDialog = true">
+					{{ t('decidesk', 'Link motion') }}
+				</NcButton>
 
-				<!-- Inline motion search dialog -->
-				<div v-if="showLinkMotion" class="decidesk-link-dialog">
-					<h3>{{ t('decidesk', 'Motie koppelen') }}</h3>
-					<input
-						v-model="motionSearch"
-						type="text"
-						:placeholder="t('decidesk', 'Zoek op motietitel…')"
-						class="decidesk-search-input"
-						@input="fetchMotions">
-					<ul v-if="motionResults.length" class="decidesk-motion-list">
-						<li
-							v-for="m in motionResults"
-							:key="m.id || m.uuid"
-							:class="{ selected: selectedMotionId === (m.id || m.uuid) }"
-							@click="selectedMotionId = m.id || m.uuid">
-							{{ m.title || m.id }}
-						</li>
-					</ul>
-					<p v-else-if="motionSearch.length > 1" class="decidesk-empty">
-						{{ t('decidesk', 'Geen moties gevonden.') }}
-					</p>
-					<div class="decidesk-dialog-actions">
-						<button :disabled="!selectedMotionId" @click="linkMotion">
-							{{ t('decidesk', 'Koppelen') }}
-						</button>
-						<button @click="closeLinkDialog">
-							{{ t('decidesk', 'Annuleren') }}
-						</button>
-					</div>
-				</div>
+				<NcDialog
+					v-if="showMotionLinkDialog"
+					:name="t('decidesk', 'Link motion')"
+					@closing="showMotionLinkDialog = false">
+					<template #default>
+						<p>{{ t('decidesk', 'Select a motion from the same meeting to link.') }}</p>
+						<ul v-if="availableMotions.length > 0" class="decidesk-relations" role="list">
+							<li v-for="m in availableMotions" :key="m.id" role="listitem">
+								<NcButton @click="linkMotion(m)">
+									{{ m.title }}
+								</NcButton>
+							</li>
+						</ul>
+						<p v-else class="decidesk-empty">
+							{{ t('decidesk', 'No motions found for this meeting.') }}
+						</p>
+					</template>
+				</NcDialog>
+			</CnDetailCard>
+
+			<!-- COI declaration button (all participants) -->
+			<CnDetailCard :title="t('decidesk', 'Conflict of interest')">
+				<NcButton
+					:aria-label="t('decidesk', 'Declare conflict of interest for this agenda item')"
+					@click="showCoiDialog = true">
+					{{ t('decidesk', 'Declare conflict of interest') }}
+				</NcButton>
+
+				<NcDialog
+					v-if="showCoiDialog"
+					:name="t('decidesk', 'Declare conflict of interest')"
+					@closing="showCoiDialog = false">
+					<template #default>
+						<NcTextArea
+							v-model="coiReason"
+							:label="t('decidesk', 'Reason for recusal')"
+							:placeholder="t('decidesk', 'Describe your reason for declaring a conflict of interest')"
+							required />
+					</template>
+					<template #actions>
+						<NcButton
+							:disabled="!coiReason"
+							type="primary"
+							@click="submitCoi">
+							{{ t('decidesk', 'Submit declaration') }}
+						</NcButton>
+					</template>
+				</NcDialog>
 			</CnDetailCard>
 		</template>
 
 		<template #sidebar>
+			<!-- CnObjectSidebar provides Files, Notes (COI declarations visible), and Audit Trail tabs -->
 			<CnObjectSidebar :object="object" :loading="loading" />
 		</template>
 
@@ -110,12 +167,32 @@
 </template>
 
 <script>
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { NcButton, NcDialog, NcTextArea } from '@nextcloud/vue'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, CnStatusBadge, CnTimelineStages, useDetailView } from '@conduction/nextcloud-vue'
+import { getCurrentUser } from '@nextcloud/auth'
 import { useObjectStore } from '../store/store.js'
+
+const BOB_STAGES = [
+	{ id: 'beeldvorming', label: 'Beeldvorming' },
+	{ id: 'oordeelsvorming', label: 'Oordeelsvorming' },
+	{ id: 'besluitvorming', label: 'Besluitvorming' },
+]
 
 export default {
 	name: 'AgendaItemDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog },
+	components: {
+		CnDetailPage,
+		CnDetailCard,
+		CnDetailGrid,
+		CnObjectSidebar,
+		CnSchemaFormDialog,
+		CnDeleteDialog,
+		CnStatusBadge,
+		CnTimelineStages,
+		NcButton,
+		NcDialog,
+		NcTextArea,
+	},
 	props: {
 		id: { type: String, required: true },
 	},
@@ -130,6 +207,10 @@ export default {
 	},
 	data() {
 		return {
+			showCoiDialog: false,
+			coiReason: '',
+			showMotionLinkDialog: false,
+			availableMotions: [],
 			showLinkMotion: false,
 			motionSearch: '',
 			motionResults: [],
@@ -140,26 +221,117 @@ export default {
 		schema() {
 			return this.objectStore.getSchema('agenda-item')
 		},
+		hasBobPhase() {
+			return ['discussion', 'decision'].includes(this.object.itemType)
+		},
+		currentBobStageIndex() {
+			const status = this.object.status ?? 'beeldvorming'
+			const idx = BOB_STAGES.findIndex(s => s.id === status)
+			return idx === -1 ? 0 : idx
+		},
+		bobStages() {
+			return BOB_STAGES.map(s => ({ ...s, label: this.t('decidesk', s.label) }))
+		},
+		coiCount() {
+			return (this.object?.notes ?? []).filter(n => (n.title ?? '').startsWith('COI:')).length
+		},
+		spokespersonName() {
+			return this.object?.relations?.spokesperson?.[0]?.displayName ?? null
+		},
+		linkedMotions() {
+			return this.object?.relations?.motion ?? []
+		},
+		itemTypeLabel() {
+			const map = {
+				informational: this.t('decidesk', 'Informational'),
+				discussion: this.t('decidesk', 'Discussion'),
+				decision: this.t('decidesk', 'Decision'),
+			}
+			return map[this.object.itemType] ?? this.object.itemType ?? ''
+		},
 		propertyItems() {
 			return [
 				{ label: this.t('decidesk', 'Title'), value: this.object.title },
-				{ label: this.t('decidesk', 'Type'), value: this.object.itemType },
+				{ label: this.t('decidesk', 'Type'), value: this.itemTypeLabel },
 				{ label: this.t('decidesk', 'Order'), value: this.object.orderNumber },
 				{ label: this.t('decidesk', 'Estimated Duration'), value: this.object.estimatedDuration ? `${this.object.estimatedDuration} min` : '' },
 				{ label: this.t('decidesk', 'Actual Duration'), value: this.object.actualDuration ? `${this.object.actualDuration} min` : '' },
 				{ label: this.t('decidesk', 'Description'), value: this.object.description },
 				{ label: this.t('decidesk', 'Recurring'), value: this.object.isRecurring ? this.t('decidesk', 'Yes') : this.t('decidesk', 'No') },
+				{ label: this.t('decidesk', 'Status'), value: this.object.status },
 			]
 		},
-		linkedMotions() {
-			return this.object.relations?.motion || []
-		},
+	},
+	created() {
+		this.loadAvailableMotions()
 	},
 	methods: {
 		onEditSaved() {
 			this.editing = false
 			this.objectStore.fetchObject('agenda-item', this.id)
 		},
+
+		async submitCoi() {
+			const currentUser = getCurrentUser()
+			const displayName = currentUser?.displayName ?? currentUser?.uid ?? 'Unknown'
+			try {
+				// COI note stored via OpenRegister built-in notes API on the AgendaItem object.
+				const response = await fetch(
+					OC.generateUrl(`/apps/openregister/api/objects/${this.id}/notes`),
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
+						body: JSON.stringify({
+							title: `COI: ${displayName}`,
+							content: this.coiReason,
+						}),
+					},
+				)
+				if (!response.ok) {
+					console.error('Failed to submit COI declaration:', response.status)
+					return
+				}
+				this.coiReason = ''
+				this.showCoiDialog = false
+				await this.objectStore.fetchObject('agenda-item', this.id)
+			} catch (e) {
+				console.error('Failed to submit COI declaration:', e)
+			}
+		},
+
+		async loadAvailableMotions() {
+			try {
+				const meetingId = this.object?.relations?.meeting?.[0]?.id
+				if (!meetingId) return
+				const motions = await this.objectStore.fetchObjects('motion', {
+					'@self.relations.meeting': meetingId,
+				})
+				this.availableMotions = motions ?? []
+			} catch (e) {
+				console.error('Failed to load motions:', e)
+			}
+		},
+
+		async linkMotion(motion) {
+			try {
+				const existing = this.object?.relations?.motion ?? []
+				await this.objectStore.saveObject('agenda-item', {
+					...this.object,
+					relations: {
+						...(this.object.relations ?? {}),
+						motion: [...existing, { id: motion.id }],
+					},
+				})
+				await this.objectStore.fetchObject('agenda-item', this.id)
+				this.showMotionLinkDialog = false
+			} catch (e) {
+				console.error('Failed to link motion:', e)
+			}
+		},
+
 		async fetchMotions() {
 			if (this.motionSearch.length < 2) {
 				this.motionResults = []
@@ -178,25 +350,7 @@ export default {
 				this.motionResults = []
 			}
 		},
-		async linkMotion() {
-			if (!this.selectedMotionId) return
-			const updated = { ...this.object }
-			if (!updated.relations) updated.relations = {}
-			if (!updated.relations.motion) updated.relations.motion = []
-			const alreadyLinked = updated.relations.motion.some(
-				(m) => (m.id || m) === this.selectedMotionId,
-			)
-			if (!alreadyLinked) {
-				updated.relations.motion.push({ id: this.selectedMotionId })
-			}
-			try {
-				await this.objectStore.saveObject('agenda-item', updated)
-				await this.objectStore.fetchObject('agenda-item', this.id)
-			} catch (e) {
-				// ignore
-			}
-			this.closeLinkDialog()
-		},
+
 		closeLinkDialog() {
 			this.showLinkMotion = false
 			this.motionSearch = ''
@@ -228,50 +382,13 @@ export default {
 	border-bottom: none;
 }
 
-.decidesk-link-btn {
-	margin-top: var(--default-grid-baseline);
-}
-
-.decidesk-link-dialog {
-	margin-top: calc(var(--default-grid-baseline) * 2);
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
-	padding: var(--default-grid-baseline);
-}
-
-.decidesk-link-dialog h3 {
-	font-size: var(--default-font-size);
-	font-weight: bold;
-	margin: 0 0 var(--default-grid-baseline);
-}
-
-.decidesk-search-input {
-	width: 100%;
+.agenda-item-detail__type-badge {
 	margin-bottom: var(--default-grid-baseline);
 }
 
-.decidesk-motion-list {
-	list-style: none;
-	margin: 0 0 var(--default-grid-baseline);
-	padding: 0;
-	max-height: 200px;
-	overflow-y: auto;
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
-}
-
-.decidesk-motion-list li {
-	padding: var(--default-grid-baseline);
-	cursor: pointer;
-}
-
-.decidesk-motion-list li:hover,
-.decidesk-motion-list li.selected {
-	background-color: var(--color-background-hover);
-}
-
-.decidesk-dialog-actions {
-	display: flex;
-	gap: var(--default-grid-baseline);
+.agenda-item-detail__coi-count {
+	color: var(--color-error);
+	font-size: calc(var(--default-font-size) * 0.875);
+	margin-top: var(--default-grid-baseline);
 }
 </style>
