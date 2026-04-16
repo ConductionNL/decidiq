@@ -36,16 +36,16 @@
 		<!-- ORI publication settings -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
 		<CnSettingsSection
-			:name="t('decidesk', 'ORI-eindpunt')"
+			:name="t('decidesk', 'ORI Endpoint')"
 			:description="t('decidesk', 'ORI API endpoint URL')">
 			<form @submit.prevent="saveOri">
 				<div class="form-group">
-					<label for="ori_endpoint">{{ t('decidesk', 'ORI-eindpunt') }}</label>
+					<label for="ori_endpoint">{{ t('decidesk', 'ORI Endpoint') }}</label>
 					<input
 						id="ori_endpoint"
 						v-model="form.ori_endpoint"
 						type="url"
-						:placeholder="t('decidesk', 'https://api.ori.example.nl/v1/stemmingen')">
+						:placeholder="'https://api.ori.example.nl/v1/stemmingen'">
 				</div>
 
 				<NcButton
@@ -60,16 +60,16 @@
 		<!-- Email voting toggle -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
 		<CnSettingsSection
-			:name="t('decidesk', 'E-mail stemmen')"
-			:description="t('decidesk', 'Enable voting by email reply')">
+			:name="t('decidesk', 'Email Voting')"
+			:description="t('decidesk', 'Enable email vote reply parsing')">
 			<div class="form-group form-group--checkbox">
 				<input
 					id="email_voting_enabled"
 					v-model="form.email_voting_enabled"
 					type="checkbox"
-					:aria-label="t('decidesk', 'E-mail stemmen')"
+					:aria-label="t('decidesk', 'Enable email vote reply parsing')"
 					@change="saveEmailVoting">
-				<label for="email_voting_enabled">{{ t('decidesk', 'Enable voting by email reply') }}</label>
+				<label for="email_voting_enabled">{{ t('decidesk', 'Enable email vote reply parsing') }}</label>
 			</div>
 		</CnSettingsSection>
 	</div>

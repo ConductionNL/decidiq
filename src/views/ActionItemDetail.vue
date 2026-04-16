@@ -8,24 +8,26 @@
 	<CnDetailPage
 		:object="object"
 		:loading="loading"
-		:title="object.title || t('decidesk', 'Actiepunt')"
-		:show-sidebar="true"
+		:title="object.title || t('decidesk', 'Action item')"
+		:sidebar="true"
+		:object-type="'action-item'"
+		:object-id="id"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
 		<template #properties>
-			<CnDetailCard :title="t('decidesk', 'Eigenschappen')">
+			<CnDetailCard :title="t('decidesk', 'Properties')">
 				<div class="decidesk-item-actions">
 					<NcButton
 						v-if="object.taskStatus === 'open'"
 						type="secondary"
 						@click="startItem">
-						{{ t('decidesk', 'In behandeling nemen') }}
+						{{ t('decidesk', 'Start processing') }}
 					</NcButton>
 					<NcButton
 						v-if="object.taskStatus === 'in-progress'"
 						type="primary"
 						@click="completeItem">
-						{{ t('decidesk', 'Afronden') }}
+						{{ t('decidesk', 'Complete') }}
 					</NcButton>
 				</div>
 				<CnDetailGrid :items="propertyItems" />
@@ -33,9 +35,9 @@
 		</template>
 
 		<template #relations>
-			<CnDetailCard :title="t('decidesk', 'Gerelateerd besluit')">
+			<CnDetailCard :title="t('decidesk', 'Related decision')">
 				<p v-if="!object.relations?.decision" class="decidesk-empty">
-					{{ t('decidesk', 'Geen gerelateerd besluit.') }}
+					{{ t('decidesk', 'No related decision.') }}
 				</p>
 				<ul v-else class="decidesk-relations">
 					<li>
@@ -45,9 +47,9 @@
 					</li>
 				</ul>
 			</CnDetailCard>
-			<CnDetailCard :title="t('decidesk', 'Gerelateerde vergadering')">
+			<CnDetailCard :title="t('decidesk', 'Related meeting')">
 				<p v-if="!object.relations?.meeting" class="decidesk-empty">
-					{{ t('decidesk', 'Geen gerelateerde vergadering.') }}
+					{{ t('decidesk', 'No related meeting.') }}
 				</p>
 				<ul v-else class="decidesk-relations">
 					<li>
@@ -59,16 +61,12 @@
 			</CnDetailCard>
 		</template>
 
-		<template #sidebar>
-			<CnObjectSidebar :object="object" :loading="loading" />
-		</template>
-
 		<template #edit-dialog>
 			<CnSchemaFormDialog
 				v-if="editing"
 				:schema="schema"
 				:object="object"
-				:title="t('decidesk', 'Actiepunt bewerken')"
+				:title="t('decidesk', 'Edit action item')"
 				:object-store="objectStore"
 				object-type="action-item"
 				@close="editing = false"
@@ -86,13 +84,13 @@
 </template>
 
 <script>
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import { useObjectStore } from '../store/store.js'
 
 export default {
 	name: 'ActionItemDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, NcButton },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, NcButton },
 	props: {
 		id: { type: String, required: true },
 	},
@@ -111,11 +109,11 @@ export default {
 		},
 		propertyItems() {
 			return [
-				{ label: this.t('decidesk', 'Omschrijving'), value: this.object.description },
+				{ label: this.t('decidesk', 'Description'), value: this.object.description },
 				{ label: this.t('decidesk', 'Status'), value: this.object.taskStatus },
-				{ label: this.t('decidesk', 'Verantwoordelijke'), value: this.object.assignee },
-				{ label: this.t('decidesk', 'Deadline'), value: this.formatDate(this.object.dueDate) },
-				{ label: this.t('decidesk', 'Afgerond op'), value: this.formatDate(this.object.completedAt) },
+				{ label: this.t('decidesk', 'Assignee'), value: this.object.assignee },
+				{ label: this.t('decidesk', 'Due date'), value: this.formatDate(this.object.dueDate) },
+				{ label: this.t('decidesk', 'Completed on'), value: this.formatDate(this.object.completedAt) },
 			]
 		},
 	},

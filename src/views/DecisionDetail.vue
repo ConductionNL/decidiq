@@ -8,18 +8,20 @@
 	<CnDetailPage
 		:object="object"
 		:loading="loading"
-		:title="object.title || t('decidesk', 'Besluit')"
-		:show-sidebar="true"
+		:title="object.title || t('decidesk', 'Decision')"
+		:sidebar="true"
+		:object-type="'decision'"
+		:object-id="id"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
 		<template #properties>
-			<CnDetailCard :title="t('decidesk', 'Eigenschappen')">
+			<CnDetailCard :title="t('decidesk', 'Properties')">
 				<div v-if="canPublish" class="decidesk-publish-action">
 					<NcButton
 						type="primary"
 						:disabled="publishing"
 						@click="publish">
-						{{ t('decidesk', 'Publiceren') }}
+						{{ t('decidesk', 'Publish') }}
 					</NcButton>
 					<p v-if="publishError" class="decidesk-publish-error">
 						{{ publishError }}
@@ -30,9 +32,9 @@
 		</template>
 
 		<template #relations>
-			<CnDetailCard :title="t('decidesk', 'Gerelateerde motie')">
+			<CnDetailCard :title="t('decidesk', 'Related motion')">
 				<p v-if="!object.relations?.motion" class="decidesk-empty">
-					{{ t('decidesk', 'Geen gerelateerde motie.') }}
+					{{ t('decidesk', 'No related motion.') }}
 				</p>
 				<ul v-else class="decidesk-relations">
 					<li>
@@ -42,9 +44,9 @@
 					</li>
 				</ul>
 			</CnDetailCard>
-			<CnDetailCard :title="t('decidesk', 'Gerelateerde actiepunten')">
+			<CnDetailCard :title="t('decidesk', 'Related action items')">
 				<p v-if="!object.relations?.['action-item']?.length" class="decidesk-empty">
-					{{ t('decidesk', 'Geen gerelateerde actiepunten.') }}
+					{{ t('decidesk', 'No related action items.') }}
 				</p>
 				<ul v-else class="decidesk-relations">
 					<li v-for="ai in object.relations['action-item']" :key="ai.id || ai">
@@ -56,16 +58,12 @@
 			</CnDetailCard>
 		</template>
 
-		<template #sidebar>
-			<CnObjectSidebar :object="object" :loading="loading" />
-		</template>
-
 		<template #edit-dialog>
 			<CnSchemaFormDialog
 				v-if="editing"
 				:schema="schema"
 				:object="object"
-				:title="t('decidesk', 'Besluit bewerken')"
+				:title="t('decidesk', 'Edit decision')"
 				:object-store="objectStore"
 				object-type="decision"
 				@close="editing = false"
@@ -83,14 +81,14 @@
 </template>
 
 <script>
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import { useObjectStore } from '../store/store.js'
 import { useDecisionStore } from '../store/modules/decisions.js'
 
 export default {
 	name: 'DecisionDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, NcButton },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, NcButton },
 	props: {
 		id: { type: String, required: true },
 	},
@@ -119,19 +117,19 @@ export default {
 		},
 		propertyItems() {
 			const outcomeLabel = this.object.outcome === 'adopted'
-				? this.t('decidesk', 'Aangenomen')
+				? this.t('decidesk', 'Adopted')
 				: this.object.outcome === 'rejected'
-					? this.t('decidesk', 'Afgewezen')
+					? this.t('decidesk', 'Rejected')
 					: this.object.outcome
 			const publishedLabel = this.object.isPublished
-				? this.t('decidesk', 'Ja') + (this.object.publishedAt ? ' (' + this.formatDate(this.object.publishedAt) + ')' : '')
-				: this.t('decidesk', 'Nee')
+				? this.t('decidesk', 'Yes') + (this.object.publishedAt ? ' (' + this.formatDate(this.object.publishedAt) + ')' : '')
+				: this.t('decidesk', 'No')
 			return [
-				{ label: this.t('decidesk', 'Besluit'), value: this.object.text },
-				{ label: this.t('decidesk', 'Uitkomst'), value: outcomeLabel },
-				{ label: this.t('decidesk', 'Besluitdatum'), value: this.formatDate(this.object.decisionDate) },
-				{ label: this.t('decidesk', 'Juridische grondslag'), value: this.object.legalBasis },
-				{ label: this.t('decidesk', 'Gepubliceerd'), value: publishedLabel },
+				{ label: this.t('decidesk', 'Decision text'), value: this.object.text },
+				{ label: this.t('decidesk', 'Outcome'), value: outcomeLabel },
+				{ label: this.t('decidesk', 'Decision date'), value: this.formatDate(this.object.decisionDate) },
+				{ label: this.t('decidesk', 'Legal basis'), value: this.object.legalBasis },
+				{ label: this.t('decidesk', 'Published'), value: publishedLabel },
 			]
 		},
 	},
@@ -147,7 +145,7 @@ export default {
 				await this.decisionStore.publishDecision(this.id)
 				await this.objectStore.fetchObject('decision', this.id)
 			} catch (error) {
-				this.publishError = error.message || this.t('decidesk', 'Publiceren mislukt.')
+				this.publishError = error.message || this.t('decidesk', 'Publish failed.')
 			} finally {
 				this.publishing = false
 			}

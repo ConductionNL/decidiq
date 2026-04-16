@@ -9,7 +9,9 @@
 		:object="object"
 		:loading="loading"
 		:title="object.name || t('decidesk', 'Governance Body')"
-		:show-sidebar="true"
+		:sidebar="true"
+		:object-type="'governance-body'"
+		:object-id="id"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
 		<template #properties>
@@ -45,10 +47,6 @@
 			</CnDetailCard>
 		</template>
 
-		<template #sidebar>
-			<CnObjectSidebar :object="object" :loading="loading" />
-		</template>
-
 		<template #edit-dialog>
 			<CnSchemaFormDialog
 				v-if="editing"
@@ -72,12 +70,12 @@
 </template>
 
 <script>
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 
 export default {
 	name: 'GovernanceBodyDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog },
 	props: {
 		id: { type: String, required: true },
 	},

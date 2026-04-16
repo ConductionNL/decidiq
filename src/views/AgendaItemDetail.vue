@@ -10,7 +10,9 @@
 		:object="object"
 		:loading="loading"
 		:title="object.title || t('decidesk', 'Agenda Item')"
-		:show-sidebar="true"
+		:sidebar="true"
+		:object-type="'agenda-item'"
+		:object-id="id"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
 		<template #properties>
@@ -47,16 +49,16 @@
 				</ul>
 
 				<button class="decidesk-link-btn" @click="showLinkMotion = true">
-					{{ t('decidesk', 'Motie koppelen') }}
+					{{ t('decidesk', 'Link motion') }}
 				</button>
 
 				<!-- Inline motion search dialog -->
 				<div v-if="showLinkMotion" class="decidesk-link-dialog">
-					<h3>{{ t('decidesk', 'Motie koppelen') }}</h3>
+					<h3>{{ t('decidesk', 'Link motion') }}</h3>
 					<input
 						v-model="motionSearch"
 						type="text"
-						:placeholder="t('decidesk', 'Zoek op motietitel…')"
+						:placeholder="t('decidesk', 'Search by motion title…')"
 						class="decidesk-search-input"
 						@input="fetchMotions">
 					<ul v-if="motionResults.length" class="decidesk-motion-list">
@@ -69,22 +71,18 @@
 						</li>
 					</ul>
 					<p v-else-if="motionSearch.length > 1" class="decidesk-empty">
-						{{ t('decidesk', 'Geen moties gevonden.') }}
+						{{ t('decidesk', 'No motions found.') }}
 					</p>
 					<div class="decidesk-dialog-actions">
 						<button :disabled="!selectedMotionId" @click="linkMotion">
-							{{ t('decidesk', 'Koppelen') }}
+							{{ t('decidesk', 'Link') }}
 						</button>
 						<button @click="closeLinkDialog">
-							{{ t('decidesk', 'Annuleren') }}
+							{{ t('decidesk', 'Cancel') }}
 						</button>
 					</div>
 				</div>
 			</CnDetailCard>
-		</template>
-
-		<template #sidebar>
-			<CnObjectSidebar :object="object" :loading="loading" />
 		</template>
 
 		<template #edit-dialog>
@@ -110,12 +108,12 @@
 </template>
 
 <script>
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 
 export default {
 	name: 'AgendaItemDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog },
 	props: {
 		id: { type: String, required: true },
 	},

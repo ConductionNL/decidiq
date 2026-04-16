@@ -9,7 +9,9 @@
 		:object="object"
 		:loading="loading"
 		:title="object.displayName || t('decidesk', 'Participant')"
-		:show-sidebar="true"
+		:sidebar="true"
+		:object-type="'participant'"
+		:object-id="id"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
 		<template #properties>
@@ -31,10 +33,6 @@
 					</li>
 				</ul>
 			</CnDetailCard>
-		</template>
-
-		<template #sidebar>
-			<CnObjectSidebar :object="object" :loading="loading" />
 		</template>
 
 		<template #edit-dialog>
@@ -60,12 +58,12 @@
 </template>
 
 <script>
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 
 export default {
 	name: 'ParticipantDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog },
 	props: {
 		id: { type: String, required: true },
 	},

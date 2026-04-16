@@ -19,7 +19,7 @@ Copyright (C) 2026 Conduction B.V.
 
 			<!-- Minutes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4 -->
 			<NcAppNavigationItem
-				:name="t('decidesk', 'Notulen')"
+				:name="t('decidesk', 'Minutes')"
 				:to="{ name: 'Minutes' }">
 				<template #icon>
 					<FileDocumentOutline :size="20" />
@@ -28,7 +28,7 @@ Copyright (C) 2026 Conduction B.V.
 
 			<!-- Decisions — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4 -->
 			<NcAppNavigationItem
-				:name="t('decidesk', 'Besluiten')"
+				:name="t('decidesk', 'Decisions')"
 				:to="{ name: 'Decisions' }">
 				<template #icon>
 					<CheckDecagramIcon :size="20" />
@@ -37,7 +37,7 @@ Copyright (C) 2026 Conduction B.V.
 
 			<!-- Action Items — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4 -->
 			<NcAppNavigationItem
-				:name="t('decidesk', 'Actiepunten')"
+				:name="t('decidesk', 'Action Items')"
 				:to="{ name: 'ActionItems' }">
 				<template #icon>
 					<CheckboxMarkedOutline :size="20" />

@@ -6,7 +6,7 @@ Copyright (C) 2026 Conduction B.V.
 	<div>
 		<CnDashboardPage
 			:title="t('decidesk', 'Dashboard')"
-			:description="t('decidesk', 'Overzicht van notulen, besluiten en actiepunten.')"
+			:description="t('decidesk', 'Overview of minutes, decisions and action items.')"
 			:widgets="widgetDefs"
 			:layout="dashboardLayout"
 			:loading="loading"
@@ -16,9 +16,9 @@ Copyright (C) 2026 Conduction B.V.
 			<!-- KPI: Notulen ter goedkeuring -->
 			<template #widget-count-minutes-review>
 				<CnStatsBlock
-					:title="t('decidesk', 'Notulen ter goedkeuring')"
+					:title="t('decidesk', 'Minutes pending review')"
 					:count="minutesInReviewCount"
-					:count-label="t('decidesk', 'notulen')"
+					:count-label="t('decidesk', 'minutes')"
 					:icon="FileDocumentOutlineIcon"
 					variant="warning"
 					horizontal
@@ -28,9 +28,9 @@ Copyright (C) 2026 Conduction B.V.
 			<!-- KPI: Gepubliceerde besluiten -->
 			<template #widget-count-published-decisions>
 				<CnStatsBlock
-					:title="t('decidesk', 'Gepubliceerde besluiten')"
+					:title="t('decidesk', 'Published decisions')"
 					:count="publishedDecisionCount"
-					:count-label="t('decidesk', 'besluiten')"
+					:count-label="t('decidesk', 'decisions')"
 					:icon="CheckDecagramIcon"
 					variant="success"
 					horizontal
@@ -40,9 +40,9 @@ Copyright (C) 2026 Conduction B.V.
 			<!-- KPI: Open actiepunten -->
 			<template #widget-count-open-actions>
 				<CnStatsBlock
-					:title="t('decidesk', 'Open actiepunten')"
+					:title="t('decidesk', 'Open action items')"
 					:count="openActionItemCount"
-					:count-label="t('decidesk', 'actiepunten')"
+					:count-label="t('decidesk', 'action items')"
 					:icon="CheckboxMarkedOutlineIcon"
 					variant="primary"
 					horizontal
@@ -52,24 +52,24 @@ Copyright (C) 2026 Conduction B.V.
 			<!-- Notulen widget -->
 			<template #widget-notulen-actions>
 				<NcButton type="tertiary" @click="$router.push({ name: 'Minutes' })">
-					{{ t('decidesk', 'Bekijk alle') }}
+					{{ t('decidesk', 'View all') }}
 				</NcButton>
 			</template>
 			<template #widget-notulen>
 				<div class="widget-empty">
-					{{ t('decidesk', 'Geen recente notulen') }}
+					{{ t('decidesk', 'No recent minutes') }}
 				</div>
 			</template>
 
 			<!-- Besluiten widget -->
 			<template #widget-besluiten-actions>
 				<NcButton type="tertiary" @click="$router.push({ name: 'Decisions' })">
-					{{ t('decidesk', 'Bekijk alle') }}
+					{{ t('decidesk', 'View all') }}
 				</NcButton>
 			</template>
 			<template #widget-besluiten>
 				<div class="widget-empty">
-					{{ t('decidesk', 'Geen recente besluiten') }}
+					{{ t('decidesk', 'No recent decisions') }}
 				</div>
 			</template>
 		</CnDashboardPage>
@@ -114,11 +114,11 @@ export default {
 	computed: {
 		widgetDefs() {
 			return [
-				{ id: 'count-minutes-review', title: t('decidesk', 'Notulen ter goedkeuring'), type: 'custom' },
-				{ id: 'count-published-decisions', title: t('decidesk', 'Gepubliceerde besluiten'), type: 'custom' },
-				{ id: 'count-open-actions', title: t('decidesk', 'Open actiepunten'), type: 'custom' },
-				{ id: 'notulen', title: t('decidesk', 'Notulen'), type: 'custom' },
-				{ id: 'besluiten', title: t('decidesk', 'Besluiten'), type: 'custom' },
+				{ id: 'count-minutes-review', title: t('decidesk', 'Minutes pending review'), type: 'custom' },
+				{ id: 'count-published-decisions', title: t('decidesk', 'Published decisions'), type: 'custom' },
+				{ id: 'count-open-actions', title: t('decidesk', 'Open action items'), type: 'custom' },
+				{ id: 'notulen', title: t('decidesk', 'Minutes'), type: 'custom' },
+				{ id: 'besluiten', title: t('decidesk', 'Decisions'), type: 'custom' },
 			]
 		},
 	},

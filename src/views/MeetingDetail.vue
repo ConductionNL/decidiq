@@ -9,7 +9,9 @@
 		:object="object"
 		:loading="loading"
 		:title="object.title || t('decidesk', 'Meeting')"
-		:show-sidebar="true"
+		:sidebar="true"
+		:object-type="'meeting'"
+		:object-id="id"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
 		<template #properties>
@@ -38,10 +40,6 @@
 			</CnDetailCard>
 		</template>
 
-		<template #sidebar>
-			<CnObjectSidebar :object="object" :loading="loading" />
-		</template>
-
 		<template #edit-dialog>
 			<CnSchemaFormDialog
 				v-if="editing"
@@ -65,13 +63,13 @@
 </template>
 
 <script>
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 import MeetingLifecycle from '../components/MeetingLifecycle.vue'
 
 export default {
 	name: 'MeetingDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, MeetingLifecycle },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, MeetingLifecycle },
 	props: {
 		id: { type: String, required: true },
 	},

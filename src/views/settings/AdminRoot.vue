@@ -11,7 +11,7 @@
 			<template #footer>
 				<div class="cn-support-info">
 					<h4>{{ t('decidesk', 'Support') }}</h4>
-					<p>{{ t('decidesk', 'For support, contact us at') }} <a href="mailto:support@conduction.nl">support@conduction.nl</a></p>
+					<p>{{ t('decidesk', 'For support, contact us at {email}', { email: 'support@conduction.nl' }) }}</p>
 				</div>
 			</template>
 		</CnVersionInfoCard>

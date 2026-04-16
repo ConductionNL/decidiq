@@ -10,7 +10,9 @@
 		:object="object"
 		:loading="loading"
 		:title="object.title || t('decidesk', 'Motion')"
-		:show-sidebar="true"
+		:sidebar="true"
+		:object-type="'motion'"
+		:object-id="id"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
 		<template #properties>
@@ -26,14 +28,14 @@
 						type="primary"
 						:disabled="transitioning"
 						@click="transition('debating')">
-						{{ t('decidesk', 'Debat openen') }}
+						{{ t('decidesk', 'Open Debate') }}
 					</NcButton>
 					<NcButton
 						v-if="canTransitionTo('withdrawn')"
 						type="error"
 						:disabled="transitioning"
 						@click="transition('withdrawn')">
-						{{ t('decidesk', 'Motie intrekken') }}
+						{{ t('decidesk', 'Withdraw Motion') }}
 					</NcButton>
 				</div>
 				<p v-if="transitionError" class="decidesk-error">
@@ -58,26 +60,26 @@
 		<template #relations>
 			<!-- Co-signatories section -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-4.5 -->
-			<CnDetailCard :title="t('decidesk', 'Medeondertekenaars')">
+			<CnDetailCard :title="t('decidesk', 'Co-Signatories')">
 				<ul v-if="object.coSigners && object.coSigners.length" class="decidesk-cosigners">
 					<li v-for="signer in object.coSigners" :key="signer">
 						{{ signer }}
 					</li>
 				</ul>
 				<p v-else class="decidesk-empty">
-					{{ t('decidesk', 'Nog geen medeondertekenaars.') }}
+					{{ t('decidesk', 'No co-signatories yet.') }}
 				</p>
 				<NcButton
 					v-if="!isNew"
 					type="secondary"
 					@click="showCoSignDialog = true">
-					{{ t('decidesk', 'Medeondertekenaars uitnodigen') }}
+					{{ t('decidesk', 'Invite Co-Signatories') }}
 				</NcButton>
 				<NcButton
 					v-if="canCoSign"
 					type="primary"
 					@click="confirmCoSign">
-					{{ t('decidesk', 'Ondersteunen') }}
+					{{ t('decidesk', 'Support this motion') }}
 				</NcButton>
 			</CnDetailCard>
 
@@ -95,10 +97,6 @@
 				:motion-id="id"
 				:motion-lifecycle="object.lifecycle"
 				:meeting-id="meetingId" />
-		</template>
-
-		<template #sidebar>
-			<CnObjectSidebar :object="object" :loading="loading" />
 		</template>
 
 		<template #edit-dialog>
@@ -128,7 +126,6 @@ import {
 	CnDetailPage,
 	CnDetailCard,
 	CnDetailGrid,
-	CnObjectSidebar,
 	CnSchemaFormDialog,
 	CnDeleteDialog,
 	CnTimelineStages,
@@ -145,7 +142,6 @@ export default {
 		CnDetailPage,
 		CnDetailCard,
 		CnDetailGrid,
-		CnObjectSidebar,
 		CnSchemaFormDialog,
 		CnDeleteDialog,
 		CnTimelineStages,
@@ -182,12 +178,12 @@ export default {
 		},
 		lifecycleStages() {
 			return [
-				{ key: 'submitted', label: this.t('decidesk', 'Ingediend') },
-				{ key: 'debating', label: this.t('decidesk', 'Debat') },
-				{ key: 'voting', label: this.t('decidesk', 'Stemronde') },
-				{ key: 'adopted', label: this.t('decidesk', 'Aangenomen'), type: 'success' },
-				{ key: 'rejected', label: this.t('decidesk', 'Verworpen'), type: 'error' },
-				{ key: 'withdrawn', label: this.t('decidesk', 'Ingetrokken'), type: 'warning' },
+				{ key: 'submitted', label: this.t('decidesk', 'Submitted') },
+				{ key: 'debating', label: this.t('decidesk', 'Debate') },
+				{ key: 'voting', label: this.t('decidesk', 'Voting') },
+				{ key: 'adopted', label: this.t('decidesk', 'Adopted'), type: 'success' },
+				{ key: 'rejected', label: this.t('decidesk', 'Rejected'), type: 'error' },
+				{ key: 'withdrawn', label: this.t('decidesk', 'Withdrawn'), type: 'warning' },
 			]
 		},
 		propertyItems() {
@@ -213,8 +209,8 @@ export default {
 		budgetImpactItems() {
 			if (!this.budgetImpact) return []
 			return [
-				{ label: this.t('decidesk', 'Begrotingspost'), value: this.budgetImpact.budgetLine },
-				{ label: this.t('decidesk', 'Bedrag delta'), value: `€ ${this.budgetImpact.amountDelta}` },
+				{ label: this.t('decidesk', 'Budget Line'), value: this.budgetImpact.budgetLine },
+				{ label: this.t('decidesk', 'Amount Delta (€)'), value: `€ ${this.budgetImpact.amountDelta}` },
 				{ label: this.t('decidesk', 'Rationale'), value: this.budgetImpact.rationale },
 			]
 		},
@@ -256,12 +252,12 @@ export default {
 				)
 				if (!response.ok) {
 					const data = await response.json()
-					this.transitionError = data.message || this.t('decidesk', 'Transitie mislukt')
+					this.transitionError = data.message || this.t('decidesk', 'Transition failed.')
 				} else {
 					await this.objectStore.fetchObject('motion', this.id)
 				}
 			} catch (e) {
-				this.transitionError = this.t('decidesk', 'Transitie mislukt')
+				this.transitionError = this.t('decidesk', 'Transition failed.')
 			} finally {
 				this.transitioning = false
 			}

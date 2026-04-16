@@ -9,7 +9,9 @@
 		:object="object"
 		:loading="loading"
 		:title="object.title || t('decidesk', 'Amendment')"
-		:show-sidebar="true"
+		:sidebar="true"
+		:object-type="'amendment'"
+		:object-id="id"
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
 		<template #properties>
@@ -65,10 +67,6 @@
 				:motion-lifecycle="object.lifecycle" />
 		</template>
 
-		<template #sidebar>
-			<CnObjectSidebar :object="object" :loading="loading" />
-		</template>
-
 		<template #edit-dialog>
 			<CnSchemaFormDialog
 				v-if="editing"
@@ -93,7 +91,7 @@
 
 <script>
 import { NcButton } from '@nextcloud/vue'
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
 import VotingRoundPanel from '../components/VotingRoundPanel.vue'
 
@@ -104,7 +102,6 @@ export default {
 		CnDetailPage,
 		CnDetailCard,
 		CnDetailGrid,
-		CnObjectSidebar,
 		CnSchemaFormDialog,
 		CnDeleteDialog,
 		VotingRoundPanel,

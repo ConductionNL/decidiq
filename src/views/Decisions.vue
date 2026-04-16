@@ -6,7 +6,7 @@
 -->
 <template>
 	<CnIndexPage
-		:title="t('decidesk', 'Besluiten')"
+		:title="t('decidesk', 'Decisions')"
 		:schema="schema"
 		:objects="objects"
 		:loading="loading"
@@ -24,7 +24,7 @@
 		<template #create-dialog="{ close }">
 			<CnSchemaFormDialog
 				:schema="schema"
-				:title="t('decidesk', 'Nieuw besluit')"
+				:title="t('decidesk', 'New decision')"
 				:object-store="objectStore"
 				object-type="decision"
 				@close="close"

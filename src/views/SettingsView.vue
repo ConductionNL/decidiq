@@ -49,14 +49,14 @@
 		<!-- ORI endpoint setting (task-10.1) -->
 		<CnSettingsSection
 			v-if="isAdmin"
-			:name="t('decidesk', 'ORI-eindpunt')"
-			:description="t('decidesk', 'ORI API endpoint URL for publishing voting results')">
+			:name="t('decidesk', 'ORI Endpoint')"
+			:description="t('decidesk', 'ORI endpoint URL for publishing voting results')">
 			<div class="decidesk-settings-field">
 				<input
 					v-model="oriEndpoint"
 					type="url"
 					class="decidesk-settings-input"
-					:placeholder="t('decidesk', 'https://ori.example.nl/api/v1/votes')"
+					:placeholder="'https://ori.example.nl/api/v1/votes'"
 					:aria-label="t('decidesk', 'ORI endpoint URL')">
 				<NcButton
 					type="primary"
@@ -70,15 +70,15 @@
 		<!-- Email voting toggle (task-10.2) -->
 		<CnSettingsSection
 			v-if="isAdmin"
-			:name="t('decidesk', 'E-mail stemmen')"
-			:description="t('decidesk', 'Enable email reply voting')">
+			:name="t('decidesk', 'Email Voting')"
+			:description="t('decidesk', 'Enable email vote reply parsing')">
 			<label class="decidesk-toggle-label">
 				<input
 					v-model="emailVotingEnabled"
 					type="checkbox"
-					:aria-label="t('decidesk', 'Enable email reply voting')"
+					:aria-label="t('decidesk', 'Enable email vote reply parsing')"
 					@change="saveEmailVoting">
-				{{ t('decidesk', 'E-mail stemmen inschakelen') }}
+				{{ t('decidesk', 'Enable email vote reply parsing') }}
 			</label>
 		</CnSettingsSection>
 	</div>
@@ -173,7 +173,7 @@ export default {
 				await settingsStore.saveSettings({ ori_endpoint: this.oriEndpoint })
 				showSuccess(this.t('decidesk', 'Settings saved successfully'))
 			} catch (error) {
-				showError(this.t('decidesk', 'Saving...'))
+				showError(this.t('decidesk', 'Failed to save settings'))
 			} finally {
 				this.savingOri = false
 			}
@@ -189,7 +189,7 @@ export default {
 				const settingsStore = useSettingsStore()
 				await settingsStore.saveSettings({ email_voting_enabled: this.emailVotingEnabled ? '1' : '0' })
 			} catch (error) {
-				showError(this.t('decidesk', 'Saving...'))
+				showError(this.t('decidesk', 'Failed to save settings'))
 			}
 		},
 

@@ -9,8 +9,10 @@
 		<CnDetailPage
 			:object="object"
 			:loading="loading"
-			:title="object.title || t('decidesk', 'Notulen')"
-			:show-sidebar="true"
+			:title="object.title || t('decidesk', 'Minutes')"
+			:sidebar="true"
+			:object-type="'minutes'"
+			:object-id="id"
 			@edit="editing = true"
 			@delete="showDeleteDialog = true">
 			<template #properties>
@@ -31,7 +33,7 @@
 							v-if="object.lifecycle === 'draft'"
 							:disabled="generating"
 							@click="generateDraft">
-							{{ t('decidesk', 'Concept genereren') }}
+							{{ t('decidesk', 'Generate draft') }}
 						</NcButton>
 						<p v-if="transitionError" class="decidesk-error">
 							{{ transitionError }}
@@ -41,13 +43,9 @@
 						</p>
 					</div>
 				</CnDetailCard>
-				<CnDetailCard :title="t('decidesk', 'Eigenschappen')">
+				<CnDetailCard :title="t('decidesk', 'Properties')">
 					<CnDetailGrid :items="propertyItems" />
 				</CnDetailCard>
-			</template>
-
-			<template #sidebar>
-				<CnObjectSidebar :object="object" :loading="loading" />
 			</template>
 
 			<template #edit-dialog>
@@ -55,7 +53,7 @@
 					v-if="editing"
 					:schema="schema"
 					:object="object"
-					:title="t('decidesk', 'Notulen bewerken')"
+					:title="t('decidesk', 'Edit minutes')"
 					:object-store="objectStore"
 					object-type="minutes"
 					@close="editing = false"
@@ -73,19 +71,19 @@
 
 		<NcDialog
 			v-if="showDraftModal"
-			:name="t('decidesk', 'Concept gegenereerd')"
+			:name="t('decidesk', 'Draft generated')"
 			:open="showDraftModal"
 			@update:open="showDraftModal = false">
 			<template #default>
-				<p>{{ t('decidesk', 'Bekijk het gegenereerde concept. Klik op "Toepassen" om de inhoud te overschrijven.') }}</p>
+				<p>{{ t('decidesk', 'Review the generated draft. Click "Apply" to overwrite the content.') }}</p>
 				<pre class="decidesk-draft-preview">{{ draftPreview }}</pre>
 			</template>
 			<template #actions>
 				<NcButton type="primary" @click="applyDraft">
-					{{ t('decidesk', 'Toepassen') }}
+					{{ t('decidesk', 'Apply') }}
 				</NcButton>
 				<NcButton @click="showDraftModal = false">
-					{{ t('decidesk', 'Annuleren') }}
+					{{ t('decidesk', 'Cancel') }}
 				</NcButton>
 			</template>
 		</NcDialog>
@@ -93,14 +91,14 @@
 </template>
 
 <script>
-import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, CnTimelineStages, useDetailView } from '@conduction/nextcloud-vue'
+import { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, CnTimelineStages, useDetailView } from '@conduction/nextcloud-vue'
 import { NcButton, NcDialog } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
 import { useObjectStore } from '../store/store.js'
 
 export default {
 	name: 'MinutesDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, CnTimelineStages, NcButton, NcDialog },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnSchemaFormDialog, CnDeleteDialog, CnTimelineStages, NcButton, NcDialog },
 	props: {
 		id: { type: String, required: true },
 	},
@@ -122,11 +120,11 @@ export default {
 			showDraftModal: false,
 			draftPreview: '',
 			lifecycleStages: [
-				{ key: 'draft', label: this.t('decidesk', 'Concept') },
-				{ key: 'review', label: this.t('decidesk', 'Ter beoordeling') },
-				{ key: 'approved', label: this.t('decidesk', 'Goedgekeurd') },
-				{ key: 'signed', label: this.t('decidesk', 'Ondertekend') },
-				{ key: 'published', label: this.t('decidesk', 'Gepubliceerd') },
+				{ key: 'draft', label: this.t('decidesk', 'Draft') },
+				{ key: 'review', label: this.t('decidesk', 'Under review') },
+				{ key: 'approved', label: this.t('decidesk', 'Approved') },
+				{ key: 'signed', label: this.t('decidesk', 'Signed') },
+				{ key: 'published', label: this.t('decidesk', 'Published') },
 			],
 		}
 	},
@@ -141,10 +139,10 @@ export default {
 		 */
 		availableTransitions() {
 			const map = {
-				draft: { to: 'review', label: this.t('decidesk', 'Ter beoordeling indienen') },
-				review: { to: 'approved', label: this.t('decidesk', 'Goedkeuren') },
-				approved: { to: 'signed', label: this.t('decidesk', 'Ondertekenen') },
-				signed: { to: 'published', label: this.t('decidesk', 'Publiceren') },
+				draft: { to: 'review', label: this.t('decidesk', 'Submit for review') },
+				review: { to: 'approved', label: this.t('decidesk', 'Approve') },
+				approved: { to: 'signed', label: this.t('decidesk', 'Sign') },
+				signed: { to: 'published', label: this.t('decidesk', 'Publish') },
 			}
 			const current = this.object?.lifecycle || 'draft'
 			return map[current] ? [map[current]] : []
@@ -152,9 +150,9 @@ export default {
 		propertyItems() {
 			return [
 				{ label: this.t('decidesk', 'Status'), value: this.object.lifecycle },
-				{ label: this.t('decidesk', 'Versie'), value: this.object.version },
-				{ label: this.t('decidesk', 'Goedgekeurd op'), value: this.formatDate(this.object.approvedAt) },
-				{ label: this.t('decidesk', 'Ondertekend door'), value: (this.object.signedBy || []).join(', ') },
+				{ label: this.t('decidesk', 'Version'), value: this.object.version },
+				{ label: this.t('decidesk', 'Approved on'), value: this.formatDate(this.object.approvedAt) },
+				{ label: this.t('decidesk', 'Signed by'), value: (this.object.signedBy || []).join(', ') },
 			]
 		},
 	},
@@ -188,7 +186,7 @@ export default {
 					await this.objectStore.fetchObject('minutes', this.id)
 				} else {
 					const err = await response.json().catch(() => ({}))
-					this.transitionError = err.message || this.t('decidesk', 'Verzoek mislukt.')
+					this.transitionError = err.message || this.t('decidesk', 'Request failed.')
 				}
 			} finally {
 				this.transitioning = false
@@ -209,7 +207,7 @@ export default {
 					this.showDraftModal = true
 				} else {
 					const err = await response.json().catch(() => ({}))
-					this.generateError = err.message || this.t('decidesk', 'Genereren mislukt.')
+					this.generateError = err.message || this.t('decidesk', 'Generation failed.')
 				}
 			} finally {
 				this.generating = false
