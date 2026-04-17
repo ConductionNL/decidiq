@@ -1,3 +1,8 @@
+<!-- ⚠️ EXTENSION NOTICE (auto-inserted by fix_extension_artifacts.py)
+     Parent capability: p2-minutes-and-decisions (Minutes and Decisions)
+     This spec extends the existing `p2-minutes-and-decisions` capability. Do NOT define new entities or build new CRUD — reuse what `p2-minutes-and-decisions` already provides. Your job is to add configuration, seed data, or workflow templates on top of that capability.
+-->
+
 ## Why
 
 Governance bodies — from municipal councils and water boards to corporate supervisory boards and associations — struggle with decision accountability, approval transparency, and follow-through. Market research across hundreds of tender documents and user stories reveals a concentrated cluster of unmet demand in the "other" feature category of the minutes-and-decisions domain.
@@ -33,6 +38,8 @@ This change delivers the eight highest-demand T1 "other" capabilities on top of 
 
 - `action-item-tracking` *(from p2-minutes-and-decisions)*: Extended with an "Mijn actiepunten" dashboard widget on the analytics dashboard and with escalation notifications when ActionItems transition to `overdue` — `NotificationService` alert sent to the assignee and to the secretary of the linked governance body
 - `decision-publication` *(from p2-minutes-and-decisions)*: Extended with the approval workflow lifecycle — a Decision can only be published (`isPublished: true`) after reaching `board-approved` state; `DecisionApprovalService` enforces this gate
+- `p2-minutes-and-decisions`: extended by `p2-minutes-and-decisions-other-t1` — adds configuration, workflow, or seed data
+
 
 ## Impact
 
