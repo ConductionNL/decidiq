@@ -1,3 +1,8 @@
+<!-- ⚠️ EXTENSION NOTICE (auto-inserted by fix_extension_artifacts.py)
+     Parent capability: p2-meeting-management (Meeting Management)
+     This spec extends the existing `p2-meeting-management` capability. Do NOT define new entities or build new CRUD — reuse what `p2-meeting-management` already provides. Your job is to add configuration, seed data, or workflow templates on top of that capability.
+-->
+
 ## Deduplication Check (ADR-012)
 
 - [ ] 0.1 Confirm no custom CRUD, export, file, notification, or audit code is needed: all use `ObjectService`, `ExportService`, `FileService`, `NotificationService`, `AuditTrailService` from OpenRegister platform
