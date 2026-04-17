@@ -1,3 +1,8 @@
+<!-- ⚠️ EXTENSION NOTICE (auto-inserted by fix_extension_artifacts.py)
+     Parent capability: p2-minutes-and-decisions (Minutes and Decisions)
+     This spec extends the existing `p2-minutes-and-decisions` capability. Do NOT define new entities or build new CRUD — reuse what `p2-minutes-and-decisions` already provides. Your job is to add configuration, seed data, or workflow templates on top of that capability.
+-->
+
 ## Context
 
 Decidesk is a thin-client Nextcloud app: all domain data is stored in OpenRegister. The Decision, Motion, ActionItem, and Minutes entities were delivered as OpenRegister schemas in p1-schemas-and-data-model and have full CRUD, lifecycle, search, and audit capabilities from p2-minutes-and-decisions. The p2-minutes-and-decisions-core-t1 change added document generation (permit decisions, Woo disclosures), statutory deadline tracking, urgent decision flagging, and `DecisionService` + `MinutesGenerationService` as the primary custom service layer.
