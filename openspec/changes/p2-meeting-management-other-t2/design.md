@@ -1,3 +1,8 @@
+<!-- ⚠️ EXTENSION NOTICE (auto-inserted by fix_extension_artifacts.py)
+     Parent capability: p2-meeting-management (Meeting Management)
+     This spec extends the existing `p2-meeting-management` capability. Do NOT define new entities or build new CRUD — reuse what `p2-meeting-management` already provides. Your job is to add configuration, seed data, or workflow templates on top of that capability.
+-->
+
 ## Context
 
 Decidesk is a thin-client Nextcloud app: all domain data is stored in OpenRegister. The `p2-meeting-management` change delivered the Meeting lifecycle state machine and the `MeetingLifecycle.vue` component. The `p2-agenda-management` change added the `AgendaBuilder.vue` and `LiveMeeting.vue` views. This T2 change adds seven operational enhancements on top of the meeting detail and live meeting views — all using existing ADR-000 entities (Meeting, Participant, ActionItem, Speech, Area) with no schema additions.
