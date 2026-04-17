@@ -1,3 +1,8 @@
+<!-- ⚠️ EXTENSION NOTICE (auto-inserted by fix_extension_artifacts.py)
+     Parent capability: p2-minutes-and-decisions (Minutes and Decisions)
+     This spec extends the existing `p2-minutes-and-decisions` capability. Do NOT define new entities or build new CRUD — reuse what `p2-minutes-and-decisions` already provides. Your job is to add configuration, seed data, or workflow templates on top of that capability.
+-->
+
 ## Why
 
 Once a decision is published, three problems consistently surface across governance bodies and management teams. First, decisions are static snapshots — when policy evolves and a council supersedes or amends an earlier decision, there is no way to follow the chain: which ruling replaced which, and why. Clerks manually add footnotes to Word documents while the system shows no link between objects. Second, publishing a decision in Decidesk does not reach the people who need to act on it: department heads, committee members, and external advisors learn of outcomes through ad-hoc email chains, hallway conversations, or by spotting the minutes on a shared drive days later. Third, translating a decision into departmental action is left to informal follow-up: managers create their own task lists outside the system, leaving no audit trail of who was expected to implement what.
@@ -27,6 +32,8 @@ This change closes all three gaps by building on the Decision and ActionItem fou
 
 - `decision-recording` (from p2-minutes-and-decisions): Decision detail view extended with Related Decisions panel (fetchUses + fetchUsed OpenRegister relation queries), Notifications Sent indicator, and Cascaded Action Items table
 - `action-item-tracking` (from p2-minutes-and-decisions): ActionItems created via cascade are pre-populated with the Decision title, a link to the source Decision, and `taskStatus: open`; they appear in the existing ActionItems index with no schema changes
+- `p2-minutes-and-decisions`: extended by `p2-minutes-and-decisions-other-t2` — adds configuration, workflow, or seed data
+
 
 ## Impact
 
