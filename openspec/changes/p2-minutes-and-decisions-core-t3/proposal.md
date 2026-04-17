@@ -1,3 +1,8 @@
+<!-- ⚠️ EXTENSION NOTICE (auto-inserted by fix_extension_artifacts.py)
+     Parent capability: p2-minutes-and-decisions (Minutes and Decisions)
+     This spec extends the existing `p2-minutes-and-decisions` capability. Do NOT define new entities or build new CRUD — reuse what `p2-minutes-and-decisions` already provides. Your job is to add configuration, seed data, or workflow templates on top of that capability.
+-->
+
 ## Why
 
 Governance bodies — from municipal councils and water boards to corporate boards and associations — depend on efficient day-to-day meeting workflows beyond the document-generation and compliance features delivered in T1. Market research across the p2-minutes-and-decisions spec reveals a second tier of high-demand operational capabilities: multi-meeting action item analytics (demand 94), live decision recording during active meetings (demand 73), ALV (Algemene Ledenvergadering / General Assembly) minutes draft and distribution (demand 64), formal minutes approval submission with notifications (demand 60), automatic action item extraction from minutes text (demand 55), structured decision rationale documentation (demand 48), and decision notification dispatch to stakeholders (demand 9).
@@ -33,6 +38,8 @@ This change delivers these seven operational extensions on top of the existing p
 - `decision-publication` *(from p2-minutes-and-decisions)*: Extended to trigger `DecisionNotificationService::notifyOnPublish()` after `isPublished` is set to `true`; notification dispatch is non-blocking (background activity)
 - `minutes-generation` *(from p2-minutes-and-decisions)*: Extended to include `overwegingen` content from Decision notes in the generated minutes draft template; ALV-specific template branch added
 - `app-dashboard` *(from p1-dashboard-and-navigation)*: Extended with action item analytics panel — `ActionItemAnalyticsWidget` replaces the simple open-count KPI card with full analytics breakdown and chart
+- `p2-minutes-and-decisions`: extended by `p2-minutes-and-decisions-core-t3` — adds configuration, workflow, or seed data
+
 
 ## Impact
 
