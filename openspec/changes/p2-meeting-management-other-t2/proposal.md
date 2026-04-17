@@ -1,3 +1,8 @@
+<!-- ⚠️ EXTENSION NOTICE (auto-inserted by fix_extension_artifacts.py)
+     Parent capability: p2-meeting-management (Meeting Management)
+     This spec extends the existing `p2-meeting-management` capability. Do NOT define new entities or build new CRUD — reuse what `p2-meeting-management` already provides. Your job is to add configuration, seed data, or workflow templates on top of that capability.
+-->
+
 ## Why
 
 Decidesk's meeting management foundation (p2-meeting-management) introduced the Meeting entity lifecycle and the core BOB workflow. The six features in this T2 tier address a distinct cluster of operational meeting needs identified through market research and competitive analysis: participants joining virtual-only sessions, venue capacity awareness, post-meeting attendance recording, speech-to-text transcription, geographic attendance zone visibility for school-governance bodies, and a shared task inbox with claim prevention to eliminate duplicate work.
@@ -32,6 +37,8 @@ Speech recognition meeting integration uses the Popolo-aligned Speech entity (AD
 
 - `meeting-detail` *(from p2-meeting-management)*: Extended with capacity badge, virtual join button, attendance summary section, speech transcript tab, and area map widget
 - `action-item-tracking` *(from p2-minutes-and-decisions)*: Extended with shared inbox view and claim workflow
+- `p2-meeting-management`: extended by `p2-meeting-management-other-t2` — adds configuration, workflow, or seed data
+
 
 ## Impact
 
