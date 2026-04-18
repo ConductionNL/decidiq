@@ -1,6 +1,6 @@
 ## Deduplication Check (ADR-012)
 
-- [x] 0.1 Confirm no custom CRUD, export, search, file, notification, calendar, or audit code is needed: all use `ObjectService`, `ExportService`, `IndexService`, `FileService`, `NotificationService`, `CalendarEventService`, `ActivityService` from OpenRegister platform
+- [x] 0.1 Confirm no custom CRUD, export, search, file, notification, calendar, or audit code is needed: all use `ObjectService`, `ExportService`, `IndexService`, `FileService`, `NotificationService`, `CalDavService` (ADR-002), `ActivityService` from OpenRegister platform
 - [x] 0.2 Confirm `Motion`, `Amendment`, `Vote`, and `VotingRound` entities are used as-is from ADR-000 — no schema properties added or renamed
 - [x] 0.3 Confirm `OriPublicationService` (external HTTP to ORI endpoint) and `MailReplyHandler` (email reply parsing) are the only truly custom integrations — no overlap with existing OpenRegister WebhookService for these specific use cases
 
@@ -27,7 +27,7 @@
 
 - [x] 2.1 Create `lib/Service/VotingService.php` — stateless service tagged `@spec openspec/changes/p2-motion-and-voting/tasks.md#task-2` with the following public methods:
   - `checkQuorum(string $meetingId): bool` — counts active Participants (non-null `leftAt`) related to the GovernanceBody via `ObjectService.findAll()`, compares against `Meeting.quorumRequired`
-  - `openVotingRound(string $motionId, string $votingMethod, bool $isSecret, ?string $closedAt): VotingRound` — calls `checkQuorum()`, blocks if quorum not met; creates VotingRound object; transitions Motion to `voting`; calls `CalendarEventService` if `closedAt` is set
+  - `openVotingRound(string $motionId, string $votingMethod, bool $isSecret, ?string $closedAt): VotingRound` — calls `checkQuorum()`, blocks if quorum not met; creates VotingRound object; transitions Motion to `voting`; calls `CalDavService` (ADR-002) if `closedAt` is set
   - `castVote(string $votingRoundId, string $participantId, string $value, bool $isProxy, ?string $delegatorId): Vote` — checks round is open; checks for existing vote (update if found); enforces one-proxy-per-round rule for proxy votes; saves Vote via `ObjectService.saveObject()`; logs to `ActivityService`
   - `closeVotingRound(string $votingRoundId): VotingRound` — calls `tallyResults()`, transitions Motion lifecycle; calls `OriPublicationService.publish()` if configured; calls `FileService.createFolder()` if result is adopted
   - `tallyResults(string $votingRoundId): array` — counts Vote objects by value using `ObjectService.findAll()`; determines result (adopted/rejected/tied/invalid); updates VotingRound fields via `ObjectService.saveObject()`

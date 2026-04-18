@@ -61,12 +61,12 @@ The app SHALL allow the chair to close an open VotingRound. On close, `VotingSer
 ---
 
 ### Requirement: REQ-VRM-005 Voting deadline creates a calendar event
-The app SHALL allow the chair to set a `closedAt` timestamp when opening a VotingRound (for async or email voting). Setting this timestamp SHALL trigger `CalendarEventService` to create a calendar event titled "Stemdeadline: [Motion title]" on the configured Nextcloud calendar.
+The app SHALL allow the chair to set a `closedAt` timestamp when opening a VotingRound (for async or email voting). Setting this timestamp SHALL trigger `CalDavService` (ADR-002) to create a calendar event titled "Stemdeadline: [Motion title]" on the configured Nextcloud calendar.
 
 #### Scenario: Chair sets a voting deadline for remote participants
 - **GIVEN** the "Stemronde openen" dialog
 - **WHEN** the chair sets `closedAt` to a future date/time
-- **THEN** `VotingService::openVotingRound()` calls `CalendarEventService.createEvent()` with the deadline timestamp, linked to the Meeting's calendar — AND a reminder is set 48 hours before the deadline
+- **THEN** `VotingService::openVotingRound()` calls `CalDavService (ADR-002).createEvent()` with the deadline timestamp, linked to the Meeting's calendar — AND a reminder is set 48 hours before the deadline
 
 #### Scenario: No calendar event when no deadline is set
 - **GIVEN** the chair opens a round WITHOUT setting a `closedAt` value

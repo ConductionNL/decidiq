@@ -36,7 +36,7 @@ Governance bodies — municipal councils, water boards, corporate boards, and as
 - Amendment lifecycle uses the same OpenRegister `status` field: `submitted`, `debating`, `voting`, `adopted`, `rejected`
 - Budget impact data stored in OpenRegister built-in `notes` on Motion (structured with `type: budget-impact`) — no extra schema property needed
 - Proxy delegation stored as OpenRegister `relation` from Vote → Participant (proxy giver) — uses built-in relation mechanism
-- Calendar voting deadline event created via `CalendarEventService` when a VotingRound is opened with a `closedAt` timestamp
+- Calendar voting deadline event created via `CalDavService` (ADR-002) when a VotingRound is opened with a `closedAt` timestamp
 - Dossier folder created via `FileService._files` metadata on the Motion object after adoption — no custom file controller
 - ORI publication calls an external HTTP endpoint via a new `OriPublicationService` — the only true external integration in this spec
 - Downstream specs (p2-minutes-and-decisions) read Motion and VotingRound results to generate Decision objects — no breaking changes
