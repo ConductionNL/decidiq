@@ -1,7 +1,20 @@
-# Context Brief: Meeting Management
+# Context Brief: Minutes and Decisions — Core T3
 
 **App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
-**Spec:** p2-meeting-management
+**Spec:** p2-minutes-and-decisions-core-t3
+**Platform:** Nextcloud + OpenRegister
+
+**Depends on:** p2-minutes-and-decisions
+
+## Dependency Specs (content)
+
+These specs were already decided/implemented. Use them as context.
+
+### p2-minutes-and-decisions
+# Context Brief: Minutes and Decisions
+
+**App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
+**Spec:** p2-minutes-and-decisions
 **Platform:** Nextcloud + OpenRegister
 
 **Depends on:** p1-schemas-and-data-model, p1-dashboard-and-navigation, p1-crud-operations
@@ -88,509 +101,171 @@ Managing AV infrastructure in raadzaal and commissiekamers. Discussion systems, 
 
 ### Handle Complex Multi-Domain Citizen Question
 A citizen has a question spanning multiple domains (e.g., housing benefit, parking permit, and social assistance). The front desk officer creates linked zaken or a combined intake and routes each to the correct department.
+**Trigger:** Citizen presents with multiple interconnected serv
+... (truncated)
+
+## Features (16 total, spec-linked, sorted by market demand)
+
+### Real-Time Action Item Tracking and Multi-Meeting Analytics
+**demand: 94** (21 tender mentions) | Category: core
+
+### Record decisions in real-time during meeting
+**demand: 73** (24 tender mentions) | Category: core
+
+### Draft and distribute ALV minutes
+**demand: 64** (3 tender mentions) | Category: core
+
+### API to Agent Tool Conversion
+**demand: 64** (21 tender mentions) | Category: core
+
+### Submit draft minutes for approval
+**demand: 60** (20 tender mentions) | Category: core
+
+### Auto-create tasks from action items in meeting minutes
+**demand: 55** (12 tender mentions) | Category: core
+
+### Documented Action Items and Meeting Minutes
+**demand: 54** (3 tender mentions) | Category: core
+
+### Document and save protocol decision with rationale
+**demand: 48** (16 tender mentions) | Category: core
+
+### AI-powered meeting minutes automation capturing decisions, action items, and follow-ups
+**demand: 42** (12 tender mentions) | Category: core
+
+### DMN (Decision Model & Notation) Integration
+**demand: 41** (13 tender mentions) | Category: core
+
+### 300 monthly minutes—enough for roughly 10 30-minute meetings
+**demand: 19** (6 tender mentions) | Category: core
+
+### Visual Theme Customization
+**demand: 10** (3 tender mentions) | Category: core
+
+### Decision Notification
+**demand: 9** | Category: core
+Send decision notifications via registered mail or secure digital channel
+
+### when making your decision
+**demand: 8** (2 tender mentions) | Category: core
+
+### Multi-Cloud Kubernetes Ephemeral Resource Orchestration
+**demand: 1** | Category: core
+
+### Agentless Rapid Deployment
+**demand: 1** | Category: core
+
+## User Stories (873 linked)
+
+### Story 1: Phased Decision Making
+**Priority:** wont
+As a meeting organizer, I want to have phased decision making capabilities, so that the platform meets diverse organizational needs.
+
+### Story 2: Action Item Tracking
+**Priority:** wont
+As a project manager, I want to have action item tracking capabilities, so that nothing falls through the cracks after meetings.
+
+### Story 3: Action Item Assignment
+**Priority:** wont
+As a project manager, I want to have action item assignment capabilities, so that nothing falls through the cracks after meetings.
+
+### Story 4: Action Item Distribution
+**Priority:** wont
+As a project manager, I want to have action item distribution capabilities, so that nothing falls through the cracks after meetings.
+
+### Story 5: Action Item Templates
+**Priority:** wont
+As a project manager, I want to have action item templates capabilities, so that nothing falls through the cracks after meetings.
+
+### Story 6: Action Item Macros
+**Priority:** wont
+As a project manager, I want to have action item macros capabilities, so that nothing falls through the cracks after meetings.
+
+### Story 7: Action Item Completion
+**Priority:** wont
+As a project manager, I want to have action item completion capabilities, so that nothing falls through the cracks after meetings.
+
+### Story 8: Action Item Completion Rate
+**Priority:** wont
+As a project manager, I want to have action item completion rate capabilities, so that nothing falls through the cracks after meetings.
+
+### Story 9: Async Decision Making
+**Priority:** wont
+As a IT administrator, I want to have async-decision-making capabilities, so that meeting workflows connect seamlessly with existing tools.
+
+### Story 10: Guards And Actions
+**Priority:** wont
+As a presiding officer, I want to have guards and actions capabilities, so that meetings follow established rules fairly.
+
+### Story 11: Draft Legislation Tracking
+**Priority:** wont
+As a council clerk, I want to have draft legislation tracking capabilities, so that legislative actions follow proper procedure with full traceability.
+
+### Story 12: Rationale Tracking
+**Priority:** wont
+As a meeting organizer, I want to have rationale tracking capabilities, so that the platform meets diverse organizational needs.
+
+### Story 13: Decision Automation
+**Priority:** wont
+As a meeting organizer, I want to have decision automation capabilities, so that the platform meets diverse organizational needs.
+
+### Story 14: Functional Interaction Measurement
+**Priority:** wont
+As a meeting organizer, I want to have functional interaction measurement capabilities, so that the platform meets diverse organizational needs.
+
+### Story 15: Constructive Interaction Processes
+**Priority:** wont
+As a meeting organizer, I want to have constructive interaction processes capabilities, so that the platform meets diverse organizational needs.
+
+### Story 16: Discretionary Items
+**Priority:** wont
+As a council clerk, I want to have discretionary items capabilities, so that the platform meets diverse organizational needs.
+
+### Story 17: User Satisfaction Scoring
+**Priority:** wont
+As a organizational leader, I want to have user satisfaction scoring capabilities, so that meeting effectiveness can be measured and improved.
+
+### Story 18: Deliberation Visualization
+**Priority:** wont
+As a organizational leader, I want to have deliberation visualization capabilities, so that meeting effectiveness can be measured and improved.
+
+### Story 19: Decision Model Comparison
+**Priority:** wont
+As a meeting organizer, I want to have decision model comparison capabilities, so that the platform meets diverse organizational needs.
+
+### Story 20: Budget overspend alerts
+**Priority:** should-have
+As a business owner, I want to be alerted when spending exceeds budget, so that I can take action
+
+## Customer Journeys (15 linked)
+
+### AV & Webcast Infrastructure Management
+Managing AV infrastructure in raadzaal and commissiekamers. Discussion systems, PTZ cameras, AV control, webcast/streaming, microphone management.
+**Trigger:** Meeting scheduled requiring AV support; system maintenance/upgrade
+**Desired outcome:** Reliable AV infrastructure supporting meetings with high-quality recording and streaming
+**Current pain:** Complex multi-vendor systems; AV-RIS integration for indexing; maintenance windows; high costs; rapid tech evolution
+**Frequency:** Every meeting (setup/support) + periodic maintenance
+
+### Handle Complex Multi-Domain Citizen Question
+A citizen has a question spanning multiple domains (e.g., housing benefit, parking permit, and social assistance). The front desk officer creates linked zaken or a combined intake and routes each to the correct department.
 **Trigger:** Citizen presents with multiple interconnected service needs in a single interaction
 **Desired outcome:** All needs are captured, routed, and tracked under a single citizen profile; no request is lost or duplicated
 **Current pain:** Systems do not support grouped intake; officer must create each zaak separately and manually inform all receiving departments
 **Frequency:** weekly
 
 ### Meeting Recording Publication
-Video and audio recordings processed, indexed (linked to agenda items), captioned, and published in RIS fo
-... (truncated)
-
-### p1-dashboard-and-navigation
-# Context Brief: Dashboard and Navigation
-
-**App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
-**Spec:** p1-dashboard-and-navigation
-**Platform:** Nextcloud + OpenRegister
-
-## Features (27 total, spec-linked, sorted by market demand)
-
-### Search across all council information
-**demand: 814** (271 tender mentions) | Category: other
-
-### Search Call & Meeting Management
-**demand: 795** (265 tender mentions) | Category: core
-
-### View Call & Meeting Management Overview
-**demand: 741** (247 tender mentions) | Category: core
-
-### Search within Council Document Publication
-**demand: 657** (219 tender mentions) | Category: document-management
-
-### View Council Document Publication overview
-**demand: 594** (198 tender mentions) | Category: document-management
-
-### View Draft Permit Decision Review overview
-**demand: 525** (175 tender mentions) | Category: core
-
-### Search within Legal Advice on Decision
-**demand: 331** (110 tender mentions) | Category: core
-
-### Search voting history by topic or member
-**demand: 310** (102 tender mentions) | Category: core
-
-### Search within Council Question Response
-**demand: 258** (86 tender mentions) | Category: other
-
-### View Legal Advice on Decision overview
-**demand: 241** (78 tender mentions) | Category: core
-
-### Search within Aesthetics Committee Meeting
-**demand: 231** (77 tender mentions) | Category: core
-
-### Accessibility Optimization with H1 Structure and Global Search
-**demand: 224** (74 tender mentions) | Category: core
-
-### View Council Question Response overview
-**demand: 144** (48 tender mentions) | Category: other
-
-### View organizational meeting cost dashboard
-**demand: 132** (23 tender mentions) | Category: core
-
-### Dashboard: Long meeting titles are abbreviated on the dashboard.
-**demand: 130** (23 tender mentions) | Category: core
-
-### View dashboard of all motions
-**demand: 111** (13 tender mentions) | Category: analytics
-
-### Search Discount Governance
-**demand: 102** (32 tender mentions) | Category: governance
-
-### View Aesthetics Committee Meeting overview
-**demand: 93** (31 tender mentions) | Category: core
-
-### Search Multi-Channel Support Resolution
-**demand: 90** (30 tender mentions) | Category: core
-
-### Search Complex Technical Issue Resolution
-**demand: 87** (29 tender mentions) | Category: core
-
-### Participant Overview Dashboard
-**demand: 81** (7 tender mentions) | Category: analytics
-
-### View Discount Governance Overview
-**demand: 45** (15 tender mentions) | Category: governance
-
-### Export compliance overview report for VNG governance
-**demand: 39** (13 tender mentions) | Category: governance
-
-### Voter Vote Status Notifications
-**demand: 1** | Category: other
-
-### App dashboard
-**demand: unknown** | Category: dashboard and navigation
-Overview of upcoming meetings, pending motions, recent decisions
-
-### NL Design System theming
-**demand: unknown** | Category: dashboard and navigation
-CSS custom property support for government theming
-
-### Search integration
-**demand: unknown** | Category: dashboard and navigation
-Full-text search across meetings, motions, and decisions via OpenRegister
-
-## User Stories (340 linked)
-
-### Story 1: Cost Calculation
-**Priority:** wont
-As a meeting organizer, I want to have cost calculation capabilities, so that the platform meets diverse organizational needs.
-
-### Story 2: ai Powered Governance
-**Priority:** wont
-As a meeting participant, I want to have ai-powered governance capabilities, so that meeting insights are captured automatically without manual effort.
-
-### Story 3: Legal Compliance Framework
-**Priority:** wont
-As a compliance officer, I want to have legal compliance framework capabilities, so that organizational data and processes remain secure and compliant.
-
-### Story 4: Cybersecurity Governance
-**Priority:** wont
-As a compliance officer, I want to have cybersecurity governance capabilities, so that organizational data and processes remain secure and compliant.
-
-### Story 5: Governance Compliance
-**Priority:** wont
-As a compliance officer, I want to have governance compliance, so that organizational data and processes remain secure and compliant.
-
-### Story 6: Legal Compliance
-**Priority:** wont
-As a compliance officer, I want to have legal compliance, so that organizational data and processes remain secure and compliant.
-
-### Story 7: Open Source Governance
-**Priority:** wont
-As a IT administrator, I want to have open source governance capabilities, so that the organization maintains control over its data and infrastructure.
-
-### Story 8: ai Enhanced Governance
-**Priority:** wont
-As a meeting participant, I want to have ai-enhanced governance capabilities, so that meeting insights are captured automatically without manual effort.
-
-### Story 9: ai Governance Automation
-**Priority:** wont
-As a meeting participant, I want to have ai governance automation capabilities, so that meeting insights are captured automatically
-... (truncated)
-
-### p1-crud-operations
-# Context Brief: CRUD Operations
-
-**App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
-**Spec:** p1-crud-operations
-**Platform:** Nextcloud + OpenRegister
-
-## Features (42 total, spec-linked, sorted by market demand)
-
-### Agenda management
-**demand: 1262** (420 tender mentions) | Category: core
-
-### Access Call & Meeting Management on Mobile
-**demand: 815** (261 tender mentions) | Category: core
-
-### Decision Management
-**demand: 805** (266 tender mentions) | Category: core
-
-### Generate Call & Meeting Management Report
-**demand: 770** (256 tender mentions) | Category: core
-
-### Export Call & Meeting Management Data
-**demand: 747** (249 tender mentions) | Category: core
-
-### Filter Call & Meeting Management Items
-**demand: 735** (245 tender mentions) | Category: core
-
-### Create a standardized council proposal
-**demand: 734** (241 tender mentions) | Category: other
-
-### Campaign Management and Budgeting Acceleration
-**demand: 598** (199 tender mentions) | Category: other
-
-### Create and publish meeting agenda
-**demand: 549** (183 tender mentions) | Category: core
-
-### Meetings Management
-**demand: 547** (96 tender mentions) | Category: other
-
-### attendance management
-**demand: 547** (96 tender mentions) | Category: other
-
-### Participant Management
-**demand: 524** (96 tender mentions) | Category: other
-
-### such as: meeting management
-**demand: 520** (105 tender mentions) | Category: core
-
-### Meeting Management
-**demand: 520** (105 tender mentions) | Category: core
-
-### post-meeting task management
-**demand: 491** (140 tender mentions) | Category: core
-
-### Create structured decision proposal
-**demand: 486** (128 tender mentions) | Category: core
-
-### Board Assessments and Meeting Management
-**demand: 485** (140 tender mentions) | Category: core
-
-### ESG Management and Governance Integration
-**demand: 484** (161 tender mentions) | Category: governance
-
-### Board Meeting Management Tools
-**demand: 482** (144 tender mentions) | Category: core
-
-### Resolution Management
-**demand: 473** (153 tender mentions) | Category: core
-
-### meeting management system
-**demand: 469** (105 tender mentions) | Category: core
-
-### intuitive meeting management
-**demand: 467** (105 tender mentions) | Category: core
-
-### Board Meeting Coordination and Organization
-**demand: 446** (132 tender mentions) | Category: core
-
-### Collaborative Agenda Creation
-**demand: 441** (132 tender mentions) | Category: core
-
-### Agenda and Meeting Management
-**demand: 440** (132 tender mentions) | Category: core
-
-### Compliance-Focused Meeting Management
-**demand: 424** (122 tender mentions) | Category: core
-
-### Create execution tasks when motion/decision is adopted
-**demand: 420** (140 tender mentions) | Category: core
-
-### Meeting Materials Management
-**demand: 372** (105 tender mentions) | Category: core
-
-### Motion Management
-**demand: 338** (107 tender mentions) | Category: core
-
-### Proxy Contest Management
-**demand: 298** (96 tender mentions) | Category: other
-
-### Create and manage AGM agenda
-**demand: 213** (32 tender mentions) | Category: core
-
-### Centralized Board Member Agenda Management Environment
-**demand: 137** (44 tender mentions) | Category: other
-
-### Persistent Virtual Meeting Rooms with Custom Layouts
-**demand: 31** (10 tender mentions) | Category: core
-
-### Manage provincial states meeting cycle
-**demand: 31** (10 tender mentions) | Category: core
-
-### Manage committee speaking order
-**demand: 26** (2 tender mentions) | Category: other
-
-### Manage committee with clear mandate
-**demand: 26** (2 tender mentions) | Category: other
-
-### Participant Data Management
-**demand: 2** | Category: Case Management
-Import and export participant data and documents across EU systems
-
-### Governance and content management
-**demand: 2** | Category: Administration
-Content governance with certified data sources, permissions, and usage analytics
-
-### Create and manage faction meetings
-**demand: 1** | Category: other
-
-### GovernanceBody CRUD
-**demand: unknown** | Category: crud operations
-Manage governance bodies and their configuration
-
-### Manage large sets of amendments
-**demand: unknown** | Category: other
-
-### Meeting CRUD
-**demand: unknown** | Category: crud operations
-Create, read, update, delete meetings via OpenRegister API
-
-## User Stories (508 linked)
-
-### Story 1: Rationale Documentation
-**Priority:** wont
-As a document manager, I want to have rationale documentation capabilities, so that all relevant documents are organized and accessible.
-
-### Story 2: Digital Ideation
-**Priority:** wont
-As a innovation manager, I want to have digital ideation capabilities, so that the best ideas surface and get implemented.
-
-### Story 3: Crowdsourcing to Assembly
-**Priority:** wont
-As a innovation manager, I want to have crowdsourcing to assembly capabilities, so that the best ideas surface and get implemented.
-
-### Story 4: Grant Management
-**Priority:** wont
-As a 
-... (truncated)
-
-## Features (20 total, spec-linked, sorted by market demand)
-
-### Hybrid Physical and Online Meeting Participation
-**demand: 224** (74 tender mentions) | Category: participation
-
-### Attendance tracking
-**demand: 82** | Category: meeting management
-Record present, absent, and late-arriving participants
-
-### Speaking time management
-**demand: 82** | Category: meeting management
-Track and limit speaking time per participant per item
-
-### Meeting templates
-**demand: 82** | Category: meeting management
-Reusable templates for recurring meeting types
-
-### Meeting document attachments
-**demand: 82** | Category: meeting management
-Attach supporting documents to meetings and agenda items
-
-### Meeting series
-**demand: 82** | Category: meeting management
-Link related meetings (e.g., quarterly board meetings)
-
-### Meeting lifecycle
-**demand: 82** | Category: meeting management
-Open, pause, resume, adjourn, close meeting with state tracking
-
-### Meeting Lock and Password Protection
-**demand: 47** (15 tender mentions) | Category: security
-
-### Unauthorized Access Prevention for Virtual Meetings
-**demand: 47** (15 tender mentions) | Category: security
-
-### Schedule meetings from CRM
-**demand: 41** (11 tender mentions) | Category: scheduling
-
-### Citizen Participation in Local Government Meetings
-**demand: 22** (6 tender mentions) | Category: participation
-
-### End-to-End Encryption for Meeting Data Protection
-**demand: 12** (3 tender mentions) | Category: security
-
-### AI-Generated Meeting Summaries
-**demand: 4** (1 tender mentions) | Category: ai
-
-### Creator of the meeting
-**demand: 2** | Category: release-v17.1.2
-From OpenProject 17.1.2 (2026-02-26)
-
-### Time and Attendance
-**demand: 2** | Category: Time Tracking
-Clock in/out, attendance tracking and timesheet management
-
-### Status of the meeting
-**demand: 2** | Category: release-v17.1.2
-From OpenProject 17.1.2 (2026-02-26)
-
-### Date and Time range of the meeting
-**demand: 2** | Category: release-v17.1.2
-From OpenProject 17.1.2 (2026-02-26)
-
-### use ai to summarise meetings
-**demand: 1** | Category: ai
-
-### questions at public meetings
-**demand: 1** | Category: participation
-
-### statistics for mp attendance
-**demand: 1** | Category: analytics
-
-## User Stories (43 linked)
-
-### Story 1: Meeting Scheduling
-**Priority:** wont
-As a meeting organizer, I want to have meeting scheduling capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 2: Agenda Effectiveness
-**Priority:** wont
-As a meeting organizer, I want to have agenda effectiveness capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 3: Agenda Design
-**Priority:** wont
-As a meeting organizer, I want to have agenda design capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 4: Recurring Meeting Support
-**Priority:** wont
-As a meeting organizer, I want to have recurring meeting support, so that meetings are well-prepared and time is used efficiently.
-
-### Story 5: Agenda Beheer
-**Priority:** wont
-As a meeting organizer, I want to have agenda beheer capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 6: Scheduling Optimization
-**Priority:** wont
-As a meeting organizer, I want to have scheduling optimization capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 7: Deliberation Platforms
-**Priority:** wont
-As a presiding officer, I want to use deliberation platforms, so that meetings follow established rules fairly.
-
-### Story 8: Agenda Setting
-**Priority:** wont
-As a meeting organizer, I want to have agenda setting capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 9: Proportional Time Allocation
-**Priority:** wont
-As a meeting organizer, I want to have proportional time allocation capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 10: Agenda Tracking
-**Priority:** wont
-As a meeting organizer, I want to have agenda tracking capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 11: Efficient Scheduling
-**Priority:** wont
-As a meeting organizer, I want to have efficient scheduling capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 12: Speaking Time Limits
-**Priority:** wont
-As a organizational leader, I want to have speaking time limits capabilities, so that meeting effectiveness can be measured and improved.
-
-### Story 13: Convocation Templates
-**Priority:** wont
-As a meeting organizer, I want to have convocation templates capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 14: ai Meeting Preparation
-**Priority:** wont
-As a meeting organizer, I want to have ai meeting preparation capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 15: Meeting Preparation Workflows
-**Priority:** wont
-As a meeting organizer, I want to have meeting preparation workflows capabilities, so that meetings are well-prepared and time is used efficiently.
-
-### Story 16: Hybrid Online Offline
-**Priority:** wont
-As a end user, I want to have hybrid online-offline capabilities, so that I can participate effectively from any device.
-
-### Story 17: Timeboxing
-**Priority:** wont
-As a meeting facilitator, I want to have timeboxing capabilities, so that meetings are productive and engaging.
-
-### Story 18: 80+ Platforms
-**Priority:** wont
-As a citizen, I want to use 80+ platforms, so that the platform meets diverse organizational needs.
-
-### Story 19: 26 Platform Comparison
-**Priority:** wont
-As a citizen, I want to use 26-platform comparison, so that the platform meets diverse organizational needs.
-
-### Story 20: Blocking Minority
-**Priority:** wont
-As a citizen, I want to have blocking minority capabilities, so that the platform meets diverse organizational needs.
-
-## Customer Journeys (15 linked)
-
-### Contract Lifecycle
-Create, negotiate, sign, monitor, and renew business contracts
-**Trigger:** New business relationship or service need
-**Desired outcome:** Active, compliant contract with tracked obligations
-**Frequency:** monthly
-
-### Time Tracking to Billing
-Freelancer tracks billable hours and converts them to invoices
-**Trigger:** Starting work on a client project
-**Desired outcome:** Accurate time records converted to correct client invoices
-**Frequency:** daily
-
-### Quote to Invoice
-Freelancer creates a quote, gets it accepted, and converts it to an invoice
-**Trigger:** Client requests a quote
-**Desired outcome:** Quote accepted and converted to invoice upon project completion
-**Frequency:** weekly
-
-### Supplier Management
-[competitor], evaluate, and manage supplier relationships
-**Trigger:** New supplier needed or periodic review
-**Desired outcome:** Qualified suppliers with favorable terms under contract
-**Frequency:** monthly
-
-### Budget Planning
-Create annual budget and track actual vs planned spending
-**Trigger:** Annual planning cycle
-**Desired outcome:** Approved budget with regular variance monitoring
-**Frequency:** yearly
-
-### Mileage & Travel Tracking
-Freelancer logs business travel for tax deduction
-**Trigger:** Business trip or client visit
-**Desired outcome:** Accurate mileage log for tax deduction; expense properly recorded
-**Frequency:** daily
-
-### Expense Reimbursement
-Employee submits expense, gets approval, receives reimbursement
-**Trigger:** Employee incurs business expense
-**Desired outcome:** Employee reimbursed; expense recorded in correct category
-**Frequency:** weekly
-
-### Manage and Roll Back Process Versions
-The functional administrator reviews deployed process versions, compares differences between versions, and rolls back to a previous version when a newly deployed model causes issues in production.
-**Trigger:** Production incident caused by a faulty process deployment or stakeholder request to revert a change
-**Desired outcome:** Previous stable version is active within minutes; in-flight cases are migrated or paused without data loss
-**Current pain:** Version history is opaque; rolling back requires database intervention by IT; in-flight cases are left in an inconsistent state
-**Frequency:** ad-hoc
+Video and audio recordings processed, indexed (linked to agenda items), captioned, and published in RIS for on-demand viewing.
+**Trigger:** Completion of a recorded meeting
+**Desired outcome:** Indexed, accessible recordings published and linked to relevant agenda items in the RIS
+**Current pain:** Long processing times; manual indexing; accessibility requirements (captions); large file storage
+**Frequency:** After every recorded meeting
+
+### System Integration & Data Exchange
+Managing integrations between RIS and other systems: zaaksysteem, DMS, AV/webcast, archiving, PLOOI platform.
+**Trigger:** New system implementation, upgrade, or integration requirement
+**Desired outcome:** Seamless data flow between RIS and connected systems with no manual re-entry
+**Current pain:** Legacy APIs; proprietary interfaces; vendor lock-in; complex AV integration; multiple auth systems
+**Frequency:** Ongoing (initial setup + continuous maintenance)
 
 ### Water Board General Assembly Meeting
 Water board general assembly meets at least 6x/year. Sets policy, approves budgets, oversees executive board. Chaired by dijkgraaf. Secretary-director maintains minutes.
@@ -599,12 +274,40 @@ Water board general assembly meets at least 6x/year. Sets policy, approves budge
 **Current pain:** Similar needs as municipalities but different governance; fewer commercial RIS options; unique stakeholder categories
 **Frequency:** Minimum 6 times per year (general assembly); bi-weekly (executive board)
 
-### Handle Internal Document Access Request
-A records manager processes a request from a colleague who needs access to a restricted document, verifies authorisation, grants temporary access, and logs the disclosure.
-**Trigger:** Staff member requests access to a document outside their normal access level
-**Desired outcome:** Access is granted or refused with documented justification, access is time-limited, and the disclosure is logged for audit purposes
-**Current pain:** Access requests are handled via email with no structured approval workflow or automatic expiry of granted access
-**Frequency:** weekly
+### Test BPMN Process in Staging Environment
+Before publishing, the process designer runs the BPMN model with test cases to verify gateway conditions, timer behaviour, and task routing behave as intended.
+**Trigger:** Process model is completed and ready for validation before go-live
+**Desired outcome:** All process paths are verified correct; edge cases and error paths are handled without unexpected process suspension
+**Current pain:** No integrated test runner; testing requires manual zaak creation and step-by-step verification which is slow and incomplete
+**Frequency:** monthly
+
+### Presidium Agenda Setting
+The presidium (faction leaders + chair) meets to set the agenda. Decides which items go to which committee, hamerstuk vs bespreekstuk, and overall meeting planning.
+**Trigger:** Scheduled presidium meeting at start of each meeting cycle
+**Desired outcome:** Approved agenda with clear assignment of items to committees and plenary
+**Current pain:** Manual compilation of agenda proposals; difficulty balancing workload across committees
+**Frequency:** Every meeting cycle (approximately every 3-4 weeks)
+
+### Faction Position Coordination
+Faction leader coordinates positions on upcoming agenda items through faction meetings. Distributes preparatory work, aligns voting positions, assigns spokespersons.
+**Trigger:** Publication of agenda for upcoming council/committee meeting
+**Desired outcome:** Aligned faction positions on all agenda items, assigned spokespersons, coordinated motion/amendment strategy
+**Current pain:** Fragmented communication tools; no shared workspace; difficulty tracking faction-wide positions across multiple agenda items
+**Frequency:** Weekly during active meeting periods
+
+### Open Data Publication (ORI)
+Publishing council information as open data following the ORI standard. API access, linked data, integration with PLOOI. Over 100 Dutch municipalities participate.
+**Trigger:** New meeting data or documents are published in the RIS
+**Desired outcome:** Council data available as structured open data via standardized API, compliant with ORI and Woo
+**Current pain:** Vendor-specific connectors required; inconsistent data quality; evolving standard; limited real-time capability
+**Frequency:** Continuous (automated sync)
+
+### Press Coverage & Media Access
+Journalists access council meetings, documents, and officials for reporting. Includes press pass registration, gallery access, post-meeting briefings, and RIS research.
+**Trigger:** Newsworthy item on council agenda or need for background research
+**Desired outcome:** Journalist can efficiently access all public council information, attend meetings, contact officials
+**Current pain:** Complex registration; limited press facilities; restrictions on filming/quoting; delayed recordings; declining journalism resources
+**Frequency:** Continuous (more intense around plenary meetings)
 
 ### Decision Execution & Follow-up
 After council makes a decision, the executive is responsible for executing it. Includes implementing policy changes, allocating budgets, and reporting back to council.
@@ -634,14 +337,14 @@ Provincial States follow similar BOB model but larger scale. CdK chairs, griffie
 **Current pain:** Similar to municipal pain points but larger scale; more formal procedures
 **Frequency:** Monthly (statendag) plus committee meetings
 
-### Press Coverage & Media Access
-Journalists access council meetings, documents, and officials for reporting. Includes press pass registration, gallery access, post-meeting briefings, and RIS research.
-**Trigger:** Newsworthy item on council agenda or need for background research
-**Desired outcome:** Journalist can efficiently access all public council information, attend meetings, contact officials
-**Current pain:** Complex registration; limited press facilities; restrictions on filming/quoting; delayed recordings; declining journalism resources
-**Frequency:** Continuous (more intense around plenary meetings)
+### Complete Intake Form on Behalf of Citizen
+When a citizen cannot use digital channels (due to limited digital literacy or accessibility needs), a front desk officer fills in the digital intake form on their behalf, with the citizen's verbal consent recorded.
+**Trigger:** Citizen is unable to self-serve digitally and requests counter or telephone assistance
+**Desired outcome:** Same data quality and automated zaak creation as a self-service submission, with the assisting officer's identity logged for audit purposes
+**Current pain:** Officer-assisted intake often bypasses digital forms entirely, resulting in manually created zaken with less structured data
+**Frequency:** daily
 
-## Stakeholders (322 linked)
+## Stakeholders (287 linked)
 
 ### CEO / Managing Director
 Chief Executive Officer or managing director responsible for day-to-day management of the company. In Dutch two-tier model, member of the Raad van Bestuur (management board).
@@ -673,11 +376,23 @@ Owner of shares in a BV or NV. Has voting rights at the Algemene Vergadering van
 **Pain points:** Complex proxy voting processes, lack of transparency in pre-meeting information, difficulty participating in hybrid/digital meetings, limited engagement between AGMs, unclear resolution outcomes
 **Goals:** Easy digital proxy voting, transparent access to meeting agendas and documents, real-time participation in hybrid AGMs, clear dividend and resolution information, accessible corporate governance information
 
+### Institutional Investor
+Large-scale investor (pension fund, asset manager, insurance company) with significant shareholdings. Subject to Shareholder Rights Directive II (SRD II) stewardship obligations.
+**Responsibilities:** Stewardship and engagement with portfolio companies, proxy voting across hundreds of AGMs, ESG assessment, compliance with SRD II disclosure requirements, filing substantial holdings notifications
+**Pain points:** Managing proxy voting at scale across many companies, reliance on proxy advisors (ISS/Glass Lewis), cross-border voting complexity, meeting SRD II engagement and disclosure requirements, lack of standardized governance data
+**Goals:** Automated proxy voting workflows, integrated ESG governance scoring, efficient engagement tracking, SRD II compliance automation, standardized corporate governance data feeds
+
 ### Proxy Advisor
 Firm that provides voting recommendations to institutional investors (ISS, Glass Lewis). Analyzes governance proposals and issues benchmark voting policies. Controls 90%+ of proxy advisory market.
 **Responsibilities:** Analyzing AGM agenda items and resolutions, issuing voting recommendations, maintaining benchmark voting policies, researching corporate governance practices, reporting on voting outcomes
 **Pain points:** Accessing timely and accurate meeting information across jurisdictions, analyzing large volumes of AGM proposals, maintaining consistent governance standards globally, adapting to regulatory changes
 **Goals:** Standardized digital access to AGM agendas and resolutions, automated governance data collection, efficient cross-border meeting analysis, real-time resolution tracking
+
+### Legal Counsel / Compliance Officer
+In-house or external legal advisor responsible for corporate law compliance, governance code adherence, and regulatory filings. Ensures decisions meet legal requirements under Book 2 Dutch Civil Code.
+**Responsibilities:** Advising on corporate governance compliance, reviewing resolutions for legal validity, managing regulatory filings (KVK, AFM, DNB), monitoring Corporate Governance Code compliance, handling insider trading rules, GDPR governance
+**Pain points:** Tracking regulatory changes across jurisdictions, ensuring all decisions are properly documented and filed, managing conflict of interest registers, monitoring compliance deadlines, coordinating with notary for formal acts
+**Goals:** Automated compliance monitoring and deadline tracking, digital conflict of interest management, integrated regulatory filing workflows, governance code compliance dashboard
 
 ### Works Council Representative
 Representative of the works council (Ondernemingsraad), which has advisory and consent rights on major decisions in companies with 50+ employees. Has nomination rights for supervisory board under structure regime.
@@ -691,28 +406,9 @@ Top executive responsible for overall organizational strategy, final decision au
 **Pain points:** ["Decisions bottleneck at the top due to unclear delegation", "Lack of visibility into decision status across layers", "Too many items escalated that should be handled lower", "Difficulty tracking whether MT decisions are actually implemented", "Information overload from multiple reporting channels"]
 **Goals:** ["Clear delegation of authority matrix", "Real-time dashboard of organizational decision status", "Efficient MT meeting cycle with tracked outcomes", "Audit trail for governance and compliance"]
 
-### MT Member / Manager
-Member of the management team responsible for a functional area (finance, operations, HR, IT, etc.). Participates in collective MT decision-making while managing own department.
-**Responsibilities:** ["Participating in MT decision-making on strategic matters", "Translating MT decisions into departmental actions", "Preparing proposals and business cases for MT agenda", "Managing departmental budget and resources", "Escalating issues that exceed departmental authority", "Cross-functional coordination with other MT members"]
-**Pain points:** ["Dual role tension: MT interest vs department interest", "Decisions revisited repeatedly without clear closure", "No single source of truth for what was decided", "Action items from meetings lost or not tracked", "Difficulty coordinating cross-departmental decisions"]
-**Goals:** ["Structured agenda and decision log for MT meetings", "Clear action tracking with ownership and deadlines", "Efficient preparation workflow for meeting items", "Visibility into decisions affecting own department"]
-
-### Department Head
-Leads a department within the organization. Translates management decisions into departmental plans, manages team leads, and handles operational decisions within delegated authority.
-**Responsibilities:** ["Leading departmental meetings and decision-making", "Implementing MT decisions within the department", "Managing departmental budget within approved limits", "Approving procurement and hiring within delegation", "Escalating decisions beyond authority to MT member", "Coordinating with other departments on shared matters"]
-**Pain points:** ["Unclear boundaries of decision authority", "Waiting for approvals from MT that delay operations", "No structured way to propose items to MT agenda", "Difficulty cascading decisions to teams consistently", "Cross-department dependencies causing bottlenecks"]
-**Goals:** ["Clear delegation of authority documentation", "Streamlined approval workflows for routine decisions", "Efficient escalation path to management team", "Tool to cascade decisions to team leads and staff"]
-
-## Entities for This Spec (1)
-
-Full data model: see `openspec/architecture/adr-000-data-model.md`.
-This spec uses:
-
-- **Meeting**: A scheduled governance meeting with agenda, participants, and lifecycle
-
 ## Other App Entities (do NOT redefine)
 
-ActionItem, AgendaItem, Amendment, Area, ContactDetail, Decision, DigitalDocument, GovernanceBody, Membership, Minutes, MonetaryAmount, Motion, Offer, Order, Participant, Person, Post, Product, Report, Speech, Vote, VotingRound
+ActionItem, AgendaItem, Amendment, Area, ContactDetail, Decision, DigitalDocument, GovernanceBody, Meeting, Membership, Minutes, MonetaryAmount, Motion, Offer, Order, Participant, Person, Post, Product, Report, Speech, Vote, VotingRound
 
 ## Company-Wide Architecture Rules (17 ADRs)
 
