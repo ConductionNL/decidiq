@@ -185,11 +185,7 @@ class AgendaController extends Controller
                 return new JSONResponse(['message' => 'Agenda item not found.'], Http::STATUS_NOT_FOUND);
             }
 
-            if (is_array($item) === true) {
-                $itemData = $item;
-            } else {
-                $itemData = (array) $item;
-            }
+            $itemData = (array) $item;
 
             $meetingId = $itemData['@self']['relations']['meeting'] ?? null;
 
