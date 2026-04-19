@@ -1,11 +1,6 @@
 <?php
 
 /**
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- */
-
-/**
  * Decidesk Settings Service
  *
  * Service for managing Decidesk application configuration and settings.
@@ -22,6 +17,8 @@
  * @link https://conduction.nl
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;

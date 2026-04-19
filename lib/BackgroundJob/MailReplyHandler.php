@@ -1,11 +1,6 @@
 <?php
 
 /**
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- */
-
-/**
  * Decidesk Mail Reply Handler Background Job
  *
  * Polls for email replies to voting notification threads and casts votes
@@ -25,6 +20,8 @@
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\BackgroundJob;
