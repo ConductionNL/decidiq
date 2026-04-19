@@ -181,6 +181,5 @@ class DecisionController extends Controller
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
         }//end try
-
     }//end publish()
 }//end class

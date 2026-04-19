@@ -49,7 +49,6 @@ use Throwable;
  */
 class AgendaService
 {
-
     /**
      * BOB phase transition map: current status → next status.
      *
@@ -166,7 +165,6 @@ class AgendaService
         );
 
         $this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
-
     }//end publishAgenda()
 
     /**
@@ -196,7 +194,6 @@ class AgendaService
                 ['userId' => $userId, 'error' => $e->getMessage()]
             );
         }
-
     }//end sendAgendaPublishedNotification()
 
     /**
@@ -221,7 +218,6 @@ class AgendaService
         }
 
         return (array) $item;
-
     }//end toArray()
 
     /**
@@ -279,7 +275,6 @@ class AgendaService
             'BOB phase advanced for agenda item {id}: {from} to {to}',
             ['id' => $agendaItemId, 'from' => $currentStatus, 'to' => $nextStatus]
         );
-
     }//end advanceBobPhase()
 
     /**
@@ -337,7 +332,6 @@ class AgendaService
             'Processed {count} hamerstukken for meeting {meetingId}',
             ['count' => $processedCount, 'meetingId' => $meetingId]
         );
-
     }//end processHamerstukken()
 
     /**
@@ -365,7 +359,6 @@ class AgendaService
         );
 
         $this->logger->info('Agenda reverted to draft for meeting {meetingId}', ['meetingId' => $meetingId]);
-
     }//end reviseAgenda()
 
     /**
@@ -430,6 +423,5 @@ class AgendaService
             'Reordered {count} agenda items for meeting {meetingId}',
             ['count' => count($orderedIds), 'meetingId' => $meetingId]
         );
-
     }//end reorderItems()
 }//end class

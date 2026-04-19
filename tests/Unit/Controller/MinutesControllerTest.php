@@ -25,6 +25,8 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\Decidesk\Service\ActionItemExtractionService;
+use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -65,6 +67,20 @@ class MinutesControllerTest extends TestCase
     private MinutesGenerationService&MockObject $minutesGenerationService;
 
     /**
+     * Mock ALVMinutesService.
+     *
+     * @var ALVMinutesService&MockObject
+     */
+    private ALVMinutesService&MockObject $alvMinutesService;
+
+    /**
+     * Mock ActionItemExtractionService.
+     *
+     * @var ActionItemExtractionService&MockObject
+     */
+    private ActionItemExtractionService&MockObject $extractionService;
+
+    /**
      * Mock IUserSession.
      *
      * @var IUserSession&MockObject
@@ -96,6 +112,8 @@ class MinutesControllerTest extends TestCase
 
         $this->request                  = $this->createMock(IRequest::class);
         $this->minutesGenerationService = $this->createMock(MinutesGenerationService::class);
+        $this->alvMinutesService        = $this->createMock(ALVMinutesService::class);
+        $this->extractionService        = $this->createMock(ActionItemExtractionService::class);
         $this->userSession              = $this->createMock(IUserSession::class);
         $this->groupManager             = $this->createMock(IGroupManager::class);
         $this->user                     = $this->createMock(IUser::class);
@@ -107,6 +125,8 @@ class MinutesControllerTest extends TestCase
         $this->controller = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
+            alvMinutesService: $this->alvMinutesService,
+            extractionService: $this->extractionService,
             userSession: $this->userSession,
             groupManager: $this->groupManager,
         );
@@ -244,6 +264,8 @@ class MinutesControllerTest extends TestCase
         $unauthController = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
+            alvMinutesService: $this->alvMinutesService,
+            extractionService: $this->extractionService,
             userSession: $unauthSession,
             groupManager: $this->groupManager,
         );

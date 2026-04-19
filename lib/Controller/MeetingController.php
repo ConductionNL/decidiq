@@ -120,6 +120,5 @@ class MeetingController extends Controller
         }
 
         return new JSONResponse($result);
-
     }//end lifecycle()
 }//end class

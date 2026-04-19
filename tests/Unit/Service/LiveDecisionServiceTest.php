@@ -121,15 +121,19 @@ class LiveDecisionServiceTest extends TestCase
             ->method('findAll')
             ->willReturn(['results' => []]);
 
-        $createdEntity = $this->createMock(ObjectEntity::class);
-        $createdEntity->method('getObject')->willReturn([
-            'id' => 'decision-1',
-            '@self' => ['slug' => 'decision-1'],
-        ]);
-
         $this->objectService
             ->method('saveObject')
-            ->willReturnOnConsecutiveCalls($minutesEntity, $createdEntity);
+            ->willReturnOnConsecutiveCalls(
+                [
+                    'id' => 'minutes-1',
+                    '@self' => ['slug' => 'minutes-1'],
+                    'title' => 'Minutes',
+                ],
+                [
+                    'id' => 'decision-1',
+                    '@self' => ['slug' => 'decision-1'],
+                ]
+            );
 
         $result = $this->service->recordDecision(
             meetingId: $meetingId,
@@ -203,18 +207,15 @@ class LiveDecisionServiceTest extends TestCase
 
         // No existing minutes
         $this->objectService
-            ->method('findAll')
+            ->method('findObjects')
             ->willReturn(['results' => []]);
-
-        $minutesEntity = $this->createMock(ObjectEntity::class);
-        $minutesEntity->method('getObject')->willReturn([
-            'id' => 'minutes-1',
-            '@self' => ['slug' => 'minutes-1'],
-        ]);
 
         $this->objectService
             ->method('saveObject')
-            ->willReturn($minutesEntity);
+            ->willReturn([
+                'id' => 'minutes-1',
+                '@self' => ['slug' => 'minutes-1'],
+            ]);
 
         $result = $this->service->ensureDraftMinutes($meetingId);
 
@@ -232,10 +233,20 @@ class LiveDecisionServiceTest extends TestCase
     public function testEnsureDraftMinutesReturnsExistingMinutesSlug(): void
     {
         $meetingId = 'meeting-1';
+        $meetingEntity = $this->createMock(ObjectEntity::class);
+        $meetingEntity->method('getObject')->willReturn([
+            'id' => $meetingId,
+            'title' => 'Test Meeting',
+        ]);
+
+        $this->objectService
+            ->method('find')
+            ->with(id: $meetingId)
+            ->willReturn($meetingEntity);
 
         // Existing minutes found
         $this->objectService
-            ->method('findAll')
+            ->method('findObjects')
             ->willReturn([
                 'results' => [
                     [
@@ -247,6 +258,6 @@ class LiveDecisionServiceTest extends TestCase
 
         $result = $this->service->ensureDraftMinutes($meetingId);
 
-        $this->assertEqual($result, 'minutes-1');
+        $this->assertEquals($result, 'minutes-1');
     }//end testEnsureDraftMinutesReturnsExistingMinutesSlug()
 }//end class

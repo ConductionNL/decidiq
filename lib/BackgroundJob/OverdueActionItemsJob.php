@@ -41,7 +41,6 @@ use Psr\Log\LoggerInterface;
  */
 class OverdueActionItemsJob extends TimedJob
 {
-
     /**
      * Interval between job runs: 86400 seconds = 24 hours.
      */
@@ -151,7 +150,6 @@ class OverdueActionItemsJob extends TimedJob
                 $errorCount
             )
         );
-
     }//end run()
 
     /**
@@ -178,7 +176,7 @@ class OverdueActionItemsJob extends TimedJob
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('action-item');
                 $entities = $objectService->findAll(
-                        [
+                    [
                             'filters' => [
                                 'register'   => 'decidesk',
                                 'schema'     => 'action-item',
@@ -187,13 +185,13 @@ class OverdueActionItemsJob extends TimedJob
                             'limit'   => $pageSize,
                             'offset'  => $offset,
                         ]
-                        );
+                );
 
                 $batch = [];
                 foreach ($entities as $entity) {
                     if (method_exists($entity, 'getObject') === true) {
                         $batch[] = $entity->getObject();
-                    } else if (is_array($entity) === true) {
+                    } elseif (is_array($entity) === true) {
                         $batch[] = $entity;
                     }
                 }
@@ -215,6 +213,5 @@ class OverdueActionItemsJob extends TimedJob
         }//end while
 
         return $result;
-
     }//end fetchActionItemsByStatus()
 }//end class

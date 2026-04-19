@@ -162,7 +162,7 @@ class DecisionNotificationServiceTest extends TestCase
 
         $count = $this->service->notifyOnPublish('decision-1');
 
-        $this->assertEqual($count, 0);
+        $this->assertEquals($count, 0);
     }//end testNotifyOnPublishSendsZeroWhenNoMembershipsFound()
 
     /**
@@ -230,6 +230,6 @@ class DecisionNotificationServiceTest extends TestCase
         $count = $this->service->notifyOnPublish('decision-1');
 
         // Should return 0 since no memberships found, but the configured roles should be respected
-        $this->assertEqual($count, 0);
+        $this->assertEquals($count, 0);
     }//end testNotifyOnPublishUsesConfiguredRoles()
 }//end class

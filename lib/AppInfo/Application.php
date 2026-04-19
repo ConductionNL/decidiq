@@ -85,100 +85,100 @@ class Application extends App implements IBootstrap
         // Register ActionItemAnalyticsService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
         $context->registerService(
-                ActionItemAnalyticsService::class,
-                static function ($c): ActionItemAnalyticsService {
+            ActionItemAnalyticsService::class,
+            static function ($c): ActionItemAnalyticsService {
                     return new ActionItemAnalyticsService(
                         container: $c->get(\Psr\Container\ContainerInterface::class),
                         logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
-                }
+            }
         );
 
         // Register AnalyticsController for DI.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
         $context->registerService(
-                AnalyticsController::class,
-                static function ($c): AnalyticsController {
+            AnalyticsController::class,
+            static function ($c): AnalyticsController {
                     return new AnalyticsController(
                         request: $c->get(\OCP\IRequest::class),
                         analyticsService: $c->get(ActionItemAnalyticsService::class),
                         userSession: $c->get(\OCP\IUserSession::class),
                     );
-                }
+            }
         );
 
         // Register LiveDecisionService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
         $context->registerService(
-                LiveDecisionService::class,
-                static function ($c): LiveDecisionService {
+            LiveDecisionService::class,
+            static function ($c): LiveDecisionService {
                     return new LiveDecisionService(
                         container: $c->get(\Psr\Container\ContainerInterface::class),
                         logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
-                }
+            }
         );
 
         // Register LiveMeetingController for DI.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
         $context->registerService(
-                LiveMeetingController::class,
-                static function ($c): LiveMeetingController {
+            LiveMeetingController::class,
+            static function ($c): LiveMeetingController {
                     return new LiveMeetingController(
                         request: $c->get(\OCP\IRequest::class),
                         liveDecisionService: $c->get(LiveDecisionService::class),
                         userSession: $c->get(\OCP\IUserSession::class),
                     );
-                }
+            }
         );
 
         // Register ALVMinutesService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
         $context->registerService(
-                ALVMinutesService::class,
-                static function ($c): ALVMinutesService {
+            ALVMinutesService::class,
+            static function ($c): ALVMinutesService {
                     return new ALVMinutesService(
                         container: $c->get(\Psr\Container\ContainerInterface::class),
                         logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
-                }
+            }
         );
 
         // Register ActionItemExtractionService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
         $context->registerService(
-                ActionItemExtractionService::class,
-                static function ($c): ActionItemExtractionService {
+            ActionItemExtractionService::class,
+            static function ($c): ActionItemExtractionService {
                     return new ActionItemExtractionService(
                         container: $c->get(\Psr\Container\ContainerInterface::class),
                         logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
-                }
+            }
         );
 
         // Register DecisionNotificationService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5
         $context->registerService(
-                DecisionNotificationService::class,
-                static function ($c): DecisionNotificationService {
+            DecisionNotificationService::class,
+            static function ($c): DecisionNotificationService {
                     return new DecisionNotificationService(
                         container: $c->get(\Psr\Container\ContainerInterface::class),
                         logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
-                }
+            }
         );
 
         // Register MinutesGenerationService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
         $context->registerService(
-                MinutesGenerationService::class,
-                static function ($c): MinutesGenerationService {
+            MinutesGenerationService::class,
+            static function ($c): MinutesGenerationService {
                     return new MinutesGenerationService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                        container: $c->get(\Psr\Container\ContainerInterface::class),
+                        logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
-                }
-                );
+            }
+        );
 
         // Register MinutesController for DI.
         // userId is NOT injected here — it must be resolved per-request inside each.
@@ -186,49 +186,48 @@ class Application extends App implements IBootstrap
         // DI singleton caching a null uid from an early unauthenticated bootstrap.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
         $context->registerService(
-                MinutesController::class,
-                static function ($c): MinutesController {
+            MinutesController::class,
+            static function ($c): MinutesController {
                     return new MinutesController(
-                    request: $c->get(\OCP\IRequest::class),
-                    minutesGenerationService: $c->get(MinutesGenerationService::class),
-                    alvMinutesService: $c->get(ALVMinutesService::class),
-                    extractionService: $c->get(ActionItemExtractionService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                    groupManager: $c->get(\OCP\IGroupManager::class),
+                        request: $c->get(\OCP\IRequest::class),
+                        minutesGenerationService: $c->get(MinutesGenerationService::class),
+                        alvMinutesService: $c->get(ALVMinutesService::class),
+                        extractionService: $c->get(ActionItemExtractionService::class),
+                        userSession: $c->get(\OCP\IUserSession::class),
+                        groupManager: $c->get(\OCP\IGroupManager::class),
                     );
-                }
-                );
+            }
+        );
 
         // Register DecisionController for DI.
         // Explicit registration matches the MinutesController pattern and ensures.
         // reliable resolution in all Nextcloud environments (≥28).
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
         $context->registerService(
-                DecisionController::class,
-                static function ($c): DecisionController {
+            DecisionController::class,
+            static function ($c): DecisionController {
                     return new DecisionController(
-                    request: $c->get(\OCP\IRequest::class),
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                    groupManager: $c->get(\OCP\IGroupManager::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                        request: $c->get(\OCP\IRequest::class),
+                        container: $c->get(\Psr\Container\ContainerInterface::class),
+                        userSession: $c->get(\OCP\IUserSession::class),
+                        groupManager: $c->get(\OCP\IGroupManager::class),
+                        logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
-                }
-                );
+            }
+        );
 
         // Register OverdueActionItemsJob for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.
         $context->registerService(
-                OverdueActionItemsJob::class,
-                static function ($c): OverdueActionItemsJob {
+            OverdueActionItemsJob::class,
+            static function ($c): OverdueActionItemsJob {
                     return new OverdueActionItemsJob(
-                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                        time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                        container: $c->get(\Psr\Container\ContainerInterface::class),
+                        logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
-                }
-                );
-
+            }
+        );
     }//end register()
 
     /**
@@ -245,6 +244,5 @@ class Application extends App implements IBootstrap
         if ($jobList->has(MailReplyHandler::class, null) === false) {
             $jobList->add(MailReplyHandler::class);
         }
-
     }//end boot()
 }//end class

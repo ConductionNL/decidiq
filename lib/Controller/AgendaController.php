@@ -127,7 +127,6 @@ class AgendaController extends Controller
             ['message' => 'Chair or secretary role required for this meeting'],
             Http::STATUS_FORBIDDEN
         );
-
     }//end requireChairOrAdmin()
 
     /**
@@ -163,7 +162,6 @@ class AgendaController extends Controller
             );
             return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
-
     }//end publish()
 
     /**
@@ -217,7 +215,6 @@ class AgendaController extends Controller
             );
             return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }//end try
-
     }//end advanceBobPhase()
 
     /**
@@ -251,7 +248,6 @@ class AgendaController extends Controller
             );
             return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
-
     }//end processHamerstukken()
 
     /**
@@ -286,7 +282,6 @@ class AgendaController extends Controller
             );
             return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
-
     }//end revise()
 
     /**
@@ -328,6 +323,5 @@ class AgendaController extends Controller
             );
             return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
-
     }//end reorder()
 }//end class

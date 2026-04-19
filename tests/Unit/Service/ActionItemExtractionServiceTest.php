@@ -136,7 +136,7 @@ class ActionItemExtractionServiceTest extends TestCase
 
         $candidates = $this->service->extractFromContent($content);
 
-        $this->assertEqual(count($candidates), 0);
+        $this->assertEquals(count($candidates), 0);
     }//end testExtractFromContentReturnsEmptyForUnmatchedContent()
 
     /**
@@ -158,6 +158,6 @@ class ActionItemExtractionServiceTest extends TestCase
 
         $this->assertGreaterThan(0, count($candidates));
         $this->assertNotNull($candidates[0]['suggestedAssignee']);
-        $this->assertEqual($candidates[0]['suggestedAssignee'], 'Jan Pieterzoon');
+        $this->assertEquals($candidates[0]['suggestedAssignee'], 'Jan Pieterzoon');
     }//end testExtractFromContentMatchesParticipantName()
 }//end class

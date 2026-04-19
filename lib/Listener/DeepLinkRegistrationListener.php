@@ -86,9 +86,8 @@ class DeepLinkRegistrationListener implements IEventListener
                 appId: 'decidesk',
                 registerSlug: 'decidesk',
                 schemaSlug: $schemaSlug,
-                urlTemplate: '/apps/decidesk/#/'.$routeSegment.'/{uuid}'
+                urlTemplate: '/apps/decidesk/#/' . $routeSegment . '/{uuid}'
             );
         }
-
     }//end handle()
 }//end class

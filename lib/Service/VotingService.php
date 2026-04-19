@@ -36,7 +36,6 @@ use Psr\Log\LoggerInterface;
  */
 class VotingService
 {
-
     /**
      * Roles that may not be a proxy receiver (observer and guest cannot vote).
      *
@@ -72,7 +71,6 @@ class VotingService
     private function objectService(): object
     {
         return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
     }//end objectService()
 
     /**
@@ -83,7 +81,6 @@ class VotingService
     private function notificationManager(): \OCP\Notification\IManager
     {
         return $this->container->get(\OCP\Notification\IManager::class);
-
     }//end notificationManager()
 
     /**
@@ -94,7 +91,6 @@ class VotingService
     private function fileService(): object
     {
         return $this->container->get('OCA\OpenRegister\Service\FileService');
-
     }//end fileService()
 
     /**
@@ -120,7 +116,6 @@ class VotingService
         }
 
         return $secret;
-
     }//end voterTokenSecret()
 
     /**
@@ -149,7 +144,6 @@ class VotingService
         }
 
         return null;
-
     }//end resolveParticipantUuid()
 
     /**
@@ -206,7 +200,6 @@ class VotingService
         }
 
         return $activeCount >= $quorumRequired;
-
     }//end checkQuorum()
 
     /**
@@ -261,13 +254,12 @@ class VotingService
                 actorId: 'system',
             );
         } catch (\InvalidArgumentException $e) {
-            throw new \RuntimeException('Cannot open voting round: '.$e->getMessage(), 0, $e);
+            throw new \RuntimeException('Cannot open voting round: ' . $e->getMessage(), 0, $e);
         } catch (\Throwable $e) {
             $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
         }
 
         return ($created ?? $votingRound);
-
     }//end openVotingRound()
 
     /**
@@ -330,7 +322,7 @@ class VotingService
             // For secret rounds, participant relations are suppressed for anonymity, so dedup.
             // is keyed on a deterministic delegatorToken (HMAC) to avoid DNS-style rebinding.
             if ($isSecret === true) {
-                $delegatorToken  = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
+                $delegatorToken  = hash_hmac('sha256', $delegatorId . ':proxy:' . $votingRoundId, $this->voterTokenSecret());
                 $existingProxies = $objectService->findObjects(
                     register: 'decidesk',
                     schema: 'vote',
@@ -366,7 +358,7 @@ class VotingService
         // For secret rounds the participant relation is suppressed for anonymity,
         // so dedup is keyed on a deterministic voterToken instead.
         if ($isSecret === true) {
-            $voterToken    = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
+            $voterToken    = hash_hmac('sha256', $participantId . ':' . $votingRoundId, $this->voterTokenSecret());
             $existingVotes = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'vote',
@@ -410,13 +402,13 @@ class VotingService
 
         // Store opaque dedup token for secret rounds (never contains participant identity).
         if ($isSecret === true) {
-            $vote['voterToken'] = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
+            $vote['voterToken'] = hash_hmac('sha256', $participantId . ':' . $votingRoundId, $this->voterTokenSecret());
         }
 
         // Store delegatorToken on secret proxy votes for one-proxy-per-round enforcement.
         // without storing the delegator's participant ID (anonymity preservation).
         if ($isSecret === true && $isProxy === true && $delegatorId !== null) {
-            $vote['delegatorToken'] = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
+            $vote['delegatorToken'] = hash_hmac('sha256', $delegatorId . ':proxy:' . $votingRoundId, $this->voterTokenSecret());
         }
 
         if ($existingVote !== null) {
@@ -427,7 +419,6 @@ class VotingService
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'vote', object: $vote);
 
         return ($saved ?? $vote);
-
     }//end castVote()
 
     /**
@@ -500,7 +491,6 @@ class VotingService
         }
 
         return ($round ?? []);
-
     }//end closeVotingRound()
 
     /**
@@ -530,9 +520,9 @@ class VotingService
             $weight = (int) ($vote['weight'] ?? 1);
             if ($val === 'for') {
                 $for += $weight;
-            } else if ($val === 'against') {
+            } elseif ($val === 'against') {
                 $against += $weight;
-            } else if ($val === 'abstain') {
+            } elseif ($val === 'abstain') {
                 $abstain += $weight;
             }
         }
@@ -541,9 +531,9 @@ class VotingService
 
         if ($total === 0) {
             $result = 'invalid';
-        } else if ($for > $against) {
+        } elseif ($for > $against) {
             $result = 'adopted';
-        } else if ($against > $for) {
+        } elseif ($against > $for) {
             $result = 'rejected';
         } else {
             $result = 'tied';
@@ -566,7 +556,6 @@ class VotingService
             'total'        => $total,
             'result'       => $result,
         ];
-
     }//end tallyResults()
 
     /**
@@ -615,7 +604,6 @@ class VotingService
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
 
         return ($saved ?? $round);
-
     }//end saveShowOfHandsTally()
 
     /**
@@ -700,7 +688,6 @@ class VotingService
         } catch (\Throwable $e) {
             $this->logger->warning('Decidesk: proxy grant notification failed', ['error' => $e->getMessage()]);
         }//end try
-
     }//end grantProxy()
 
     /**
@@ -730,22 +717,21 @@ class VotingService
 
         $notes    = ($round['notes'] ?? []);
         $filtered = array_values(
-                array_filter(
+            array_filter(
                 $notes,
                 static function (array $note) use ($fromParticipantId): bool {
                     if (($note['title'] ?? '') !== 'Proxy') {
                         return true;
                     }
 
-                    $body = json_decode($note['body'] ?? '{}', true);
-                    return ($body['fromParticipantId'] ?? '') !== $fromParticipantId;
+                        $body = json_decode($note['body'] ?? '{}', true);
+                        return ($body['fromParticipantId'] ?? '') !== $fromParticipantId;
                 }
-                )
-                );
+            )
+        );
 
         $round['notes'] = $filtered;
         $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
-
     }//end revokeProxy()
 
     /**
@@ -769,6 +755,5 @@ class VotingService
         } catch (\Throwable $e) {
             $this->logger->warning('Decidesk: dossier folder creation failed', ['motionId' => $motionId, 'error' => $e->getMessage()]);
         }
-
     }//end createDossierFolder()
 }//end class

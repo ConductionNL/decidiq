@@ -39,7 +39,6 @@ use Psr\Log\LoggerInterface;
  */
 class MeetingService
 {
-
     /**
      * Valid lifecycle transitions keyed by action name.
      *
@@ -91,7 +90,6 @@ class MeetingService
         }
 
         return $available;
-
     }//end getAvailableActions()
 
     /**
@@ -114,7 +112,7 @@ class MeetingService
             return [
                 'success' => false,
                 'meeting' => null,
-                'message' => 'Unknown action. Valid actions: '.implode(', ', array_keys(self::TRANSITIONS)).'.',
+                'message' => 'Unknown action. Valid actions: ' . implode(', ', array_keys(self::TRANSITIONS)) . '.',
             ];
         }
 
@@ -148,7 +146,7 @@ class MeetingService
                     'success' => false,
                     'meeting' => null,
                     'message' => "Cannot '$action' a meeting in '$currentLifecycle' state. "
-                        ."Allowed from: ".implode(', ', $transition['from']).".",
+                        . "Allowed from: " . implode(', ', $transition['from']) . ".",
                 ];
             }
 
@@ -191,6 +189,5 @@ class MeetingService
                 'message' => 'Transition failed. See server log for details.',
             ];
         }//end try
-
     }//end transition()
 }//end class

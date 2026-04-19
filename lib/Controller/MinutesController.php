@@ -135,7 +135,6 @@ class MinutesController extends Controller
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
         }//end try
-
     }//end generateDraft()
 
     /**
@@ -220,7 +219,6 @@ class MinutesController extends Controller
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
         }//end try
-
     }//end transition()
 
     /**
@@ -504,7 +502,7 @@ class MinutesController extends Controller
                 [
                     'lifecycle' => 'review',
                     'notified'  => 0,
-            // Placeholder for actual notification count.
+                // Placeholder for actual notification count.
                 ]
             );
         } catch (\Throwable $e) {

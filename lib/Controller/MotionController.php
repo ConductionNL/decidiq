@@ -63,7 +63,6 @@ class MotionController extends Controller
         private readonly IAppConfig $appConfig,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
-
     }//end __construct()
 
     /**
@@ -101,7 +100,6 @@ class MotionController extends Controller
         }
 
         return null;
-
     }//end requireChairOrSecretary()
 
     /**
@@ -142,7 +140,6 @@ class MotionController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
-
     }//end transition()
 
     /**
@@ -179,7 +176,6 @@ class MotionController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
-
     }//end coSignRequest()
 
     /**
@@ -222,7 +218,6 @@ class MotionController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
-
     }//end coSignConfirm()
 
     /**
@@ -262,7 +257,6 @@ class MotionController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
-
     }//end budgetImpact()
 
     /**
@@ -303,6 +297,5 @@ class MotionController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
-
     }//end amendmentTransition()
 }//end class

@@ -69,7 +69,6 @@ class VotingController extends Controller
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
-
     }//end __construct()
 
     /**
@@ -107,7 +106,6 @@ class VotingController extends Controller
         }
 
         return null;
-
     }//end requireChairOrSecretary()
 
     /**
@@ -155,7 +153,6 @@ class VotingController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
-
     }//end open()
 
     /**
@@ -214,7 +211,6 @@ class VotingController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
-
     }//end cast()
 
     /**
@@ -243,7 +239,6 @@ class VotingController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
-
     }//end close()
 
     /**
@@ -274,7 +269,6 @@ class VotingController extends Controller
             $this->logger->error('Decidesk: ORI publication failed', ['votingRoundId' => $id, 'error' => $e->getMessage()]);
             return new JSONResponse(['message' => 'Publication failed'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
-
     }//end publish()
 
     /**
@@ -324,7 +318,6 @@ class VotingController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
-
     }//end proxy()
 
     /**
@@ -366,7 +359,6 @@ class VotingController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
-
     }//end tally()
 
     /**
@@ -403,6 +395,5 @@ class VotingController extends Controller
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
-
     }//end revokeProxy()
 }//end class

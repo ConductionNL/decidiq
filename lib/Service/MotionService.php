@@ -37,7 +37,6 @@ use Psr\Log\LoggerInterface;
  */
 class MotionService
 {
-
     /**
      * Allowed lifecycle transitions for Motion objects.
      *
@@ -93,7 +92,6 @@ class MotionService
     private function getObjectService(): object
     {
         return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
     }//end getObjectService()
 
     /**
@@ -152,7 +150,6 @@ class MotionService
         $this->logger->info(
             "Decidesk: $objectType $objectId transitioned from $currentState to $newState by $actorId"
         );
-
     }//end transitionLifecycle()
 
     /**
@@ -248,7 +245,6 @@ class MotionService
                 uuid: $motionId,
             );
         }
-
     }//end requestCoSignature()
 
     /**
@@ -287,7 +283,6 @@ class MotionService
                 uuid: $motionId,
             );
         }
-
     }//end addCoSigner()
 
     /**
@@ -315,7 +310,6 @@ class MotionService
 
         $motionData = $motionObject->getObject();
         return in_array($nextcloudUid, $motionData['pendingCoSignerUids'] ?? [], true);
-
     }//end isPendingCoSigner()
 
     /**
@@ -356,7 +350,7 @@ class MotionService
             ]
         );
         if ($budgetPayload === false) {
-            throw new \RuntimeException('JSON encoding of budget impact failed: '.json_last_error_msg());
+            throw new \RuntimeException('JSON encoding of budget impact failed: ' . json_last_error_msg());
         }
 
         $budgetNote = [
@@ -386,7 +380,6 @@ class MotionService
             schema: 'motion',
             uuid: $motionId,
         );
-
     }//end saveBudgetImpact()
 
     /**
@@ -420,14 +413,14 @@ class MotionService
 
         // Fetch existing amendments for this motion only (push filter to store query).
         $existing = $objectService->findAll(
-                [
+            [
                     'filters' => [
                         'register'         => 'decidesk',
                         'schema'           => 'amendment',
                         'relations.motion' => $motionId,
                     ],
                 ]
-                );
+        );
 
         $conflictFound = false;
         foreach ($existing as $amendment) {
@@ -513,7 +506,6 @@ class MotionService
         );
 
         $this->logger->info("Decidesk: Amendment conflict detected for amendment $newAmendmentId on motion $motionId");
-
     }//end detectConflicts()
 
     /**
@@ -553,7 +545,7 @@ class MotionService
 
         $motionData  = $motionObject->getObject();
         $currentText = $motionData['text'] ?? '';
-        $updatedText = $currentText."\n\n---\n**Amendement: $amendTitle**\n$amendText";
+        $updatedText = $currentText . "\n\n---\n**Amendement: $amendTitle**\n$amendText";
 
         $objectService->saveObject(
             object: array_merge($motionData, ['text' => $updatedText]),
@@ -561,6 +553,5 @@ class MotionService
             schema: 'motion',
             uuid: $motionId,
         );
-
     }//end applyAmendment()
 }//end class

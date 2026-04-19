@@ -90,7 +90,7 @@ class LiveDecisionService
             // Verify meeting is opened.
             if ($lifecycle !== 'opened') {
                 throw new \InvalidArgumentException(
-                    'Meeting must be in "opened" state to record decisions. Current state: '.$lifecycle
+                    'Meeting must be in "opened" state to record decisions. Current state: ' . $lifecycle
                 );
             }
 
@@ -167,10 +167,10 @@ class LiveDecisionService
                 '_limit'  => 1,
             ];
 
-            $existingMinutes = $objectService->findAll(
+            $existingMinutes = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'Minutes',
-                params: $params
+                filters: $params
             );
 
             if (!empty($existingMinutes['results'])) {
@@ -193,7 +193,7 @@ class LiveDecisionService
                     'register' => 'decidesk',
                     'schema'   => 'Minutes',
                 ],
-                'title'     => 'Concept notulen — '.$meetingTitle,
+                'title'     => 'Concept notulen — ' . $meetingTitle,
                 'lifecycle' => 'draft',
                 'version'   => 1,
                 'content'   => '',

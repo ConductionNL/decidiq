@@ -38,7 +38,6 @@ use Psr\Log\LoggerInterface;
  */
 class SettingsService
 {
-
     /**
      * Configuration keys managed by this service.
      *
@@ -177,7 +176,7 @@ class SettingsService
      *
      * @return array<string,mixed> Result with success flag, message, and version.
      */
-    public function loadConfiguration(bool $force=false): array
+    public function loadConfiguration(bool $force = false): array
     {
         if ($this->isOpenRegisterAvailable() === false) {
             $this->logger->warning('Decidesk: OpenRegister not available, skipping register initialization');

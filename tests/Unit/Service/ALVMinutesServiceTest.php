@@ -188,7 +188,7 @@ class ALVMinutesServiceTest extends TestCase
 
         $result = $this->service->distribute('minutes-1');
 
-        $this->assertEqual($result, 0);
+        $this->assertEquals($result, 0);
     }//end testDistributeReturnsZeroWhenNoActiveParticipants()
 
     /**
