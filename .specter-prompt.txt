@@ -3,14 +3,10 @@ You are generating OpenSpec change artifacts for a Nextcloud app.
 You are running HEADLESS. Do NOT use AskUserQuestion, interactive prompts, or skills.
 Write files directly using the Write tool.
 
-## App Context
-Project: Decidesk
-Repo: ConductionNL/decidesk
-Type: Nextcloud App (PHP backend + Vue 2 frontend)
-Description: Universal decision-making platform for governance bodies — manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type.
-Key components: Dashboard, Meeting Management, Agenda Builder, Motion/Voting, Minutes/Decisions, Governance Bodies, Citizen Participation
-Database: PostgreSQL (via OpenRegister's ObjectService)
-Mount path: /var/www/html/custom_apps/decidesk
+## Inputs
+- Change: p2-meeting-management-core-t3 (title: Meeting Management — Core T3)
+- Context brief: openspec/changes/p2-meeting-management-core-t3/context-brief.md
+- Data model ADR: openspec/architecture/adr-000-data-model.md
 
 Governance Domains:
   1. Legislative/democratic bodies (municipalities, provinces, water boards)
@@ -33,12 +29,38 @@ Project guidelines: See ../project.md for workspace-wide standards
 **Spec type:** capability
 ## Step 1: Read context
 Read these files COMPLETELY before writing anything:
-- openspec/changes/p3-citizen-participation/context-brief.md (features, stories, stakeholders, journeys)
+- openspec/changes/p2-meeting-management-core-t3/context-brief.md (features, stories, stakeholders, journeys)
 - openspec/architecture/adr-000-data-model.md (entity definitions)
 - All files in openspec/architecture/ (app ADRs)
 - All files in .claude/openspec/architecture/ (company ADRs, if present)
 
-## Global Rules
+## Step 2: Get artifact templates
+Run: `openspec instructions proposal --change p2-meeting-management-core-t3 --json`
+This returns the template and rules for the proposal artifact.
+Then do the same for: design, specs, tasks (in that order).
+
+## Step 3: Write artifacts
+For each artifact (proposal → design → specs → tasks):
+1. Read the template from openspec instructions
+2. Fill it using the REAL data from context-brief.md:
+   - Features with their demand scores and descriptions
+   - User stories with acceptance criteria (GIVEN/WHEN/THEN)
+   - Customer journeys with triggers and pain points
+   - Stakeholder profiles with responsibilities and goals
+   - Entity schemas from ADR-000 (do NOT invent new entities)
+3. Write the artifact file using the Write tool
+4. Verify it exists
+
+## Step 4: Commit
+After all 4 artifacts are written:
+```bash
+git add openspec/changes/p2-meeting-management-core-t3/
+git commit -m 'feat: Add OpenSpec change p2-meeting-management-core-t3 from Specter'
+```
+Do NOT push — the caller handles pushing.
+Do NOT create branches — stay on the current branch.
+
+## Rules
 - Use REAL data from context-brief.md — NEVER invent features, stories, or entities
 - Entities MUST match ADR-000 exactly
 ## Your Task: Write design.md and specs/spec.md
