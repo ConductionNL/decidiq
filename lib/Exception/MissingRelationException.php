@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Decidesk MissingRelationException
  *
  * Thrown when a required object relation (e.g. a linked Meeting) cannot be

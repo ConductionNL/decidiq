@@ -1,10 +1,4 @@
 <?php
-
-/*
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- */
-
 /**
  * Decidesk Voting Service
  *
@@ -25,6 +19,8 @@
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;

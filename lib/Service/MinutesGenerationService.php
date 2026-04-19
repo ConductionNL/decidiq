@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Decidesk Minutes Generation Service
  *
  * Service for generating initial minutes drafts from linked meeting data.
