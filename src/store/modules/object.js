@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2026 Conduction B.V.
+// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+
 import { defineStore } from 'pinia'
 
 /**
@@ -14,11 +18,25 @@ export const useObjectStore = defineStore('object', {
 	}),
 
 	actions: {
+		/**
+		 * Configure the store with base URLs for the OpenRegister API.
+		 *
+		 * @param {object} config - Configuration object
+		 * @param {string} config.baseUrl - Base URL for object API
+		 * @param {string} config.schemaBaseUrl - Base URL for schema API
+		 */
 		configure({ baseUrl, schemaBaseUrl }) {
 			this.baseUrl = baseUrl
 			this.schemaBaseUrl = schemaBaseUrl
 		},
 
+		/**
+		 * Register an object type with its schema and register slugs.
+		 *
+		 * @param {string} type - Logical type name
+		 * @param {string} schema - Schema slug in OpenRegister
+		 * @param {string} register - Register slug in OpenRegister
+		 */
 		registerObjectType(type, schema, register) {
 			this.objectTypes[type] = { schema, register }
 			if (!this.objects[type]) {
@@ -26,6 +44,13 @@ export const useObjectStore = defineStore('object', {
 			}
 		},
 
+		/**
+		 * Fetch all objects of the given type.
+		 *
+		 * @param {string} type - Registered object type
+		 * @param {object} params - Additional query parameters
+		 * @return {Promise<Array>} List of objects
+		 */
 		async fetchObjects(type, params = {}) {
 			if (!this.objectTypes[type]) {
 				console.warn(`Object type "${type}" is not registered`)
