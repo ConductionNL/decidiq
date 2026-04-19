@@ -246,6 +246,15 @@ class MinutesController extends Controller
             );
         }
 
+        // Require admin rights to prevent unauthorized access to governance data
+        // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may generate ALV minutes.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         try {
             $result = $this->alvMinutesService->generateALVDraft($minutesId);
             return new JSONResponse(['preview' => $result['content']]);
@@ -290,6 +299,15 @@ class MinutesController extends Controller
             );
         }
 
+        // Require admin rights to prevent unauthorized notification dispatch
+        // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may distribute minutes.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         try {
             $count = $this->alvMinutesService->distribute($minutesId);
             return new JSONResponse(['notified' => $count]);
@@ -329,11 +347,22 @@ class MinutesController extends Controller
             );
         }
 
+        // Require admin rights to prevent unauthorized access to governance data
+        // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may extract action items.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         try {
-            // Fetch the minutes to get content
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
+
             $objectService = \OC::$server->get('OCA\OpenRegister\Service\ObjectService');
-            $minutes = $objectService->find(id: $minutesId);
+            $minutes       = $objectService->find(id: $minutesId);
 
             if ($minutes === null) {
                 return new JSONResponse(
@@ -343,7 +372,7 @@ class MinutesController extends Controller
             }
 
             $minutesObj = $minutes->getObject();
-            $content = $minutesObj['content'] ?? '';
+            $content    = $minutesObj['content'] ?? '';
 
             $candidates = $this->extractionService->extractFromContent($content);
             return new JSONResponse(['candidates' => $candidates]);
@@ -352,7 +381,7 @@ class MinutesController extends Controller
                 ['message' => 'Failed to extract action items.'],
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
-        }
+        }//end try
     }//end extractActionItems()
 
     /**
@@ -378,8 +407,17 @@ class MinutesController extends Controller
             );
         }
 
+        // Require admin rights to prevent unauthorized object creation
+        // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may save action items.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         $confirmed = $this->request->getParam('confirmed');
-        if (!is_array($confirmed)) {
+        if (is_array($confirmed) === false) {
             return new JSONResponse(
                 ['message' => 'Invalid confirmed array.'],
                 Http::STATUS_BAD_REQUEST
@@ -420,8 +458,20 @@ class MinutesController extends Controller
             );
         }
 
+        // Require admin rights to prevent unauthorized state transitions
+        // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may submit minutes for approval.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
+
             $objectService = \OC::$server->get('OCA\OpenRegister\Service\ObjectService');
 
             $minutes = $objectService->find(id: $minutesId);
@@ -433,7 +483,7 @@ class MinutesController extends Controller
             }
 
             $minutesObj = $minutes->getObject();
-            $lifecycle = $minutesObj['lifecycle'] ?? 'draft';
+            $lifecycle  = $minutesObj['lifecycle'] ?? 'draft';
 
             if ($lifecycle !== 'draft') {
                 return new JSONResponse(
@@ -442,7 +492,7 @@ class MinutesController extends Controller
                 );
             }
 
-            // Update lifecycle to review
+            // Update lifecycle to review.
             $updated = $objectService->updateFromArray(
                 id: $minutesId,
                 object: ['lifecycle' => 'review'],
@@ -450,15 +500,18 @@ class MinutesController extends Controller
                 patch: true
             );
 
-            return new JSONResponse([
-                'lifecycle' => 'review',
-                'notified' => 0, // Placeholder for actual notification count
-            ]);
+            return new JSONResponse(
+                [
+                    'lifecycle' => 'review',
+                    'notified'  => 0,
+            // Placeholder for actual notification count.
+                ]
+            );
         } catch (\Throwable $e) {
             return new JSONResponse(
                 ['message' => 'Failed to submit for approval.'],
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
-        }
+        }//end try
     }//end submitForApproval()
 }//end class

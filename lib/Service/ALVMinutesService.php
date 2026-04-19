@@ -150,16 +150,25 @@ TEMPLATE;
 
                     $participants = $participantsResponse['results'] ?? [];
                     $totalCount = count($participants);
-                    $presentCount = (int)floor($totalCount * 0.8); // Simulate attendance for template
-                    $quorumPercentage = ($presentCount / max(1, $totalCount)) * 100;
-                    $quorumStatus = $presentCount >= ceil($totalCount / 2)
-                        ? "Quorum behaald ({$presentCount} van {$totalCount} leden)"
-                        : "Quorum NIET behaald ({$presentCount} van {$totalCount} leden)";
+
+                    // Use actual attendance from meeting data if available,
+                    // otherwise indicate attendance was not recorded
+                    $attendanceCount = $meetingObj['attendanceCount'] ?? null;
+                    if ($attendanceCount !== null) {
+                        $presentCount = (int)$attendanceCount;
+                        $quorumStatus = $presentCount >= ceil($totalCount / 2)
+                            ? "Quorum behaald ({$presentCount} van {$totalCount} leden)"
+                            : "Quorum NIET behaald ({$presentCount} van {$totalCount} leden)";
+                    } else {
+                        // No attendance data recorded; don't simulate
+                        $presentCount = $totalCount;
+                        $quorumStatus = "Aanwezig: {$totalCount} van {$totalCount} leden (registratie onvolledig)";
+                    }
                 } catch (\Throwable) {
                     // Use defaults if participant fetch fails
-                    $totalCount = 50;
-                    $presentCount = 30;
-                    $quorumStatus = 'Quorum behaald';
+                    $totalCount = 0;
+                    $presentCount = 0;
+                    $quorumStatus = 'Aanwezigheid niet vastgesteld';
                 }
             }
 
