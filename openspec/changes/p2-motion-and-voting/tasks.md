@@ -21,7 +21,7 @@
   - `POST /api/amendments/{id}/transition` → `MotionService::transitionLifecycle()`
 - [x] 1.3 Register routes in `appinfo/routes.php` — add all 5 routes above; specific routes before wildcard `{slug}` routes
 - [x] 1.4 Register `MotionService` and `MotionController` in DI container (`lib/AppInfo/Application.php`)
-- [x] 1.5 Write PHPUnit tests in `tests/Unit/Service/MotionServiceTest.php` covering: `transitionLifecycle` allowed and blocked transitions; `addCoSigner` idempotency; `detectConflicts` with overlapping and non-overlapping text; `applyAmendment` text update
+- [ ] 1.5 Write PHPUnit tests in `tests/Unit/Service/MotionServiceTest.php` — **BLOCKED on #90** (ObjectService stub/real-signature mismatch). Tests exist but skip unconditionally in setUp(); will unskip once #90 lands.
 
 ## 2. Backend — VotingService and VotingController
 
@@ -42,7 +42,7 @@
   - `DELETE /api/voting-rounds/{id}/proxy` → `VotingService::revokeProxy()`
 - [x] 2.3 Register all 6 routes in `appinfo/routes.php`; specific routes before wildcard `{slug}` routes
 - [x] 2.4 Register `VotingService` and `VotingController` in DI container
-- [x] 2.5 Write PHPUnit tests in `tests/Unit/Service/VotingServiceTest.php` covering: `checkQuorum` met and not met; `openVotingRound` quorum block; `castVote` duplicate update; `castVote` proxy one-per-round enforcement; `tallyResults` adopted/rejected/tied; `closeVotingRound` lifecycle transition; `grantProxy` observer rejection
+- [ ] 2.5 Write PHPUnit tests in `tests/Unit/Service/VotingServiceTest.php` — **BLOCKED on #90** (ObjectService stub/real-signature mismatch). Tests exist but skip unconditionally in setUp(); will unskip once #90 lands.
 
 ## 3. Backend — OriPublicationService and MailReplyHandler
 

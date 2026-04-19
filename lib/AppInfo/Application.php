@@ -26,9 +26,14 @@ use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
 use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Controller\MinutesController;
+use OCA\Decidesk\Controller\MotionController;
+use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Service\OriPublicationService;
+use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -128,6 +133,79 @@ class Application extends App implements IBootstrap
                     return new OverdueActionItemsJob(
                     time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register OriPublicationService for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.
+        $context->registerService(
+                OriPublicationService::class,
+                static function ($c): OriPublicationService {
+                    return new OriPublicationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    clientService: $c->get(\OCP\Http\Client\IClientService::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register MotionService for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.4.
+        $context->registerService(
+                MotionService::class,
+                static function ($c): MotionService {
+                    return new MotionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    userManager: $c->get(\OCP\IUserManager::class),
+                    );
+                }
+                );
+
+        // Register VotingService for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.4.
+        $context->registerService(
+                VotingService::class,
+                static function ($c): VotingService {
+                    return new VotingService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    oriPublicationService: $c->get(OriPublicationService::class),
+                    motionService: $c->get(MotionService::class),
+                    );
+                }
+                );
+
+        // Register MotionController for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.4.
+        $context->registerService(
+                MotionController::class,
+                static function ($c): MotionController {
+                    return new MotionController(
+                    request: $c->get(\OCP\IRequest::class),
+                    motionService: $c->get(MotionService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    );
+                }
+                );
+
+        // Register VotingController for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.4.
+        $context->registerService(
+                VotingController::class,
+                static function ($c): VotingController {
+                    return new VotingController(
+                    request: $c->get(\OCP\IRequest::class),
+                    votingService: $c->get(VotingService::class),
+                    oriPublicationService: $c->get(OriPublicationService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
