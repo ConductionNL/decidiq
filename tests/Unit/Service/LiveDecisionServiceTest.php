@@ -247,6 +247,6 @@ class LiveDecisionServiceTest extends TestCase
 
         $result = $this->service->ensureDraftMinutes($meetingId);
 
-        $this->assertEqual($result, 'minutes-1');
+        $this->assertEquals($result, 'minutes-1');
     }//end testEnsureDraftMinutesReturnsExistingMinutesSlug()
 }//end class

@@ -88,11 +88,11 @@ abstract class ObjectService
      *
      * @param string              $register Register slug
      * @param string              $schema   Schema slug
-     * @param array<string,mixed> $filters  Field filters
+     * @param array<string,mixed> $params   Field filters and query parameters
      *
      * @return array{results: array<array<string,mixed>>}
      */
-    abstract public function findObjects(string $register, string $schema, array $filters = []): array;
+    abstract public function findObjects(string $register, string $schema, array $params = []): array;
 
     /**
      * Save (create or update) an object.

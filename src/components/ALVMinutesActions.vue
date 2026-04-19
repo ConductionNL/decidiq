@@ -3,27 +3,28 @@
 		<button
 			v-if="isALV"
 			class="btn btn-secondary"
-			@click="generateALV">
+			@click="generateALV"
+		>
 			{{ t('decidesk', 'Generate ALV Minutes') }}
 		</button>
 
 		<button
 			v-if="canDistribute"
 			class="btn btn-secondary"
-			@click="distribute">
+			@click="distribute"
+		>
 			{{ t('decidesk', 'Distribute to Members') }}
 		</button>
 
-		<div v-if="!isALV && !canDistribute" class="validation-notice">
+		<div
+			v-if="!isALV && !canDistribute"
+			class="validation-notice"
+		>
 			{{ t('decidesk', 'This is not an ALV meeting or minutes are not approved yet') }}
 		</div>
 
-		<div v-if="error" class="error-message">
-			{{ error }}
-		</div>
-		<div v-if="success" class="success-message">
-			{{ success }}
-		</div>
+		<div v-if="error" class="error-message">{{ error }}</div>
+		<div v-if="success" class="success-message">{{ success }}</div>
 	</div>
 </template>
 
@@ -64,8 +65,8 @@ export default {
 	methods: {
 		async generateALV() {
 			try {
-				await axios.post(
-					`/apps/decidesk/api/minutes/${this.minutesId}/generate-alv`,
+				const response = await axios.post(
+					`/apps/decidesk/api/minutes/${this.minutesId}/generate-alv`
 				)
 
 				alert(t('decidesk', 'ALV minutes generated'))
@@ -77,11 +78,11 @@ export default {
 		async distribute() {
 			try {
 				const response = await axios.post(
-					`/apps/decidesk/api/minutes/${this.minutesId}/distribute`,
+					`/apps/decidesk/api/minutes/${this.minutesId}/distribute`
 				)
 
 				const count = response.data.notified || 0
-				this.success = t('decidesk', '{count} members notified', { count })
+				this.success = t('decidesk', `{count} members notified`, { count })
 			} catch (err) {
 				this.error = t('decidesk', 'Failed to distribute minutes')
 			}

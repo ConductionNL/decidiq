@@ -130,8 +130,8 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $summary = $this->service->getSummary('', '');
 
-        $this->assertEqual($summary['totalOpen'], 2);
-        $this->assertEqual($summary['totalOverdue'], 1);
+        $this->assertEquals($summary['totalOpen'], 2);
+        $this->assertEquals($summary['totalOverdue'], 1);
     }//end testGetSummaryReturnsCorrectOverdueCount()
 
     /**
@@ -175,8 +175,8 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $this->assertIsArray($rates);
         $this->assertGreaterThan(0, count($rates));
-        $this->assertEqual($rates[0]['completionRate'], 0.0);
-        $this->assertEqual($rates[0]['total'], 2);
+        $this->assertEquals($rates[0]['completionRate'], 0.0);
+        $this->assertEquals($rates[0]['total'], 2);
     }//end testGetCompletionRatesReturnsZeroPercentForNoCompletedItems()
 
     /**
@@ -219,9 +219,9 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $items = $this->service->getMyItems('John Doe');
 
-        $this->assertEqual(count($items['overdue']), 1);
-        $this->assertEqual(count($items['thisWeek']), 1);
-        $this->assertEqual(count($items['later']), 1);
+        $this->assertEquals(count($items['overdue']), 1);
+        $this->assertEquals(count($items['thisWeek']), 1);
+        $this->assertEquals(count($items['later']), 1);
     }//end testGetMyItemsGroupsOverdueItemsCorrectly()
 
     /**

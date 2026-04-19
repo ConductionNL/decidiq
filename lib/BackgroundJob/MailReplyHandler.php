@@ -135,7 +135,7 @@ class MailReplyHandler extends TimedJob
         $openRounds = $objectService->findObjects(
             register: 'decidesk',
             schema: 'voting-round',
-            filters: ['closedAt' => null, 'openedAt' => ['!=' => null]]
+            params: ['closedAt' => null, 'openedAt' => ['!=' => null]]
         );
 
         foreach (($openRounds['results'] ?? []) as $round) {
