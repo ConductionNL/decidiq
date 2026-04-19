@@ -13,18 +13,65 @@
 		@edit="editing = true"
 		@delete="showDeleteDialog = true">
 		<template #properties>
-			<CnDetailCard :title="t('decidesk', 'Eigenschappen')">
-				<div v-if="canPublish" class="decidesk-publish-action">
+			<CnDetailCard :title="t('decidesk', 'Notificaties')">
+				<div class="decidesk-notification-toggle">
+					<p>{{ t('decidesk', isSubscribed ? 'Notificaties ingeschakeld' : 'Notificaties inschakelen') }}</p>
 					<NcButton
-						type="primary"
-						:disabled="publishing"
-						@click="publish">
-						{{ t('decidesk', 'Publiceren') }}
+						v-if="!isSubscribed"
+						type="secondary"
+						@click="subscribe">
+						{{ t('decidesk', 'Abonneren') }}
 					</NcButton>
-					<p v-if="publishError" class="decidesk-publish-error">
-						{{ publishError }}
+					<NcButton
+						v-else
+						type="secondary"
+						@click="unsubscribe">
+						{{ t('decidesk', 'Abonnement verwijderen') }}
+					</NcButton>
+					<p v-if="notificationError" class="decidesk-notification-error">
+						{{ notificationError }}
 					</p>
 				</div>
+			</CnDetailCard>
+
+			<CnDetailCard
+				v-if="!object.isPublished && canPublish"
+				:title="t('decidesk', 'Publiceren op ledenportaal')">
+				<p>{{ t('decidesk', 'Publiceer deze beslissing op de ledenportal zodat leden deze kunnen zien.') }}</p>
+				<NcButton
+					type="primary"
+					:disabled="publishing"
+					@click="showPublishConfirm = true">
+					{{ t('decidesk', 'Publiceren op ledenportaal') }}
+				</NcButton>
+				<p v-if="publishError" class="decidesk-publish-error">
+					{{ publishError }}
+				</p>
+			</CnDetailCard>
+
+			<CnDetailCard
+				v-if="object.isPublished"
+				:title="t('decidesk', 'Gedeeld via ledenportaal')">
+				<div class="decidesk-share-link">
+					<NcTextField
+						:value="shareUrl"
+						:placeholder="t('decidesk', 'Share URL')"
+						disabled />
+					<NcButton
+						type="secondary"
+						@click="copyShareLink">
+						{{ t('decidesk', 'Kopieer') }}
+					</NcButton>
+					<NcButton
+						type="secondary"
+						:href="shareUrl"
+						target="_blank">
+						{{ t('decidesk', 'Bekijk publieke pagina') }}
+					</NcButton>
+				</div>
+			</CnDetailCard>
+
+			<CnDetailCard :title="t('decidesk', 'Eigenschappen')">
 				<CnDetailGrid :items="propertyItems" />
 			</CnDetailCard>
 		</template>
@@ -79,18 +126,42 @@
 				@confirm="confirmDelete"
 				@close="showDeleteDialog = false" />
 		</template>
+
+		<NcDialog
+			v-if="showPublishConfirm"
+			:name="t('decidesk', 'Bevestig publicatie')"
+			:open="showPublishConfirm"
+			@update:open="showPublishConfirm = false">
+			<template #default>
+				<p>{{ t('decidesk', 'Weet u zeker dat u deze beslissing wilt publiceren op de ledenportal?') }}</p>
+			</template>
+			<template #actions>
+				<NcButton
+					type="primary"
+					:disabled="publishing"
+					@click="publishToPortal">
+					{{ t('decidesk', 'Publiceren') }}
+				</NcButton>
+				<NcButton @click="showPublishConfirm = false">
+					{{ t('decidesk', 'Annuleren') }}
+				</NcButton>
+			</template>
+		</NcDialog>
 	</CnDetailPage>
 </template>
 
 <script>
 import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
-import { NcButton } from '@nextcloud/vue'
+import { NcButton, NcDialog, NcTextField } from '@nextcloud/vue'
 import { useObjectStore } from '../store/store.js'
 import { useDecisionStore } from '../store/modules/decisions.js'
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
+import { showSuccess, showError } from '@nextcloud/dialogs'
 
 export default {
 	name: 'DecisionDetail',
-	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, NcButton },
+	components: { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, NcButton, NcDialog, NcTextField },
 	props: {
 		id: { type: String, required: true },
 	},
@@ -108,6 +179,19 @@ export default {
 		return {
 			publishing: false,
 			publishError: null,
+			isSubscribed: false,
+			notificationError: null,
+			shareUrl: null,
+			showPublishConfirm: false,
+		}
+	},
+	mounted() {
+		this.fetchSubscriptionStatus()
+	},
+	mounted() {
+		this.fetchSubscriptionStatus()
+		if (this.object?.isPublished) {
+			this.fetchShareLink()
 		}
 	},
 	computed: {
@@ -140,16 +224,68 @@ export default {
 			this.editing = false
 			this.objectStore.fetchObject('decision', this.id)
 		},
-		async publish() {
+		async fetchSubscriptionStatus() {
+			try {
+				const url = generateUrl(`/apps/decidesk/api/notifications/decision/${this.id}/subscriptions`)
+				const response = await axios.get(url)
+				this.isSubscribed = response.data.subscribed || false
+			} catch (error) {
+				console.error('Failed to fetch subscription status:', error)
+			}
+		},
+		async subscribe() {
+			this.notificationError = null
+			try {
+				const url = generateUrl(`/apps/decidesk/api/notifications/decision/${this.id}/subscriptions`)
+				await axios.post(url)
+				this.isSubscribed = true
+			} catch (error) {
+				this.notificationError = error.message || this.t('decidesk', 'Abonnement mislukt.')
+			}
+		},
+		async unsubscribe() {
+			this.notificationError = null
+			try {
+				const url = generateUrl(`/apps/decidesk/api/notifications/decision/${this.id}/subscriptions`)
+				await axios.delete(url)
+				this.isSubscribed = false
+			} catch (error) {
+				this.notificationError = error.message || this.t('decidesk', 'Abonnement verwijderen mislukt.')
+			}
+		},
+		async fetchShareLink() {
+			try {
+				const url = generateUrl(`/apps/decidesk/api/decisions/${this.id}/share-link`)
+				const response = await axios.get(url)
+				this.shareUrl = response.data.shareUrl || null
+			} catch (error) {
+				console.error('Failed to fetch share link:', error)
+			}
+		},
+		async publishToPortal() {
 			this.publishing = true
 			this.publishError = null
 			try {
-				await this.decisionStore.publishDecision(this.id)
+				const url = generateUrl(`/apps/decidesk/api/decisions/${this.id}/publish`)
+				const response = await axios.post(url)
+				this.shareUrl = response.data.shareUrl || null
 				await this.objectStore.fetchObject('decision', this.id)
+				this.showPublishConfirm = false
+				showSuccess(this.t('decidesk', 'Beslissing gepubliceerd.'))
 			} catch (error) {
 				this.publishError = error.message || this.t('decidesk', 'Publiceren mislukt.')
+				showError(this.publishError)
 			} finally {
 				this.publishing = false
+			}
+		},
+		async copyShareLink() {
+			if (!this.shareUrl) return
+			try {
+				await navigator.clipboard.writeText(this.shareUrl)
+				showSuccess(this.t('decidesk', 'Link gekopieerd'))
+			} catch (error) {
+				showError(this.t('decidesk', 'Kopiëren naar klembord mislukt.'))
 			}
 		},
 		formatDate(dateStr) {
@@ -179,6 +315,34 @@ export default {
 
 .decidesk-relations li:last-child {
 	border-bottom: none;
+}
+
+.decidesk-notification-toggle {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.decidesk-notification-toggle p {
+	margin: 0;
+	color: var(--color-text-maxcontrast);
+}
+
+.decidesk-notification-error {
+	color: var(--color-error);
+	margin: 0 !important;
+	font-size: 0.875em;
+}
+
+.decidesk-share-link {
+	display: flex;
+	gap: 8px;
+	align-items: flex-end;
+	margin-top: 12px;
+}
+
+.decidesk-share-link :deep(.nc-text-field) {
+	flex: 1;
 }
 
 .decidesk-publish-action {

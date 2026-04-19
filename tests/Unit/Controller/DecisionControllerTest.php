@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Service\DecisionService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
@@ -101,6 +102,13 @@ class DecisionControllerTest extends TestCase
     private ObjectService&MockObject $objectService;
 
     /**
+     * Mock DecisionService.
+     *
+     * @var DecisionService&MockObject
+     */
+    private DecisionService&MockObject $decisionService;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -109,13 +117,14 @@ class DecisionControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->request       = $this->createMock(IRequest::class);
-        $this->container     = $this->createMock(ContainerInterface::class);
-        $this->userSession   = $this->createMock(IUserSession::class);
-        $this->groupManager  = $this->createMock(IGroupManager::class);
-        $this->logger        = $this->createMock(LoggerInterface::class);
-        $this->user          = $this->createMock(IUser::class);
-        $this->objectService = $this->createMock(ObjectService::class);
+        $this->request           = $this->createMock(IRequest::class);
+        $this->container         = $this->createMock(ContainerInterface::class);
+        $this->userSession       = $this->createMock(IUserSession::class);
+        $this->groupManager      = $this->createMock(IGroupManager::class);
+        $this->logger            = $this->createMock(LoggerInterface::class);
+        $this->user              = $this->createMock(IUser::class);
+        $this->objectService     = $this->createMock(ObjectService::class);
+        $this->decisionService   = $this->createMock(DecisionService::class);
 
         $this->user->method('getUID')->willReturn('admin');
         $this->userSession->method('getUser')->willReturn($this->user);
@@ -126,6 +135,7 @@ class DecisionControllerTest extends TestCase
             userSession: $this->userSession,
             groupManager: $this->groupManager,
             logger: $this->logger,
+            decisionService: $this->decisionService,
         );
 
     }//end setUp()
@@ -148,6 +158,7 @@ class DecisionControllerTest extends TestCase
             userSession: $unauthSession,
             groupManager: $this->groupManager,
             logger: $this->logger,
+            decisionService: $this->decisionService,
         );
 
         // Container must NOT be called for an unauthenticated request.
