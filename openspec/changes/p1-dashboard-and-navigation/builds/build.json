@@ -1,0 +1,16 @@
+{
+  "phase": "build",
+  "timestamp": "2026-04-13T17:22:57.849424+00:00",
+  "pr": 8,
+  "commit": "7dd8eb0",
+  "turns": 90,
+  "cost_usd": 3.2176048,
+  "tokens": {
+    "input": 2783,
+    "output": 29490,
+    "cache_read": 3059055,
+    "cache_create": 85998
+  },
+  "model": "claude-opus-4-6",
+  "maxed_out": false
+}

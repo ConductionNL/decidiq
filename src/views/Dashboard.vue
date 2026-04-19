@@ -1,55 +1,55 @@
+<!--
+SPDX-License-Identifier: EUPL-1.2
+Copyright (C) 2026 Conduction B.V.
+@spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
+-->
 <template>
 	<div class="decidesk-dashboard">
 		<header class="decidesk-dashboard__header">
 			<h2>{{ t('decidesk', 'Dashboard') }}</h2>
 			<p class="decidesk-dashboard__lead">
-				{{ t('decidesk', 'Starter overview with sample KPIs and activity placeholders. Replace this view with your own data.') }}
+				{{ t('decidesk', 'Overzicht van notulen, besluiten en actiepunten.') }}
 			</p>
 		</header>
 
-		<CnKpiGrid :columns="4">
+		<!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8 -->
+		<CnKpiGrid :columns="3">
 			<CnStatsBlock
-				:title="t('decidesk', 'Open items')"
-				:count="12"
-				:count-label="t('decidesk', 'sample')"
-				:icon="FolderOutline"
-				variant="primary"
-				horizontal />
-			<CnStatsBlock
-				:title="t('decidesk', 'Due this week')"
-				:count="5"
-				:count-label="t('decidesk', 'sample')"
-				:icon="CalendarClock"
+				:title="t('decidesk', 'Notulen ter goedkeuring')"
+				:count="minutesInReviewCount"
+				:count-label="t('decidesk', 'notulen')"
+				:icon="FileDocumentOutlineIcon"
 				variant="warning"
 				horizontal />
 			<CnStatsBlock
-				:title="t('decidesk', 'Completed')"
-				:count="48"
-				:count-label="t('decidesk', 'sample')"
-				:icon="CheckCircleOutline"
+				:title="t('decidesk', 'Gepubliceerde besluiten')"
+				:count="publishedDecisionCount"
+				:count-label="t('decidesk', 'besluiten')"
+				:icon="CheckDecagramIcon"
 				variant="success"
 				horizontal />
 			<CnStatsBlock
-				:title="t('decidesk', 'Team members')"
-				:count="7"
-				:count-label="t('decidesk', 'sample')"
-				:icon="AccountGroupOutline"
-				variant="default"
+				:title="t('decidesk', 'Open actiepunten')"
+				:count="openActionItemCount"
+				:count-label="t('decidesk', 'actiepunten')"
+				:icon="CheckboxMarkedOutlineIcon"
+				variant="primary"
 				horizontal />
 		</CnKpiGrid>
 
 		<div class="decidesk-dashboard__columns">
-			<CnConfigurationCard :title="t('decidesk', 'Recent activity')">
-				<ul class="decidesk-dashboard__placeholder-list">
-					<li>{{ t('decidesk', 'Placeholder: user opened a record') }}</li>
-					<li>{{ t('decidesk', 'Placeholder: status changed to Review') }}</li>
-					<li>{{ t('decidesk', 'Placeholder: comment added') }}</li>
-				</ul>
-			</CnConfigurationCard>
-
-			<CnConfigurationCard :title="t('decidesk', 'Quick actions')">
+			<CnConfigurationCard :title="t('decidesk', 'Notulen')">
 				<p class="decidesk-dashboard__hint">
-					{{ t('decidesk', 'Wire buttons here to create records, open lists, or deep links. Use the sidebar for Settings and Documentation.') }}
+					<a class="decidesk-link" @click="$router.push({ name: 'Minutes' })">
+						{{ t('decidesk', 'Bekijk alle notulen →') }}
+					</a>
+				</p>
+			</CnConfigurationCard>
+			<CnConfigurationCard :title="t('decidesk', 'Besluiten')">
+				<p class="decidesk-dashboard__hint">
+					<a class="decidesk-link" @click="$router.push({ name: 'Decisions' })">
+						{{ t('decidesk', 'Bekijk alle besluiten →') }}
+					</a>
 				</p>
 			</CnConfigurationCard>
 		</div>
@@ -58,10 +58,10 @@
 
 <script>
 import { CnConfigurationCard, CnKpiGrid, CnStatsBlock } from '@conduction/nextcloud-vue'
-import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
-import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
-import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
-import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
+import { generateUrl } from '@nextcloud/router'
+import CheckDecagramIcon from 'vue-material-design-icons/CheckDecagram.vue'
+import CheckboxMarkedOutlineIcon from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
+import FileDocumentOutlineIcon from 'vue-material-design-icons/FileDocumentOutline.vue'
 
 export default {
 	name: 'Dashboard',
@@ -72,11 +72,31 @@ export default {
 	},
 	data() {
 		return {
-			FolderOutline,
-			CalendarClock,
-			CheckCircleOutline,
-			AccountGroupOutline,
+			CheckDecagramIcon,
+			CheckboxMarkedOutlineIcon,
+			FileDocumentOutlineIcon,
+			minutesInReviewCount: 0,
+			publishedDecisionCount: 0,
+			openActionItemCount: 0,
 		}
+	},
+	async created() {
+		// Fetch accurate KPI totals using _limit=1 + data.total so that counts are
+		// never silently truncated on large installations (fixes 200-object cap).
+		// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
+		const base = generateUrl('/apps/openregister/api/objects')
+		const headers = { requesttoken: OC.requestToken }
+		const [minutesRes, decisionsRes, openRes, inProgressRes] = await Promise.all([
+			fetch(`${base}?register=decidesk&schema=minutes&lifecycle=review&_limit=1`, { headers }),
+			fetch(`${base}?register=decidesk&schema=decision&isPublished=true&_limit=1`, { headers }),
+			fetch(`${base}?register=decidesk&schema=action-item&taskStatus=open&_limit=1`, { headers }),
+			fetch(`${base}?register=decidesk&schema=action-item&taskStatus=in-progress&_limit=1`, { headers }),
+		])
+		if (minutesRes.ok) this.minutesInReviewCount = ((await minutesRes.json()).total ?? 0)
+		if (decisionsRes.ok) this.publishedDecisionCount = ((await decisionsRes.json()).total ?? 0)
+		const openCount = openRes.ok ? ((await openRes.json()).total ?? 0) : 0
+		const inProgressCount = inProgressRes.ok ? ((await inProgressRes.json()).total ?? 0) : 0
+		this.openActionItemCount = openCount + inProgressCount
 	},
 }
 </script>
@@ -107,6 +127,7 @@ export default {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	gap: 16px;
+	margin-top: 20px;
 }
 
 @media (max-width: 900px) {
@@ -115,15 +136,15 @@ export default {
 	}
 }
 
-.decidesk-dashboard__placeholder-list {
-	margin: 0;
-	padding-left: 1.2em;
-	line-height: 1.6;
-}
-
 .decidesk-dashboard__hint {
 	margin: 0;
 	line-height: 1.5;
 	color: var(--color-text-maxcontrast);
+}
+
+.decidesk-link {
+	cursor: pointer;
+	color: var(--color-primary-element);
+	text-decoration: underline;
 }
 </style>

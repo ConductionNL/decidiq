@@ -5,7 +5,7 @@
     <name lang="en">Decidesk</name>
     <name lang="nl">Decidesk</name>
     <summary lang="en">Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings</summary>
-    <summary lang="nl">Een sjabloon voor het maken van nieuwe Nextcloud-apps</summary>
+    <summary lang="nl">Universeel besluitvormingsplatform voor bestuursorganen, verenigingen, bedrijfsbesturen en operationele vergaderingen</summary>
     <description lang="en"><![CDATA[Decidesk manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation.
 
 **Key Features**
@@ -20,13 +20,13 @@ Free and open source under the EUPL-1.2 license.
 
 **Support:** For support, contact support@conduction.nl.
     ]]></description>
-    <description lang="nl"><![CDATA[Een startpunt voor het bouwen van Nextcloud-apps volgens ConductionNL-conventies.
+    <description lang="nl"><![CDATA[Decidesk beheert vergaderingen, agenda's, moties, amendementen, stemmingen, notulen en besluitvorming met configureerbare workflows per organisatietype. Het bedient 5 bestuursdomeinen: wetgevende/democratische organen, verenigingen/NGO's, ondernemingsbestuur, bedrijfsvoering en burgerparticipatie.
 
 **Belangrijkste functies**
 
 - **Vue 2 + Pinia frontend** — Moderne reactieve UI met state management
 - **OpenRegister-integratie** — Ingebouwde ondersteuning voor de OpenRegister-datalaag
-- **Beheerdersinstell ingen** — Voorgeconfigureerde instellingenpagina met versie-informatie
+- **Beheerdersinstellingen** — Voorgeconfigureerde instellingenpagina met versie-informatie
 - **NL Design System klaar** — CSS-variabelen, WCAG AA, overheidsthema
 - **Volledige kwaliteitspipeline** — PHPCS, PHPMD, Psalm, PHPStan, ESLint, Stylelint
 
@@ -65,7 +65,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </navigation>
     </navigations>
 
+    <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
+    <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
+    <background-jobs>
+        <job>OCA\Decidesk\BackgroundJob\MailReplyHandler</job>
+        <job>OCA\Decidesk\BackgroundJob\OverdueActionItemsJob</job>
+    </background-jobs>
+
     <repair-steps>
+        <install>
+            <step>OCA\Decidesk\Repair\InitializeSettings</step>
+        </install>
         <post-migration>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>
         </post-migration>

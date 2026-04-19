@@ -1,1584 +1,1828 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-        "title": "Decidesk Register",
-        "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-        "version": "0.1.0"
-    },
-    "x-openregister": {
-        "type": "application",
-        "app": "decidesk",
-        "openregister": "^v0.2.10",
-        "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings"
-    },
-    "paths": {},
-    "components": {
-        "schemas": {
-            "GovernanceBody": {
-                "slug": "governance-body",
-                "icon": "AccountGroupOutline",
-                "version": "0.1.0",
-                "title": "GovernanceBody",
-                "description": "A governance body (council, board, committee, assembly)",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "schema:Organization",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "name",
-                    "bodyType",
-                    "domain"
-                ],
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "Body name",
-                        "example": "Gemeenteraad Westerkwartier"
-                    },
-                    "bodyType": {
-                        "type": "string",
-                        "description": "Type of governance body",
-                        "enum": [
-                            "legislative",
-                            "association",
-                            "corporate-board",
-                            "operational",
-                            "citizen-panel"
-                        ],
-                        "example": "legislative"
-                    },
-                    "domain": {
-                        "type": "string",
-                        "description": "Governance domain preset",
-                        "example": "municipal"
-                    },
-                    "workflowTemplate": {
-                        "type": "string",
-                        "description": "State machine workflow config"
-                    },
-                    "quorumRule": {
-                        "type": "string",
-                        "description": "Quorum calculation method",
-                        "example": "majority"
-                    },
-                    "votingDefault": {
-                        "type": "string",
-                        "description": "Default voting method",
-                        "example": "for-against-abstain"
-                    },
-                    "termStart": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Current term start"
-                    },
-                    "termEnd": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Current term end"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "GovernanceBody",
-                            "slug": "gemeenteraad-westerkwartier"
-                        },
-                        "name": "Gemeenteraad Westerkwartier",
-                        "bodyType": "legislative",
-                        "domain": "municipal",
-                        "quorumRule": "majority",
-                        "votingDefault": "for-against-abstain",
-                        "termStart": "2022-03-30T00:00:00Z",
-                        "termEnd": "2026-03-29T23:59:59Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "GovernanceBody",
-                            "slug": "algemeen-bestuur-waterschap-aa-en-maas"
-                        },
-                        "name": "Algemeen Bestuur Waterschap Aa en Maas",
-                        "bodyType": "legislative",
-                        "domain": "water-board",
-                        "quorumRule": "majority",
-                        "votingDefault": "for-against-abstain",
-                        "termStart": "2023-01-01T00:00:00Z",
-                        "termEnd": "2026-12-31T23:59:59Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "GovernanceBody",
-                            "slug": "ledenraad-vereniging-eigen-huis"
-                        },
-                        "name": "Ledenraad Vereniging Eigen Huis",
-                        "bodyType": "association",
-                        "domain": "association",
-                        "quorumRule": "two-thirds",
-                        "votingDefault": "for-against-abstain",
-                        "termStart": "2024-01-01T00:00:00Z",
-                        "termEnd": "2027-12-31T23:59:59Z"
-                    }
-                ]
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Decidesk Register",
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
+    "version": "0.1.0"
+  },
+  "x-openregister": {
+    "type": "application",
+    "app": "decidesk",
+    "openregister": "^v0.2.10",
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "GovernanceBody": {
+        "slug": "governance-body",
+        "icon": "AccountGroupOutline",
+        "version": "0.1.0",
+        "title": "GovernanceBody",
+        "description": "A governance body (council, board, committee, assembly)",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Organization",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "bodyType",
+          "domain"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Body name",
+            "example": "Gemeenteraad Westerkwartier"
+          },
+          "bodyType": {
+            "type": "string",
+            "description": "Type of governance body",
+            "enum": [
+              "legislative",
+              "association",
+              "corporate-board",
+              "operational",
+              "citizen-panel"
+            ],
+            "example": "legislative"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Governance domain preset",
+            "example": "municipal"
+          },
+          "workflowTemplate": {
+            "type": "string",
+            "description": "State machine workflow config"
+          },
+          "quorumRule": {
+            "type": "string",
+            "description": "Quorum calculation method",
+            "example": "majority"
+          },
+          "votingDefault": {
+            "type": "string",
+            "description": "Default voting method",
+            "example": "for-against-abstain"
+          },
+          "termStart": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Current term start"
+          },
+          "termEnd": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Current term end"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "GovernanceBody",
+              "slug": "gemeenteraad-amsterdam"
             },
-            "Meeting": {
-                "slug": "meeting",
-                "icon": "CalendarClock",
-                "version": "0.1.0",
-                "title": "Meeting",
-                "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "schema:Event",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "title",
-                    "meetingType",
-                    "scheduledDate",
-                    "meetingMode",
-                    "lifecycle"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Meeting title",
-                        "example": "Raadsvergadering 10 april 2025"
-                    },
-                    "meetingType": {
-                        "type": "string",
-                        "description": "Type of meeting",
-                        "enum": [
-                            "regular",
-                            "extraordinary",
-                            "committee",
-                            "public hearing"
-                        ],
-                        "example": "regular"
-                    },
-                    "scheduledDate": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Start date and time"
-                    },
-                    "endDate": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "End date and time"
-                    },
-                    "location": {
-                        "type": "string",
-                        "description": "Physical location or video link",
-                        "example": "Raadzaal, Gemeentehuis Leek"
-                    },
-                    "meetingMode": {
-                        "type": "string",
-                        "description": "Meeting mode",
-                        "enum": [
-                            "in-person",
-                            "digital",
-                            "hybrid"
-                        ],
-                        "example": "in-person"
-                    },
-                    "lifecycle": {
-                        "type": "string",
-                        "description": "Meeting lifecycle state",
-                        "enum": [
-                            "draft",
-                            "scheduled",
-                            "opened",
-                            "paused",
-                            "adjourned",
-                            "closed"
-                        ],
-                        "example": "draft"
-                    },
-                    "quorumRequired": {
-                        "type": "integer",
-                        "description": "Minimum participants for valid meeting",
-                        "example": 19
-                    },
-                    "series": {
-                        "type": "string",
-                        "description": "Meeting series identifier"
-                    }
-                },
-                "x-openregister-relations": {
-                    "governanceBody": {
-                        "register": "decidesk",
-                        "schema": "GovernanceBody",
-                        "cardinality": "many-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Meeting",
-                            "slug": "gemeenteraad-westerkwartier-2025-04-10"
-                        },
-                        "title": "Raadsvergadering 10 april 2025",
-                        "meetingType": "regular",
-                        "scheduledDate": "2025-04-10T19:30:00Z",
-                        "endDate": "2025-04-10T22:30:00Z",
-                        "location": "Raadzaal, Gemeentehuis Leek",
-                        "meetingMode": "in-person",
-                        "lifecycle": "closed",
-                        "quorumRequired": 19
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Meeting",
-                            "slug": "commissie-ruimte-2025-05-06"
-                        },
-                        "title": "Commissievergadering Ruimte & Wonen 6 mei 2025",
-                        "meetingType": "committee",
-                        "scheduledDate": "2025-05-06T19:00:00Z",
-                        "endDate": "2025-05-06T22:00:00Z",
-                        "location": "https://meet.westerkwartier.nl/commissie-ruimte",
-                        "meetingMode": "hybrid",
-                        "lifecycle": "scheduled",
-                        "quorumRequired": 5
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Meeting",
-                            "slug": "ab-waterschap-2025-06-12"
-                        },
-                        "title": "Vergadering Algemeen Bestuur 12 juni 2025",
-                        "meetingType": "regular",
-                        "scheduledDate": "2025-06-12T14:00:00Z",
-                        "endDate": "2025-06-12T17:00:00Z",
-                        "location": "'s-Hertogenbosch, hoofdkantoor",
-                        "meetingMode": "in-person",
-                        "lifecycle": "draft",
-                        "quorumRequired": 13
-                    }
-                ]
+            "name": "Gemeenteraad Amsterdam",
+            "bodyType": "legislative",
+            "domain": "municipality",
+            "votingDefault": "for-against-abstain",
+            "termStart": "2022-03-16T00:00:00Z",
+            "termEnd": "2026-03-15T00:00:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "GovernanceBody",
+              "slug": "rvc-waterschap-amstel"
             },
-            "Participant": {
-                "slug": "participant",
-                "icon": "AccountOutline",
-                "version": "0.1.0",
-                "title": "Participant",
-                "description": "A member or attendee of a governance body",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "schema:Person",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "displayName",
-                    "role"
-                ],
-                "properties": {
-                    "displayName": {
-                        "type": "string",
-                        "description": "Display name",
-                        "example": "Roos de Vries"
-                    },
-                    "role": {
-                        "type": "string",
-                        "description": "Role within the governance body",
-                        "enum": [
-                            "chair",
-                            "vice-chair",
-                            "secretary",
-                            "member",
-                            "observer",
-                            "guest"
-                        ],
-                        "example": "member"
-                    },
-                    "party": {
-                        "type": "string",
-                        "description": "Political party or faction",
-                        "example": "GroenLinks"
-                    },
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "description": "Contact email"
-                    },
-                    "joinedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "When they joined the body"
-                    },
-                    "leftAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "When they left (null = active)"
-                    },
-                    "votingWeight": {
-                        "type": "number",
-                        "description": "Vote weight (default 1)",
-                        "example": 1
-                    }
-                },
-                "x-openregister-relations": {
-                    "governanceBody": {
-                        "register": "decidesk",
-                        "schema": "GovernanceBody",
-                        "cardinality": "many-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Participant",
-                            "slug": "participant-roos-de-vries"
-                        },
-                        "displayName": "Roos de Vries",
-                        "role": "chair",
-                        "party": "GroenLinks",
-                        "email": "r.devries@example.gemeente.nl",
-                        "joinedAt": "2022-03-30T00:00:00Z",
-                        "votingWeight": 1
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Participant",
-                            "slug": "participant-jan-bakker"
-                        },
-                        "displayName": "Jan Bakker",
-                        "role": "secretary",
-                        "email": "j.bakker@example.gemeente.nl",
-                        "joinedAt": "2022-03-30T00:00:00Z",
-                        "votingWeight": 0
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Participant",
-                            "slug": "participant-fatima-el-amrani"
-                        },
-                        "displayName": "Fatima El-Amrani",
-                        "role": "member",
-                        "party": "PvdA",
-                        "email": "f.elamrani@example.gemeente.nl",
-                        "joinedAt": "2022-03-30T00:00:00Z",
-                        "votingWeight": 1
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Participant",
-                            "slug": "participant-pieter-van-dam"
-                        },
-                        "displayName": "Pieter van Dam",
-                        "role": "observer",
-                        "email": "p.vandam@example.waterschap.nl",
-                        "joinedAt": "2024-01-15T00:00:00Z",
-                        "votingWeight": 0
-                    }
-                ]
+            "name": "Raad van Commissarissen Waterschap Amstel, Gooi en Vecht",
+            "bodyType": "corporate-board",
+            "domain": "water-authority",
+            "votingDefault": "for-against-abstain",
+            "termStart": "2023-01-01T00:00:00Z",
+            "termEnd": "2026-12-31T00:00:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "GovernanceBody",
+              "slug": "directieteam-gemeente-utrecht"
             },
-            "AgendaItem": {
-                "slug": "agenda-item",
-                "icon": "FormatListNumbered",
-                "version": "0.1.0",
-                "title": "AgendaItem",
-                "description": "An item on a meeting agenda with type, time, and ordering",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "custom:AgendaItem",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "title",
-                    "itemType",
-                    "orderNumber"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Agenda item title",
-                        "example": "Opening en mededelingen"
-                    },
-                    "itemType": {
-                        "type": "string",
-                        "description": "Type of agenda item",
-                        "enum": [
-                            "informational",
-                            "discussion",
-                            "decision"
-                        ],
-                        "example": "informational"
-                    },
-                    "orderNumber": {
-                        "type": "integer",
-                        "description": "Position on the agenda",
-                        "example": 1
-                    },
-                    "estimatedDuration": {
-                        "type": "integer",
-                        "description": "Estimated minutes",
-                        "example": 10
-                    },
-                    "actualDuration": {
-                        "type": "integer",
-                        "description": "Actual minutes spent"
-                    },
-                    "description": {
-                        "type": "string",
-                        "description": "Detailed description"
-                    },
-                    "isRecurring": {
-                        "type": "boolean",
-                        "description": "Appears on every meeting",
-                        "example": false
-                    }
-                },
-                "x-openregister-relations": {
-                    "meeting": {
-                        "register": "decidesk",
-                        "schema": "Meeting",
-                        "cardinality": "many-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "AgendaItem",
-                            "slug": "agendaitem-opening-2025-04-10"
-                        },
-                        "title": "Opening en mededelingen",
-                        "itemType": "informational",
-                        "orderNumber": 1,
-                        "estimatedDuration": 10,
-                        "isRecurring": true
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "AgendaItem",
-                            "slug": "agendaitem-begroting-2026"
-                        },
-                        "title": "Vaststelling Programmabegroting 2026",
-                        "itemType": "decision",
-                        "orderNumber": 5,
-                        "estimatedDuration": 45,
-                        "description": "De raad wordt gevraagd de programmabegroting 2026 vast te stellen.",
-                        "isRecurring": false
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "AgendaItem",
-                            "slug": "agendaitem-rondvraag-2025-04-10"
-                        },
-                        "title": "Rondvraag",
-                        "itemType": "discussion",
-                        "orderNumber": 99,
-                        "estimatedDuration": 15,
-                        "isRecurring": true
-                    }
-                ]
+            "name": "Directieteam Gemeente Utrecht",
+            "bodyType": "operational",
+            "domain": "municipality",
+            "votingDefault": "show-of-hands"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "GovernanceBody",
+              "slug": "ledenraad-vng"
             },
-            "Motion": {
-                "slug": "motion",
-                "icon": "TextBoxOutline",
-                "version": "0.1.0",
-                "title": "Motion",
-                "description": "A formal proposal submitted for debate and voting",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "custom:Motion",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "title",
-                    "text",
-                    "motionType",
-                    "proposer",
-                    "lifecycle",
-                    "submittedAt"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Motion title",
-                        "example": "Motie Duurzaamheid"
-                    },
-                    "text": {
-                        "type": "string",
-                        "description": "Full motion text"
-                    },
-                    "motionType": {
-                        "type": "string",
-                        "description": "Type of motion",
-                        "enum": [
-                            "motion",
-                            "amendment",
-                            "order",
-                            "procedural"
-                        ],
-                        "example": "motion"
-                    },
-                    "proposer": {
-                        "type": "string",
-                        "description": "Name of proposer",
-                        "example": "Roos de Vries"
-                    },
-                    "coSigners": {
-                        "type": "array",
-                        "description": "List of co-signers",
-                        "items": {
-                            "type": "string"
-                        },
-                        "example": [
-                            "Jan Smit",
-                            "Lisa de Jong"
-                        ]
-                    },
-                    "lifecycle": {
-                        "type": "string",
-                        "description": "Motion lifecycle state",
-                        "enum": [
-                            "submitted",
-                            "debating",
-                            "voting",
-                            "adopted",
-                            "rejected",
-                            "withdrawn"
-                        ],
-                        "example": "submitted"
-                    },
-                    "submittedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Submission timestamp"
-                    }
-                },
-                "x-openregister-relations": {
-                    "agendaItem": {
-                        "register": "decidesk",
-                        "schema": "AgendaItem",
-                        "cardinality": "many-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Motion",
-                            "slug": "motie-duurzaamheid-2025"
-                        },
-                        "title": "Motie Duurzaamheid: versnelling zonnepanelen gemeentelijke gebouwen",
-                        "text": "De raad verzoekt het college om voor 1 januari 2026 een plan van aanpak te presenteren voor het plaatsen van zonnepanelen op alle gemeentelijke gebouwen.",
-                        "motionType": "motion",
-                        "proposer": "Roos de Vries",
-                        "coSigners": [
-                            "Jan Smit",
-                            "Lisa de Jong"
-                        ],
-                        "lifecycle": "adopted",
-                        "submittedAt": "2025-04-10T20:15:00Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Motion",
-                            "slug": "voorstel-begroting-2026"
-                        },
-                        "title": "Raadsvoorstel Programmabegroting 2026",
-                        "text": "De raad stelt de programmabegroting 2026 vast conform bijgaand begrotingsboek.",
-                        "motionType": "motion",
-                        "proposer": "College van B&W",
-                        "lifecycle": "voting",
-                        "submittedAt": "2025-04-08T09:00:00Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Motion",
-                            "slug": "amendement-begroting-post-a"
-                        },
-                        "title": "Amendement A: Extra budget cultuursubsidie",
-                        "text": "De raad besluit in de begroting 2026 een aanvullend budget van €50.000 op te nemen voor cultuursubsidies.",
-                        "motionType": "amendment",
-                        "proposer": "Fatima El-Amrani",
-                        "lifecycle": "rejected",
-                        "submittedAt": "2025-04-10T19:45:00Z"
-                    }
-                ]
+            "name": "Ledenraad VNG",
+            "bodyType": "association",
+            "domain": "association",
+            "votingDefault": "for-against-abstain",
+            "termStart": "2024-01-01T00:00:00Z",
+            "termEnd": "2025-12-31T00:00:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "GovernanceBody",
+              "slug": "auditcommissie-provincie-nh"
             },
-            "Amendment": {
-                "slug": "amendment",
-                "icon": "FileDocumentEditOutline",
-                "version": "0.1.0",
-                "title": "Amendment",
-                "description": "A proposed change to an existing motion",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "custom:Amendment",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "title",
-                    "text",
-                    "proposer",
-                    "lifecycle",
-                    "submittedAt"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Amendment title",
-                        "example": "Amendement A: Extra cultuursubsidie"
-                    },
-                    "text": {
-                        "type": "string",
-                        "description": "Amendment text (change description)"
-                    },
-                    "proposer": {
-                        "type": "string",
-                        "description": "Name of proposer",
-                        "example": "Fatima El-Amrani"
-                    },
-                    "lifecycle": {
-                        "type": "string",
-                        "description": "Amendment lifecycle state",
-                        "enum": [
-                            "submitted",
-                            "debating",
-                            "voting",
-                            "adopted",
-                            "rejected"
-                        ],
-                        "example": "submitted"
-                    },
-                    "submittedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Submission timestamp"
-                    }
-                },
-                "x-openregister-relations": {
-                    "motion": {
-                        "register": "decidesk",
-                        "schema": "Motion",
-                        "cardinality": "many-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Amendment",
-                            "slug": "amendement-cultuursubsidie"
-                        },
-                        "title": "Amendement A: Extra cultuursubsidie €50.000",
-                        "text": "Voeg in de begroting 2026 een post van €50.000 toe voor cultuursubsidies.",
-                        "proposer": "Fatima El-Amrani",
-                        "lifecycle": "rejected",
-                        "submittedAt": "2025-04-10T19:45:00Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Amendment",
-                            "slug": "amendement-groentarieven"
-                        },
-                        "title": "Amendement B: Verlaging groentarieven 5%",
-                        "text": "De groentarieven worden met 5% verlaagd ten opzichte van het college-voorstel.",
-                        "proposer": "Jan Smit",
-                        "lifecycle": "debating",
-                        "submittedAt": "2025-04-10T20:30:00Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Amendment",
-                            "slug": "amendement-participatiebudget"
-                        },
-                        "title": "Amendement C: Participatiebudget dorpskernen",
-                        "text": "Stel €25.000 beschikbaar als participatiebudget voor dorpskernenoverleg.",
-                        "proposer": "Roos de Vries",
-                        "lifecycle": "adopted",
-                        "submittedAt": "2025-04-09T14:00:00Z"
-                    }
-                ]
+            "name": "Auditcommissie Provincie Noord-Holland",
+            "bodyType": "legislative",
+            "domain": "province",
+            "votingDefault": "for-against-abstain"
+          }
+        ]
+      },
+      "Meeting": {
+        "slug": "meeting",
+        "icon": "CalendarClock",
+        "version": "0.1.0",
+        "title": "Meeting",
+        "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Event",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "meetingType",
+          "scheduledDate",
+          "meetingMode",
+          "lifecycle"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Meeting title",
+            "example": "Raadsvergadering 10 april 2025"
+          },
+          "meetingType": {
+            "type": "string",
+            "description": "Type of meeting",
+            "enum": [
+              "regular",
+              "extraordinary",
+              "committee",
+              "public hearing"
+            ],
+            "example": "regular"
+          },
+          "scheduledDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date and time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End date and time"
+          },
+          "location": {
+            "type": "string",
+            "description": "Physical location or video link",
+            "example": "Raadzaal, Gemeentehuis Leek"
+          },
+          "meetingMode": {
+            "type": "string",
+            "description": "Meeting mode",
+            "enum": [
+              "in-person",
+              "digital",
+              "hybrid"
+            ],
+            "example": "in-person"
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Meeting lifecycle state",
+            "enum": [
+              "draft",
+              "scheduled",
+              "opened",
+              "paused",
+              "adjourned",
+              "closed"
+            ],
+            "example": "draft"
+          },
+          "quorumRequired": {
+            "type": "integer",
+            "description": "Minimum participants for valid meeting",
+            "example": 19
+          },
+          "series": {
+            "type": "string",
+            "description": "Meeting series identifier"
+          }
+        },
+        "x-openregister-relations": {
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Meeting",
+              "slug": "raadsvergadering-2025-01-15"
             },
-            "VotingRound": {
-                "slug": "voting-round",
-                "icon": "VoteOutline",
-                "version": "0.1.0",
-                "title": "VotingRound",
-                "description": "A voting session on a motion or amendment",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "custom:VotingRound",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "votingMethod",
-                    "isSecret"
-                ],
-                "properties": {
-                    "votingMethod": {
-                        "type": "string",
-                        "description": "Method used for voting",
-                        "enum": [
-                            "for-against-abstain",
-                            "ranked-choice",
-                            "weighted",
-                            "show-of-hands"
-                        ],
-                        "example": "for-against-abstain"
-                    },
-                    "isSecret": {
-                        "type": "boolean",
-                        "description": "Secret ballot",
-                        "example": false
-                    },
-                    "openedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "When voting opened"
-                    },
-                    "closedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "When voting closed"
-                    },
-                    "quorumMet": {
-                        "type": "boolean",
-                        "description": "Was quorum met"
-                    },
-                    "result": {
-                        "type": "string",
-                        "description": "Voting result",
-                        "enum": [
-                            "adopted",
-                            "rejected",
-                            "tied",
-                            "invalid"
-                        ]
-                    },
-                    "votesFor": {
-                        "type": "integer",
-                        "description": "Count of votes for",
-                        "example": 28
-                    },
-                    "votesAgainst": {
-                        "type": "integer",
-                        "description": "Count of votes against",
-                        "example": 3
-                    },
-                    "votesAbstain": {
-                        "type": "integer",
-                        "description": "Count of abstentions",
-                        "example": 2
-                    }
-                },
-                "x-openregister-relations": {
-                    "motion": {
-                        "register": "decidesk",
-                        "schema": "Motion",
-                        "cardinality": "many-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "VotingRound",
-                            "slug": "stemming-motie-duurzaamheid-2025"
-                        },
-                        "votingMethod": "for-against-abstain",
-                        "isSecret": false,
-                        "openedAt": "2025-04-10T21:00:00Z",
-                        "closedAt": "2025-04-10T21:05:00Z",
-                        "quorumMet": true,
-                        "result": "adopted",
-                        "votesFor": 28,
-                        "votesAgainst": 3,
-                        "votesAbstain": 2
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "VotingRound",
-                            "slug": "stemming-begroting-2026"
-                        },
-                        "votingMethod": "for-against-abstain",
-                        "isSecret": false,
-                        "openedAt": "2025-04-10T21:30:00Z",
-                        "closedAt": "2025-04-10T21:38:00Z",
-                        "quorumMet": true,
-                        "result": "adopted",
-                        "votesFor": 25,
-                        "votesAgainst": 6,
-                        "votesAbstain": 2
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "VotingRound",
-                            "slug": "stemming-amendement-a"
-                        },
-                        "votingMethod": "for-against-abstain",
-                        "isSecret": false,
-                        "openedAt": "2025-04-10T20:55:00Z",
-                        "closedAt": "2025-04-10T21:00:00Z",
-                        "quorumMet": true,
-                        "result": "rejected",
-                        "votesFor": 11,
-                        "votesAgainst": 20,
-                        "votesAbstain": 2
-                    }
-                ]
+            "title": "Raadsvergadering 15 januari 2025",
+            "meetingType": "regular",
+            "scheduledDate": "2025-01-15T19:30:00Z",
+            "endDate": "2025-01-15T23:00:00Z",
+            "location": "Stadhuis Amsterdam, Raadzaal",
+            "meetingMode": "hybrid",
+            "lifecycle": "closed"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Meeting",
+              "slug": "rvc-vergadering-q1-2025"
             },
-            "Vote": {
-                "slug": "vote",
-                "icon": "ThumbUpOutline",
-                "version": "0.1.0",
-                "title": "Vote",
-                "description": "An individual vote cast in a voting round",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "custom:Vote",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": false,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "value",
-                    "castAt"
-                ],
-                "properties": {
-                    "value": {
-                        "type": "string",
-                        "description": "Vote value",
-                        "enum": [
-                            "for",
-                            "against",
-                            "abstain"
-                        ],
-                        "example": "for"
-                    },
-                    "weight": {
-                        "type": "number",
-                        "description": "Vote weight (for weighted voting)",
-                        "example": 1
-                    },
-                    "isProxy": {
-                        "type": "boolean",
-                        "description": "Cast via proxy delegation",
-                        "example": false
-                    },
-                    "castAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "When the vote was cast"
-                    }
-                },
-                "x-openregister-relations": {
-                    "votingRound": {
-                        "register": "decidesk",
-                        "schema": "VotingRound",
-                        "cardinality": "many-to-one"
-                    },
-                    "participant": {
-                        "register": "decidesk",
-                        "schema": "Participant",
-                        "cardinality": "many-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Vote",
-                            "slug": "stem-devries-motie-duurzaamheid"
-                        },
-                        "value": "for",
-                        "weight": 1,
-                        "isProxy": false,
-                        "castAt": "2025-04-10T21:01:00Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Vote",
-                            "slug": "stem-bakker-motie-duurzaamheid"
-                        },
-                        "value": "against",
-                        "weight": 1,
-                        "isProxy": false,
-                        "castAt": "2025-04-10T21:02:00Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Vote",
-                            "slug": "stem-elamrani-begroting-2026"
-                        },
-                        "value": "for",
-                        "weight": 1,
-                        "isProxy": false,
-                        "castAt": "2025-04-10T21:31:00Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Vote",
-                            "slug": "stem-proxy-vandam-begroting"
-                        },
-                        "value": "for",
-                        "weight": 1,
-                        "isProxy": true,
-                        "castAt": "2025-04-10T21:32:00Z"
-                    }
-                ]
+            "title": "RvC Vergadering Q1 2025 — Waterschap",
+            "meetingType": "regular",
+            "scheduledDate": "2025-02-05T10:00:00Z",
+            "endDate": "2025-02-05T13:00:00Z",
+            "location": "Waternet Kantoor, Amstel 1",
+            "meetingMode": "in-person",
+            "lifecycle": "closed"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Meeting",
+              "slug": "directieoverleg-2025-04-14"
             },
-            "Decision": {
-                "slug": "decision",
-                "icon": "GavelOutline",
-                "version": "0.1.0",
-                "title": "Decision",
-                "description": "A formal decision resulting from a vote",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "custom:Decision",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": true,
-                    "x-mail-security-audit": "mailEnabled activates inbound email ingestion. Before production: verify OpenRegister sanitizes HTML/headers, validate sender identity, and ensure Decision views never use v-html for mail-sourced content. Tracked in issue #6."
-                },
-                "required": [
-                    "title",
-                    "text",
-                    "decisionDate",
-                    "outcome"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Decision title",
-                        "example": "Vaststelling Programmabegroting 2026"
-                    },
-                    "text": {
-                        "type": "string",
-                        "description": "Decision text"
-                    },
-                    "decisionDate": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "When the decision was made"
-                    },
-                    "outcome": {
-                        "type": "string",
-                        "description": "Decision outcome",
-                        "enum": [
-                            "adopted",
-                            "rejected"
-                        ],
-                        "example": "adopted"
-                    },
-                    "isPublished": {
-                        "type": "boolean",
-                        "description": "Published via ORI API",
-                        "example": false
-                    },
-                    "publishedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Publication timestamp"
-                    },
-                    "legalBasis": {
-                        "type": "string",
-                        "description": "Legal article or regulation",
-                        "example": "Gemeentewet art. 189"
-                    }
-                },
-                "x-openregister-relations": {
-                    "motion": {
-                        "register": "decidesk",
-                        "schema": "Motion",
-                        "cardinality": "many-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Decision",
-                            "slug": "besluit-begroting-2026"
-                        },
-                        "title": "Vaststelling Programmabegroting 2026",
-                        "text": "De gemeenteraad van Westerkwartier stelt de programmabegroting 2026 vast.",
-                        "decisionDate": "2025-04-10T21:38:00Z",
-                        "outcome": "adopted",
-                        "isPublished": true,
-                        "publishedAt": "2025-04-11T09:00:00Z",
-                        "legalBasis": "Gemeentewet art. 189"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Decision",
-                            "slug": "besluit-duurzaamheid-2025"
-                        },
-                        "title": "Motie Duurzaamheid aangenomen",
-                        "text": "De raad verzoekt het college een plan van aanpak zonnepanelen te presenteren voor 1 januari 2026.",
-                        "decisionDate": "2025-04-10T21:05:00Z",
-                        "outcome": "adopted",
-                        "isPublished": true,
-                        "publishedAt": "2025-04-11T09:00:00Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Decision",
-                            "slug": "besluit-bestemmingsplan-groningen-noord"
-                        },
-                        "title": "Vaststelling bestemmingsplan Groningen-Noord",
-                        "text": "De raad stelt het bestemmingsplan Groningen-Noord ongewijzigd vast.",
-                        "decisionDate": "2025-03-27T20:45:00Z",
-                        "outcome": "adopted",
-                        "isPublished": false,
-                        "legalBasis": "Wet ruimtelijke ordening art. 3.1"
-                    }
-                ]
+            "title": "Directieoverleg week 16 — Gemeente Utrecht",
+            "meetingType": "regular",
+            "scheduledDate": "2025-04-14T09:00:00Z",
+            "endDate": "2025-04-14T11:00:00Z",
+            "location": "Stadskantoor Utrecht, Kamer 3.12",
+            "meetingMode": "hybrid",
+            "lifecycle": "draft"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Meeting",
+              "slug": "ledenvergadering-vng-voorjaar-2025"
             },
-            "ActionItem": {
-                "slug": "action-item",
-                "icon": "CheckboxMarkedOutline",
-                "version": "0.1.0",
-                "title": "ActionItem",
-                "description": "A follow-up task from a meeting decision",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "custom:ActionItem",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "title",
-                    "taskStatus"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Task title",
-                        "example": "Plan van aanpak zonnepanelen opstellen"
-                    },
-                    "description": {
-                        "type": "string",
-                        "description": "Task details"
-                    },
-                    "assignee": {
-                        "type": "string",
-                        "description": "Assigned participant",
-                        "example": "Wethouder Duurzaamheid"
-                    },
-                    "dueDate": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Due date"
-                    },
-                    "taskStatus": {
-                        "type": "string",
-                        "description": "Current task status",
-                        "enum": [
-                            "open",
-                            "in-progress",
-                            "completed",
-                            "overdue"
-                        ],
-                        "example": "open"
-                    },
-                    "completedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Completion timestamp"
-                    }
-                },
-                "x-openregister-relations": {
-                    "decision": {
-                        "register": "decidesk",
-                        "schema": "Decision",
-                        "cardinality": "many-to-one"
-                    },
-                    "meeting": {
-                        "register": "decidesk",
-                        "schema": "Meeting",
-                        "cardinality": "many-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "ActionItem",
-                            "slug": "actie-plan-zonnepanelen"
-                        },
-                        "title": "Plan van aanpak zonnepanelen gemeentelijke gebouwen opstellen",
-                        "description": "College presenteert plan voor 1 januari 2026 conform aangenomen motie.",
-                        "assignee": "Wethouder Duurzaamheid",
-                        "dueDate": "2026-01-01T00:00:00Z",
-                        "taskStatus": "open"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "ActionItem",
-                            "slug": "actie-communicatie-begroting-2026"
-                        },
-                        "title": "Begroting 2026 communiceren naar inwoners",
-                        "assignee": "Communicatieafdeling",
-                        "dueDate": "2025-05-01T00:00:00Z",
-                        "taskStatus": "completed",
-                        "completedAt": "2025-04-25T14:30:00Z"
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "ActionItem",
-                            "slug": "actie-bestemmingsplan-publiceren"
-                        },
-                        "title": "Bestemmingsplan Groningen-Noord publiceren op ruimtelijkeplannen.nl",
-                        "assignee": "Ruimtelijke Ordening",
-                        "dueDate": "2025-04-10T00:00:00Z",
-                        "taskStatus": "overdue"
-                    }
-                ]
+            "title": "Algemene Ledenvergadering VNG — Voorjaar 2025",
+            "meetingType": "public hearing",
+            "scheduledDate": "2025-06-18T13:00:00Z",
+            "endDate": "2025-06-18T17:00:00Z",
+            "location": "World Forum Den Haag",
+            "meetingMode": "in-person",
+            "lifecycle": "scheduled",
+            "quorumRequired": 50
+          }
+        ]
+      },
+      "Participant": {
+        "slug": "participant",
+        "icon": "AccountOutline",
+        "version": "0.1.0",
+        "title": "Participant",
+        "description": "A member or attendee of a governance body",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Person",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "displayName",
+          "role"
+        ],
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "description": "Display name",
+            "example": "Roos de Vries"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role within the governance body",
+            "enum": [
+              "chair",
+              "vice-chair",
+              "secretary",
+              "member",
+              "observer",
+              "guest"
+            ],
+            "example": "member"
+          },
+          "party": {
+            "type": "string",
+            "description": "Political party or faction",
+            "example": "GroenLinks"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Contact email"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When they joined the body"
+          },
+          "leftAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When they left (null = active)"
+          },
+          "votingWeight": {
+            "type": "number",
+            "description": "Vote weight (default 1)",
+            "example": 1
+          }
+        },
+        "x-openregister-relations": {
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Participant",
+              "slug": "femke-halsema"
             },
-            "Minutes": {
-                "slug": "minutes",
-                "icon": "NotebookOutline",
-                "version": "0.1.0",
-                "title": "Minutes",
-                "description": "Official record of a meeting's proceedings",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "custom:Minutes",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "title",
-                    "lifecycle"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Minutes title",
-                        "example": "Notulen Raadsvergadering 10 april 2025"
-                    },
-                    "lifecycle": {
-                        "type": "string",
-                        "description": "Minutes lifecycle state",
-                        "enum": [
-                            "draft",
-                            "review",
-                            "approved",
-                            "signed",
-                            "published"
-                        ],
-                        "example": "draft"
-                    },
-                    "content": {
-                        "type": "string",
-                        "description": "Full minutes text"
-                    },
-                    "approvedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Approval timestamp"
-                    },
-                    "signedBy": {
-                        "type": "array",
-                        "description": "Digital signers (chair + secretary)",
-                        "items": {
-                            "type": "string"
-                        },
-                        "example": [
-                            "Roos de Vries",
-                            "Jan Bakker"
-                        ]
-                    },
-                    "version": {
-                        "type": "integer",
-                        "description": "Revision number",
-                        "example": 1
-                    }
-                },
-                "x-openregister-relations": {
-                    "meeting": {
-                        "register": "decidesk",
-                        "schema": "Meeting",
-                        "cardinality": "one-to-one"
-                    }
-                },
-                "x-openregister-seeds": [
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Minutes",
-                            "slug": "notulen-raad-2025-04-10"
-                        },
-                        "title": "Notulen Raadsvergadering 10 april 2025",
-                        "lifecycle": "approved",
-                        "content": "De vergadering wordt geopend door de voorzitter om 19:30 uur...",
-                        "approvedAt": "2025-05-08T19:45:00Z",
-                        "signedBy": [
-                            "Roos de Vries",
-                            "Jan Bakker"
-                        ],
-                        "version": 2
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Minutes",
-                            "slug": "notulen-commissie-ruimte-2025-03-04"
-                        },
-                        "title": "Notulen Commissievergadering Ruimte & Wonen 4 maart 2025",
-                        "lifecycle": "signed",
-                        "content": "De commissievergadering Ruimte & Wonen wordt geopend...",
-                        "approvedAt": "2025-04-01T10:00:00Z",
-                        "signedBy": [
-                            "Henk Bakker"
-                        ],
-                        "version": 1
-                    },
-                    {
-                        "@self": {
-                            "register": "decidesk",
-                            "schema": "Minutes",
-                            "slug": "notulen-ab-waterschap-2025-02-13"
-                        },
-                        "title": "Notulen AB Waterschap Aa en Maas 13 februari 2025",
-                        "lifecycle": "draft",
-                        "version": 1
-                    }
-                ]
+            "displayName": "Femke Halsema",
+            "role": "chair",
+            "email": "f.halsema@amsterdam.nl",
+            "joinedAt": "2018-05-30T00:00:00Z",
+            "votingWeight": 1
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Participant",
+              "slug": "jan-de-vries"
             },
-            "DigitalDocument": {
-                "slug": "digital-document",
-                "icon": "FileDocumentOutline",
-                "version": "0.1.0",
-                "title": "DigitalDocument",
-                "description": "Schema.org DigitalDocument for document metadata",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "schema:DigitalDocument",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "name",
-                    "documentType"
-                ],
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "Document name/title",
-                        "example": "Raadsvoorstel Begroting 2026"
-                    },
-                    "documentType": {
-                        "type": "string",
-                        "description": "Document type (contract, tender, report, etc.)",
-                        "example": "report"
-                    },
-                    "description": {
-                        "type": "string",
-                        "description": "Document description"
-                    },
-                    "encodingFormat": {
-                        "type": "string",
-                        "description": "MIME type (application/pdf, etc.)",
-                        "example": "application/pdf"
-                    },
-                    "contentSize": {
-                        "type": "string",
-                        "description": "File size",
-                        "example": "2.4 MB"
-                    }
-                }
+            "displayName": "Jan de Vries",
+            "role": "secretary",
+            "email": "j.devries@waterschap.nl",
+            "joinedAt": "2021-01-15T00:00:00Z",
+            "votingWeight": 1
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Participant",
+              "slug": "marie-janssen"
             },
-            "MonetaryAmount": {
-                "slug": "monetary-amount",
-                "icon": "CurrencyEur",
-                "version": "0.1.0",
-                "title": "MonetaryAmount",
-                "description": "Schema.org MonetaryAmount for monetary values",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "schema:MonetaryAmount",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "value",
-                    "currency"
-                ],
-                "properties": {
-                    "value": {
-                        "type": "number",
-                        "description": "Numeric value",
-                        "example": 50000
-                    },
-                    "currency": {
-                        "type": "string",
-                        "description": "ISO 4217 currency code",
-                        "example": "EUR"
-                    }
-                }
+            "displayName": "Marie Janssen",
+            "role": "member",
+            "party": "D66",
+            "email": "m.janssen@amsterdam.nl",
+            "joinedAt": "2022-03-16T00:00:00Z",
+            "votingWeight": 1
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Participant",
+              "slug": "pieter-bakker"
             },
-            "Offer": {
-                "slug": "offer",
-                "icon": "TagOutline",
-                "version": "0.1.0",
-                "title": "Offer",
-                "description": "Schema.org Offer for offer/quote data",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "schema:Offer",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "name",
-                    "price",
-                    "priceCurrency"
-                ],
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "Offer/quote name",
-                        "example": "AV-installatie raadzaal"
-                    },
-                    "price": {
-                        "type": "number",
-                        "description": "Offered price",
-                        "example": 25000
-                    },
-                    "priceCurrency": {
-                        "type": "string",
-                        "description": "Currency",
-                        "example": "EUR"
-                    },
-                    "validFrom": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Offer valid from"
-                    },
-                    "validThrough": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Offer valid until"
-                    },
-                    "availability": {
-                        "type": "string",
-                        "description": "Availability status"
-                    }
-                }
+            "displayName": "Pieter Bakker",
+            "role": "chair",
+            "email": "p.bakker@utrecht.nl",
+            "joinedAt": "2020-06-01T00:00:00Z",
+            "votingWeight": 1
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Participant",
+              "slug": "ans-rutten"
             },
-            "Order": {
-                "slug": "order",
-                "icon": "CartOutline",
-                "version": "0.1.0",
-                "title": "Order",
-                "description": "Schema.org Order for purchase order data",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "schema:Order",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "orderNumber",
-                    "orderDate",
-                    "orderStatus",
-                    "totalPrice",
-                    "currency"
-                ],
-                "properties": {
-                    "orderNumber": {
-                        "type": "string",
-                        "description": "Purchase order number",
-                        "example": "PO-2025-0042"
-                    },
-                    "orderDate": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Date of order"
-                    },
-                    "orderStatus": {
-                        "type": "string",
-                        "description": "Order status",
-                        "example": "pending"
-                    },
-                    "totalPrice": {
-                        "type": "number",
-                        "description": "Total order amount",
-                        "example": 15000
-                    },
-                    "currency": {
-                        "type": "string",
-                        "description": "ISO 4217 currency code",
-                        "example": "EUR"
-                    },
-                    "deliveryDate": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Expected delivery date"
-                    },
-                    "paymentTerms": {
-                        "type": "string",
-                        "description": "Payment terms (e.g., NET30)",
-                        "example": "NET30"
-                    }
-                }
+            "displayName": "Ans Rutten",
+            "role": "observer",
+            "email": "a.rutten@vng.nl",
+            "joinedAt": "2024-01-10T00:00:00Z",
+            "votingWeight": 0
+          }
+        ]
+      },
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "icon": "FormatListNumbered",
+        "version": "0.1.0",
+        "title": "AgendaItem",
+        "description": "An item on a meeting agenda with type, time, and ordering",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:AgendaItem",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "itemType",
+          "orderNumber"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Agenda item title",
+            "example": "Opening en mededelingen"
+          },
+          "itemType": {
+            "type": "string",
+            "description": "Type of agenda item",
+            "enum": [
+              "informational",
+              "discussion",
+              "decision"
+            ],
+            "example": "informational"
+          },
+          "orderNumber": {
+            "type": "integer",
+            "description": "Position on the agenda",
+            "example": 1
+          },
+          "estimatedDuration": {
+            "type": "integer",
+            "description": "Estimated minutes",
+            "example": 10
+          },
+          "actualDuration": {
+            "type": "integer",
+            "description": "Actual minutes spent"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description"
+          },
+          "isRecurring": {
+            "type": "boolean",
+            "description": "Appears on every meeting",
+            "example": false
+          }
+        },
+        "x-openregister-relations": {
+          "meeting": {
+            "register": "decidesk",
+            "schema": "Meeting",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "AgendaItem",
+              "slug": "opening-raad-2025-01-15"
             },
-            "Product": {
-                "slug": "product",
-                "icon": "PackageVariantClosed",
-                "version": "0.1.0",
-                "title": "Product",
-                "description": "Schema.org Product for product/service data",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "schema:Product",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "name",
-                    "unitPrice",
-                    "currency"
-                ],
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "Product name",
-                        "example": "Vergadermicrofoon Shure MX"
-                    },
-                    "sku": {
-                        "type": "string",
-                        "description": "Stock keeping unit"
-                    },
-                    "description": {
-                        "type": "string",
-                        "description": "Product description"
-                    },
-                    "category": {
-                        "type": "string",
-                        "description": "Product category",
-                        "example": "AV Equipment"
-                    },
-                    "unitPrice": {
-                        "type": "number",
-                        "description": "Unit price",
-                        "example": 450
-                    },
-                    "currency": {
-                        "type": "string",
-                        "description": "ISO 4217 currency code",
-                        "example": "EUR"
-                    },
-                    "unitCode": {
-                        "type": "string",
-                        "description": "Unit of measure (UN/CEFACT)"
-                    },
-                    "taxRate": {
-                        "type": "number",
-                        "description": "Applicable tax rate percentage",
-                        "example": 21
-                    }
-                }
+            "title": "Opening vergadering",
+            "itemType": "informational",
+            "orderNumber": 1,
+            "estimatedDuration": 5
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "AgendaItem",
+              "slug": "notulen-2024-12-18"
             },
-            "Report": {
-                "slug": "report",
-                "icon": "ChartBoxOutline",
-                "version": "0.1.0",
-                "title": "Report",
-                "description": "Schema.org Report for report metadata",
-                "type": "object",
-                "x-openregister": {
-                    "schemaType": "schema:Report",
-                    "active": true,
-                    "hardDelete": false,
-                    "searchable": true,
-                    "mailEnabled": false
-                },
-                "required": [
-                    "name",
-                    "reportType"
-                ],
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "Report title",
-                        "example": "Jaarverslag 2024"
-                    },
-                    "reportType": {
-                        "type": "string",
-                        "description": "Report type (financial, compliance, etc.)",
-                        "example": "financial"
-                    },
-                    "period": {
-                        "type": "string",
-                        "description": "Reporting period",
-                        "example": "2025-Q1"
-                    },
-                    "generatedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "When the report was generated"
-                    }
-                }
-            }
+            "title": "Vaststellen notulen vergadering 18 december 2024",
+            "itemType": "decision",
+            "orderNumber": 2,
+            "estimatedDuration": 10,
+            "isRecurring": true
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "AgendaItem",
+              "slug": "jaarrekening-2024"
+            },
+            "title": "Jaarrekening 2024 — ter goedkeuring",
+            "itemType": "decision",
+            "orderNumber": 3,
+            "estimatedDuration": 45,
+            "description": "Bespreking en vaststelling van de jaarrekening over het boekjaar 2024"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "AgendaItem",
+              "slug": "begroting-2026-bespreking"
+            },
+            "title": "Kadernota begroting 2026",
+            "itemType": "discussion",
+            "orderNumber": 4,
+            "estimatedDuration": 60,
+            "description": "Eerste bespreking van de financiële kaders voor begrotingsjaar 2026"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "AgendaItem",
+              "slug": "rondvraag"
+            },
+            "title": "Rondvraag",
+            "itemType": "informational",
+            "orderNumber": 99,
+            "estimatedDuration": 10,
+            "isRecurring": true
+          }
+        ]
+      },
+      "Motion": {
+        "slug": "motion",
+        "icon": "TextBoxOutline",
+        "version": "0.1.0",
+        "title": "Motion",
+        "description": "A formal proposal submitted for debate and voting",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:Motion",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "text",
+          "motionType",
+          "proposer",
+          "lifecycle",
+          "submittedAt"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Motion title",
+            "example": "Motie Duurzaamheid"
+          },
+          "text": {
+            "type": "string",
+            "description": "Full motion text"
+          },
+          "motionType": {
+            "type": "string",
+            "description": "Type of motion",
+            "enum": [
+              "motion",
+              "amendment",
+              "order",
+              "procedural"
+            ],
+            "example": "motion"
+          },
+          "proposer": {
+            "type": "string",
+            "description": "Name of proposer",
+            "example": "Roos de Vries"
+          },
+          "coSigners": {
+            "type": "array",
+            "description": "List of co-signers",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Jan Smit",
+              "Lisa de Jong"
+            ]
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Motion lifecycle state",
+            "enum": [
+              "submitted",
+              "debating",
+              "voting",
+              "adopted",
+              "rejected",
+              "withdrawn"
+            ],
+            "example": "submitted"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Submission timestamp"
+          }
+        },
+        "x-openregister-relations": {
+          "agendaItem": {
+            "register": "decidesk",
+            "schema": "AgendaItem",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Motion",
+              "slug": "motie-duurzaamheid-2025"
+            },
+            "title": "Motie Duurzaamheid: versnelling zonnepanelen gemeentelijke gebouwen",
+            "text": "De raad verzoekt het college om voor 1 januari 2026 een plan van aanpak te presenteren voor het plaatsen van zonnepanelen op alle gemeentelijke gebouwen.",
+            "motionType": "motion",
+            "proposer": "Roos de Vries",
+            "coSigners": [
+              "Jan Smit",
+              "Lisa de Jong"
+            ],
+            "lifecycle": "adopted",
+            "submittedAt": "2025-04-10T20:15:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Motion",
+              "slug": "voorstel-begroting-2026"
+            },
+            "title": "Raadsvoorstel Programmabegroting 2026",
+            "text": "De raad stelt de programmabegroting 2026 vast conform bijgaand begrotingsboek.",
+            "motionType": "motion",
+            "proposer": "College van B&W",
+            "lifecycle": "voting",
+            "submittedAt": "2025-04-08T09:00:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Motion",
+              "slug": "amendement-begroting-post-a"
+            },
+            "title": "Amendement A: Extra budget cultuursubsidie",
+            "text": "De raad besluit in de begroting 2026 een aanvullend budget van €50.000 op te nemen voor cultuursubsidies.",
+            "motionType": "amendment",
+            "proposer": "Fatima El-Amrani",
+            "lifecycle": "rejected",
+            "submittedAt": "2025-04-10T19:45:00Z"
+          }
+        ]
+      },
+      "Amendment": {
+        "slug": "amendment",
+        "icon": "FileDocumentEditOutline",
+        "version": "0.1.0",
+        "title": "Amendment",
+        "description": "A proposed change to an existing motion",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:Amendment",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "text",
+          "proposer",
+          "lifecycle",
+          "submittedAt"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Amendment title",
+            "example": "Amendement A: Extra cultuursubsidie"
+          },
+          "text": {
+            "type": "string",
+            "description": "Amendment text (change description)"
+          },
+          "proposer": {
+            "type": "string",
+            "description": "Name of proposer",
+            "example": "Fatima El-Amrani"
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Amendment lifecycle state",
+            "enum": [
+              "submitted",
+              "debating",
+              "voting",
+              "adopted",
+              "rejected"
+            ],
+            "example": "submitted"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Submission timestamp"
+          }
+        },
+        "x-openregister-relations": {
+          "motion": {
+            "register": "decidesk",
+            "schema": "Motion",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Amendment",
+              "slug": "amendement-cultuursubsidie"
+            },
+            "title": "Amendement A: Extra cultuursubsidie €50.000",
+            "text": "Voeg in de begroting 2026 een post van €50.000 toe voor cultuursubsidies.",
+            "proposer": "Fatima El-Amrani",
+            "lifecycle": "rejected",
+            "submittedAt": "2025-04-10T19:45:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Amendment",
+              "slug": "amendement-groentarieven"
+            },
+            "title": "Amendement B: Verlaging groentarieven 5%",
+            "text": "De groentarieven worden met 5% verlaagd ten opzichte van het college-voorstel.",
+            "proposer": "Jan Smit",
+            "lifecycle": "debating",
+            "submittedAt": "2025-04-10T20:30:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Amendment",
+              "slug": "amendement-participatiebudget"
+            },
+            "title": "Amendement C: Participatiebudget dorpskernen",
+            "text": "Stel €25.000 beschikbaar als participatiebudget voor dorpskernenoverleg.",
+            "proposer": "Roos de Vries",
+            "lifecycle": "adopted",
+            "submittedAt": "2025-04-09T14:00:00Z"
+          }
+        ]
+      },
+      "VotingRound": {
+        "slug": "voting-round",
+        "icon": "VoteOutline",
+        "version": "0.1.0",
+        "title": "VotingRound",
+        "description": "A voting session on a motion or amendment",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:VotingRound",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "votingMethod",
+          "isSecret"
+        ],
+        "properties": {
+          "votingMethod": {
+            "type": "string",
+            "description": "Method used for voting",
+            "enum": [
+              "for-against-abstain",
+              "ranked-choice",
+              "weighted",
+              "show-of-hands"
+            ],
+            "example": "for-against-abstain"
+          },
+          "isSecret": {
+            "type": "boolean",
+            "description": "Secret ballot",
+            "example": false
+          },
+          "openedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When voting opened"
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When voting closed"
+          },
+          "quorumMet": {
+            "type": "boolean",
+            "description": "Was quorum met"
+          },
+          "result": {
+            "type": "string",
+            "description": "Voting result",
+            "enum": [
+              "adopted",
+              "rejected",
+              "tied",
+              "invalid"
+            ]
+          },
+          "votesFor": {
+            "type": "integer",
+            "description": "Count of votes for",
+            "example": 28
+          },
+          "votesAgainst": {
+            "type": "integer",
+            "description": "Count of votes against",
+            "example": 3
+          },
+          "votesAbstain": {
+            "type": "integer",
+            "description": "Count of abstentions",
+            "example": 2
+          }
+        },
+        "x-openregister-relations": {
+          "motion": {
+            "register": "decidesk",
+            "schema": "Motion",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "VotingRound",
+              "slug": "stemming-motie-duurzaamheid-2025"
+            },
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "2025-04-10T21:00:00Z",
+            "closedAt": "2025-04-10T21:05:00Z",
+            "quorumMet": true,
+            "result": "adopted",
+            "votesFor": 28,
+            "votesAgainst": 3,
+            "votesAbstain": 2
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "VotingRound",
+              "slug": "stemming-begroting-2026"
+            },
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "2025-04-10T21:30:00Z",
+            "closedAt": "2025-04-10T21:38:00Z",
+            "quorumMet": true,
+            "result": "adopted",
+            "votesFor": 25,
+            "votesAgainst": 6,
+            "votesAbstain": 2
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "VotingRound",
+              "slug": "stemming-amendement-a"
+            },
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "2025-04-10T20:55:00Z",
+            "closedAt": "2025-04-10T21:00:00Z",
+            "quorumMet": true,
+            "result": "rejected",
+            "votesFor": 11,
+            "votesAgainst": 20,
+            "votesAbstain": 2
+          }
+        ]
+      },
+      "Vote": {
+        "slug": "vote",
+        "icon": "ThumbUpOutline",
+        "version": "0.1.0",
+        "title": "Vote",
+        "description": "An individual vote cast in a voting round",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:Vote",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "value",
+          "castAt"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "Vote value",
+            "enum": [
+              "for",
+              "against",
+              "abstain"
+            ],
+            "example": "for"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Vote weight (for weighted voting)",
+            "example": 1
+          },
+          "isProxy": {
+            "type": "boolean",
+            "description": "Cast via proxy delegation",
+            "example": false
+          },
+          "castAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the vote was cast"
+          }
+        },
+        "x-openregister-relations": {
+          "votingRound": {
+            "register": "decidesk",
+            "schema": "VotingRound",
+            "cardinality": "many-to-one"
+          },
+          "participant": {
+            "register": "decidesk",
+            "schema": "Participant",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Vote",
+              "slug": "stem-devries-motie-duurzaamheid"
+            },
+            "value": "for",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2025-04-10T21:01:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Vote",
+              "slug": "stem-bakker-motie-duurzaamheid"
+            },
+            "value": "against",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2025-04-10T21:02:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Vote",
+              "slug": "stem-elamrani-begroting-2026"
+            },
+            "value": "for",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2025-04-10T21:31:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Vote",
+              "slug": "stem-proxy-vandam-begroting"
+            },
+            "value": "for",
+            "weight": 1,
+            "isProxy": true,
+            "castAt": "2025-04-10T21:32:00Z"
+          }
+        ]
+      },
+      "Decision": {
+        "slug": "decision",
+        "icon": "GavelOutline",
+        "version": "0.1.0",
+        "title": "Decision",
+        "description": "A formal decision resulting from a vote",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:Decision",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": true,
+          "x-mail-security-audit": "mailEnabled activates inbound email ingestion. Before production: verify OpenRegister sanitizes HTML/headers, validate sender identity, and ensure Decision views never use v-html for mail-sourced content. Tracked in issue #6."
+        },
+        "required": [
+          "title",
+          "text",
+          "decisionDate",
+          "outcome"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Decision title",
+            "example": "Vaststelling Programmabegroting 2026"
+          },
+          "text": {
+            "type": "string",
+            "description": "Decision text"
+          },
+          "decisionDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the decision was made"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Decision outcome",
+            "enum": [
+              "adopted",
+              "rejected"
+            ],
+            "example": "adopted"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "description": "Published via ORI API",
+            "example": false
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Publication timestamp"
+          },
+          "legalBasis": {
+            "type": "string",
+            "description": "Legal article or regulation",
+            "example": "Gemeentewet art. 189"
+          }
+        },
+        "x-openregister-relations": {
+          "motion": {
+            "register": "decidesk",
+            "schema": "Motion",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-begroting-2026"
+            },
+            "title": "Vaststelling Programmabegroting 2026",
+            "text": "De gemeenteraad van Westerkwartier stelt de programmabegroting 2026 vast.",
+            "decisionDate": "2025-04-10T21:38:00Z",
+            "outcome": "adopted",
+            "isPublished": true,
+            "publishedAt": "2025-04-11T09:00:00Z",
+            "legalBasis": "Gemeentewet art. 189"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-duurzaamheid-2025"
+            },
+            "title": "Motie Duurzaamheid aangenomen",
+            "text": "De raad verzoekt het college een plan van aanpak zonnepanelen te presenteren voor 1 januari 2026.",
+            "decisionDate": "2025-04-10T21:05:00Z",
+            "outcome": "adopted",
+            "isPublished": true,
+            "publishedAt": "2025-04-11T09:00:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-bestemmingsplan-groningen-noord"
+            },
+            "title": "Vaststelling bestemmingsplan Groningen-Noord",
+            "text": "De raad stelt het bestemmingsplan Groningen-Noord ongewijzigd vast.",
+            "decisionDate": "2025-03-27T20:45:00Z",
+            "outcome": "adopted",
+            "isPublished": false,
+            "legalBasis": "Wet ruimtelijke ordening art. 3.1"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-woningbouwplan-oost"
+            },
+            "title": "Vaststelling Woningbouwplan Oost 2025-2030",
+            "text": "De gemeenteraad van Westerkwartier stelt het Woningbouwplan Oost 2025-2030 vast en machtigt het college tot uitvoering conform bijgaande planning en budgettering.",
+            "decisionDate": "2025-03-20T21:15:00Z",
+            "outcome": "adopted",
+            "isPublished": true,
+            "publishedAt": "2025-03-21T09:00:00Z",
+            "legalBasis": "Wet ruimtelijke ordening art. 3.1"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-duurzaamheidsagenda-2026"
+            },
+            "title": "Vaststelling Duurzaamheidsagenda 2026",
+            "text": "De raad stelt de Duurzaamheidsagenda Westerkwartier 2026 vast en stelt €200.000 beschikbaar voor uitvoering van de daarin opgenomen maatregelen.",
+            "decisionDate": "2025-03-20T20:45:00Z",
+            "outcome": "adopted",
+            "isPublished": true,
+            "publishedAt": "2025-03-21T09:00:00Z",
+            "legalBasis": "Gemeentewet art. 147"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-bezwaar-kapvergunning"
+            },
+            "title": "Besluit op bezwaar kapvergunning Dorpsstraat 12",
+            "text": "De gemeenteraad verklaart het bezwaar van de bewonersvereniging gegrond en herroept de verleende kapvergunning voor de eik aan Dorpsstraat 12.",
+            "decisionDate": "2025-04-01T14:30:00Z",
+            "outcome": "adopted",
+            "isPublished": false,
+            "legalBasis": "Algemene wet bestuursrecht art. 7:11"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-amendement-cultuursubsidie-afgewezen"
+            },
+            "title": "Amendement verhoging cultuursubsidie — niet aanvaard",
+            "text": "Het amendement tot verhoging van het cultuursubsidiebudget 2026 met €75.000 wordt niet aanvaard.",
+            "decisionDate": "2025-04-10T21:00:00Z",
+            "outcome": "rejected",
+            "isPublished": false
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-fusie-dorpsraden"
+            },
+            "title": "Instemming fusie dorpsraden Noord en Oost per 1 januari 2026",
+            "text": "De raad stemt in met de samenvoeging van dorpsraad Noord en dorpsraad Oost tot één dorpsraad Noord-Oost, ingaande 1 januari 2026.",
+            "decisionDate": "2025-04-10T20:30:00Z",
+            "outcome": "adopted",
+            "isPublished": true,
+            "publishedAt": "2025-04-11T08:30:00Z"
+          }
+        ]
+      },
+      "ActionItem": {
+        "slug": "action-item",
+        "icon": "CheckboxMarkedOutline",
+        "version": "0.1.0",
+        "title": "ActionItem",
+        "description": "A follow-up task from a meeting decision",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:ActionItem",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "taskStatus"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Task title",
+            "example": "Plan van aanpak zonnepanelen opstellen"
+          },
+          "description": {
+            "type": "string",
+            "description": "Task details"
+          },
+          "assignee": {
+            "type": "string",
+            "description": "Assigned participant",
+            "example": "Wethouder Duurzaamheid"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Due date"
+          },
+          "taskStatus": {
+            "type": "string",
+            "description": "Current task status",
+            "enum": [
+              "open",
+              "in-progress",
+              "completed",
+              "overdue"
+            ],
+            "example": "open"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Completion timestamp"
+          }
+        },
+        "x-openregister-relations": {
+          "decision": {
+            "register": "decidesk",
+            "schema": "Decision",
+            "cardinality": "many-to-one"
+          },
+          "meeting": {
+            "register": "decidesk",
+            "schema": "Meeting",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ActionItem",
+              "slug": "actie-plan-zonnepanelen"
+            },
+            "title": "Plan van aanpak zonnepanelen gemeentelijke gebouwen opstellen",
+            "description": "College presenteert plan voor 1 januari 2026 conform aangenomen motie.",
+            "assignee": "Wethouder Duurzaamheid",
+            "dueDate": "2026-01-01T00:00:00Z",
+            "taskStatus": "open"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ActionItem",
+              "slug": "actie-communicatie-begroting-2026"
+            },
+            "title": "Begroting 2026 communiceren naar inwoners",
+            "assignee": "Communicatieafdeling",
+            "dueDate": "2025-05-01T00:00:00Z",
+            "taskStatus": "completed",
+            "completedAt": "2025-04-25T14:30:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ActionItem",
+              "slug": "actie-bestemmingsplan-publiceren"
+            },
+            "title": "Bestemmingsplan Groningen-Noord publiceren op ruimtelijkeplannen.nl",
+            "assignee": "Ruimtelijke Ordening",
+            "dueDate": "2025-04-10T00:00:00Z",
+            "taskStatus": "overdue"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ActionItem",
+              "slug": "actie-woningbouw-uitvoeringsplan"
+            },
+            "title": "Uitvoeringsplan Woningbouwplan Oost opstellen",
+            "description": "College stelt uitvoeringsplan op inclusief fasering, budgetten en planning.",
+            "assignee": "Wethouder Wonen",
+            "dueDate": "2025-07-01T00:00:00Z",
+            "taskStatus": "in-progress"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ActionItem",
+              "slug": "actie-duurzaamheid-offerteverzoek"
+            },
+            "title": "Offerteverzoek zonnepanelen gemeentelijke gebouwen uitzetten",
+            "description": "Inkoopteam vraagt offertes op bij minimaal 3 leveranciers conform gemeentelijk aanbestedingsbeleid.",
+            "assignee": "Inkoopcoördinator",
+            "dueDate": "2025-05-15T00:00:00Z",
+            "taskStatus": "completed",
+            "completedAt": "2025-05-10T16:00:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ActionItem",
+              "slug": "actie-notulen-distribueren"
+            },
+            "title": "Definitieve notulen raadsvergadering 20 maart distribueren",
+            "description": "Griffier verstuurt vastgestelde notulen aan alle raadsleden en publiceert op gemeentelijke website.",
+            "assignee": "Griffier",
+            "dueDate": "2025-04-11T00:00:00Z",
+            "taskStatus": "completed",
+            "completedAt": "2025-04-11T09:30:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ActionItem",
+              "slug": "actie-besluiten-ori-publicatie"
+            },
+            "title": "Besluiten raadsvergadering publiceren via ORI-koppeling",
+            "description": "Informatiemanager controleert ORI-export en bevestigt succesvolle aanlevering bij PLOOI.",
+            "assignee": "Informatiemanager",
+            "dueDate": "2025-03-22T00:00:00Z",
+            "taskStatus": "overdue"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ActionItem",
+              "slug": "actie-fusie-dorpsraden-convenant"
+            },
+            "title": "Convenant fusie dorpsraden Noord en Oost opstellen en laten ondertekenen",
+            "description": "Gemeentelijke contactpersoon stelt convenant op in samenspraak met beide dorpsraden.",
+            "assignee": "Beleidsmedewerker Participatie",
+            "dueDate": "2025-10-01T00:00:00Z",
+            "taskStatus": "open"
+          }
+        ]
+      },
+      "Minutes": {
+        "slug": "minutes",
+        "icon": "NotebookOutline",
+        "version": "0.1.0",
+        "title": "Minutes",
+        "description": "Official record of a meeting's proceedings",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:Minutes",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "lifecycle"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Minutes title",
+            "example": "Notulen Raadsvergadering 10 april 2025"
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Minutes lifecycle state",
+            "enum": [
+              "draft",
+              "review",
+              "approved",
+              "signed",
+              "published"
+            ],
+            "example": "draft"
+          },
+          "content": {
+            "type": "string",
+            "description": "Full minutes text"
+          },
+          "approvedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Approval timestamp"
+          },
+          "signedBy": {
+            "type": "array",
+            "description": "Digital signers (chair + secretary)",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Roos de Vries",
+              "Jan Bakker"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "description": "Revision number",
+            "example": 1
+          }
+        },
+        "x-openregister-relations": {
+          "meeting": {
+            "register": "decidesk",
+            "schema": "Meeting",
+            "cardinality": "one-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Minutes",
+              "slug": "notulen-raad-2025-04-10"
+            },
+            "title": "Notulen Raadsvergadering 10 april 2025",
+            "lifecycle": "approved",
+            "content": "De vergadering wordt geopend door de voorzitter om 19:30 uur...",
+            "approvedAt": "2025-05-08T19:45:00Z",
+            "signedBy": [
+              "Roos de Vries",
+              "Jan Bakker"
+            ],
+            "version": 2
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Minutes",
+              "slug": "notulen-commissie-ruimte-2025-03-04"
+            },
+            "title": "Notulen Commissievergadering Ruimte & Wonen 4 maart 2025",
+            "lifecycle": "signed",
+            "content": "De commissievergadering Ruimte & Wonen wordt geopend...",
+            "approvedAt": "2025-04-01T10:00:00Z",
+            "signedBy": [
+              "Henk Bakker"
+            ],
+            "version": 1
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Minutes",
+              "slug": "notulen-ab-waterschap-2025-02-13"
+            },
+            "title": "Notulen AB Waterschap Aa en Maas 13 februari 2025",
+            "lifecycle": "draft",
+            "version": 1
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Minutes",
+              "slug": "notulen-raad-2025-03-20"
+            },
+            "title": "Notulen Gemeenteraadsvergadering 20 maart 2025",
+            "lifecycle": "published",
+            "content": "De vergadering wordt geopend door de voorzitter om 19:30 uur. Aanwezig: 33 van 37 raadsleden. Punt 5 — Woningbouwplan Oost 2025-2030: na bespreking wordt het plan aangenomen met 30 stemmen voor en 3 tegen.",
+            "approvedAt": "2025-04-10T19:45:00Z",
+            "signedBy": [
+              "Roos de Vries",
+              "Jan Bakker"
+            ],
+            "version": 2
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Minutes",
+              "slug": "notulen-commissie-wonen-2025-04-01"
+            },
+            "title": "Notulen Commissievergadering Wonen & Ruimte 1 april 2025",
+            "lifecycle": "signed",
+            "content": "Aanvang: 19:00 uur. Voorzitter: Henk Bakker. Commissieleden aanwezig: 7 van 9. Agendapunt 2 — bestemmingsplan Groningen-Noord: de commissie adviseert de raad het plan ongewijzigd vast te stellen.",
+            "approvedAt": "2025-04-15T10:00:00Z",
+            "signedBy": [
+              "Henk Bakker"
+            ],
+            "version": 1
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Minutes",
+              "slug": "notulen-ab-waterschap-2025-04-10"
+            },
+            "title": "Notulen Vergadering Algemeen Bestuur Waterschap Aa en Maas 10 april 2025",
+            "lifecycle": "review",
+            "content": "Concept-verslag ter vaststelling. De vergadering van het Algemeen Bestuur wordt geopend door de dijkgraaf om 14:00 uur.",
+            "version": 1
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Minutes",
+              "slug": "notulen-directieoverleg-2025-04-14"
+            },
+            "title": "Verslag Directieoverleg Gemeente Utrecht 14 april 2025",
+            "lifecycle": "draft",
+            "version": 1
+          }
+        ]
+      },
+      "DigitalDocument": {
+        "slug": "digital-document",
+        "icon": "FileDocumentOutline",
+        "version": "0.1.0",
+        "title": "DigitalDocument",
+        "description": "Schema.org DigitalDocument for document metadata",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:DigitalDocument",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "documentType"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Document name/title",
+            "example": "Raadsvoorstel Begroting 2026"
+          },
+          "documentType": {
+            "type": "string",
+            "description": "Document type (contract, tender, report, etc.)",
+            "example": "report"
+          },
+          "description": {
+            "type": "string",
+            "description": "Document description"
+          },
+          "encodingFormat": {
+            "type": "string",
+            "description": "MIME type (application/pdf, etc.)",
+            "example": "application/pdf"
+          },
+          "contentSize": {
+            "type": "string",
+            "description": "File size",
+            "example": "2.4 MB"
+          }
         }
+      },
+      "MonetaryAmount": {
+        "slug": "monetary-amount",
+        "icon": "CurrencyEur",
+        "version": "0.1.0",
+        "title": "MonetaryAmount",
+        "description": "Schema.org MonetaryAmount for monetary values",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:MonetaryAmount",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "value",
+          "currency"
+        ],
+        "properties": {
+          "value": {
+            "type": "number",
+            "description": "Numeric value",
+            "example": 50000
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code",
+            "example": "EUR"
+          }
+        }
+      },
+      "Offer": {
+        "slug": "offer",
+        "icon": "TagOutline",
+        "version": "0.1.0",
+        "title": "Offer",
+        "description": "Schema.org Offer for offer/quote data",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Offer",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "price",
+          "priceCurrency"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Offer/quote name",
+            "example": "AV-installatie raadzaal"
+          },
+          "price": {
+            "type": "number",
+            "description": "Offered price",
+            "example": 25000
+          },
+          "priceCurrency": {
+            "type": "string",
+            "description": "Currency",
+            "example": "EUR"
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Offer valid from"
+          },
+          "validThrough": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Offer valid until"
+          },
+          "availability": {
+            "type": "string",
+            "description": "Availability status"
+          }
+        }
+      },
+      "Order": {
+        "slug": "order",
+        "icon": "CartOutline",
+        "version": "0.1.0",
+        "title": "Order",
+        "description": "Schema.org Order for purchase order data",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Order",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "orderNumber",
+          "orderDate",
+          "orderStatus",
+          "totalPrice",
+          "currency"
+        ],
+        "properties": {
+          "orderNumber": {
+            "type": "string",
+            "description": "Purchase order number",
+            "example": "PO-2025-0042"
+          },
+          "orderDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date of order"
+          },
+          "orderStatus": {
+            "type": "string",
+            "description": "Order status",
+            "example": "pending"
+          },
+          "totalPrice": {
+            "type": "number",
+            "description": "Total order amount",
+            "example": 15000
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code",
+            "example": "EUR"
+          },
+          "deliveryDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Expected delivery date"
+          },
+          "paymentTerms": {
+            "type": "string",
+            "description": "Payment terms (e.g., NET30)",
+            "example": "NET30"
+          }
+        }
+      },
+      "Product": {
+        "slug": "product",
+        "icon": "PackageVariantClosed",
+        "version": "0.1.0",
+        "title": "Product",
+        "description": "Schema.org Product for product/service data",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Product",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "unitPrice",
+          "currency"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Product name",
+            "example": "Vergadermicrofoon Shure MX"
+          },
+          "sku": {
+            "type": "string",
+            "description": "Stock keeping unit"
+          },
+          "description": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "category": {
+            "type": "string",
+            "description": "Product category",
+            "example": "AV Equipment"
+          },
+          "unitPrice": {
+            "type": "number",
+            "description": "Unit price",
+            "example": 450
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code",
+            "example": "EUR"
+          },
+          "unitCode": {
+            "type": "string",
+            "description": "Unit of measure (UN/CEFACT)"
+          },
+          "taxRate": {
+            "type": "number",
+            "description": "Applicable tax rate percentage",
+            "example": 21
+          }
+        }
+      },
+      "Report": {
+        "slug": "report",
+        "icon": "ChartBoxOutline",
+        "version": "0.1.0",
+        "title": "Report",
+        "description": "Schema.org Report for report metadata",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Report",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "reportType"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Report title",
+            "example": "Jaarverslag 2024"
+          },
+          "reportType": {
+            "type": "string",
+            "description": "Report type (financial, compliance, etc.)",
+            "example": "financial"
+          },
+          "period": {
+            "type": "string",
+            "description": "Reporting period",
+            "example": "2025-Q1"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the report was generated"
+          }
+        }
+      }
     }
+  }
 }

@@ -31,6 +31,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Service for managing Decidesk application configuration and settings.
+ *
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
  */
 class SettingsService
 {
@@ -38,10 +40,21 @@ class SettingsService
     /**
      * Configuration keys managed by this service.
      *
+     * Includes the main register slug plus schema slugs for Minutes, Decision,
+     * and ActionItem so the frontend initializeStores() can register object stores.
+     *
      * @var array<string>
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
      */
     private const CONFIG_KEYS = [
         'register',
+        'ori_endpoint',
+        'email_voting_enabled',
+        'minutesSchema',
+        'decisionSchema',
+        'actionItemSchema',
     ];
 
     /**
@@ -69,6 +82,8 @@ class SettingsService
     /**
      * Check whether OpenRegister is installed and available.
      *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     *
      * @return bool
      */
     public function isOpenRegisterAvailable(): bool
@@ -82,13 +97,35 @@ class SettingsService
      * Returns a flat array containing all app config values plus metadata
      * fields (openregisters, isAdmin) consumed by the frontend.
      *
+     * The Minutes, Decision, and ActionItem schema/register slugs are registered
+     * directly in src/store/store.js::OBJECT_TYPES (alongside all other entity types)
+     * and do not require additional settings keys — the frontend resolves them from the
+     * static OBJECT_TYPES map after confirming OpenRegister is available.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.1
+     *
      * @return array<string,mixed>
      */
     public function getSettings(): array
     {
+        // Default schema slugs match the slugs defined in decidesk_register.json.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.
+        $defaults = [
+            'minutesSchema'    => 'minutes',
+            'decisionSchema'   => 'decision',
+            'actionItemSchema' => 'action-item',
+        ];
+
         $settings = [];
         foreach (self::CONFIG_KEYS as $key) {
-            $settings[$key] = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            if ($value !== '') {
+                $settings[$key] = $value;
+            } else {
+                $settings[$key] = ($defaults[$key] ?? '');
+            }
         }
 
         $user    = $this->userSession->getUser();
@@ -98,6 +135,10 @@ class SettingsService
             $settings,
             [
                 'openregisters' => $this->isOpenRegisterAvailable(),
+                // UI-HINT ONLY: isAdmin is used exclusively to control frontend rendering
+                // (e.g. showing/hiding admin-only settings panels). It MUST NOT be used
+                // for server-side access control decisions. All admin-gated backend routes
+                // enforce the admin check independently via IGroupManager::isAdmin().
                 'isAdmin'       => $isAdmin,
             ]
         );
@@ -107,6 +148,8 @@ class SettingsService
      * Update settings with the provided data.
      *
      * @param array<string,mixed> $data The data to update
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
      *
      * @return array<string,mixed> The updated settings
      */
@@ -125,6 +168,10 @@ class SettingsService
      * Load configuration from decidesk_register.json via OpenRegister.
      *
      * @param bool $force Force re-import even if already configured.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
      *
      * @return array<string,mixed> Result with success flag, message, and version.
      */
@@ -162,7 +209,7 @@ class SettingsService
             );
             return [
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Configuration import failed. See server log for details.',
             ];
         }//end try
     }//end loadConfiguration()

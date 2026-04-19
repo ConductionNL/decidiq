@@ -1,3 +1,5 @@
+## Status: pr-created
+
 ## Context
 
 Decidesk is a Nextcloud app using the **thin-client** pattern: all domain data is stored in OpenRegister; the backend provides only settings, business-rule services, and PDF generation. The `AgendaItem` entity was introduced in p1-crud-operations with basic CRUD views. This change adds the full governance agenda lifecycle on top of that foundation: building, publication, live amendments, consent-item processing, BOB phase tracking, and conflict-of-interest declaration.

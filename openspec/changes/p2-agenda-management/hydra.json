@@ -8,5 +8,17 @@
     "p1-dashboard-and-navigation",
     "p1-crud-operations"
   ],
-  "issue": "https://github.com/ConductionNL/decidesk/issues/15"
+  "issue": "https://github.com/ConductionNL/decidesk/issues/15",
+  "pipeline": {
+    "review_rounds": 7,
+    "build_count": 1,
+    "fix_iterations": 3,
+    "total_cost_eur": 0,
+    "total_turns": 321,
+    "findings_open": 0,
+    "findings_fixed": 0,
+    "suggestions_open": 0,
+    "last_code_review_pass": null,
+    "last_security_review_pass": null
+  }
 }
