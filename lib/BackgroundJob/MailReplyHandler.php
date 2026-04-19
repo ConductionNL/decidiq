@@ -1,15 +1,13 @@
 <?php
 
 /**
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- */
-
-/**
  * Decidesk Mail Reply Handler Background Job
  *
  * Polls for email replies to voting notification threads and casts votes
  * based on the first non-empty line of the reply body.
+ *
+ * SPDX-License-Identifier: EUPL-1.2
+ * Copyright (C) 2026 Conduction B.V.
  *
  * @category BackgroundJob
  * @package  OCA\Decidesk\BackgroundJob
