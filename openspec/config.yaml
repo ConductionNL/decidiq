@@ -4,66 +4,51 @@ context: |
   Project: Decidesk
   Repo: ConductionNL/decidesk
   Type: Nextcloud App (PHP backend + Vue 2 frontend)
-  Description: Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
-  Key components: Decision, Meeting, AgendaItem, Motion, Amendment, Vote, Resolution, Minutes, Body, ProcessTemplate
+  Description: Universal decision-making platform for governance bodies — manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type.
+  Key components: Dashboard, Meeting Management, Agenda Builder, Motion/Voting, Minutes/Decisions, Governance Bodies, Citizen Participation
   Database: PostgreSQL (via OpenRegister's ObjectService)
   Mount path: /var/www/html/custom_apps/decidesk
 
-  Standards:
-    Primary: Schema.org Event/Action/VoteAction for data model
-    Legislative: Akoma Ntoso (OASIS) for motion/amendment/resolution structure
-    Semantic: Schema.org JSON-LD type annotations
-    API mapping: OpenRaadsinformatie (Dutch council data standard)
-    Process: Symfony Workflow Component for decision state machine
-    Rules: DMN-inspired decision tables for configurable voting rules
-    Archival: MDTO for records metadata
-    Legal: Awb, Gemeentewet, BW Book 2 for Dutch compliance
+  Governance Domains:
+    1. Legislative/democratic bodies (municipalities, provinces, water boards)
+    2. Associations and NGOs (member assemblies, board meetings)
+    3. Corporate governance (shareholders, supervisory boards)
+    4. Corporate operations (management teams, project boards)
+    5. Citizen participation (initiatives, referenda, participatory budgets)
 
   Architecture:
     Pattern: Thin client — Decidesk owns no database tables
     Data layer: OpenRegister (JSON object storage with schema validation)
     Frontend: Vue 2.7 + Pinia stores querying OpenRegister API directly
-    Shared library: @conduction/nextcloud-vue (components, stores, composables, NL Design CSS)
-    Backend: SettingsController + ConfigurationService + VotingService + WorkflowService
-    State machine: Symfony Workflow Component (PHP) for decision lifecycle
-    Nextcloud reuse: Calendar, Tasks, Files, Mail, Talk, Contacts, Activity, Notifications, Search, References
+    Backend: Minimal — SettingsController + SettingsService for register setup, workflow orchestration
+    Standards: Akoma Ntoso, ORI API, Gemeentewet, Wet digitaal vergaderen, Woo, MDTO, TOOI, DMN, BPMN, WCAG 2.1
 
-  Sister apps:
-    - OpenRegister: data layer (required dependency)
-    - Docudesk: document generation for minutes/resolutions
-    - OpenConnector: API publishing for OpenRaadsinformatie compliance
   Shared specs: See ../openspec/specs/ for cross-project conventions
   Project guidelines: See ../project.md for workspace-wide standards
-  Architecture: See docs/ARCHITECTURE.md for standards research and data model decisions
-  Features: See docs/FEATURES.md for competitive analysis and feature roadmap
 
 rules:
   proposal:
     - Reference shared nextcloud-app spec for app structure requirements
-    - Reference docs/ARCHITECTURE.md for data model and standards decisions
-    - Impact on OpenRegister (schema definitions), Docudesk (minute templates), OpenConnector (ORI API)
-    - Reference docs/FEATURES.md for feature tier (MVP/V1/Enterprise)
+    - Consider impact on other Conduction apps
+    - Validate governance workflow requirements against all 5 domains
   specs:
-    - Use Schema.org Event/VoteAction types for entity mapping
-    - Use Akoma Ntoso concepts for legislative document types
-    - Include OpenRaadsinformatie mapping column where applicable
-    - Specify which Nextcloud OCP interfaces are used
-    - Reference FEATURES.md tier for each requirement
-    - Include Dutch legal compliance (Awb/Gemeentewet/BW) for voting rules
+    - Use Schema.org type annotations for all entities (Event, Action, VoteAction, etc.)
+    - Use Akoma Ntoso vocabulary for legislative document elements
+    - Specify which Nextcloud OCP interfaces are used for integration features
+    - Include ORI API field mappings for public-facing entities
   design:
     - Uses OpenRegister API directly from frontend (no own backend CRUD)
     - Register config in lib/Settings/decidesk_register.json (OpenAPI 3.0.0 format)
     - Imported via ConfigurationService::importFromApp() in repair step
-    - Decision state machine via Symfony Workflow Component (backend)
-    - XState for Vue dashboard state visualization (frontend)
-    - Reference Nextcloud OCP interfaces for all platform integrations
-    - MUST use @conduction/nextcloud-vue components
-    - MUST use CnDetailPage + CnObjectSidebar for all entity detail views
-    - MUST use useObjectStore from @conduction/nextcloud-vue
-    - MUST use Vue Router (hash mode) for all navigation
-    - MUST use NL Design System double-fallback CSS pattern
+    - Workflow state machines defined as OpenRegister metadata
+    - Each governance domain has a configurable workflow template
   tasks:
-    - Tag tasks with feature tier (MVP/V1/Enterprise)
     - Test with OpenRegister to verify schema validation works
-    - Verify Nextcloud integration features with actual OCP interfaces
-    - Test voting calculations with edge cases (ties, quorum failures)
+    - Test workflow transitions for each governance domain
+    - Validate ORI API output format against specification
+    - Test WCAG 2.1 AA compliance for all voting interfaces
+  review:
+    - Cross-reference shared specs (nextcloud-app, api-patterns, nl-design, docker)
+    - Flag spec deviations with WARNING and justification
+    - Verify standards compliance (Akoma Ntoso, ORI, Woo, MDTO, TOOI)
+    - Check that all 5 governance domains are supported by the feature

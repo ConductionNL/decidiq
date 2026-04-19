@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Decidesk Application
  *
@@ -17,17 +16,30 @@
  * @link https://conduction.nl
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
 
+use OCA\Decidesk\BackgroundJob\MailReplyHandler;
+use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
+use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Controller\MinutesController;
+use OCA\Decidesk\Controller\MotionController;
+use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
+use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Service\OriPublicationService;
+use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\BackgroundJob\IJobList;
 
 /**
  * Main application class for the Decidesk Nextcloud app.
@@ -67,6 +79,138 @@ class Application extends App implements IBootstrap
         // Initialize register and schemas on install/upgrade.
         $context->registerRepairStep(InitializeSettings::class);
 
+        // Register MinutesGenerationService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
+        $context->registerService(
+                MinutesGenerationService::class,
+                static function ($c): MinutesGenerationService {
+                    return new MinutesGenerationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register MinutesController for DI.
+        // userId is NOT injected here — it must be resolved per-request inside each
+        // action method via $this->userSession->getUser()?->getUID() to avoid the
+        // DI singleton caching a null uid from an early unauthenticated bootstrap.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
+        $context->registerService(
+                MinutesController::class,
+                static function ($c): MinutesController {
+                    return new MinutesController(
+                    request: $c->get(\OCP\IRequest::class),
+                    minutesGenerationService: $c->get(MinutesGenerationService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    );
+                }
+                );
+
+        // Register DecisionController for DI.
+        // Explicit registration matches the MinutesController pattern and ensures
+        // reliable resolution in all Nextcloud environments (≥28).
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
+        $context->registerService(
+                DecisionController::class,
+                static function ($c): DecisionController {
+                    return new DecisionController(
+                    request: $c->get(\OCP\IRequest::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register OverdueActionItemsJob for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.
+        $context->registerService(
+                OverdueActionItemsJob::class,
+                static function ($c): OverdueActionItemsJob {
+                    return new OverdueActionItemsJob(
+                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register OriPublicationService for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.
+        $context->registerService(
+                OriPublicationService::class,
+                static function ($c): OriPublicationService {
+                    return new OriPublicationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    clientService: $c->get(\OCP\Http\Client\IClientService::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register MotionService for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.4.
+        $context->registerService(
+                MotionService::class,
+                static function ($c): MotionService {
+                    return new MotionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    userManager: $c->get(\OCP\IUserManager::class),
+                    );
+                }
+                );
+
+        // Register VotingService for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.4.
+        $context->registerService(
+                VotingService::class,
+                static function ($c): VotingService {
+                    return new VotingService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    oriPublicationService: $c->get(OriPublicationService::class),
+                    motionService: $c->get(MotionService::class),
+                    );
+                }
+                );
+
+        // Register MotionController for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.4.
+        $context->registerService(
+                MotionController::class,
+                static function ($c): MotionController {
+                    return new MotionController(
+                    request: $c->get(\OCP\IRequest::class),
+                    motionService: $c->get(MotionService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    );
+                }
+                );
+
+        // Register VotingController for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.4.
+        $context->registerService(
+                VotingController::class,
+                static function ($c): VotingController {
+                    return new VotingController(
+                    request: $c->get(\OCP\IRequest::class),
+                    votingService: $c->get(VotingService::class),
+                    oriPublicationService: $c->get(OriPublicationService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
     }//end register()
 
     /**
@@ -75,10 +219,14 @@ class Application extends App implements IBootstrap
      * @param IBootContext $context The boot context
      *
      * @return void
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function boot(IBootContext $context): void
     {
+        $serverContainer = $context->getServerContainer();
+        $jobList         = $serverContainer->get(IJobList::class);
+        if ($jobList->has(MailReplyHandler::class, null) === false) {
+            $jobList->add(MailReplyHandler::class);
+        }
+
     }//end boot()
 }//end class

@@ -1,16 +1,14 @@
-# App Template — Decidesk
+# Decidesk
 
 ## Overview
 
-App Template is the official starter template for Conduction Nextcloud apps. It provides the standard structure, configuration, and tooling that all Conduction apps share.
-
-When creating a new app, clone this template and use `/app-create` to rename all identifiers.
+Decidesk is a universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. It manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type.
 
 ## Architecture
 
 - **Type**: Nextcloud App (PHP backend + Vue 2 frontend)
 - **Data layer**: OpenRegister (all data stored as register objects)
-- **Pattern**: Thin client — App Template provides UI/UX, OpenRegister handles persistence
+- **Pattern**: Thin client — Decidesk provides UI/UX, OpenRegister handles persistence
 - **License**: EUPL-1.2
 
 ## Tech Stack

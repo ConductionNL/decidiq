@@ -1,0 +1,63 @@
+{
+  "skill": "app-apply",
+  "version": "1.0.0",
+  "created": "2026-04-07",
+  "scenarios": [
+    {
+      "id": "apply-name-change",
+      "description": "App name changed in app-config.json — should update info.xml, composer.json, README",
+      "prompt": "Run /app-apply on openregister after changing the app name in app-config.json",
+      "setup": "app-config.json name field has been updated; info.xml/composer.json/README still have the old name",
+      "expected": "Should show a diff preview of all files that will change, ask for confirmation, then apply",
+      "assertions": [
+        "Shows a diff summary BEFORE applying any changes",
+        "Asks for explicit user confirmation before writing files",
+        "Updates appinfo/info.xml <name> element",
+        "Updates composer.json description field",
+        "Updates README.md title/header",
+        "Does NOT modify business logic, controllers, or Vue components (out of scope)"
+      ]
+    },
+    {
+      "id": "apply-openregister-enable",
+      "description": "OpenRegister dependency toggled from false to true in app-config.json",
+      "prompt": "Run /app-apply after enabling requiresOpenRegister in app-config.json",
+      "setup": "app-config.json dependencies.requiresOpenRegister changed from false to true",
+      "expected": "Should add OpenRegister wiring (repair steps in info.xml, SettingsService pattern)",
+      "assertions": [
+        "Adds repair-steps block to appinfo/info.xml",
+        "Wires SettingsService.php with explicit config file reading pattern",
+        "Removes PHP-based repair step registration from Application.php (replaced by declarative)",
+        "Shows diff before applying"
+      ]
+    },
+    {
+      "id": "apply-no-changes",
+      "description": "app-config.json has not changed — nothing to apply",
+      "prompt": "Run /app-apply when the app files already match app-config.json perfectly",
+      "setup": "All tracked files already match app-config.json values",
+      "expected": "Should detect no changes needed and report cleanly",
+      "assertions": [
+        "Reports that no changes are needed",
+        "Does NOT modify any files",
+        "Suggests running /app-verify to confirm (or states already in sync)"
+      ]
+    }
+  ],
+  "trigger_tests": {
+    "should_trigger": [
+      "apply the app config",
+      "push config changes to the codebase",
+      "sync app-config.json to the app files",
+      "run app apply on opencatalogi",
+      "apply configuration changes"
+    ],
+    "should_not_trigger": [
+      "verify the app config",
+      "explore app features",
+      "create a new app",
+      "apply the OpenSpec change",
+      "implement the planned feature"
+    ]
+  }
+}

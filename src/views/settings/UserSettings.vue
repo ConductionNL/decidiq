@@ -1,8 +1,9 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
 <template>
 	<NcAppSettingsDialog
 		:open="open"
 		:show-navigation="false"
-		:name="t('decidesk', 'App Template settings')"
+		:name="t('decidesk', 'Decidesk settings')"
 		@update:open="$emit('update:open', $event)">
 		<NcAppSettingsSection
 			id="general"

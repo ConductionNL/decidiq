@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Decidesk Settings Section
  *
@@ -17,6 +16,8 @@
  * @link https://conduction.nl
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Sections;
@@ -61,7 +62,7 @@ class SettingsSection implements IIconSection
      */
     public function getName(): string
     {
-        return $this->l->t('App Template');
+        return $this->l->t('Decidesk');
     }//end getName()
 
     /**
