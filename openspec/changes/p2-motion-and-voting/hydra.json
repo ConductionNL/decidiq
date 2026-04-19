@@ -81,6 +81,68 @@
             }
           ],
           "verdict": "fail"
+        },
+        {
+          "stage": "quality-recheck",
+          "persona": "orchestrator",
+          "container": "hydra-quality-runner",
+          "started_at": "2026-04-19T13:28:39Z",
+          "ended_at": "2026-04-19T13:28:39Z",
+          "exit_code": 1,
+          "checks_run": [
+            "php -l",
+            "composer check:strict (phpcs)",
+            "composer check:strict (phpmd)",
+            "composer check:strict (psalm)",
+            "composer check:strict (phpstan)",
+            "phpmetrics",
+            "composer audit",
+            "spdx-headers",
+            "forbidden-patterns",
+            "npm run lint (eslint)",
+            "npm run lint (stylelint)",
+            "npm audit",
+            "stub-scan",
+            "composer test:unit (phpunit)"
+          ],
+          "checks_skipped": [
+            "publiccode",
+            "gitleaks",
+            "trivy",
+            "newman"
+          ],
+          "gates": {
+            "php-lint": "pass",
+            "phpcs": "fail",
+            "phpmd": "pass",
+            "psalm": "pass",
+            "phpstan": "pass",
+            "phpmetrics": "pass",
+            "composer-audit": "pass",
+            "spdx-headers": "pass",
+            "publiccode": "skip",
+            "forbidden-patterns": "pass",
+            "eslint": "pass",
+            "stylelint": "pass",
+            "npm-audit": "pass",
+            "stub-scan": "pass",
+            "gitleaks": "skip",
+            "trivy": "skip",
+            "phpunit": "pass",
+            "newman": "skip"
+          },
+          "findings": [
+            {
+              "id": "qrc-phpcs",
+              "severity": "WARNING",
+              "gate": "phpcs",
+              "rule": "composer check:strict (phpcs) failing",
+              "status": "open",
+              "note": "...\nThe repository at \"/server/apps/decidesk\" does not have the correct ownership and git refuses to use it:\n\nfatal: detected dubious ownership in repository at '/server/apps/decidesk'\nTo add an exception for this directory, call:\n\ngit config --global --add safe.directory /server/apps/decidesk\n\nComposer could not detect the root package (conductionnl/decidesk) version, defaulting to '1.0.0'. See https://getcomposer.org/root-version\n\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m\u001b[31mE\u001b[0m 26 / 26 (100%)\n\n\n\n\u001b[1mFILE: lib/BackgroundJob/OverdueActionItemsJob.php\u001b[0m\n---------------------------",
+              "autofixable": true
+            }
+          ],
+          "verdict": "fail"
         }
       ]
     }
