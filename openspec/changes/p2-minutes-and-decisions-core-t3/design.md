@@ -1,379 +1,196 @@
+<!-- ⚠️ EXTENSION NOTICE (auto-inserted by fix_extension_artifacts.py)
+     Parent capability: p2-minutes-and-decisions (Minutes and Decisions)
+     This spec extends the existing `p2-minutes-and-decisions` capability. Do NOT define new entities or build new CRUD — reuse what `p2-minutes-and-decisions` already provides. Your job is to add configuration, seed data, or workflow templates on top of that capability.
+-->
+
 ## Context
 
-The `p2-minutes-and-decisions` change established foundational CRUD operations and data schemas for Minutes and Decision entities. Minutes and Decisions exist as data records, but governance bodies require operational workflows around them: decisions must be captured live during meetings, approved through formal governance procedures, published for public accountability (ORI standard), and converted into actionable follow-ups.
+Decidesk is a thin-client Nextcloud app: all domain data is stored in OpenRegister. The post-meeting workflow — Minutes lifecycle, Decision recording, ActionItem tracking, and minutes generation — was delivered in p2-minutes-and-decisions. T1 added the highest-demand compliance extensions (document generation, statutory deadlines, urgent flag, decision list). This T3 change adds the operational efficiency tier: cross-meeting analytics, live decision entry, ALV-specific minutes, approval notifications, auto-extraction of action items, decision rationale capture, and notification on publication.
 
-Core T3 builds these operational workflows on top of the existing data foundation. The change is constrained by four prior ADRs:
+All four entities — Decision, Minutes, ActionItem, and Meeting — are already registered as OpenRegister schemas from p1-schemas-and-data-model. No schema changes are required: the `rationale` concept uses the OpenRegister built-in `notes` array with a labelled note, and analytics queries use `ObjectService.findAll()` with filters.
 
-- **CalDAV-first storage** (ADR-002): ActionItems are VTODOs in Nextcloud Tasks — NOT OpenRegister objects. No sync layer.
-- **Popolo primary standard** (ADR-001): No separate Decision entity. Decisions are outcomes of Motions (`lifecycle: adopted` + `decisionText`, `decisionDate`, `isPublished`, `publishedAt`, `legalBasis` fields on the Motion object).
-- **ORI compatibility** (ADR-003): Dutch municipalities expect Minutes (as Reports) and decisions via `/api/ori/v1/reports` and `/api/ori/v1/motions`.
-- **OpenRegister platform** (company ADR): Workflow engine, notification, search, audit, and export capabilities are provided and MUST be reused.
-
-**Current state:** Minutes and Motion schemas defined in `lib/Settings/decidesk_register.json`. No approval workflow, no ORI publication, no real-time capture, no action item extraction. Schema fields `lifecycle`, `signedBy`, `version` on Minutes and `decisionText`, `decisionDate`, `isPublished`, `publishedAt`, `legalBasis` on Motion are present in ADR-000 but not yet operationally wired.
-
-**Stakeholders affected:**
-- Council clerks and board secretaries — authoring and approving minutes
-- Governance body chairs and secretaries — digital signature for minutes approval
-- Citizens and institutional investors — public decision access via ORI API
-- IT administrators — ORI endpoint configuration
-- Management teams and corporate boards — action item tracking from meeting decisions
-
-**Depends on:** `p2-meeting-management` (Meeting/CalDAV wrapper), `p2-motion-and-voting` (Motion, VotingRound), `p2-agenda-management` (AgendaItem).
-
----
+The Board Secretary is the primary actor for most features: they run meetings, record decisions, generate and distribute minutes, and track follow-up. The CEO / Director needs the analytics overview and decision notifications. The chair needs the approval request notifications.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Real-time Minutes and Decision capture during active meetings with debounced auto-save and optimistic locking
-- Formal Minutes approval lifecycle (draft → submitted → approved → published) using platform workflow engine with role-based guards
-- Digital signature recording for chair and secretary via `AuditTrailService` (legal acknowledgement trail)
-- Automatic ActionItem extraction from approved Minutes content using configurable regex/keyword patterns — creates CalDAV VTODOs via `CalDavService`
-- ORI-compatible `/api/ori/v1/reports` and `/api/ori/v1/motions` endpoints exposing published Minutes and adopted Motions (decision outcome fields)
-- Decision discovery: full-text search, faceted filtering, and CSV/JSON/PDF export across governance bodies
-- Foundation for decision notifications: event emission on state transitions, per-user/body notification preferences
-- Seed data for Minutes and Motion (with decision outcome) entities in `lib/Settings/decidesk_register.json` to support automated testing and QA
+- Multi-meeting action item analytics — KPI cards, completion rate chart, personal action item list on the Dashboard
+- Live decision recording during active meeting via "Besluiten" tab on Meeting detail
+- ALV minutes template generation and member distribution
+- Minutes approval request with Nextcloud notifications to chair and secretary
+- Auto-extract action item candidates from Minutes `content` with preview-and-confirm
+- Decision rationale ("Overwegingen") capture via OpenRegister notes
+- Decision notification dispatch when `isPublished` transitions to `true`
 
 **Non-Goals:**
-- Full ORI national harvesting protocol push-integration with Open State Foundation crawler (separate project)
-- AI/ML-based minutes summarization or automated decision text generation (non-deterministic; out of scope)
-- Video/audio recording integration or AV-RIS indexing (separate project)
-- Speech entity implementation (deferred to later phase per ADR-000)
-- PKI/eIDAS qualified electronic signatures (deferred; current approach uses audit trail acknowledgement)
-- Multi-language minutes content (English via i18n keys for UI; Minutes content text is user-authored)
-
----
+- AI/LLM-powered transcription or decision summary (deferred)
+- Registered mail integration for formal legal notification (deferred)
+- Full DMN (Decision Model & Notation) workflow integration (deferred)
+- External analytics platforms (deferred)
+- Complex NLP entity extraction for action items (regex-based only)
+- API to Agent Tool Conversion (deferred)
 
 ## Decisions
 
-### 1. ActionItem storage: CalDAV VTODO (not OpenRegister)
+### 1. Analytics computed at query time via ObjectService, not cached
+**Decision**: `ActionItemAnalyticsService` computes analytics on each dashboard load by calling `ObjectService.findAll()` with filters for `taskStatus`, `dueDate`, and `assignee`. No separate analytics cache or materialized view.
+**Rationale**: OpenRegister's `ObjectService.findAll()` supports filtering and pagination. For the scale of Dutch governance deployments (hundreds to low thousands of ActionItems), query-time computation is fast enough. Caching would require additional infrastructure and invalidation logic that adds maintenance cost without meaningful benefit at this scale. ADR-001 prohibits custom data stores.
+**Alternative considered**: Pre-computed analytics table — rejected (custom mapper, ADR-001 violation); client-side calculation from a full export — rejected (performance risk at scale).
 
-**Decision:** ActionItems created by action item automation are stored as CalDAV VTODOs in Nextcloud Tasks with `X-DECIDESK-MOTION-UID` and `X-DECIDESK-MEETING-UID` extended properties. There is no OpenRegister schema for ActionItem.
+### 2. Decision rationale stored in OpenRegister built-in `notes` array
+**Decision**: The "Overwegingen" rationale is stored as a note with `label: "overwegingen"` in the Decision object's built-in `notes` array via `ObjectService.saveObject()`. The Decision detail page reads the notes array and renders the first note with this label in the "Overwegingen" section.
+**Rationale**: ADR-000 defines no `rationale` property on Decision. Adding one would be a breaking schema change (ADR-011). The built-in `notes` array already supports labelled, free-text content with full audit trail tracking (ADR-001). This approach requires zero schema changes and avoids an ADR-000 update.
+**Alternative considered**: A new `rationale: string` field on Decision schema — rejected (breaking ADR-000 change without a new ADR-000 revision; notes covers the use case).
 
-**Rationale:** ADR-002 mandates CalDAV-first storage for meetings and action items. ActionItems as VTODOs appear natively in the Nextcloud Tasks app, sync to any CalDAV client, and require zero integration code. Creating a parallel OpenRegister schema would reintroduce the sync layer that ADR-002 explicitly eliminates.
+### 3. Live decision recording uses the existing Decision schema and Meeting relation
+**Decision**: The `LiveDecisionPanel.vue` creates Decision objects via `ObjectService.saveObject()` with a relation to the parent Meeting. If no Minutes object is linked to the Meeting, the panel auto-creates a draft Minutes object with `title` set to "Concept notulen — {meeting title}" and `lifecycle: draft`. No separate "live mode" entity is introduced.
+**Rationale**: Reusing existing Decision + Minutes schemas (ADR-000, ADR-012) avoids new entities. The Meeting relation is already supported by OpenRegister's relation mechanism. The "live" aspect is purely a frontend UX — the data model is unchanged.
+**Alternative considered**: A "LiveSession" entity for in-progress meeting state — rejected (ADR-000 is the source of truth; no new entity needed; existing Meeting lifecycle `opened` serves as the gate).
 
-**Consequence for seed data:** ActionItem seed objects in `decidesk_register.json` are NOT applicable. ActionItems are CalDAV objects, not OpenRegister objects. Seed data is limited to Minutes and Motion entities.
+### 4. Action item extraction uses regex markers, not NLP
+**Decision**: `ActionItemExtractionService::extractFromContent()` uses PHP regex patterns to detect action item markers in the Minutes `content` string. Patterns: lines starting with `Actie:`, `AI:`, `Taak:`, `Actiepunt:`, or lines containing Dutch action phrases (`wordt verzocht`, `zal worden`, `is toegezegd`). Each match is converted to an ActionItem candidate with `title` from the matched text and `taskStatus: open`. The secretary reviews candidates in a modal before saving.
+**Rationale**: LLM-based extraction (ADR-001's `ChatService`) requires always-on infrastructure and raises GDPR concerns for meeting minutes. Regex-based extraction covers the 80% case (structured Dutch minutes follow predictable patterns). The preview-and-confirm step protects against false positives. This is consistent with the `MinutesGenerationService` approach (template-based, deterministic, no LLM).
+**Alternative considered**: `ChatService` / LLM extraction — deferred; privacy risk; infrastructure dependency.
 
-**Alternative considered:** Store ActionItems in OpenRegister for richer relational queries. Rejected: contradicts ADR-002.
+### 5. Approval request transitions `lifecycle: draft → review` and sends notifications
+**Decision**: "Ter goedkeuring indienen" on a Minutes in `draft` state calls `WorkflowEngineController` to transition `lifecycle: draft → review` (existing transition from p2-minutes-and-decisions), then dispatches Nextcloud notifications via `NotificationService` to all users who have an active Membership with role `chair` or `secretary` in the linked GovernanceBody. The notification includes the minutes title, `decisionDate` context, and a deep link to the Minutes detail page.
+**Rationale**: The `draft → review` transition already exists in the workflow. Attaching notification dispatch to it avoids a separate workflow state. Role-based recipient lookup reuses the existing Membership relation on GovernanceBody (ADR-001). `NotificationService` is the platform service for in-app notifications (ADR-001).
+**Alternative considered**: Email-only notification — rejected (requires external SMTP config; Nextcloud notifications are native and reliable); separate "approval request" state — rejected (over-engineering for the use case).
 
----
+### 6. ALV minutes use a dedicated Dutch template branch in ALVMinutesService
+**Decision**: `ALVMinutesService::generateALVDraft(string $minutesId): string` is a new standalone service (not extending `MinutesGenerationService`) that renders an ALV-specific Dutch template. It checks that the linked Meeting has `meetingType` matching `alv` (or `algemene-ledenvergadering`); if not, it returns a validation error. The ALV template includes: quorum confirmation, member roll call, agenda items as resolutions with vote totals, and a standard "rondvraag en sluiting" section.
+**Rationale**: The ALV template is structurally different from the general council minutes template — it must confirm quorum under association law, use "leden" instead of "raadsleden", and include formal resolution language per Dutch association/BV law. A separate service class is cleaner than branching logic inside `MinutesGenerationService` (ADR-012: single-responsibility; extension is acceptable, but a 50-line branch adds complexity).
+**Alternative considered**: Extending `MinutesGenerationService` with an ALV branch — acceptable but deferred; separate service is cleaner and testable in isolation.
 
-### 2. Decision as Motion outcome (no separate Decision entity)
+### 7. Decision notification uses DecisionNotificationService hooked into DecisionService
+**Decision**: `DecisionNotificationService::notifyOnPublish(string $decisionId, array $recipients)` sends Nextcloud notifications to recipients when called. It is invoked from `DecisionService` (T1) after `isPublished` is set to `true` via `ObjectService.saveObject()`. Recipients are resolved by `DecisionNotificationService::resolveRecipients(string $decisionId): array` which reads Membership records for the linked GovernanceBody and filters by role (configurable: default `chair`, `secretary`, `member`). The roles included in notification are configurable via `IAppConfig` key `decision_notify_roles`.
+**Rationale**: `NotificationService` is the ADR-001 platform service. Hooking into `DecisionService` avoids duplicating publication logic. Role-based recipient resolution reuses Membership data (ADR-001, ADR-012). The configurable roles allow water boards, associations, and corporate boards to customise who receives notifications.
+**Alternative considered**: Webhook dispatch (ADR-001 WebhookService) — deferred to p3-ori-publication; Nextcloud notifications are sufficient for T3.
 
-**Decision:** Published decisions are represented by Motion objects with `lifecycle: adopted`, `isPublished: true`, and populated `decisionText`, `decisionDate`, `publishedAt`, `legalBasis` fields. The deprecated `Decision` entity (ADR-000) is not re-introduced.
+## Reuse Analysis (ADR-012)
 
-**Rationale:** ADR-000 explicitly deprecates the Decision entity: "Decision is now the outcome of a Motion. This follows the Popolo standard which has no separate Decision class." Creating a Decision entity would duplicate data, violate ADR-001 (Popolo), and require a synchronization concern.
+| Capability | OpenRegister service / component used | Custom code |
+|---|---|---|
+| Action item analytics queries | `ObjectService.findAll()` with filters | `ActionItemAnalyticsService` (aggregation logic) |
+| Analytics chart | `CnChartWidget` (ApexCharts built-in) | `ActionItemAnalyticsWidget.vue` (props mapping) |
+| Live decision entry | `ObjectService.saveObject()` | `LiveDecisionPanel.vue` (quick-entry form) |
+| Auto-init draft Minutes | `ObjectService.saveObject()` | Called from `LiveDecisionPanel.vue` |
+| ALV template rendering | `ObjectService.findAll()` (AgendaItems, Participants) | `ALVMinutesService::generateALVDraft()` |
+| ALV distribution notifications | `NotificationService` (built-in) | Called from `ALVMinutesService::distribute()` |
+| Minutes approval notification | `NotificationService` + `WorkflowEngineController` | Hooked into existing `draft → review` transition |
+| Action item extraction | `ObjectService.saveObject()` (ActionItem creation) | `ActionItemExtractionService::extractFromContent()` |
+| Decision rationale display | `ObjectService.saveObject()` (notes array, built-in) | "Overwegingen" section in `DecisionDetail.vue` |
+| Decision notification | `NotificationService` + Membership query | `DecisionNotificationService` |
+| Membership role lookup | `ObjectService.findAll()` (Membership filter) | Called from `DecisionNotificationService` |
+| Analytics personal list | `ObjectService.findAll()` (filter by assignee) | None (standard list query) |
+| Pagination and filtering | `CnFilterBar` + `useListView` | None |
+| Audit trail | `AuditTrailService` (automatic) | None |
 
-**ORI mapping:** The ORI endpoint `/api/ori/v1/motions` serves adopted Motions as ORI Motion objects with decision fields. The endpoint `/api/ori/v1/reports` serves published Minutes as ORI Report objects. Neither requires a new entity.
-
-**Alternative considered:** Separate Decision entity linked to Motion via relation. Rejected: violates ADR-000 and ADR-001.
-
----
-
-### 3. Minutes approval via platform workflow engine
-
-**Decision:** Minutes lifecycle transitions (draft → submitted → approved → published) are implemented using OpenRegister's `WorkflowEngineController` / `WorkflowEngineRegistry`. Role-based transition guards enforce that only authorized users (chair, secretary, governance body authority) can advance each state.
-
-**Rationale:** Per company ADR: "Task & Workflow Management: use TasksController + WorkflowEngineController. NO custom task/workflow systems." A custom PHP state machine would duplicate platform capability and introduce inconsistency.
-
-**Workflow definition:** Stored as OpenRegister metadata on the Minutes schema. Each governance domain (legislative, association, corporate, operational, citizen) MAY configure a domain-specific workflow template via the governance body's `workflowTemplate` field.
-
-**Alternative considered:** Custom PHP service with explicit state transition methods. Rejected: duplicates platform capability.
-
----
-
-### 4. Digital signatures via audit trail acknowledgement
-
-**Decision:** Digital signatures (chair + secretary) for Minutes approval are recorded by:
-1. The `signedBy` array on the Minutes object storing the UIDs of authorized signers.
-2. The OpenRegister `AuditTrailService` automatically capturing who made each lifecycle transition and when.
-
-Together these provide a legally defensible record of who acknowledged the Minutes and when, without requiring PKI infrastructure.
-
-**Rationale:** OpenRegister's audit trail is automatic and tamper-evident. The `signedBy` array captures intended signers; the audit trail captures actual actors. This satisfies Dutch governance requirements for meeting minutes authentication (Gemeentewet art. 23) at the "acknowledgement" level of assurance.
-
-**Limitation (documented in UI):** This is a digital acknowledgement trail, not an eIDAS qualified electronic signature. Governance bodies requiring Level of Assurance "High" (e.g. notarial acts) must use a separate PKI integration (deferred).
-
-**Alternative considered:** Integrate with DigiD or PKIoverheid for qualified signatures. Deferred to a future phase.
-
----
-
-### 5. Action item extraction: pattern-based backend service
-
-**Decision:** `ActionItemExtractor` PHP service parses the Minutes `content` field using configurable regex/keyword patterns stored in governance body settings, then creates CalDAV VTODOs via `CalDavService` with `X-DECIDESK-MOTION-UID` and `X-DECIDESK-MEETING-UID` set where applicable.
-
-**Pattern format:** JSON array of named patterns per governance body, stored via `IAppConfig`. Example: `[{ "name": "actiepunt", "pattern": "ACTIEPUNT:\\s*(.+?)(?=ACTIEPUNT|BESLUIT|$)" }]`.
-
-**Trigger:** Extraction runs automatically when Minutes transition to `approved` lifecycle state. Results are created as VTODOs in a "DecideDesk — Actiepunten" CalDAV calendar.
-
-**Rationale:** Deterministic pattern matching is auditable, configurable, and has no external dependencies. Municipal meeting minutes in the Netherlands follow predictable patterns (ACTIEPUNT, BESLUIT, "zal worden uitgevoerd door").
-
-**Alternative considered:** AI/ML extraction via `ChatService`. Deferred: non-deterministic, requires LLM availability, out of scope for Core T3.
-
----
-
-### 6. ORI endpoint as read-only serialization layer
-
-**Decision:** `/api/ori/v1/reports` is a public, read-only endpoint serializing Minutes objects with `lifecycle: published` to ORI Report format. `/api/ori/v1/motions` exposes adopted Motions with decision fields. A dedicated `OriSerializer` PHP service handles all field mapping. No ORI data is stored separately.
-
-**Rationale:** ADR-003 specifies "the endpoint is a thin read-only serialization layer, not a separate data store." Internal storage is Popolo-aligned; ORI is the Dutch municipal output format. `OriSerializer` is isolated, enabling ORI standard evolution without touching the data model.
-
-**Public access:** Per ADR-002 and `#[PublicPage] #[NoCSRFRequired]` annotation pattern. Published Minutes and adopted Motions are public governance records.
-
-**Alternative considered:** Store data in ORI format natively. Rejected: ORI is Dutch-specific; international users would be burdened.
-
----
-
-## Reuse Analysis
-
-The following OpenRegister and platform services are leveraged (per ADR-012):
-
-| Service | Usage in this change |
-|---|---|
-| `ObjectService` | CRUD for Minutes, Motion (decision fields); auto-save endpoint |
-| `WorkflowEngineController` / `WorkflowEngineRegistry` | Minutes lifecycle state machine (draft → published) |
-| `AuditTrailService` | Digital signature audit proof; change tracking on Minutes approval |
-| `NotificationService` | Decision publication notifications (Nextcloud notification API) |
-| `IndexService` + `CnFacetSidebar` | Decision full-text search and faceted filtering |
-| `SearchTrailService` | Decision search analytics (popular terms) |
-| `ExportService` + `CnMassExportDialog` | CSV/JSON/PDF export of decision lists |
-| `CnObjectSidebar` → `CnAuditTrailTab` | Minutes revision history and audit UI |
-| `CnTimelineStages` | Minutes lifecycle workflow progression visualization |
-| `CnFormDialog` / `CnAdvancedFormDialog` | Minutes editing form, decision capture fields |
-| `createObjectStore` with `auditTrails`, `files`, `lifecycle` plugins | Pinia stores for Minutes and Motion entities |
-| `CalDavService` | ActionItem VTODO creation with X-DECIDESK-* extended properties |
-| `CnIndexPage` + `useListView` | Decision discovery list view with search and filter |
-| `CnDetailPage` + `useDetailView` | Minutes detail view with approval workflow |
-
-**No new platform services are required.** All capabilities map to existing platform functionality.
-
-**Deduplication findings:** No overlap with existing Decidesk capabilities (`p2-meeting-management`, `p2-motion-and-voting`, `p2-agenda-management`). The ORI endpoint paths defined in ADR-003 (`/api/ori/v1/reports`, `/api/ori/v1/motions`) are not yet implemented by any prior change.
-
----
-
-## Risks / Trade-offs
-
-| Risk | Mitigation |
-|---|---|
-| Concurrent real-time editing of Minutes by multiple clerks | `ObjectService.lockObject()` before editing session; debounced auto-save (500ms) with last-write-wins; display "locked by [user]" notice to secondary editors |
-| CalDAV VTODO links break if parent Motion is deleted | Soft-delete Motions: lifecycle transitions to `withdrawn` rather than physical deletion; warn clerk before deletion if `X-DECIDESK-MOTION-UID` VTODOs reference the Motion |
-| ORI field mapping drift as ORI standard evolves | `OriSerializer` is an isolated class with inline ORI spec version comment; field mappings documented as constants |
-| `signedBy` audit trail does not constitute eIDAS qualified signature | Explicitly documented in approval UI tooltip and docs: "digitale akkoordverklaring — geen gekwalificeerde elektronische handtekening" |
-| Extraction pattern false positives creating spurious ActionItems | Preview mode: show extracted items before creating VTODOs; allow manual deletion after extraction; configurable per-body patterns |
-| Large Minutes content (multi-hour sessions, 20+ agenda items) | OpenRegister stores content as JSON string with no practical field length limit; validate in QA with large seed content |
-| ORI endpoint performance under high load (all published Minutes) | Pagination (`_page` + `_limit`) mandatory; indexed `lifecycle` and `isPublished` fields via OpenRegister; no N+1 queries in serializer |
-
----
-
-## Migration Plan
-
-### Steps
-
-1. **Schema update (non-breaking add):** Add optional fields `lifecycle` (default: `draft`), `signedBy` (default: `[]`), `version` (default: `1`) to Minutes schema in `decidesk_register.json`. Add `isPublished` (default: `false`), `publishedAt`, `legalBasis`, `decisionText`, `decisionDate` to Motion schema. All new fields are optional — adding optional properties is non-breaking per ADR.
-
-2. **Repair step:** Add `IRepairStep` implementation `MigrateMinutesDecisionFieldsRepairStep` that:
-   - Finds all existing Minutes objects without `lifecycle` → sets `lifecycle: draft`, `version: 1`
-   - Finds all existing Motion objects with `lifecycle: adopted` and no `isPublished` field → sets `isPublished: false`
-   - Uses `ObjectService::findObjects()` with `_rbac: false` and `_multitenancy: false` for idempotent migration
-
-3. **Schema import update:** Bump version in `decidesk_register.json` to trigger re-import via `ConfigurationService::importFromApp()` idempotency logic.
-
-4. **CalDAV calendar provisioning:** On app activation, ensure a "DecideDesk — Actiepunten" CalDAV calendar exists per governance body via `CalDavService`.
-
-### Rollback
-
-New optional fields are forward-compatible. Rollback: revert schema definitions; existing objects retain unknown fields but platform ignores them (schema-tolerant). The repair step is idempotent — safe to re-run.
-
----
-
-## Open Questions
-
-1. **ORI harvesting push protocol:** Should `/api/ori/v1/reports` support the ORI webhook push-harvest protocol used by the Open State Foundation crawler? Currently scoped as passive pull-only — confirm with stakeholders before shipping.
-
-2. **Qualified e-signatures:** Which governance domains require eIDAS Level of Assurance "High" for minutes signatures? Water boards and provincial states have stricter authentication requirements. If any domain requires qualified signatures, a PKI integration change must be scoped separately.
-
-3. **ActionItem extraction: English-language patterns:** Municipal minutes are Dutch, but corporate board minutes may be in English. Should extraction patterns support per-body language configuration? Currently assumed Dutch-language only.
-
-4. **Minutes content storage:** Should large Minutes content (>100KB) be stored as a file attachment via `FileService` rather than inline in the OpenRegister object's `content` field? No known limit hit yet, but architectural preference should be confirmed.
-
----
+No new entities are proposed. No overlap with OpenRegister core services beyond what is listed. `ActionItemAnalyticsService`, `ALVMinutesService`, `ActionItemExtractionService`, and `DecisionNotificationService` are the only net-new PHP classes.
 
 ## Seed Data
 
-All seed objects follow the `@self` envelope format for `lib/Settings/decidesk_register.json` under `components.objects[]`. Objects are loaded via `ConfigurationService::importFromApp()` on install and are idempotent (matched by `slug`).
+### Minutes — ALV examples (3 objects)
 
-**Note:** ActionItem seed data is NOT included — ActionItems are CalDAV VTODOs (ADR-002), not OpenRegister objects. There is no ActionItem schema in `decidesk_register.json`.
-
----
-
-### Minutes — 5 seed objects
-
-**1. Gepubliceerde raadsnotulen — gemeente Westerbork**
 ```json
-{
-  "@self": {
-    "register": "decidesk",
-    "schema": "minutes",
-    "slug": "minutes-westerbork-raad-20260115"
+[
+  {
+    "@self": { "register": "decidesk", "schema": "Minutes", "slug": "notulen-alv-vereniging-dorpshuis-laren-2025" },
+    "title": "Notulen Algemene Ledenvergadering Vereniging Dorpshuis Laren — 18 maart 2025",
+    "lifecycle": "approved",
+    "content": "De voorzitter opent de ALV om 20:00 uur en stelt vast dat 47 van de 89 leden aanwezig zijn (quorum behaald). Agendapunt 1 — Vaststelling notulen vorige ALV: de notulen van 19 maart 2024 worden ongewijzigd vastgesteld. Agendapunt 2 — Jaarverslag 2024: het jaarverslag 2024 wordt aangenomen met 44 stemmen voor, 2 tegen, 1 onthouding. Actie: penningmeester stuurt het goedgekeurde jaarverslag naar alle leden vóór 1 april 2025. Agendapunt 3 — Begroting 2025: de begroting 2025 wordt vastgesteld met 43 stemmen voor. Rondvraag: geen bijzonderheden. Sluiting: 21:30 uur.",
+    "approvedAt": "2025-04-02T10:00:00Z",
+    "signedBy": ["Marjan Visser", "Erik de Boer"],
+    "version": 2
   },
-  "title": "Notulen raadsvergadering gemeente Westerbork — 15 januari 2026",
-  "lifecycle": "published",
-  "content": "De vergadering wordt geopend om 19:30 door voorzitter dhr. J. Hendriks. Aanwezig: 17 raadsleden, quorum aanwezig. Agendapunt 3: Bestemmingsplan Centrum 2026. Na uitgebreide beraadslaging wordt stemming uitgesteld tot 20 januari conform SO-motie van VVD-fractie. BESLUIT d.d. 20-01-2026: De raad stelt het bestemmingsplan Centrum Westerbork 2026 vast met 14 stemmen voor en 3 stemmen tegen. ACTIEPUNT: griffier publiceert besluit uiterlijk 22 januari 2026 op gemeentewebsite. Rondvraag: geen. Sluiting 21:45 door voorzitter.",
-  "approvedAt": "2026-01-22T10:15:00Z",
-  "signedBy": ["uid-hendriks-voorzitter", "uid-smit-griffier"],
-  "version": 3
-}
+  {
+    "@self": { "register": "decidesk", "schema": "Minutes", "slug": "notulen-alv-buurtvereniging-zwolle-2025" },
+    "title": "Notulen Algemene Ledenvergadering Buurtvereniging Assendorp Zwolle — 5 april 2025",
+    "lifecycle": "review",
+    "content": "Aanvang 19:30 uur. Aanwezig: 31 leden. Quorum (25 leden) behaald. Actie: secretaris stuurt uitnodiging nieuwe leden vóór 15 mei 2025. Agendapunt 4 — Wijziging statuten: het voorstel tot wijziging van artikel 12 lid 3 wordt aangenomen met 2/3 meerderheid (27 stemmen voor, 4 tegen). Taak: notaris ontvangt concept-statutenwijziging uiterlijk 1 juni 2025.",
+    "version": 1
+  },
+  {
+    "@self": { "register": "decidesk", "schema": "Minutes", "slug": "notulen-alv-woningcorporatie-haag-wonen-2025" },
+    "title": "Notulen Huurdersraadsvergadering Haag Wonen — 22 april 2025",
+    "lifecycle": "draft",
+    "content": "Concept-notulen, nog niet vastgesteld. Actiepunt: huurcommissie onderzoekt mogelijkheden voor onderhoud lift Bezuidenhoutseweg 45 en rapporteert terug voor 1 juni 2025.",
+    "version": 1
+  }
+]
 ```
 
-**2. Goedgekeurde commissienotulen — gemeente Emmen**
+### ActionItem — extracted from minutes (5 objects)
+
 ```json
-{
-  "@self": {
-    "register": "decidesk",
-    "schema": "minutes",
-    "slug": "minutes-emmen-commissie-ruimte-20260222"
+[
+  {
+    "@self": { "register": "decidesk", "schema": "ActionItem", "slug": "actie-alv-jaarverslag-versturen-laren" },
+    "title": "Jaarverslag 2024 versturen aan alle leden",
+    "description": "Penningmeester stuurt het goedgekeurde jaarverslag 2024 naar alle 89 leden van Vereniging Dorpshuis Laren vóór 1 april 2025.",
+    "assignee": "Penningmeester",
+    "dueDate": "2025-04-01T00:00:00Z",
+    "taskStatus": "completed",
+    "completedAt": "2025-03-29T11:00:00Z"
   },
-  "title": "Notulen commissievergadering Ruimte & Wonen — gemeente Emmen — 22 februari 2026",
-  "lifecycle": "approved",
-  "content": "Opening om 14:00 door commissievoorzitter mevr. A. Veldhuis. Afwezig met kennisgeving: dhr. T. de Graaf (GroenLinks). Agendapunt 2: Conceptomgevingsvisie Emmen 2035. Inspreker: mevr. P. Koster (bewonersgroep Bargeres). Commissie is positief over de ingezette koers maar verzoekt aanvulling op paragraaf 4.2 (mobiliteit). ACTIEPUNT: dhr. G. de Boer (PvdA) brengt schriftelijke inbreng in vóór 7 maart 2026. Sluiting 16:30.",
-  "approvedAt": "2026-02-28T09:30:00Z",
-  "signedBy": ["uid-veldhuis-voorzitter"],
-  "version": 1
-}
+  {
+    "@self": { "register": "decidesk", "schema": "ActionItem", "slug": "actie-alv-uitnodiging-nieuwe-leden-zwolle" },
+    "title": "Uitnodiging nieuwe leden versturen",
+    "description": "Secretaris stuurt uitnodiging voor ALV 2025 aan nieuwe leden vóór 15 mei 2025, conform besluit ALV 5 april 2025.",
+    "assignee": "Secretaris",
+    "dueDate": "2025-05-15T00:00:00Z",
+    "taskStatus": "open"
+  },
+  {
+    "@self": { "register": "decidesk", "schema": "ActionItem", "slug": "actie-alv-statutenwijziging-notaris-zwolle" },
+    "title": "Concept-statutenwijziging naar notaris sturen",
+    "description": "Notaris ontvangt concept-wijziging artikel 12 lid 3 uiterlijk 1 juni 2025 voor formele bekrachtiging.",
+    "assignee": "Voorzitter",
+    "dueDate": "2025-06-01T00:00:00Z",
+    "taskStatus": "in-progress"
+  },
+  {
+    "@self": { "register": "decidesk", "schema": "ActionItem", "slug": "actie-lift-onderzoek-haag-wonen" },
+    "title": "Onderzoek onderhoud lift Bezuidenhoutseweg 45",
+    "description": "Huurcommissie onderzoekt mogelijkheden voor lift-onderhoud en rapporteert terug aan huurdersraad vóór 1 juni 2025.",
+    "assignee": "Huurcommissie",
+    "dueDate": "2025-06-01T00:00:00Z",
+    "taskStatus": "open"
+  },
+  {
+    "@self": { "register": "decidesk", "schema": "ActionItem", "slug": "actie-besluit-notificatie-woningbouw-verzonden" },
+    "title": "Besluitnotificatie Woningbouwplan Oost verzonden",
+    "description": "Automatische besluitnotificatie verzonden aan alle raadsleden na publicatie besluit Vaststelling Woningbouwplan Oost 2025-2030.",
+    "assignee": "Griffier",
+    "dueDate": "2025-03-22T00:00:00Z",
+    "taskStatus": "completed",
+    "completedAt": "2025-03-21T09:05:00Z"
+  }
+]
 ```
 
-**3. Ter beoordeling — Waterschap Vechtstromen**
-```json
-{
-  "@self": {
-    "register": "decidesk",
-    "schema": "minutes",
-    "slug": "minutes-vechtstromen-ab-20260308"
-  },
-  "title": "Notulen Algemeen Bestuur Waterschap Vechtstromen — 8 maart 2026",
-  "lifecycle": "submitted",
-  "content": "Vergadering geopend door dijkgraaf drs. R. van Loon om 10:00. Aanwezig: 30 van 30 leden. Agendapunt 5: Uitvoeringsprogramma dijkversterking Vecht 2026-2028. Technische toelichting door hoofd Waterveiligheid. Financiering: totaalbudget €4.200.000 ten laste van investeringsreserve. BESLUIT: het AB stemt in met het uitvoeringsprogramma dijkversterking Vecht 2026-2028 (unaniem). ACTIEPUNT: programmamanager Wilbrink stelt contracten aan voor aannemersselectie, deadline 1 mei 2026. Sluiting 12:45.",
-  "version": 2
-}
-```
+## Risks / Trade-offs
 
-**4. Conceptnotulen ALV — VvE De Lindeboom**
-```json
-{
-  "@self": {
-    "register": "decidesk",
-    "schema": "minutes",
-    "slug": "minutes-vve-lindeboom-alv-20260419"
-  },
-  "title": "Conceptnotulen ALV VvE De Lindeboom — 19 april 2026",
-  "lifecycle": "draft",
-  "content": "CONCEPT — ter vaststelling op volgende vergadering. Aanwezig: 28 van 44 eigenaren (quorum aanwezig). Voorzitter: dhr. K. Jansen (Bredestraat 12). Agendapunt 3: Onderhoudsfonds 2026. Besloten: bijdrage verhogen van €45 naar €60 per maand per appartement (meerderheid 21-7). ACTIEPUNT: penningmeester informeert hypotheekverstrekkers uiterlijk 1 juni. Rondvraag: klacht over rookoverlast trappenhuis — voorzitter bespreekt intern met beheerder. Sluiting 21:15.",
-  "version": 1
-}
-```
+- **[Risk] Analytics performance degrades with very large ActionItem datasets** → Mitigation: `ActionItemAnalyticsService` applies date-range filters (default: current year) to limit query scope; the service accepts `limit` and `dateFrom` parameters; dashboard displays a "Beperkt tot {year}" label when the filter is active
+- **[Risk] Action item extraction regex produces false positives on formatted text** → Mitigation: the extraction preview modal always appears before saving; the secretary can uncheck, edit title, or assign each candidate; no action items are saved without explicit confirmation
+- **[Risk] ALV distribution sends notifications to all GovernanceBody participants, including inactive members** → Mitigation: `ALVMinutesService::distribute()` filters by `Participant.leftAt == null` (active members only); a preview step shows the recipient list before dispatching
+- **[Risk] Approval request notifications sent to all chair/secretary roles may create noise in large bodies** → Mitigation: notification content is concise (title + deep link + one action button); the `decision_notify_roles` config allows restriction to specific roles; notification frequency is bounded by the number of Minutes objects submitted for approval
+- **[Trade-off] Rationale stored in notes array, not a dedicated field** → Acceptable for v1 (avoids breaking schema change); notes are already displayed in the sidebar; the label `overwegingen` makes the note identifiable; a dedicated field can be added in a future ADR-000 revision when demand justifies the breaking change
+- **[Trade-off] Live decision panel only available when `lifecycle: opened`** → Intentional; prevents test entries from being recorded outside an active meeting; the secretary can manually set lifecycle via the existing lifecycle transition controls
 
-**5. Conceptnotulen MT-vergadering — gemeente Assen**
-```json
-{
-  "@self": {
-    "register": "decidesk",
-    "schema": "minutes",
-    "slug": "minutes-assen-mt-20260503"
-  },
-  "title": "Notulen MT-vergadering gemeente Assen — 3 mei 2026",
-  "lifecycle": "draft",
-  "content": "Aanwezig: gemeentesecretaris T. Brouwer, directeur Sociale Zaken mevr. L. Haisma, directeur Ruimte dhr. F. van Dam, directeur Bedrijfsvoering mevr. C. Postma. Agendapunt 2: IT-vervanging kernsystemen. Businesscase nog onvoldoende onderbouwd. BESLUIT: besluit uitgesteld tot MT-vergadering 17 mei 2026. ACTIEPUNT: dhr. Van Dam levert herziene businesscase aan vóór 14 mei. Agendapunt 3: Reorganisatie afdeling HR. ACTIEPUNT: mevr. Postma stuurt conceptplan vóór 17 mei ter bespreking. Sluiting 14:30.",
-  "version": 1
-}
-```
+## Migration Plan
 
----
+1. No schema changes — Decision, Minutes, ActionItem, Meeting all unchanged from ADR-000
+2. Add `ActionItemAnalyticsService.php`, `ALVMinutesService.php`, `ActionItemExtractionService.php`, `DecisionNotificationService.php`
+3. Extend `DecisionService.php` (T1) with `notifyOnPublish()` hook; register call after `isPublished: true` save
+4. Add new API routes in `appinfo/routes.php`: `GET /api/analytics/action-items`, `POST /api/minutes/{id}/generate-alv`, `POST /api/minutes/{id}/distribute`, `POST /api/minutes/{id}/submit-for-approval`, `POST /api/minutes/{id}/extract-action-items`
+5. Frontend: add `ActionItemAnalyticsWidget.vue`, `LiveDecisionPanel.vue`, `ALVMinutesActions.vue`, `ActionItemExtractionModal.vue`; extend `DecisionDetail.vue`, `MinutesDetail.vue`, `MeetingDetail.vue`
+6. Add seed data for ALV Minutes (3 objects) and extracted ActionItems (5 objects) via repair step
+7. Add translation keys for all new strings in `l10n/nl.json` and `l10n/en.json`
 
-### Motion (with decision outcome fields) — 4 seed objects
+## Open Questions
 
-**1. Aangenomen bestemmingsplanmotion — gemeente Westerbork**
-```json
-{
-  "@self": {
-    "register": "decidesk",
-    "schema": "motion",
-    "slug": "motion-westerbork-bestemmingsplan-centrum-2026"
-  },
-  "title": "Vaststelling bestemmingsplan Centrum Westerbork 2026",
-  "text": "De raad van de gemeente Westerbork stelt het bestemmingsplan Centrum Westerbork 2026 vast, zoals opgenomen in het raadsvoorstel d.d. 5 januari 2026 met bijbehorende plankaart (planidentificatie NL.IMRO.1952.BPCentrum2026-VA01).",
-  "motionType": "motion",
-  "proposer": "College van B&W",
-  "lifecycle": "adopted",
-  "submittedAt": "2026-01-05T00:00:00Z",
-  "requirement": "simple-majority",
-  "decisionText": "De raad stelt het bestemmingsplan Centrum Westerbork 2026 vast conform planidentificatie NL.IMRO.1952.BPCentrum2026-VA01.",
-  "decisionDate": "2026-01-20T20:15:00Z",
-  "isPublished": true,
-  "publishedAt": "2026-01-22T10:30:00Z",
-  "legalBasis": "Wet ruimtelijke ordening artikel 3.1"
-}
-```
-
-**2. Aangenomen begrotingswijziging — Waterschap Vechtstromen**
-```json
-{
-  "@self": {
-    "register": "decidesk",
-    "schema": "motion",
-    "slug": "motion-vechtstromen-dijkversterking-2026"
-  },
-  "title": "Uitvoeringsprogramma dijkversterking Vecht 2026-2028",
-  "text": "Het Algemeen Bestuur stemt in met het uitvoeringsprogramma dijkversterking Vecht 2026-2028 en machtigt het Dagelijks Bestuur tot het aangaan van verplichtingen tot een maximum van €4.200.000 ten laste van de investeringsreserve waterveiligheid.",
-  "motionType": "motion",
-  "proposer": "Dagelijks Bestuur",
-  "lifecycle": "adopted",
-  "submittedAt": "2026-02-15T00:00:00Z",
-  "requirement": "simple-majority",
-  "decisionText": "Het AB stelt het uitvoeringsprogramma dijkversterking Vecht 2026-2028 vast en machtigt het DB tot besteding van €4.200.000.",
-  "decisionDate": "2026-03-08T11:30:00Z",
-  "isPublished": true,
-  "publishedAt": "2026-03-10T09:00:00Z",
-  "legalBasis": "Waterschapswet artikel 77"
-}
-```
-
-**3. Verworpen motie sociale woningbouw — gemeente Emmen**
-```json
-{
-  "@self": {
-    "register": "decidesk",
-    "schema": "motion",
-    "slug": "motion-emmen-sociale-woningbouw-2026"
-  },
-  "title": "Motie: versnelling sociale woningbouw Emmerhout",
-  "text": "De raad verzoekt het college van B&W om in de Omgevingsvisie Emmen 2035 een aparte paragraaf op te nemen over de versnelling van sociale woningbouw in de wijk Emmerhout, met concrete doelstellingen voor 2028.",
-  "motionType": "motion",
-  "proposer": "PvdA-fractie",
-  "coSigners": ["SP-fractie", "GroenLinks-fractie"],
-  "lifecycle": "rejected",
-  "submittedAt": "2026-02-22T14:00:00Z",
-  "requirement": "simple-majority",
-  "isPublished": false
-}
-```
-
-**4. Aangenomen jaarplan VvE — VvE De Lindeboom**
-```json
-{
-  "@self": {
-    "register": "decidesk",
-    "schema": "motion",
-    "slug": "motion-vve-lindeboom-onderhoudsfonds-2026"
-  },
-  "title": "Verhoging onderhoudsbijdrage VvE De Lindeboom 2026",
-  "text": "De ALV besluit de maandelijkse bijdrage aan het onderhoudsfonds te verhogen van €45 naar €60 per appartement per maand met ingang van 1 juli 2026, conform het meerjarenonderhoudsplan opgesteld door Vastgoedbeheer Havinga B.V.",
-  "motionType": "motion",
-  "proposer": "Bestuur VvE De Lindeboom",
-  "lifecycle": "adopted",
-  "submittedAt": "2026-04-01T00:00:00Z",
-  "requirement": "simple-majority",
-  "decisionText": "De bijdrage aan het onderhoudsfonds wordt verhoogd van €45 naar €60 per appartement per maand met ingang van 1 juli 2026.",
-  "decisionDate": "2026-04-19T20:45:00Z",
-  "isPublished": false
-}
-```
+- Should the analytics date range be configurable per user, or fixed to "current calendar year" for all users? (Recommendation: current year as default with a date-range picker in the analytics panel; user preference stored in frontend `localStorage`)
+- Should ALV minutes distribution include a PDF attachment of the signed minutes, or only a link? (Recommendation: link only for v1; PDF attachment requires `FileService` export pipeline which can be added in a future sprint alongside e-signing)
+- Should the `decision_notify_roles` configuration be per-GovernanceBody or global? (Recommendation: global default with per-GovernanceBody override in the GovernanceBody settings panel; defer per-body config to p3-governance-bodies)
+- Should the action item extraction also suggest an `assignee` by detecting names in the matched text? (Recommendation: yes, using simple name detection against the known Participant list; surfaced as a suggestion in the extraction modal with a dropdown)
