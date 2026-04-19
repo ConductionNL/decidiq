@@ -29,6 +29,7 @@ use OCA\Decidesk\Service\LiveDecisionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -42,9 +43,10 @@ class LiveMeetingController extends Controller
     /**
      * Constructor for LiveMeetingController.
      *
-     * @param IRequest             $request             The HTTP request
-     * @param LiveDecisionService  $liveDecisionService The live decision service
-     * @param IUserSession         $userSession         The current user session
+     * @param IRequest            $request             The HTTP request
+     * @param LiveDecisionService $liveDecisionService The live decision service
+     * @param IUserSession        $userSession         The current user session
+     * @param IGroupManager       $groupManager        Group manager for role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
      */
@@ -52,6 +54,7 @@ class LiveMeetingController extends Controller
         IRequest $request,
         private LiveDecisionService $liveDecisionService,
         private IUserSession $userSession,
+        private IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -87,10 +90,19 @@ class LiveMeetingController extends Controller
             );
         }
 
+        // Require admin rights to prevent unauthorized governance operations
+        // (OWASP A01 — Broken Access Control / ADR-005 authorization).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may record live decisions.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         $decisionData = [
-            'title' => $this->request->getParam('title'),
-            'text' => $this->request->getParam('text'),
-            'outcome' => $this->request->getParam('outcome', 'adopted'),
+            'title'      => $this->request->getParam('title'),
+            'text'       => $this->request->getParam('text'),
+            'outcome'    => $this->request->getParam('outcome', 'adopted'),
             'legalBasis' => $this->request->getParam('legalBasis'),
         ];
 
@@ -112,9 +124,9 @@ class LiveMeetingController extends Controller
             );
         } catch (\Throwable $e) {
             return new JSONResponse(
-                ['message' => 'Failed to record decision: ' . $e->getMessage()],
+                ['message' => 'Failed to record decision'],
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
-        }
+        }//end try
     }//end recordDecision()
 }//end class

@@ -346,7 +346,7 @@ class ActionItemAnalyticsService
         } catch (\Throwable $e) {
             $this->logger->error(
                 'ActionItemAnalyticsService: getMyItems failed',
-                ['userDisplayName' => $userDisplayName, 'exception' => $e->getMessage()]
+                ['exception' => $e->getMessage()]
             );
             return [
                 'overdue' => [],
