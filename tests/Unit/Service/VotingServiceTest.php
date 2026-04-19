@@ -89,6 +89,13 @@ class VotingServiceTest extends TestCase
     {
         parent::setUp();
 
+        $this->markTestSkipped(
+            'See https://github.com/ConductionNL/decidesk/issues/90 — '
+            .'real OpenRegister ObjectService loads instead of the stub when tests run '
+            .'in an environment with OpenRegister installed, causing signature/return-type mismatches. '
+            .'Unskip once #90 is resolved.'
+        );
+
         $this->container     = $this->createMock(ContainerInterface::class);
         $this->logger        = $this->createMock(LoggerInterface::class);
         $this->oriService    = $this->createMock(OriPublicationService::class);
