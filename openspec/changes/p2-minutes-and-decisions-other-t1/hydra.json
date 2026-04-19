@@ -1,0 +1,10 @@
+{
+  "spec_slug": "p2-minutes-and-decisions-other-t1",
+  "title": "Minutes and Decisions \u2014 Other T1",
+  "app": "decidesk",
+  "repo": "https://github.com/ConductionNL/decidesk",
+  "depends_on": [
+    "p2-minutes-and-decisions"
+  ],
+  "issue": null
+}
