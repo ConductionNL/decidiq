@@ -107,7 +107,7 @@ class MinutesController extends Controller
             );
         }
 
-        // Require admin rights to prevent information disclosure across governance bodies
+        // Require admin rights to prevent information disclosure across governance bodies.
         // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
         if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(
@@ -185,8 +185,8 @@ class MinutesController extends Controller
             );
         }
 
-        // Gate ALL lifecycle transitions behind admin — prevents cross-tenant manipulation
-        // by arbitrary authenticated users regardless of the lifecycle value passed
+        // Gate ALL lifecycle transitions behind admin — prevents cross-tenant manipulation.
+        // by arbitrary authenticated users regardless of the lifecycle value passed.
         // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
         if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(
@@ -246,7 +246,7 @@ class MinutesController extends Controller
             );
         }
 
-        // Require admin rights to prevent unauthorized access to governance data
+        // Require admin rights to prevent unauthorized access to governance data.
         // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
         if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(
@@ -299,7 +299,7 @@ class MinutesController extends Controller
             );
         }
 
-        // Require admin rights to prevent unauthorized notification dispatch
+        // Require admin rights to prevent unauthorized notification dispatch.
         // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
         if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(
@@ -347,7 +347,7 @@ class MinutesController extends Controller
             );
         }
 
-        // Require admin rights to prevent unauthorized access to governance data
+        // Require admin rights to prevent unauthorized access to governance data.
         // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
         if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(
@@ -407,7 +407,7 @@ class MinutesController extends Controller
             );
         }
 
-        // Require admin rights to prevent unauthorized object creation
+        // Require admin rights to prevent unauthorized object creation.
         // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
         if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(
@@ -458,7 +458,7 @@ class MinutesController extends Controller
             );
         }
 
-        // Require admin rights to prevent unauthorized state transitions
+        // Require admin rights to prevent unauthorized state transitions.
         // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
         if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(

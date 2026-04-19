@@ -96,49 +96,52 @@ TEMPLATE;
     public function generateALVDraft(string $minutesId): array
     {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            // Fetch the Minutes
+            // Fetch the Minutes.
             $minutes = $objectService->find(id: $minutesId);
             if ($minutes === null) {
                 throw new \InvalidArgumentException('Minutes not found');
             }
 
             $minutesObj = $minutes->getObject();
-            $meetingId = $minutesObj['meeting'] ?? null;
+            $meetingId  = $minutesObj['meeting'] ?? null;
 
             if (!$meetingId) {
                 throw new \InvalidArgumentException('Minutes not linked to a meeting');
             }
 
-            // Fetch the linked Meeting
+            // Fetch the linked Meeting.
             $meeting = $objectService->find(id: $meetingId);
             if ($meeting === null) {
                 throw new \InvalidArgumentException('Linked meeting not found');
             }
 
-            $meetingObj = $meeting->getObject();
+            $meetingObj  = $meeting->getObject();
             $meetingType = strtolower($meetingObj['meetingType'] ?? '');
 
-            // Validate ALV meeting type
+            // Validate ALV meeting type.
             if (strpos($meetingType, 'alv') === false && strpos($meetingType, 'algemene-ledenvergadering') === false) {
                 throw new \RuntimeException(
-                    'This meeting is not an ALV (Algemene Ledenvergadering). Meeting type: ' . $meetingType
+                    'This meeting is not an ALV (Algemene Ledenvergadering). Meeting type: '.$meetingType
                 );
             }
 
-            // Get participants for quorum
+            // Get participants for quorum.
             $governanceBodyId = $meetingObj['governanceBody'] ?? null;
-            $presentCount = 0;
-            $totalCount = 0;
-            $quorumStatus = 'Niet vastgesteld';
+            $presentCount     = 0;
+            $totalCount       = 0;
+            $quorumStatus     = 'Niet vastgesteld';
 
             if ($governanceBodyId) {
                 $participantParams = [
                     'governanceBody' => $governanceBodyId,
-                    'leftAt' => null, // Active members only
-                    '_limit' => 1000,
+                    'leftAt'         => null,
+                // Active members only.
+                    '_limit'         => 1000,
                 ];
 
                 try {
@@ -149,38 +152,36 @@ TEMPLATE;
                     );
 
                     $participants = $participantsResponse['results'] ?? [];
-                    $totalCount = count($participants);
+                    $totalCount   = count($participants);
 
                     // Use actual attendance from meeting data if available,
-                    // otherwise indicate attendance was not recorded
+                    // otherwise indicate attendance was not recorded.
                     $attendanceCount = $meetingObj['attendanceCount'] ?? null;
                     if ($attendanceCount !== null) {
-                        $presentCount = (int)$attendanceCount;
-                        $quorumStatus = $presentCount >= ceil($totalCount / 2)
-                            ? "Quorum behaald ({$presentCount} van {$totalCount} leden)"
-                            : "Quorum NIET behaald ({$presentCount} van {$totalCount} leden)";
+                        $presentCount = (int) $attendanceCount;
+                        $quorumStatus = $presentCount >= ceil($totalCount / 2) ? "Quorum behaald ({$presentCount} van {$totalCount} leden)" : "Quorum NIET behaald ({$presentCount} van {$totalCount} leden)";
                     } else {
-                        // No attendance data recorded; don't simulate
+                        // No attendance data recorded; don't simulate.
                         $presentCount = $totalCount;
                         $quorumStatus = "Aanwezig: {$totalCount} van {$totalCount} leden (registratie onvolledig)";
                     }
                 } catch (\Throwable) {
-                    // Use defaults if participant fetch fails
-                    $totalCount = 0;
+                    // Use defaults if participant fetch fails.
+                    $totalCount   = 0;
                     $presentCount = 0;
                     $quorumStatus = 'Aanwezigheid niet vastgesteld';
-                }
-            }
+                }//end try
+            }//end if
 
-            // Get agenda items for the meeting
+            // Get agenda items for the meeting.
             $agendaItems = '';
             $resolutions = '';
 
             try {
                 $agendaParams = [
                     'meeting' => $meetingId,
-                    '_limit' => 100,
-                    '_order' => 'order:asc',
+                    '_limit'  => 100,
+                    '_order'  => 'order:asc',
                 ];
 
                 $agendaResponse = $objectService->findAll(
@@ -192,17 +193,17 @@ TEMPLATE;
                 $items = $agendaResponse['results'] ?? [];
 
                 foreach ($items as $item) {
-                    $itemTitle = $item['title'] ?? 'Agendapunt';
-                    $itemContent = $item['content'] ?? '';
+                    $itemTitle    = $item['title'] ?? 'Agendapunt';
+                    $itemContent  = $item['content'] ?? '';
                     $agendaItems .= "### {$itemTitle}\n\n{$itemContent}\n\n";
 
-                    // Get linked motions/decisions
+                    // Get linked motions/decisions.
                     if (!empty($item['@self']['slug'])) {
                         $itemSlug = $item['@self']['slug'];
                         try {
                             $decisionsParams = [
                                 'agendaItem' => $itemSlug,
-                                '_limit' => 10,
+                                '_limit'     => 10,
                             ];
 
                             $decisionsResponse = $objectService->findAll(
@@ -214,21 +215,21 @@ TEMPLATE;
                             $decisions = $decisionsResponse['results'] ?? [];
 
                             foreach ($decisions as $decision) {
-                                $decisionTitle = $decision['title'] ?? '';
+                                $decisionTitle   = $decision['title'] ?? '';
                                 $decisionOutcome = $decision['outcome'] ?? 'aangenomen';
-                                $resolutions .= "- **{$decisionTitle}**: {$decisionOutcome}\n";
+                                $resolutions    .= "- **{$decisionTitle}**: {$decisionOutcome}\n";
                             }
                         } catch (\Throwable) {
-                            // Skip if we can't fetch decisions
-                        }
-                    }
-                }
+                            // Skip if we can't fetch decisions.
+                        }//end try
+                    }//end if
+                }//end foreach
             } catch (\Throwable) {
                 $agendaItems = "Geen agendapunten gevonden.\n";
                 $resolutions = "Geen resoluties vastgesteld.\n";
-            }
+            }//end try
 
-            // Generate content
+            // Generate content.
             $content = str_replace(
                 [
                     '{title}',
@@ -245,8 +246,8 @@ TEMPLATE;
                     $minutesObj['title'] ?? 'Onbekende vergadering',
                     date('d M Y', strtotime($meetingObj['scheduledDate'] ?? 'now')),
                     $meetingObj['location'] ?? 'Onbekende locatie',
-                    (string)$presentCount,
-                    (string)$totalCount,
+                    (string) $presentCount,
+                    (string) $totalCount,
                     $quorumStatus,
                     trim($agendaItems) ?: 'Geen agendapunten gevonden.',
                     trim($resolutions) ?: 'Geen resoluties vastgesteld.',
@@ -256,7 +257,7 @@ TEMPLATE;
             );
 
             return [
-                'content' => $content,
+                'content'        => $content,
                 'recipientCount' => $totalCount,
             ];
         } catch (\Throwable $e) {
@@ -265,7 +266,7 @@ TEMPLATE;
                 ['minutesId' => $minutesId, 'exception' => $e->getMessage()]
             );
             throw $e;
-        }
+        }//end try
     }//end generateALVDraft()
 
     /**
@@ -282,22 +283,24 @@ TEMPLATE;
     public function distribute(string $minutesId): int
     {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            // Fetch the Minutes
+            // Fetch the Minutes.
             $minutes = $objectService->find(id: $minutesId);
             if ($minutes === null) {
                 throw new \RuntimeException('Minutes not found');
             }
 
             $minutesObj = $minutes->getObject();
-            $lifecycle = $minutesObj['lifecycle'] ?? 'draft';
+            $lifecycle  = $minutesObj['lifecycle'] ?? 'draft';
 
-            // Verify lifecycle
+            // Verify lifecycle.
             if ($lifecycle !== 'approved' && $lifecycle !== 'signed') {
                 throw new \RuntimeException(
-                    'Minutes must be in "approved" or "signed" state to distribute. Current state: ' . $lifecycle
+                    'Minutes must be in "approved" or "signed" state to distribute. Current state: '.$lifecycle
                 );
             }
 
@@ -310,11 +313,11 @@ TEMPLATE;
                 return 0;
             }
 
-            // Get active participants
+            // Get active participants.
             $participantParams = [
                 'governanceBody' => $governanceBodyId,
-                'leftAt' => null,
-                '_limit' => 1000,
+                'leftAt'         => null,
+                '_limit'         => 1000,
             ];
 
             $participantsResponse = $objectService->findAll(
@@ -325,7 +328,7 @@ TEMPLATE;
 
             $participants = $participantsResponse['results'] ?? [];
 
-            // Send notifications (placeholder - actual Nextcloud notification dispatch would go here)
+            // Send notifications (placeholder - actual Nextcloud notification dispatch would go here).
             $notificationCount = count($participants);
 
             $this->logger->info(
@@ -340,6 +343,6 @@ TEMPLATE;
                 ['minutesId' => $minutesId, 'exception' => $e->getMessage()]
             );
             throw $e;
-        }
+        }//end try
     }//end distribute()
 }//end class

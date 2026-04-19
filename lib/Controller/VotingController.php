@@ -1,11 +1,6 @@
 <?php
 
 /**
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- */
-
-/**
  * Decidesk Voting Controller
  *
  * Thin REST controller for voting round management, vote casting, and proxy delegation.
@@ -24,6 +19,8 @@
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
@@ -388,7 +385,7 @@ class VotingController extends Controller
      */
     public function revokeProxy(string $id): JSONResponse
     {
-        // Resolve the Nextcloud UID to an OpenRegister participant UUID — must match
+        // Resolve the Nextcloud UID to an OpenRegister participant UUID — must match.
         // the identifier type stored by proxy() when the grant was created.
         $nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
         if ($nextcloudUid === '') {

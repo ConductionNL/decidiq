@@ -1,11 +1,6 @@
 <?php
 
 /**
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- */
-
-/**
  * Decidesk Voting Service
  *
  * Business logic for voting round management, quorum enforcement, vote casting,
@@ -25,6 +20,8 @@
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -330,7 +327,7 @@ class VotingService
             }
 
             // Enforce one-proxy-per-round: check for existing proxy vote from this delegator.
-            // For secret rounds, participant relations are suppressed for anonymity, so dedup
+            // For secret rounds, participant relations are suppressed for anonymity, so dedup.
             // is keyed on a deterministic delegatorToken (HMAC) to avoid DNS-style rebinding.
             if ($isSecret === true) {
                 $delegatorToken  = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
@@ -416,7 +413,7 @@ class VotingService
             $vote['voterToken'] = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
         }
 
-        // Store delegatorToken on secret proxy votes for one-proxy-per-round enforcement
+        // Store delegatorToken on secret proxy votes for one-proxy-per-round enforcement.
         // without storing the delegator's participant ID (anonymity preservation).
         if ($isSecret === true && $isProxy === true && $delegatorId !== null) {
             $vote['delegatorToken'] = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());

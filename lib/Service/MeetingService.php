@@ -1,11 +1,6 @@
 <?php
 
 /**
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- */
-
-/**
  * Decidesk Meeting Service
  *
  * Service for managing meeting lifecycle state transitions.
@@ -24,6 +19,8 @@
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -130,8 +127,8 @@ class MeetingService
 
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            // Object-level read ACL: OpenRegister's ObjectService::find() resolves the
-            // current Nextcloud session user and returns null when the caller lacks read
+            // Object-level read ACL: OpenRegister's ObjectService::find() resolves the.
+            // current Nextcloud session user and returns null when the caller lacks read.
             // access to the requested object (same behaviour as a missing object).
             // This prevents callers without read access from probing meeting UUIDs.
             $entity = $objectService->find(id: $meetingId);
@@ -155,8 +152,8 @@ class MeetingService
                 ];
             }
 
-            // Object-level write ACL: OpenRegister's ObjectService::updateFromArray()
-            // checks that the current Nextcloud session user has write access to this
+            // Object-level write ACL: OpenRegister's ObjectService::updateFromArray().
+            // checks that the current Nextcloud session user has write access to this.
             // specific object before applying the patch. If the caller lacks write
             // access an exception is thrown and caught by the \Throwable handler below,
             // returning a generic error response without leaking object details.

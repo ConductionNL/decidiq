@@ -57,9 +57,9 @@ class LiveDecisionService
      * Verifies the meeting is in 'opened' state, creates the Decision,
      * ensures a draft Minutes exists, and links the Decision to the Minutes.
      *
-     * @param string $meetingId   UUID of the meeting
+     * @param string $meetingId    UUID of the meeting
      * @param array  $decisionData Array with keys: title (string), text (string), outcome (string), legalBasis? (string)
-     * @param string $actorId     User ID of the decision recorder
+     * @param string $actorId      User ID of the decision recorder
      *
      * @throws \InvalidArgumentException If meeting is not in opened state
      *
@@ -73,46 +73,48 @@ class LiveDecisionService
         string $actorId
     ): string {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            // Fetch the meeting
+            // Fetch the meeting.
             $meeting = $objectService->find(id: $meetingId);
             if ($meeting === null) {
                 throw new \InvalidArgumentException('Meeting not found');
             }
 
             $meetingObj = $meeting->getObject();
-            $lifecycle = $meetingObj['lifecycle'] ?? 'draft';
+            $lifecycle  = $meetingObj['lifecycle'] ?? 'draft';
 
-            // Verify meeting is opened
+            // Verify meeting is opened.
             if ($lifecycle !== 'opened') {
                 throw new \InvalidArgumentException(
-                    'Meeting must be in "opened" state to record decisions. Current state: ' . $lifecycle
+                    'Meeting must be in "opened" state to record decisions. Current state: '.$lifecycle
                 );
             }
 
-            // Ensure draft Minutes exists
+            // Ensure draft Minutes exists.
             $minutesId = $this->ensureDraftMinutes($meetingId);
 
-            // Create the Decision
+            // Create the Decision.
             $decisionPayload = [
-                '@self' => [
+                '@self'        => [
                     'register' => 'decidesk',
-                    'schema' => 'Decision',
+                    'schema'   => 'Decision',
                 ],
-                'title' => $decisionData['title'] ?? '',
-                'text' => $decisionData['text'] ?? '',
-                'outcome' => $decisionData['outcome'] ?? 'adopted',
+                'title'        => $decisionData['title'] ?? '',
+                'text'         => $decisionData['text'] ?? '',
+                'outcome'      => $decisionData['outcome'] ?? 'adopted',
                 'decisionDate' => date('c'),
-                'lifecycle' => 'draft',
+                'lifecycle'    => 'draft',
             ];
 
             if (!empty($decisionData['legalBasis'])) {
                 $decisionPayload['legalBasis'] = $decisionData['legalBasis'];
             }
 
-            // Add relations
+            // Add relations.
             $decisionPayload['meeting'] = $meetingId;
             $decisionPayload['minutes'] = $minutesId;
 
@@ -136,7 +138,7 @@ class LiveDecisionService
                 ['meetingId' => $meetingId, 'exception' => $e->getMessage()]
             );
             throw $e;
-        }
+        }//end try
     }//end recordDecision()
 
     /**
@@ -154,13 +156,15 @@ class LiveDecisionService
     public function ensureDraftMinutes(string $meetingId): string
     {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            // Check if Minutes already exist for this meeting
+            // Check if Minutes already exist for this meeting.
             $params = [
                 'meeting' => $meetingId,
-                '_limit' => 1,
+                '_limit'  => 1,
             ];
 
             $existingMinutes = $objectService->findAll(
@@ -174,26 +178,26 @@ class LiveDecisionService
                 return $minutes['@self']['slug'] ?? $minutes['id'] ?? '';
             }
 
-            // Fetch the meeting to get its title
+            // Fetch the meeting to get its title.
             $meeting = $objectService->find(id: $meetingId);
             if ($meeting === null) {
                 throw new \RuntimeException('Meeting not found');
             }
 
-            $meetingObj = $meeting->getObject();
+            $meetingObj   = $meeting->getObject();
             $meetingTitle = $meetingObj['title'] ?? 'Onbekende vergadering';
 
-            // Create draft Minutes
+            // Create draft Minutes.
             $minutesPayload = [
-                '@self' => [
+                '@self'     => [
                     'register' => 'decidesk',
-                    'schema' => 'Minutes',
+                    'schema'   => 'Minutes',
                 ],
-                'title' => 'Concept notulen — ' . $meetingTitle,
+                'title'     => 'Concept notulen — '.$meetingTitle,
                 'lifecycle' => 'draft',
-                'version' => 1,
-                'content' => '',
-                'meeting' => $meetingId,
+                'version'   => 1,
+                'content'   => '',
+                'meeting'   => $meetingId,
             ];
 
             $createdMinutes = $objectService->saveObject(
@@ -216,6 +220,6 @@ class LiveDecisionService
                 ['meetingId' => $meetingId, 'exception' => $e->getMessage()]
             );
             throw $e;
-        }
+        }//end try
     }//end ensureDraftMinutes()
 }//end class

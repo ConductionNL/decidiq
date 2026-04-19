@@ -66,27 +66,29 @@ class ActionItemAnalyticsService
     public function getSummary(string $dateFrom, string $dateTo): array
     {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            $today = date('Y-m-d');
-            $dateTo = $dateTo ?: $today;
+            $today    = date('Y-m-d');
+            $dateTo   = $dateTo ?: $today;
             $dateFrom = $dateFrom ?: date('Y-01-01');
 
-            // Query all action items
+            // Query all action items.
             $params = [
-                '_limit' => 1000,
+                '_limit'  => 1000,
                 '_offset' => 0,
             ];
 
             $allItems = [];
-            $offset = 0;
-            $limit = 100;
+            $offset   = 0;
+            $limit    = 100;
 
             do {
                 $params['_offset'] = $offset;
-                $params['_limit'] = $limit;
-                $response = $objectService->findAll(
+                $params['_limit']  = $limit;
+                $response          = $objectService->findAll(
                     register: 'decidesk',
                     schema: 'ActionItem',
                     params: $params
@@ -97,28 +99,28 @@ class ActionItemAnalyticsService
                 }
 
                 $allItems = array_merge($allItems, $response['results']);
-                $offset += $limit;
+                $offset  += $limit;
             } while (count($response['results']) === $limit);
 
-            $totalOpen = 0;
-            $totalOverdue = 0;
+            $totalOpen          = 0;
+            $totalOverdue       = 0;
             $completedThisMonth = 0;
-            $daysToCloseTotals = [];
+            $daysToCloseTotals  = [];
 
             $currentMonth = date('Y-m');
-            $today = new \DateTime('now', new \DateTimeZone('UTC'));
+            $today        = new \DateTime('now', new \DateTimeZone('UTC'));
 
             foreach ($allItems as $item) {
-                $dueDate = $item['dueDate'] ?? null;
-                $taskStatus = $item['taskStatus'] ?? 'open';
-                $createdAt = $item['createdAt'] ?? null;
+                $dueDate     = $item['dueDate'] ?? null;
+                $taskStatus  = $item['taskStatus'] ?? 'open';
+                $createdAt   = $item['createdAt'] ?? null;
                 $completedAt = $item['completedAt'] ?? null;
 
-                // Count open items
+                // Count open items.
                 if ($taskStatus !== 'completed') {
                     $totalOpen++;
 
-                    // Count overdue items
+                    // Count overdue items.
                     if ($dueDate) {
                         try {
                             $due = new \DateTime($dueDate, new \DateTimeZone('UTC'));
@@ -126,12 +128,12 @@ class ActionItemAnalyticsService
                                 $totalOverdue++;
                             }
                         } catch (\Exception) {
-                            // Skip items with invalid dates
+                            // Skip items with invalid dates.
                         }
                     }
                 }
 
-                // Count completed this month
+                // Count completed this month.
                 if ($taskStatus === 'completed' && $completedAt) {
                     try {
                         $completed = new \DateTime($completedAt, new \DateTimeZone('UTC'));
@@ -139,28 +141,28 @@ class ActionItemAnalyticsService
                             $completedThisMonth++;
                         }
 
-                        // Calculate days to close
+                        // Calculate days to close.
                         if ($createdAt) {
-                            $created = new \DateTime($createdAt, new \DateTimeZone('UTC'));
+                            $created     = new \DateTime($createdAt, new \DateTimeZone('UTC'));
                             $daysToClose = $completed->diff($created)->days;
                             $daysToCloseTotals[] = $daysToClose;
                         }
                     } catch (\Exception) {
-                        // Skip items with invalid dates
+                        // Skip items with invalid dates.
                     }
                 }
-            }
+            }//end foreach
 
             $avgDaysToClose = 0.0;
             if (!empty($daysToCloseTotals)) {
-                $avgDaysToClose = (float)(array_sum($daysToCloseTotals) / count($daysToCloseTotals));
+                $avgDaysToClose = (float) (array_sum($daysToCloseTotals) / count($daysToCloseTotals));
             }
 
             return [
-                'totalOpen' => $totalOpen,
-                'totalOverdue' => $totalOverdue,
+                'totalOpen'          => $totalOpen,
+                'totalOverdue'       => $totalOverdue,
                 'completedThisMonth' => $completedThisMonth,
-                'avgDaysToClose' => round($avgDaysToClose, 2),
+                'avgDaysToClose'     => round($avgDaysToClose, 2),
             ];
         } catch (\Throwable $e) {
             $this->logger->error(
@@ -168,12 +170,12 @@ class ActionItemAnalyticsService
                 ['exception' => $e->getMessage()]
             );
             return [
-                'totalOpen' => 0,
-                'totalOverdue' => 0,
+                'totalOpen'          => 0,
+                'totalOverdue'       => 0,
                 'completedThisMonth' => 0,
-                'avgDaysToClose' => 0.0,
+                'avgDaysToClose'     => 0.0,
             ];
-        }
+        }//end try
     }//end getSummary()
 
     /**
@@ -187,17 +189,19 @@ class ActionItemAnalyticsService
      *
      * @return array<int, array<string, string|float|int>>
      */
-    public function getCompletionRates(int $limit = 6): array
+    public function getCompletionRates(int $limit=6): array
     {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            // Get meetings ordered by date descending
+            // Get meetings ordered by date descending.
             $params = [
-                '_limit' => $limit,
+                '_limit'  => $limit,
                 '_offset' => 0,
-                '_order' => 'scheduledDate:desc',
+                '_order'  => 'scheduledDate:desc',
             ];
 
             $response = $objectService->findAll(
@@ -207,20 +211,20 @@ class ActionItemAnalyticsService
             );
 
             $meetings = $response['results'] ?? [];
-            $rates = [];
+            $rates    = [];
 
             foreach ($meetings as $meeting) {
-                $meetingId = $meeting['@self']['slug'] ?? $meeting['id'] ?? null;
+                $meetingId    = $meeting['@self']['slug'] ?? $meeting['id'] ?? null;
                 $meetingTitle = $meeting['title'] ?? 'Unknown Meeting';
 
                 if (!$meetingId) {
                     continue;
                 }
 
-                // Query action items for this meeting (via relation)
+                // Query action items for this meeting (via relation).
                 try {
                     $actionItemParams = [
-                        '_limit' => 1000,
+                        '_limit'  => 1000,
                         'meeting' => $meetingId,
                     ];
 
@@ -234,14 +238,14 @@ class ActionItemAnalyticsService
 
                     if (empty($items)) {
                         $rates[] = [
-                            'meetingTitle' => $meetingTitle,
+                            'meetingTitle'   => $meetingTitle,
                             'completionRate' => 0.0,
-                            'total' => 0,
+                            'total'          => 0,
                         ];
                         continue;
                     }
 
-                    $totalItems = count($items);
+                    $totalItems     = count($items);
                     $completedItems = 0;
 
                     foreach ($items as $item) {
@@ -253,18 +257,18 @@ class ActionItemAnalyticsService
                     $completionRate = $totalItems > 0 ? ($completedItems / $totalItems) * 100 : 0;
 
                     $rates[] = [
-                        'meetingTitle' => $meetingTitle,
+                        'meetingTitle'   => $meetingTitle,
                         'completionRate' => round($completionRate, 2),
-                        'total' => $totalItems,
+                        'total'          => $totalItems,
                     ];
                 } catch (\Throwable $e) {
-                    // Skip meetings with errors
+                    // Skip meetings with errors.
                     $this->logger->warning(
                         'ActionItemAnalyticsService: failed to get items for meeting',
                         ['meetingId' => $meetingId, 'exception' => $e->getMessage()]
                     );
-                }
-            }
+                }//end try
+            }//end foreach
 
             return $rates;
         } catch (\Throwable $e) {
@@ -273,7 +277,7 @@ class ActionItemAnalyticsService
                 ['exception' => $e->getMessage()]
             );
             return [];
-        }
+        }//end try
     }//end getCompletionRates()
 
     /**
@@ -290,14 +294,16 @@ class ActionItemAnalyticsService
     public function getMyItems(string $userDisplayName): array
     {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             $params = [
-                'assignee' => $userDisplayName,
+                'assignee'    => $userDisplayName,
                 'taskStatus!' => 'completed',
-                '_limit' => 1000,
-                '_offset' => 0,
+                '_limit'      => 1000,
+                '_offset'     => 0,
             ];
 
             $response = $objectService->findAll(
@@ -308,12 +314,12 @@ class ActionItemAnalyticsService
 
             $items = $response['results'] ?? [];
 
-            $today = new \DateTime('now', new \DateTimeZone('UTC'));
+            $today   = new \DateTime('now', new \DateTimeZone('UTC'));
             $weekEnd = (clone $today)->modify('+7 days');
 
-            $overdue = [];
+            $overdue  = [];
             $thisWeek = [];
-            $later = [];
+            $later    = [];
 
             foreach ($items as $item) {
                 $dueDate = $item['dueDate'] ?? null;
@@ -328,7 +334,7 @@ class ActionItemAnalyticsService
 
                     if ($due < $today) {
                         $overdue[] = $item;
-                    } elseif ($due <= $weekEnd) {
+                    } else if ($due <= $weekEnd) {
                         $thisWeek[] = $item;
                     } else {
                         $later[] = $item;
@@ -336,12 +342,12 @@ class ActionItemAnalyticsService
                 } catch (\Exception) {
                     $later[] = $item;
                 }
-            }
+            }//end foreach
 
             return [
-                'overdue' => $overdue,
+                'overdue'  => $overdue,
                 'thisWeek' => $thisWeek,
-                'later' => $later,
+                'later'    => $later,
             ];
         } catch (\Throwable $e) {
             $this->logger->error(
@@ -349,10 +355,10 @@ class ActionItemAnalyticsService
                 ['userDisplayName' => $userDisplayName, 'exception' => $e->getMessage()]
             );
             return [
-                'overdue' => [],
+                'overdue'  => [],
                 'thisWeek' => [],
-                'later' => [],
+                'later'    => [],
             ];
-        }
+        }//end try
     }//end getMyItems()
 }//end class

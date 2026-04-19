@@ -1,11 +1,6 @@
 <?php
 
 /**
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- */
-
-/**
  * Decidesk Mail Reply Handler Background Job
  *
  * Polls for email replies to voting notification threads and casts votes
@@ -25,6 +20,8 @@
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\BackgroundJob;
@@ -180,7 +177,7 @@ class MailReplyHandler extends TimedJob
                 continue;
             }
 
-            // Validate that the participantId from _mail metadata refers to an existing Participant
+            // Validate that the participantId from _mail metadata refers to an existing Participant.
             // object before casting any vote. This prevents manipulated metadata from casting
             // votes on behalf of arbitrary or non-existent participants (OWASP A07:2021).
             $participant = $objectService->getObject(register: 'decidesk', schema: 'participant', uuid: $participantId);

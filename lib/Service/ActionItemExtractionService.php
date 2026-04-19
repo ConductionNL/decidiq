@@ -70,7 +70,7 @@ class ActionItemExtractionService
      *
      * @return array<int, array<string, string|null>>
      */
-    public function extractFromContent(string $content, array $knownParticipants = []): array
+    public function extractFromContent(string $content, array $knownParticipants=[]): array
     {
         $candidates = [];
         $seenTitles = [];
@@ -80,7 +80,7 @@ class ActionItemExtractionService
                 $matchCount = count($matches[0]);
 
                 for ($i = 0; $i < $matchCount; $i++) {
-                    // Extract the text after the marker (handle different pattern groups)
+                    // Extract the text after the marker (handle different pattern groups).
                     $text = $matches[2][$i] ?? $matches[1][$i] ?? '';
                     $text = trim($text);
 
@@ -88,22 +88,23 @@ class ActionItemExtractionService
                         continue;
                     }
 
-                    // Remove duplicates
+                    // Remove duplicates.
                     if (isset($seenTitles[$text])) {
                         continue;
                     }
+
                     $seenTitles[$text] = true;
 
-                    // Try to detect an assignee name from the text
+                    // Try to detect an assignee name from the text.
                     $suggestedAssignee = $this->detectAssignee($text, $knownParticipants);
 
                     $candidates[] = [
-                        'title' => $text,
+                        'title'             => $text,
                         'suggestedAssignee' => $suggestedAssignee,
                     ];
-                }
-            }
-        }
+                }//end for
+            }//end if
+        }//end foreach
 
         return $candidates;
     }//end extractFromContent()
@@ -111,8 +112,8 @@ class ActionItemExtractionService
     /**
      * Save extracted and confirmed action items.
      *
-     * @param string              $minutesId The UUID of the Minutes object
-     * @param array<int, array>   $confirmed Array of confirmed candidates with title, assignee, dueDate
+     * @param string            $minutesId The UUID of the Minutes object
+     * @param array<int, array> $confirmed Array of confirmed candidates with title, assignee, dueDate
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
      *
@@ -121,7 +122,9 @@ class ActionItemExtractionService
     public function saveExtracted(string $minutesId, array $confirmed): int
     {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             $savedCount = 0;
@@ -133,13 +136,13 @@ class ActionItemExtractionService
                 }
 
                 $actionItemPayload = [
-                    '@self' => [
+                    '@self'      => [
                         'register' => 'decidesk',
-                        'schema' => 'ActionItem',
+                        'schema'   => 'ActionItem',
                     ],
-                    'title' => $title,
+                    'title'      => $title,
                     'taskStatus' => 'open',
-                    'minutes' => $minutesId,
+                    'minutes'    => $minutesId,
                 ];
 
                 if (!empty($item['assignee'])) {
@@ -163,7 +166,7 @@ class ActionItemExtractionService
                         ['title' => $title, 'exception' => $e->getMessage()]
                     );
                 }
-            }
+            }//end foreach
 
             $this->logger->info(
                 'Decidesk: extracted action items saved',
@@ -177,7 +180,7 @@ class ActionItemExtractionService
                 ['minutesId' => $minutesId, 'exception' => $e->getMessage()]
             );
             throw $e;
-        }
+        }//end try
     }//end saveExtracted()
 
     /**
@@ -185,12 +188,12 @@ class ActionItemExtractionService
      *
      * Attempts to match names from the known participants list against the text.
      *
-     * @param string               $text               The action item text
-     * @param array<string,string> $knownParticipants  Known participant names
+     * @param string               $text              The action item text
+     * @param array<string,string> $knownParticipants Known participant names
      *
      * @return string|null The suggested assignee name or null
      */
-    private function detectAssignee(string $text, array $knownParticipants = []): ?string
+    private function detectAssignee(string $text, array $knownParticipants=[]): ?string
     {
         if (empty($knownParticipants)) {
             return null;

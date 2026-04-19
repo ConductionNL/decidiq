@@ -1,11 +1,6 @@
 <?php
 
 /**
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- */
-
-/**
  * Decidesk Application
  *
  * Main application class for the Decidesk Nextcloud app.
@@ -22,6 +17,8 @@
  * @link https://conduction.nl
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
@@ -184,7 +181,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register MinutesController for DI.
-        // userId is NOT injected here — it must be resolved per-request inside each
+        // userId is NOT injected here — it must be resolved per-request inside each.
         // action method via $this->userSession->getUser()?->getUID() to avoid the
         // DI singleton caching a null uid from an early unauthenticated bootstrap.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
@@ -203,7 +200,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionController for DI.
-        // Explicit registration matches the MinutesController pattern and ensures
+        // Explicit registration matches the MinutesController pattern and ensures.
         // reliable resolution in all Nextcloud environments (≥28).
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
         $context->registerService(

@@ -90,7 +90,7 @@ class MinutesGenerationService
         $objectService = $this->getObjectService();
 
         // Fetch the Minutes object.
-        // setRegister/setSchema are called first so that OpenRegister's session-based
+        // setRegister/setSchema are called first so that OpenRegister's session-based.
         // ACL is applied — any caller without read access gets null (same as MeetingService).
         $objectService->setRegister('decidesk');
         $objectService->setSchema('minutes');
@@ -166,7 +166,7 @@ class MinutesGenerationService
     {
         $objectService = $this->getObjectService();
 
-        // SetRegister/setSchema are called first so that OpenRegister's session-based
+        // SetRegister/setSchema are called first so that OpenRegister's session-based.
         // ACL is applied — callers without access to this object get null (OWASP A01).
         $objectService->setRegister('decidesk');
         $objectService->setSchema('minutes');
@@ -278,7 +278,7 @@ class MinutesGenerationService
                 'Decidesk: Failed to fetch linked Meeting for minutes draft generation',
                 ['exception' => $e->getMessage(), 'meetingId' => $meetingId]
             );
-            // Re-throw as RuntimeException (503) so the caller distinguishes a transient
+            // Re-throw as RuntimeException (503) so the caller distinguishes a transient.
             // OpenRegister outage from a genuinely missing relation (null return above).
             throw new \RuntimeException(
                 'OpenRegister service is temporarily unavailable. Please try again later.',
