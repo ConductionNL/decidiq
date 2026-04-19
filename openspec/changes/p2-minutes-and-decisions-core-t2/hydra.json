@@ -6,5 +6,108 @@
   "depends_on": [
     "p2-minutes-and-decisions"
   ],
-  "issue": null
+  "issue": null,
+  "schema_version": 2,
+  "cycles": [
+    {
+      "cycle": 1,
+      "trigger": "code-review:queued",
+      "started_at": "2026-04-19T18:08:51Z",
+      "ended_at": null,
+      "outcome": "in-flight",
+      "outcome_reason": null,
+      "pattern_tags": [],
+      "stages": [
+        {
+          "stage": "pre-review-quality",
+          "persona": "orchestrator",
+          "container": "hydra-quality-runner",
+          "started_at": "2026-04-19T18:08:51Z",
+          "ended_at": "2026-04-19T18:08:51Z",
+          "exit_code": 1,
+          "checks_run": [
+            "php -l",
+            "composer check:strict (phpcs)",
+            "composer check:strict (phpmd)",
+            "composer check:strict (psalm)",
+            "composer check:strict (phpstan)",
+            "phpmetrics",
+            "composer audit",
+            "spdx-headers",
+            "forbidden-patterns",
+            "npm run lint (eslint)",
+            "npm run lint (stylelint)",
+            "npm audit",
+            "stub-scan",
+            "composer test:unit (phpunit)"
+          ],
+          "checks_skipped": [
+            "publiccode",
+            "gitleaks",
+            "trivy",
+            "newman"
+          ],
+          "gates": {
+            "php-lint": "pass",
+            "phpcs": "fail",
+            "phpmd": "pass",
+            "psalm": "pass",
+            "phpstan": "pass",
+            "phpmetrics": "pass",
+            "composer-audit": "pass",
+            "spdx-headers": "fail",
+            "publiccode": "skip",
+            "forbidden-patterns": "pass",
+            "eslint": "fail",
+            "stylelint": "pass",
+            "npm-audit": "pass",
+            "stub-scan": "pass",
+            "gitleaks": "skip",
+            "trivy": "skip",
+            "phpunit": "fail",
+            "newman": "skip"
+          },
+          "findings": [
+            {
+              "id": "prq-phpcs",
+              "severity": "WARNING",
+              "gate": "phpcs",
+              "rule": "composer check:strict (phpcs) failing",
+              "status": "open",
+              "note": "...\nThe repository at \"/server/apps/decidesk\" does not have the correct ownership and git refuses to use it:\n\nfatal: detected dubious ownership in repository at '/server/apps/decidesk'\nTo add an exception for this directory, call:\n\ngit config --global --add safe.directory /server/apps/decidesk\n\nComposer could not detect the root package (conductionnl/decidesk) version, defaulting to '1.0.0'. See https://getcomposer.org/root-version\n..\u001b[32mE\u001b[0m....\u001b[32mE\u001b[0m.\u001b[32mE\u001b[0m.\u001b[32mE\u001b[0m\u001b[32mE\u001b[0m.\u001b[32mE\u001b[0m.\u001b[31mE\u001b[0m\u001b[32mE\u001b[0m.....\u001b[32mE\u001b[0m.\u001b[32mE\u001b[0m\u001b[32mE\u001b[0m..\u001b[32mE\u001b[0m.....\u001b[32mE\u001b[0m. 37 / 37 (100%)\n\n\n\n\u001b[1mFILE: lib/Controller/DecisionPublicController.php\u001b[0m\n--------------------------------------------------------------------------------\n\u001b[1mFOUND 9 ERRORS AFFECTING 9 LINES\u001b[0m\n-----------",
+              "autofixable": true
+            },
+            {
+              "id": "prq-spdx-headers",
+              "severity": "CRITICAL",
+              "gate": "spdx-headers",
+              "rule": "spdx-headers failing",
+              "status": "open",
+              "note": "spdx-headers gate failed \u2014 see pipeline log",
+              "autofixable": false
+            },
+            {
+              "id": "prq-eslint",
+              "severity": "WARNING",
+              "gate": "eslint",
+              "rule": "npm run lint (eslint) failing",
+              "status": "open",
+              "note": "...\n\n> decidesk@0.1.0 lint\n> eslint src\n\n\n/server/apps/decidesk/src/components/AgendaBuilder.vue\n  377:6  warning  The property or function OC.generateUrl was deprecated in Nextcloud 19.0.0  @nextcloud/no-deprecations\n  546:2  warning  The \"created\" property should be above the \"methods\" property on line 323   vue/order-in-components\n\n/server/apps/decidesk/src/components/AmendmentList.vue\n  76:2  warning  The \"watch\" property should be above the \"mounted\" property on line 73  vue/order-in-components\n\n/server/apps/decidesk/src/components/MinutesVersionPanel.vue\n  116:2    warning  The \"watch\" property should be above the \"mounted\" property on line 113  vue/order-in-components\n  146:112  warning  Missing trailing comma                                                   comma-dangle\n\n/server/a",
+              "autofixable": true
+            },
+            {
+              "id": "prq-phpunit",
+              "severity": "CRITICAL",
+              "gate": "phpunit",
+              "rule": "composer test:unit (phpunit) failing",
+              "status": "open",
+              "note": "phpunit gate failed \u2014 see pipeline log",
+              "autofixable": false
+            }
+          ],
+          "verdict": "fail"
+        }
+      ]
+    }
+  ]
 }
