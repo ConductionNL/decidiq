@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+/**
  * Decidesk Motion Service
  *
  * Service for managing motion lifecycle, co-signatories, amendments, and budget impact.
