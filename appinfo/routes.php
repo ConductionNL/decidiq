@@ -19,6 +19,39 @@ return [
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
 
+        // Decision portal publication (T2).
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+        ['name' => 'decision#publishPortal', 'url' => '/api/decisions/{decisionId}/publish-portal', 'verb' => 'POST'],
+        ['name' => 'decision#getShareLink', 'url' => '/api/decisions/{decisionId}/share-link', 'verb' => 'GET'],
+
+        // Decision public endpoint (T2) — must precede wildcard routes.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+        ['name' => 'decisionPublic#getPublicDecision', 'url' => '/api/decisions/{id}/public', 'verb' => 'GET'],
+        ['name' => 'decisionPublic#optionsPublicDecision', 'url' => '/api/decisions/{id}/public', 'verb' => 'OPTIONS'],
+
+        // Decision search (Smart Picker).
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
+        ['name' => 'decisionSearch#search', 'url' => '/api/decisions/search', 'verb' => 'GET'],
+
+        // Notification subscriptions (T2).
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1
+        ['name' => 'notificationSubscription#getSubscription', 'url' => '/api/notifications/{objectType}/{id}/subscriptions', 'verb' => 'GET'],
+        ['name' => 'notificationSubscription#subscribe', 'url' => '/api/notifications/{objectType}/{id}/subscriptions', 'verb' => 'POST'],
+        ['name' => 'notificationSubscription#unsubscribe', 'url' => '/api/notifications/{objectType}/{id}/subscriptions', 'verb' => 'DELETE'],
+
+        // Minutes version endpoints (T2).
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2
+        ['name' => 'minutesVersion#getVersionHistory', 'url' => '/api/minutes/{id}/versions', 'verb' => 'GET'],
+        ['name' => 'minutesVersion#getVersionContent', 'url' => '/api/minutes/{id}/versions/{version}', 'verb' => 'GET'],
+        ['name' => 'minutesVersion#diffVersions', 'url' => '/api/minutes/{id}/versions/{versionA}/diff/{versionB}', 'verb' => 'GET'],
+
+        // Minutes approval endpoints (T2).
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3
+        ['name' => 'minutesApproval#approve', 'url' => '/api/minutes/{id}/approve', 'verb' => 'POST'],
+        ['name' => 'minutesApproval#sign', 'url' => '/api/minutes/{id}/sign', 'verb' => 'POST'],
+        ['name' => 'minutesApproval#publish', 'url' => '/api/minutes/{id}/publish', 'verb' => 'POST'],
+        ['name' => 'minutesApproval#getApprovalStatus', 'url' => '/api/minutes/{id}/approval-status', 'verb' => 'GET'],
+
         // Meeting lifecycle transitions.
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
 

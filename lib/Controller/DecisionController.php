@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\DecisionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -49,11 +50,12 @@ class DecisionController extends Controller
     /**
      * Constructor for DecisionController.
      *
-     * @param IRequest           $request      The HTTP request
-     * @param ContainerInterface $container    DI container (lazy-loads OpenRegister services)
-     * @param IUserSession       $userSession  The current user session
-     * @param IGroupManager      $groupManager Group manager for admin checks
-     * @param LoggerInterface    $logger       The logger
+     * @param IRequest           $request             The HTTP request
+     * @param ContainerInterface $container           DI container (lazy-loads OpenRegister services)
+     * @param IUserSession       $userSession         The current user session
+     * @param IGroupManager      $groupManager        Group manager for admin checks
+     * @param LoggerInterface    $logger              The logger
+     * @param DecisionService    $decisionService     The decision service
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      */
@@ -63,6 +65,7 @@ class DecisionController extends Controller
         private IUserSession $userSession,
         private IGroupManager $groupManager,
         private LoggerInterface $logger,
+        private DecisionService $decisionService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -183,4 +186,94 @@ class DecisionController extends Controller
         }//end try
 
     }//end publish()
+
+    /**
+     * Publish a Decision to the member portal.
+     *
+     * POST /api/decisions/{decisionId}/publish-portal
+     *
+     * Creates a public share link for the Decision via IShareManager.
+     *
+     * Returns 200 with `{ shareUrl: string }` on success.
+     * Returns 401 when not authenticated.
+     * Returns 403 when caller lacks chair or secretary role.
+     * Returns 404 when Decision not found.
+     * Returns 503 when services unavailable.
+     *
+     * @param string $decisionId UUID of the Decision object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+     */
+    public function publishPortal(string $decisionId): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        // Only administrators may publish to portal (governance role enforcement).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may publish to portal.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
+        try {
+            $shareUrl = $this->decisionService->publishToPortal($decisionId, $user->getUID());
+            return new JSONResponse(['shareUrl' => $shareUrl]);
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: Failed to publish Decision to portal',
+                ['id' => $decisionId, 'exception' => $e->getMessage()]
+            );
+            return new JSONResponse(
+                ['message' => 'Failed to publish to portal.'],
+                Http::STATUS_SERVICE_UNAVAILABLE
+            );
+        }
+    }//end publishPortal()
+
+    /**
+     * Get the public share link for a Decision.
+     *
+     * GET /api/decisions/{decisionId}/share-link
+     *
+     * Returns 200 with `{ shareUrl: string|null }` on success.
+     * Returns 401 when not authenticated.
+     * Returns 404 when Decision not found.
+     * Returns 503 when services unavailable.
+     *
+     * @param string $decisionId UUID of the Decision object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+     */
+    public function getShareLink(string $decisionId): JSONResponse
+    {
+        try {
+            $shareUrl = $this->decisionService->getShareLink($decisionId);
+            return new JSONResponse(['shareUrl' => $shareUrl]);
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: Failed to get share link',
+                ['id' => $decisionId, 'exception' => $e->getMessage()]
+            );
+            return new JSONResponse(
+                ['message' => 'Failed to get share link.'],
+                Http::STATUS_SERVICE_UNAVAILABLE
+            );
+        }
+    }//end getShareLink()
 }//end class
