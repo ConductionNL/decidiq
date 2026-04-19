@@ -1,0 +1,22 @@
+{
+  "ran": true,
+  "pass": false,
+  "blocking": [
+    {
+      "file": null,
+      "severity": "blocking",
+      "note": ""
+    },
+    {
+      "file": null,
+      "severity": "blocking",
+      "note": ""
+    }
+  ],
+  "turns": 19,
+  "cost_usd": 0.4727,
+  "cost_eur": 0.4349,
+  "pr": 110,
+  "commit": "ada9875",
+  "timestamp": "2026-04-19T16:42:08.048180+00:00"
+}
