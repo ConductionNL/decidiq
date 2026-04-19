@@ -10,10 +10,28 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
+        // Analytics endpoints — specific routes must precede the wildcard catch-all.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+        ['name' => 'analytics#summary', 'url' => '/api/analytics/action-items', 'verb' => 'GET'],
+        ['name' => 'analytics#completionRates', 'url' => '/api/analytics/action-items/completion-rates', 'verb' => 'GET'],
+        ['name' => 'analytics#myItems', 'url' => '/api/analytics/action-items/my-items', 'verb' => 'GET'],
+
+        // Live Meeting endpoints — specific routes must precede the wildcard catch-all.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+        ['name' => 'liveMeeting#recordDecision', 'url' => '/api/meetings/{meetingId}/live-decisions', 'verb' => 'POST'],
+
         // Minutes endpoints — specific routes must precede the wildcard catch-all.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
         ['name' => 'minutes#generateDraft', 'url' => '/api/minutes/{minutesId}/generate-draft', 'verb' => 'POST'],
         ['name' => 'minutes#transition',    'url' => '/api/minutes/{minutesId}/transition',      'verb' => 'POST'],
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+        ['name' => 'minutes#generateAlv', 'url' => '/api/minutes/{minutesId}/generate-alv', 'verb' => 'POST'],
+        ['name' => 'minutes#distributeAlv', 'url' => '/api/minutes/{minutesId}/distribute', 'verb' => 'POST'],
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
+        ['name' => 'minutes#extractActionItems', 'url' => '/api/minutes/{minutesId}/extract-action-items', 'verb' => 'POST'],
+        ['name' => 'minutes#saveExtractedActionItems', 'url' => '/api/minutes/{minutesId}/save-extracted-action-items', 'verb' => 'POST'],
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6
+        ['name' => 'minutes#submitForApproval', 'url' => '/api/minutes/{minutesId}/submit-for-approval', 'verb' => 'POST'],
 
         // Decision endpoints — server-side publish enforces governance access control.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2

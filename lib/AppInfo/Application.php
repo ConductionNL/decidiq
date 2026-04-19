@@ -23,10 +23,17 @@ namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
+use OCA\Decidesk\Controller\AnalyticsController;
 use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Controller\LiveMeetingController;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
+use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidesk\Service\ActionItemExtractionService;
+use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\DecisionNotificationService;
+use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
@@ -73,6 +80,92 @@ class Application extends App implements IBootstrap
         // Initialize register and schemas on install/upgrade.
         $context->registerRepairStep(InitializeSettings::class);
 
+        // Register ActionItemAnalyticsService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+        $context->registerService(
+                ActionItemAnalyticsService::class,
+                static function ($c): ActionItemAnalyticsService {
+                    return new ActionItemAnalyticsService(
+                        container: $c->get(\Psr\Container\ContainerInterface::class),
+                        logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+        );
+
+        // Register AnalyticsController for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+        $context->registerService(
+                AnalyticsController::class,
+                static function ($c): AnalyticsController {
+                    return new AnalyticsController(
+                        request: $c->get(\OCP\IRequest::class),
+                        analyticsService: $c->get(ActionItemAnalyticsService::class),
+                        userSession: $c->get(\OCP\IUserSession::class),
+                    );
+                }
+        );
+
+        // Register LiveDecisionService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+        $context->registerService(
+                LiveDecisionService::class,
+                static function ($c): LiveDecisionService {
+                    return new LiveDecisionService(
+                        container: $c->get(\Psr\Container\ContainerInterface::class),
+                        logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+        );
+
+        // Register LiveMeetingController for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+        $context->registerService(
+                LiveMeetingController::class,
+                static function ($c): LiveMeetingController {
+                    return new LiveMeetingController(
+                        request: $c->get(\OCP\IRequest::class),
+                        liveDecisionService: $c->get(LiveDecisionService::class),
+                        userSession: $c->get(\OCP\IUserSession::class),
+                    );
+                }
+        );
+
+        // Register ALVMinutesService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+        $context->registerService(
+                ALVMinutesService::class,
+                static function ($c): ALVMinutesService {
+                    return new ALVMinutesService(
+                        container: $c->get(\Psr\Container\ContainerInterface::class),
+                        logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+        );
+
+        // Register ActionItemExtractionService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
+        $context->registerService(
+                ActionItemExtractionService::class,
+                static function ($c): ActionItemExtractionService {
+                    return new ActionItemExtractionService(
+                        container: $c->get(\Psr\Container\ContainerInterface::class),
+                        logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+        );
+
+        // Register DecisionNotificationService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5
+        $context->registerService(
+                DecisionNotificationService::class,
+                static function ($c): DecisionNotificationService {
+                    return new DecisionNotificationService(
+                        container: $c->get(\Psr\Container\ContainerInterface::class),
+                        logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+        );
+
         // Register MinutesGenerationService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
         $context->registerService(
@@ -96,6 +189,8 @@ class Application extends App implements IBootstrap
                     return new MinutesController(
                     request: $c->get(\OCP\IRequest::class),
                     minutesGenerationService: $c->get(MinutesGenerationService::class),
+                    alvMinutesService: $c->get(ALVMinutesService::class),
+                    extractionService: $c->get(ActionItemExtractionService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     );

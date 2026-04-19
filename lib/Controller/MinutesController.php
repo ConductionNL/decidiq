@@ -28,6 +28,8 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\Decidesk\Service\ActionItemExtractionService;
+use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -55,16 +57,20 @@ class MinutesController extends Controller
      * time would freeze it as null when the container is first built in a cron or
      * pre-flight context. The UID is resolved per-request via $this->userSession.
      *
-     * @param IRequest                 $request                  The HTTP request
-     * @param MinutesGenerationService $minutesGenerationService The generation service
-     * @param IUserSession             $userSession              The current user session
-     * @param IGroupManager            $groupManager             Group manager for role checks
+     * @param IRequest                    $request                  The HTTP request
+     * @param MinutesGenerationService    $minutesGenerationService The generation service
+     * @param ALVMinutesService           $alvMinutesService        The ALV minutes service
+     * @param ActionItemExtractionService $extractionService        The extraction service
+     * @param IUserSession                $userSession              The current user session
+     * @param IGroupManager               $groupManager             Group manager for role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function __construct(
         IRequest $request,
         private MinutesGenerationService $minutesGenerationService,
+        private ALVMinutesService $alvMinutesService,
+        private ActionItemExtractionService $extractionService,
         private IUserSession $userSession,
         private IGroupManager $groupManager,
     ) {
@@ -216,4 +222,243 @@ class MinutesController extends Controller
         }//end try
 
     }//end transition()
+
+    /**
+     * Generate an ALV draft for the given Minutes object.
+     *
+     * POST /api/minutes/{minutesId}/generate-alv
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+     */
+    public function generateAlv(string $minutesId): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        try {
+            $result = $this->alvMinutesService->generateALVDraft($minutesId);
+            return new JSONResponse(['preview' => $result['content']]);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_UNPROCESSABLE_ENTITY
+            );
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_NOT_FOUND
+            );
+        } catch (\Throwable $e) {
+            return new JSONResponse(
+                ['message' => 'Failed to generate ALV minutes.'],
+                Http::STATUS_SERVICE_UNAVAILABLE
+            );
+        }
+    }//end generateAlv()
+
+    /**
+     * Distribute ALV minutes to participants.
+     *
+     * POST /api/minutes/{minutesId}/distribute
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+     */
+    public function distributeAlv(string $minutesId): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        try {
+            $count = $this->alvMinutesService->distribute($minutesId);
+            return new JSONResponse(['notified' => $count]);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_CONFLICT
+            );
+        } catch (\Throwable $e) {
+            return new JSONResponse(
+                ['message' => 'Failed to distribute minutes.'],
+                Http::STATUS_SERVICE_UNAVAILABLE
+            );
+        }
+    }//end distributeAlv()
+
+    /**
+     * Extract action item candidates from minutes content.
+     *
+     * POST /api/minutes/{minutesId}/extract-action-items
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
+     */
+    public function extractActionItems(string $minutesId): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        try {
+            // Fetch the minutes to get content
+            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            $objectService = \OC::$server->get('OCA\OpenRegister\Service\ObjectService');
+            $minutes = $objectService->find(id: $minutesId);
+
+            if ($minutes === null) {
+                return new JSONResponse(
+                    ['message' => 'Minutes not found.'],
+                    Http::STATUS_NOT_FOUND
+                );
+            }
+
+            $minutesObj = $minutes->getObject();
+            $content = $minutesObj['content'] ?? '';
+
+            $candidates = $this->extractionService->extractFromContent($content);
+            return new JSONResponse(['candidates' => $candidates]);
+        } catch (\Throwable $e) {
+            return new JSONResponse(
+                ['message' => 'Failed to extract action items.'],
+                Http::STATUS_SERVICE_UNAVAILABLE
+            );
+        }
+    }//end extractActionItems()
+
+    /**
+     * Save extracted action items.
+     *
+     * POST /api/minutes/{minutesId}/save-extracted-action-items
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
+     */
+    public function saveExtractedActionItems(string $minutesId): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        $confirmed = $this->request->getParam('confirmed');
+        if (!is_array($confirmed)) {
+            return new JSONResponse(
+                ['message' => 'Invalid confirmed array.'],
+                Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        try {
+            $count = $this->extractionService->saveExtracted($minutesId, $confirmed);
+            return new JSONResponse(['saved' => $count]);
+        } catch (\Throwable $e) {
+            return new JSONResponse(
+                ['message' => 'Failed to save action items.'],
+                Http::STATUS_SERVICE_UNAVAILABLE
+            );
+        }
+    }//end saveExtractedActionItems()
+
+    /**
+     * Submit minutes for approval.
+     *
+     * POST /api/minutes/{minutesId}/submit-for-approval
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6
+     */
+    public function submitForApproval(string $minutesId): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        try {
+            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            $objectService = \OC::$server->get('OCA\OpenRegister\Service\ObjectService');
+
+            $minutes = $objectService->find(id: $minutesId);
+            if ($minutes === null) {
+                return new JSONResponse(
+                    ['message' => 'Minutes not found.'],
+                    Http::STATUS_NOT_FOUND
+                );
+            }
+
+            $minutesObj = $minutes->getObject();
+            $lifecycle = $minutesObj['lifecycle'] ?? 'draft';
+
+            if ($lifecycle !== 'draft') {
+                return new JSONResponse(
+                    ['message' => 'Minutes must be in draft state to submit for approval.'],
+                    Http::STATUS_CONFLICT
+                );
+            }
+
+            // Update lifecycle to review
+            $updated = $objectService->updateFromArray(
+                id: $minutesId,
+                object: ['lifecycle' => 'review'],
+                updateVersion: true,
+                patch: true
+            );
+
+            return new JSONResponse([
+                'lifecycle' => 'review',
+                'notified' => 0, // Placeholder for actual notification count
+            ]);
+        } catch (\Throwable $e) {
+            return new JSONResponse(
+                ['message' => 'Failed to submit for approval.'],
+                Http::STATUS_SERVICE_UNAVAILABLE
+            );
+        }
+    }//end submitForApproval()
 }//end class
