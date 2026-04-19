@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+/**
  * Decidesk Initialize Settings Repair Step
  *
  * Repair step that initializes Decidesk register and schemas on install/upgrade.

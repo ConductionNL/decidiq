@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+/**
  * Decidesk Motion Controller
  *
  * Thin REST controller for motion lifecycle, co-signature, and budget impact endpoints.
