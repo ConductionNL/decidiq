@@ -42,9 +42,9 @@ class LiveMeetingController extends Controller
     /**
      * Constructor for LiveMeetingController.
      *
-     * @param IRequest             $request             The HTTP request
-     * @param LiveDecisionService  $liveDecisionService The live decision service
-     * @param IUserSession         $userSession         The current user session
+     * @param IRequest            $request             The HTTP request
+     * @param LiveDecisionService $liveDecisionService The live decision service
+     * @param IUserSession        $userSession         The current user session
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
      */
@@ -88,9 +88,9 @@ class LiveMeetingController extends Controller
         }
 
         $decisionData = [
-            'title' => $this->request->getParam('title'),
-            'text' => $this->request->getParam('text'),
-            'outcome' => $this->request->getParam('outcome', 'adopted'),
+            'title'      => $this->request->getParam('title'),
+            'text'       => $this->request->getParam('text'),
+            'outcome'    => $this->request->getParam('outcome', 'adopted'),
             'legalBasis' => $this->request->getParam('legalBasis'),
         ];
 
@@ -115,6 +115,6 @@ class LiveMeetingController extends Controller
                 ['message' => 'Failed to record decision'],
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
-        }
+        }//end try
     }//end recordDecision()
 }//end class

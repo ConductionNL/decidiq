@@ -41,9 +41,9 @@ class AnalyticsController extends Controller
     /**
      * Constructor for AnalyticsController.
      *
-     * @param IRequest                    $request                The HTTP request
-     * @param ActionItemAnalyticsService  $analyticsService      The analytics service
-     * @param IUserSession                $userSession           The current user session
+     * @param IRequest                   $request          The HTTP request
+     * @param ActionItemAnalyticsService $analyticsService The analytics service
+     * @param IUserSession               $userSession      The current user session
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
@@ -73,7 +73,7 @@ class AnalyticsController extends Controller
     public function summary(): JSONResponse
     {
         $dateFrom = $this->request->getParam('dateFrom') ?? '';
-        $dateTo = $this->request->getParam('dateTo') ?? '';
+        $dateTo   = $this->request->getParam('dateTo') ?? '';
 
         $summary = $this->analyticsService->getSummary($dateFrom, $dateTo);
 
@@ -96,9 +96,9 @@ class AnalyticsController extends Controller
      */
     public function completionRates(): JSONResponse
     {
-        $limit = (int)($this->request->getParam('limit') ?? 6);
-        $limit = max(1, min(50, $limit)); // Clamp between 1 and 50
-
+        $limit = (int) ($this->request->getParam('limit') ?? 6);
+        $limit = max(1, min(50, $limit));
+        // Clamp between 1 and 50
         $rates = $this->analyticsService->getCompletionRates($limit);
 
         return new JSONResponse(['results' => $rates]);
@@ -123,7 +123,7 @@ class AnalyticsController extends Controller
         }
 
         $displayName = $user->getDisplayName() ?? $user->getUID();
-        $items = $this->analyticsService->getMyItems($displayName);
+        $items       = $this->analyticsService->getMyItems($displayName);
 
         return new JSONResponse($items);
     }//end myItems()

@@ -67,7 +67,9 @@ class DecisionNotificationService
     public function notifyOnPublish(string $decisionId): int
     {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             // Fetch the decision
@@ -80,7 +82,7 @@ class DecisionNotificationService
                 return 0;
             }
 
-            $decisionObj = $decision->getObject();
+            $decisionObj      = $decision->getObject();
             $governanceBodyId = $decisionObj['governanceBody'] ?? null;
 
             if (!$governanceBodyId) {
@@ -110,14 +112,14 @@ class DecisionNotificationService
                 ['decisionId' => $decisionId, 'exception' => $e->getMessage()]
             );
             return 0;
-        }
+        }//end try
     }//end notifyOnPublish()
 
     /**
      * Resolve recipients for decision notifications based on roles.
      *
-     * @param string              $decisionId The UUID of the Decision
-     * @param array<int, string>  $roles      Roles to filter by (chair, secretary, member, etc.)
+     * @param string             $decisionId The UUID of the Decision
+     * @param array<int, string> $roles      Roles to filter by (chair, secretary, member, etc.)
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5
      *
@@ -126,7 +128,9 @@ class DecisionNotificationService
     public function resolveRecipients(string $decisionId, array $roles): array
     {
         try {
-            /** @var \OCA\OpenRegister\Service\ObjectService $objectService */
+            /*
+             * @var \OCA\OpenRegister\Service\ObjectService $objectService
+             */
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             // Fetch the decision to get governance body
@@ -135,7 +139,7 @@ class DecisionNotificationService
                 return [];
             }
 
-            $decisionObj = $decision->getObject();
+            $decisionObj      = $decision->getObject();
             $governanceBodyId = $decisionObj['governanceBody'] ?? null;
 
             if (!$governanceBodyId) {
@@ -144,14 +148,15 @@ class DecisionNotificationService
 
             // Query Memberships with matching roles
             $recipients = [];
-            $seenUids = [];
+            $seenUids   = [];
 
             foreach ($roles as $role) {
                 $params = [
                     'governanceBody' => $governanceBodyId,
-                    'role' => $role,
-                    'leftAt' => null, // Active memberships only
-                    '_limit' => 1000,
+                    'role'           => $role,
+                    'leftAt'         => null,
+                // Active memberships only
+                    '_limit'         => 1000,
                 ];
 
                 try {
@@ -168,16 +173,16 @@ class DecisionNotificationService
 
                         if ($userId && !isset($seenUids[$userId])) {
                             $seenUids[$userId] = true;
-                            $recipients[] = [
+                            $recipients[]      = [
                                 'userId' => $userId,
-                                'role' => $role,
+                                'role'   => $role,
                             ];
                         }
                     }
                 } catch (\Throwable) {
                     // Skip roles with query errors
-                }
-            }
+                }//end try
+            }//end foreach
 
             return $recipients;
         } catch (\Throwable $e) {
@@ -186,7 +191,7 @@ class DecisionNotificationService
                 ['decisionId' => $decisionId, 'exception' => $e->getMessage()]
             );
             return [];
-        }
+        }//end try
     }//end resolveRecipients()
 
     /**
@@ -199,7 +204,9 @@ class DecisionNotificationService
     private function getConfiguredRoles(): array
     {
         try {
-            /** @var \OCP\IAppConfig $appConfig */
+            /*
+             * @var \OCP\IAppConfig $appConfig
+             */
             $appConfig = $this->container->get('OCP\IAppConfig');
 
             $configured = $appConfig->getValueString(
@@ -216,6 +223,6 @@ class DecisionNotificationService
             return is_array($roles) ? $roles : self::DEFAULT_NOTIFY_ROLES;
         } catch (\Throwable) {
             return self::DEFAULT_NOTIFY_ROLES;
-        }
+        }//end try
     }//end getConfiguredRoles()
 }//end class
