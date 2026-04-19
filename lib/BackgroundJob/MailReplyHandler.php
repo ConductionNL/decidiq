@@ -234,7 +234,7 @@ class MailReplyHandler extends TimedJob
 
                     $mailEntry['processed'] = true;
                     $dirty = true;
-                    $this->logger->info('Decidesk: email vote processed', ['participant' => $participantId, 'value' => $keyword]);
+                    $this->logger->info('Decidesk: email vote processed', ['participant' => $participantId]);
                 } catch (\Throwable $e) {
                     $this->logger->warning('Decidesk: email vote cast failed', ['error' => $e->getMessage()]);
                 }//end try
