@@ -6,5 +6,5 @@
   "depends_on": [
     "p2-meeting-management"
   ],
-  "issue": null
+  "issue": "https://github.com/ConductionNL/decidesk/issues/61"
 }
