@@ -113,6 +113,8 @@ class MeetingServiceTest extends TestCase
      */
     public function testValidTransitionReturnsSuccess(): void
     {
+        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+
         $uuid         = 'aaaaaaaa-0000-0000-0000-000000000001';
         $currentState = 'scheduled';
         $entity       = $this->buildMockEntity($currentState);
@@ -147,6 +149,8 @@ class MeetingServiceTest extends TestCase
      */
     public function testInvalidTransitionReturnsFailure(): void
     {
+        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+
         $uuid   = 'aaaaaaaa-0000-0000-0000-000000000002';
         $entity = $this->buildMockEntity('draft');
 
@@ -239,6 +243,8 @@ class MeetingServiceTest extends TestCase
      */
     public function testCloseFromOpenedReturnsSuccess(): void
     {
+        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+
         $uuid          = 'aaaaaaaa-0000-0000-0000-000000000003';
         $entity        = $this->buildMockEntity('opened');
         $updatedEntity = $this->buildMockEntity('closed');
