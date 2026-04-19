@@ -29,6 +29,7 @@ use OCA\Decidesk\Service\LiveDecisionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -45,6 +46,7 @@ class LiveMeetingController extends Controller
      * @param IRequest             $request             The HTTP request
      * @param LiveDecisionService  $liveDecisionService The live decision service
      * @param IUserSession         $userSession         The current user session
+     * @param IGroupManager        $groupManager        Group membership checks for admin gating
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
      */
@@ -52,6 +54,7 @@ class LiveMeetingController extends Controller
         IRequest $request,
         private LiveDecisionService $liveDecisionService,
         private IUserSession $userSession,
+        private IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -87,6 +90,19 @@ class LiveMeetingController extends Controller
             );
         }
 
+        // Recording a binding decision on behalf of a meeting body is an
+        // administrative action — must be restricted to Nextcloud admins.
+        // See ADR-005 (Security): admin checks must live on the backend via
+        // IGroupManager::isAdmin(), never gated purely by @NoAdminRequired.
+        // Without this guard any authenticated user could POST decisions
+        // on any opened meeting (OWASP A01 — Broken Access Control).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Admin privileges required to record decisions'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         $decisionData = [
             'title' => $this->request->getParam('title'),
             'text' => $this->request->getParam('text'),
@@ -111,8 +127,11 @@ class LiveMeetingController extends Controller
                 Http::STATUS_CONFLICT
             );
         } catch (\Throwable $e) {
+            // Return a generic error message — $e->getMessage() may expose
+            // internal implementation detail (DB errors, paths). Full
+            // diagnostic lives in the server log via error_log / logger.
             return new JSONResponse(
-                ['message' => 'Failed to record decision: ' . $e->getMessage()],
+                ['message' => 'Failed to record decision'],
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
         }
