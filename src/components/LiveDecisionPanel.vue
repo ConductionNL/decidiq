@@ -12,14 +12,18 @@
 
 			<div class="form-group">
 				<label>{{ t('decidesk', 'Decision Text') }}</label>
-				<textarea v-model="formData.text" :placeholder="t('decidesk', 'Decision text')"></textarea>
+				<textarea v-model="formData.text" :placeholder="t('decidesk', 'Decision text')" />
 			</div>
 
 			<div class="form-group">
 				<label>{{ t('decidesk', 'Outcome') }}</label>
 				<select v-model="formData.outcome">
-					<option value="adopted">{{ t('decidesk', 'Adopted') }}</option>
-					<option value="rejected">{{ t('decidesk', 'Rejected') }}</option>
+					<option value="adopted">
+						{{ t('decidesk', 'Adopted') }}
+					</option>
+					<option value="rejected">
+						{{ t('decidesk', 'Rejected') }}
+					</option>
 				</select>
 			</div>
 
@@ -28,7 +32,7 @@
 				<input v-model="formData.legalBasis" type="text" :placeholder="t('decidesk', 'Legal basis')">
 			</div>
 
-			<button @click="submitDecision" class="btn btn-primary">
+			<button class="btn btn-primary" @click="submitDecision">
 				{{ t('decidesk', 'Save Decision') }}
 			</button>
 		</div>
@@ -41,9 +45,15 @@
 		<!-- Decisions list -->
 		<div class="decisions-list">
 			<div v-for="decision in decisions" :key="decision.id" class="decision-item">
-				<div class="decision-title">{{ decision.title }}</div>
-				<div class="decision-outcome">{{ decision.outcome }}</div>
-				<div class="decision-date">{{ formatDate(decision.decisionDate) }}</div>
+				<div class="decision-title">
+					{{ decision.title }}
+				</div>
+				<div class="decision-outcome">
+					{{ decision.outcome }}
+				</div>
+				<div class="decision-date">
+					{{ formatDate(decision.decisionDate) }}
+				</div>
 			</div>
 
 			<div v-if="decisions.length === 0" class="no-decisions">
@@ -51,7 +61,9 @@
 			</div>
 		</div>
 
-		<div v-if="error" class="error-message">{{ error }}</div>
+		<div v-if="error" class="error-message">
+			{{ error }}
+		</div>
 	</div>
 </template>
 
@@ -112,7 +124,7 @@ export default {
 			try {
 				await axios.post(
 					`/apps/decidesk/api/meetings/${this.meetingId}/live-decisions`,
-					this.formData
+					this.formData,
 				)
 
 				// Clear form

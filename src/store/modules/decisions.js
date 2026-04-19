@@ -33,6 +33,7 @@ export const useDecisionStore = defineStore('decision', {
 		/**
 		 * Fetch a paginated list of Decision objects.
 		 *
+		 * @param params
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async fetchDecisions(params = {}) {
@@ -67,6 +68,7 @@ export const useDecisionStore = defineStore('decision', {
 		/**
 		 * Fetch a single Decision object by ID.
 		 *
+		 * @param id
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async fetchDecisionById(id) {
@@ -91,6 +93,7 @@ export const useDecisionStore = defineStore('decision', {
 		/**
 		 * Save (create or update) a Decision object.
 		 *
+		 * @param decisionData
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async saveDecision(decisionData) {
@@ -126,6 +129,7 @@ export const useDecisionStore = defineStore('decision', {
 		/**
 		 * Delete a Decision object.
 		 *
+		 * @param id
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		 */
 		async deleteDecision(id) {

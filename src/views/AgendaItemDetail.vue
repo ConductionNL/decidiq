@@ -64,7 +64,9 @@
 				<p v-if="!spokespersonName" class="decidesk-empty">
 					{{ t('decidesk', 'No spokesperson assigned.') }}
 				</p>
-				<p v-else>{{ spokespersonName }}</p>
+				<p v-else>
+					{{ spokespersonName }}
+				</p>
 			</CnDetailCard>
 
 			<!-- Linked Motions (decision type only) -->

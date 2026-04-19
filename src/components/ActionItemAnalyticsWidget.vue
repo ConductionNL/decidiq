@@ -5,20 +5,36 @@
 		<!-- KPI Cards -->
 		<div class="kpi-cards">
 			<div class="kpi-card">
-				<div class="kpi-value">{{ summary.totalOpen }}</div>
-				<div class="kpi-label">{{ t('decidesk', 'Open Items') }}</div>
+				<div class="kpi-value">
+					{{ summary.totalOpen }}
+				</div>
+				<div class="kpi-label">
+					{{ t('decidesk', 'Open Items') }}
+				</div>
 			</div>
 			<div class="kpi-card kpi-warning">
-				<div class="kpi-value">{{ summary.totalOverdue }}</div>
-				<div class="kpi-label">{{ t('decidesk', 'Overdue') }}</div>
+				<div class="kpi-value">
+					{{ summary.totalOverdue }}
+				</div>
+				<div class="kpi-label">
+					{{ t('decidesk', 'Overdue') }}
+				</div>
 			</div>
 			<div class="kpi-card kpi-success">
-				<div class="kpi-value">{{ summary.completedThisMonth }}</div>
-				<div class="kpi-label">{{ t('decidesk', 'Completed This Month') }}</div>
+				<div class="kpi-value">
+					{{ summary.completedThisMonth }}
+				</div>
+				<div class="kpi-label">
+					{{ t('decidesk', 'Completed This Month') }}
+				</div>
 			</div>
 			<div class="kpi-card">
-				<div class="kpi-value">{{ summary.avgDaysToClose }}</div>
-				<div class="kpi-label">{{ t('decidesk', 'Avg Days to Close') }}</div>
+				<div class="kpi-value">
+					{{ summary.avgDaysToClose }}
+				</div>
+				<div class="kpi-label">
+					{{ t('decidesk', 'Avg Days to Close') }}
+				</div>
 			</div>
 		</div>
 
@@ -40,7 +56,9 @@
 			<h3>{{ t('decidesk', 'My Action Items') }}</h3>
 
 			<div v-if="myItems.overdue.length > 0" class="items-group">
-				<h4 style="color: var(--color-error)">{{ t('decidesk', 'Overdue') }}</h4>
+				<h4 style="color: var(--color-error)">
+					{{ t('decidesk', 'Overdue') }}
+				</h4>
 				<ul>
 					<li v-for="item in myItems.overdue" :key="item.id" @click="goToItem(item.id)">
 						{{ item.title }}
@@ -49,7 +67,9 @@
 			</div>
 
 			<div v-if="myItems.thisWeek.length > 0" class="items-group">
-				<h4 style="color: var(--color-warning)">{{ t('decidesk', 'This Week') }}</h4>
+				<h4 style="color: var(--color-warning)">
+					{{ t('decidesk', 'This Week') }}
+				</h4>
 				<ul>
 					<li v-for="item in myItems.thisWeek" :key="item.id" @click="goToItem(item.id)">
 						{{ item.title }}
@@ -67,69 +87,63 @@
 			</div>
 		</div>
 
-		<div v-if="error" class="error-message">{{ error }}</div>
+		<div v-if="error" class="error-message">
+			{{ error }}
+		</div>
 	</div>
 </template>
 
 <script>
-import { useRouter } from 'vue-router'
 import axios from '@nextcloud/axios'
 import { t } from '@nextcloud/l10n'
 
 export default {
 	name: 'ActionItemAnalyticsWidget',
-	setup() {
-		const router = useRouter()
-
-		const summary = {
-			totalOpen: 0,
-			totalOverdue: 0,
-			completedThisMonth: 0,
-			avgDaysToClose: 0,
+	data() {
+		return {
+			summary: {
+				totalOpen: 0,
+				totalOverdue: 0,
+				completedThisMonth: 0,
+				avgDaysToClose: 0,
+			},
+			completionRates: [],
+			myItems: {
+				overdue: [],
+				thisWeek: [],
+				later: [],
+			},
+			error: '',
 		}
-
-		const completionRates = []
-		const myItems = {
-			overdue: [],
-			thisWeek: [],
-			later: [],
-		}
-
-		let error = ''
-
-		async function loadAnalytics() {
+	},
+	created() {
+		this.loadAnalytics()
+	},
+	methods: {
+		async loadAnalytics() {
 			try {
 				// Load summary
 				const summaryResponse = await axios.get('/apps/decidesk/api/analytics/action-items')
-				Object.assign(summary, summaryResponse.data)
+				Object.assign(this.summary, summaryResponse.data)
 
 				// Load completion rates
 				const ratesResponse = await axios.get('/apps/decidesk/api/analytics/action-items/completion-rates')
-				completionRates.splice(0, completionRates.length, ...ratesResponse.data.results)
+				this.completionRates = ratesResponse.data.results || []
 
 				// Load my items
 				const myItemsResponse = await axios.get('/apps/decidesk/api/analytics/action-items/my-items')
-				Object.assign(myItems, myItemsResponse.data)
+				Object.assign(this.myItems, myItemsResponse.data)
 			} catch (err) {
-				error = t('decidesk', 'Failed to load analytics')
+				this.error = t('decidesk', 'Failed to load analytics')
 				console.error(err)
 			}
-		}
-
-		function goToItem(itemId) {
-			router.push({ name: 'ActionItemDetail', params: { id: itemId } })
-		}
-
-		loadAnalytics()
-
-		return {
-			summary,
-			completionRates,
-			myItems,
-			error,
-			goToItem,
-			t,
-		}
+		},
+		goToItem(itemId) {
+			this.$router.push({ name: 'ActionItemDetail', params: { id: itemId } })
+		},
+	},
+	setup() {
+		return { t }
 	},
 }
 </script>

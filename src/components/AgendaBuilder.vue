@@ -320,6 +320,10 @@ export default {
 		},
 	},
 
+	created() {
+		this.loadRecurringItems()
+	},
+
 	methods: {
 		// -----------------------------------------------------------------------
 		// Drag-and-drop helpers
@@ -541,10 +545,6 @@ export default {
 				console.error('Failed to submit proposal:', e)
 			}
 		},
-	},
-
-	created() {
-		this.loadRecurringItems()
 	},
 }
 </script>

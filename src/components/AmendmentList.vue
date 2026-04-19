@@ -70,13 +70,13 @@ export default {
 			return ['submitted', 'debating'].includes(this.motionLifecycle)
 		},
 	},
-	mounted() {
-		this.loadAmendments()
-	},
 	watch: {
 		motionId() {
 			this.loadAmendments()
 		},
+	},
+	mounted() {
+		this.loadAmendments()
 	},
 	methods: {
 		async loadAmendments() {

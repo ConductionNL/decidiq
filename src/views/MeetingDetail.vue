@@ -208,6 +208,17 @@ export default {
 			]
 		},
 	},
+
+	async created() {
+		try {
+			const parts = await this.objectStore.fetchObjects('participant', {
+				'@self.relations.meeting': this.id,
+			})
+			this.meetingParticipants = parts ?? []
+		} catch (e) {
+			console.error('Failed to fetch meeting participants:', e)
+		}
+	},
 	methods: {
 		onEditSaved() {
 			this.editing = false
@@ -271,17 +282,6 @@ export default {
 		onLifecycleUpdated() {
 			this.objectStore.fetchObject('meeting', this.id)
 		},
-	},
-
-	async created() {
-		try {
-			const parts = await this.objectStore.fetchObjects('participant', {
-				'@self.relations.meeting': this.id,
-			})
-			this.meetingParticipants = parts ?? []
-		} catch (e) {
-			console.error('Failed to fetch meeting participants:', e)
-		}
 	},
 }
 </script>

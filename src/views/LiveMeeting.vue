@@ -241,6 +241,18 @@ export default {
 		},
 	},
 
+	async created() {
+		await this.fetchData()
+		// Auto-refresh every 30 seconds.
+		this.refreshInterval = setInterval(() => this.refreshItems(), 30000)
+	},
+
+	beforeDestroy() {
+		if (this.refreshInterval !== null) {
+			clearInterval(this.refreshInterval)
+		}
+	},
+
 	methods: {
 		currentBobStageIndex(item) {
 			const status = item?.status ?? 'beeldvorming'
@@ -340,18 +352,6 @@ export default {
 				console.error('Error refreshing items:', e)
 			}
 		},
-	},
-
-	async created() {
-		await this.fetchData()
-		// Auto-refresh every 30 seconds.
-		this.refreshInterval = setInterval(() => this.refreshItems(), 30000)
-	},
-
-	beforeDestroy() {
-		if (this.refreshInterval !== null) {
-			clearInterval(this.refreshInterval)
-		}
 	},
 }
 </script>
