@@ -40,8 +40,8 @@ class MinutesVersionController extends Controller
     /**
      * Constructor for MinutesVersionController.
      *
-     * @param IRequest                 $request                The HTTP request
-     * @param MinutesVersionService    $versionService         The version service
+     * @param IRequest              $request        The HTTP request
+     * @param MinutesVersionService $versionService The version service
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2
      */
@@ -90,7 +90,7 @@ class MinutesVersionController extends Controller
     public function getVersionContent(string $id, string $version): JSONResponse
     {
         $versionNum = (int) $version;
-        $content = $this->versionService->getVersionContent($id, $versionNum);
+        $content    = $this->versionService->getVersionContent($id, $versionNum);
 
         if ($content === null) {
             return new JSONResponse(['message' => 'Version not found'], 404);

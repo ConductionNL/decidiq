@@ -80,16 +80,17 @@ class DecisionReferenceProvider extends AReference implements IReferenceProvider
      */
     public function resolveReference(string $url): ?self
     {
-        if (!$this->matchesUrl($url)) {
+        if ($this->matchesUrl(url: $url) === false) {
             return null;
         }
 
-        // Extract UUID from URL
-        if (!preg_match(
+        // Extract UUID from URL.
+        if (preg_match(
             '/\/apps\/decidesk\/decisions\/([a-f0-9\-]{36})/',
             $url,
             $matches
-        )) {
+        ) === false
+        ) {
             return null;
         }
 
@@ -111,24 +112,24 @@ class DecisionReferenceProvider extends AReference implements IReferenceProvider
 
         $decision = $decisionEntity->getObject();
 
-        // Extract title and description
-        $title = $decision['title'] ?? 'Decision';
-        $text = $decision['text'] ?? '';
+        // Extract title and description.
+        $title       = $decision['title'] ?? 'Decision';
+        $text        = $decision['text'] ?? '';
         $description = substr($text, 0, 200);
 
-        // Append publication status
+        // Append publication status.
         if ($decision['isPublished'] ?? false) {
-            $description .= ' — ' . $this->l10n->t('Gepubliceerd');
+            $description .= ' — '.$this->l10n->t('Gepubliceerd');
         } else {
-            $description .= ' — ' . $this->l10n->t('Niet gepubliceerd');
+            $description .= ' — '.$this->l10n->t('Niet gepubliceerd');
         }
 
-        // Build reference
-        $this->setUrl($url);
-        $this->setTitle($title);
-        $this->setDescription($description);
-        $this->setImageUrl('');
-        $this->setRichObject('decision', $decision);
+        // Build reference.
+        $this->setUrl(url: $url);
+        $this->setTitle(title: $title);
+        $this->setDescription(description: $description);
+        $this->setImageUrl(imageUrl: '');
+        $this->setRichObject(objectType: 'decision', richObject: $decision);
 
         return $this;
     }//end resolveReference()

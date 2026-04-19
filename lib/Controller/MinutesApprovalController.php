@@ -42,10 +42,10 @@ class MinutesApprovalController extends Controller
     /**
      * Constructor for MinutesApprovalController.
      *
-     * @param IRequest                 $request             The HTTP request
-     * @param MinutesApprovalService   $approvalService     The approval service
-     * @param IUserSession             $userSession         The current user session
-     * @param IGroupManager            $groupManager        Group manager for role checks
+     * @param IRequest               $request         The HTTP request
+     * @param MinutesApprovalService $approvalService The approval service
+     * @param IUserSession           $userSession     The current user session
+     * @param IGroupManager          $groupManager    Group manager for role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3
      */
@@ -82,7 +82,7 @@ class MinutesApprovalController extends Controller
 
         $role = $this->request->getParam('role', '');
 
-        if (!in_array($role, ['chair', 'secretary'], true)) {
+        if (in_array($role, ['chair', 'secretary'], true) === false) {
             return new JSONResponse(['message' => 'Invalid role'], 400);
         }
 
@@ -119,8 +119,8 @@ class MinutesApprovalController extends Controller
             return new JSONResponse(['message' => 'Unauthenticated'], 401);
         }
 
-        // Verify user has secretary role or is admin
-        if (!$this->groupManager->isAdmin($user->getUID())) {
+        // Verify user has secretary role or is admin.
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(['message' => 'Only secretary can sign'], 403);
         }
 
@@ -157,8 +157,8 @@ class MinutesApprovalController extends Controller
             return new JSONResponse(['message' => 'Unauthenticated'], 401);
         }
 
-        // Verify user has secretary role or is admin
-        if (!$this->groupManager->isAdmin($user->getUID())) {
+        // Verify user has secretary role or is admin.
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(['message' => 'Only secretary can publish'], 403);
         }
 

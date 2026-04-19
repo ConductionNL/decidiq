@@ -41,9 +41,9 @@ class NotificationSubscriptionController extends Controller
     /**
      * Constructor for NotificationSubscriptionController.
      *
-     * @param IRequest                       $request                    The HTTP request
-     * @param DecisionNotificationService    $notificationService        The notification service
-     * @param IUserSession                   $userSession                The current user session
+     * @param IRequest                    $request             The HTTP request
+     * @param DecisionNotificationService $notificationService The notification service
+     * @param IUserSession                $userSession         The current user session
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1
      */

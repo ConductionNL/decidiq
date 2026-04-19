@@ -40,7 +40,7 @@ class DecisionNotificationService
     /**
      * Constructor for DecisionNotificationService.
      *
-     * @param IAppConfig $appConfig      The app configuration service
+     * @param IAppConfig $appConfig           The app configuration service
      * @param IManager   $notificationManager The Nextcloud notification manager
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1
@@ -64,20 +64,21 @@ class DecisionNotificationService
      */
     public function subscribe(string $objectId, string $objectType, string $userId): void
     {
-        $key = sprintf('notification_subscriptions_%s', $objectId);
-        $subscriptions = $this->getSubscriptions($objectId);
+        $key           = sprintf('notification_subscriptions_%s', $objectId);
+        $subscriptions = $this->getSubscriptions(objectId: $objectId);
 
-        // Check if already subscribed
+        // Check if already subscribed.
         foreach ($subscriptions as $sub) {
             if ($sub['userId'] === $userId) {
-                return; // Already subscribed, idempotent
+                // Already subscribed, idempotent.
+                return;
             }
         }
 
-        // Add new subscription
+        // Add new subscription.
         $subscriptions[] = [
-            'userId' => $userId,
-            'objectType' => $objectType,
+            'userId'       => $userId,
+            'objectType'   => $objectType,
             'subscribedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
         ];
 
@@ -100,10 +101,10 @@ class DecisionNotificationService
      */
     public function unsubscribe(string $objectId, string $userId): void
     {
-        $key = sprintf('notification_subscriptions_%s', $objectId);
-        $subscriptions = $this->getSubscriptions($objectId);
+        $key           = sprintf('notification_subscriptions_%s', $objectId);
+        $subscriptions = $this->getSubscriptions(objectId: $objectId);
 
-        // Filter out the matching subscription
+        // Filter out the matching subscription.
         $subscriptions = array_filter(
             $subscriptions,
             static function (array $sub) use ($userId): bool {
@@ -111,7 +112,7 @@ class DecisionNotificationService
             }
         );
 
-        // Re-index array and save
+        // Re-index array and save.
         $this->appConfig->setValueArray(
             app: 'decidesk',
             key: $key,
@@ -131,12 +132,13 @@ class DecisionNotificationService
      */
     public function isSubscribed(string $objectId, string $userId): bool
     {
-        $subscriptions = $this->getSubscriptions($objectId);
+        $subscriptions = $this->getSubscriptions(objectId: $objectId);
         foreach ($subscriptions as $sub) {
             if ($sub['userId'] === $userId) {
                 return true;
             }
         }
+
         return false;
     }//end isSubscribed()
 
@@ -160,7 +162,7 @@ class DecisionNotificationService
         string $newState,
         string $objectTitle
     ): void {
-        $subscriptions = $this->getSubscriptions($objectId);
+        $subscriptions = $this->getSubscriptions(objectId: $objectId);
 
         foreach ($subscriptions as $sub) {
             $userId = $sub['userId'] ?? null;
@@ -170,19 +172,22 @@ class DecisionNotificationService
 
             $notification = $this->notificationManager->createNotification();
             $notification
-                ->setApp('decidesk')
-                ->setUser($userId)
-                ->setDateTime(new \DateTime())
-                ->setObject($objectType, $objectId)
-                ->setSubject('decision_state_changed', [
-                    'title' => $objectTitle,
-                    'oldState' => $oldState,
-                    'newState' => $newState,
-                ])
-                ->setLink(sprintf('/apps/decidesk/%ss/%s', $objectType, $objectId));
+                ->setApp(app: 'decidesk')
+                ->setUser(userId: $userId)
+                ->setDateTime(dateTime: new \DateTime())
+                ->setObject(objectType: $objectType, objectId: $objectId)
+                ->setSubject(
+                    subject: 'decision_state_changed',
+                    parameters: [
+                        'title'    => $objectTitle,
+                        'oldState' => $oldState,
+                        'newState' => $newState,
+                    ]
+                )
+                ->setLink(link: sprintf('/apps/decidesk/%ss/%s', $objectType, $objectId));
 
-            $this->notificationManager->notify($notification);
-        }
+            $this->notificationManager->notify(notification: $notification);
+        }//end foreach
     }//end dispatch()
 
     /**
@@ -199,7 +204,7 @@ class DecisionNotificationService
         $key = sprintf('notification_subscriptions_%s', $objectId);
         try {
             $value = $this->appConfig->getValueArray(app: 'decidesk', key: $key);
-            return is_array($value) ? $value : [];
+            return ($value === true || is_array($value)) ? $value : [];
         } catch (\Throwable) {
             return [];
         }

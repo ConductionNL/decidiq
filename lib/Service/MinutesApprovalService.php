@@ -38,8 +38,8 @@ class MinutesApprovalService
     /**
      * Constructor for MinutesApprovalService.
      *
-     * @param ContainerInterface           $container                The DI container
-     * @param DecisionNotificationService  $notificationService      The notification service
+     * @param ContainerInterface          $container           The DI container
+     * @param DecisionNotificationService $notificationService The notification service
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3
      */
@@ -66,8 +66,8 @@ class MinutesApprovalService
      */
     public function addApproval(string $minutesId, string $userId, string $role): void
     {
-        // Validate role
-        if (!in_array($role, ['chair', 'secretary'], true)) {
+        // Validate role.
+        if (in_array($role, ['chair', 'secretary'], true) === false) {
             throw new \InvalidArgumentException(sprintf('Invalid role: %s', $role));
         }
 
@@ -82,20 +82,20 @@ class MinutesApprovalService
 
         $minutes = $minutesEntity->getObject();
 
-        // Validate lifecycle is 'review'
+        // Validate lifecycle is 'review'.
         if (($minutes['lifecycle'] ?? '') !== 'review') {
             throw new \InvalidArgumentException(
                 'Minutes must be in review state to add approval'
             );
         }
 
-        // Add approval to signedBy array
+        // Add approval to signedBy array.
         $signedBy = $minutes['signedBy'] ?? [];
-        if (!is_array($signedBy)) {
+        if (is_array($signedBy) === false) {
             $signedBy = [];
         }
 
-        // Avoid duplicate approvals from same user
+        // Avoid duplicate approvals from same user.
         $alreadyApproved = false;
         foreach ($signedBy as $sig) {
             if ($sig['userId'] === $userId && $sig['role'] === $role) {
@@ -104,10 +104,10 @@ class MinutesApprovalService
             }
         }
 
-        if (!$alreadyApproved) {
+        if ($alreadyApproved === false) {
             $signedBy[] = [
-                'userId' => $userId,
-                'role' => $role,
+                'userId'   => $userId,
+                'role'     => $role,
                 'signedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
             ];
         }
@@ -121,13 +121,14 @@ class MinutesApprovalService
         );
 
         // Check if both chair and secretary have approved
-        $hasChair = false;
+        $hasChair     = false;
         $hasSecretary = false;
 
         foreach ($signedBy as $sig) {
             if ($sig['role'] === 'chair') {
                 $hasChair = true;
             }
+
             if ($sig['role'] === 'secretary') {
                 $hasSecretary = true;
             }
@@ -172,14 +173,14 @@ class MinutesApprovalService
             throw new \InvalidArgumentException(sprintf('Minutes "%s" not found', $minutesId));
         }
 
-        $minutes = $minutesEntity->getObject();
+        $minutes      = $minutesEntity->getObject();
         $currentState = $minutes['lifecycle'] ?? 'draft';
 
         // Validate transition
         $validTransitions = [
-            'review' => 'approved',
+            'review'   => 'approved',
             'approved' => 'signed',
-            'signed' => 'published',
+            'signed'   => 'published',
         ];
 
         if (($validTransitions[$currentState] ?? null) !== $targetState) {
@@ -227,47 +228,48 @@ class MinutesApprovalService
 
         if ($minutesEntity === null) {
             return [
-                'chairApproved' => false,
-                'chairUserId' => null,
-                'chairSignedAt' => null,
+                'chairApproved'     => false,
+                'chairUserId'       => null,
+                'chairSignedAt'     => null,
                 'secretaryApproved' => false,
-                'secretaryUserId' => null,
+                'secretaryUserId'   => null,
                 'secretarySignedAt' => null,
-                'approvals' => [],
+                'approvals'         => [],
             ];
         }
 
-        $minutes = $minutesEntity->getObject();
+        $minutes  = $minutesEntity->getObject();
         $signedBy = $minutes['signedBy'] ?? [];
 
-        $chairApproved = false;
-        $chairUserId = null;
-        $chairSignedAt = null;
+        $chairApproved     = false;
+        $chairUserId       = null;
+        $chairSignedAt     = null;
         $secretaryApproved = false;
-        $secretaryUserId = null;
+        $secretaryUserId   = null;
         $secretarySignedAt = null;
 
         foreach ($signedBy as $sig) {
             if ($sig['role'] === 'chair') {
                 $chairApproved = true;
-                $chairUserId = $sig['userId'] ?? null;
+                $chairUserId   = $sig['userId'] ?? null;
                 $chairSignedAt = $sig['signedAt'] ?? null;
             }
+
             if ($sig['role'] === 'secretary') {
                 $secretaryApproved = true;
-                $secretaryUserId = $sig['userId'] ?? null;
+                $secretaryUserId   = $sig['userId'] ?? null;
                 $secretarySignedAt = $sig['signedAt'] ?? null;
             }
         }
 
         return [
-            'chairApproved' => $chairApproved,
-            'chairUserId' => $chairUserId,
-            'chairSignedAt' => $chairSignedAt,
+            'chairApproved'     => $chairApproved,
+            'chairUserId'       => $chairUserId,
+            'chairSignedAt'     => $chairSignedAt,
             'secretaryApproved' => $secretaryApproved,
-            'secretaryUserId' => $secretaryUserId,
+            'secretaryUserId'   => $secretaryUserId,
             'secretarySignedAt' => $secretarySignedAt,
-            'approvals' => $signedBy,
+            'approvals'         => $signedBy,
         ];
     }//end getApprovalStatus()
 

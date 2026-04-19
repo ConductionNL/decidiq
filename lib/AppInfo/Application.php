@@ -87,14 +87,14 @@ class Application extends App implements IBootstrap
         // Register MinutesGenerationService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
         $context->registerService(
-                MinutesGenerationService::class,
-                static function ($c): MinutesGenerationService {
-                    return new MinutesGenerationService(
+            MinutesGenerationService::class,
+            static function ($c): MinutesGenerationService {
+                return new MinutesGenerationService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register MinutesController for DI.
         // userId is NOT injected here — it must be resolved per-request inside each
@@ -102,204 +102,204 @@ class Application extends App implements IBootstrap
         // DI singleton caching a null uid from an early unauthenticated bootstrap.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
         $context->registerService(
-                MinutesController::class,
-                static function ($c): MinutesController {
-                    return new MinutesController(
+            MinutesController::class,
+            static function ($c): MinutesController {
+                return new MinutesController(
                     request: $c->get(\OCP\IRequest::class),
                     minutesGenerationService: $c->get(MinutesGenerationService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register DecisionController for DI.
         // Explicit registration matches the MinutesController pattern and ensures
         // reliable resolution in all Nextcloud environments (≥28).
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
         $context->registerService(
-                DecisionController::class,
-                static function ($c): DecisionController {
-                    return new DecisionController(
+            DecisionController::class,
+            static function ($c): DecisionController {
+                return new DecisionController(
                     request: $c->get(\OCP\IRequest::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register OverdueActionItemsJob for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.
         $context->registerService(
-                OverdueActionItemsJob::class,
-                static function ($c): OverdueActionItemsJob {
-                    return new OverdueActionItemsJob(
+            OverdueActionItemsJob::class,
+            static function ($c): OverdueActionItemsJob {
+                return new OverdueActionItemsJob(
                     time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register DecisionNotificationService for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1.
         $context->registerService(
-                DecisionNotificationService::class,
-                static function ($c): DecisionNotificationService {
-                    return new DecisionNotificationService(
+            DecisionNotificationService::class,
+            static function ($c): DecisionNotificationService {
+                return new DecisionNotificationService(
                     appConfig: $c->get(\OCP\IAppConfig::class),
                     notificationManager: $c->get(\OCP\Notification\IManager::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register NotificationSubscriptionController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1.
         $context->registerService(
-                NotificationSubscriptionController::class,
-                static function ($c): NotificationSubscriptionController {
-                    return new NotificationSubscriptionController(
+            NotificationSubscriptionController::class,
+            static function ($c): NotificationSubscriptionController {
+                return new NotificationSubscriptionController(
                     request: $c->get(\OCP\IRequest::class),
                     notificationService: $c->get(DecisionNotificationService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register MinutesVersionService for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2.
         $context->registerService(
-                MinutesVersionService::class,
-                static function ($c): MinutesVersionService {
-                    return new MinutesVersionService(
+            MinutesVersionService::class,
+            static function ($c): MinutesVersionService {
+                return new MinutesVersionService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register MinutesVersionController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2.
         $context->registerService(
-                MinutesVersionController::class,
-                static function ($c): MinutesVersionController {
-                    return new MinutesVersionController(
+            MinutesVersionController::class,
+            static function ($c): MinutesVersionController {
+                return new MinutesVersionController(
                     request: $c->get(\OCP\IRequest::class),
                     versionService: $c->get(MinutesVersionService::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register MinutesApprovalService for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3.
         $context->registerService(
-                MinutesApprovalService::class,
-                static function ($c): MinutesApprovalService {
-                    return new MinutesApprovalService(
+            MinutesApprovalService::class,
+            static function ($c): MinutesApprovalService {
+                return new MinutesApprovalService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     notificationService: $c->get(DecisionNotificationService::class),
                     );
-                }
+            }
                 );
 
         // Register MinutesApprovalController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3.
         $context->registerService(
-                MinutesApprovalController::class,
-                static function ($c): MinutesApprovalController {
-                    return new MinutesApprovalController(
+            MinutesApprovalController::class,
+            static function ($c): MinutesApprovalController {
+                return new MinutesApprovalController(
                     request: $c->get(\OCP\IRequest::class),
                     approvalService: $c->get(MinutesApprovalService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register DecisionService for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4.
         $context->registerService(
-                DecisionService::class,
-                static function ($c): DecisionService {
-                    return new DecisionService(
+            DecisionService::class,
+            static function ($c): DecisionService {
+                return new DecisionService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     shareManager: $c->get(\OCP\IShareManager::class),
                     notificationService: $c->get(DecisionNotificationService::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Update DecisionController registration to include DecisionService (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4.
         $context->registerService(
-                DecisionController::class,
-                static function ($c): DecisionController {
-                    return new DecisionController(
+            DecisionController::class,
+            static function ($c): DecisionController {
+                return new DecisionController(
                     request: $c->get(\OCP\IRequest::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     decisionService: $c->get(DecisionService::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register DecisionPublicController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4.
         $context->registerService(
-                DecisionPublicController::class,
-                static function ($c): DecisionPublicController {
-                    return new DecisionPublicController(
+            DecisionPublicController::class,
+            static function ($c): DecisionPublicController {
+                return new DecisionPublicController(
                     request: $c->get(\OCP\IRequest::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register DecisionSearchController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6.
         $context->registerService(
-                DecisionSearchController::class,
-                static function ($c): DecisionSearchController {
-                    return new DecisionSearchController(
+            DecisionSearchController::class,
+            static function ($c): DecisionSearchController {
+                return new DecisionSearchController(
                     request: $c->get(\OCP\IRequest::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register DecisionsSearchProvider for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5.
         $context->registerService(
-                DecisionsSearchProvider::class,
-                static function ($c): DecisionsSearchProvider {
-                    return new DecisionsSearchProvider(
+            DecisionsSearchProvider::class,
+            static function ($c): DecisionsSearchProvider {
+                return new DecisionsSearchProvider(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     l10n: $c->get(\OCP\IL10N::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register search provider with Nextcloud (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5.
         $context->registerSearchProvider(DecisionsSearchProvider::class);
 
         // Register DecisionReferenceProvider for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6.
         $context->registerService(
-                DecisionReferenceProvider::class,
-                static function ($c): DecisionReferenceProvider {
-                    return new DecisionReferenceProvider(
+            DecisionReferenceProvider::class,
+            static function ($c): DecisionReferenceProvider {
+                return new DecisionReferenceProvider(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     l10n: $c->get(\OCP\IL10N::class),
-                    );
-                }
                 );
+            }
+        );
 
         // Register reference provider with Nextcloud (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6.
         $context->registerReferenceProvider(DecisionReferenceProvider::class);
 
     }//end register()

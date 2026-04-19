@@ -50,12 +50,12 @@ class DecisionController extends Controller
     /**
      * Constructor for DecisionController.
      *
-     * @param IRequest           $request             The HTTP request
-     * @param ContainerInterface $container           DI container (lazy-loads OpenRegister services)
-     * @param IUserSession       $userSession         The current user session
-     * @param IGroupManager      $groupManager        Group manager for admin checks
-     * @param LoggerInterface    $logger              The logger
-     * @param DecisionService    $decisionService     The decision service
+     * @param IRequest           $request         The HTTP request
+     * @param ContainerInterface $container       DI container (lazy-loads OpenRegister services)
+     * @param IUserSession       $userSession     The current user session
+     * @param IGroupManager      $groupManager    Group manager for admin checks
+     * @param LoggerInterface    $logger          The logger
+     * @param DecisionService    $decisionService The decision service
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      */
@@ -162,7 +162,7 @@ class DecisionController extends Controller
                 uuid: $decisionId
             );
 
-            if ($saved instanceof \stdClass === true || is_array($saved) === true) {
+            if (($saved instanceof \stdClass) === true || (is_array($saved)) === true) {
                 $result = (array) $saved;
             } else {
                 $result = $updated;
