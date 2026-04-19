@@ -53,18 +53,18 @@ draft  ──schedule──►  scheduled
                 │                              │
                adjourn                      adjourn
                 │                              │
-                ▼                              ▼
-            adjourned  ◄─────────────── adjourned
-                │
-               open (re-open)
-                │
-                ▼
-             opened
-                │
-               close
-                ▼
-             closed  (terminal)
+                └──────────► adjourned ◄───────┘
+                                 │
+                            open (re-open)
+                                 │
+                                 ▼
+                              opened
+                                 │
+                               close
+                                 ▼
+                             closed  (terminal)
 ```
+_(Table below is authoritative for all transitions; close is also valid from scheduled, paused, and adjourned — see table.)_
 
 | Action   | Valid from states             | Result state |
 |----------|-------------------------------|--------------|
