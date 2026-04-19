@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * NotFoundException — thrown when a requested resource cannot be found.
  *
  * @category Exception

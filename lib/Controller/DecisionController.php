@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * Decidesk Decision Controller
  *
  * Controller for Decision-specific operations such as server-side publication

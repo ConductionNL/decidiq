@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * Decidesk AccessDeniedException
  *
  * SPDX-License-Identifier: EUPL-1.2

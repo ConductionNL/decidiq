@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * Decidesk Overdue Action Items Background Job
  *
  * Daily background job that detects overdue ActionItems and updates their status.

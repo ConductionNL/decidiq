@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * Decidesk Minutes Controller
  *
  * Controller for Minutes-specific operations such as draft generation
