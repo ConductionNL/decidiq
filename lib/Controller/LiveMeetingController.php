@@ -112,7 +112,7 @@ class LiveMeetingController extends Controller
             );
         } catch (\Throwable $e) {
             return new JSONResponse(
-                ['message' => 'Failed to record decision: ' . $e->getMessage()],
+                ['message' => 'Failed to record decision'],
                 Http::STATUS_SERVICE_UNAVAILABLE
             );
         }
