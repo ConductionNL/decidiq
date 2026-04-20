@@ -5,9 +5,6 @@
  *
  * Handles public unauthenticated access to published decisions.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Controller
  * @package  OCA\Decidesk\Controller
  *

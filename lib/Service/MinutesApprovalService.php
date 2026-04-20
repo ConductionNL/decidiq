@@ -5,9 +5,6 @@
  *
  * Manages Minutes approval workflow with dual sign-off and lifecycle transitions.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Service
  * @package  OCA\Decidesk\Service
  *

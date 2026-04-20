@@ -5,9 +5,6 @@
  *
  * Thin REST controller for voting round management, vote casting, and proxy delegation.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Controller
  * @package  OCA\Decidesk\Controller
  *

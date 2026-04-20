@@ -5,9 +5,6 @@
  *
  * Service for publishing voting round results to the ORI (Open Raadsinformatie) API.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Service
  * @package  OCA\Decidesk\Service
  *

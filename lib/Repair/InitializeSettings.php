@@ -5,9 +5,6 @@
  *
  * Repair step that initializes Decidesk register and schemas on install/upgrade.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Repair
  * @package  OCA\Decidesk\Repair
  *

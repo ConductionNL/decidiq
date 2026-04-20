@@ -6,9 +6,6 @@
  * Business logic for voting round management, quorum enforcement, vote casting,
  * proxy delegation, result tallying, and ORI publication triggering.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Service
  * @package  OCA\Decidesk\Service
  *

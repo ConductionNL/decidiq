@@ -5,9 +5,6 @@
  *
  * Handles the Smart Picker search endpoint for Decisions.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Controller
  * @package  OCA\Decidesk\Controller
  *

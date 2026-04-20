@@ -6,9 +6,6 @@
  * Polls for email replies to voting notification threads and casts votes
  * based on the first non-empty line of the reply body.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category BackgroundJob
  * @package  OCA\Decidesk\BackgroundJob
  *
