@@ -5,9 +5,6 @@
  *
  * Service for Decision-related operations, including portal publication.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Service
  * @package  OCA\Decidesk\Service
  *
@@ -24,7 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use OCP\IShareManager;
+use OCP\Share\IManager as IShareManager;
 use OCP\Share\IShare;
 use Psr\Container\ContainerInterface;
 

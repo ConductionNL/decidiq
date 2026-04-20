@@ -5,9 +5,6 @@
  *
  * Provides rich link preview cards for Decision URLs in Mail, Text, and Talk.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Reference
  * @package  OCA\Decidesk\Reference
  *
@@ -24,8 +21,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Reference;
 
-use OCP\Collaboration\Reference\AReference;
+use OCP\Collaboration\Reference\IReference;
 use OCP\Collaboration\Reference\IReferenceProvider;
+use OCP\Collaboration\Reference\Reference;
 use OCP\IL10N;
 use Psr\Container\ContainerInterface;
 
@@ -36,7 +34,7 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
  */
-class DecisionReferenceProvider extends AReference implements IReferenceProvider
+class DecisionReferenceProvider extends Reference implements IReferenceProvider
 {
     /**
      * Constructor for DecisionReferenceProvider.
@@ -70,15 +68,29 @@ class DecisionReferenceProvider extends AReference implements IReferenceProvider
     }//end matchesUrl()
 
     /**
+     * Interface-required alias for matchesUrl.
+     *
+     * @param string $referenceText The reference text to match.
+     *
+     * @return bool
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
+     */
+    public function matchReference(string $referenceText): bool
+    {
+        return $this->matchesUrl(url: $referenceText);
+    }//end matchReference()
+
+    /**
      * Resolve a Decision URL to a rich reference card.
      *
      * @param string $url The Decision URL
      *
-     * @return self|null Reference with title, description, and publication status
+     * @return IReference|null Reference with title, description, and publication status
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
      */
-    public function resolveReference(string $url): ?self
+    public function resolveReference(string $url): ?IReference
     {
         if ($this->matchesUrl(url: $url) === false) {
             return null;
@@ -137,14 +149,30 @@ class DecisionReferenceProvider extends AReference implements IReferenceProvider
     /**
      * Get cache prefix for this provider.
      *
+     * @param string $referenceId The reference identifier.
+     *
      * @return string
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
      */
-    public function getCachePrefix(): string
+    public function getCachePrefix(string $referenceId): string
     {
         return 'decidesk-decision';
     }//end getCachePrefix()
+
+    /**
+     * Get a custom cache key (null when the reference is not per-user).
+     *
+     * @param string $referenceId The reference identifier.
+     *
+     * @return string|null
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
+     */
+    public function getCacheKey(string $referenceId): ?string
+    {
+        return null;
+    }//end getCacheKey()
 
     /**
      * Get cache TTL in seconds.

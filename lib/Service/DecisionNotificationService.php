@@ -5,9 +5,6 @@
  *
  * Manages notification subscriptions for Decisions and Minutes lifecycle changes.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Service
  * @package  OCA\Decidesk\Service
  *
@@ -203,12 +200,7 @@ class DecisionNotificationService
     {
         $key = sprintf('notification_subscriptions_%s', $objectId);
         try {
-            $value = $this->appConfig->getValueArray(app: 'decidesk', key: $key);
-            if (is_array($value) === true) {
-                return $value;
-            }
-
-            return [];
+            return $this->appConfig->getValueArray(app: 'decidesk', key: $key);
         } catch (\Throwable) {
             return [];
         }

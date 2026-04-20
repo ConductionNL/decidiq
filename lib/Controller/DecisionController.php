@@ -6,9 +6,6 @@
  * Controller for Decision-specific operations such as server-side publication
  * enforcement (OWASP A01 — Broken Access Control).
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Controller
  * @package  OCA\Decidesk\Controller
  *

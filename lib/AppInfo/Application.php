@@ -5,9 +5,6 @@
  *
  * Main application class for the Decidesk Nextcloud app.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category AppInfo
  * @package  OCA\Decidesk\AppInfo
  *
@@ -129,6 +126,7 @@ class Application extends App implements IBootstrap
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    decisionService: $c->get(\OCA\Decidesk\Service\DecisionService::class),
                     );
                 }
                 );
@@ -227,7 +225,7 @@ class Application extends App implements IBootstrap
                 static function ($c): DecisionService {
                     return new DecisionService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
-                    shareManager: $c->get(\OCP\IShareManager::class),
+                    shareManager: $c->get(\OCP\Share\IManager::class),
                     notificationService: $c->get(DecisionNotificationService::class),
                     );
                 }

@@ -5,9 +5,6 @@
  *
  * Integrates Decisions, Minutes, and ActionItems with Nextcloud global search.
  *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
  * @category Search
  * @package  OCA\Decidesk\Search
  *
@@ -26,7 +23,7 @@ namespace OCA\Decidesk\Search;
 
 use OCP\IL10N;
 use OCP\IUser;
-use OCP\Search\ISearchProvider;
+use OCP\Search\IProvider;
 use OCP\Search\ISearchQuery;
 use OCP\Search\SearchResult;
 use OCP\Search\SearchResultEntry;
@@ -37,7 +34,7 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5
  */
-class DecisionsSearchProvider implements ISearchProvider
+class DecisionsSearchProvider implements IProvider
 {
     /**
      * Constructor for DecisionsSearchProvider.
@@ -76,6 +73,21 @@ class DecisionsSearchProvider implements ISearchProvider
     {
         return $this->l10n->t('Besluiten en notulen');
     }//end getName()
+
+    /**
+     * Get the search provider display order.
+     *
+     * @param string $route           The current route.
+     * @param array  $routeParameters The current route parameters.
+     *
+     * @return int|null
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5
+     */
+    public function getOrder(string $route, array $routeParameters): ?int
+    {
+        return 50;
+    }//end getOrder()
 
     /**
      * Search for Decisions, Minutes, and ActionItems.
@@ -120,7 +132,7 @@ class DecisionsSearchProvider implements ISearchProvider
                     $subline = trim(sprintf('%s · %s', $lifecycle, $date));
 
                     $results[] = new SearchResultEntry(
-                        thumbnail: '',
+                        thumbnailUrl: '',
                         title: $title,
                         subline: $subline,
                         resourceUrl: sprintf('/apps/decidesk/%ss/%s', $schema, $id),
