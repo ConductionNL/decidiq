@@ -50,9 +50,9 @@ class MinutesVersionService
     /**
      * Create a snapshot of Minutes content and increment version.
      *
-     * @param string $minutesId UUID of the Minutes object
+     * @param string $minutesId  UUID of the Minutes object
      * @param string $oldContent The previous content before changes
-     * @param string $actorId   User ID of who saved the change
+     * @param string $actorId    User ID of who saved the change
      *
      * @return void
      *
@@ -61,7 +61,7 @@ class MinutesVersionService
     public function createSnapshot(string $minutesId, string $oldContent, string $actorId): void
     {
         $objectService = $this->getObjectService();
-        $fileService = $this->getFileService();
+        $fileService   = $this->getFileService();
 
         // Fetch current Minutes to get version number
         $objectService->setRegister('decidesk');
@@ -69,10 +69,11 @@ class MinutesVersionService
         $minutesEntity = $objectService->find($minutesId);
 
         if ($minutesEntity === null) {
-            return; // Minutes not found, skip snapshot
+            return;
+            // Minutes not found, skip snapshot
         }
 
-        $minutes = $minutesEntity->getObject();
+        $minutes        = $minutesEntity->getObject();
         $currentVersion = $minutes['version'] ?? 1;
 
         // Create snapshot JSON
@@ -133,9 +134,9 @@ class MinutesVersionService
 
                     if (is_array($decoded)) {
                         $versions[] = [
-                            'version' => $version,
-                            'savedAt' => $decoded['savedAt'] ?? '',
-                            'savedBy' => $decoded['savedBy'] ?? '',
+                            'version'  => $version,
+                            'savedAt'  => $decoded['savedAt'] ?? '',
+                            'savedBy'  => $decoded['savedBy'] ?? '',
                             'filename' => $file['name'] ?? '',
                         ];
                     }
@@ -143,14 +144,17 @@ class MinutesVersionService
             }
 
             // Sort by version descending
-            usort($versions, static function (array $a, array $b): int {
-                return $b['version'] <=> $a['version'];
-            });
+            usort(
+                    $versions,
+                    static function (array $a, array $b): int {
+                        return $b['version'] <=> $a['version'];
+                    }
+                    );
 
             return $versions;
         } catch (\Throwable) {
             return [];
-        }
+        }//end try
     }//end getVersionHistory()
 
     /**
@@ -166,7 +170,7 @@ class MinutesVersionService
     public function getVersionContent(string $minutesId, int $version): ?array
     {
         $fileService = $this->getFileService();
-        $filename = sprintf('minutes-v%d.json', $version);
+        $filename    = sprintf('minutes-v%d.json', $version);
 
         try {
             $file = $fileService->getFile(
@@ -205,14 +209,14 @@ class MinutesVersionService
         $linesB = explode("\n", $contentB);
 
         // Simple line-level diff using array_diff
-        $added = array_diff($linesB, $linesA);
+        $added   = array_diff($linesB, $linesA);
         $removed = array_diff($linesA, $linesB);
 
         // Create diff entries
         $diff = [];
 
         // Track which lines we've already processed
-        $processedAdded = [];
+        $processedAdded   = [];
         $processedRemoved = [];
 
         // Add unchanged lines and diffs in order

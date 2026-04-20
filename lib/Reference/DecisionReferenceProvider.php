@@ -89,7 +89,8 @@ class DecisionReferenceProvider extends AReference implements IReferenceProvider
             '/\/apps\/decidesk\/decisions\/([a-f0-9\-]{36})/',
             $url,
             $matches
-        )) {
+        )
+        ) {
             return null;
         }
 
@@ -112,15 +113,15 @@ class DecisionReferenceProvider extends AReference implements IReferenceProvider
         $decision = $decisionEntity->getObject();
 
         // Extract title and description
-        $title = $decision['title'] ?? 'Decision';
-        $text = $decision['text'] ?? '';
+        $title       = $decision['title'] ?? 'Decision';
+        $text        = $decision['text'] ?? '';
         $description = substr($text, 0, 200);
 
         // Append publication status
         if ($decision['isPublished'] ?? false) {
-            $description .= ' — ' . $this->l10n->t('Gepubliceerd');
+            $description .= ' — '.$this->l10n->t('Gepubliceerd');
         } else {
-            $description .= ' — ' . $this->l10n->t('Niet gepubliceerd');
+            $description .= ' — '.$this->l10n->t('Niet gepubliceerd');
         }
 
         // Build reference

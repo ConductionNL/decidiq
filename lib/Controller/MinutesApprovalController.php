@@ -42,10 +42,10 @@ class MinutesApprovalController extends Controller
     /**
      * Constructor for MinutesApprovalController.
      *
-     * @param IRequest                 $request             The HTTP request
-     * @param MinutesApprovalService   $approvalService     The approval service
-     * @param IUserSession             $userSession         The current user session
-     * @param IGroupManager            $groupManager        Group manager for role checks
+     * @param IRequest               $request         The HTTP request
+     * @param MinutesApprovalService $approvalService The approval service
+     * @param IUserSession           $userSession     The current user session
+     * @param IGroupManager          $groupManager    Group manager for role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3
      */

@@ -40,7 +40,7 @@ class DecisionNotificationService
     /**
      * Constructor for DecisionNotificationService.
      *
-     * @param IAppConfig $appConfig      The app configuration service
+     * @param IAppConfig $appConfig           The app configuration service
      * @param IManager   $notificationManager The Nextcloud notification manager
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1
@@ -64,20 +64,21 @@ class DecisionNotificationService
      */
     public function subscribe(string $objectId, string $objectType, string $userId): void
     {
-        $key = sprintf('notification_subscriptions_%s', $objectId);
+        $key           = sprintf('notification_subscriptions_%s', $objectId);
         $subscriptions = $this->getSubscriptions($objectId);
 
         // Check if already subscribed
         foreach ($subscriptions as $sub) {
             if ($sub['userId'] === $userId) {
-                return; // Already subscribed, idempotent
+                return;
+                // Already subscribed, idempotent
             }
         }
 
         // Add new subscription
         $subscriptions[] = [
-            'userId' => $userId,
-            'objectType' => $objectType,
+            'userId'       => $userId,
+            'objectType'   => $objectType,
             'subscribedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
         ];
 
@@ -100,7 +101,7 @@ class DecisionNotificationService
      */
     public function unsubscribe(string $objectId, string $userId): void
     {
-        $key = sprintf('notification_subscriptions_%s', $objectId);
+        $key           = sprintf('notification_subscriptions_%s', $objectId);
         $subscriptions = $this->getSubscriptions($objectId);
 
         // Filter out the matching subscription
@@ -137,6 +138,7 @@ class DecisionNotificationService
                 return true;
             }
         }
+
         return false;
     }//end isSubscribed()
 
@@ -174,15 +176,18 @@ class DecisionNotificationService
                 ->setUser($userId)
                 ->setDateTime(new \DateTime())
                 ->setObject($objectType, $objectId)
-                ->setSubject('decision_state_changed', [
-                    'title' => $objectTitle,
-                    'oldState' => $oldState,
-                    'newState' => $newState,
-                ])
+                ->setSubject(
+                        'decision_state_changed',
+                        [
+                            'title'    => $objectTitle,
+                            'oldState' => $oldState,
+                            'newState' => $newState,
+                        ]
+                        )
                 ->setLink(sprintf('/apps/decidesk/%ss/%s', $objectType, $objectId));
 
             $this->notificationManager->notify($notification);
-        }
+        }//end foreach
     }//end dispatch()
 
     /**

@@ -38,9 +38,9 @@ class DecisionService
     /**
      * Constructor for DecisionService.
      *
-     * @param ContainerInterface           $container                The DI container
-     * @param IShareManager                $shareManager             The Nextcloud share manager
-     * @param DecisionNotificationService  $notificationService      The notification service
+     * @param ContainerInterface          $container           The DI container
+     * @param IShareManager               $shareManager        The Nextcloud share manager
+     * @param DecisionNotificationService $notificationService The notification service
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
      */
@@ -93,14 +93,14 @@ class DecisionService
             $this->shareManager->createShare($share);
 
             $shareToken = $share->getToken();
-            $shareUrl = sprintf(
+            $shareUrl   = sprintf(
                 '%s/index.php/s/%s',
                 \OC::$server->getConfig()->getSystemValue('overwrite.cli.url', \OC::$WEBROOT),
                 $shareToken
             );
         } catch (\Throwable) {
             // If share creation fails, store without share URL for now
-            $shareUrl = '';
+            $shareUrl   = '';
             $shareToken = '';
         }
 
@@ -111,7 +111,7 @@ class DecisionService
         }
 
         $notes['shareToken'] = $shareToken;
-        $decision['notes'] = $notes;
+        $decision['notes']   = $notes;
 
         // Save updated Decision
         $objectService->saveObject(

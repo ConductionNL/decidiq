@@ -68,7 +68,7 @@ class DecisionSearchController extends Controller
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
      */
-    public function search(?string $q = ''): JSONResponse
+    public function search(?string $q=''): JSONResponse
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
@@ -94,17 +94,17 @@ class DecisionSearchController extends Controller
             $results = [];
             foreach ($decisions as $decision) {
                 $results[] = [
-                    'id' => $decision['id'] ?? '',
-                    'title' => $decision['title'] ?? '',
+                    'id'           => $decision['id'] ?? '',
+                    'title'        => $decision['title'] ?? '',
                     'decisionDate' => $decision['decisionDate'] ?? '',
-                    'outcome' => $decision['outcome'] ?? '',
-                    'url' => sprintf('/apps/decidesk/decisions/%s', $decision['id'] ?? ''),
+                    'outcome'      => $decision['outcome'] ?? '',
+                    'url'          => sprintf('/apps/decidesk/decisions/%s', $decision['id'] ?? ''),
                 ];
             }
 
             return new JSONResponse($results);
         } catch (\Throwable) {
             return new JSONResponse([]);
-        }
+        }//end try
     }//end search()
 }//end class

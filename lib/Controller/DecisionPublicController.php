@@ -103,13 +103,15 @@ class DecisionPublicController extends Controller
         }
 
         // Return only whitelisted fields
-        return new JSONResponse([
-            'title' => $decision['title'] ?? '',
-            'text' => $decision['text'] ?? '',
-            'decisionDate' => $decision['decisionDate'] ?? '',
-            'outcome' => $decision['outcome'] ?? '',
-            'legalBasis' => $decision['legalBasis'] ?? '',
-        ]);
+        return new JSONResponse(
+                [
+                    'title'        => $decision['title'] ?? '',
+                    'text'         => $decision['text'] ?? '',
+                    'decisionDate' => $decision['decisionDate'] ?? '',
+                    'outcome'      => $decision['outcome'] ?? '',
+                    'legalBasis'   => $decision['legalBasis'] ?? '',
+                ]
+                );
     }//end getPublicDecision()
 
     /**

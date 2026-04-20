@@ -112,9 +112,9 @@ class DecisionsSearchProvider implements ISearchProvider
                 );
 
                 foreach ($objects as $obj) {
-                    $id = $obj['id'] ?? '';
-                    $title = $obj['title'] ?? $obj['name'] ?? '';
-                    $date = $obj['decisionDate'] ?? $obj['createdAt'] ?? '';
+                    $id        = $obj['id'] ?? '';
+                    $title     = $obj['title'] ?? $obj['name'] ?? '';
+                    $date      = $obj['decisionDate'] ?? $obj['createdAt'] ?? '';
                     $lifecycle = $obj['lifecycle'] ?? '';
 
                     $subline = trim(sprintf('%s · %s', $lifecycle, $date));
@@ -130,8 +130,8 @@ class DecisionsSearchProvider implements ISearchProvider
             } catch (\Throwable) {
                 // Continue if schema not available
                 continue;
-            }
-        }
+            }//end try
+        }//end foreach
 
         return SearchResult::complete($this->getId(), $results);
     }//end search()
