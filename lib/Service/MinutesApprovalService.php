@@ -132,24 +132,10 @@ class MinutesApprovalService
         }
 
         // Auto-advance to 'approved' if both have approved.
+        // advance() dispatches the lifecycle-change notification internally.
         if ($hasChair === true && $hasSecretary === true) {
             $this->advance(minutesId: $minutesId, userId: $userId, targetState: 'approved');
         }
-
-        // Dispatch notification.
-        if ($hasChair === true && $hasSecretary === true) {
-            $newState = 'approved';
-        } else {
-            $newState = 'review';
-        }
-
-        $this->notificationService->dispatch(
-            $minutesId,
-            'minutes',
-            'review',
-            $newState,
-            $minutes['title'] ?? 'Minutes'
-        );
     }//end addApproval()
 
     /**

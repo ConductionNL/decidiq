@@ -113,24 +113,6 @@ class Application extends App implements IBootstrap
                 }
                 );
 
-        // Register DecisionController for DI.
-        // Explicit registration matches the MinutesController pattern and ensures
-        // reliable resolution in all Nextcloud environments (≥28).
-        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
-        $context->registerService(
-                DecisionController::class,
-                static function ($c): DecisionController {
-                    return new DecisionController(
-                    request: $c->get(\OCP\IRequest::class),
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                    groupManager: $c->get(\OCP\IGroupManager::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    decisionService: $c->get(\OCA\Decidesk\Service\DecisionService::class),
-                    );
-                }
-                );
-
         // Register OverdueActionItemsJob for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2.
         $context->registerService(
