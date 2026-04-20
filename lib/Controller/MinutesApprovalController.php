@@ -82,7 +82,7 @@ class MinutesApprovalController extends Controller
 
         $role = $this->request->getParam('role', '');
 
-        if (!in_array($role, ['chair', 'secretary'], true)) {
+        if (in_array($role, ['chair', 'secretary'], true) === false) {
             return new JSONResponse(['message' => 'Invalid role'], 400);
         }
 
@@ -119,8 +119,8 @@ class MinutesApprovalController extends Controller
             return new JSONResponse(['message' => 'Unauthenticated'], 401);
         }
 
-        // Verify user has secretary role or is admin
-        if (!$this->groupManager->isAdmin($user->getUID())) {
+        // Verify user has secretary role or is admin.
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(['message' => 'Only secretary can sign'], 403);
         }
 
@@ -157,8 +157,8 @@ class MinutesApprovalController extends Controller
             return new JSONResponse(['message' => 'Unauthenticated'], 401);
         }
 
-        // Verify user has secretary role or is admin
-        if (!$this->groupManager->isAdmin($user->getUID())) {
+        // Verify user has secretary role or is admin.
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
             return new JSONResponse(['message' => 'Only secretary can publish'], 403);
         }
 

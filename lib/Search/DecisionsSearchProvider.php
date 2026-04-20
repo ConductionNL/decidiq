@@ -103,7 +103,7 @@ class DecisionsSearchProvider implements ISearchProvider
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema($schema);
 
-                // Search using the query term as a filter
+                // Search using the query term as a filter.
                 $objects = $objectService->findAll(
                     limit: 10,
                     offset: 0,
@@ -128,7 +128,7 @@ class DecisionsSearchProvider implements ISearchProvider
                     );
                 }
             } catch (\Throwable) {
-                // Continue if schema not available
+                // Continue if schema not available.
                 continue;
             }//end try
         }//end foreach

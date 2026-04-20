@@ -94,15 +94,15 @@ class DecisionPublicController extends Controller
 
         $decision = $decisionEntity->getObject();
 
-        // Check if published
-        if (!($decision['isPublished'] ?? false)) {
+        // Check if published.
+        if (($decision['isPublished'] ?? false) === false) {
             return new JSONResponse(
                 ['message' => 'Decision is not publicly available'],
                 403
             );
         }
 
-        // Return only whitelisted fields
+        // Return only whitelisted fields.
         return new JSONResponse(
                 [
                     'title'        => $decision['title'] ?? '',

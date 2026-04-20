@@ -76,7 +76,7 @@ class DecisionSearchController extends Controller
             return new JSONResponse([]);
         }
 
-        if (empty($q)) {
+        if ($q === null || $q === '') {
             return new JSONResponse([]);
         }
 

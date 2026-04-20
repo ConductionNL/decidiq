@@ -65,17 +65,17 @@ class DecisionNotificationService
     public function subscribe(string $objectId, string $objectType, string $userId): void
     {
         $key           = sprintf('notification_subscriptions_%s', $objectId);
-        $subscriptions = $this->getSubscriptions($objectId);
+        $subscriptions = $this->getSubscriptions(objectId: $objectId);
 
-        // Check if already subscribed
+        // Check if already subscribed.
         foreach ($subscriptions as $sub) {
             if ($sub['userId'] === $userId) {
                 return;
-                // Already subscribed, idempotent
+                // Already subscribed, idempotent.
             }
         }
 
-        // Add new subscription
+        // Add new subscription.
         $subscriptions[] = [
             'userId'       => $userId,
             'objectType'   => $objectType,
@@ -102,9 +102,9 @@ class DecisionNotificationService
     public function unsubscribe(string $objectId, string $userId): void
     {
         $key           = sprintf('notification_subscriptions_%s', $objectId);
-        $subscriptions = $this->getSubscriptions($objectId);
+        $subscriptions = $this->getSubscriptions(objectId: $objectId);
 
-        // Filter out the matching subscription
+        // Filter out the matching subscription.
         $subscriptions = array_filter(
             $subscriptions,
             static function (array $sub) use ($userId): bool {
@@ -112,7 +112,7 @@ class DecisionNotificationService
             }
         );
 
-        // Re-index array and save
+        // Re-index array and save.
         $this->appConfig->setValueArray(
             app: 'decidesk',
             key: $key,
@@ -132,7 +132,7 @@ class DecisionNotificationService
      */
     public function isSubscribed(string $objectId, string $userId): bool
     {
-        $subscriptions = $this->getSubscriptions($objectId);
+        $subscriptions = $this->getSubscriptions(objectId: $objectId);
         foreach ($subscriptions as $sub) {
             if ($sub['userId'] === $userId) {
                 return true;
@@ -162,7 +162,7 @@ class DecisionNotificationService
         string $newState,
         string $objectTitle
     ): void {
-        $subscriptions = $this->getSubscriptions($objectId);
+        $subscriptions = $this->getSubscriptions(objectId: $objectId);
 
         foreach ($subscriptions as $sub) {
             $userId = $sub['userId'] ?? null;
@@ -204,7 +204,11 @@ class DecisionNotificationService
         $key = sprintf('notification_subscriptions_%s', $objectId);
         try {
             $value = $this->appConfig->getValueArray(app: 'decidesk', key: $key);
-            return is_array($value) ? $value : [];
+            if (is_array($value) === true) {
+                return $value;
+            }
+
+            return [];
         } catch (\Throwable) {
             return [];
         }

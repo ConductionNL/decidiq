@@ -66,8 +66,8 @@ class MinutesApprovalService
      */
     public function addApproval(string $minutesId, string $userId, string $role): void
     {
-        // Validate role
-        if (!in_array($role, ['chair', 'secretary'], true)) {
+        // Validate role.
+        if (in_array($role, ['chair', 'secretary'], true) === false) {
             throw new \InvalidArgumentException(sprintf('Invalid role: %s', $role));
         }
 
@@ -82,20 +82,20 @@ class MinutesApprovalService
 
         $minutes = $minutesEntity->getObject();
 
-        // Validate lifecycle is 'review'
+        // Validate lifecycle is 'review'.
         if (($minutes['lifecycle'] ?? '') !== 'review') {
             throw new \InvalidArgumentException(
                 'Minutes must be in review state to add approval'
             );
         }
 
-        // Add approval to signedBy array
+        // Add approval to signedBy array.
         $signedBy = $minutes['signedBy'] ?? [];
-        if (!is_array($signedBy)) {
+        if (is_array($signedBy) === false) {
             $signedBy = [];
         }
 
-        // Avoid duplicate approvals from same user
+        // Avoid duplicate approvals from same user.
         $alreadyApproved = false;
         foreach ($signedBy as $sig) {
             if ($sig['userId'] === $userId && $sig['role'] === $role) {
@@ -104,7 +104,7 @@ class MinutesApprovalService
             }
         }
 
-        if (!$alreadyApproved) {
+        if ($alreadyApproved === false) {
             $signedBy[] = [
                 'userId'   => $userId,
                 'role'     => $role,
@@ -120,7 +120,7 @@ class MinutesApprovalService
             uuid: $minutesId
         );
 
-        // Check if both chair and secretary have approved
+        // Check if both chair and secretary have approved.
         $hasChair     = false;
         $hasSecretary = false;
 
@@ -134,17 +134,23 @@ class MinutesApprovalService
             }
         }
 
-        // Auto-advance to 'approved' if both have approved
-        if ($hasChair && $hasSecretary) {
-            $this->advance($minutesId, $userId, 'approved');
+        // Auto-advance to 'approved' if both have approved.
+        if ($hasChair === true && $hasSecretary === true) {
+            $this->advance(minutesId: $minutesId, userId: $userId, targetState: 'approved');
         }
 
-        // Dispatch notification
+        // Dispatch notification.
+        if ($hasChair === true && $hasSecretary === true) {
+            $newState = 'approved';
+        } else {
+            $newState = 'review';
+        }
+
         $this->notificationService->dispatch(
             $minutesId,
             'minutes',
             'review',
-            $hasChair && $hasSecretary ? 'approved' : 'review',
+            $newState,
             $minutes['title'] ?? 'Minutes'
         );
     }//end addApproval()
@@ -176,7 +182,7 @@ class MinutesApprovalService
         $minutes      = $minutesEntity->getObject();
         $currentState = $minutes['lifecycle'] ?? 'draft';
 
-        // Validate transition
+        // Validate transition.
         $validTransitions = [
             'review'   => 'approved',
             'approved' => 'signed',
@@ -189,7 +195,7 @@ class MinutesApprovalService
             );
         }
 
-        // Update lifecycle
+        // Update lifecycle.
         $oldState = $currentState;
         $minutes['lifecycle'] = $targetState;
 
@@ -200,7 +206,7 @@ class MinutesApprovalService
             uuid: $minutesId
         );
 
-        // Dispatch notification
+        // Dispatch notification.
         $this->notificationService->dispatch(
             $minutesId,
             'minutes',

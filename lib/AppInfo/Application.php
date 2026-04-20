@@ -147,7 +147,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionNotificationService for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1.
         $context->registerService(
                 DecisionNotificationService::class,
                 static function ($c): DecisionNotificationService {
@@ -159,7 +159,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register NotificationSubscriptionController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-1.
         $context->registerService(
                 NotificationSubscriptionController::class,
                 static function ($c): NotificationSubscriptionController {
@@ -172,7 +172,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register MinutesVersionService for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2.
         $context->registerService(
                 MinutesVersionService::class,
                 static function ($c): MinutesVersionService {
@@ -183,7 +183,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register MinutesVersionController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2.
         $context->registerService(
                 MinutesVersionController::class,
                 static function ($c): MinutesVersionController {
@@ -195,7 +195,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register MinutesApprovalService for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3.
         $context->registerService(
                 MinutesApprovalService::class,
                 static function ($c): MinutesApprovalService {
@@ -207,7 +207,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register MinutesApprovalController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-3.
         $context->registerService(
                 MinutesApprovalController::class,
                 static function ($c): MinutesApprovalController {
@@ -221,7 +221,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionService for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4.
         $context->registerService(
                 DecisionService::class,
                 static function ($c): DecisionService {
@@ -234,7 +234,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Update DecisionController registration to include DecisionService (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4.
         $context->registerService(
                 DecisionController::class,
                 static function ($c): DecisionController {
@@ -250,7 +250,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionPublicController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-4.
         $context->registerService(
                 DecisionPublicController::class,
                 static function ($c): DecisionPublicController {
@@ -262,7 +262,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionSearchController for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6.
         $context->registerService(
                 DecisionSearchController::class,
                 static function ($c): DecisionSearchController {
@@ -274,7 +274,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionsSearchProvider for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5.
         $context->registerService(
                 DecisionsSearchProvider::class,
                 static function ($c): DecisionsSearchProvider {
@@ -286,11 +286,11 @@ class Application extends App implements IBootstrap
                 );
 
         // Register search provider with Nextcloud (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-5.
         $context->registerSearchProvider(DecisionsSearchProvider::class);
 
         // Register DecisionReferenceProvider for DI (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6.
         $context->registerService(
                 DecisionReferenceProvider::class,
                 static function ($c): DecisionReferenceProvider {
@@ -302,7 +302,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register reference provider with Nextcloud (T2).
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
+        // Spec: openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6.
         $context->registerReferenceProvider(DecisionReferenceProvider::class);
 
     }//end register()

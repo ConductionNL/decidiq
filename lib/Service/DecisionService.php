@@ -78,11 +78,11 @@ class DecisionService
 
         $decision = $decisionEntity->getObject();
 
-        // Set publication metadata
+        // Set publication metadata.
         $decision['isPublished'] = true;
         $decision['publishedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
 
-        // Create public share link
+        // Create public share link.
         $publicUrl = sprintf('/api/decisions/%s/public', $decisionId);
 
         try {
@@ -99,21 +99,21 @@ class DecisionService
                 $shareToken
             );
         } catch (\Throwable) {
-            // If share creation fails, store without share URL for now
+            // If share creation fails, store without share URL for now.
             $shareUrl   = '';
             $shareToken = '';
         }
 
-        // Store share token in Decision notes
+        // Store share token in Decision notes.
         $notes = $decision['notes'] ?? [];
-        if (!is_array($notes)) {
+        if (is_array($notes) === false) {
             $notes = [];
         }
 
         $notes['shareToken'] = $shareToken;
         $decision['notes']   = $notes;
 
-        // Save updated Decision
+        // Save updated Decision.
         $objectService->saveObject(
             object: $decision,
             register: 'decidesk',
@@ -121,7 +121,7 @@ class DecisionService
             uuid: $decisionId
         );
 
-        // Dispatch notification
+        // Dispatch notification.
         $this->notificationService->dispatch(
             $decisionId,
             'decision',
@@ -155,12 +155,12 @@ class DecisionService
 
         $decision = $decisionEntity->getObject();
 
-        if (!($decision['isPublished'] ?? false)) {
+        if (($decision['isPublished'] ?? false) === false) {
             return null;
         }
 
         $notes = $decision['notes'] ?? [];
-        if (!is_array($notes)) {
+        if (is_array($notes) === false) {
             return null;
         }
 
