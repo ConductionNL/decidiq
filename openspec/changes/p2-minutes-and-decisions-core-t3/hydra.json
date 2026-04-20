@@ -97,6 +97,57 @@
             }
           ],
           "verdict": "fail"
+        },
+        {
+          "stage": "quality-recheck",
+          "persona": "orchestrator",
+          "container": "hydra-quality-runner",
+          "started_at": "2026-04-20T10:28:51Z",
+          "ended_at": "2026-04-20T10:28:51Z",
+          "exit_code": 0,
+          "checks_run": [],
+          "checks_skipped": [
+            "php -l",
+            "composer check:strict (phpcs)",
+            "composer check:strict (phpmd)",
+            "composer check:strict (psalm)",
+            "composer check:strict (phpstan)",
+            "phpmetrics",
+            "composer audit",
+            "spdx-headers",
+            "publiccode",
+            "forbidden-patterns",
+            "npm run lint (eslint)",
+            "npm run lint (stylelint)",
+            "npm audit",
+            "stub-scan",
+            "gitleaks",
+            "trivy",
+            "composer test:unit (phpunit)",
+            "newman"
+          ],
+          "gates": {
+            "php-lint": "skip",
+            "phpcs": "skip",
+            "phpmd": "skip",
+            "psalm": "skip",
+            "phpstan": "skip",
+            "phpmetrics": "skip",
+            "composer-audit": "skip",
+            "spdx-headers": "skip",
+            "publiccode": "skip",
+            "forbidden-patterns": "skip",
+            "eslint": "skip",
+            "stylelint": "skip",
+            "npm-audit": "skip",
+            "stub-scan": "skip",
+            "gitleaks": "skip",
+            "trivy": "skip",
+            "phpunit": "skip",
+            "newman": "skip"
+          },
+          "findings": [],
+          "verdict": "pass"
         }
       ]
     }
