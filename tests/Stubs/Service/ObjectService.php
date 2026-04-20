@@ -62,13 +62,21 @@ abstract class ObjectService
     abstract public function updateFromArray(string $id, array $object, bool $updateVersion = false, bool $patch = false): ?object;
 
     /**
-     * Fetch all objects matching filters (old API, used by MotionService).
+     * Fetch all objects matching filters.
      *
-     * @param array<string,mixed> $options Query options including 'filters'
+     * Accepts either the old single-array options form used by legacy callers
+     * (AgendaService, MotionService) or the new named-parameter form used
+     * by newer code (DecisionsSearchProvider). The first argument therefore
+     * accepts either an array of options or an int limit.
+     *
+     * @param array<string,mixed>|int|null $limit   Optional limit or legacy options array.
+     * @param int|null                     $offset  Optional offset.
+     * @param array<mixed>                 $order   Ordering specification.
+     * @param array<string,mixed>          $filters Field filters.
      *
      * @return array<mixed>
      */
-    abstract public function findAll(array $options = []): array;
+    abstract public function findAll(array|int|null $limit = null, ?int $offset = null, array $order = [], array $filters = []): array;
 
     /**
      * Fetch a single object directly (new named-parameter API).

@@ -14,6 +14,10 @@ parameters:
         - '#Call to an undefined method OC::#'
         - '#Class OC not found#'
         - '#Access to static property \$server on an unknown class OC#'
+        - '#Access to static property \$WEBROOT on an unknown class OC#'
+        # OCP\IShareManager is a legacy alias not in the ocp stub package
+        - '#unknown class OCP\\IShareManager#'
+        - '#invalid type OCP\\IShareManager#'
         # OCA classes from other apps (OpenRegister) not available during static analysis
         - '#unknown class OCA\\OpenRegister\\#'
         - '#OCA\\OpenRegister\\[a-zA-Z\\]+.*not found#'
@@ -33,3 +37,5 @@ parameters:
         - '#Parameter \$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor expects#'
         # registerRepairStep exists on server; not yet in nextcloud/ocp stub used for analysis
         - '#Call to an undefined method OCP\\AppFramework\\Bootstrap\\IRegistrationContext::registerRepairStep#'
+        # IShare::setPath is provided by the real NC implementation but absent from the OCP stub
+        - '#Call to an undefined method OCP\\Share\\IShare::setPath#'
