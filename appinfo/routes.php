@@ -30,6 +30,11 @@ return [
         ['name' => 'minutes#generateALVDraft',    'url' => '/api/minutes/{minutesId}/generate-alv', 'verb' => 'POST'],
         ['name' => 'minutes#distributeALVMinutes', 'url' => '/api/minutes/{minutesId}/distribute',  'verb' => 'POST'],
 
+        // Action item extraction endpoints.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
+        ['name' => 'minutes#extractActionItems',         'url' => '/api/minutes/{minutesId}/extract-action-items',              'verb' => 'POST'],
+        ['name' => 'minutes#saveExtractedActionItems',   'url' => '/api/minutes/{minutesId}/save-extracted-action-items',       'verb' => 'POST'],
+
         // Decision endpoints — server-side publish enforces governance access control.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],

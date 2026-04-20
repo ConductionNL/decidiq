@@ -30,6 +30,7 @@ use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
@@ -102,6 +103,7 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     minutesGenerationService: $c->get(MinutesGenerationService::class),
                     alvMinutesService: $c->get(ALVMinutesService::class),
+                    extractionService: $c->get(ActionItemExtractionService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     );
@@ -194,6 +196,18 @@ class Application extends App implements IBootstrap
                 ALVMinutesService::class,
                 static function ($c): ALVMinutesService {
                     return new ALVMinutesService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register ActionItemExtractionService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.4
+        $context->registerService(
+                ActionItemExtractionService::class,
+                static function ($c): ActionItemExtractionService {
+                    return new ActionItemExtractionService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );

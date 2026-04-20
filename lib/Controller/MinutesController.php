@@ -25,6 +25,7 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Controller;
@@ -53,11 +54,12 @@ class MinutesController extends Controller
      * time would freeze it as null when the container is first built in a cron or
      * pre-flight context. The UID is resolved per-request via $this->userSession.
      *
-     * @param IRequest                 $request                  The HTTP request
-     * @param MinutesGenerationService $minutesGenerationService The generation service
-     * @param ALVMinutesService        $alvMinutesService        The ALV minutes service
-     * @param IUserSession             $userSession              The current user session
-     * @param IGroupManager            $groupManager             Group manager for role checks
+     * @param IRequest                      $request                      The HTTP request
+     * @param MinutesGenerationService      $minutesGenerationService     The generation service
+     * @param ALVMinutesService             $alvMinutesService            The ALV minutes service
+     * @param ActionItemExtractionService   $extractionService            The extraction service
+     * @param IUserSession                  $userSession                  The current user session
+     * @param IGroupManager                 $groupManager                 Group manager for role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
@@ -65,6 +67,7 @@ class MinutesController extends Controller
         IRequest $request,
         private MinutesGenerationService $minutesGenerationService,
         private ALVMinutesService $alvMinutesService,
+        private ActionItemExtractionService $extractionService,
         private IUserSession $userSession,
         private IGroupManager $groupManager,
     ) {
@@ -303,4 +306,96 @@ class MinutesController extends Controller
             );
         }//end try
     }//end distributeALVMinutes()
+
+    /**
+     * Extract action item candidates from minutes content.
+     *
+     * POST /api/minutes/{minutesId}/extract-action-items
+     *
+     * Returns { "candidates": [ { "title": string, "suggestedAssignee": string|null }, ... ] }
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+     */
+    public function extractActionItems(string $minutesId): JSONResponse
+    {
+        try {
+            // Fetch the Minutes object to get content
+            $container = $this->container ?? \OC::$server;
+            $objectService = $container->get('OpenRegisterObjectService');
+
+            $minutes = $objectService->findObject(
+                register: 'decidesk',
+                schema: 'Minutes',
+                id: $minutesId
+            );
+
+            if ($minutes === null) {
+                return new JSONResponse(['error' => 'Minutes not found'], 404);
+            }
+
+            $content = $minutes['content'] ?? '';
+            $candidates = $this->extractionService->extractFromContent($content);
+
+            return new JSONResponse(['candidates' => $candidates]);
+        } catch (\Exception $e) {
+            return new JSONResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Save extracted action items after user confirmation.
+     *
+     * POST /api/minutes/{minutesId}/save-extracted-action-items
+     *
+     * Body: { "confirmed": [ { "title": string, "assignee"?: string, "dueDate"?: string }, ... ] }
+     *
+     * Returns { "saved": N } on success.
+     * Returns 400 when the Minutes lifecycle is published.
+     * Returns 404 when the Minutes object is not found.
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+     */
+    public function saveExtractedActionItems(string $minutesId): JSONResponse
+    {
+        try {
+            $confirmed = $this->request->getParam('confirmed', []);
+
+            // Fetch Minutes to verify lifecycle
+            $container = $this->container ?? \OC::$server;
+            $objectService = $container->get('OpenRegisterObjectService');
+
+            $minutes = $objectService->findObject(
+                register: 'decidesk',
+                schema: 'Minutes',
+                id: $minutesId
+            );
+
+            if ($minutes === null) {
+                return new JSONResponse(['error' => 'Minutes not found'], 404);
+            }
+
+            $lifecycle = $minutes['lifecycle'] ?? null;
+            if ($lifecycle === 'published') {
+                return new JSONResponse(['error' => 'Cannot extract action items from published minutes'], 400);
+            }
+
+            $count = $this->extractionService->saveExtracted($minutesId, $confirmed);
+
+            return new JSONResponse(['saved' => $count]);
+        } catch (\Exception $e) {
+            return new JSONResponse(['error' => $e->getMessage()], 500);
+        }
+    }
 }//end class
