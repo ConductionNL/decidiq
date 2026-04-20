@@ -10,6 +10,12 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
+        // Analytics endpoints — action item metrics and completion rates.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+        ['name' => 'analytics#getSummary',             'url' => '/api/analytics/action-items',                 'verb' => 'GET'],
+        ['name' => 'analytics#getCompletionRates',     'url' => '/api/analytics/action-items/completion-rates', 'verb' => 'GET'],
+        ['name' => 'analytics#getMyItems',             'url' => '/api/analytics/action-items/my-items',         'verb' => 'GET'],
+
         // Minutes endpoints — specific routes must precede the wildcard catch-all.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
         ['name' => 'minutes#generateDraft', 'url' => '/api/minutes/{minutesId}/generate-draft', 'verb' => 'POST'],
