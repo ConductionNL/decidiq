@@ -30,6 +30,7 @@ use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
@@ -100,6 +101,7 @@ class Application extends App implements IBootstrap
                     return new MinutesController(
                     request: $c->get(\OCP\IRequest::class),
                     minutesGenerationService: $c->get(MinutesGenerationService::class),
+                    alvMinutesService: $c->get(ALVMinutesService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     );
@@ -182,6 +184,18 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     liveDecisionService: $c->get(LiveDecisionService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
+                    );
+                }
+                );
+
+        // Register ALVMinutesService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.4
+        $context->registerService(
+                ALVMinutesService::class,
+                static function ($c): ALVMinutesService {
+                    return new ALVMinutesService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
                 );

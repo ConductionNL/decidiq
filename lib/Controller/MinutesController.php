@@ -25,6 +25,7 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -54,6 +55,7 @@ class MinutesController extends Controller
      *
      * @param IRequest                 $request                  The HTTP request
      * @param MinutesGenerationService $minutesGenerationService The generation service
+     * @param ALVMinutesService        $alvMinutesService        The ALV minutes service
      * @param IUserSession             $userSession              The current user session
      * @param IGroupManager            $groupManager             Group manager for role checks
      *
@@ -62,6 +64,7 @@ class MinutesController extends Controller
     public function __construct(
         IRequest $request,
         private MinutesGenerationService $minutesGenerationService,
+        private ALVMinutesService $alvMinutesService,
         private IUserSession $userSession,
         private IGroupManager $groupManager,
     ) {
@@ -213,4 +216,91 @@ class MinutesController extends Controller
         }//end try
 
     }//end transition()
+
+    /**
+     * Generate an ALV minutes draft.
+     *
+     * POST /api/minutes/{minutesId}/generate-alv
+     *
+     * Returns { "preview": "<generated ALV content>" } on success.
+     * Returns 400 when the request is invalid.
+     * Returns 401 when the request is not authenticated.
+     * Returns 404 when the Minutes object is not found.
+     * Returns 422 when the meeting is not an ALV type.
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+     */
+    public function generateALVDraft(string $minutesId): JSONResponse
+    {
+        try {
+            $result = $this->alvMinutesService->generateALVDraft($minutesId);
+            return new JSONResponse(['preview' => $result['content']]);
+        } catch (MissingObjectException $e) {
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_NOT_FOUND
+            );
+        } catch (\Exception $e) {
+            $code = (int)$e->getCode();
+            if ($code === 422) {
+                return new JSONResponse(
+                    ['message' => $e->getMessage()],
+                    Http::STATUS_UNPROCESSABLE_ENTITY
+                );
+            }
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_BAD_REQUEST
+            );
+        }//end try
+    }//end generateALVDraft()
+
+    /**
+     * Distribute approved ALV minutes to members.
+     *
+     * POST /api/minutes/{minutesId}/distribute
+     *
+     * Returns { "notified": N } on success.
+     * Returns 401 when not authenticated.
+     * Returns 403 when Minutes lifecycle is not approved or signed.
+     * Returns 404 when the Minutes object is not found.
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+     */
+    public function distributeALVMinutes(string $minutesId): JSONResponse
+    {
+        try {
+            $count = $this->alvMinutesService->distribute($minutesId);
+            return new JSONResponse(['notified' => $count]);
+        } catch (MissingObjectException $e) {
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_NOT_FOUND
+            );
+        } catch (\Exception $e) {
+            $code = (int)$e->getCode();
+            if ($code === 403) {
+                return new JSONResponse(
+                    ['message' => $e->getMessage()],
+                    Http::STATUS_FORBIDDEN
+                );
+            }
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_BAD_REQUEST
+            );
+        }//end try
+    }//end distributeALVMinutes()
 }//end class
