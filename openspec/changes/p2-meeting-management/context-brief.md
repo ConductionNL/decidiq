@@ -968,8 +968,7 @@ custom logic for domain-specific business rules. Everything below is provided fo
 ### ADR-004-frontend
 - **Vue 2 + Pinia + @nextcloud/vue + @conduction/nextcloud-vue**. NO Vuex. Options API only.
 - State: Pinia stores in `src/store/modules/`. Use `createObjectStore` for OpenRegister CRUD.
-- API calls: `axios` from `@nextcloud/axios` — auto-attaches CSRF token. NEVER raw `fetch()` for mutations.
-  Loading state with `try/finally`.
+- API calls: `axios` from `@nextcloud/axios` — auto-attaches CSRF token. NEVER raw `fetch()` for mutations. Loading state with `try/finally`.
 - Translations: ALL user-visible strings via `t(appName, 'text')`. NO hardcoded strings.
   Translation keys MUST be English — Dutch translations go in `l10n/nl.json`.
 - CSS: ONLY Nextcloud CSS variables (`var(--color-primary-element)`, etc.). NO hardcoded colors.
@@ -1424,9 +1423,8 @@ CREATE TABLE container_queue (
 - Frontend: EVERY `await store.action()` MUST be in `try/catch` with user feedback
 
 ### API calls & CSRF
-- Use `axios` from `@nextcloud/axios` for ALL API calls — it auto-attaches the CSRF token
-- NEVER use raw `fetch()` for mutations — missing requesttoken causes silent 403 failures
-- Pattern: `import axios from '@nextcloud/axios'` + `const { data } = await axios.post(url, payload)`
+- Use `axios` from `@nextcloud/axios` for ALL API calls — auto-attaches CSRF token via Nextcloud's middleware. NEVER raw `fetch()` for mutations.
+- Pattern: `import axios from '@nextcloud/axios'; const { data } = await axios.post(url, payload);`
 
 ### Vue component imports
 - NEVER import from `@nextcloud/vue` directly — use `@conduction/nextcloud-vue` which re-exports everything
@@ -1480,7 +1478,7 @@ Before committing, verify your code against these patterns:
 6. **Dependencies**: `npm run lint` — catches missing package.json entries
 7. **Translations**: `grep -rn "'" src/ --include='*.vue' | grep -v "this\.t\|import\|//\|console"` — scan for hardcoded strings
 8. **try/catch**: `grep -rn 'await.*Store\.' src/ --include='*.vue'` — verify every store call is wrapped
-9. **No raw fetch**: `grep -rn 'fetch(' src/ --include='*.vue' --include='*.js'` — must use `@nextcloud/axios`, not raw fetch (CSRF)
+9. **Use axios from @nextcloud/axios**: `grep -rn "raw fetch(" src/ --include='*.vue' --include='*.js'` — must use `axios` from `@nextcloud/axios`, not raw `fetch()` (per ADR-004)
 10. **Import source**: `grep -rn "from '@nextcloud/vue'" src/` — must be zero matches. Use `@conduction/nextcloud-vue` instead.
 11. **Component imports**: for every `<NcFoo>` or `<CnFoo>` in templates, verify the component is imported AND in `components: {}`
 12. **Type slug consistency**: verify every entity type string across ALL files (store, search, routes, views) uses the same kebab-case slug — `grep -rn "agendaItem\|governanceBody\|actionItem" src/` should return zero matches

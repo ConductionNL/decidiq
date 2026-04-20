@@ -5,15 +5,12 @@
  *
  * Service for generating initial minutes drafts from linked meeting data.
  *
- * SPDX-License-Identifier: EUPL-1.2
- * Copyright (C) 2026 Conduction B.V.
- *
  * @category Service
  * @package  OCA\Decidesk\Service
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  *
- * @author    Conduction Development Team <dev@conductio.nl>
+ * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *

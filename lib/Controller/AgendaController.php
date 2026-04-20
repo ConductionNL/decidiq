@@ -9,7 +9,7 @@
  * @category Controller
  * @package  OCA\Decidesk\Controller
  *
- * @author    Conduction Development Team <dev@conductio.nl>
+ * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
@@ -185,11 +185,7 @@ class AgendaController extends Controller
                 return new JSONResponse(['message' => 'Agenda item not found.'], Http::STATUS_NOT_FOUND);
             }
 
-            if (is_array($item) === true) {
-                $itemData = $item;
-            } else {
-                $itemData = (array) $item;
-            }
+            $itemData = (array) $item;
 
             $meetingId = $itemData['@self']['relations']['meeting'] ?? null;
 
