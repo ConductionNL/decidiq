@@ -3,14 +3,16 @@
 		<button
 			v-if="isALV"
 			class="btn btn-secondary"
-			@click="generateALV">
+			@click="generateALV"
+		>
 			{{ t('decidesk', 'Generate ALV Minutes') }}
 		</button>
 
 		<button
 			v-if="canDistribute"
 			class="btn btn-secondary"
-			@click="distribute">
+			@click="distribute"
+		>
 			{{ t('decidesk', 'Distribute to Members') }}
 		</button>
 
