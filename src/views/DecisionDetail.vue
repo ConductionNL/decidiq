@@ -187,9 +187,6 @@ export default {
 	},
 	mounted() {
 		this.fetchSubscriptionStatus()
-	},
-	mounted() {
-		this.fetchSubscriptionStatus()
 		if (this.object?.isPublished) {
 			this.fetchShareLink()
 		}
