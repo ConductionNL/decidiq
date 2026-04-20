@@ -25,10 +25,12 @@ use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
 use OCA\Decidesk\Controller\AnalyticsController;
 use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Controller\LiveMeetingController;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
@@ -154,6 +156,31 @@ class Application extends App implements IBootstrap
                     return new AnalyticsController(
                     request: $c->get(\OCP\IRequest::class),
                     analyticsService: $c->get(ActionItemAnalyticsService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    );
+                }
+                );
+
+        // Register LiveDecisionService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.4
+        $context->registerService(
+                LiveDecisionService::class,
+                static function ($c): LiveDecisionService {
+                    return new LiveDecisionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register LiveMeetingController for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.4
+        $context->registerService(
+                LiveMeetingController::class,
+                static function ($c): LiveMeetingController {
+                    return new LiveMeetingController(
+                    request: $c->get(\OCP\IRequest::class),
+                    liveDecisionService: $c->get(LiveDecisionService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     );
                 }
