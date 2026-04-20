@@ -26,11 +26,20 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Stateless service implementing voting round governance rules.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Full voting domain (open, cast, close, proxy, tally) legitimately sits in one service.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Voting orchestrates OR, notifications, ORI, and motion services by design.
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
  */
@@ -55,6 +64,8 @@ class VotingService
      * @return void
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+     *
+     * @SuppressWarnings(PHPMD.LongVariable) $oriPublicationService mirrors the service class name for clarity.
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -230,7 +241,7 @@ class VotingService
     public function openVotingRound(string $motionId, string $meetingId, string $votingMethod, bool $isSecret, ?string $closedAt): array
     {
         if ($this->checkQuorum(meetingId: $meetingId) === false) {
-            throw new \RuntimeException('Quorum niet bereikt');
+            throw new RuntimeException('Quorum niet bereikt');
         }
 
         $objectService = $this->objectService();
@@ -238,7 +249,7 @@ class VotingService
         $votingRound = [
             'votingMethod' => $votingMethod,
             'isSecret'     => $isSecret,
-            'openedAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'openedAt'     => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
             'closedAt'     => $closedAt,
             'quorumMet'    => true,
             'result'       => null,
@@ -260,9 +271,9 @@ class VotingService
                 newState: 'voting',
                 actorId: 'system',
             );
-        } catch (\InvalidArgumentException $e) {
-            throw new \RuntimeException('Cannot open voting round: '.$e->getMessage(), 0, $e);
-        } catch (\Throwable $e) {
+        } catch (InvalidArgumentException $e) {
+            throw new RuntimeException('Cannot open voting round: '.$e->getMessage(), 0, $e);
+        } catch (Throwable $e) {
             $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
         }
 
@@ -287,6 +298,12 @@ class VotingService
      * @throws \RuntimeException When the round is not open, or proxy rules are violated
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)  Voting flow enforces many governance rules end-to-end.
+     * @SuppressWarnings(PHPMD.NPathComplexity)       Voting flow enforces many governance rules end-to-end.
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength) Voting flow enforces many governance rules end-to-end.
+     * @SuppressWarnings(PHPMD.ElseExpression)        Branching on secret-vote mode is clearer with else.
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)   $isProxy is a domain attribute of the vote, not a config toggle.
      */
     public function castVote(string $votingRoundId, string $participantId, string $value, bool $isProxy, ?string $delegatorId): array
     {
@@ -294,15 +311,15 @@ class VotingService
 
         $round = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
         if ($round === null) {
-            throw new \RuntimeException("VotingRound {$votingRoundId} not found");
+            throw new RuntimeException("VotingRound {$votingRoundId} not found");
         }
 
         if (($round['closedAt'] ?? null) !== null && strtotime($round['closedAt']) < time()) {
-            throw new \RuntimeException('Stemronde is gesloten');
+            throw new RuntimeException('Stemronde is gesloten');
         }
 
         if (($round['openedAt'] ?? null) === null) {
-            throw new \RuntimeException('Stemronde is nog niet geopend');
+            throw new RuntimeException('Stemronde is nog niet geopend');
         }
 
         $isSecret = (bool) ($round['isSecret'] ?? false);
@@ -323,7 +340,7 @@ class VotingService
             }
 
             if ($proxyGrantFound === false) {
-                throw new \RuntimeException('Geen geldige volmacht gevonden: de deelnemer heeft geen volmacht ontvangen van deze volmachtgever');
+                throw new RuntimeException('Geen geldige volmacht gevonden: de deelnemer heeft geen volmacht ontvangen van deze volmachtgever');
             }
 
             // Enforce one-proxy-per-round: check for existing proxy vote from this delegator.
@@ -340,7 +357,7 @@ class VotingService
                     ]
                 );
                 if (empty($existingProxies['results']) === false) {
-                    throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
+                    throw new RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
                 }
             } else {
                 $existingProxies = $objectService->findObjects(
@@ -355,7 +372,7 @@ class VotingService
                 foreach (($existingProxies['results'] ?? []) as $proxyVote) {
                     foreach (($proxyVote['relations'] ?? []) as $rel) {
                         if (($rel['schema'] ?? '') === 'participant' && ($rel['id'] ?? '') === $delegatorId && ($rel['type'] ?? '') === 'delegator') {
-                            throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
+                            throw new RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
                         }
                     }
                 }
@@ -404,7 +421,7 @@ class VotingService
             'value'     => $value,
             'weight'    => 1,
             'isProxy'   => $isProxy,
-            'castAt'    => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'castAt'    => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
             'relations' => $relations,
         ];
 
@@ -438,6 +455,8 @@ class VotingService
      * @return array<string,mixed> The updated VotingRound
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity) Closing orchestrates tally, ORI publish, motion transition, and dossier creation.
      */
     public function closeVotingRound(string $votingRoundId): array
     {
@@ -447,7 +466,7 @@ class VotingService
         $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
 
         if ($round !== null && ($round['closedAt'] ?? null) === null) {
-            $round['closedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $round['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
             $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
         }
 
@@ -482,7 +501,7 @@ class VotingService
                                     $this->createDossierFolder(motionId: $motionId, motionTitle: $motionTitle);
                                 }
                             }
-                        } catch (\Throwable $e) {
+                        } catch (Throwable $e) {
                             $this->logger->warning('Decidesk: lifecycle transition after close failed', ['error' => $e->getMessage()]);
                         }//end try
                     }//end if
@@ -495,7 +514,7 @@ class VotingService
         // Trigger ORI publication (fails silently if not configured).
         try {
             $this->oriPublicationService->publish($votingRoundId);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->info('Decidesk: ORI publication deferred', ['error' => $e->getMessage()]);
         }
 
@@ -511,6 +530,8 @@ class VotingService
      * @return array<string,mixed> Tally with votesFor, votesAgainst, votesAbstain, result
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity) Tally scans votes and derives result across 4 outcome branches.
      */
     public function tallyResults(string $votingRoundId): array
     {
@@ -539,14 +560,17 @@ class VotingService
 
         $total = ($for + $against + $abstain);
 
+        $result = 'tied';
         if ($total === 0) {
             $result = 'invalid';
-        } else if ($for > $against) {
+        }
+
+        if ($total !== 0 && $for > $against) {
             $result = 'adopted';
-        } else if ($against > $for) {
+        }
+
+        if ($total !== 0 && $against > $for) {
             $result = 'rejected';
-        } else {
-            $result = 'tied';
         }
 
         // Update VotingRound with tally.
@@ -592,11 +616,11 @@ class VotingService
         $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
 
         if ($round === null) {
-            throw new \RuntimeException("VotingRound $votingRoundId not found");
+            throw new RuntimeException("VotingRound $votingRoundId not found");
         }
 
         if (($round['votingMethod'] ?? '') !== 'show-of-hands') {
-            throw new \RuntimeException('saveShowOfHandsTally is only valid for show-of-hands rounds');
+            throw new RuntimeException('saveShowOfHandsTally is only valid for show-of-hands rounds');
         }
 
         $total  = ($votesFor + $votesAgainst + $votesAbstain);
@@ -633,11 +657,13 @@ class VotingService
      * @throws \InvalidArgumentException When the receiver cannot receive proxies
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity) Proxy grant must validate receiver role, send notification, and persist note.
      */
     public function grantProxy(string $votingRoundId, string $fromParticipantId, string $toParticipantId): void
     {
         if ($fromParticipantId === $toParticipantId) {
-            throw new \InvalidArgumentException('Een deelnemer kan geen volmacht aan zichzelf verlenen');
+            throw new InvalidArgumentException('Een deelnemer kan geen volmacht aan zichzelf verlenen');
         }
 
         $objectService = $this->objectService();
@@ -646,7 +672,7 @@ class VotingService
         if ($toParticipant !== null) {
             $role = strtolower($toParticipant['role'] ?? '');
             if (in_array($role, self::NON_VOTING_ROLES, true) === true) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     "Deelnemer met rol '{$role}' kan geen volmacht ontvangen"
                 );
             }
@@ -656,7 +682,7 @@ class VotingService
             'fromParticipantId' => $fromParticipantId,
             'toParticipantId'   => $toParticipantId,
             'votingRoundId'     => $votingRoundId,
-            'grantedAt'         => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'grantedAt'         => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
         ];
 
         // Store proxy as a structured note on the VotingRound.
@@ -692,12 +718,12 @@ class VotingService
                 $notification        = $notificationManager->createNotification();
                 $notification->setApp('decidesk')
                     ->setUser($nextcloudUserId)
-                    ->setDateTime(new \DateTime())
+                    ->setDateTime(new DateTime())
                     ->setObject('voting-round', $votingRoundId)
                     ->setSubject('proxy_granted', ['from' => $fromParticipantId, 'votingRoundId' => $votingRoundId]);
                 $notificationManager->notify($notification);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning('Decidesk: proxy grant notification failed', ['error' => $e->getMessage()]);
         }//end try
 
@@ -721,11 +747,11 @@ class VotingService
         $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
 
         if ($round === null) {
-            throw new \RuntimeException("VotingRound {$votingRoundId} not found");
+            throw new RuntimeException("VotingRound {$votingRoundId} not found");
         }
 
         if (($round['openedAt'] ?? null) !== null) {
-            throw new \RuntimeException('Stemronde is al geopend — volmacht kan niet meer worden ingetrokken');
+            throw new RuntimeException('Stemronde is al geopend — volmacht kan niet meer worden ingetrokken');
         }
 
         $notes    = ($round['notes'] ?? []);
@@ -766,7 +792,7 @@ class VotingService
             $folderPath  = "motions/{$slug}-{$motionId}";
             $fileService->createFolder($folderPath);
             $this->logger->info('Decidesk: dossier folder created', ['path' => $folderPath, 'motionId' => $motionId]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning('Decidesk: dossier folder creation failed', ['motionId' => $motionId, 'error' => $e->getMessage()]);
         }
 

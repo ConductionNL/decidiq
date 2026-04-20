@@ -30,6 +30,7 @@ use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Service for managing Decidesk application configuration and settings.
@@ -122,11 +123,10 @@ class SettingsService
 
         $settings = [];
         foreach (self::CONFIG_KEYS as $key) {
-            $value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $value          = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $settings[$key] = $defaults[$key] ?? '';
             if ($value !== '') {
                 $settings[$key] = $value;
-            } else {
-                $settings[$key] = ($defaults[$key] ?? '');
             }
         }
 
@@ -176,6 +176,8 @@ class SettingsService
      * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
      *
      * @return array<string,mixed> Result with success flag, message, and version.
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag) $force is a re-import toggle for admin use.
      */
     public function loadConfiguration(bool $force=false): array
     {
@@ -204,7 +206,7 @@ class SettingsService
                 'success' => false,
                 'message' => 'Import returned an empty result.',
             ];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error(
                 'Decidesk: configuration import failed',
                 ['exception' => $e->getMessage()]

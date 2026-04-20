@@ -61,6 +61,8 @@ class MinutesController extends Controller
      * @param IGroupManager            $groupManager             Group manager for role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     *
+     * @SuppressWarnings(PHPMD.LongVariable) $minutesGenerationService mirrors the service class name for clarity.
      */
     public function __construct(
         IRequest $request,

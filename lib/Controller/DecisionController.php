@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use OCA\Decidesk\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -34,6 +36,8 @@ use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use stdClass;
+use Throwable;
 
 /**
  * Controller for Decision-specific operations.
@@ -91,6 +95,9 @@ class DecisionController extends Controller
      * @NoAdminRequired
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity) Publish method validates auth, state, saves, and logs in one endpoint.
+     * @SuppressWarnings(PHPMD.NPathComplexity)      Publish method validates auth, state, saves, and logs in one endpoint.
      */
     public function publish(string $decisionId): JSONResponse
     {
@@ -112,7 +119,7 @@ class DecisionController extends Controller
 
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return new JSONResponse(
                 ['message' => 'OpenRegister is not available.'],
                 Http::STATUS_SERVICE_UNAVAILABLE
@@ -149,7 +156,7 @@ class DecisionController extends Controller
 
         $updated = $decision;
         $updated['isPublished'] = true;
-        $updated['publishedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $updated['publishedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 
         try {
             $saved = $objectService->saveObject(
@@ -159,10 +166,9 @@ class DecisionController extends Controller
                 uuid: $decisionId
             );
 
-            if ($saved instanceof \stdClass === true || is_array($saved) === true) {
+            $result = $updated;
+            if ($saved instanceof stdClass === true || is_array($saved) === true) {
                 $result = (array) $saved;
-            } else {
-                $result = $updated;
             }
 
             $this->logger->info(
@@ -171,7 +177,7 @@ class DecisionController extends Controller
             );
 
             return new JSONResponse($result);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error(
                 'Decidesk: Failed to publish Decision',
                 ['id' => $decisionId, 'exception' => $e->getMessage()]

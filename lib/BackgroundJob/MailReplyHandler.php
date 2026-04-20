@@ -31,8 +31,10 @@ use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;
+use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Background job that polls for email vote replies on open VotingRounds.
@@ -102,6 +104,8 @@ class MailReplyHandler extends TimedJob
      * @return void
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is required by the Nextcloud TimedJob::run contract.
      */
     protected function run(mixed $argument): void
     {
@@ -112,7 +116,7 @@ class MailReplyHandler extends TimedJob
 
         try {
             $this->processOpenRounds();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('Decidesk: MailReplyHandler failed', ['error' => $e->getMessage()]);
         }
 
@@ -158,6 +162,11 @@ class MailReplyHandler extends TimedJob
      * @return void
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)  Handles retries, notifications, and vote casting per reply entry.
+     * @SuppressWarnings(PHPMD.NPathComplexity)       Handles retries, notifications, and vote casting per reply entry.
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength) Handles retries, notifications, and vote casting per reply entry.
+     * @SuppressWarnings(PHPMD.ElseExpression)        Mirrors keyword vs non-keyword reply handling.
      */
     private function processRoundMailReplies(object $objectService, array $round, string $roundId): void
     {
@@ -199,12 +208,12 @@ class MailReplyHandler extends TimedJob
                 $email = $participant['email'] ?? null;
                 if ($email !== null) {
                     try {
-                        $userManager = $this->container->get(\OCP\IUserManager::class);
+                        $userManager = $this->container->get(IUserManager::class);
                         $users       = $userManager->getByEmail($email);
                         if (count($users) === 1) {
                             $notifyUid = $users[0]->getUID();
                         }
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         $this->logger->warning('Decidesk: could not resolve Nextcloud UID for participant', ['participantId' => $participantId]);
                     }
                 }
@@ -237,7 +246,7 @@ class MailReplyHandler extends TimedJob
                     $mailEntry['processed'] = true;
                     $dirty = true;
                     $this->logger->info('Decidesk: email vote processed', ['participant' => $participantId, 'value' => $keyword]);
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $this->logger->warning('Decidesk: email vote cast failed', ['error' => $e->getMessage()]);
                 }//end try
             } else {
@@ -258,7 +267,7 @@ class MailReplyHandler extends TimedJob
                                 object: 'voting-round',
                                 objectId: $roundId
                             );
-                        } catch (\Throwable $e) {
+                        } catch (Throwable $e) {
                             $this->logger->warning('Decidesk: abandoned vote notification failed', ['error' => $e->getMessage()]);
                         }
                     }
@@ -275,7 +284,7 @@ class MailReplyHandler extends TimedJob
                                 object: 'voting-round',
                                 objectId: $roundId
                             );
-                        } catch (\Throwable $e) {
+                        } catch (Throwable $e) {
                             $this->logger->warning('Decidesk: reprompt notification failed', ['error' => $e->getMessage()]);
                         }
                     }

@@ -24,10 +24,16 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use stdClass;
+use Throwable;
 
 /**
  * Stateless service that generates an initial Dutch minutes draft from linked meeting data.
@@ -36,6 +42,8 @@ use Psr\Log\LoggerInterface;
  * OpenRegister ObjectService and renders them into a structured Dutch text template.
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Minutes generation encompasses fetch, resolve, render, transition in one service.
  */
 class MinutesGenerationService
 {
@@ -97,7 +105,7 @@ class MinutesGenerationService
         $minutesEntity = $objectService->find($minutesId);
 
         if ($minutesEntity === null) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Minutes object with id "%s" not found.', $minutesId)
             );
         }
@@ -183,7 +191,7 @@ class MinutesGenerationService
         $currentLifecycle = $minutes['lifecycle'] ?? 'draft';
 
         if ((self::LIFECYCLE_TRANSITIONS[$currentLifecycle] ?? null) !== $newLifecycle) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Invalid lifecycle transition: "%s" → "%s". Expected next state: "%s".',
                     $currentLifecycle,
@@ -197,14 +205,13 @@ class MinutesGenerationService
         $updated = array_merge($minutes, ['lifecycle' => $newLifecycle]);
 
         if ($newLifecycle === 'approved') {
-            $updated['approvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $updated['approvedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
         }
 
         if (in_array($newLifecycle, ['approved', 'signed'], true) === true) {
+            $signers = [];
             if (is_array($minutes['signedBy'] ?? null) === true) {
                 $signers = $minutes['signedBy'];
-            } else {
-                $signers = [];
             }
 
             if (in_array($displayName, $signers, true) === false) {
@@ -216,7 +223,7 @@ class MinutesGenerationService
 
         $saved = $objectService->saveObject($updated, 'decidesk', 'minutes', $minutesId);
 
-        if ($saved instanceof \stdClass === true || is_array($saved) === true) {
+        if ($saved instanceof stdClass === true || is_array($saved) === true) {
             return (array) $saved;
         }
 
@@ -273,14 +280,14 @@ class MinutesGenerationService
             }
 
             return $meetingEntity->getObject();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning(
                 'Decidesk: Failed to fetch linked Meeting for minutes draft generation',
                 ['exception' => $e->getMessage(), 'meetingId' => $meetingId]
             );
             // Re-throw as RuntimeException (503) so the caller distinguishes a transient
             // OpenRegister outage from a genuinely missing relation (null return above).
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'OpenRegister service is temporarily unavailable. Please try again later.',
                 503,
                 $e
@@ -329,7 +336,7 @@ class MinutesGenerationService
                             'offset'  => $offset,
                         ]
                         );
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->logger->warning(
                     'Decidesk: Failed to fetch related objects for minutes draft',
                     ['schema' => $schema, 'meetingId' => $meetingId, 'offset' => $offset, 'exception' => $e->getMessage()]
@@ -368,6 +375,10 @@ class MinutesGenerationService
      * @return string The rendered Dutch minutes text
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)  Template rendering branches by section and varies by data shape.
+     * @SuppressWarnings(PHPMD.NPathComplexity)       Template rendering branches by section and varies by data shape.
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength) Section rendering kept inline to avoid fragmentation of the Dutch template.
      */
     private function renderTemplate(
         array $minutes,
@@ -383,10 +394,9 @@ class MinutesGenerationService
         $scheduledDate = $meeting['scheduledDate'] ?? $meeting['date'] ?? '';
         $location      = $meeting['location'] ?? '';
 
+        $formattedDate = '';
         if ($scheduledDate !== '') {
             $formattedDate = $this->formatDate(isoDate: $scheduledDate);
-        } else {
-            $formattedDate = '';
         }
 
         $lines[] = '# '.($minutes['title'] ?? 'Concept Notulen');
@@ -494,10 +504,9 @@ class MinutesGenerationService
                 $outcome = $decision['outcome'] ?? '';
                 $lines[] = '**'.$title.'**';
                 if ($outcome !== '') {
+                    $outcomeLabel = 'Verworpen';
                     if ($outcome === 'adopted') {
                         $outcomeLabel = 'Aangenomen';
-                    } else {
-                        $outcomeLabel = 'Verworpen';
                     }
 
                     $lines[] = 'Uitkomst: '.$outcomeLabel;
@@ -537,9 +546,9 @@ class MinutesGenerationService
     private function formatDate(string $isoDate): string
     {
         try {
-            $dt = new \DateTimeImmutable($isoDate);
-            return $dt->format('d-m-Y H:i');
-        } catch (\Throwable) {
+            $dateTime = new DateTimeImmutable($isoDate);
+            return $dateTime->format('d-m-Y H:i');
+        } catch (Throwable) {
             return $isoDate;
         }
 
@@ -558,8 +567,8 @@ class MinutesGenerationService
     {
         try {
             return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        } catch (\Throwable $e) {
-            throw new \RuntimeException(
+        } catch (Throwable $e) {
+            throw new RuntimeException(
                 'OpenRegister ObjectService is not available. '
                 .'Please ensure the OpenRegister app is installed and enabled.',
                 0,

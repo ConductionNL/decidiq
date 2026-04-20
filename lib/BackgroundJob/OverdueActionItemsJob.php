@@ -24,10 +24,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\BackgroundJob;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Daily background job that queries open/in-progress ActionItems with a past dueDate
@@ -76,6 +79,9 @@ class OverdueActionItemsJob extends TimedJob
      * @return void
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is required by the Nextcloud TimedJob::run contract.
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)  Overdue detection iterates two statuses and updates each item.
      */
     protected function run(mixed $argument): void
     {
@@ -83,7 +89,7 @@ class OverdueActionItemsJob extends TimedJob
 
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning(
                 'Decidesk OverdueActionItemsJob: OpenRegister not available, skipping.',
                 ['exception' => $e->getMessage()]
@@ -91,7 +97,7 @@ class OverdueActionItemsJob extends TimedJob
             return;
         }
 
-        $now = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $now = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 
         $updatedCount = 0;
         $errorCount   = 0;
@@ -107,9 +113,9 @@ class OverdueActionItemsJob extends TimedJob
                 }
 
                 try {
-                    $dueDatetime = new \DateTimeImmutable($dueDate);
-                    $nowDatetime = new \DateTimeImmutable($now);
-                } catch (\Throwable) {
+                    $dueDatetime = new DateTimeImmutable($dueDate);
+                    $nowDatetime = new DateTimeImmutable($now);
+                } catch (Throwable) {
                     // Unparseable dueDate — skip.
                     continue;
                 }
@@ -134,7 +140,7 @@ class OverdueActionItemsJob extends TimedJob
                         $uuid
                     );
                     $updatedCount++;
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $errorCount++;
                     $this->logger->error(
                         'Decidesk OverdueActionItemsJob: Failed to update ActionItem to overdue',
@@ -205,7 +211,7 @@ class OverdueActionItemsJob extends TimedJob
                 if (count($batch) < $pageSize) {
                     break;
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->logger->error(
                     'Decidesk OverdueActionItemsJob: Failed to fetch ActionItems',
                     ['status' => $status, 'offset' => $offset, 'exception' => $e->getMessage()]

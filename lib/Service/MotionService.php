@@ -25,9 +25,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTime;
+use InvalidArgumentException;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Stateless service handling motion lifecycle transitions, co-signatory management,
@@ -123,21 +127,20 @@ class MotionService
 
         $object = $objectService->find($objectId);
         if ($object === null) {
-            throw new \RuntimeException("Object $objectType/$objectId not found");
+            throw new RuntimeException("Object $objectType/$objectId not found");
         }
 
         $objectArray  = $object->getObject();
         $currentState = $objectArray['lifecycle'] ?? 'submitted';
 
+        $transitions = self::MOTION_TRANSITIONS;
         if ($objectType === 'amendment') {
             $transitions = self::AMENDMENT_TRANSITIONS;
-        } else {
-            $transitions = self::MOTION_TRANSITIONS;
         }
 
         $allowed = $transitions[$currentState] ?? [];
         if (in_array($newState, $allowed, true) === false) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "Transition from '$currentState' to '$newState' is not allowed for $objectType"
             );
         }
@@ -167,6 +170,8 @@ class MotionService
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity) Iterates participants, resolves UIDs, sends notifications.
      */
     public function requestCoSignature(string $motionId, array $participantIds): void
     {
@@ -176,7 +181,7 @@ class MotionService
 
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         $motionData = $motionObject->getObject();
@@ -214,17 +219,17 @@ class MotionService
                         $notification        = $notificationManager->createNotification();
                         $notification->setApp('decidesk')
                             ->setUser($nextcloudUserId)
-                            ->setDateTime(new \DateTime())
+                            ->setDateTime(new DateTime())
                             ->setObject('motion', $motionId)
                             ->setSubject('co_sign_request', ['motionTitle' => $title, 'motionId' => $motionId]);
                         $notificationManager->notify($notification);
-                    } catch (\Throwable $notifyEx) {
+                    } catch (Throwable $notifyEx) {
                         $this->logger->warning(
                             "Decidesk: Could not send co-sign notification to $nextcloudUserId: {$notifyEx->getMessage()}"
                         );
                     }
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->logger->warning(
                     "Decidesk: Could not send co-sign request to participant $participantId: {$e->getMessage()}"
                 );
@@ -263,6 +268,8 @@ class MotionService
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariable) $participantDisplayName is the domain term used across call sites.
      */
     public function addCoSigner(string $motionId, string $participantDisplayName): void
     {
@@ -272,7 +279,7 @@ class MotionService
 
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         $motionData = $motionObject->getObject();
@@ -342,7 +349,7 @@ class MotionService
 
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         $motionData = $motionObject->getObject();
@@ -356,7 +363,7 @@ class MotionService
             ]
         );
         if ($budgetPayload === false) {
-            throw new \RuntimeException('JSON encoding of budget impact failed: '.json_last_error_msg());
+            throw new RuntimeException('JSON encoding of budget impact failed: '.json_last_error_msg());
         }
 
         $budgetNote = [
@@ -402,6 +409,10 @@ class MotionService
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)  Overlap detection walks relations, lifecycle, word overlap, and notes.
+     * @SuppressWarnings(PHPMD.NPathComplexity)       Overlap detection walks relations, lifecycle, word overlap, and notes.
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength) Overlap detection walks relations, lifecycle, word overlap, and notes.
      */
     public function detectConflicts(string $motionId, string $newAmendmentId): void
     {
@@ -431,9 +442,8 @@ class MotionService
 
         $conflictFound = false;
         foreach ($existing as $amendment) {
-            if (is_array($amendment) === true) {
-                $amendmentData = $amendment;
-            } else {
+            $amendmentData = $amendment;
+            if (is_array($amendment) === false) {
                 $amendmentData = $amendment->getObject();
             }
 
@@ -452,10 +462,9 @@ class MotionService
             $relations = $amendmentData['relations'] ?? [];
             $motionRef = false;
             foreach ($relations as $rel) {
+                $relId = $rel;
                 if (is_array($rel) === true) {
                     $relId = $rel['id'] ?? $rel['uuid'] ?? '';
-                } else {
-                    $relId = $rel;
                 }
 
                 if ($relId === $motionId) {
@@ -482,8 +491,8 @@ class MotionService
                 $splitExst = [];
             }
 
-            $newWords      = array_filter($splitNew, fn($w) => mb_strlen($w) > 4);
-            $existingWords = array_filter($splitExst, fn($w) => mb_strlen($w) > 4);
+            $newWords      = array_filter($splitNew, fn($word) => mb_strlen($word) > 4);
+            $existingWords = array_filter($splitExst, fn($word) => mb_strlen($word) > 4);
             $overlap       = array_intersect($newWords, $existingWords);
 
             if (count($overlap) > 3) {
@@ -537,7 +546,7 @@ class MotionService
         $objectService->setSchema('amendment');
         $amendmentObject = $objectService->find($amendmentId);
         if ($amendmentObject === null) {
-            throw new \RuntimeException("Amendment $amendmentId not found");
+            throw new RuntimeException("Amendment $amendmentId not found");
         }
 
         $amendmentData = $amendmentObject->getObject();
@@ -548,7 +557,7 @@ class MotionService
         $objectService->setSchema('motion');
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         $motionData  = $motionObject->getObject();

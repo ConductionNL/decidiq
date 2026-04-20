@@ -41,6 +41,8 @@ use Psr\Log\LoggerInterface;
  * Thin controller for voting round API endpoints.
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Controller coordinates voting, ORI, auth, and config services.
  */
 class VotingController extends Controller
 {
@@ -58,6 +60,8 @@ class VotingController extends Controller
      * @return void
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     *
+     * @SuppressWarnings(PHPMD.LongVariable) $oriPublicationService mirrors the service class name for clarity.
      */
     public function __construct(
         IRequest $request,
@@ -96,10 +100,9 @@ class VotingController extends Controller
         $uid        = $user->getUID();
         $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
 
+        $authorized = $this->groupManager->isAdmin($uid);
         if ($chairGroup !== '') {
             $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
-        } else {
-            $authorized = $this->groupManager->isAdmin($uid);
         }
 
         if ($authorized === false) {

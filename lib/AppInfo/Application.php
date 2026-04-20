@@ -39,6 +39,8 @@ use OCP\BackgroundJob\IJobList;
 
 /**
  * Main application class for the Decidesk Nextcloud app.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) App bootstrap wires all listeners, jobs, and repair steps.
  */
 class Application extends App implements IBootstrap
 {

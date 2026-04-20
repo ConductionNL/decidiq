@@ -110,10 +110,9 @@ class AgendaController extends Controller
         );
 
         foreach ($participants as $p) {
+            $pData = (array) $p;
             if (is_array($p) === true) {
                 $pData = $p;
-            } else {
-                $pData = (array) $p;
             }
 
             $owner = $pData['owner'] ?? null;

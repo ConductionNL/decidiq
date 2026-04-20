@@ -90,10 +90,9 @@ class MotionController extends Controller
         $uid        = $user->getUID();
         $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
 
+        $authorized = $this->groupManager->isAdmin($uid);
         if ($chairGroup !== '') {
             $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
-        } else {
-            $authorized = $this->groupManager->isAdmin($uid);
         }
 
         if ($authorized === false) {
