@@ -110,13 +110,13 @@ export default {
 			}))
 		},
 	},
-	mounted() {
-		this.loadVersionHistory()
-	},
 	watch: {
 		minutesId() {
 			this.loadVersionHistory()
 		},
+	},
+	mounted() {
+		this.loadVersionHistory()
 	},
 	methods: {
 		async loadVersionHistory() {
@@ -143,7 +143,7 @@ export default {
 			this.comparing = true
 			try {
 				const url = generateUrl(
-					`/apps/decidesk/api/minutes/${this.minutesId}/versions/${this.versionA.value}/diff/${this.versionB.value}`
+					`/apps/decidesk/api/minutes/${this.minutesId}/versions/${this.versionA.value}/diff/${this.versionB.value}`,
 				)
 				const response = await axios.get(url)
 				this.diffLines = response.data.diff || []

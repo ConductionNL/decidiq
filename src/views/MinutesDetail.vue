@@ -238,10 +238,6 @@ export default {
 			],
 		}
 	},
-	mounted() {
-		this.fetchSubscriptionStatus()
-		this.fetchApprovalStatus()
-	},
 	computed: {
 		schema() {
 			return this.objectStore.getSchema('minutes')
@@ -278,6 +274,10 @@ export default {
 				{ label: this.t('decidesk', 'Ondertekend door'), value: (this.object.signedBy || []).join(', ') },
 			]
 		},
+	},
+	mounted() {
+		this.fetchSubscriptionStatus()
+		this.fetchApprovalStatus()
 	},
 	methods: {
 		onEditSaved() {

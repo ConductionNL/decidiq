@@ -185,12 +185,6 @@ export default {
 			showPublishConfirm: false,
 		}
 	},
-	mounted() {
-		this.fetchSubscriptionStatus()
-		if (this.object?.isPublished) {
-			this.fetchShareLink()
-		}
-	},
 	computed: {
 		schema() {
 			return this.objectStore.getSchema('decision')
@@ -215,6 +209,12 @@ export default {
 				{ label: this.t('decidesk', 'Gepubliceerd'), value: publishedLabel },
 			]
 		},
+	},
+	mounted() {
+		this.fetchSubscriptionStatus()
+		if (this.object?.isPublished) {
+			this.fetchShareLink()
+		}
 	},
 	methods: {
 		onEditSaved() {
