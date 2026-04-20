@@ -58,18 +58,7 @@ if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
     require_once __DIR__.'/Stubs/Db/ObjectEntity.php';
 }
 
-if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
-    require_once __DIR__.'/Stubs/ObjectService.php';
-}
-
-if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
-    require_once __DIR__.'/Stubs/ObjectEntity.php';
-}
-
 // OpenRegister service stubs — loaded when running without a live NC+OpenRegister install.
-if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false
-    || class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false
-    || class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false
-) {
+if (class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false) {
     require_once __DIR__.'/Stubs/OpenRegisterServices.php';
 }
