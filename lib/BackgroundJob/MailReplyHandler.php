@@ -90,7 +90,7 @@ class MailReplyHandler extends TimedJob
         parent::__construct(time: $time);
         // Run every 5 minutes.
         $this->setInterval(seconds: 300);
-    }
+    }//end __construct()
 
     /**
      * Run the background job: poll email replies and process votes.
@@ -113,7 +113,7 @@ class MailReplyHandler extends TimedJob
         } catch (\Throwable $e) {
             $this->logger->error('Decidesk: MailReplyHandler failed', ['error' => $e->getMessage()]);
         }
-    }
+    }//end run()
 
     /**
      * Find open VotingRounds and process their email reply metadata.
@@ -140,7 +140,7 @@ class MailReplyHandler extends TimedJob
 
             $this->processRoundMailReplies(objectService: $objectService, round: $round, roundId: $roundId);
         }
-    }
+    }//end processOpenRounds()
 
     /**
      * Process mail reply metadata on a single VotingRound.
@@ -285,7 +285,7 @@ class MailReplyHandler extends TimedJob
         if ($dirty === true) {
             $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
         }
-    }
+    }//end processRoundMailReplies()
 
     /**
      * Parse the first non-empty line of an email reply for a vote keyword.
@@ -317,5 +317,5 @@ class MailReplyHandler extends TimedJob
         }
 
         return null;
-    }
-}
+    }//end parseVoteKeyword()
+}//end class

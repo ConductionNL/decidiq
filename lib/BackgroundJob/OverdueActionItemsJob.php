@@ -177,21 +177,21 @@ class OverdueActionItemsJob extends TimedJob
                 $objectService->setSchema('action-item');
                 $entities = $objectService->findAll(
                     [
-                            'filters' => [
-                                'register'   => 'decidesk',
-                                'schema'     => 'action-item',
-                                'taskStatus' => $status,
-                            ],
-                            'limit'   => $pageSize,
-                            'offset'  => $offset,
-                        ]
+                        'filters' => [
+                            'register'   => 'decidesk',
+                            'schema'     => 'action-item',
+                            'taskStatus' => $status,
+                        ],
+                        'limit'   => $pageSize,
+                        'offset'  => $offset,
+                    ]
                 );
 
                 $batch = [];
                 foreach ($entities as $entity) {
                     if (method_exists($entity, 'getObject') === true) {
                         $batch[] = $entity->getObject();
-                    } elseif (is_array($entity) === true) {
+                    } else if (is_array($entity) === true) {
                         $batch[] = $entity;
                     }
                 }

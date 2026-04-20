@@ -90,17 +90,17 @@ class InitializeSettings implements IRepairStep
             if ($result['success'] === true) {
                 $version = ($result['version'] ?? 'unknown');
                 $output->info(
-                    'Decidesk configuration imported successfully (version: ' . $version . ')'
+                    'Decidesk configuration imported successfully (version: '.$version.')'
                 );
                 return;
             }
 
             $message = ($result['message'] ?? 'unknown error');
             $output->warning(
-                'Decidesk configuration import issue: ' . $message
+                'Decidesk configuration import issue: '.$message
             );
         } catch (\Throwable $e) {
-            $output->warning('Could not auto-configure Decidesk: ' . $e->getMessage());
+            $output->warning('Could not auto-configure Decidesk: '.$e->getMessage());
             $this->logger->error(
                 'Decidesk initialization failed',
                 ['exception' => $e->getMessage()]

@@ -126,7 +126,7 @@ TEMPLATE;
             // Validate ALV meeting type.
             if (strpos($meetingType, 'alv') === false && strpos($meetingType, 'algemene-ledenvergadering') === false) {
                 throw new \RuntimeException(
-                    'This meeting is not an ALV (Algemene Ledenvergadering). Meeting type: ' . $meetingType
+                    'This meeting is not an ALV (Algemene Ledenvergadering). Meeting type: '.$meetingType
                 );
             }
 
@@ -300,7 +300,7 @@ TEMPLATE;
             // Verify lifecycle.
             if ($lifecycle !== 'approved' && $lifecycle !== 'signed') {
                 throw new \RuntimeException(
-                    'Minutes must be in "approved" or "signed" state to distribute. Current state: ' . $lifecycle
+                    'Minutes must be in "approved" or "signed" state to distribute. Current state: '.$lifecycle
                 );
             }
 

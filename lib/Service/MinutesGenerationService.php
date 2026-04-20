@@ -110,7 +110,7 @@ class MinutesGenerationService
             throw new MissingRelationException(
                 message: sprintf(
                     'No linked Meeting found for Minutes "%s". '
-                    . 'Please link a Meeting before generating a draft.',
+                    .'Please link a Meeting before generating a draft.',
                     $minutesId
                 )
             );
@@ -316,14 +316,14 @@ class MinutesGenerationService
             try {
                 $entities = $objectService->findAll(
                     [
-                            'filters' => [
-                                'register' => 'decidesk',
-                                'schema'   => $schema,
-                                'meeting'  => $meetingId,
-                            ],
-                            'limit'   => $pageSize,
-                            'offset'  => $offset,
-                        ]
+                        'filters' => [
+                            'register' => 'decidesk',
+                            'schema'   => $schema,
+                            'meeting'  => $meetingId,
+                        ],
+                        'limit'   => $pageSize,
+                        'offset'  => $offset,
+                    ]
                 );
             } catch (\Throwable $e) {
                 $this->logger->warning(
@@ -337,7 +337,7 @@ class MinutesGenerationService
             foreach ($entities as $entity) {
                 if (method_exists($entity, 'getObject') === true) {
                     $page[] = $entity->getObject();
-                } elseif (is_array($entity) === true) {
+                } else if (is_array($entity) === true) {
                     $page[] = $entity;
                 }
             }
@@ -384,15 +384,15 @@ class MinutesGenerationService
             $formattedDate = '';
         }
 
-        $lines[] = '# ' . ($minutes['title'] ?? 'Concept Notulen');
+        $lines[] = '# '.($minutes['title'] ?? 'Concept Notulen');
         $lines[] = '';
-        $lines[] = '**Vergadering:** ' . $meetingTitle;
+        $lines[] = '**Vergadering:** '.$meetingTitle;
         if ($formattedDate !== '') {
-            $lines[] = '**Datum:** ' . $formattedDate;
+            $lines[] = '**Datum:** '.$formattedDate;
         }
 
         if ($location !== '') {
-            $lines[] = '**Locatie:** ' . $location;
+            $lines[] = '**Locatie:** '.$location;
         }
 
         $lines[] = '';
@@ -409,13 +409,13 @@ class MinutesGenerationService
         // Agenda items section.
         if (count($agendaItems) > 0) {
             $sectionNumber++;
-            $lines[] = '## ' . $sectionNumber . '. Agenda';
+            $lines[] = '## '.$sectionNumber.'. Agenda';
             $lines[] = '';
             $lines[] = 'De agenda wordt vastgesteld met de volgende punten:';
             $lines[] = '';
             foreach ($agendaItems as $index => $item) {
                 $order   = $item['orderNumber'] ?? ($index + 1);
-                $title   = $item['title'] ?? $item['name'] ?? 'Agendapunt ' . $order;
+                $title   = $item['title'] ?? $item['name'] ?? 'Agendapunt '.$order;
                 $lines[] = sprintf('%d. %s', $order, $title);
             }
 
@@ -425,11 +425,11 @@ class MinutesGenerationService
         // Per-agenda-item treatment.
         if (count($agendaItems) > 0) {
             $sectionNumber++;
-            $lines[] = '## ' . $sectionNumber . '. Behandeling agendapunten';
+            $lines[] = '## '.$sectionNumber.'. Behandeling agendapunten';
             $lines[] = '';
             foreach ($agendaItems as $index => $item) {
                 $order       = $item['orderNumber'] ?? ($index + 1);
-                $title       = $item['title'] ?? $item['name'] ?? 'Agendapunt ' . $order;
+                $title       = $item['title'] ?? $item['name'] ?? 'Agendapunt '.$order;
                 $description = $item['description'] ?? '';
                 $lines[]     = sprintf('### %d. %s', $order, $title);
                 $lines[]     = '';
@@ -446,12 +446,12 @@ class MinutesGenerationService
         // Motions section.
         if (count($motions) > 0) {
             $sectionNumber++;
-            $lines[] = '## ' . $sectionNumber . '. Moties en voorstellen';
+            $lines[] = '## '.$sectionNumber.'. Moties en voorstellen';
             $lines[] = '';
             foreach ($motions as $motion) {
                 $title   = $motion['title'] ?? $motion['name'] ?? 'Motie';
                 $text    = $motion['text'] ?? $motion['description'] ?? '';
-                $lines[] = '**' . $title . '**';
+                $lines[] = '**'.$title.'**';
                 if ($text !== '') {
                     $lines[] = '';
                     $lines[] = $text;
@@ -464,14 +464,14 @@ class MinutesGenerationService
         // Voting rounds section.
         if (count($votingRounds) > 0) {
             $sectionNumber++;
-            $lines[] = '## ' . $sectionNumber . '. Stemmingen';
+            $lines[] = '## '.$sectionNumber.'. Stemmingen';
             $lines[] = '';
             foreach ($votingRounds as $round) {
                 $title   = $round['title'] ?? $round['name'] ?? 'Stemming';
                 $result  = $round['result'] ?? $round['outcome'] ?? '';
-                $lines[] = '**' . $title . '**';
+                $lines[] = '**'.$title.'**';
                 if ($result !== '') {
-                    $lines[] = 'Uitslag: ' . $result;
+                    $lines[] = 'Uitslag: '.$result;
                 }
 
                 $lines[] = '';
@@ -481,13 +481,13 @@ class MinutesGenerationService
         // Decisions section.
         if (count($decisions) > 0) {
             $sectionNumber++;
-            $lines[] = '## ' . $sectionNumber . '. Besluiten';
+            $lines[] = '## '.$sectionNumber.'. Besluiten';
             $lines[] = '';
             foreach ($decisions as $decision) {
                 $title   = $decision['title'] ?? 'Besluit';
                 $text    = $decision['text'] ?? $decision['description'] ?? '';
                 $outcome = $decision['outcome'] ?? '';
-                $lines[] = '**' . $title . '**';
+                $lines[] = '**'.$title.'**';
                 if ($outcome !== '') {
                     if ($outcome === 'adopted') {
                         $outcomeLabel = 'Aangenomen';
@@ -495,7 +495,7 @@ class MinutesGenerationService
                         $outcomeLabel = 'Verworpen';
                     }
 
-                    $lines[] = 'Uitkomst: ' . $outcomeLabel;
+                    $lines[] = 'Uitkomst: '.$outcomeLabel;
                 }
 
                 if ($text !== '') {
@@ -508,7 +508,7 @@ class MinutesGenerationService
 
         // Closing section — number follows whichever sections were actually emitted.
         $sectionNumber++;
-        $lines[] = '## ' . $sectionNumber . '. Sluiting';
+        $lines[] = '## '.$sectionNumber.'. Sluiting';
         $lines[] = '';
         $lines[] = 'De voorzitter sluit de vergadering.';
         $lines[] = '';
@@ -554,7 +554,7 @@ class MinutesGenerationService
         } catch (\Throwable $e) {
             throw new \RuntimeException(
                 'OpenRegister ObjectService is not available. '
-                . 'Please ensure the OpenRegister app is installed and enabled.',
+                .'Please ensure the OpenRegister app is installed and enabled.',
                 0,
                 $e
             );

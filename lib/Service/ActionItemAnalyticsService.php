@@ -189,7 +189,7 @@ class ActionItemAnalyticsService
      *
      * @return array<int, array<string, string|float|int>>
      */
-    public function getCompletionRates(int $limit = 6): array
+    public function getCompletionRates(int $limit=6): array
     {
         try {
             /*
@@ -334,7 +334,7 @@ class ActionItemAnalyticsService
 
                     if ($due < $today) {
                         $overdue[] = $item;
-                    } elseif ($due <= $weekEnd) {
+                    } else if ($due <= $weekEnd) {
                         $thisWeek[] = $item;
                     } else {
                         $later[] = $item;

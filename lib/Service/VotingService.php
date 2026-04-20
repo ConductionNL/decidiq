@@ -254,7 +254,7 @@ class VotingService
                 actorId: 'system',
             );
         } catch (\InvalidArgumentException $e) {
-            throw new \RuntimeException('Cannot open voting round: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Cannot open voting round: '.$e->getMessage(), 0, $e);
         } catch (\Throwable $e) {
             $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
         }
@@ -322,7 +322,7 @@ class VotingService
             // For secret rounds, participant relations are suppressed for anonymity, so dedup.
             // is keyed on a deterministic delegatorToken (HMAC) to avoid DNS-style rebinding.
             if ($isSecret === true) {
-                $delegatorToken  = hash_hmac('sha256', $delegatorId . ':proxy:' . $votingRoundId, $this->voterTokenSecret());
+                $delegatorToken  = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
                 $existingProxies = $objectService->findObjects(
                     register: 'decidesk',
                     schema: 'vote',
@@ -358,7 +358,7 @@ class VotingService
         // For secret rounds the participant relation is suppressed for anonymity,
         // so dedup is keyed on a deterministic voterToken instead.
         if ($isSecret === true) {
-            $voterToken    = hash_hmac('sha256', $participantId . ':' . $votingRoundId, $this->voterTokenSecret());
+            $voterToken    = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
             $existingVotes = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'vote',
@@ -402,13 +402,13 @@ class VotingService
 
         // Store opaque dedup token for secret rounds (never contains participant identity).
         if ($isSecret === true) {
-            $vote['voterToken'] = hash_hmac('sha256', $participantId . ':' . $votingRoundId, $this->voterTokenSecret());
+            $vote['voterToken'] = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
         }
 
         // Store delegatorToken on secret proxy votes for one-proxy-per-round enforcement.
         // without storing the delegator's participant ID (anonymity preservation).
         if ($isSecret === true && $isProxy === true && $delegatorId !== null) {
-            $vote['delegatorToken'] = hash_hmac('sha256', $delegatorId . ':proxy:' . $votingRoundId, $this->voterTokenSecret());
+            $vote['delegatorToken'] = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
         }
 
         if ($existingVote !== null) {
@@ -520,9 +520,9 @@ class VotingService
             $weight = (int) ($vote['weight'] ?? 1);
             if ($val === 'for') {
                 $for += $weight;
-            } elseif ($val === 'against') {
+            } else if ($val === 'against') {
                 $against += $weight;
-            } elseif ($val === 'abstain') {
+            } else if ($val === 'abstain') {
                 $abstain += $weight;
             }
         }
@@ -531,9 +531,9 @@ class VotingService
 
         if ($total === 0) {
             $result = 'invalid';
-        } elseif ($for > $against) {
+        } else if ($for > $against) {
             $result = 'adopted';
-        } elseif ($against > $for) {
+        } else if ($against > $for) {
             $result = 'rejected';
         } else {
             $result = 'tied';

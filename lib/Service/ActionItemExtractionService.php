@@ -70,7 +70,7 @@ class ActionItemExtractionService
      *
      * @return array<int, array<string, string|null>>
      */
-    public function extractFromContent(string $content, array $knownParticipants = []): array
+    public function extractFromContent(string $content, array $knownParticipants=[]): array
     {
         $candidates = [];
         $seenTitles = [];
@@ -193,7 +193,7 @@ class ActionItemExtractionService
      *
      * @return string|null The suggested assignee name or null
      */
-    private function detectAssignee(string $text, array $knownParticipants = []): ?string
+    private function detectAssignee(string $text, array $knownParticipants=[]): ?string
     {
         if (empty($knownParticipants)) {
             return null;

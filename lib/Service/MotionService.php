@@ -350,7 +350,7 @@ class MotionService
             ]
         );
         if ($budgetPayload === false) {
-            throw new \RuntimeException('JSON encoding of budget impact failed: ' . json_last_error_msg());
+            throw new \RuntimeException('JSON encoding of budget impact failed: '.json_last_error_msg());
         }
 
         $budgetNote = [
@@ -414,12 +414,12 @@ class MotionService
         // Fetch existing amendments for this motion only (push filter to store query).
         $existing = $objectService->findAll(
             [
-                    'filters' => [
-                        'register'         => 'decidesk',
-                        'schema'           => 'amendment',
-                        'relations.motion' => $motionId,
-                    ],
-                ]
+                'filters' => [
+                    'register'         => 'decidesk',
+                    'schema'           => 'amendment',
+                    'relations.motion' => $motionId,
+                ],
+            ]
         );
 
         $conflictFound = false;
@@ -545,7 +545,7 @@ class MotionService
 
         $motionData  = $motionObject->getObject();
         $currentText = $motionData['text'] ?? '';
-        $updatedText = $currentText . "\n\n---\n**Amendement: $amendTitle**\n$amendText";
+        $updatedText = $currentText."\n\n---\n**Amendement: $amendTitle**\n$amendText";
 
         $objectService->saveObject(
             object: array_merge($motionData, ['text' => $updatedText]),

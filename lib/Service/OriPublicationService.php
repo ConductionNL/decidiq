@@ -153,7 +153,7 @@ class OriPublicationService
 
             $body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             if ($body === false) {
-                throw new \RuntimeException('JSON encoding of ORI payload failed: ' . json_last_error_msg());
+                throw new \RuntimeException('JSON encoding of ORI payload failed: '.json_last_error_msg());
             }
 
             $client = $this->clientService->newClient();
@@ -200,8 +200,8 @@ class OriPublicationService
         return [
             '@context'  => 'https://schema.org/',
             '@type'     => 'VoteAction',
-            '@id'       => 'urn:voting-round:' . $votingRoundId,
-            'name'      => 'Stemuitslag ' . $votingRoundId,
+            '@id'       => 'urn:voting-round:'.$votingRoundId,
+            'name'      => 'Stemuitslag '.$votingRoundId,
             'startTime' => $roundData['openedAt'] ?? null,
             'endTime'   => $roundData['closedAt'] ?? null,
             'result'    => $roundData['result'] ?? null,
