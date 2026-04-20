@@ -6,9 +6,6 @@
  * Controller for Minutes-specific operations such as draft generation
  * and server-side lifecycle transition enforcement.
  *
- * SPDX-License-Identifier: EUPL-1.2
- * Copyright (C) 2026 Conduction B.V.
- *
  * @category Controller
  * @package  OCA\Decidesk\Controller
  *

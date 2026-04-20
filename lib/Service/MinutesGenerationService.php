@@ -5,9 +5,6 @@
  *
  * Service for generating initial minutes drafts from linked meeting data.
  *
- * SPDX-License-Identifier: EUPL-1.2
- * Copyright (C) 2026 Conduction B.V.
- *
  * @category Service
  * @package  OCA\Decidesk\Service
  *
