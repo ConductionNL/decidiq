@@ -127,7 +127,7 @@ class MailReplyHandler extends TimedJob
         $openRounds = $objectService->findObjects(
             register: 'decidesk',
             schema: 'voting-round',
-            filters: ['closedAt' => null, 'openedAt' => ['!=' => null]]
+            params: ['closedAt' => null, 'openedAt' => ['!=' => null]]
         );
 
         foreach (($openRounds['results'] ?? []) as $round) {
@@ -174,8 +174,8 @@ class MailReplyHandler extends TimedJob
             // Validate that the participantId from _mail metadata refers to an existing Participant.
             // object before casting any vote. This prevents manipulated metadata from casting
             // votes on behalf of arbitrary or non-existent participants (OWASP A07:2021).
-            $participant = $objectService->getObject(register: 'decidesk', schema: 'participant', uuid: $participantId);
-            if ($participant === null) {
+            $participantEntity = $objectService->find(id: $participantId);
+            if ($participantEntity === null) {
                 $this->logger->warning(
                     'Decidesk: MailReplyHandler — unknown participantId in _mail metadata, skipping',
                     [
@@ -185,6 +185,8 @@ class MailReplyHandler extends TimedJob
                 );
                 continue;
             }
+
+            $participant = $participantEntity->getObject();
 
             // Resolve Nextcloud UID for notifications — participant UUID is not a valid Nextcloud userId.
             // Prefer the stored nextcloudUserId; fall back to email lookup via IUserManager.
