@@ -7,9 +7,6 @@
  * resolved. Maps to HTTP 422 Unprocessable Entity — this is a client data
  * problem, not a server availability issue.
  *
- * SPDX-License-Identifier: EUPL-1.2
- * Copyright (C) 2026 Conduction B.V.
- *
  * @category Exception
  * @package  OCA\Decidesk\Exception
  *
