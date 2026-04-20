@@ -32,8 +32,10 @@ use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\DecisionNotificationService;
 use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\Decidesk\Service\MinutesService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -104,6 +106,7 @@ class Application extends App implements IBootstrap
                     minutesGenerationService: $c->get(MinutesGenerationService::class),
                     alvMinutesService: $c->get(ALVMinutesService::class),
                     extractionService: $c->get(ActionItemExtractionService::class),
+                    minutesService: $c->get(MinutesService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     );
@@ -208,6 +211,30 @@ class Application extends App implements IBootstrap
                 ActionItemExtractionService::class,
                 static function ($c): ActionItemExtractionService {
                     return new ActionItemExtractionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register DecisionNotificationService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5.3
+        $context->registerService(
+                DecisionNotificationService::class,
+                static function ($c): DecisionNotificationService {
+                    return new DecisionNotificationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register MinutesService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.3
+        $context->registerService(
+                MinutesService::class,
+                static function ($c): MinutesService {
+                    return new MinutesService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );

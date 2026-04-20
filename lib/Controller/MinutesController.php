@@ -28,6 +28,7 @@ use OCA\Decidesk\Exception\MissingRelationException;
 use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\Decidesk\Service\MinutesService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -58,6 +59,7 @@ class MinutesController extends Controller
      * @param MinutesGenerationService      $minutesGenerationService     The generation service
      * @param ALVMinutesService             $alvMinutesService            The ALV minutes service
      * @param ActionItemExtractionService   $extractionService            The extraction service
+     * @param MinutesService                $minutesService               The minutes service
      * @param IUserSession                  $userSession                  The current user session
      * @param IGroupManager                 $groupManager                 Group manager for role checks
      *
@@ -68,6 +70,7 @@ class MinutesController extends Controller
         private MinutesGenerationService $minutesGenerationService,
         private ALVMinutesService $alvMinutesService,
         private ActionItemExtractionService $extractionService,
+        private MinutesService $minutesService,
         private IUserSession $userSession,
         private IGroupManager $groupManager,
     ) {
@@ -394,6 +397,72 @@ class MinutesController extends Controller
             $count = $this->extractionService->saveExtracted($minutesId, $confirmed);
 
             return new JSONResponse(['saved' => $count]);
+        } catch (\Exception $e) {
+            return new JSONResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Submit Minutes for approval.
+     *
+     * POST /api/minutes/{minutesId}/submit-for-approval
+     *
+     * Transitions lifecycle from draft to review and sends approval notifications.
+     *
+     * Returns 200 with updated lifecycle on success.
+     * Returns 400 when lifecycle is not draft.
+     * Returns 404 when Minutes not found.
+     *
+     * @param string $minutesId The UUID of the Minutes object
+     *
+     * @return JSONResponse
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
+     */
+    public function submitForApproval(string $minutesId): JSONResponse
+    {
+        try {
+            $user = $this->userSession->getUser();
+            if ($user === null) {
+                return new JSONResponse(['error' => 'Not authenticated'], 401);
+            }
+
+            $container = $this->container ?? \OC::$server;
+            $objectService = $container->get('OpenRegisterObjectService');
+
+            // Fetch Minutes
+            $minutes = $objectService->findObject(
+                register: 'decidesk',
+                schema: 'Minutes',
+                id: $minutesId
+            );
+
+            if ($minutes === null) {
+                return new JSONResponse(['error' => 'Minutes not found'], 404);
+            }
+
+            // Verify lifecycle is draft
+            if (($minutes['lifecycle'] ?? null) !== 'draft') {
+                return new JSONResponse(['error' => 'Minutes must be in draft state'], 409);
+            }
+
+            // Transition lifecycle to review
+            $minutes['lifecycle'] = 'review';
+            $objectService->saveObject(
+                register: 'decidesk',
+                schema: 'Minutes',
+                object: $minutes
+            );
+
+            // Send approval notifications
+            $notified = $this->minutesService->notifyApproversOnSubmit($minutesId, $user->getUID());
+
+            return new JSONResponse([
+                'lifecycle' => 'review',
+                'notified' => $notified,
+            ]);
         } catch (\Exception $e) {
             return new JSONResponse(['error' => $e->getMessage()], 500);
         }
