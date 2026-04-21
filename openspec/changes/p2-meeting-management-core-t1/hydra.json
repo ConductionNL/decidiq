@@ -840,6 +840,24 @@
             }
           ],
           "verdict": "fail"
+        },
+        {
+          "stage": "applier",
+          "persona": "Axel Pli\u00e9r",
+          "model": "sonnet",
+          "container": "hydra-applier",
+          "started_at": "2026-04-21T13:25:07Z",
+          "ended_at": "2026-04-21T13:27:14Z",
+          "exit_code": 0,
+          "turns_used": 21,
+          "turns_budget": 20,
+          "checks_run": [
+            "hydra.json-consumer"
+          ],
+          "checks_skipped": [],
+          "findings": [],
+          "decisions": [],
+          "verdict": "pass"
         }
       ]
     }
