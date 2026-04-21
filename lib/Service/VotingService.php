@@ -283,7 +283,7 @@ class VotingService
             $activeParticipants = array_column(($participantsResult['results'] ?? []), 'id', 'id');
 
             foreach ($presetParticipantIds as $uuid) {
-                if (!isset($activeParticipants[$uuid])) {
+                if (isset($activeParticipants[$uuid]) === false) {
                     $excludedUuids[] = $uuid;
                 }
             }
