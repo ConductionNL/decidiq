@@ -355,7 +355,9 @@
       "ended_at": "2026-04-21T10:30:57Z",
       "outcome": "needs-input",
       "outcome_reason": "applier returned fail verdict",
-      "pattern_tags": [],
+      "pattern_tags": [
+        "reviewer-ran-applied-no-fixes"
+      ],
       "stages": [
         {
           "stage": "fix",
