@@ -55,6 +55,8 @@ class InitializeSettings implements IRepairStep
      * Get the name of this repair step.
      *
      * @return string
+     *
+     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
      */
     public function getName(): string
     {
@@ -67,6 +69,8 @@ class InitializeSettings implements IRepairStep
      * @param IOutput $output The output interface for progress reporting
      *
      * @return void
+     *
+     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
      */
     public function run(IOutput $output): void
     {

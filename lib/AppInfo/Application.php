@@ -37,6 +37,8 @@ use OCP\BackgroundJob\IJobList;
 
 /**
  * Main application class for the Decidesk Nextcloud app.
+ *
+ * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
  */
 class Application extends App implements IBootstrap
 {
@@ -60,6 +62,8 @@ class Application extends App implements IBootstrap
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
      */
     public function register(IRegistrationContext $context): void
     {
@@ -140,6 +144,8 @@ class Application extends App implements IBootstrap
      * @param IBootContext $context The boot context
      *
      * @return void
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
      */
     public function boot(IBootContext $context): void
     {
