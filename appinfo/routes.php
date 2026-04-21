@@ -19,6 +19,17 @@ return [
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
 
+        // Decision approval workflow endpoints (task-2).
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+        ['name' => 'decisionApproval#transitionLifecycle', 'url' => '/api/decisions/{id}/lifecycle', 'verb' => 'POST'],
+        ['name' => 'decisionApproval#submitReview', 'url' => '/api/decisions/{id}/reviews', 'verb' => 'POST'],
+        ['name' => 'decisionApproval#assignReviewer', 'url' => '/api/decisions/{id}/reviewers', 'verb' => 'POST'],
+        ['name' => 'decisionApproval#remindReviewer', 'url' => '/api/decisions/{id}/reviewers/{personId}/remind', 'verb' => 'POST'],
+
+        // Decision analytics endpoint (task-5).
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
+        ['name' => 'decisionAnalytics#analytics', 'url' => '/api/decisions/analytics', 'verb' => 'GET'],
+
         // Meeting lifecycle transitions.
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
 

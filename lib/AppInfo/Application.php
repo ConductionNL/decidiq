@@ -23,6 +23,8 @@ namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
+use OCA\Decidesk\Controller\DecisionApprovalController;
+use OCA\Decidesk\Controller\DecisionAnalyticsController;
 use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
@@ -140,6 +142,36 @@ class Application extends App implements IBootstrap
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register DecisionApprovalController for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+        $context->registerService(
+                DecisionApprovalController::class,
+                static function ($c): DecisionApprovalController {
+                    return new DecisionApprovalController(
+                    appName: self::APP_ID,
+                    request: $c->get(\OCP\IRequest::class),
+                    approvalService: $c->get(DecisionApprovalService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register DecisionAnalyticsController for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
+        $context->registerService(
+                DecisionAnalyticsController::class,
+                static function ($c): DecisionAnalyticsController {
+                    return new DecisionAnalyticsController(
+                    appName: self::APP_ID,
+                    request: $c->get(\OCP\IRequest::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    cache: $c->get(\OCP\ICache::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
