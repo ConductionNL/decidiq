@@ -686,7 +686,7 @@ class MotionService
                     ]);
                 $notificationManager->notify($notification);
             } catch (\Throwable $e) {
-                error_log('Decidesk: notification send failed: '.$e->getMessage());
+                $this->logger->warning(message: 'Decidesk: notification send failed: '.$e->getMessage(), context: ['exception' => $e]);
             }
         }
 
