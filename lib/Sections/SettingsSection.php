@@ -27,6 +27,8 @@ use OCP\Settings\IIconSection;
 
 /**
  * Defines the Decidesk section in the Nextcloud admin settings.
+ *
+ * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
  */
 class SettingsSection implements IIconSection
 {
@@ -48,6 +50,8 @@ class SettingsSection implements IIconSection
      * Get the section identifier.
      *
      * @return string
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
      */
     public function getID(): string
     {
@@ -58,6 +62,8 @@ class SettingsSection implements IIconSection
      * Get the display name of this section.
      *
      * @return string
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
      */
     public function getName(): string
     {
@@ -68,6 +74,8 @@ class SettingsSection implements IIconSection
      * Get the priority for ordering this section.
      *
      * @return int
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
      */
     public function getPriority(): int
     {
@@ -78,6 +86,8 @@ class SettingsSection implements IIconSection
      * Get the icon path for this section.
      *
      * @return string
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
      */
     public function getIcon(): string
     {

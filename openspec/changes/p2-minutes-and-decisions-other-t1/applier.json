@@ -1,0 +1,22 @@
+{
+  "ran": true,
+  "pass": false,
+  "blocking": [
+    {
+      "file": "lib/Service/DecisionApprovalService.php",
+      "severity": "critical",
+      "note": "Silent authorization bypass (OWASP A01:2021 / CWE-863): getAuthorizationService() returns null on Throwable, and the entire REQUIRED_ROLES check is guarded by nullable \u2014 any authenticated user can advance decisions through the full approval chain when AuthorizationService is unavailable"
+    },
+    {
+      "file": "lib/Controller/DecisionApprovalController.php",
+      "severity": "critical",
+      "note": "Reviewer impersonation (OWASP A01:2021 / CWE-639): personId is taken from the POST body at line 120 without verifying the authenticated Nextcloud user corresponds to that Person entity \u2014 any authenticated user can forge sign-offs on behalf of any person in the system"
+    }
+  ],
+  "turns": 9,
+  "cost_usd": 0.2431,
+  "cost_eur": 0.2237,
+  "pr": 129,
+  "commit": "34182b6",
+  "timestamp": "2026-04-21T13:35:11.231836+00:00"
+}

@@ -28,6 +28,8 @@ use OCP\IRequest;
 
 /**
  * Controller for the main Decidesk dashboard page.
+ *
+ * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
  */
 class DashboardController extends Controller
 {
@@ -49,6 +51,8 @@ class DashboardController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
+     *
      * @return TemplateResponse
      */
     public function page(): TemplateResponse
@@ -61,6 +65,8 @@ class DashboardController extends Controller
      *
      * @NoAdminRequired
      * @NoCSRFRequired
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
      *
      * @return TemplateResponse
      */
