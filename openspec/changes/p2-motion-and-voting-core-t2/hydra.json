@@ -194,6 +194,16 @@
           "verdict": "fail"
         }
       ]
+    },
+    {
+      "cycle": 2,
+      "trigger": "retry:queued",
+      "started_at": "2026-04-21T10:13:35Z",
+      "ended_at": null,
+      "outcome": "in-flight",
+      "outcome_reason": null,
+      "pattern_tags": [],
+      "stages": []
     }
   ]
 }
