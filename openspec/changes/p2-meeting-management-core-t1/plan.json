@@ -1,6 +1,7 @@
 {
   "spec": "p2-meeting-management-core-t1",
   "start": "2026-04-21",
+  "status": "pr-created",
   "tasks": [
     {
       "id": "1.1",
@@ -11,91 +12,134 @@
     {
       "id": "1.2",
       "title": "Create MeetingMapper class",
-      "status": "pending",
-      "notes": "Will use OpenRegister ObjectService directly - no separate mapper needed"
+      "status": "done",
+      "notes": "Using OpenRegister ObjectService directly - no separate mapper needed per ADR-001"
     },
     {
       "id": "1.3",
       "title": "Create MeetingService with full CRUD",
-      "status": "in_progress",
-      "notes": "Expanding existing MeetingService with create, read, update, delete methods"
+      "status": "done",
+      "notes": "Implemented create, read, update, delete methods with full spec tags"
     },
     {
       "id": "1.4",
       "title": "Create MeetingController with CRUD routes",
-      "status": "pending",
-      "notes": "Adding GET /api/meetings, POST, GET /{id}, PUT, DELETE endpoints"
+      "status": "done",
+      "notes": "Added index, create, show, update, destroy endpoints with routes"
     },
     {
       "id": "1.5",
       "title": "Add @spec PHPDoc tags",
-      "status": "pending",
-      "notes": "All new classes will include proper spec references"
+      "status": "done",
+      "notes": "All new classes include @spec openspec/changes/p2-meeting-management-core-t1/tasks.md references"
     },
     {
       "id": "2.1",
       "title": "Create WorkflowService",
-      "status": "pending"
+      "status": "done",
+      "notes": "Implemented domain-specific workflow validation for 5 governance domains"
     },
     {
-      "id": "2.2-2.5",
-      "title": "Implement meeting lifecycle and workflow",
-      "status": "pending"
+      "id": "2.2-2.3",
+      "title": "Implement meeting lifecycle and workflow transitions",
+      "status": "done",
+      "notes": "Transitions implemented in MeetingService, domain rules in WorkflowService"
     },
     {
-      "id": "3.1-3.4",
-      "title": "Implement quorum management",
-      "status": "pending"
+      "id": "2.4",
+      "title": "Validate quorum before state transitions",
+      "status": "in_progress",
+      "notes": "QuorumService created with calculateQuorum method, integration in workflow pending"
     },
     {
-      "id": "4.1-4.8",
-      "title": "Build meeting list view frontend",
-      "status": "pending"
+      "id": "2.5",
+      "title": "Implement audit trail integration",
+      "status": "pending",
+      "notes": "Will use OpenRegister AuditTrailService built-in capability"
+    },
+    {
+      "id": "3.1",
+      "title": "Create QuorumService",
+      "status": "done",
+      "notes": "Service implements quorum calculation for fixed count and percentage rules"
+    },
+    {
+      "id": "3.2-3.3",
+      "title": "Implement quorum validation",
+      "status": "done",
+      "notes": "validateQuorum method and calculateQuorum method implemented"
+    },
+    {
+      "id": "3.4",
+      "title": "Expose quorum status in API response",
+      "status": "pending",
+      "notes": "Will enhance MeetingController show method to include quorum data"
+    },
+    {
+      "id": "4.1",
+      "title": "Create meeting store with Pinia",
+      "status": "done",
+      "notes": "meetingStore.js created with full CRUD and lifecycle actions"
+    },
+    {
+      "id": "4.2-4.8",
+      "title": "Build meeting list view with filtering",
+      "status": "done",
+      "notes": "Updated Meetings.vue with lifecycle filters, search, and pagination"
     },
     {
       "id": "5.1-5.9",
-      "title": "Build meeting detail view frontend",
-      "status": "pending"
+      "title": "Build meeting detail view",
+      "status": "in_progress",
+      "notes": "MeetingDetail.vue exists with agenda, lifecycle, sidebar - needs enhancement"
     },
     {
       "id": "6.1-6.4",
       "title": "Meeting-GovernanceBody relations",
-      "status": "pending"
+      "status": "pending",
+      "notes": "Relations exist in schema, view integration needed"
     },
     {
       "id": "7.1-7.6",
       "title": "Attendee management",
-      "status": "pending"
+      "status": "pending",
+      "notes": "Uses existing Participant schema, attendee form components needed"
     },
     {
       "id": "8.1-8.6",
       "title": "Agenda item management",
-      "status": "pending"
+      "status": "pending",
+      "notes": "Existing AgendaBuilder component, may need enhancements"
     },
     {
       "id": "9.1-9.5",
       "title": "Meeting series/recurring",
-      "status": "pending"
+      "status": "pending",
+      "notes": "Series pattern generation logic pending"
     },
     {
       "id": "10.1-10.5",
       "title": "ORI API integration",
-      "status": "pending"
+      "status": "pending",
+      "notes": "Will use existing OriPublicationService"
     },
     {
       "id": "11.1-11.4",
       "title": "Dashboard integration",
-      "status": "pending"
+      "status": "pending",
+      "notes": "Dashboard widgets for upcoming meetings pending"
     },
     {
       "id": "12.1-12.8",
       "title": "Testing",
-      "status": "pending"
+      "status": "in_progress",
+      "notes": "Created QuorumServiceTest, MeetingServiceTest exists, more tests needed"
     },
     {
       "id": "13.1-13.4",
       "title": "Documentation",
-      "status": "pending"
+      "status": "pending",
+      "notes": "API documentation and developer guides needed"
     }
   ]
 }
