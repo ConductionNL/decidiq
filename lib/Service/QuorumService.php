@@ -107,7 +107,6 @@ class QuorumService
                 ];
             }
 
-            $bodyObj = $body->jsonSerialize();
             $members = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'Participant',
@@ -125,10 +124,9 @@ class QuorumService
             }
 
             $totalMembers = count($members['results'] ?? []);
+            $percentage   = 0.0;
             if ($totalMembers > 0) {
                 $percentage = ($presentCount / $totalMembers) * 100;
-            } else {
-                $percentage = 0.0;
             }
 
             $met = ($presentCount >= $quorumRule);

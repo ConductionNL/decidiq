@@ -42,7 +42,7 @@ export const useMeetingStore = defineStore('meetings', {
 		/**
 		 * Fetch a paginated list of Meeting objects.
 		 *
-		 * @param params
+		 * @param {object} params Pagination and filter overrides
 		 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-4.3
 		 */
 		async fetchMeetings(params = {}) {
@@ -82,7 +82,7 @@ export const useMeetingStore = defineStore('meetings', {
 		/**
 		 * Fetch a single Meeting object by ID.
 		 *
-		 * @param id
+		 * @param {string} id Meeting UUID
 		 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-5.1
 		 */
 		async fetchMeetingById(id) {
@@ -107,7 +107,7 @@ export const useMeetingStore = defineStore('meetings', {
 		/**
 		 * Create a new Meeting object.
 		 *
-		 * @param meetingData
+		 * @param {object} meetingData Meeting fields to persist
 		 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
 		 */
 		async createMeeting(meetingData) {
@@ -139,8 +139,8 @@ export const useMeetingStore = defineStore('meetings', {
 		/**
 		 * Update an existing Meeting object.
 		 *
-		 * @param id
-		 * @param meetingData
+		 * @param {string} id Meeting UUID
+		 * @param {object} meetingData Updated meeting fields
 		 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
 		 */
 		async updateMeeting(id, meetingData) {
@@ -175,7 +175,7 @@ export const useMeetingStore = defineStore('meetings', {
 		/**
 		 * Delete a Meeting object.
 		 *
-		 * @param id
+		 * @param {string} id Meeting UUID
 		 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
 		 */
 		async deleteMeeting(id) {
@@ -204,8 +204,8 @@ export const useMeetingStore = defineStore('meetings', {
 		/**
 		 * Apply a lifecycle transition to a meeting.
 		 *
-		 * @param id
-		 * @param action
+		 * @param {string} id Meeting UUID
+		 * @param {string} action Lifecycle action name (e.g. "schedule", "cancel")
 		 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-5.6
 		 */
 		async transitionMeeting(id, action) {
@@ -240,7 +240,7 @@ export const useMeetingStore = defineStore('meetings', {
 		/**
 		 * Update search filters.
 		 *
-		 * @param filters
+		 * @param {object} filters Partial filter fields to merge into state
 		 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-4.3
 		 */
 		setFilters(filters) {
@@ -250,7 +250,7 @@ export const useMeetingStore = defineStore('meetings', {
 		/**
 		 * Set search query.
 		 *
-		 * @param query
+		 * @param {string} query Full-text search string
 		 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-4.4
 		 */
 		setSearchQuery(query) {
