@@ -570,9 +570,9 @@ class MotionService
      * motions. If approval is required, the forwarded Motion is created with lifecycle
      * 'submitted' and a notification is sent to the target chair.
      *
-     * @param string $motionId    The motion UUID to forward
-     * @param string $targetBodyId The target governance body UUID
-     * @param string $actorId     The Nextcloud user ID of the person forwarding
+     * @param string $motionId      The motion UUID to forward
+     * @param string $targetBodyId  The target governance body UUID
+     * @param string $actorId       The Nextcloud user ID of the person forwarding
      * @param string $justification The reason for forwarding
      *
      * @return array<string,mixed> The created forwarded Motion object
@@ -587,15 +587,15 @@ class MotionService
 
         // Check actor role against forwarding config.
         $forwardingRolesJson = $appConfig->getValueString('decidesk', 'motion_forwarding_roles', '["chair","secretary"]');
-        $forwardingRoles = json_decode($forwardingRolesJson, true);
-        if (!is_array($forwardingRoles)) {
+        $forwardingRoles     = json_decode($forwardingRolesJson, true);
+        if (is_array($forwardingRoles) === false) {
             $forwardingRoles = ['chair', 'secretary'];
         }
 
         // Simple check: actor role must be in allowed roles (enforce in backend only, no frontend-only checks).
         // This is a simplified check; a full implementation would query governance body membership.
         $userManager = $this->userManager;
-        $user = $userManager->get($actorId);
+        $user        = $userManager->get($actorId);
         if ($user === null) {
             throw new \RuntimeException("Actor {$actorId} not found");
         }
@@ -631,13 +631,15 @@ class MotionService
             'notes'       => [
                 [
                     'title' => 'Doorgestuurd van',
-                    'body'  => json_encode([
-                        'sourceMotionId'  => $motionId,
-                        'targetBodyId'    => $targetBodyId,
-                        'forwardedBy'     => $actorId,
-                        'justification'   => $justification,
-                        'forwardedAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-                    ]),
+                    'body'  => json_encode(
+                            [
+                                'sourceMotionId' => $motionId,
+                                'targetBodyId'   => $targetBodyId,
+                                'forwardedBy'    => $actorId,
+                                'justification'  => $justification,
+                                'forwardedAt'    => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                            ]
+                            ),
                 ],
             ],
         ];
@@ -651,14 +653,16 @@ class MotionService
         );
 
         // Add forwarding note to source motion.
-        $sourceMotionData['notes'] = ($sourceMotionData['notes'] ?? []);
+        $sourceMotionData['notes']   = ($sourceMotionData['notes'] ?? []);
         $sourceMotionData['notes'][] = [
             'title' => 'Doorgestuurd naar',
-            'body'  => json_encode([
-                'targetBodyId'        => $targetBodyId,
-                'forwardedMotionId'   => ($created['id'] ?? $created['uuid'] ?? null),
-                'forwardedAt'         => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-            ]),
+            'body'  => json_encode(
+                    [
+                        'targetBodyId'      => $targetBodyId,
+                        'forwardedMotionId' => ($created['id'] ?? $created['uuid'] ?? null),
+                        'forwardedAt'       => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                    ]
+                    ),
         ];
 
         $objectService->setRegister('decidesk');
@@ -674,21 +678,24 @@ class MotionService
         if ($requiresApproval === true) {
             try {
                 $notificationManager = $this->container->get(\OCP\Notification\IManager::class);
-                $notification = $notificationManager->createNotification();
+                $notification        = $notificationManager->createNotification();
                 $notification
                     ->setApp('decidesk')
                     ->setUser($actorId)
                     ->setDateTime(new \DateTimeImmutable())
                     ->setObject('motion', ($created['id'] ?? $created['uuid'] ?? ''))
-                    ->setSubject('motion_forwarded_approval', [
-                        'title' => $sourceMotionData['title'] ?? '',
-                        'body' => $targetBodyId,
-                    ]);
+                    ->setSubject(
+                            'motion_forwarded_approval',
+                            [
+                                'title' => $sourceMotionData['title'] ?? '',
+                                'body'  => $targetBodyId,
+                            ]
+                            );
                 $notificationManager->notify($notification);
             } catch (\Throwable $e) {
                 $this->logger->warning(message: 'Decidesk: notification send failed: '.$e->getMessage(), context: ['exception' => $e]);
             }
-        }
+        }//end if
 
         return ($created ?? $forwardedMotion);
 

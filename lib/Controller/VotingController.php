@@ -112,7 +112,8 @@ class VotingController extends Controller
      * Open a new VotingRound.
      *
      * POST /api/voting-rounds
-     * Body: { "motionId": "uuid", "meetingId": "uuid", "votingMethod": "for-against-abstain", "isSecret": false, "closedAt": null, "presetParticipantIds": ["uuid1", "uuid2"] }
+     * Body: { "motionId": "uuid", "meetingId": "uuid", "votingMethod": "for-against-abstain",
+     *         "isSecret": false, "closedAt": null, "presetParticipantIds": ["uuid1", "uuid2"] }
      *
      * @NoAdminRequired
      *
@@ -127,19 +128,19 @@ class VotingController extends Controller
             return $guard;
         }
 
-        $params = $this->request->getParams();
-        $motionId = ($params['motionId'] ?? '');
-        $meetingId = ($params['meetingId'] ?? '');
+        $params       = $this->request->getParams();
+        $motionId     = ($params['motionId'] ?? '');
+        $meetingId    = ($params['meetingId'] ?? '');
         $votingMethod = ($params['votingMethod'] ?? 'for-against-abstain');
-        $isSecret = (bool) ($params['isSecret'] ?? false);
-        $closedAt = null;
+        $isSecret     = (bool) ($params['isSecret'] ?? false);
+        $closedAt     = null;
         $presetParticipantIds = [];
 
         if (isset($params['closedAt']) === true && $params['closedAt'] !== '') {
             $closedAt = $params['closedAt'];
         }
 
-        if (isset($params['presetParticipantIds']) === true && is_array($params['presetParticipantIds'])) {
+        if (isset($params['presetParticipantIds']) === true && is_array($params['presetParticipantIds']) === true) {
             $presetParticipantIds = $params['presetParticipantIds'];
         }
 
@@ -243,7 +244,7 @@ class VotingController extends Controller
             return $guard;
         }
 
-        $params = $this->request->getParams();
+        $params    = $this->request->getParams();
         $anonymise = isset($params['anonymise']) && $params['anonymise'] === true;
 
         try {

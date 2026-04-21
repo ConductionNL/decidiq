@@ -39,14 +39,13 @@ use OCP\IUserSession;
  */
 class VotingBehaviourController extends Controller
 {
-
     /**
      * Constructor for VotingBehaviourController.
      *
-     * @param IRequest               $request             The request object
-     * @param VotingBehaviourService $behaviourService    The voting behaviour service
-     * @param IUserSession           $userSession         The user session
-     * @param IGroupManager          $groupManager        The group manager
+     * @param IRequest               $request          The request object
+     * @param VotingBehaviourService $behaviourService The voting behaviour service
+     * @param IUserSession           $userSession      The user session
+     * @param IGroupManager          $groupManager     The group manager
      *
      * @return void
      *
@@ -68,14 +67,14 @@ class VotingBehaviourController extends Controller
      * Requires authentication. Current user may only access own stats unless they
      * hold chair, secretary, or admin role.
      *
-     * @param string $participantId   The participant UUID
+     * @param string $participantId    The participant UUID
      * @param string $governanceBodyId The governance body UUID (required in query params)
      *
      * @return JSONResponse The statistics array or error
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
      */
-    public function getStats(string $participantId, string $governanceBodyId = ''): JSONResponse
+    public function getStats(string $participantId, string $governanceBodyId=''): JSONResponse
     {
         $user = $this->userSession->getUser();
         if ($user === null) {
@@ -85,10 +84,10 @@ class VotingBehaviourController extends Controller
         $uid = $user->getUID();
 
         // Check authorization: user may access own stats OR user must be chair/secretary/admin.
-        $isAdmin = $this->groupManager->isAdmin($uid);
+        $isAdmin    = $this->groupManager->isAdmin($uid);
         $isOwnStats = ($participantId === $uid);
 
-        if (!$isOwnStats && !$isAdmin) {
+        if ($isOwnStats === false && $isAdmin === false) {
             return new JSONResponse(['message' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
@@ -104,5 +103,4 @@ class VotingBehaviourController extends Controller
         return new JSONResponse($stats);
 
     }//end getStats()
-
 }//end class

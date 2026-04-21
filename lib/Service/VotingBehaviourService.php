@@ -32,7 +32,6 @@ use Psr\Container\ContainerInterface;
  */
 class VotingBehaviourService
 {
-
     /**
      * Constructor for VotingBehaviourService.
      *
@@ -64,7 +63,7 @@ class VotingBehaviourService
      * Aggregates vote counts, participation rate, and proxy behaviour from all Vote
      * objects linked to the participant in closed voting rounds of the given governance body.
      *
-     * @param string $participantId   The participant UUID
+     * @param string $participantId    The participant UUID
      * @param string $governanceBodyId The governance body UUID
      *
      * @return array<string,mixed> Statistics array with totalRounds, participated, participationRate,
@@ -86,16 +85,19 @@ class VotingBehaviourService
         $rounds = ($roundsResult['results'] ?? []);
 
         // Filter to closed rounds only (closedAt is not null).
-        $closedRounds = array_filter($rounds, static function (array $round) {
-            return isset($round['closedAt']) && $round['closedAt'] !== null;
-        });
+        $closedRounds = array_filter(
+                $rounds,
+                static function (array $round) {
+                    return isset($round['closedAt']) && $round['closedAt'] !== null;
+                }
+                );
 
-        $totalRounds = count($closedRounds);
-        $participated = 0;
-        $votesFor = 0;
-        $votesAgainst = 0;
-        $votesAbstain = 0;
-        $proxiesGiven = 0;
+        $totalRounds     = count($closedRounds);
+        $participated    = 0;
+        $votesFor        = 0;
+        $votesAgainst    = 0;
+        $votesAbstain    = 0;
+        $proxiesGiven    = 0;
         $proxiesReceived = 0;
 
         // For each closed round, fetch votes for this participant.
@@ -123,9 +125,9 @@ class VotingBehaviourService
                     $value = ($vote['value'] ?? null);
                     if ($value === 'for') {
                         $votesFor++;
-                    } elseif ($value === 'against') {
+                    } else if ($value === 'against') {
                         $votesAgainst++;
-                    } elseif ($value === 'abstain') {
+                    } else if ($value === 'abstain') {
                         $votesAbstain++;
                     }
 
@@ -135,10 +137,13 @@ class VotingBehaviourService
                     }
                 }
             }
-        }
+        }//end foreach
 
         // Participation rate as percentage.
-        $participationRate = $totalRounds > 0 ? round(($participated / $totalRounds) * 100, 1) : 0.0;
+        $participationRate = 0.0;
+        if ($totalRounds > 0) {
+            $participationRate = round(($participated / $totalRounds) * 100, 1);
+        }
 
         return [
             'participantId'     => $participantId,
@@ -154,5 +159,4 @@ class VotingBehaviourService
         ];
 
     }//end getStats()
-
 }//end class

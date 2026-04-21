@@ -136,7 +136,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register VotingBehaviourService for DI.
-        // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+        // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1.
         $context->registerService(
                 VotingBehaviourService::class,
                 static function ($c): VotingBehaviourService {
@@ -147,7 +147,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register VotingBehaviourController for DI.
-        // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+        // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1.
         $context->registerService(
                 VotingBehaviourController::class,
                 static function ($c): VotingBehaviourController {
@@ -161,7 +161,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register ProjectionController for DI (public page, no auth required).
-        // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+        // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2.
         $context->registerService(
                 ProjectionController::class,
                 static function ($c): ProjectionController {

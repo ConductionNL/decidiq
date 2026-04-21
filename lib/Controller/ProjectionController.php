@@ -38,12 +38,11 @@ use OCP\IRequest;
  */
 class ProjectionController extends Controller
 {
-
     /**
      * Constructor for ProjectionController.
      *
-     * @param IRequest      $request        The request object
-     * @param VotingService $votingService  The voting service
+     * @param IRequest      $request       The request object
+     * @param VotingService $votingService The voting service
      *
      * @return void
      *
@@ -80,5 +79,4 @@ class ProjectionController extends Controller
         return new JSONResponse($state);
 
     }//end publicState()
-
 }//end class

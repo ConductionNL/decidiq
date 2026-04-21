@@ -320,10 +320,10 @@ class MotionController extends Controller
      */
     public function forward(string $id): JSONResponse
     {
-        $params = $this->request->getParams();
-        $targetBodyId = ($params['targetBodyId'] ?? '');
+        $params        = $this->request->getParams();
+        $targetBodyId  = ($params['targetBodyId'] ?? '');
         $justification = ($params['justification'] ?? '');
-        $actorId = ($this->userSession->getUser()?->getUID() ?? '');
+        $actorId       = ($this->userSession->getUser()?->getUID() ?? '');
 
         if ($targetBodyId === '' || $justification === '' || $actorId === '') {
             return new JSONResponse(['message' => 'targetBodyId, justification, and authentication required'], Http::STATUS_BAD_REQUEST);
