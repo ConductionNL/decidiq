@@ -102,7 +102,7 @@ class MeetingService
                 ['exception' => $e->getMessage()]
             );
             throw $e;
-        }
+        }//end try
     }//end create()
 
     /**
@@ -138,7 +138,7 @@ class MeetingService
     /**
      * Update an existing meeting object in OpenRegister.
      *
-     * @param string              $meetingId   UUID of the meeting to update
+     * @param string               $meetingId   UUID of the meeting to update
      * @param array<string, mixed> $meetingData Updated meeting data
      *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.3
@@ -169,7 +169,7 @@ class MeetingService
                 ['id' => $meetingId, 'exception' => $e->getMessage()]
             );
             return null;
-        }
+        }//end try
     }//end update()
 
     /**

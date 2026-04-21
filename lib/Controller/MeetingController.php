@@ -96,14 +96,14 @@ class MeetingController extends Controller
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            $limit = (int) $this->request->getParam('_limit', 100);
+            $limit  = (int) $this->request->getParam('_limit', 100);
             $offset = (int) $this->request->getParam('_offset', 0);
 
             $meetings = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'meeting',
-                params: [
-                    '_limit' => max(1, min($limit, 500)),
+                filters: [
+                    '_limit'  => max(1, min($limit, 500)),
                     '_offset' => max(0, $offset),
                 ]
             );
@@ -114,7 +114,7 @@ class MeetingController extends Controller
                 ['message' => 'Failed to retrieve meetings'],
                 Http::STATUS_INTERNAL_SERVER_ERROR
             );
-        }
+        }//end try
     }//end index()
 
     /**
@@ -136,14 +136,14 @@ class MeetingController extends Controller
         try {
             $data = $this->request->getJsonBody();
 
-            if (!is_array($data)) {
+            if (is_array($data) === false) {
                 return new JSONResponse(
                     ['message' => 'Invalid JSON body'],
                     Http::STATUS_BAD_REQUEST
                 );
             }
 
-            if (empty($data['title'] ?? null)) {
+            if (empty($data['title'] ?? null) === true) {
                 return new JSONResponse(
                     ['message' => 'Title is required'],
                     Http::STATUS_BAD_REQUEST
@@ -158,7 +158,7 @@ class MeetingController extends Controller
                 ['message' => 'Failed to create meeting'],
                 Http::STATUS_INTERNAL_SERVER_ERROR
             );
-        }
+        }//end try
     }//end create()
 
     /**
@@ -219,7 +219,7 @@ class MeetingController extends Controller
         try {
             $data = $this->request->getJsonBody();
 
-            if (!is_array($data)) {
+            if (is_array($data) === false) {
                 return new JSONResponse(
                     ['message' => 'Invalid JSON body'],
                     Http::STATUS_BAD_REQUEST
@@ -241,7 +241,7 @@ class MeetingController extends Controller
                 ['message' => 'Failed to update meeting'],
                 Http::STATUS_INTERNAL_SERVER_ERROR
             );
-        }
+        }//end try
     }//end update()
 
     /**
@@ -265,7 +265,7 @@ class MeetingController extends Controller
         try {
             $deleted = $this->meetingService->delete($id);
 
-            if (!$deleted) {
+            if ($deleted === false) {
                 return new JSONResponse(
                     ['message' => 'Meeting not found or deletion failed'],
                     Http::STATUS_NOT_FOUND

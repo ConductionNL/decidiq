@@ -33,7 +33,6 @@ use Psr\Log\LoggerInterface;
  */
 class QuorumService
 {
-
     /**
      * Constructor for QuorumService.
      *
@@ -70,9 +69,9 @@ class QuorumService
             if ($meeting === null) {
                 return [
                     'quorumRequired' => null,
-                    'presentCount' => 0,
-                    'percentage' => 0.0,
-                    'met' => false,
+                    'presentCount'   => 0,
+                    'percentage'     => 0.0,
+                    'met'            => false,
                 ];
             }
 
@@ -82,9 +81,9 @@ class QuorumService
             if ($quorumRule === null) {
                 return [
                     'quorumRequired' => null,
-                    'presentCount' => 0,
-                    'percentage' => 0.0,
-                    'met' => true,
+                    'presentCount'   => 0,
+                    'percentage'     => 0.0,
+                    'met'            => true,
                 ];
             }
 
@@ -92,9 +91,9 @@ class QuorumService
             if ($governanceBodyId === null) {
                 return [
                     'quorumRequired' => $quorumRule,
-                    'presentCount' => 0,
-                    'percentage' => 0.0,
-                    'met' => false,
+                    'presentCount'   => 0,
+                    'percentage'     => 0.0,
+                    'met'            => false,
                 ];
             }
 
@@ -102,9 +101,9 @@ class QuorumService
             if ($body === null) {
                 return [
                     'quorumRequired' => $quorumRule,
-                    'presentCount' => 0,
-                    'percentage' => 0.0,
-                    'met' => false,
+                    'presentCount'   => 0,
+                    'percentage'     => 0.0,
+                    'met'            => false,
                 ];
             }
 
@@ -112,9 +111,9 @@ class QuorumService
             $members = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'Participant',
-                params: [
+                filters: [
                     'governanceBody' => $governanceBodyId,
-                    '_limit' => 1000,
+                    '_limit'         => 1000,
                 ]
             );
 
@@ -126,15 +125,19 @@ class QuorumService
             }
 
             $totalMembers = count($members['results'] ?? []);
-            $percentage = ($totalMembers > 0) ? (($presentCount / $totalMembers) * 100) : 0.0;
+            if ($totalMembers > 0) {
+                $percentage = ($presentCount / $totalMembers) * 100;
+            } else {
+                $percentage = 0.0;
+            }
 
             $met = ($presentCount >= $quorumRule);
 
             return [
                 'quorumRequired' => $quorumRule,
-                'presentCount' => $presentCount,
-                'percentage' => round($percentage, 2),
-                'met' => $met,
+                'presentCount'   => $presentCount,
+                'percentage'     => round($percentage, 2),
+                'met'            => $met,
             ];
         } catch (\Throwable $e) {
             $this->logger->error(
@@ -143,11 +146,11 @@ class QuorumService
             );
             return [
                 'quorumRequired' => null,
-                'presentCount' => 0,
-                'percentage' => 0.0,
-                'met' => false,
+                'presentCount'   => 0,
+                'percentage'     => 0.0,
+                'met'            => false,
             ];
-        }
+        }//end try
     }//end calculateQuorum()
 
     /**

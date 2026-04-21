@@ -134,8 +134,8 @@ class QuorumServiceTest extends TestCase
         $meetingId = '550e8400-e29b-41d4-a716-446655440000';
 
         $this->objectService->method('find')
-            ->willReturnCallback(function($args) {
-                if ($args === '550e8400-e29b-41d4-a716-446655440000') {
+            ->willReturnCallback(function($id) {
+                if ($id === '550e8400-e29b-41d4-a716-446655440000') {
                     $mock = $this->createMock(originalClassName: 'OCA\OpenRegister\Db\ObjectEntity');
                     $mock->method('jsonSerialize')
                         ->willReturn([
@@ -144,8 +144,24 @@ class QuorumServiceTest extends TestCase
                         ]);
                     return $mock;
                 }
+
+                if ($id === 'body-id') {
+                    $mock = $this->createMock(originalClassName: 'OCA\OpenRegister\Db\ObjectEntity');
+                    $mock->method('jsonSerialize')->willReturn(['id' => 'body-id']);
+                    return $mock;
+                }
+
                 return null;
             });
+
+        $this->objectService->method('findObjects')
+            ->willReturn([
+                'results' => [
+                    ['attendanceStatus' => 'present'],
+                    ['attendanceStatus' => 'present'],
+                    ['attendanceStatus' => 'present'],
+                ],
+            ]);
 
         $result = $this->service->validateQuorum($meetingId);
 
