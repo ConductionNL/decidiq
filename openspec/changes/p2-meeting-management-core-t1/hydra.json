@@ -6,5 +6,18 @@
   "depends_on": [
     "p2-meeting-management"
   ],
-  "issue": "https://github.com/ConductionNL/decidesk/issues/60"
+  "issue": "https://github.com/ConductionNL/decidesk/issues/60",
+  "schema_version": 2,
+  "cycles": [
+    {
+      "cycle": 1,
+      "trigger": "build:queued",
+      "started_at": "2026-04-21T07:33:28Z",
+      "ended_at": null,
+      "outcome": "in-flight",
+      "outcome_reason": null,
+      "pattern_tags": [],
+      "stages": []
+    }
+  ]
 }
