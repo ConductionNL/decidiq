@@ -1,11 +1,22 @@
 {
   "ran": true,
-  "pass": null,
-  "blocking": [],
-  "turns": 0,
-  "cost_usd": 0.0,
-  "cost_eur": 0.0,
+  "pass": false,
+  "blocking": [
+    {
+      "file": "lib/Controller/ProjectionController.php",
+      "severity": "critical",
+      "note": "Missing #[PublicPage] and #[NoCSRFRequired] on publicState() \u2014 Nextcloud AuthMiddleware will reject every unauthenticated request, making the projection endpoint non-functional for its intended use (unfixed CRITICAL from Clyde Barcode, container-permission-denied)"
+    },
+    {
+      "file": "lib/Controller/VotingBehaviourController.php",
+      "severity": "critical",
+      "note": "Missing #[NoAdminRequired] / @NoAdminRequired on getStats() \u2014 Nextcloud SecurityMiddleware blocks all non-admin users before reaching the controller, rendering the in-controller RBAC logic dead code (unfixed CRITICAL from Clyde Barcode, container-permission-denied)"
+    }
+  ],
+  "turns": 8,
+  "cost_usd": 0.2248,
+  "cost_eur": 0.2068,
   "pr": 131,
-  "commit": "87ec3f0",
-  "timestamp": "2026-04-21T11:53:07.531405+00:00"
+  "commit": "248271a",
+  "timestamp": "2026-04-21T12:20:35.892587+00:00"
 }
