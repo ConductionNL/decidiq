@@ -202,7 +202,9 @@
       "ended_at": null,
       "outcome": "in-flight",
       "outcome_reason": null,
-      "pattern_tags": [],
+      "pattern_tags": [
+        "reviewer-ran-applied-no-fixes"
+      ],
       "stages": [
         {
           "stage": "fix",
