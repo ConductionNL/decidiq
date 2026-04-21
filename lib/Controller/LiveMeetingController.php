@@ -74,6 +74,8 @@ class LiveMeetingController extends Controller
      *
      * @return JSONResponse The created Decision object
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
      */
     public function recordLiveDecision(string $meetingId): JSONResponse

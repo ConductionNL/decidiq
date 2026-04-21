@@ -66,6 +66,8 @@ class AnalyticsController extends Controller
      *
      * @return JSONResponse The summary metrics
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
      */
     public function getSummary(): JSONResponse
@@ -90,6 +92,8 @@ class AnalyticsController extends Controller
      *
      * @return JSONResponse Array of completion rate objects
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
      */
     public function getCompletionRates(): JSONResponse
@@ -108,6 +112,8 @@ class AnalyticsController extends Controller
      * Returns { "overdue": [...], "thisWeek": [...], "later": [...] }
      *
      * @return JSONResponse Grouped action items
+     *
+     * @NoAdminRequired
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
      */
