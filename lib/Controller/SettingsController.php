@@ -93,10 +93,13 @@ class SettingsController extends Controller
     /**
      * Update settings with provided data.
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function create(): JSONResponse
     {
         $denied = $this->requireAdmin();
@@ -121,12 +124,15 @@ class SettingsController extends Controller
      * Forces a fresh import regardless of version, auto-configuring
      * all schema and register IDs from the import result.
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
      * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function load(): JSONResponse
     {
         $denied = $this->requireAdmin();
