@@ -73,8 +73,7 @@ class DecisionAutoRecordServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->objectService = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['find', 'findAll', 'setRegister', 'setSchema', 'saveObject', 'createRelation'])
+        $this->objectService = $this->getMockBuilder(\OCA\OpenRegister\Service\ObjectService::class)
             ->getMock();
 
         $this->objectService->method('setRegister')->willReturnSelf();

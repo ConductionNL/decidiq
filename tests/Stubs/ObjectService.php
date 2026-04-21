@@ -40,13 +40,13 @@ class ObjectService
 
 
     /**
-     * Find all objects matching config.
+     * Find all objects matching params.
      *
-     * @param array<string,mixed> $config Query configuration.
+     * @param array<string,mixed> $params Query parameters.
      *
-     * @return array<int,object>
+     * @return array<int,mixed>
      */
-    public function findAll(array $config=[]): array
+    public function findAll(array $params=[]): array
     {
         return [];
 
@@ -61,13 +61,38 @@ class ObjectService
      * @param string              $schema   Schema slug.
      * @param string              $uuid     Object UUID.
      *
-     * @return object
+     * @return array<string,mixed>
      */
-    public function saveObject(array $object, string $register='', string $schema='', string $uuid=''): object
+    public function saveObject(array $object, string $register='', string $schema='', string $uuid=''): array
     {
-        return new \stdClass();
+        return [];
 
     }//end saveObject()
+
+
+    /**
+     * Create a relation between two objects.
+     *
+     * @param string $sourceId       Source object UUID.
+     * @param string $targetId       Target object UUID.
+     * @param string $label          Relation label.
+     * @param string $sourceRegister Source register slug.
+     * @param string $sourceSchema   Source schema slug.
+     * @param string $targetRegister Target register slug.
+     * @param string $targetSchema   Target schema slug.
+     *
+     * @return void
+     */
+    public function createRelation(
+        string $sourceId,
+        string $targetId,
+        string $label='',
+        string $sourceRegister='',
+        string $sourceSchema='',
+        string $targetRegister='',
+        string $targetSchema='',
+    ): void {
+    }//end createRelation()
 
 
     /**

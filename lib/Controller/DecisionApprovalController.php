@@ -150,7 +150,7 @@ class DecisionApprovalController extends Controller
         } catch (\Throwable $e) {
             $this->logger->error("Review submission error: {$e->getMessage()}");
             return new JSONResponse(['error' => 'Internal error'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
     }//end submitReview()
 
     /**

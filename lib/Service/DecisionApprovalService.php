@@ -120,7 +120,7 @@ class DecisionApprovalService
             return $this->container->get('OCA\OpenRegister\Service\AuthorizationService');
         } catch (\Throwable $e) {
             throw new \RuntimeException(
-                'AuthorizationService unavailable: ' . $e->getMessage(),
+                'AuthorizationService unavailable: '.$e->getMessage(),
                 0,
                 $e
             );
@@ -195,7 +195,7 @@ class DecisionApprovalService
                     "Actor lacks required role for transition to '$toState'"
                 );
             }
-        }
+        }//end if
 
         $updateData = array_merge($decisionArray, ['lifecycle' => $toState]);
 

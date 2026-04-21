@@ -62,13 +62,38 @@ abstract class ObjectService
     abstract public function updateFromArray(string $id, array $object, bool $updateVersion = false, bool $patch = false): ?object;
 
     /**
-     * Fetch all objects matching filters (old API, used by MotionService).
+     * Fetch all objects matching filters.
      *
-     * @param array<string,mixed> $options Query options including 'filters'
+     * @param array<string,mixed> $params Query params including filters and pagination
      *
      * @return array<mixed>
      */
-    abstract public function findAll(array $options = []): array;
+    abstract public function findAll(array $params = []): array;
+
+
+    /**
+     * Create a relation between two objects.
+     *
+     * @param string $sourceId       Source object UUID
+     * @param string $targetId       Target object UUID
+     * @param string $label          Relation label
+     * @param string $sourceRegister Source register slug
+     * @param string $sourceSchema   Source schema slug
+     * @param string $targetRegister Target register slug
+     * @param string $targetSchema   Target schema slug
+     *
+     * @return void
+     */
+    public function createRelation(
+        string $sourceId,
+        string $targetId,
+        string $label='',
+        string $sourceRegister='',
+        string $sourceSchema='',
+        string $targetRegister='',
+        string $targetSchema='',
+    ): void {
+    }//end createRelation()
 
     /**
      * Fetch a single object directly (new named-parameter API).

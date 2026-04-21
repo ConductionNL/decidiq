@@ -150,8 +150,7 @@ class DecisionAnalyticsControllerTest extends TestCase
      */
     public function testAnalyticsReturnsFreshDataWhenCacheMiss(): void
     {
-        $objectService = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['setRegister', 'setSchema', 'findAll'])
+        $objectService = $this->getMockBuilder(\OCA\OpenRegister\Service\ObjectService::class)
             ->getMock();
 
         $objectService->method('setRegister')->willReturnSelf();
