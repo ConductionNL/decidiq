@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Decidesk Application Routes
+ *
+ * @category Config
+ * @package  OCA\Decidesk
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2024 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @link https://conduction.nl
+ */
+
 declare(strict_types=1);
 
 return [
@@ -11,23 +24,23 @@ return [
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
         // Minutes endpoints — specific routes must precede the wildcard catch-all.
-        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
         ['name' => 'minutes#generateDraft', 'url' => '/api/minutes/{minutesId}/generate-draft', 'verb' => 'POST'],
         ['name' => 'minutes#transition',    'url' => '/api/minutes/{minutesId}/transition',      'verb' => 'POST'],
 
         // Decision endpoints — server-side publish enforces governance access control.
-        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
 
         // Decision approval workflow endpoints (task-2).
-        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2.
         ['name' => 'decisionApproval#transitionLifecycle', 'url' => '/api/decisions/{id}/lifecycle', 'verb' => 'POST'],
         ['name' => 'decisionApproval#submitReview', 'url' => '/api/decisions/{id}/reviews', 'verb' => 'POST'],
         ['name' => 'decisionApproval#assignReviewer', 'url' => '/api/decisions/{id}/reviewers', 'verb' => 'POST'],
         ['name' => 'decisionApproval#remindReviewer', 'url' => '/api/decisions/{id}/reviewers/{personId}/remind', 'verb' => 'POST'],
 
         // Decision analytics endpoint (task-5).
-        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5.
         ['name' => 'decisionAnalytics#analytics', 'url' => '/api/decisions/analytics', 'verb' => 'GET'],
 
         // Meeting lifecycle transitions.

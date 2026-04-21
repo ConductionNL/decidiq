@@ -69,6 +69,8 @@ class DecisionApprovalController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
      */
     public function transitionLifecycle(
@@ -111,6 +113,8 @@ class DecisionApprovalController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
      */
     public function submitReview(
@@ -152,6 +156,8 @@ class DecisionApprovalController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
      */
     public function assignReviewer(
@@ -186,6 +192,8 @@ class DecisionApprovalController extends Controller
      * @param string $personId Person UUID to remind
      *
      * @return JSONResponse
+     *
+     * @NoAdminRequired
      *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
      */

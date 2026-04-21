@@ -66,6 +66,8 @@ class DecisionAnalyticsController extends Controller
      *
      * @return JSONResponse with analytics data
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
      */
     public function analytics(string $governanceBodyId=''): JSONResponse
