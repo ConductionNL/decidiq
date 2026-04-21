@@ -39,11 +39,11 @@ class DecisionAnalyticsController extends Controller
     /**
      * Construct the DecisionAnalyticsController.
      *
-     * @param string             $appName    Application name
-     * @param IRequest           $request    HTTP request
-     * @param ContainerInterface $container  DI container
-     * @param ICache             $cache      Cache service
-     * @param LoggerInterface    $logger     Logger
+     * @param string             $appName   Application name
+     * @param IRequest           $request   HTTP request
+     * @param ContainerInterface $container DI container
+     * @param ICache             $cache     Cache service
+     * @param LoggerInterface    $logger    Logger
      *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
      */
@@ -54,7 +54,7 @@ class DecisionAnalyticsController extends Controller
         private readonly ICache $cache,
         private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($appName, $request);
+        parent::__construct(appName: $appName, request: $request);
     }//end __construct()
 
     /**
@@ -68,9 +68,13 @@ class DecisionAnalyticsController extends Controller
      *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
      */
-    public function analytics(string $governanceBodyId = ''): JSONResponse
+    public function analytics(string $governanceBodyId=''): JSONResponse
     {
-        $cacheKey = "decidesk_analytics_" . ($governanceBodyId ?: 'all');
+        if ($governanceBodyId !== '') {
+            $cacheKey = "decidesk_analytics_$governanceBodyId";
+        } else {
+            $cacheKey = 'decidesk_analytics_all';
+        }
 
         $cached = $this->cache->get($cacheKey);
         if ($cached !== null) {
@@ -83,16 +87,16 @@ class DecisionAnalyticsController extends Controller
             $objectService->setSchema('Decision');
 
             $params = [];
-            if (!empty($governanceBodyId)) {
+            if (empty($governanceBodyId) === false) {
                 $params['governanceBodyId'] = $governanceBodyId;
             }
 
             $decisions = $objectService->findAll(params: $params);
 
-            $decisionsPerMonth = $this->groupDecisionsByMonth($decisions);
-            $outcomeDistribution = $this->groupDecisionsByOutcome($decisions);
-            $pendingApprovals = $this->countPendingApprovals($decisions);
-            $overdueActionItems = $this->countOverdueActionItems();
+            $decisionsPerMonth   = $this->groupDecisionsByMonth(decisions: $decisions);
+            $outcomeDistribution = $this->groupDecisionsByOutcome(decisions: $decisions);
+            $pendingApprovals    = $this->countPendingApprovals(decisions: $decisions);
+            $overdueActionItems  = $this->countOverdueActionItems();
 
             $response = [
                 'decisionsPerMonth'   => $decisionsPerMonth,
@@ -109,7 +113,7 @@ class DecisionAnalyticsController extends Controller
         } catch (\Throwable $e) {
             $this->logger->error("Analytics error: {$e->getMessage()}");
             return new JSONResponse(['error' => 'Internal error'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
     }//end analytics()
 
     /**
@@ -123,8 +127,8 @@ class DecisionAnalyticsController extends Controller
     {
         $byMonth = [];
         foreach ($decisions as $decision) {
-            $date = $decision['decisionDate'] ?? date(\DateTime::ATOM);
-            $month = substr($date, 0, 7);
+            $date            = $decision['decisionDate'] ?? date(\DateTime::ATOM);
+            $month           = substr($date, 0, 7);
             $byMonth[$month] = ($byMonth[$month] ?? 0) + 1;
         }
 
@@ -167,10 +171,12 @@ class DecisionAnalyticsController extends Controller
      */
     private function countPendingApprovals(array $decisions): int
     {
-        return count(array_filter(
+        return count(
+                array_filter(
             $decisions,
             fn ($d) => in_array($d['lifecycle'] ?? '', ['legal-review', 'committee-review'], true)
-        ));
+        )
+                );
     }//end countPendingApprovals()
 
     /**

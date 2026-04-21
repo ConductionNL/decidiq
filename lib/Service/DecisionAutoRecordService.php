@@ -106,7 +106,7 @@ class DecisionAutoRecordService
             params: ['relations' => ['label' => 'source-motion', 'targetId' => $motionId]],
         );
 
-        if (!empty($existingDecisions)) {
+        if (empty($existingDecisions) === false) {
             $existingId = $existingDecisions[0]['@self']['id'] ?? null;
             $this->logger->info(
                 "Decision already exists for motion $motionId — skipping auto-creation (idempotent). UUID: $existingId"
@@ -115,17 +115,17 @@ class DecisionAutoRecordService
         }
 
         $decisionText = $motionArray['decisionText'] ?? '';
-        if (empty($decisionText)) {
+        if (empty($decisionText) === true) {
             $decisionText = $motionArray['text'] ?? '';
         }
 
         $newDecision = [
-            'title'       => $motionArray['title'] ?? '',
-            'text'        => $decisionText,
+            'title'        => $motionArray['title'] ?? '',
+            'text'         => $decisionText,
             'decisionDate' => date(\DateTime::ATOM),
-            'outcome'     => 'adopted',
-            'lifecycle'   => 'draft',
-            'legalBasis'  => $motionArray['legalBasis'] ?? '',
+            'outcome'      => 'adopted',
+            'lifecycle'    => 'draft',
+            'legalBasis'   => $motionArray['legalBasis'] ?? '',
         ];
 
         $createdDecision = $objectService->saveObject(
@@ -136,7 +136,7 @@ class DecisionAutoRecordService
 
         $createdId = $createdDecision['@self']['id'] ?? null;
 
-        if ($createdId && method_exists($objectService, 'createRelation')) {
+        if ($createdId !== null && method_exists($objectService, 'createRelation') === true) {
             $objectService->createRelation(
                 sourceId: $createdId,
                 targetId: $motionId,
@@ -153,7 +153,7 @@ class DecisionAutoRecordService
         );
 
         $notificationService = $this->getNotificationService();
-        if ($notificationService && method_exists($notificationService, 'notify')) {
+        if ($notificationService !== null && method_exists($notificationService, 'notify') === true) {
             $title = $motionArray['title'] ?? 'Motion';
             $notificationService->notify(
                 recipients: [],

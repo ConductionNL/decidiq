@@ -38,12 +38,12 @@ class DecisionApprovalService
      * @var array<string, array<string>>
      */
     private const APPROVAL_TRANSITIONS = [
-        'draft'           => ['legal-review'],
-        'legal-review'    => ['committee-review', 'board-rejected'],
+        'draft'            => ['legal-review'],
+        'legal-review'     => ['committee-review', 'board-rejected'],
         'committee-review' => ['board-approved', 'board-rejected'],
-        'board-approved'  => ['published'],
-        'board-rejected'  => ['draft'],
-        'published'       => [],
+        'board-approved'   => ['published'],
+        'board-rejected'   => ['draft'],
+        'published'        => [],
     ];
 
     /**
@@ -52,11 +52,11 @@ class DecisionApprovalService
      * @var array<string, array<string>>
      */
     private const REQUIRED_ROLES = [
-        'legal-review'    => ['chair', 'secretary'],
+        'legal-review'     => ['chair', 'secretary'],
         'committee-review' => ['legal-counsel'],
-        'board-approved'  => ['chair', 'secretary'],
-        'board-rejected'  => ['chair', 'secretary', 'legal-counsel'],
-        'published'       => ['chair', 'secretary'],
+        'board-approved'   => ['chair', 'secretary'],
+        'board-rejected'   => ['chair', 'secretary', 'legal-counsel'],
+        'published'        => ['chair', 'secretary'],
     ];
 
     /**
@@ -139,7 +139,7 @@ class DecisionApprovalService
         string $decisionId,
         string $toState,
         string $actorId,
-        string $reason = ''
+        string $reason=''
     ): void {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
@@ -151,27 +151,28 @@ class DecisionApprovalService
         }
 
         $decisionArray = $decision->getObject();
-        $currentState = $decisionArray['lifecycle'] ?? 'draft';
+        $currentState  = $decisionArray['lifecycle'] ?? 'draft';
 
         $allowed = self::APPROVAL_TRANSITIONS[$currentState] ?? [];
-        if (!in_array($toState, $allowed, true)) {
+        if (in_array($toState, $allowed, true) === false) {
             throw new \InvalidArgumentException(
                 "Transition from '$currentState' to '$toState' is not allowed"
             );
         }
 
         $requiredRoles = self::REQUIRED_ROLES[$toState] ?? [];
-        if (!empty($requiredRoles)) {
+        if (empty($requiredRoles) === false) {
             $authService = $this->getAuthorizationService();
-            if ($authService && method_exists($authService, 'checkUserRole')) {
+            if ($authService !== null && method_exists($authService, 'checkUserRole') === true) {
                 $hasRole = false;
                 foreach ($requiredRoles as $role) {
-                    if ($authService->checkUserRole($actorId, $role)) {
+                    if ($authService->checkUserRole($actorId, $role) === true) {
                         $hasRole = true;
                         break;
                     }
                 }
-                if (!$hasRole) {
+
+                if ($hasRole === false) {
                     throw new \InvalidArgumentException(
                         "Actor lacks required role for transition to '$toState'"
                     );
@@ -181,10 +182,10 @@ class DecisionApprovalService
 
         $updateData = array_merge($decisionArray, ['lifecycle' => $toState]);
 
-        if ($toState === 'board-rejected' && !empty($reason)) {
-            $notes = $decisionArray['notes'] ?? [];
+        if ($toState === 'board-rejected' && empty($reason) === false) {
+            $notes     = $decisionArray['notes'] ?? [];
             $timestamp = date(\DateTime::ATOM);
-            $notes[] = "[REJECTION] Reason: $reason — $timestamp";
+            $notes[]   = "[REJECTION] Reason: $reason — $timestamp";
             $updateData['notes'] = $notes;
         }
 
@@ -200,8 +201,8 @@ class DecisionApprovalService
         );
 
         $notificationService = $this->getNotificationService();
-        if ($notificationService && method_exists($notificationService, 'notify')) {
-            $title = $decisionArray['title'] ?? 'Decision';
+        if ($notificationService !== null && method_exists($notificationService, 'notify') === true) {
+            $title   = $decisionArray['title'] ?? 'Decision';
             $message = "Decision '$title' advanced to $toState";
             $notificationService->notify(
                 recipients: [],
@@ -231,9 +232,9 @@ class DecisionApprovalService
         string $decisionId,
         string $personId,
         string $value,
-        string $note = ''
+        string $note=''
     ): void {
-        if (!in_array($value, ['approved', 'rejected'], true)) {
+        if (in_array($value, ['approved', 'rejected'], true) === false) {
             throw new \InvalidArgumentException("Value must be 'approved' or 'rejected'");
         }
 
@@ -247,10 +248,10 @@ class DecisionApprovalService
         }
 
         $decisionArray = $decision->getObject();
-        $notes = $decisionArray['notes'] ?? [];
-        $timestamp = date(\DateTime::ATOM);
-        $reviewNote = "[REVIEW] Person $personId: $value — $note — $timestamp";
-        $notes[] = $reviewNote;
+        $notes         = $decisionArray['notes'] ?? [];
+        $timestamp     = date(\DateTime::ATOM);
+        $reviewNote    = "[REVIEW] Person $personId: $value — $note — $timestamp";
+        $notes[]       = $reviewNote;
 
         $updateData = array_merge($decisionArray, ['notes' => $notes]);
         $objectService->saveObject(
@@ -296,7 +297,7 @@ class DecisionApprovalService
 
         $decisionArray = $decision->getObject();
 
-        if (method_exists($objectService, 'createRelation')) {
+        if (method_exists($objectService, 'createRelation') === true) {
             $objectService->createRelation(
                 sourceId: $decisionId,
                 targetId: $personId,
@@ -313,7 +314,7 @@ class DecisionApprovalService
         );
 
         $notificationService = $this->getNotificationService();
-        if ($notificationService && method_exists($notificationService, 'notify')) {
+        if ($notificationService !== null && method_exists($notificationService, 'notify') === true) {
             $title = $decisionArray['title'] ?? 'Decision';
             $notificationService->notify(
                 recipients: [$personId],
@@ -344,35 +345,37 @@ class DecisionApprovalService
         }
 
         $decisionArray = $decision->getObject();
-        $notes = $decisionArray['notes'] ?? [];
+        $notes         = $decisionArray['notes'] ?? [];
 
-        if (method_exists($objectService, 'findRelations')) {
+        if (method_exists($objectService, 'findRelations') === true) {
             $relations = $objectService->findRelations(
                 sourceId: $decisionId,
                 label: 'reviewer',
             );
 
-            if (empty($relations)) {
+            if (empty($relations) === true) {
                 return true;
             }
 
             foreach ($relations as $relation) {
                 $personId = $relation['targetId'] ?? null;
-                if ($personId) {
+                if ($personId !== null) {
                     $reviewed = false;
                     foreach ($notes as $note) {
-                        if (strpos($note, "[REVIEW]") !== false &&
-                            strpos($note, $personId) !== false) {
+                        if (strpos($note, "[REVIEW]") !== false
+                            && strpos($note, $personId) !== false
+                        ) {
                             $reviewed = true;
                             break;
                         }
                     }
-                    if (!$reviewed) {
+
+                    if ($reviewed === false) {
                         return false;
                     }
                 }
             }
-        }
+        }//end if
 
         return true;
     }//end allReviewsComplete()

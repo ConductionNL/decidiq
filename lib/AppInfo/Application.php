@@ -79,7 +79,7 @@ class Application extends App implements IBootstrap
         $context->registerRepairStep(InitializeSettings::class);
 
         // Register DecisionApprovalService for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-1
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-1.
         $context->registerService(
                 DecisionApprovalService::class,
                 static function ($c): DecisionApprovalService {
@@ -91,7 +91,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionAutoRecordService for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-3
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-3.
         $context->registerService(
                 DecisionAutoRecordService::class,
                 static function ($c): DecisionAutoRecordService {
@@ -149,7 +149,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionApprovalController for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2.
         $context->registerService(
                 DecisionApprovalController::class,
                 static function ($c): DecisionApprovalController {
@@ -164,7 +164,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionAnalyticsController for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5.
         $context->registerService(
                 DecisionAnalyticsController::class,
                 static function ($c): DecisionAnalyticsController {
@@ -192,12 +192,12 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionDigestJob for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-6
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-6.
         $context->registerService(
                 DecisionDigestJob::class,
                 static function ($c): DecisionDigestJob {
                     return new DecisionDigestJob(
-                    timeFactory: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );

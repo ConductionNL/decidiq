@@ -39,11 +39,11 @@ class DecisionApprovalController extends Controller
     /**
      * Construct the DecisionApprovalController.
      *
-     * @param string                     $appName       Application name
-     * @param IRequest                   $request       HTTP request
-     * @param DecisionApprovalService    $approvalService Approval service
-     * @param IUserSession               $userSession   User session
-     * @param LoggerInterface            $logger        Logger
+     * @param string                  $appName         Application name
+     * @param IRequest                $request         HTTP request
+     * @param DecisionApprovalService $approvalService Approval service
+     * @param IUserSession            $userSession     User session
+     * @param LoggerInterface         $logger          Logger
      *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
      */
@@ -54,7 +54,7 @@ class DecisionApprovalController extends Controller
         private readonly IUserSession $userSession,
         private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($appName, $request);
+        parent::__construct(appName: $appName, request: $request);
     }//end __construct()
 
     /**
@@ -74,7 +74,7 @@ class DecisionApprovalController extends Controller
     public function transitionLifecycle(
         string $id,
         string $toState,
-        string $reason = ''
+        string $reason=''
     ): JSONResponse {
         try {
             $user = $this->userSession->getUser();
@@ -117,7 +117,7 @@ class DecisionApprovalController extends Controller
         string $id,
         string $personId,
         string $value,
-        string $note = ''
+        string $note=''
     ): JSONResponse {
         try {
             $user = $this->userSession->getUser();

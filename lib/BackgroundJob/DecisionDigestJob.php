@@ -41,80 +41,80 @@ class DecisionDigestJob extends TimedJob
     /**
      * Construct the DecisionDigestJob.
      *
-     * @param ITimeFactory       $timeFactory Time factory
-     * @param ContainerInterface $container   DI container
-     * @param LoggerInterface    $logger      Logger
+     * @param ITimeFactory       $time      Time factory
+     * @param ContainerInterface $container DI container
+     * @param LoggerInterface    $logger    Logger
      *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-6
      */
     public function __construct(
-        ITimeFactory $timeFactory,
+        ITimeFactory $time,
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($timeFactory);
-        $this->setInterval(604800);
+        parent::__construct(time: $time);
+        $this->setInterval(seconds: 604800);
     }//end __construct()
 
     /**
      * Run the digest job.
      *
-     * @param array $argument Not used
+     * @param mixed $argument Not used
      *
      * @return void
      *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-6
      */
-    protected function run($argument): void
+    protected function run(mixed $argument): void
     {
         $this->logger->info("DecisionDigestJob: starting");
 
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $appConfig = $this->container->get(IAppConfig::class);
-            $mailer = $this->container->get(IMailer::class);
+            $appConfig     = $this->container->get(IAppConfig::class);
+            $mailer        = $this->container->get(IMailer::class);
 
             $objectService->setRegister('decidesk');
             $objectService->setSchema('GovernanceBody');
 
-            $bodies = $objectService->findAll();
+            $bodies    = $objectService->findAll();
             $sentCount = 0;
 
             foreach ($bodies as $body) {
                 $bodyId = $body['@self']['id'] ?? null;
-                if (!$bodyId) {
+                if ($bodyId === null || $bodyId === '') {
                     continue;
                 }
 
                 $digestionEnabled = $appConfig->getValueBool('decidesk', "digest_enabled_$bodyId", true);
-                if (!$digestionEnabled) {
+                if ($digestionEnabled === false) {
                     $this->logger->info("DecisionDigestJob: digest disabled for body $bodyId");
                     continue;
                 }
 
                 try {
-                    $this->sendDigestForBody($bodyId, $body, $objectService, $mailer);
+                    $this->sendDigestForBody(bodyId: $bodyId, body: $body, objectService: $objectService, mailer: $mailer);
                     $sentCount++;
                 } catch (\Throwable $e) {
                     $this->logger->error(
                         "DecisionDigestJob: failed to send digest for body $bodyId: {$e->getMessage()}"
                     );
-                }
-            }
+                }//end try
+            }//end foreach
 
             $this->logger->info("DecisionDigestJob: completed, sent $sentCount digests");
         } catch (\Throwable $e) {
             $this->logger->error("DecisionDigestJob failed: {$e->getMessage()}");
-        }
+        }//end try
     }//end run()
 
     /**
      * Send digest for a single governance body.
      *
-     * @param string             $bodyId        Governance body ID
-     * @param array              $body          Governance body object
-     * @param object             $objectService ObjectService instance
-     * @param IMailer            $mailer        Mailer instance
+     * @param string  $bodyId        Governance body ID
+     * @param array   $body          Governance body object
+     * @param object  $objectService ObjectService instance
+     * @param IMailer $mailer        Mailer instance
      *
      * @return void
      */
@@ -126,25 +126,25 @@ class DecisionDigestJob extends TimedJob
     ): void {
         $objectService->setSchema('ActionItem');
         $upcomingItems = $objectService->findAll(params: ['dueDate' => ['within' => [0, 14]]]);
-        $overdueItems = $objectService->findAll(params: ['taskStatus' => 'overdue']);
+        $overdueItems  = $objectService->findAll(params: ['taskStatus' => 'overdue']);
 
         $objectService->setSchema('Decision');
         $pendingDecisions = $objectService->findAll(
             params: ['lifecycle' => ['legal-review', 'committee-review']]
         );
 
-        if (empty($upcomingItems) && empty($overdueItems) && empty($pendingDecisions)) {
+        if (empty($upcomingItems) === true && empty($overdueItems) === true && empty($pendingDecisions) === true) {
             $this->logger->info("DecisionDigestJob: no items for body $bodyId, skipping email");
             return;
         }
 
         $bodyName = $body['name'] ?? $body['title'] ?? 'Governance Body';
-        $subject = "Decidesk weekoverzicht — $bodyName — " . date('d-m-Y');
+        $subject  = "Decidesk weekoverzicht — $bodyName — ".date('d-m-Y');
 
-        $htmlBody = $this->buildHtmlBody($upcomingItems, $overdueItems, $pendingDecisions);
-        $textBody = $this->buildTextBody($upcomingItems, $overdueItems, $pendingDecisions);
+        $htmlBody = $this->buildHtmlBody(upcomingItems: $upcomingItems, overdueItems: $overdueItems, pendingDecisions: $pendingDecisions);
+        $textBody = $this->buildTextBody(upcomingItems: $upcomingItems, overdueItems: $overdueItems, pendingDecisions: $pendingDecisions);
 
-        $recipients = $this->getRecipients($bodyId, $objectService);
+        $recipients = $this->getRecipients(bodyId: $bodyId, objectService: $objectService);
         foreach ($recipients as $recipientEmail) {
             try {
                 $message = $mailer->createMessage();
@@ -161,8 +161,8 @@ class DecisionDigestJob extends TimedJob
                 $this->logger->error(
                     "DecisionDigestJob: failed to send to $recipientEmail: {$e->getMessage()}"
                 );
-            }
-        }
+            }//end try
+        }//end foreach
     }//end sendDigestForBody()
 
     /**
@@ -182,14 +182,15 @@ class DecisionDigestJob extends TimedJob
 
             foreach ($people as $person) {
                 $role = $person['role'] ?? '';
-                if (in_array($role, ['chair', 'secretary'], true)) {
+                if (in_array($role, ['chair', 'secretary'], strict: true) === true) {
                     $email = $person['email'] ?? null;
-                    if (!empty($email)) {
+                    if (empty($email) === false) {
                         $recipients[] = $email;
                     }
-                }
-            }
+                }//end if
+            }//end foreach
         } catch (\Throwable) {
+            // OpenRegister unavailable or schema missing — return empty recipients list.
         }
 
         return $recipients;
@@ -208,33 +209,36 @@ class DecisionDigestJob extends TimedJob
     {
         $html = '<html><body style="font-family: Arial, sans-serif;"><h2>Decidesk Weekoverzicht</h2>';
 
-        if (!empty($upcomingItems)) {
+        if (empty($upcomingItems) === false) {
             $html .= '<h3>Aankomende actiepunten</h3><ul>';
             foreach ($upcomingItems as $item) {
-                $title = $item['title'] ?? 'Untitled';
+                $title   = $item['title'] ?? 'Untitled';
                 $dueDate = substr($item['dueDate'] ?? '', 0, 10);
-                $html .= "<li>$title (vervaldatum: $dueDate)</li>";
-            }
+                $html   .= "<li>$title (vervaldatum: $dueDate)</li>";
+            }//end foreach
+
             $html .= '</ul>';
         }
 
-        if (!empty($overdueItems)) {
+        if (empty($overdueItems) === false) {
             $html .= '<h3>Achterstallige actiepunten</h3><ul>';
             foreach ($overdueItems as $item) {
-                $title = $item['title'] ?? 'Untitled';
+                $title   = $item['title'] ?? 'Untitled';
                 $dueDate = substr($item['dueDate'] ?? '', 0, 10);
-                $html .= "<li>$title (vervaldatum was: $dueDate)</li>";
-            }
+                $html   .= "<li>$title (vervaldatum was: $dueDate)</li>";
+            }//end foreach
+
             $html .= '</ul>';
         }
 
-        if (!empty($pendingDecisions)) {
+        if (empty($pendingDecisions) === false) {
             $html .= '<h3>Besluiten in behandeling</h3><ul>';
             foreach ($pendingDecisions as $decision) {
-                $title = $decision['title'] ?? 'Untitled';
+                $title     = $decision['title'] ?? 'Untitled';
                 $lifecycle = $decision['lifecycle'] ?? 'unknown';
-                $html .= "<li>$title (status: $lifecycle)</li>";
-            }
+                $html     .= "<li>$title (status: $lifecycle)</li>";
+            }//end foreach
+
             $html .= '</ul>';
         }
 
@@ -255,33 +259,36 @@ class DecisionDigestJob extends TimedJob
     {
         $text = "Decidesk Weekoverzicht\n\n";
 
-        if (!empty($upcomingItems)) {
+        if (empty($upcomingItems) === false) {
             $text .= "Aankomende actiepunten:\n";
             foreach ($upcomingItems as $item) {
-                $title = $item['title'] ?? 'Untitled';
+                $title   = $item['title'] ?? 'Untitled';
                 $dueDate = substr($item['dueDate'] ?? '', 0, 10);
-                $text .= "- $title (vervaldatum: $dueDate)\n";
-            }
+                $text   .= "- $title (vervaldatum: $dueDate)\n";
+            }//end foreach
+
             $text .= "\n";
         }
 
-        if (!empty($overdueItems)) {
+        if (empty($overdueItems) === false) {
             $text .= "Achterstallige actiepunten:\n";
             foreach ($overdueItems as $item) {
-                $title = $item['title'] ?? 'Untitled';
+                $title   = $item['title'] ?? 'Untitled';
                 $dueDate = substr($item['dueDate'] ?? '', 0, 10);
-                $text .= "- $title (vervaldatum was: $dueDate)\n";
-            }
+                $text   .= "- $title (vervaldatum was: $dueDate)\n";
+            }//end foreach
+
             $text .= "\n";
         }
 
-        if (!empty($pendingDecisions)) {
+        if (empty($pendingDecisions) === false) {
             $text .= "Besluiten in behandeling:\n";
             foreach ($pendingDecisions as $decision) {
-                $title = $decision['title'] ?? 'Untitled';
+                $title     = $decision['title'] ?? 'Untitled';
                 $lifecycle = $decision['lifecycle'] ?? 'unknown';
-                $text .= "- $title (status: $lifecycle)\n";
-            }
+                $text     .= "- $title (status: $lifecycle)\n";
+            }//end foreach
+
             $text .= "\n";
         }
 

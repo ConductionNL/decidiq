@@ -68,9 +68,9 @@ class MotionService
     /**
      * Construct the MotionService.
      *
-     * @param ContainerInterface $container   The DI container for lazy-loading OR services
-     * @param LoggerInterface    $logger      Logger interface
-     * @param IUserManager       $userManager Nextcloud user manager for UID lookup
+     * @param ContainerInterface             $container                 The DI container for lazy-loading OR services
+     * @param LoggerInterface                $logger                    Logger interface
+     * @param IUserManager                   $userManager               Nextcloud user manager for UID lookup
      * @param DecisionAutoRecordService|null $decisionAutoRecordService Service for auto-creating Decisions
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
@@ -80,7 +80,7 @@ class MotionService
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly IUserManager $userManager,
-        private readonly ?DecisionAutoRecordService $decisionAutoRecordService = null,
+        private readonly ?DecisionAutoRecordService $decisionAutoRecordService=null,
     ) {
     }//end __construct()
 
@@ -150,7 +150,7 @@ class MotionService
             uuid: $objectId,
         );
 
-        if ($objectType === 'motion' && $newState === 'adopted' && $this->decisionAutoRecordService) {
+        if ($objectType === 'motion' && $newState === 'adopted' && $this->decisionAutoRecordService !== null) {
             try {
                 $this->decisionAutoRecordService->createFromAdoptedMotion($objectId);
             } catch (\Throwable $e) {
