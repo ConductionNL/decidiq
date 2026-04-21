@@ -48,12 +48,12 @@ class DashboardController extends Controller
     /**
      * Render the main dashboard page.
      *
+     * @return TemplateResponse
+     *
      * @NoAdminRequired
      * @NoCSRFRequired
      *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
-     *
-     * @return TemplateResponse
      */
     public function page(): TemplateResponse
     {
@@ -61,14 +61,14 @@ class DashboardController extends Controller
     }//end page()
 
     /**
-     * Serve the SPA for deep links (Vue history mode). Delegates to {@see page()}.
+     * Serve the SPA for deep links (Vue history mode). Delegates to page().
+     *
+     * @return TemplateResponse
      *
      * @NoAdminRequired
      * @NoCSRFRequired
      *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
-     *
-     * @return TemplateResponse
      */
     public function catchAll(): TemplateResponse
     {

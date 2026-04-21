@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -104,16 +105,25 @@ class DecisionApprovalService
     /**
      * Get the AuthorizationService from the container.
      *
+     * Throws RuntimeException when the service is unavailable so callers can
+     * implement deny-by-default instead of failing open.
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-1
      *
-     * @return object|null
+     * @return object
+     *
+     * @throws \RuntimeException When AuthorizationService cannot be resolved.
      */
-    private function getAuthorizationService(): ?object
+    private function getAuthorizationService(): object
     {
         try {
             return $this->container->get('OCA\OpenRegister\Service\AuthorizationService');
-        } catch (\Throwable) {
-            return null;
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                'AuthorizationService unavailable: ' . $e->getMessage(),
+                0,
+                $e
+            );
         }
     }//end getAuthorizationService()
 
@@ -162,21 +172,28 @@ class DecisionApprovalService
 
         $requiredRoles = self::REQUIRED_ROLES[$toState] ?? [];
         if (empty($requiredRoles) === false) {
-            $authService = $this->getAuthorizationService();
-            if ($authService !== null && method_exists($authService, 'checkUserRole') === true) {
-                $hasRole = false;
+            try {
+                $authService = $this->getAuthorizationService();
+            } catch (\RuntimeException) {
+                throw new \InvalidArgumentException(
+                    "Authorization service unavailable — access denied for transition to '$toState'"
+                );
+            }
+
+            $hasRole = false;
+            if (method_exists($authService, 'checkUserRole') === true) {
                 foreach ($requiredRoles as $role) {
                     if ($authService->checkUserRole($actorId, $role) === true) {
                         $hasRole = true;
                         break;
                     }
                 }
+            }
 
-                if ($hasRole === false) {
-                    throw new \InvalidArgumentException(
-                        "Actor lacks required role for transition to '$toState'"
-                    );
-                }
+            if ($hasRole === false) {
+                throw new \InvalidArgumentException(
+                    "Actor lacks required role for transition to '$toState'"
+                );
             }
         }
 
@@ -211,6 +228,43 @@ class DecisionApprovalService
             );
         }
     }//end transitionLifecycle()
+
+    /**
+     * Verify the calling Nextcloud user is the named Person reviewer.
+     *
+     * Looks up the Person entity by UUID, then checks that the Person's
+     * `nextcloudUserId` matches the authenticated caller's UID. Throws when
+     * the check fails so callers can deny the request unconditionally.
+     *
+     * @param string $personId  UUID of Person entity
+     * @param string $callerUid Nextcloud UID of authenticated user
+     *
+     * @return void
+     *
+     * @throws OCSForbiddenException If caller UID does not match the Person record.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     */
+    public function authorizeReviewerSubmission(string $personId, string $callerUid): void
+    {
+        $objectService = $this->getObjectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('Person');
+
+        $person = $objectService->find($personId);
+        if ($person === null) {
+            throw new OCSForbiddenException('Person not found or access denied');
+        }
+
+        $personArray = $person->getObject();
+        $personUid   = $personArray['nextcloudUserId'] ?? null;
+
+        if ($personUid !== $callerUid) {
+            throw new OCSForbiddenException(
+                'Authenticated user does not correspond to the supplied personId'
+            );
+        }
+    }//end authorizeReviewerSubmission()
 
     /**
      * Submit a reviewer sign-off on a Decision.

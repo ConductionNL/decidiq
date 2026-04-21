@@ -212,8 +212,8 @@ class DecisionDigestJob extends TimedJob
         if (empty($upcomingItems) === false) {
             $html .= '<h3>Aankomende actiepunten</h3><ul>';
             foreach ($upcomingItems as $item) {
-                $title   = $item['title'] ?? 'Untitled';
-                $dueDate = substr($item['dueDate'] ?? '', 0, 10);
+                $title   = htmlspecialchars($item['title'] ?? 'Untitled', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $dueDate = htmlspecialchars(substr($item['dueDate'] ?? '', 0, 10), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $html   .= "<li>$title (vervaldatum: $dueDate)</li>";
             }//end foreach
 
@@ -223,8 +223,8 @@ class DecisionDigestJob extends TimedJob
         if (empty($overdueItems) === false) {
             $html .= '<h3>Achterstallige actiepunten</h3><ul>';
             foreach ($overdueItems as $item) {
-                $title   = $item['title'] ?? 'Untitled';
-                $dueDate = substr($item['dueDate'] ?? '', 0, 10);
+                $title   = htmlspecialchars($item['title'] ?? 'Untitled', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $dueDate = htmlspecialchars(substr($item['dueDate'] ?? '', 0, 10), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $html   .= "<li>$title (vervaldatum was: $dueDate)</li>";
             }//end foreach
 
@@ -234,8 +234,8 @@ class DecisionDigestJob extends TimedJob
         if (empty($pendingDecisions) === false) {
             $html .= '<h3>Besluiten in behandeling</h3><ul>';
             foreach ($pendingDecisions as $decision) {
-                $title     = $decision['title'] ?? 'Untitled';
-                $lifecycle = $decision['lifecycle'] ?? 'unknown';
+                $title     = htmlspecialchars($decision['title'] ?? 'Untitled', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $lifecycle = htmlspecialchars($decision['lifecycle'] ?? 'unknown', ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $html     .= "<li>$title (status: $lifecycle)</li>";
             }//end foreach
 

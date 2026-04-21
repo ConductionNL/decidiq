@@ -25,6 +25,7 @@ use OCA\Decidesk\Service\DecisionApprovalService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -129,6 +130,11 @@ class DecisionApprovalController extends Controller
                 return new JSONResponse(['error' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
             }
 
+            $this->approvalService->authorizeReviewerSubmission(
+                personId: $personId,
+                callerUid: $user->getUID(),
+            );
+
             $this->approvalService->submitReview(
                 decisionId: $id,
                 personId: $personId,
@@ -137,6 +143,8 @@ class DecisionApprovalController extends Controller
             );
 
             return new JSONResponse(['status' => 'ok'], Http::STATUS_OK);
+        } catch (OCSForbiddenException $e) {
+            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\Throwable $e) {
