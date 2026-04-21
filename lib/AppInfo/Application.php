@@ -27,6 +27,8 @@ use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
+use OCA\Decidesk\Service\DecisionApprovalService;
+use OCA\Decidesk\Service\DecisionAutoRecordService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\AppFramework\App;
@@ -72,6 +74,30 @@ class Application extends App implements IBootstrap
 
         // Initialize register and schemas on install/upgrade.
         $context->registerRepairStep(InitializeSettings::class);
+
+        // Register DecisionApprovalService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-1
+        $context->registerService(
+                DecisionApprovalService::class,
+                static function ($c): DecisionApprovalService {
+                    return new DecisionApprovalService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register DecisionAutoRecordService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-3
+        $context->registerService(
+                DecisionAutoRecordService::class,
+                static function ($c): DecisionAutoRecordService {
+                    return new DecisionAutoRecordService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
 
         // Register MinutesGenerationService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.

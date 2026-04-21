@@ -71,13 +71,16 @@ class MotionService
      * @param ContainerInterface $container   The DI container for lazy-loading OR services
      * @param LoggerInterface    $logger      Logger interface
      * @param IUserManager       $userManager Nextcloud user manager for UID lookup
+     * @param DecisionAutoRecordService|null $decisionAutoRecordService Service for auto-creating Decisions
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-3
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly IUserManager $userManager,
+        private readonly ?DecisionAutoRecordService $decisionAutoRecordService = null,
     ) {
     }//end __construct()
 
@@ -146,6 +149,16 @@ class MotionService
             schema: $objectType,
             uuid: $objectId,
         );
+
+        if ($objectType === 'motion' && $newState === 'adopted' && $this->decisionAutoRecordService) {
+            try {
+                $this->decisionAutoRecordService->createFromAdoptedMotion($objectId);
+            } catch (\Throwable $e) {
+                $this->logger->warning(
+                    "Failed to auto-create Decision from Motion $objectId: {$e->getMessage()}"
+                );
+            }
+        }
 
         $this->logger->info(
             "Decidesk: $objectType $objectId transitioned from $currentState to $newState by $actorId"
