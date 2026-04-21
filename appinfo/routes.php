@@ -43,6 +43,13 @@ return [
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
 
+        // Meeting CRUD operations (task 1.4).
+        ['name' => 'meeting#index',   'url' => '/api/meetings',      'verb' => 'GET'],
+        ['name' => 'meeting#create',  'url' => '/api/meetings',      'verb' => 'POST'],
+        ['name' => 'meeting#show',    'url' => '/api/meetings/{id}', 'verb' => 'GET'],
+        ['name' => 'meeting#update',  'url' => '/api/meetings/{id}', 'verb' => 'PUT'],
+        ['name' => 'meeting#destroy', 'url' => '/api/meetings/{id}', 'verb' => 'DELETE'],
+
         // Meeting lifecycle transitions.
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
 

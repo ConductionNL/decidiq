@@ -30,6 +30,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 
 /**
  * Tests for MeetingController.
@@ -68,6 +69,13 @@ class MeetingControllerTest extends TestCase
     private IUserSession&MockObject $userSession;
 
     /**
+     * Mock DI container.
+     *
+     * @var ContainerInterface&MockObject
+     */
+    private ContainerInterface&MockObject $container;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -79,6 +87,7 @@ class MeetingControllerTest extends TestCase
         $this->request        = $this->createMock(originalClassName: IRequest::class);
         $this->meetingService = $this->createMock(originalClassName: MeetingService::class);
         $this->userSession    = $this->createMock(originalClassName: IUserSession::class);
+        $this->container      = $this->createMock(originalClassName: ContainerInterface::class);
 
         // Default: authenticated user present.
         $mockUser = $this->createMock(originalClassName: IUser::class);
@@ -89,6 +98,7 @@ class MeetingControllerTest extends TestCase
             request: $this->request,
             meetingService: $this->meetingService,
             userSession: $this->userSession,
+            container: $this->container,
         );
 
     }//end setUp()
@@ -218,6 +228,7 @@ class MeetingControllerTest extends TestCase
             request: $this->request,
             meetingService: $this->meetingService,
             userSession: $unauthSession,
+            container: $this->container,
         );
 
         $this->request->method('getParam')
