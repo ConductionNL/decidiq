@@ -59,14 +59,18 @@ class MeetingService
     /**
      * Constructor for MeetingService.
      *
-     * @param ContainerInterface $container The DI container (used to retrieve ObjectService)
-     * @param LoggerInterface    $logger    The logger
+     * @param ContainerInterface $container       The DI container (used to retrieve ObjectService)
+     * @param LoggerInterface    $logger          The logger
+     * @param WorkflowService    $workflowService Domain-specific transition rules and chair-only gates
+     * @param QuorumService      $quorumService   Quorum validation before opening meetings
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
+        private readonly WorkflowService $workflowService,
+        private readonly QuorumService $quorumService,
     ) {
     }//end __construct()
 
@@ -228,18 +232,22 @@ class MeetingService
     /**
      * Apply a lifecycle transition to a meeting object.
      *
-     * Validates that `$action` is a known transition and that the meeting's
-     * current lifecycle state permits the transition, then patches the object
-     * via OpenRegister's ObjectService.
+     * Validates that `$action` is a known transition, enforces domain-specific
+     * workflow rules (WorkflowService), chair-only authorization (OWASP A01:2021),
+     * and quorum requirements (QuorumService) before patching the object via
+     * OpenRegister's ObjectService.
      *
-     * @param string $meetingId UUID of the meeting to transition
-     * @param string $action    Transition action: schedule|open|pause|resume|adjourn|close
+     * @param string      $meetingId     UUID of the meeting to transition
+     * @param string      $action        Transition action: schedule|open|pause|resume|adjourn|close
+     * @param string|null $currentUserId Nextcloud UID of the requesting user (used for chair-only gates)
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
      *
      * @return array{success: bool, meeting: array|null, message: string}
      */
-    public function transition(string $meetingId, string $action): array
+    public function transition(string $meetingId, string $action, ?string $currentUserId=null): array
     {
         if (isset(self::TRANSITIONS[$action]) === false) {
             return [
@@ -272,15 +280,54 @@ class MeetingService
                 ];
             }
 
-            $currentLifecycle = $entity->getObject()['lifecycle'] ?? 'draft';
+            $meetingData      = $entity->getObject();
+            $currentLifecycle = $meetingData['lifecycle'] ?? 'draft';
+            $domain           = $meetingData['domain'] ?? 'operations';
+            $chairUserId      = $meetingData['chair'] ?? null;
 
-            if (in_array($currentLifecycle, $transition['from'], true) === false) {
+            if (in_array(needle: $currentLifecycle, haystack: $transition['from'], strict: true) === false) {
                 return [
                     'success' => false,
                     'meeting' => null,
                     'message' => "Cannot '$action' a meeting in '$currentLifecycle' state. "
-                        ."Allowed from: ".implode(', ', $transition['from']).".",
+                        ."Allowed from: ".implode(separator: ', ', array: $transition['from']).".",
                 ];
+            }
+
+            // Domain-level transition validation (OWASP A01:2021).
+            // Enforces domain-specific rules such as "no pause in corporate domain".
+            if ($this->workflowService->isTransitionAllowed(domain: $domain, fromState: $currentLifecycle, toState: $transition['to']) === false) {
+                return [
+                    'success' => false,
+                    'meeting' => null,
+                    'message' => "Transition '$action' is not permitted in '$domain' domain.",
+                ];
+            }
+
+            // Chair-only transition enforcement (OWASP A01:2021 — broken access control).
+            // requiresChairAuthorization() returns true when the transition is restricted
+            // to the meeting chair (e.g. legislative:opened→adjourned).
+            if ($this->workflowService->requiresChairAuthorization(domain: $domain, from: $currentLifecycle, to: $transition['to']) === true) {
+                if ($currentUserId === null || $currentUserId !== $chairUserId) {
+                    return [
+                        'success' => false,
+                        'meeting' => null,
+                        'message' => 'Only the meeting chair may perform this transition.',
+                    ];
+                }
+            }
+
+            // Quorum enforcement before opening a meeting (OWASP A01:2021).
+            // Prevents meetings being opened in quorum-enforced domains when attendance
+            // is insufficient.
+            if ($action === 'open' && $this->workflowService->isQuorumRequired(domain: $domain) === true) {
+                if ($this->quorumService->validateQuorum(meetingId: $meetingId) === false) {
+                    return [
+                        'success' => false,
+                        'meeting' => null,
+                        'message' => 'Quorum is not met. Cannot open meeting.',
+                    ];
+                }
             }
 
             // Object-level write ACL: OpenRegister's ObjectService::updateFromArray()

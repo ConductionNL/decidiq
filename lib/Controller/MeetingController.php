@@ -301,7 +301,8 @@ class MeetingController extends Controller
             );
         }
 
-        $result = $this->meetingService->transition(meetingId: $id, action: $action);
+        $userId = $this->userSession->getUser()->getUID();
+        $result = $this->meetingService->transition(meetingId: $id, action: $action, currentUserId: $userId);
 
         if ($result['success'] === false) {
             return new JSONResponse(
