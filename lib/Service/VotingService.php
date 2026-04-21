@@ -208,25 +208,6 @@ class VotingService
     }//end checkQuorum()
 
     /**
-     * Open a new VotingRound for a Motion.
-     *
-     * Verifies quorum, creates the VotingRound object, transitions the Motion to
-     * 'voting' lifecycle, and optionally creates a calendar deadline event.
-     *
-     * @param string      $motionId     The motion UUID
-     * @param string      $meetingId    The meeting UUID (for quorum check)
-     * @param string      $votingMethod for-against-abstain | ranked-choice | weighted | show-of-hands
-     * @param bool        $isSecret     Whether the ballot is secret
-     * @param string|null $closedAt     Optional ISO-8601 deadline for the round
-     *
-     * @return array<string,mixed> The created VotingRound object
-     *
-     * @throws \RuntimeException When quorum is not met
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     */
-
-    /**
      * Open a VotingRound, optionally with preset participant UUIDs.
      *
      * @param string        $motionId             The motion UUID
@@ -479,16 +460,6 @@ class VotingService
         return ($saved ?? $vote);
 
     }//end castVote()
-
-    /**
-     * Close a VotingRound: tally votes, set result, publish to ORI, create dossier folder.
-     *
-     * @param string $votingRoundId The voting round UUID
-     *
-     * @return array<string,mixed> The updated VotingRound
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     */
 
     /**
      * Close a VotingRound, optionally anonymising vote values.
