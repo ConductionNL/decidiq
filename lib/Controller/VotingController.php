@@ -112,11 +112,11 @@ class VotingController extends Controller
      * Open a new VotingRound.
      *
      * POST /api/voting-rounds
-     * Body: { "motionId": "uuid", "meetingId": "uuid", "votingMethod": "for-against-abstain", "isSecret": false, "closedAt": null }
+     * Body: { "motionId": "uuid", "meetingId": "uuid", "votingMethod": "for-against-abstain", "isSecret": false, "closedAt": null, "presetParticipantIds": ["uuid1", "uuid2"] }
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      *
      * @return JSONResponse
      */
@@ -127,14 +127,20 @@ class VotingController extends Controller
             return $guard;
         }
 
-        $params       = $this->request->getParams();
-        $motionId     = ($params['motionId'] ?? '');
-        $meetingId    = ($params['meetingId'] ?? '');
+        $params = $this->request->getParams();
+        $motionId = ($params['motionId'] ?? '');
+        $meetingId = ($params['meetingId'] ?? '');
         $votingMethod = ($params['votingMethod'] ?? 'for-against-abstain');
-        $isSecret     = (bool) ($params['isSecret'] ?? false);
-        $closedAt     = null;
+        $isSecret = (bool) ($params['isSecret'] ?? false);
+        $closedAt = null;
+        $presetParticipantIds = [];
+
         if (isset($params['closedAt']) === true && $params['closedAt'] !== '') {
             $closedAt = $params['closedAt'];
+        }
+
+        if (isset($params['presetParticipantIds']) === true && is_array($params['presetParticipantIds'])) {
+            $presetParticipantIds = $params['presetParticipantIds'];
         }
 
         if ($motionId === '' || $meetingId === '') {
@@ -147,7 +153,8 @@ class VotingController extends Controller
                 meetingId: $meetingId,
                 votingMethod: $votingMethod,
                 isSecret: $isSecret,
-                closedAt: $closedAt
+                closedAt: $closedAt,
+                presetParticipantIds: $presetParticipantIds
             );
             return new JSONResponse($round, Http::STATUS_CREATED);
         } catch (\RuntimeException $e) {
@@ -216,15 +223,16 @@ class VotingController extends Controller
     }//end cast()
 
     /**
-     * Close a VotingRound.
+     * Close a VotingRound, optionally anonymising votes.
      *
      * POST /api/voting-rounds/{id}/close
+     * Body: { "anonymise": true|false }
      *
      * @param string $id The voting round UUID
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      *
      * @return JSONResponse
      */
@@ -235,8 +243,11 @@ class VotingController extends Controller
             return $guard;
         }
 
+        $params = $this->request->getParams();
+        $anonymise = isset($params['anonymise']) && $params['anonymise'] === true;
+
         try {
-            $round = $this->votingService->closeVotingRound(votingRoundId: $id);
+            $round = $this->votingService->closeVotingRound(votingRoundId: $id, anonymise: $anonymise);
             return new JSONResponse($round);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
