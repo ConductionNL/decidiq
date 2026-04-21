@@ -272,7 +272,7 @@ class MeetingController extends Controller
                 );
             }
 
-            return new JSONResponse(status: Http::STATUS_NO_CONTENT);
+            return new JSONResponse(statusCode: Http::STATUS_NO_CONTENT);
         } catch (\Throwable $e) {
             return new JSONResponse(
                 ['message' => 'Failed to delete meeting'],
