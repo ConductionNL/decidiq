@@ -110,7 +110,7 @@ class QuorumService
             $members = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'Participant',
-                filters: [
+                params: [
                     'governanceBody' => $governanceBodyId,
                     '_limit'         => 1000,
                 ]
