@@ -140,7 +140,7 @@ class LiveDecisionService
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
      */
-    public function ensureDraftMinutes(string $meetingId): string
+    private function ensureDraftMinutes(string $meetingId): string
     {
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');

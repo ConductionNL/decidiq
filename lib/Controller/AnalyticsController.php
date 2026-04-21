@@ -26,6 +26,7 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 use DateTime;
@@ -46,6 +47,7 @@ class AnalyticsController extends Controller
      * @param IRequest                   $request          The HTTP request
      * @param ActionItemAnalyticsService $analyticsService The analytics service
      * @param IUserSession               $userSession      The current user session
+     * @param IGroupManager              $groupManager     Group manager for admin checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
      */
@@ -53,6 +55,7 @@ class AnalyticsController extends Controller
         IRequest $request,
         private ActionItemAnalyticsService $analyticsService,
         private IUserSession $userSession,
+        private IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -72,6 +75,15 @@ class AnalyticsController extends Controller
      */
     public function getSummary(): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], 401);
+        }
+
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(['error' => 'Forbidden: only administrators may access analytics.'], 403);
+        }
+
         // Default to current calendar year.
         $now      = new DateTime();
         $year     = (int) $now->format('Y');
@@ -98,6 +110,15 @@ class AnalyticsController extends Controller
      */
     public function getCompletionRates(): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], 401);
+        }
+
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(['error' => 'Forbidden: only administrators may access analytics.'], 403);
+        }
+
         $limit = (int) $this->request->getParam('limit', 6);
         $rates = $this->analyticsService->getCompletionRates($limit);
 
@@ -119,7 +140,7 @@ class AnalyticsController extends Controller
      */
     public function getMyItems(): JSONResponse
     {
-        $user = $this->userSession->getUser();
+        $user = $this->requireAuthenticatedUser();
         if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], 401);
         }
@@ -129,4 +150,14 @@ class AnalyticsController extends Controller
 
         return new JSONResponse($items);
     }//end getMyItems()
+
+    /**
+     * Ensure a user is authenticated; returns the current user or null.
+     *
+     * @return \OCP\IUser|null The authenticated user, or null
+     */
+    private function requireAuthenticatedUser(): ?\OCP\IUser
+    {
+        return $this->userSession->getUser();
+    }//end requireAuthenticatedUser()
 }//end class

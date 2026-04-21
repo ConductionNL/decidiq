@@ -28,6 +28,7 @@ use OCA\Decidesk\Service\LiveDecisionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -46,6 +47,7 @@ class LiveMeetingController extends Controller
      * @param IRequest            $request             The HTTP request
      * @param LiveDecisionService $liveDecisionService The live decision service
      * @param IUserSession        $userSession         The current user session
+     * @param IGroupManager       $groupManager        Group manager for admin checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
      */
@@ -53,6 +55,7 @@ class LiveMeetingController extends Controller
         IRequest $request,
         private LiveDecisionService $liveDecisionService,
         private IUserSession $userSession,
+        private IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -67,6 +70,7 @@ class LiveMeetingController extends Controller
      * Returns 200 with the created Decision object on success.
      * Returns 400 when required fields are missing.
      * Returns 401 when not authenticated.
+     * Returns 403 when the caller is not a Nextcloud admin.
      * Returns 404 when the Meeting is not found.
      * Returns 409 when the Meeting is not in 'opened' state.
      *
@@ -84,6 +88,12 @@ class LiveMeetingController extends Controller
             $user = $this->userSession->getUser();
             if ($user === null) {
                 return new JSONResponse(['error' => 'Not authenticated'], 401);
+            }
+
+            // Require admin rights to prevent IDOR — any authenticated user recording decisions
+            // on arbitrary meetings they don't own (OWASP A01:2021 / ADR-005 Rule 3).
+            if ($this->groupManager->isAdmin($user->getUID()) === false) {
+                return new JSONResponse(['error' => 'Forbidden: only administrators may record live decisions.'], Http::STATUS_FORBIDDEN);
             }
 
             $title   = $this->request->getParam('title');
