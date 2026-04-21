@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
 
+use OCA\Decidesk\BackgroundJob\DecisionDigestJob;
 use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
 use OCA\Decidesk\Controller\DecisionApprovalController;
@@ -184,6 +185,19 @@ class Application extends App implements IBootstrap
                 static function ($c): OverdueActionItemsJob {
                     return new OverdueActionItemsJob(
                     time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register DecisionDigestJob for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-6
+        $context->registerService(
+                DecisionDigestJob::class,
+                static function ($c): DecisionDigestJob {
+                    return new DecisionDigestJob(
+                    timeFactory: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );

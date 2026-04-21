@@ -67,9 +67,11 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
     <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
     <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
+    <!-- @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-6 -->
     <background-jobs>
         <job>OCA\Decidesk\BackgroundJob\MailReplyHandler</job>
         <job>OCA\Decidesk\BackgroundJob\OverdueActionItemsJob</job>
+        <job>OCA\Decidesk\BackgroundJob\DecisionDigestJob</job>
     </background-jobs>
 
     <repair-steps>
