@@ -754,6 +754,10 @@ class VotingService
 
         // Notify delegate — resolve the Nextcloud UID from the participant object.
         try {
+            if ($toParticipant === null) {
+                return;
+            }
+
             $nextcloudUserId = $toParticipant['nextcloudUserId'] ?? null;
 
             // Fall back to email lookup when nextcloudUserId is not stored on the participant.

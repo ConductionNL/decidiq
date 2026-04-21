@@ -28,7 +28,6 @@ use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\PublicShareController;
 use OCP\IRequest;
 
 /**
