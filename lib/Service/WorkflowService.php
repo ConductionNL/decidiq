@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Service for managing meeting workflow transitions per governance domain.
@@ -77,15 +75,10 @@ class WorkflowService
     /**
      * Constructor for WorkflowService.
      *
-     * @param ContainerInterface $container The DI container
-     * @param LoggerInterface    $logger    The logger
-     *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.1
      */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-    ) {
+    public function __construct()
+    {
     }//end __construct()
 
     /**

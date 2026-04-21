@@ -134,14 +134,7 @@ class MeetingController extends Controller
         }
 
         try {
-            $data = $this->request->getJsonBody();
-
-            if (is_array($data) === false) {
-                return new JSONResponse(
-                    ['message' => 'Invalid JSON body'],
-                    Http::STATUS_BAD_REQUEST
-                );
-            }
+            $data = $this->request->getParams();
 
             if (empty($data['title'] ?? null) === true) {
                 return new JSONResponse(
@@ -217,14 +210,7 @@ class MeetingController extends Controller
         }
 
         try {
-            $data = $this->request->getJsonBody();
-
-            if (is_array($data) === false) {
-                return new JSONResponse(
-                    ['message' => 'Invalid JSON body'],
-                    Http::STATUS_BAD_REQUEST
-                );
-            }
+            $data = $this->request->getParams();
 
             $meeting = $this->meetingService->update($id, $data);
 
