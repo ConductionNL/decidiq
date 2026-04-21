@@ -59,7 +59,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
      */
     public function testGetSummaryReturnsCorrectOverdueCount(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->once())
             ->method('findObjects')
             ->willReturn([
@@ -98,7 +98,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
      */
     public function testGetCompletionRatesReturnsZeroPercentForNoCompletedItems(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->once())
             ->method('findObjects')
             ->willReturn([
@@ -136,7 +136,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
      */
     public function testGetMyItemsGroupsOverdueItemsCorrectly(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->once())
             ->method('findObjects')
             ->willReturn([
@@ -185,7 +185,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
      */
     public function testGetSummaryCalculatesAverageDaysToCloseCorrectly(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->once())
             ->method('findObjects')
             ->willReturn([

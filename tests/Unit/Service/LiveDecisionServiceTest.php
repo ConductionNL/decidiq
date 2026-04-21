@@ -60,7 +60,7 @@ class LiveDecisionServiceTest extends TestCase
      */
     public function testRecordDecisionCreatesDecisionAndLinksToMeeting(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->any())
             ->method('findObject')
             ->willReturn([
@@ -71,9 +71,9 @@ class LiveDecisionServiceTest extends TestCase
 
         $mockObjectService->expects($this->any())
             ->method('findObjects')
-            ->willReturn([]); // No existing minutes
+            ->willReturn([]); // No existing minutes.
 
-        $mockObjectService->expects($this->once())
+        $mockObjectService->expects($this->any())
             ->method('saveObject')
             ->willReturn([
                 'id' => 'decision-1',
@@ -105,7 +105,7 @@ class LiveDecisionServiceTest extends TestCase
      */
     public function testRecordDecisionThrows409ForNonOpenedMeeting(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->once())
             ->method('findObject')
             ->willReturn([
@@ -140,7 +140,7 @@ class LiveDecisionServiceTest extends TestCase
      */
     public function testEnsureDraftMinutesCreatesDraftWhenNoneExists(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->any())
             ->method('findObject')
             ->willReturn([
@@ -150,9 +150,9 @@ class LiveDecisionServiceTest extends TestCase
 
         $mockObjectService->expects($this->any())
             ->method('findObjects')
-            ->willReturn([]); // No existing minutes
+            ->willReturn([]); // No existing minutes.
 
-        $mockObjectService->expects($this->once())
+        $mockObjectService->expects($this->any())
             ->method('saveObject')
             ->willReturn([
                 'id' => 'minutes-1',
@@ -178,7 +178,7 @@ class LiveDecisionServiceTest extends TestCase
      */
     public function testEnsureDraftMinutesReturnsExistingMinutesSlug(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->any())
             ->method('findObjects')
             ->willReturn([

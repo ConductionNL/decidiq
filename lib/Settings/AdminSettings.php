@@ -28,6 +28,8 @@ use OCP\Settings\ISettings;
 
 /**
  * Provides the admin settings form for the Decidesk application.
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
  */
 class AdminSettings implements ISettings
 {
@@ -45,6 +47,8 @@ class AdminSettings implements ISettings
      * Get the settings form template.
      *
      * @return TemplateResponse
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function getForm(): TemplateResponse
     {
@@ -61,6 +65,8 @@ class AdminSettings implements ISettings
      * Get the section ID this settings page belongs to.
      *
      * @return string
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function getSection(): string
     {
@@ -71,6 +77,8 @@ class AdminSettings implements ISettings
      * Get the priority for ordering within the section.
      *
      * @return int
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function getPriority(): int
     {

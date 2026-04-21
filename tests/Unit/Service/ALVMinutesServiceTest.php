@@ -60,11 +60,11 @@ class ALVMinutesServiceTest extends TestCase
      */
     public function testGenerateALVDraftProducesCorrectQuorumStatement(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->any())
             ->method('findObject')
-            ->willReturnCallback(function ($args) {
-                if ($args === 'Minutes' || $args['schema'] === 'Minutes') {
+            ->willReturnCallback(function (string $register, string $schema, string $id) {
+                if ($schema === 'Minutes') {
                     return [
                         'id' => 'minutes-1',
                         'title' => 'ALV 2025',
@@ -72,14 +72,14 @@ class ALVMinutesServiceTest extends TestCase
                             'Meeting' => ['meeting-1'],
                         ],
                     ];
-                } elseif ($args === 'Meeting' || $args['schema'] === 'Meeting') {
+                } elseif ($schema === 'Meeting') {
                     return [
                         'id' => 'meeting-1',
                         'meetingType' => 'alv',
                         'title' => 'Algemene Ledenvergadering',
                         'scheduledDate' => '2025-04-15',
                         'location' => 'Amsterdam',
-                        'quorumRequired' => 30,
+                        'quorumRequired' => 0, // 0 = quorum always met regardless of attendance.
                         'relations' => [
                             'GovernanceBody' => ['body-1'],
                         ],
@@ -90,11 +90,10 @@ class ALVMinutesServiceTest extends TestCase
 
         $mockObjectService->expects($this->any())
             ->method('findObjects')
-            ->willReturn([]); // No participants or agenda items
+            ->willReturn([]); // No participants or agenda items.
 
         $this->container->expects($this->any())
             ->method('get')
-            ->with('OpenRegisterObjectService')
             ->willReturn($mockObjectService);
 
         $result = $this->service->generateALVDraft('minutes-1');
@@ -113,21 +112,21 @@ class ALVMinutesServiceTest extends TestCase
      */
     public function testGenerateALVDraftReturnsValidationErrorForNonALVMeeting(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->any())
             ->method('findObject')
-            ->willReturnCallback(function ($args) {
-                if ($args['schema'] === 'Minutes') {
+            ->willReturnCallback(function (string $register, string $schema, string $id) {
+                if ($schema === 'Minutes') {
                     return [
                         'id' => 'minutes-1',
                         'relations' => [
                             'Meeting' => ['meeting-1'],
                         ],
                     ];
-                } elseif ($args['schema'] === 'Meeting') {
+                } elseif ($schema === 'Meeting') {
                     return [
                         'id' => 'meeting-1',
-                        'meetingType' => 'council', // Not ALV
+                        'meetingType' => 'council', // Not ALV.
                     ];
                 }
                 return null;
@@ -135,7 +134,6 @@ class ALVMinutesServiceTest extends TestCase
 
         $this->container->expects($this->any())
             ->method('get')
-            ->with('OpenRegisterObjectService')
             ->willReturn($mockObjectService);
 
         $this->expectException(\Exception::class);
@@ -153,11 +151,11 @@ class ALVMinutesServiceTest extends TestCase
      */
     public function testDistributeReturns0ForNoParticipants(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->expects($this->any())
             ->method('findObject')
-            ->willReturnCallback(function ($args) {
-                if ($args['schema'] === 'Minutes') {
+            ->willReturnCallback(function (string $register, string $schema, string $id) {
+                if ($schema === 'Minutes') {
                     return [
                         'id' => 'minutes-1',
                         'lifecycle' => 'approved',
@@ -165,7 +163,7 @@ class ALVMinutesServiceTest extends TestCase
                             'Meeting' => ['meeting-1'],
                         ],
                     ];
-                } elseif ($args['schema'] === 'Meeting') {
+                } elseif ($schema === 'Meeting') {
                     return [
                         'id' => 'meeting-1',
                         'relations' => [
@@ -178,20 +176,11 @@ class ALVMinutesServiceTest extends TestCase
 
         $mockObjectService->expects($this->any())
             ->method('findObjects')
-            ->willReturn([]); // No participants
-
-        $mockNotificationService = $this->createMock(\stdClass::class);
+            ->willReturn([]); // No participants.
 
         $this->container->expects($this->any())
             ->method('get')
-            ->willReturnCallback(function ($service) use ($mockObjectService, $mockNotificationService) {
-                if ($service === 'OpenRegisterObjectService') {
-                    return $mockObjectService;
-                } elseif ($service === 'OpenRegisterNotificationService') {
-                    return $mockNotificationService;
-                }
-                return null;
-            });
+            ->willReturn($mockObjectService);
 
         $result = $this->service->distribute('minutes-1');
 
@@ -207,17 +196,16 @@ class ALVMinutesServiceTest extends TestCase
      */
     public function testDistributeThrows403ForDraftLifecycle(): void
     {
-        $mockObjectService = $this->createMock(\stdClass::class);
-        $mockObjectService->expects($this->once())
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $mockObjectService->expects($this->any())
             ->method('findObject')
             ->willReturn([
                 'id' => 'minutes-1',
-                'lifecycle' => 'draft', // Not approved
+                'lifecycle' => 'draft', // Not approved.
             ]);
 
         $this->container->expects($this->any())
             ->method('get')
-            ->with('OpenRegisterObjectService')
             ->willReturn($mockObjectService);
 
         $this->expectException(\Exception::class);

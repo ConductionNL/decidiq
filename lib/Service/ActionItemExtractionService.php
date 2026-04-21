@@ -47,7 +47,7 @@ class ActionItemExtractionService
         private ContainerInterface $container,
         private LoggerInterface $logger,
     ) {
-    }
+    }//end __construct()
 
     /**
      * Extract action item candidates from minutes content.
@@ -57,8 +57,8 @@ class ActionItemExtractionService
      * is toegezegd). For each match, extracts title and attempts to match a
      * known participant name.
      *
-     * @param string $content              Minutes content text
-     * @param array  $knownParticipants   Optional list of known participant names
+     * @param string $content           Minutes content text
+     * @param array  $knownParticipants Optional list of known participant names
      *
      * @return array<array{
      *   title: string,
@@ -67,47 +67,47 @@ class ActionItemExtractionService
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
      */
-    public function extractFromContent(string $content, array $knownParticipants = []): array
+    public function extractFromContent(string $content, array $knownParticipants=[]): array
     {
         $candidates = [];
-        $lines = explode("\n", $content);
+        $lines      = explode("\n", $content);
 
         foreach ($lines as $line) {
             $line = trim($line);
 
-            if (empty($line)) {
+            if (empty($line) === true) {
                 continue;
             }
 
-            // Pattern 1: Marker at start (Actie:, AI:, Taak:, Actiepunt:)
-            if (preg_match('/^(Actie|AI|Taak|Actiepunt|Action|Task):\s*(.+)$/i', $line, $matches)) {
-                $title = trim($matches[2]);
-                $assignee = $this->extractAssigneeFromLine($line, $knownParticipants);
+            // Pattern 1: Marker at start (Actie:, AI:, Taak:, Actiepunt:).
+            if (preg_match('/^(Actie|AI|Taak|Actiepunt|Action|Task):\s*(.+)$/i', $line, $matches) === 1) {
+                $title    = trim($matches[2]);
+                $assignee = $this->extractAssigneeFromLine(line: $line, knownParticipants: $knownParticipants);
 
                 $candidates[] = [
-                    'title' => $title,
+                    'title'             => $title,
                     'suggestedAssignee' => $assignee,
                 ];
                 continue;
             }
 
-            // Pattern 2: Dutch action phrases
-            if (preg_match('/(wordt verzocht|zal worden|is toegezegd|dient te|moet)/i', $line)) {
-                // Extract a reasonable title from the line
-                $title = $this->extractTitleFromPhrase($line);
-                if (!empty($title)) {
-                    $assignee = $this->extractAssigneeFromLine($line, $knownParticipants);
+            // Pattern 2: Dutch action phrases.
+            if (preg_match('/(wordt verzocht|zal worden|is toegezegd|dient te|moet)/i', $line) === 1) {
+                // Extract a reasonable title from the line.
+                $title = $this->extractTitleFromPhrase(line: $line);
+                if (empty($title) === false) {
+                    $assignee = $this->extractAssigneeFromLine(line: $line, knownParticipants: $knownParticipants);
 
                     $candidates[] = [
-                        'title' => $title,
+                        'title'             => $title,
                         'suggestedAssignee' => $assignee,
                     ];
                 }
             }
-        }
+        }//end foreach
 
         return $candidates;
-    }
+    }//end extractFromContent()
 
     /**
      * Save extracted action items after user confirmation.
@@ -126,27 +126,27 @@ class ActionItemExtractionService
     {
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');
-            $savedCount = 0;
+            $savedCount    = 0;
 
             foreach ($confirmed as $candidate) {
                 $title = $candidate['title'] ?? null;
-                if (empty($title)) {
+                if (empty($title) === true) {
                     continue;
                 }
 
                 $actionItem = [
-                    'title' => $title,
+                    'title'      => $title,
                     'taskStatus' => 'open',
-                    'relations' => [
+                    'relations'  => [
                         'Minutes' => [$minutesId],
                     ],
                 ];
 
-                if (!empty($candidate['assignee'])) {
+                if (empty($candidate['assignee']) === false) {
                     $actionItem['assignee'] = $candidate['assignee'];
                 }
 
-                if (!empty($candidate['dueDate'])) {
+                if (empty($candidate['dueDate']) === false) {
                     $actionItem['dueDate'] = $candidate['dueDate'];
                 }
 
@@ -158,26 +158,26 @@ class ActionItemExtractionService
                     );
                     $savedCount++;
                 } catch (\Exception $e) {
-                    $this->logger->warning("Failed to save ActionItem: " . $e->getMessage());
+                    $this->logger->warning("Failed to save ActionItem: ".$e->getMessage());
                 }
-            }
+            }//end foreach
 
             $this->logger->info("Saved $savedCount extracted action items for minutes $minutesId");
 
             return $savedCount;
         } catch (\Exception $e) {
-            $this->logger->error("ActionItemExtractionService::saveExtracted failed: " . $e->getMessage());
+            $this->logger->error("ActionItemExtractionService::saveExtracted failed: ".$e->getMessage());
             return 0;
-        }
-    }
+        }//end try
+    }//end saveExtracted()
 
     /**
      * Extract a suggested assignee name from the line text.
      *
      * Searches for known participant names within the line; returns the first match.
      *
-     * @param string $line                 The line of text
-     * @param array  $knownParticipants   List of known participant names
+     * @param string $line              The line of text
+     * @param array  $knownParticipants List of known participant names
      *
      * @return string|null The matched participant name, or null
      *
@@ -192,7 +192,7 @@ class ActionItemExtractionService
         }
 
         return null;
-    }
+    }//end extractAssigneeFromLine()
 
     /**
      * Extract a title from a line containing an action phrase.
@@ -207,17 +207,17 @@ class ActionItemExtractionService
      */
     private function extractTitleFromPhrase(string $line): string
     {
-        // Return the full line if it's a reasonable length (< 150 chars)
+        // Return the full line if it's a reasonable length (< 150 chars).
         if (strlen($line) <= 150) {
             return $line;
         }
 
-        // Otherwise truncate to first sentence or 100 chars
+        // Otherwise truncate to first sentence or 100 chars.
         $pos = strpos($line, '.');
         if ($pos !== false && $pos < 100) {
             return substr($line, 0, $pos);
         }
 
-        return substr($line, 0, 100) . '...';
-    }
-}
+        return substr($line, 0, 100).'...';
+    }//end extractTitleFromPhrase()
+}//end class

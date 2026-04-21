@@ -45,7 +45,7 @@ class MinutesService
         private ContainerInterface $container,
         private LoggerInterface $logger,
     ) {
-    }
+    }//end __construct()
 
     /**
      * Send approval notifications when Minutes are submitted for approval.
@@ -63,10 +63,10 @@ class MinutesService
     public function notifyApproversOnSubmit(string $minutesId, string $actorId): int
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService       = $this->container->get('OpenRegisterObjectService');
             $notificationService = $this->container->get('OpenRegisterNotificationService');
 
-            // Fetch Minutes
+            // Fetch Minutes.
             $minutes = $objectService->findObject(
                 register: 'decidesk',
                 schema: 'Minutes',
@@ -78,36 +78,44 @@ class MinutesService
                 return 0;
             }
 
-            // Get linked Meeting
+            // Get linked Meeting.
             $meetingId = null;
-            if (!empty($minutes['relations']['Meeting'])) {
+            if (empty($minutes['relations']['Meeting']) === false) {
                 $meetingRels = $minutes['relations']['Meeting'];
-                $meetingId = is_array($meetingRels) ? $meetingRels[0] : $meetingRels;
+                if (is_array($meetingRels) === true) {
+                    $meetingId = $meetingRels[0];
+                } else {
+                    $meetingId = $meetingRels;
+                }
             }
 
-            // Get GovernanceBody from Meeting
+            // Get GovernanceBody from Meeting.
             $bodyId = null;
-            if ($meetingId) {
+            if ($meetingId !== null) {
                 $meeting = $objectService->findObject(
                     register: 'decidesk',
                     schema: 'Meeting',
                     id: $meetingId
                 );
 
-                if ($meeting && !empty($meeting['relations']['GovernanceBody'])) {
+                if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
                     $bodyRels = $meeting['relations']['GovernanceBody'];
-                    $bodyId = is_array($bodyRels) ? $bodyRels[0] : $bodyRels;
+                    if (is_array($bodyRels) === true) {
+                        $bodyId = $bodyRels[0];
+                    } else {
+                        $bodyId = $bodyRels;
+                    }
                 }
             }
 
-            if (empty($bodyId)) {
+            if (empty($bodyId) === true) {
                 $this->logger->info("No GovernanceBody linked to Minutes $minutesId");
                 return 0;
             }
 
-            // Query Memberships with chair/secretary roles
+            // Query Memberships with chair/secretary roles.
             $params = [
-                'role' => ['chair', 'secretary'],
+                'role'   => ['chair', 'secretary'],
                 '_limit' => 999,
             ];
 
@@ -120,27 +128,27 @@ class MinutesService
             $sentCount = 0;
             foreach ($memberships as $membership) {
                 $displayName = $membership['displayName'] ?? null;
-                if (empty($displayName)) {
+                if (empty($displayName) === true) {
                     continue;
                 }
 
                 try {
                     $notificationService->sendNotification(
                         userId: $displayName,
-                        title: "Notulen ter goedkeuring: " . ($minutes['title'] ?? 'Untitled'),
+                        title: "Notulen ter goedkeuring: ".($minutes['title'] ?? 'Untitled'),
                         message: "De notulen zijn ter goedkeuring ingediend.",
                         deepLink: "/minutes/$minutesId"
                     );
                     $sentCount++;
                 } catch (\Exception $e) {
-                    $this->logger->warning("Failed to send approval notification: " . $e->getMessage());
+                    $this->logger->warning("Failed to send approval notification: ".$e->getMessage());
                 }
             }
 
             return $sentCount;
         } catch (\Exception $e) {
-            $this->logger->error("MinutesService::notifyApproversOnSubmit failed: " . $e->getMessage());
+            $this->logger->error("MinutesService::notifyApproversOnSubmit failed: ".$e->getMessage());
             return 0;
-        }
-    }
-}
+        }//end try
+    }//end notifyApproversOnSubmit()
+}//end class

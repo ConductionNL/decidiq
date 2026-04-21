@@ -45,6 +45,8 @@ use OCP\BackgroundJob\IJobList;
 
 /**
  * Main application class for the Decidesk Nextcloud app.
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
  */
 class Application extends App implements IBootstrap
 {
@@ -68,6 +70,8 @@ class Application extends App implements IBootstrap
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function register(IRegistrationContext $context): void
     {
@@ -144,7 +148,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register ActionItemAnalyticsService for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.4.
         $context->registerService(
                 ActionItemAnalyticsService::class,
                 static function ($c): ActionItemAnalyticsService {
@@ -156,7 +160,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register AnalyticsController for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.4.
         $context->registerService(
                 AnalyticsController::class,
                 static function ($c): AnalyticsController {
@@ -169,7 +173,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register LiveDecisionService for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.4.
         $context->registerService(
                 LiveDecisionService::class,
                 static function ($c): LiveDecisionService {
@@ -181,7 +185,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register LiveMeetingController for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.4.
         $context->registerService(
                 LiveMeetingController::class,
                 static function ($c): LiveMeetingController {
@@ -194,7 +198,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register ALVMinutesService for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.4.
         $context->registerService(
                 ALVMinutesService::class,
                 static function ($c): ALVMinutesService {
@@ -206,7 +210,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register ActionItemExtractionService for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.4.
         $context->registerService(
                 ActionItemExtractionService::class,
                 static function ($c): ActionItemExtractionService {
@@ -218,7 +222,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register DecisionNotificationService for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5.3
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5.3.
         $context->registerService(
                 DecisionNotificationService::class,
                 static function ($c): DecisionNotificationService {
@@ -230,7 +234,7 @@ class Application extends App implements IBootstrap
                 );
 
         // Register MinutesService for DI.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.3
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.3.
         $context->registerService(
                 MinutesService::class,
                 static function ($c): MinutesService {
@@ -249,6 +253,8 @@ class Application extends App implements IBootstrap
      * @param IBootContext $context The boot context
      *
      * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function boot(IBootContext $context): void
     {

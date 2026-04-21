@@ -49,7 +49,7 @@ class ActionItemAnalyticsService
         private ContainerInterface $container,
         private LoggerInterface $logger,
     ) {
-    }
+    }//end __construct()
 
     /**
      * Get a summary of action item metrics for a date range.
@@ -77,13 +77,13 @@ class ActionItemAnalyticsService
     {
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');
-            $today = new DateTime();
-            $dateFromDt = new DateTime($dateFrom);
-            $dateToDt = new DateTime($dateTo);
+            $today         = new DateTime();
+            $dateFromDt    = new DateTime($dateFrom);
+            $dateToDt      = new DateTime($dateTo);
 
-            // Query all ActionItems
-            $params = [
-                '_limit' => 999,
+            // Query all ActionItems.
+            $params   = [
+                '_limit'  => 999,
                 '_offset' => 0,
             ];
             $allItems = $objectService->findObjects(
@@ -92,20 +92,20 @@ class ActionItemAnalyticsService
                 params: $params
             );
 
-            $totalOpen = 0;
-            $totalOverdue = 0;
+            $totalOpen          = 0;
+            $totalOverdue       = 0;
             $completedThisMonth = 0;
-            $daysToClosed = [];
+            $daysToClosed       = [];
 
             foreach ($allItems as $item) {
                 $status = $item['taskStatus'] ?? 'open';
 
-                // Count open items
+                // Count open items.
                 if ($status !== 'completed') {
                     $totalOpen++;
 
-                    // Count overdue
-                    if (!empty($item['dueDate'])) {
+                    // Count overdue.
+                    if (empty($item['dueDate']) === false) {
                         $dueDate = new DateTime($item['dueDate']);
                         if ($dueDate < $today) {
                             $totalOverdue++;
@@ -113,44 +113,46 @@ class ActionItemAnalyticsService
                     }
                 }
 
-                // Count completed this month
-                if ($status === 'completed' && !empty($item['completedAt'])) {
-                    $completedAt = new DateTime($item['completedAt']);
+                // Count completed this month.
+                if ($status === 'completed' && empty($item['completedAt']) === false) {
+                    $completedAt  = new DateTime($item['completedAt']);
                     $currentMonth = new DateTime('first day of this month');
                     if ($completedAt >= $currentMonth) {
                         $completedThisMonth++;
                     }
 
-                    // Calculate days to close
-                    if (!empty($item['createdAt'])) {
-                        $createdAt = new DateTime($item['createdAt']);
-                        $days = (int)$completedAt->diff($createdAt)->format('%a');
+                    // Calculate days to close.
+                    if (empty($item['createdAt']) === false) {
+                        $createdAt      = new DateTime($item['createdAt']);
+                        $days           = (int) $completedAt->diff($createdAt)->format('%a');
                         $daysToClosed[] = $days;
                     }
                 }
+            }//end foreach
+
+            if (count($daysToClosed) > 0) {
+                $avgDaysToClose = array_sum($daysToClosed) / count($daysToClosed);
+            } else {
+                $avgDaysToClose = 0.0;
             }
 
-            $avgDaysToClose = count($daysToClosed) > 0
-                ? array_sum($daysToClosed) / count($daysToClosed)
-                : 0.0;
-
             return [
-                'totalOpen' => $totalOpen,
-                'totalOverdue' => $totalOverdue,
+                'totalOpen'          => $totalOpen,
+                'totalOverdue'       => $totalOverdue,
                 'completedThisMonth' => $completedThisMonth,
-                'avgDaysToClose' => round($avgDaysToClose, 1),
+                'avgDaysToClose'     => round($avgDaysToClose, 1),
             ];
         } catch (\Exception $e) {
-            $this->logger->error('ActionItemAnalyticsService::getSummary failed: ' . $e->getMessage());
+            $this->logger->error('ActionItemAnalyticsService::getSummary failed: '.$e->getMessage());
 
             return [
-                'totalOpen' => 0,
-                'totalOverdue' => 0,
+                'totalOpen'          => 0,
+                'totalOverdue'       => 0,
                 'completedThisMonth' => 0,
-                'avgDaysToClose' => 0.0,
+                'avgDaysToClose'     => 0.0,
             ];
-        }
-    }
+        }//end try
+    }//end getSummary()
 
     /**
      * Get per-meeting completion rates for the last N meetings.
@@ -168,16 +170,16 @@ class ActionItemAnalyticsService
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
      */
-    public function getCompletionRates(int $limit = 6): array
+    public function getCompletionRates(int $limit=6): array
     {
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');
 
-            // Get recent meetings
-            $params = [
-                '_limit' => $limit,
+            // Get recent meetings.
+            $params   = [
+                '_limit'  => $limit,
                 '_offset' => 0,
-                '_order' => 'scheduledDate:DESC',
+                '_order'  => 'scheduledDate:DESC',
             ];
             $meetings = $objectService->findObjects(
                 register: 'decidesk',
@@ -189,28 +191,28 @@ class ActionItemAnalyticsService
 
             foreach ($meetings as $meeting) {
                 $meetingId = $meeting['id'] ?? $meeting['@self']['id'] ?? null;
-                if (!$meetingId) {
+                if ($meetingId === null) {
                     continue;
                 }
 
-                // Find action items linked to this meeting (via relations)
+                // Find action items linked to this meeting (via relations).
                 $actionItems = [];
-                if (!empty($meeting['relations']['ActionItem'])) {
+                if (empty($meeting['relations']['ActionItem']) === false) {
                     foreach ($meeting['relations']['ActionItem'] as $link) {
                         $actionItems[] = $link;
                     }
                 }
 
-                if (empty($actionItems)) {
+                if (empty($actionItems) === true) {
                     $rates[] = [
-                        'meetingTitle' => $meeting['title'] ?? 'Untitled Meeting',
+                        'meetingTitle'   => $meeting['title'] ?? 'Untitled Meeting',
                         'completionRate' => 0,
-                        'total' => 0,
+                        'total'          => 0,
                     ];
                     continue;
                 }
 
-                // Count completed vs total
+                // Count completed vs total.
                 $completed = 0;
                 foreach ($actionItems as $item) {
                     if (($item['taskStatus'] ?? null) === 'completed') {
@@ -219,22 +221,26 @@ class ActionItemAnalyticsService
                 }
 
                 $total = count($actionItems);
-                $rate = $total > 0 ? ($completed / $total * 100) : 0;
+                if ($total > 0) {
+                    $rate = ($completed / $total * 100);
+                } else {
+                    $rate = 0;
+                }
 
                 $rates[] = [
-                    'meetingTitle' => $meeting['title'] ?? 'Untitled Meeting',
+                    'meetingTitle'   => $meeting['title'] ?? 'Untitled Meeting',
                     'completionRate' => round($rate, 1),
-                    'total' => $total,
+                    'total'          => $total,
                 ];
-            }
+            }//end foreach
 
             return $rates;
         } catch (\Exception $e) {
-            $this->logger->error('ActionItemAnalyticsService::getCompletionRates failed: ' . $e->getMessage());
+            $this->logger->error('ActionItemAnalyticsService::getCompletionRates failed: '.$e->getMessage());
 
             return [];
-        }
-    }
+        }//end try
+    }//end getCompletionRates()
 
     /**
      * Get action items assigned to the current user, grouped by urgency.
@@ -255,15 +261,16 @@ class ActionItemAnalyticsService
     {
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');
-            $today = new DateTime();
-            $weekAhead = new DateTime('+7 days');
+            $today         = new DateTime();
+            $weekAhead     = new DateTime('+7 days');
 
-            // Query action items assigned to this user
+            // Query action items assigned to this user.
             $params = [
-                'assignee' => $userDisplayName,
-                'taskStatus' => ['open', 'in-progress'], // Exclude completed
-                '_limit' => 999,
-                '_offset' => 0,
+                'assignee'   => $userDisplayName,
+                'taskStatus' => ['open', 'in-progress'],
+            // Exclude completed.
+                '_limit'     => 999,
+                '_offset'    => 0,
             ];
             $items = $objectService->findObjects(
                 register: 'decidesk',
@@ -272,13 +279,13 @@ class ActionItemAnalyticsService
             );
 
             $grouped = [
-                'overdue' => [],
+                'overdue'  => [],
                 'thisWeek' => [],
-                'later' => [],
+                'later'    => [],
             ];
 
             foreach ($items as $item) {
-                if (empty($item['dueDate'])) {
+                if (empty($item['dueDate']) === true) {
                     $grouped['later'][] = $item;
                     continue;
                 }
@@ -287,7 +294,7 @@ class ActionItemAnalyticsService
 
                 if ($dueDate < $today) {
                     $grouped['overdue'][] = $item;
-                } elseif ($dueDate <= $weekAhead) {
+                } else if ($dueDate <= $weekAhead) {
                     $grouped['thisWeek'][] = $item;
                 } else {
                     $grouped['later'][] = $item;
@@ -296,13 +303,13 @@ class ActionItemAnalyticsService
 
             return $grouped;
         } catch (\Exception $e) {
-            $this->logger->error('ActionItemAnalyticsService::getMyItems failed: ' . $e->getMessage());
+            $this->logger->error('ActionItemAnalyticsService::getMyItems failed: '.$e->getMessage());
 
             return [
-                'overdue' => [],
+                'overdue'  => [],
                 'thisWeek' => [],
-                'later' => [],
+                'later'    => [],
             ];
-        }
-    }
-}
+        }//end try
+    }//end getMyItems()
+}//end class

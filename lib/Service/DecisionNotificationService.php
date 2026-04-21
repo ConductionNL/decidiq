@@ -46,7 +46,7 @@ class DecisionNotificationService
         private ContainerInterface $container,
         private LoggerInterface $logger,
     ) {
-    }
+    }//end __construct()
 
     /**
      * Send notifications when a Decision is published.
@@ -63,11 +63,11 @@ class DecisionNotificationService
     public function notifyOnPublish(string $decisionId): int
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
-            $appConfig = $this->container->get('IAppConfig');
+            $objectService       = $this->container->get('OpenRegisterObjectService');
+            $appConfig           = $this->container->get('IAppConfig');
             $notificationService = $this->container->get('OpenRegisterNotificationService');
 
-            // Fetch Decision
+            // Fetch Decision.
             $decision = $objectService->findObject(
                 register: 'decidesk',
                 schema: 'Decision',
@@ -79,49 +79,53 @@ class DecisionNotificationService
                 return 0;
             }
 
-            // Get configured roles
+            // Get configured roles.
             $roles = $appConfig->getValueArray(
                 'decidesk',
                 'decision_notify_roles',
                 ['chair', 'secretary', 'member']
             );
 
-            // Get GovernanceBody from Decision relations
+            // Get GovernanceBody from Decision relations.
             $bodyId = null;
-            if (!empty($decision['relations']['GovernanceBody'])) {
+            if (empty($decision['relations']['GovernanceBody']) === false) {
                 $bodyRels = $decision['relations']['GovernanceBody'];
-                $bodyId = is_array($bodyRels) ? $bodyRels[0] : $bodyRels;
+                if (is_array($bodyRels) === true) {
+                    $bodyId = $bodyRels[0];
+                } else {
+                    $bodyId = $bodyRels;
+                }
             }
 
-            if (empty($bodyId)) {
+            if (empty($bodyId) === true) {
                 $this->logger->info("No GovernanceBody linked to Decision $decisionId");
                 return 0;
             }
 
-            // Resolve recipients
-            $recipients = $this->resolveRecipients($decisionId, $roles);
+            // Resolve recipients.
+            $recipients = $this->resolveRecipients(decisionId: $decisionId, roles: $roles);
 
             $sentCount = 0;
             foreach ($recipients as $userDisplayName) {
                 try {
                     $notificationService->sendNotification(
                         userId: $userDisplayName,
-                        title: "Besluit gepubliceerd: " . ($decision['title'] ?? 'Untitled'),
-                        message: "Outcome: " . ($decision['outcome'] ?? 'pending'),
+                        title: "Besluit gepubliceerd: ".($decision['title'] ?? 'Untitled'),
+                        message: "Outcome: ".($decision['outcome'] ?? 'pending'),
                         deepLink: "/decisions/$decisionId"
                     );
                     $sentCount++;
                 } catch (\Exception $e) {
-                    $this->logger->warning("Failed to send notification: " . $e->getMessage());
+                    $this->logger->warning("Failed to send notification: ".$e->getMessage());
                 }
             }
 
             return $sentCount;
         } catch (\Exception $e) {
-            $this->logger->error("DecisionNotificationService::notifyOnPublish failed: " . $e->getMessage());
+            $this->logger->error("DecisionNotificationService::notifyOnPublish failed: ".$e->getMessage());
             return 0;
-        }
-    }
+        }//end try
+    }//end notifyOnPublish()
 
     /**
      * Resolve recipient user display names from Memberships.
@@ -129,24 +133,24 @@ class DecisionNotificationService
      * Queries Memberships filtered by role and returns user display names.
      *
      * @param string $decisionId The Decision ID
-     * @param array  $roles     Roles to include (e.g., ['chair', 'secretary'])
+     * @param array  $roles      Roles to include (e.g., ['chair', 'secretary'])
      *
      * @return array<string> Array of user display names
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5.1
      */
-    public function resolveRecipients(string $decisionId, array $roles = []): array
+    public function resolveRecipients(string $decisionId, array $roles=[]): array
     {
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');
 
-            if (empty($roles)) {
+            if (empty($roles) === true) {
                 $roles = ['chair', 'secretary', 'member'];
             }
 
-            // Query Memberships with role filters
+            // Query Memberships with role filters.
             $params = [
-                'role' => $roles,
+                'role'   => $roles,
                 '_limit' => 999,
             ];
 
@@ -159,15 +163,15 @@ class DecisionNotificationService
             $recipients = [];
             foreach ($memberships as $membership) {
                 $displayName = $membership['displayName'] ?? null;
-                if (!empty($displayName)) {
+                if (empty($displayName) === false) {
                     $recipients[] = $displayName;
                 }
             }
 
             return array_unique($recipients);
         } catch (\Exception $e) {
-            $this->logger->error("DecisionNotificationService::resolveRecipients failed: " . $e->getMessage());
+            $this->logger->error("DecisionNotificationService::resolveRecipients failed: ".$e->getMessage());
             return [];
-        }
-    }
-}
+        }//end try
+    }//end resolveRecipients()
+}//end class

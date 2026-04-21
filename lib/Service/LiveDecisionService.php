@@ -47,7 +47,7 @@ class LiveDecisionService
         private ContainerInterface $container,
         private LoggerInterface $logger,
     ) {
-    }
+    }//end __construct()
 
     /**
      * Record a decision during an active meeting.
@@ -72,7 +72,7 @@ class LiveDecisionService
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');
 
-            // Fetch Meeting
+            // Fetch Meeting.
             $meeting = $objectService->findObject(
                 register: 'decidesk',
                 schema: 'Meeting',
@@ -80,32 +80,32 @@ class LiveDecisionService
             );
 
             if ($meeting === null) {
-                throw new MissingObjectException("Meeting not found: $meetingId");
+                throw new MissingObjectException(message: "Meeting not found: $meetingId");
             }
 
-            // Verify lifecycle is 'opened'
+            // Verify lifecycle is 'opened'.
             $lifecycle = $meeting['lifecycle'] ?? null;
             if ($lifecycle !== 'opened') {
                 throw new \Exception("Meeting is not in 'opened' state (current: $lifecycle)", 409);
             }
 
-            // Ensure draft Minutes exist
-            $minutesSlug = $this->ensureDraftMinutes($meetingId);
+            // Ensure draft Minutes exist.
+            $minutesSlug = $this->ensureDraftMinutes(meetingId: $meetingId);
 
-            // Create Decision
+            // Create Decision.
             $decisionToSave = [
-                'title' => $decisionData['title'] ?? '',
-                'text' => $decisionData['text'] ?? '',
-                'outcome' => $decisionData['outcome'] ?? 'pending',
+                'title'        => $decisionData['title'] ?? '',
+                'text'         => $decisionData['text'] ?? '',
+                'outcome'      => $decisionData['outcome'] ?? 'pending',
                 'decisionDate' => date('c'),
-                'isPublished' => false,
+                'isPublished'  => false,
             ];
 
-            if (!empty($decisionData['legalBasis'])) {
+            if (empty($decisionData['legalBasis']) === false) {
                 $decisionToSave['legalBasis'] = $decisionData['legalBasis'];
             }
 
-            // Add relation to Meeting
+            // Add relation to Meeting.
             $decisionToSave['relations'] = [
                 'Meeting' => [$meetingId],
             ];
@@ -122,10 +122,10 @@ class LiveDecisionService
 
             return $decisionSlug;
         } catch (\Exception $e) {
-            $this->logger->error("LiveDecisionService::recordDecision failed: " . $e->getMessage());
+            $this->logger->error("LiveDecisionService::recordDecision failed: ".$e->getMessage());
             throw $e;
-        }
-    }
+        }//end try
+    }//end recordDecision()
 
     /**
      * Ensure a draft Minutes object exists for the Meeting.
@@ -145,9 +145,9 @@ class LiveDecisionService
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');
 
-            // Check if Minutes already exist for this Meeting
-            $params = [
-                '_limit' => 999,
+            // Check if Minutes already exist for this Meeting.
+            $params          = [
+                '_limit'  => 999,
                 '_offset' => 0,
             ];
             $existingMinutes = $objectService->findObjects(
@@ -157,8 +157,8 @@ class LiveDecisionService
             );
 
             foreach ($existingMinutes as $minutes) {
-                // Check if linked to the Meeting
-                if (!empty($minutes['relations']['Meeting'])) {
+                // Check if linked to the Meeting.
+                if (empty($minutes['relations']['Meeting']) === false) {
                     foreach ($minutes['relations']['Meeting'] as $linkedMeetingId) {
                         if ($linkedMeetingId === $meetingId || $linkedMeetingId === ['id' => $meetingId]) {
                             return $minutes['@self']['slug'] ?? $minutes['id'] ?? '';
@@ -167,7 +167,7 @@ class LiveDecisionService
                 }
             }
 
-            // No Minutes found, create one
+            // No Minutes found, create one.
             $meeting = $objectService->findObject(
                 register: 'decidesk',
                 schema: 'Meeting',
@@ -175,14 +175,14 @@ class LiveDecisionService
             );
 
             if ($meeting === null) {
-                throw new MissingObjectException("Meeting not found: $meetingId");
+                throw new MissingObjectException(message: "Meeting not found: $meetingId");
             }
 
             $minutesToCreate = [
-                'title' => 'Concept notulen — ' . ($meeting['title'] ?? 'Untitled Meeting'),
+                'title'     => 'Concept notulen — '.($meeting['title'] ?? 'Untitled Meeting'),
                 'lifecycle' => 'draft',
-                'version' => 1,
-                'content' => '',
+                'version'   => 1,
+                'content'   => '',
                 'relations' => [
                     'Meeting' => [$meetingId],
                 ],
@@ -200,8 +200,8 @@ class LiveDecisionService
 
             return $minutesSlug;
         } catch (\Exception $e) {
-            $this->logger->error("LiveDecisionService::ensureDraftMinutes failed: " . $e->getMessage());
+            $this->logger->error("LiveDecisionService::ensureDraftMinutes failed: ".$e->getMessage());
             throw $e;
-        }
-    }
-}
+        }//end try
+    }//end ensureDraftMinutes()
+}//end class

@@ -77,7 +77,7 @@ TEMPLATE;
         private ContainerInterface $container,
         private LoggerInterface $logger,
     ) {
-    }
+    }//end __construct()
 
     /**
      * Generate an ALV draft based on the Minutes and linked Meeting.
@@ -103,7 +103,7 @@ TEMPLATE;
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');
 
-            // Fetch Minutes
+            // Fetch Minutes.
             $minutes = $objectService->findObject(
                 register: 'decidesk',
                 schema: 'Minutes',
@@ -111,17 +111,21 @@ TEMPLATE;
             );
 
             if ($minutes === null) {
-                throw new MissingObjectException("Minutes not found: $minutesId");
+                throw new MissingObjectException(message: "Minutes not found: $minutesId");
             }
 
-            // Get linked Meeting
+            // Get linked Meeting.
             $meetingId = null;
-            if (!empty($minutes['relations']['Meeting'])) {
+            if (empty($minutes['relations']['Meeting']) === false) {
                 $meetingRels = $minutes['relations']['Meeting'];
-                $meetingId = is_array($meetingRels) ? $meetingRels[0] : $meetingRels;
+                if (is_array($meetingRels) === true) {
+                    $meetingId = $meetingRels[0];
+                } else {
+                    $meetingId = $meetingRels;
+                }
             }
 
-            if (empty($meetingId)) {
+            if (empty($meetingId) === true) {
                 throw new \Exception('No Meeting linked to Minutes');
             }
 
@@ -132,49 +136,61 @@ TEMPLATE;
             );
 
             if ($meeting === null) {
-                throw new MissingObjectException("Meeting not found: $meetingId");
+                throw new MissingObjectException(message: "Meeting not found: $meetingId");
             }
 
-            // Validate meeting type is ALV
+            // Validate meeting type is ALV.
             $meetingType = strtolower($meeting['meetingType'] ?? '');
             if (strpos($meetingType, 'alv') === false && strpos($meetingType, 'algemene-ledenvergadering') === false) {
                 throw new \Exception("Meeting is not an ALV (type: $meetingType)", 422);
             }
 
-            // Get GovernanceBody ID
+            // Get GovernanceBody ID.
             $bodyId = null;
-            if (!empty($meeting['relations']['GovernanceBody'])) {
+            if (empty($meeting['relations']['GovernanceBody']) === false) {
                 $bodyRels = $meeting['relations']['GovernanceBody'];
-                $bodyId = is_array($bodyRels) ? $bodyRels[0] : $bodyRels;
+                if (is_array($bodyRels) === true) {
+                    $bodyId = $bodyRels[0];
+                } else {
+                    $bodyId = $bodyRels;
+                }
             }
 
-            // Fetch active participants
+            // Fetch active participants.
             $params = [
                 'leftAt' => null,
                 '_limit' => 999,
             ];
-            $participants = $bodyId ? $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'Participant',
-                params: $params
-            ) : [];
+            if ($bodyId !== null) {
+                $participants = $objectService->findObjects(
+                    register: 'decidesk',
+                    schema: 'Participant',
+                    params: $params
+                );
+            } else {
+                $participants = [];
+            }
 
-            // Count active members
+            // Count active members.
             $memberCount = count($participants);
-            $presentCount = !empty($meeting['quorumRequired']) ? min($memberCount, $meeting['quorumRequired']) : $memberCount;
+            if (empty($meeting['quorumRequired']) === false) {
+                $presentCount = min($memberCount, $meeting['quorumRequired']);
+            } else {
+                $presentCount = $memberCount;
+            }
 
-            // Fetch agenda items
+            // Fetch agenda items.
             $agendaParams = [
                 '_limit' => 999,
                 '_order' => 'orderNumber:ASC',
             ];
-            $agendaItems = $objectService->findObjects(
+            $agendaItems  = $objectService->findObjects(
                 register: 'decidesk',
                 schema: 'AgendaItem',
                 params: $agendaParams
             );
 
-            // Format agenda items
+            // Format agenda items.
             $agendaText = '';
             foreach ($agendaItems as $item) {
                 $agendaText .= sprintf(
@@ -184,13 +200,30 @@ TEMPLATE;
                 );
             }
 
-            // Determine quorum status
+            // Determine quorum status.
             $quorumMet = $presentCount >= ($meeting['quorumRequired'] ?? 0);
-            $quorumStatus = $quorumMet ? "Quorum bereikt ($presentCount/$memberCount leden)" : "Quorum niet bereikt ($presentCount/$memberCount leden)";
+            if ($quorumMet === true) {
+                $quorumStatus = "Quorum bereikt ($presentCount/$memberCount leden)";
+            } else {
+                $quorumStatus = "Quorum niet bereikt ($presentCount/$memberCount leden)";
+            }
 
-            // Render template
-            $content = str_replace(
-                ['{title}', '{date}', '{location}', '{presentCount}', '{totalCount}', '{quorumStatus}', '{agendaItems}', '{resolutions}', '{secretary}', '{chair}', '{aob}'],
+            // Render template.
+            $searchKeys = [
+                '{title}',
+                '{date}',
+                '{location}',
+                '{presentCount}',
+                '{totalCount}',
+                '{quorumStatus}',
+                '{agendaItems}',
+                '{resolutions}',
+                '{secretary}',
+                '{chair}',
+                '{aob}',
+            ];
+            $content    = str_replace(
+                $searchKeys,
                 [
                     $minutes['title'] ?? 'Algemene Ledenvergadering',
                     $meeting['scheduledDate'] ?? date('d-m-Y'),
@@ -210,14 +243,14 @@ TEMPLATE;
             $this->logger->info("ALV draft generated for minutes $minutesId");
 
             return [
-                'content' => $content,
+                'content'        => $content,
                 'recipientCount' => $memberCount,
             ];
         } catch (\Exception $e) {
-            $this->logger->error("ALVMinutesService::generateALVDraft failed: " . $e->getMessage());
+            $this->logger->error("ALVMinutesService::generateALVDraft failed: ".$e->getMessage());
             throw $e;
-        }
-    }
+        }//end try
+    }//end generateALVDraft()
 
     /**
      * Distribute approved minutes to all active members.
@@ -238,10 +271,10 @@ TEMPLATE;
     public function distribute(string $minutesId): int
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService       = $this->container->get('OpenRegisterObjectService');
             $notificationService = $this->container->get('OpenRegisterNotificationService');
 
-            // Fetch Minutes
+            // Fetch Minutes.
             $minutes = $objectService->findObject(
                 register: 'decidesk',
                 schema: 'Minutes',
@@ -249,65 +282,77 @@ TEMPLATE;
             );
 
             if ($minutes === null) {
-                throw new MissingObjectException("Minutes not found: $minutesId");
+                throw new MissingObjectException(message: "Minutes not found: $minutesId");
             }
 
-            // Validate lifecycle
+            // Validate lifecycle.
             $lifecycle = $minutes['lifecycle'] ?? null;
             if ($lifecycle !== 'approved' && $lifecycle !== 'signed') {
                 throw new \Exception("Minutes must be approved or signed before distribution (current: $lifecycle)", 403);
             }
 
-            // Get linked Meeting
+            // Get linked Meeting.
             $meetingId = null;
-            if (!empty($minutes['relations']['Meeting'])) {
+            if (empty($minutes['relations']['Meeting']) === false) {
                 $meetingRels = $minutes['relations']['Meeting'];
-                $meetingId = is_array($meetingRels) ? $meetingRels[0] : $meetingRels;
+                if (is_array($meetingRels) === true) {
+                    $meetingId = $meetingRels[0];
+                } else {
+                    $meetingId = $meetingRels;
+                }
             }
 
-            // Get GovernanceBody ID
+            // Get GovernanceBody ID.
             $bodyId = null;
-            if ($meetingId) {
+            if ($meetingId !== null) {
                 $meeting = $objectService->findObject(
                     register: 'decidesk',
                     schema: 'Meeting',
                     id: $meetingId
                 );
-                if ($meeting && !empty($meeting['relations']['GovernanceBody'])) {
+                if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
                     $bodyRels = $meeting['relations']['GovernanceBody'];
-                    $bodyId = is_array($bodyRels) ? $bodyRels[0] : $bodyRels;
+                    if (is_array($bodyRels) === true) {
+                        $bodyId = $bodyRels[0];
+                    } else {
+                        $bodyId = $bodyRels;
+                    }
                 }
             }
 
-            // Fetch active participants
+            // Fetch active participants.
             $params = [
                 'leftAt' => null,
                 '_limit' => 999,
             ];
-            $participants = $bodyId ? $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'Participant',
-                params: $params
-            ) : [];
+            if ($bodyId !== null) {
+                $participants = $objectService->findObjects(
+                    register: 'decidesk',
+                    schema: 'Participant',
+                    params: $params
+                );
+            } else {
+                $participants = [];
+            }
 
-            // Send notifications to each participant
+            // Send notifications to each participant.
             $sentCount = 0;
             foreach ($participants as $participant) {
                 $userId = $participant['email'] ?? $participant['displayName'] ?? null;
-                if (empty($userId)) {
+                if (empty($userId) === true) {
                     continue;
                 }
 
                 try {
                     $notificationService->sendNotification(
                         userId: $userId,
-                        title: "Notulen gepubliceerd: " . ($minutes['title'] ?? 'Untitled'),
+                        title: "Notulen gepubliceerd: ".($minutes['title'] ?? 'Untitled'),
                         message: "De notulen zijn nu beschikbaar.",
                         deepLink: "/minutes/$minutesId"
                     );
                     $sentCount++;
                 } catch (\Exception $e) {
-                    $this->logger->warning("Failed to send notification to $userId: " . $e->getMessage());
+                    $this->logger->warning("Failed to send notification to $userId: ".$e->getMessage());
                 }
             }
 
@@ -315,8 +360,8 @@ TEMPLATE;
 
             return $sentCount;
         } catch (\Exception $e) {
-            $this->logger->error("ALVMinutesService::distribute failed: " . $e->getMessage());
+            $this->logger->error("ALVMinutesService::distribute failed: ".$e->getMessage());
             throw $e;
-        }
-    }
-}
+        }//end try
+    }//end distribute()
+}//end class

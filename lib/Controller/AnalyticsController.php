@@ -43,9 +43,9 @@ class AnalyticsController extends Controller
     /**
      * Constructor for AnalyticsController.
      *
-     * @param IRequest                      $request            The HTTP request
-     * @param ActionItemAnalyticsService    $analyticsService   The analytics service
-     * @param IUserSession                  $userSession        The current user session
+     * @param IRequest                   $request          The HTTP request
+     * @param ActionItemAnalyticsService $analyticsService The analytics service
+     * @param IUserSession               $userSession      The current user session
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
      */
@@ -55,7 +55,7 @@ class AnalyticsController extends Controller
         private IUserSession $userSession,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
-    }
+    }//end __construct()
 
     /**
      * Get a summary of action item metrics for a date range.
@@ -70,16 +70,16 @@ class AnalyticsController extends Controller
      */
     public function getSummary(): JSONResponse
     {
-        // Default to current calendar year
-        $now = new DateTime();
-        $year = (int)$now->format('Y');
+        // Default to current calendar year.
+        $now      = new DateTime();
+        $year     = (int) $now->format('Y');
         $dateFrom = $this->request->getParam('dateFrom', "$year-01-01");
-        $dateTo = $this->request->getParam('dateTo', "$year-12-31");
+        $dateTo   = $this->request->getParam('dateTo', "$year-12-31");
 
         $summary = $this->analyticsService->getSummary($dateFrom, $dateTo);
 
         return new JSONResponse($summary);
-    }
+    }//end getSummary()
 
     /**
      * Get per-meeting completion rates.
@@ -94,11 +94,11 @@ class AnalyticsController extends Controller
      */
     public function getCompletionRates(): JSONResponse
     {
-        $limit = (int)$this->request->getParam('limit', 6);
+        $limit = (int) $this->request->getParam('limit', 6);
         $rates = $this->analyticsService->getCompletionRates($limit);
 
         return new JSONResponse($rates);
-    }
+    }//end getCompletionRates()
 
     /**
      * Get action items assigned to the current user.
@@ -119,8 +119,8 @@ class AnalyticsController extends Controller
         }
 
         $userDisplayName = $user->getDisplayName();
-        $items = $this->analyticsService->getMyItems($userDisplayName);
+        $items           = $this->analyticsService->getMyItems($userDisplayName);
 
         return new JSONResponse($items);
-    }
-}
+    }//end getMyItems()
+}//end class

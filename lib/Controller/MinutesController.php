@@ -55,13 +55,13 @@ class MinutesController extends Controller
      * time would freeze it as null when the container is first built in a cron or
      * pre-flight context. The UID is resolved per-request via $this->userSession.
      *
-     * @param IRequest                      $request                      The HTTP request
-     * @param MinutesGenerationService      $minutesGenerationService     The generation service
-     * @param ALVMinutesService             $alvMinutesService            The ALV minutes service
-     * @param ActionItemExtractionService   $extractionService            The extraction service
-     * @param MinutesService                $minutesService               The minutes service
-     * @param IUserSession                  $userSession                  The current user session
-     * @param IGroupManager                 $groupManager                 Group manager for role checks
+     * @param IRequest                    $request                  The HTTP request
+     * @param MinutesGenerationService    $minutesGenerationService The generation service
+     * @param ALVMinutesService           $alvMinutesService        The ALV minutes service
+     * @param ActionItemExtractionService $extractionService        The extraction service
+     * @param MinutesService              $minutesService           The minutes service
+     * @param IUserSession                $userSession              The current user session
+     * @param IGroupManager               $groupManager             Group manager for role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
@@ -253,13 +253,14 @@ class MinutesController extends Controller
                 Http::STATUS_NOT_FOUND
             );
         } catch (\Exception $e) {
-            $code = (int)$e->getCode();
+            $code = (int) $e->getCode();
             if ($code === 422) {
                 return new JSONResponse(
                     ['message' => $e->getMessage()],
                     Http::STATUS_UNPROCESSABLE_ENTITY
                 );
             }
+
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_BAD_REQUEST
@@ -296,13 +297,14 @@ class MinutesController extends Controller
                 Http::STATUS_NOT_FOUND
             );
         } catch (\Exception $e) {
-            $code = (int)$e->getCode();
+            $code = (int) $e->getCode();
             if ($code === 403) {
                 return new JSONResponse(
                     ['message' => $e->getMessage()],
                     Http::STATUS_FORBIDDEN
                 );
             }
+
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_BAD_REQUEST
@@ -328,8 +330,8 @@ class MinutesController extends Controller
     public function extractActionItems(string $minutesId): JSONResponse
     {
         try {
-            // Fetch the Minutes object to get content
-            $container = $this->container ?? \OC::$server;
+            // Fetch the Minutes object to get content.
+            $container     = $this->container ?? \OC::$server;
             $objectService = $container->get('OpenRegisterObjectService');
 
             $minutes = $objectService->findObject(
@@ -342,14 +344,14 @@ class MinutesController extends Controller
                 return new JSONResponse(['error' => 'Minutes not found'], 404);
             }
 
-            $content = $minutes['content'] ?? '';
+            $content    = $minutes['content'] ?? '';
             $candidates = $this->extractionService->extractFromContent($content);
 
             return new JSONResponse(['candidates' => $candidates]);
         } catch (\Exception $e) {
             return new JSONResponse(['error' => $e->getMessage()], 500);
-        }
-    }
+        }//end try
+    }//end extractActionItems()
 
     /**
      * Save extracted action items after user confirmation.
@@ -375,8 +377,8 @@ class MinutesController extends Controller
         try {
             $confirmed = $this->request->getParam('confirmed', []);
 
-            // Fetch Minutes to verify lifecycle
-            $container = $this->container ?? \OC::$server;
+            // Fetch Minutes to verify lifecycle.
+            $container     = $this->container ?? \OC::$server;
             $objectService = $container->get('OpenRegisterObjectService');
 
             $minutes = $objectService->findObject(
@@ -399,8 +401,8 @@ class MinutesController extends Controller
             return new JSONResponse(['saved' => $count]);
         } catch (\Exception $e) {
             return new JSONResponse(['error' => $e->getMessage()], 500);
-        }
-    }
+        }//end try
+    }//end saveExtractedActionItems()
 
     /**
      * Submit Minutes for approval.
@@ -429,10 +431,10 @@ class MinutesController extends Controller
                 return new JSONResponse(['error' => 'Not authenticated'], 401);
             }
 
-            $container = $this->container ?? \OC::$server;
+            $container     = $this->container ?? \OC::$server;
             $objectService = $container->get('OpenRegisterObjectService');
 
-            // Fetch Minutes
+            // Fetch Minutes.
             $minutes = $objectService->findObject(
                 register: 'decidesk',
                 schema: 'Minutes',
@@ -443,12 +445,12 @@ class MinutesController extends Controller
                 return new JSONResponse(['error' => 'Minutes not found'], 404);
             }
 
-            // Verify lifecycle is draft
+            // Verify lifecycle is draft.
             if (($minutes['lifecycle'] ?? null) !== 'draft') {
                 return new JSONResponse(['error' => 'Minutes must be in draft state'], 409);
             }
 
-            // Transition lifecycle to review
+            // Transition lifecycle to review.
             $minutes['lifecycle'] = 'review';
             $objectService->saveObject(
                 register: 'decidesk',
@@ -456,15 +458,17 @@ class MinutesController extends Controller
                 object: $minutes
             );
 
-            // Send approval notifications
+            // Send approval notifications.
             $notified = $this->minutesService->notifyApproversOnSubmit($minutesId, $user->getUID());
 
-            return new JSONResponse([
-                'lifecycle' => 'review',
-                'notified' => $notified,
-            ]);
+            return new JSONResponse(
+                    [
+                        'lifecycle' => 'review',
+                        'notified'  => $notified,
+                    ]
+                    );
         } catch (\Exception $e) {
             return new JSONResponse(['error' => $e->getMessage()], 500);
-        }
-    }
+        }//end try
+    }//end submitForApproval()
 }//end class
