@@ -27,6 +27,7 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\VotingBehaviourService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -72,8 +73,11 @@ class VotingBehaviourController extends Controller
      *
      * @return JSONResponse The statistics array or error
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
      */
+    #[NoAdminRequired]
     public function getStats(string $participantId, string $governanceBodyId=''): JSONResponse
     {
         $user = $this->userSession->getUser();

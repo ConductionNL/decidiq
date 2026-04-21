@@ -27,6 +27,8 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 
@@ -67,6 +69,8 @@ class ProjectionController extends Controller
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
      */
+    #[PublicPage]
+    #[NoCSRFRequired]
     public function publicState(string $id): JSONResponse
     {
         $state = $this->votingService->getPublicState(votingRoundId: $id);
