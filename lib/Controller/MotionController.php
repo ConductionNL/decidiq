@@ -320,6 +320,11 @@ class MotionController extends Controller
      */
     public function forward(string $id): JSONResponse
     {
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
         $params        = $this->request->getParams();
         $targetBodyId  = ($params['targetBodyId'] ?? '');
         $justification = ($params['justification'] ?? '');
