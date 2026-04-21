@@ -37,6 +37,7 @@ use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
+use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -113,6 +114,7 @@ class Application extends App implements IBootstrap
                     minutesService: $c->get(MinutesService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
+                    objectService: $c->get(ObjectService::class),
                     );
                 }
                 );

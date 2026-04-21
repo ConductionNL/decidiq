@@ -29,6 +29,7 @@ use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
+use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -62,6 +63,7 @@ class MinutesController extends Controller
      * @param MinutesService              $minutesService           The minutes service
      * @param IUserSession                $userSession              The current user session
      * @param IGroupManager               $groupManager             Group manager for role checks
+     * @param ObjectService               $objectService            The object service for direct data access
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
@@ -73,6 +75,7 @@ class MinutesController extends Controller
         private MinutesService $minutesService,
         private IUserSession $userSession,
         private IGroupManager $groupManager,
+        private ObjectService $objectService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -244,6 +247,22 @@ class MinutesController extends Controller
      */
     public function generateALVDraft(string $minutesId): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        // Require admin rights to prevent unauthorised ALV draft generation (OWASP A01 / ADR-005).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may generate ALV minutes drafts.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         try {
             $result = $this->alvMinutesService->generateALVDraft($minutesId);
             return new JSONResponse(['preview' => $result['content']]);
@@ -288,6 +307,22 @@ class MinutesController extends Controller
      */
     public function distributeALVMinutes(string $minutesId): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        // Require admin rights to prevent bulk governance-body notifications by arbitrary users (OWASP A01 / ADR-005).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may distribute ALV minutes.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         try {
             $count = $this->alvMinutesService->distribute($minutesId);
             return new JSONResponse(['notified' => $count]);
@@ -329,27 +364,46 @@ class MinutesController extends Controller
      */
     public function extractActionItems(string $minutesId): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        // Require admin rights to prevent action item extraction on arbitrary minutes (OWASP A01 / ADR-005).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may extract action items.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         try {
             // Fetch the Minutes object to get content.
-            $container     = $this->container ?? \OC::$server;
-            $objectService = $container->get('OpenRegisterObjectService');
-
-            $minutes = $objectService->findObject(
+            $minutes = $this->objectService->findObject(
                 register: 'decidesk',
                 schema: 'Minutes',
                 id: $minutesId
             );
 
             if ($minutes === null) {
-                return new JSONResponse(['error' => 'Minutes not found'], 404);
+                return new JSONResponse(
+                    ['message' => 'Minutes not found.'],
+                    Http::STATUS_NOT_FOUND
+                );
             }
 
             $content    = $minutes['content'] ?? '';
-            $candidates = $this->extractionService->extractFromContent($content);
+            $candidates = $this->extractionService->extractFromContent(content: $content);
 
             return new JSONResponse(['candidates' => $candidates]);
         } catch (\Exception $e) {
-            return new JSONResponse(['error' => $e->getMessage()], 500);
+            return new JSONResponse(
+                ['message' => 'Internal server error.'],
+                Http::STATUS_INTERNAL_SERVER_ERROR
+            );
         }//end try
     }//end extractActionItems()
 
@@ -374,33 +428,58 @@ class MinutesController extends Controller
      */
     public function saveExtractedActionItems(string $minutesId): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        // Require admin rights to prevent arbitrary users creating ActionItem objects on any Minutes (OWASP A01 / ADR-005).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may save extracted action items.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         try {
             $confirmed = $this->request->getParam('confirmed', []);
 
-            // Fetch Minutes to verify lifecycle.
-            $container     = $this->container ?? \OC::$server;
-            $objectService = $container->get('OpenRegisterObjectService');
-
-            $minutes = $objectService->findObject(
+            // Fetch Minutes to verify lifecycle before saving.
+            $minutes = $this->objectService->findObject(
                 register: 'decidesk',
                 schema: 'Minutes',
                 id: $minutesId
             );
 
             if ($minutes === null) {
-                return new JSONResponse(['error' => 'Minutes not found'], 404);
+                return new JSONResponse(
+                    ['message' => 'Minutes not found.'],
+                    Http::STATUS_NOT_FOUND
+                );
             }
 
             $lifecycle = $minutes['lifecycle'] ?? null;
             if ($lifecycle === 'published') {
-                return new JSONResponse(['error' => 'Cannot extract action items from published minutes'], 400);
+                return new JSONResponse(
+                    ['message' => 'Cannot save action items for published minutes.'],
+                    Http::STATUS_BAD_REQUEST
+                );
             }
 
-            $count = $this->extractionService->saveExtracted($minutesId, $confirmed);
+            $count = $this->extractionService->saveExtracted(
+                minutesId: $minutesId,
+                confirmed: $confirmed
+            );
 
             return new JSONResponse(['saved' => $count]);
         } catch (\Exception $e) {
-            return new JSONResponse(['error' => $e->getMessage()], 500);
+            return new JSONResponse(
+                ['message' => 'Internal server error.'],
+                Http::STATUS_INTERNAL_SERVER_ERROR
+            );
         }//end try
     }//end saveExtractedActionItems()
 
@@ -425,41 +504,58 @@ class MinutesController extends Controller
      */
     public function submitForApproval(string $minutesId): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        // Require admin rights to prevent non-admin users from submitting minutes for approval (OWASP A01 / ADR-005).
+        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: only administrators may submit minutes for approval.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
         try {
-            $user = $this->userSession->getUser();
-            if ($user === null) {
-                return new JSONResponse(['error' => 'Not authenticated'], 401);
-            }
-
-            $container     = $this->container ?? \OC::$server;
-            $objectService = $container->get('OpenRegisterObjectService');
-
             // Fetch Minutes.
-            $minutes = $objectService->findObject(
+            $minutes = $this->objectService->findObject(
                 register: 'decidesk',
                 schema: 'Minutes',
                 id: $minutesId
             );
 
             if ($minutes === null) {
-                return new JSONResponse(['error' => 'Minutes not found'], 404);
+                return new JSONResponse(
+                    ['message' => 'Minutes not found.'],
+                    Http::STATUS_NOT_FOUND
+                );
             }
 
             // Verify lifecycle is draft.
             if (($minutes['lifecycle'] ?? null) !== 'draft') {
-                return new JSONResponse(['error' => 'Minutes must be in draft state'], 409);
+                return new JSONResponse(
+                    ['message' => 'Minutes must be in draft state to submit for approval.'],
+                    Http::STATUS_CONFLICT
+                );
             }
 
             // Transition lifecycle to review.
             $minutes['lifecycle'] = 'review';
-            $objectService->saveObject(
+            $this->objectService->saveObject(
                 register: 'decidesk',
                 schema: 'Minutes',
                 object: $minutes
             );
 
             // Send approval notifications.
-            $notified = $this->minutesService->notifyApproversOnSubmit($minutesId, $user->getUID());
+            $notified = $this->minutesService->notifyApproversOnSubmit(
+                minutesId: $minutesId,
+                actorId: $user->getUID()
+            );
 
             return new JSONResponse(
                     [
@@ -468,7 +564,10 @@ class MinutesController extends Controller
                     ]
                     );
         } catch (\Exception $e) {
-            return new JSONResponse(['error' => $e->getMessage()], 500);
+            return new JSONResponse(
+                ['message' => 'Internal server error.'],
+                Http::STATUS_INTERNAL_SERVER_ERROR
+            );
         }//end try
     }//end submitForApproval()
 }//end class

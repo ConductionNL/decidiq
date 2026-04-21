@@ -123,7 +123,7 @@ class LiveMeetingController extends Controller
                 return new JSONResponse(['error' => $e->getMessage()], 409);
             }
 
-            return new JSONResponse(['error' => 'Internal server error: '.$e->getMessage()], 500);
+            return new JSONResponse(['error' => 'Internal server error.'], 500);
         }//end try
     }//end recordLiveDecision()
 }//end class
