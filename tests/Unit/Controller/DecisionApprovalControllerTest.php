@@ -261,6 +261,29 @@ class DecisionApprovalControllerTest extends TestCase
     }//end testTransitionLifecycleReturns400ForInvalidTransition()
 
     /**
+     * transitionLifecycle returns 403 when service throws OCSForbiddenException (role check).
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     *
+     * @return void
+     */
+    public function testTransitionLifecycleReturns403WhenForbidden(): void
+    {
+        $this->approvalService->expects($this->once())
+            ->method('transitionLifecycle')
+            ->willThrowException(new OCSForbiddenException('Actor lacks required role'));
+
+        $result = $this->controller->transitionLifecycle(
+            id: 'decision-001',
+            toState: 'legal-review',
+        );
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testTransitionLifecycleReturns403WhenForbidden()
+
+    /**
      * assignReviewer returns 200 for authenticated request.
      *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
@@ -269,6 +292,10 @@ class DecisionApprovalControllerTest extends TestCase
      */
     public function testAssignReviewerReturns200ForAuthenticatedRequest(): void
     {
+        $this->approvalService->expects($this->once())
+            ->method('authorizeAssignment')
+            ->with(decisionId: 'decision-001', uid: 'test-reviewer');
+
         $this->approvalService->expects($this->once())
             ->method('assignReviewer')
             ->with(
@@ -286,5 +313,89 @@ class DecisionApprovalControllerTest extends TestCase
         self::assertSame(Http::STATUS_OK, $result->getStatus());
 
     }//end testAssignReviewerReturns200ForAuthenticatedRequest()
+
+    /**
+     * assignReviewer returns 403 when authorizeAssignment throws OCSForbiddenException.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     *
+     * @return void
+     */
+    public function testAssignReviewerReturns403WhenForbidden(): void
+    {
+        $this->approvalService->expects($this->once())
+            ->method('authorizeAssignment')
+            ->willThrowException(new OCSForbiddenException('Decision not found or access denied'));
+
+        $this->approvalService->expects($this->never())->method('assignReviewer');
+
+        $result = $this->controller->assignReviewer(
+            id: 'missing-id',
+            personId: 'person-001',
+        );
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testAssignReviewerReturns403WhenForbidden()
+
+    /**
+     * remindReviewer returns 200 for authenticated request when decision found.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     *
+     * @return void
+     */
+    public function testRemindReviewerReturns200ForAuthenticatedRequest(): void
+    {
+        $this->approvalService->expects($this->once())
+            ->method('authorizeReminder')
+            ->with(
+                decisionId: 'decision-001',
+                personId: 'person-001',
+                uid: 'test-reviewer',
+            );
+
+        $result = $this->controller->remindReviewer(
+            id: 'decision-001',
+            personId: 'person-001',
+        );
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+
+    }//end testRemindReviewerReturns200ForAuthenticatedRequest()
+
+    /**
+     * remindReviewer returns 401 when user is unauthenticated.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     *
+     * @return void
+     */
+    public function testRemindReviewerReturns401WhenNotAuthenticated(): void
+    {
+        $unauthSession = $this->createMock(IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
+        $unauthController = new DecisionApprovalController(
+            appName: 'decidesk',
+            request: $this->request,
+            approvalService: $this->approvalService,
+            userSession: $unauthSession,
+            logger: $this->logger,
+        );
+
+        $this->approvalService->expects($this->never())->method('authorizeReminder');
+
+        $result = $unauthController->remindReviewer(
+            id: 'decision-001',
+            personId: 'person-001',
+        );
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+
+    }//end testRemindReviewerReturns401WhenNotAuthenticated()
 
 }//end class

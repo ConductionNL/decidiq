@@ -24,8 +24,10 @@ namespace OCA\Decidesk\Controller;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IRequest;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\ICache;
+use OCP\IRequest;
+use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -39,11 +41,12 @@ class DecisionAnalyticsController extends Controller
     /**
      * Construct the DecisionAnalyticsController.
      *
-     * @param string             $appName   Application name
-     * @param IRequest           $request   HTTP request
-     * @param ContainerInterface $container DI container
-     * @param ICache             $cache     Cache service
-     * @param LoggerInterface    $logger    Logger
+     * @param string             $appName     Application name
+     * @param IRequest           $request     HTTP request
+     * @param ContainerInterface $container   DI container
+     * @param ICache             $cache       Cache service
+     * @param IUserSession       $userSession User session
+     * @param LoggerInterface    $logger      Logger
      *
      * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
      */
@@ -52,6 +55,7 @@ class DecisionAnalyticsController extends Controller
         IRequest $request,
         private readonly ContainerInterface $container,
         private readonly ICache $cache,
+        private readonly IUserSession $userSession,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(appName: $appName, request: $request);
@@ -72,6 +76,17 @@ class DecisionAnalyticsController extends Controller
      */
     public function analytics(string $governanceBodyId=''): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->requireGovernanceBodyAccess(bodyId: $governanceBodyId, uid: $user->getUID());
+        } catch (OCSForbiddenException $e) {
+            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_FORBIDDEN);
+        }
+
         if ($governanceBodyId !== '') {
             $cacheKey = "decidesk_analytics_$governanceBodyId";
         } else {
@@ -199,4 +214,46 @@ class DecisionAnalyticsController extends Controller
             return 0;
         }
     }//end countOverdueActionItems()
+
+    /**
+     * Verify the authenticated user has access to the requested governance body.
+     *
+     * When a specific body is requested, the user must appear as a Person linked
+     * to that governance body (verified via OpenRegister). Aggregate analytics
+     * (empty bodyId) are available to all authenticated users.
+     *
+     * @param string $bodyId Governance body UUID, or '' for aggregate.
+     * @param string $uid    Nextcloud UID of the authenticated user.
+     *
+     * @return void
+     *
+     * @throws OCSForbiddenException When the user is not a member of the requested body.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
+     */
+    private function requireGovernanceBodyAccess(string $bodyId, string $uid): void
+    {
+        if (empty($bodyId) === true) {
+            return;
+        }
+
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('Person');
+
+            $members = $objectService->findAll(
+                params: ['governanceBodyId' => $bodyId, 'nextcloudUserId' => $uid]
+            );
+            if (empty($members) === true) {
+                throw new OCSForbiddenException(
+                    'Access denied: not a member of the requested governance body'
+                );
+            }
+        } catch (OCSForbiddenException $e) {
+            throw $e;
+        } catch (\Throwable) {
+            throw new OCSForbiddenException('Authorization service unavailable');
+        }
+    }//end requireGovernanceBodyAccess()
 }//end class

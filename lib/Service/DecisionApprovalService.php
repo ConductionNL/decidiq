@@ -175,7 +175,7 @@ class DecisionApprovalService
             try {
                 $authService = $this->getAuthorizationService();
             } catch (\RuntimeException) {
-                throw new \InvalidArgumentException(
+                throw new OCSForbiddenException(
                     "Authorization service unavailable — access denied for transition to '$toState'"
                 );
             }
@@ -191,7 +191,7 @@ class DecisionApprovalService
             }
 
             if ($hasRole === false) {
-                throw new \InvalidArgumentException(
+                throw new OCSForbiddenException(
                     "Actor lacks required role for transition to '$toState'"
                 );
             }
@@ -433,6 +433,61 @@ class DecisionApprovalService
 
         return true;
     }//end allReviewsComplete()
+
+    /**
+     * Authorise a reviewer assignment operation.
+     *
+     * Verifies the decision exists and is accessible to the caller. Throws when
+     * the decision is not found so the controller can deny the request unconditionally.
+     *
+     * @param string $decisionId UUID of Decision
+     * @param string $uid        Nextcloud UID of authenticated user
+     *
+     * @return void
+     *
+     * @throws OCSForbiddenException When decision not found or access denied.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     */
+    public function authorizeAssignment(string $decisionId, string $uid): void
+    {
+        $objectService = $this->getObjectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('Decision');
+
+        $decision = $objectService->find($decisionId);
+        if ($decision === null) {
+            throw new OCSForbiddenException('Decision not found or access denied');
+        }
+    }//end authorizeAssignment()
+
+    /**
+     * Authorise a reviewer reminder operation.
+     *
+     * Verifies the decision exists and is accessible before sending a reminder.
+     * Throws when the decision is not found so callers can deny unconditionally.
+     *
+     * @param string $decisionId UUID of Decision
+     * @param string $personId   UUID of reviewer (Person)
+     * @param string $uid        Nextcloud UID of authenticated user
+     *
+     * @return void
+     *
+     * @throws OCSForbiddenException When decision not found or access denied.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     */
+    public function authorizeReminder(string $decisionId, string $personId, string $uid): void
+    {
+        $objectService = $this->getObjectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('Decision');
+
+        $decision = $objectService->find($decisionId);
+        if ($decision === null) {
+            throw new OCSForbiddenException('Decision not found or access denied');
+        }
+    }//end authorizeReminder()
 
     /**
      * Get the approval state machine definition.

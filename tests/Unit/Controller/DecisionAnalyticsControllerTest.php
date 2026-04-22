@@ -27,6 +27,8 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\ICache;
 use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -69,6 +71,20 @@ class DecisionAnalyticsControllerTest extends TestCase
     private LoggerInterface&MockObject $logger;
 
     /**
+     * Mock IUserSession.
+     *
+     * @var IUserSession&MockObject
+     */
+    private IUserSession&MockObject $userSession;
+
+    /**
+     * Mock IUser (authenticated user).
+     *
+     * @var IUser&MockObject
+     */
+    private IUser&MockObject $user;
+
+    /**
      * Controller under test.
      *
      * @var DecisionAnalyticsController
@@ -84,16 +100,22 @@ class DecisionAnalyticsControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->request   = $this->createMock(IRequest::class);
-        $this->container = $this->createMock(ContainerInterface::class);
-        $this->cache     = $this->createMock(ICache::class);
-        $this->logger    = $this->createMock(LoggerInterface::class);
+        $this->request     = $this->createMock(IRequest::class);
+        $this->container   = $this->createMock(ContainerInterface::class);
+        $this->cache       = $this->createMock(ICache::class);
+        $this->logger      = $this->createMock(LoggerInterface::class);
+        $this->userSession = $this->createMock(IUserSession::class);
+        $this->user        = $this->createMock(IUser::class);
+
+        $this->user->method('getUID')->willReturn('test-user');
+        $this->userSession->method('getUser')->willReturn($this->user);
 
         $this->controller = new DecisionAnalyticsController(
             appName: 'decidesk',
             request: $this->request,
             container: $this->container,
             cache: $this->cache,
+            userSession: $this->userSession,
             logger: $this->logger,
         );
 
@@ -173,5 +195,62 @@ class DecisionAnalyticsControllerTest extends TestCase
         self::assertArrayHasKey('overdueActionItems', $result->getData());
 
     }//end testAnalyticsReturnsFreshDataWhenCacheMiss()
+
+    /**
+     * analytics() returns 401 when user is not authenticated.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
+     *
+     * @return void
+     */
+    public function testAnalyticsReturns401WhenNotAuthenticated(): void
+    {
+        $unauthSession = $this->createMock(IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
+        $unauthController = new DecisionAnalyticsController(
+            appName: 'decidesk',
+            request: $this->request,
+            container: $this->container,
+            cache: $this->cache,
+            userSession: $unauthSession,
+            logger: $this->logger,
+        );
+
+        $result = $unauthController->analytics();
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+
+    }//end testAnalyticsReturns401WhenNotAuthenticated()
+
+    /**
+     * analytics() returns 403 when user is not a member of the requested governance body.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-5
+     *
+     * @return void
+     */
+    public function testAnalyticsReturns403WhenNotGovernanceBodyMember(): void
+    {
+        $objectService = $this->getMockBuilder(\OCA\OpenRegister\Service\ObjectService::class)
+            ->getMock();
+
+        $objectService->method('setRegister')->willReturnSelf();
+        $objectService->method('setSchema')->willReturnSelf();
+        // findAll returns empty array — user is not a member.
+        $objectService->method('findAll')->willReturn([]);
+
+        $this->cache->method('get')->willReturn(null);
+
+        $this->container->method('get')
+            ->willReturn($objectService);
+
+        $result = $this->controller->analytics(governanceBodyId: 'body-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testAnalyticsReturns403WhenNotGovernanceBodyMember()
 
 }//end class

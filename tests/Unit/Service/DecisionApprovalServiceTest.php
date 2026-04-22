@@ -153,7 +153,7 @@ class DecisionApprovalServiceTest extends TestCase
 
         $this->objectService->method('find')->willReturn($decisionEntity);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(OCSForbiddenException::class);
         $this->expectExceptionMessageMatches('/access denied/i');
 
         // Transition from 'draft' to 'legal-review' requires roles.
@@ -226,7 +226,7 @@ class DecisionApprovalServiceTest extends TestCase
 
         $this->objectService->method('find')->willReturn($decisionEntity);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(OCSForbiddenException::class);
         $this->expectExceptionMessageMatches('/lacks required role/');
 
         $this->service->transitionLifecycle(
@@ -362,6 +362,76 @@ class DecisionApprovalServiceTest extends TestCase
         self::assertFalse($result);
 
     }//end testAllReviewsCompleteReturnsFalseWhenDecisionMissing()
+
+    /**
+     * authorizeAssignment passes when decision exists.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     *
+     * @return void
+     */
+    public function testAuthorizeAssignmentPassesWhenDecisionExists(): void
+    {
+        $decisionEntity = $this->createEntityMock(['title' => 'Test Decision']);
+
+        $this->container->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($this->objectService);
+
+        $this->objectService->method('find')->willReturn($decisionEntity);
+
+        // No exception expected.
+        $this->service->authorizeAssignment(decisionId: 'decision-001', uid: 'actor-uid');
+
+        self::assertTrue(true);
+
+    }//end testAuthorizeAssignmentPassesWhenDecisionExists()
+
+    /**
+     * authorizeAssignment throws OCSForbiddenException when decision not found.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     *
+     * @return void
+     */
+    public function testAuthorizeAssignmentThrowsWhenDecisionNotFound(): void
+    {
+        $this->container->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($this->objectService);
+
+        $this->objectService->method('find')->willReturn(null);
+
+        $this->expectException(OCSForbiddenException::class);
+
+        $this->service->authorizeAssignment(decisionId: 'missing-id', uid: 'actor-uid');
+
+    }//end testAuthorizeAssignmentThrowsWhenDecisionNotFound()
+
+    /**
+     * authorizeReminder throws OCSForbiddenException when decision not found.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-other-t1/tasks.md#task-2
+     *
+     * @return void
+     */
+    public function testAuthorizeReminderThrowsWhenDecisionNotFound(): void
+    {
+        $this->container->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($this->objectService);
+
+        $this->objectService->method('find')->willReturn(null);
+
+        $this->expectException(OCSForbiddenException::class);
+
+        $this->service->authorizeReminder(
+            decisionId: 'missing-id',
+            personId: 'person-001',
+            uid: 'actor-uid',
+        );
+
+    }//end testAuthorizeReminderThrowsWhenDecisionNotFound()
 
     /**
      * Helper: create a mock entity with getObject() returning the given data.

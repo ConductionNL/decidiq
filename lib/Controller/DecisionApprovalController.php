@@ -93,12 +93,14 @@ class DecisionApprovalController extends Controller
             );
 
             return new JSONResponse(['status' => 'ok'], Http::STATUS_OK);
+        } catch (OCSForbiddenException $e) {
+            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\Throwable $e) {
             $this->logger->error("Decision approval error: {$e->getMessage()}");
             return new JSONResponse(['error' => 'Internal error'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
     }//end transitionLifecycle()
 
     /**
@@ -178,6 +180,8 @@ class DecisionApprovalController extends Controller
                 return new JSONResponse(['error' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
             }
 
+            $this->approvalService->authorizeAssignment(decisionId: $id, uid: $user->getUID());
+
             $this->approvalService->assignReviewer(
                 decisionId: $id,
                 personId: $personId,
@@ -185,10 +189,12 @@ class DecisionApprovalController extends Controller
             );
 
             return new JSONResponse(['status' => 'ok'], Http::STATUS_OK);
+        } catch (OCSForbiddenException $e) {
+            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\Throwable $e) {
             $this->logger->error("Reviewer assignment error: {$e->getMessage()}");
             return new JSONResponse(['error' => 'Internal error'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
     }//end assignReviewer()
 
     /**
@@ -207,6 +213,24 @@ class DecisionApprovalController extends Controller
      */
     public function remindReviewer(string $id, string $personId): JSONResponse
     {
-        return new JSONResponse(['status' => 'ok'], Http::STATUS_OK);
+        try {
+            $user = $this->userSession->getUser();
+            if ($user === null) {
+                return new JSONResponse(['error' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+            }
+
+            $this->approvalService->authorizeReminder(
+                decisionId: $id,
+                personId: $personId,
+                uid: $user->getUID(),
+            );
+
+            return new JSONResponse(['status' => 'ok'], Http::STATUS_OK);
+        } catch (OCSForbiddenException $e) {
+            return new JSONResponse(['error' => $e->getMessage()], Http::STATUS_FORBIDDEN);
+        } catch (\Throwable $e) {
+            $this->logger->error("Reviewer reminder error: {$e->getMessage()}");
+            return new JSONResponse(['error' => 'Internal error'], Http::STATUS_INTERNAL_SERVER_ERROR);
+        }
     }//end remindReviewer()
 }//end class
