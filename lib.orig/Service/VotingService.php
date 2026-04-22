@@ -162,7 +162,7 @@ class VotingService
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
      */
-    private function checkQuorum(string $meetingId): bool
+    public function checkQuorum(string $meetingId): bool
     {
         $objectService = $this->objectService();
         $meeting       = $objectService->getObject(register: 'decidesk', schema: 'meeting', uuid: $meetingId);

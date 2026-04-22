@@ -25,7 +25,6 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\SettingsService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -74,20 +73,6 @@ class SettingsController extends Controller
     }//end requireAdmin()
 
     /**
-     * Ensure the current user has an authenticated session; returns 401 otherwise.
-     *
-     * @return JSONResponse|null
-     */
-    private function requireAuthenticatedUser(): ?JSONResponse
-    {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        return null;
-    }//end requireAuthenticatedUser()
-
-    /**
      * Retrieve all current settings.
      *
      * @NoAdminRequired
@@ -100,11 +85,6 @@ class SettingsController extends Controller
     #[NoAdminRequired]
     public function index(): JSONResponse
     {
-        $guard = $this->requireAuthenticatedUser();
-        if ($guard !== null) {
-            return $guard;
-        }
-
         return new JSONResponse(
             $this->settingsService->getSettings()
         );
@@ -117,7 +97,6 @@ class SettingsController extends Controller
      *
      * @return JSONResponse
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function create(): JSONResponse
     {
         $denied = $this->requireAdmin();
@@ -148,7 +127,6 @@ class SettingsController extends Controller
      *
      * @return JSONResponse
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function load(): JSONResponse
     {
         $denied = $this->requireAdmin();

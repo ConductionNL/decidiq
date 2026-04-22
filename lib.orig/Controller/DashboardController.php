@@ -23,8 +23,6 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
-use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 
@@ -52,10 +50,11 @@ class DashboardController extends Controller
      *
      * @return TemplateResponse
      *
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
      */
-    #[PublicPage]
-    #[NoCSRFRequired]
     public function page(): TemplateResponse
     {
         return new TemplateResponse(Application::APP_ID, 'index');
@@ -66,10 +65,11 @@ class DashboardController extends Controller
      *
      * @return TemplateResponse
      *
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
      */
-    #[PublicPage]
-    #[NoCSRFRequired]
     public function catchAll(): TemplateResponse
     {
         return $this->page();
