@@ -78,6 +78,20 @@ class MotionController extends Controller
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
      */
+    /**
+     * Require an authenticated Nextcloud session; returns 401 if absent.
+     *
+     * @return JSONResponse|null
+     */
+    private function requireAuthenticatedUser(): ?JSONResponse
+    {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        return null;
+    }//end requireAuthenticatedUser()
+
     private function requireChairOrSecretary(): ?JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -196,12 +210,13 @@ class MotionController extends Controller
      */
     public function coSignConfirm(string $id): JSONResponse
     {
-        // Always derive identity from the authenticated session — never trust client-supplied displayName.
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
         }
 
+        // Always derive identity from the authenticated session — never trust client-supplied displayName.
+        $user        = $this->userSession->getUser();
         $uid         = $user->getUID();
         $displayName = $user->getDisplayName();
 

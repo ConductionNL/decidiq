@@ -84,6 +84,20 @@ class VotingController extends Controller
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
      */
+    /**
+     * Require an authenticated Nextcloud session; returns 401 if absent.
+     *
+     * @return JSONResponse|null
+     */
+    private function requireAuthenticatedUser(): ?JSONResponse
+    {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        return null;
+    }//end requireAuthenticatedUser()
+
     private function requireChairOrSecretary(): ?JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -172,11 +186,13 @@ class VotingController extends Controller
      */
     public function cast(string $id): JSONResponse
     {
-        // Derive participant identity from the authenticated session — never trust client input.
-        $nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
-        if ($nextcloudUid === '') {
-            return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
         }
+
+        // Derive participant identity from the authenticated session — never trust client input.
+        $nextcloudUid = $this->userSession->getUser()->getUID();
 
         // Resolve the OpenRegister participant UUID for this Nextcloud user.
         $participantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
@@ -291,12 +307,14 @@ class VotingController extends Controller
      */
     public function proxy(string $id): JSONResponse
     {
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
+        }
+
         // Resolve the Nextcloud UID to an OpenRegister participant UUID before storing —
         // the proxy record must reference the same identifier type as castVote() uses.
-        $nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
-        if ($nextcloudUid === '') {
-            return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+        $nextcloudUid = $this->userSession->getUser()->getUID();
 
         $fromParticipantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
         if ($fromParticipantId === null) {
@@ -383,12 +401,14 @@ class VotingController extends Controller
      */
     public function revokeProxy(string $id): JSONResponse
     {
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
+        }
+
         // Resolve the Nextcloud UID to an OpenRegister participant UUID — must match
         // the identifier type stored by proxy() when the grant was created.
-        $nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
-        if ($nextcloudUid === '') {
-            return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+        $nextcloudUid = $this->userSession->getUser()->getUID();
 
         $fromParticipantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
         if ($fromParticipantId === null) {

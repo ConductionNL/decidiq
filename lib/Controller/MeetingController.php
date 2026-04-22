@@ -78,6 +78,20 @@ class MeetingController extends Controller
     }//end __construct()
 
     /**
+     * Require an authenticated Nextcloud session; returns 401 if absent.
+     *
+     * @return JSONResponse|null
+     */
+    private function requireAuthenticatedUser(): ?JSONResponse
+    {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        return null;
+    }//end requireAuthenticatedUser()
+
+    /**
      * Get a list of meetings.
      *
      * @NoAdminRequired
@@ -89,8 +103,9 @@ class MeetingController extends Controller
     #[NoAdminRequired]
     public function index(): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
         }
 
         try {
@@ -129,8 +144,9 @@ class MeetingController extends Controller
     #[NoAdminRequired]
     public function create(): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
         }
 
         try {
@@ -168,8 +184,9 @@ class MeetingController extends Controller
     #[NoAdminRequired]
     public function show(string $id): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
         }
 
         try {
@@ -205,8 +222,9 @@ class MeetingController extends Controller
     #[NoAdminRequired]
     public function update(string $id): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
         }
 
         try {
@@ -244,8 +262,9 @@ class MeetingController extends Controller
     #[NoAdminRequired]
     public function destroy(string $id): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
         }
 
         try {
@@ -287,9 +306,9 @@ class MeetingController extends Controller
     #[NoAdminRequired]
     public function lifecycle(string $id): JSONResponse
     {
-        // Require authentication — anonymous callers are rejected before service call.
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        $guard = $this->requireAuthenticatedUser();
+        if ($guard !== null) {
+            return $guard;
         }
 
         $action = $this->request->getParam('action', '');

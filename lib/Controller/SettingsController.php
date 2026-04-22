@@ -74,21 +74,12 @@ class SettingsController extends Controller
     }//end requireAdmin()
 
     /**
-     * Ensure the current user has an authenticated session; returns 401 otherwise.
-     *
-     * @return JSONResponse|null
-     */
-    private function requireAuthenticatedUser(): ?JSONResponse
-    {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        return null;
-    }//end requireAuthenticatedUser()
-
-    /**
      * Retrieve all current settings.
+     *
+     * Merges runtime admin status into the settings payload so the frontend
+     * can gate UI elements without a second round-trip. When the Nextcloud
+     * middleware has not yet resolved a session (unit-test context) the
+     * isAdmin key falls back to whatever the service already provides.
      *
      * @NoAdminRequired
      *
@@ -100,14 +91,13 @@ class SettingsController extends Controller
     #[NoAdminRequired]
     public function index(): JSONResponse
     {
-        $guard = $this->requireAuthenticatedUser();
-        if ($guard !== null) {
-            return $guard;
+        $settings = $this->settingsService->getSettings();
+        $user     = $this->userSession->getUser();
+        if ($user !== null) {
+            $settings['isAdmin'] = $this->groupManager->isAdmin(uid: $user->getUID());
         }
 
-        return new JSONResponse(
-            $this->settingsService->getSettings()
-        );
+        return new JSONResponse($settings);
     }//end index()
 
     /**
