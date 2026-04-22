@@ -162,6 +162,19 @@ npm install && npm run build
 docker exec nextcloud php occ app:enable decidesk
 ```
 
+### Local mail integration (Greenmail)
+
+Decidesk's meeting notifications and decision announcements can be demoed locally against the [Greenmail](https://greenmail-mail-test.github.io/greenmail/) container bundled with the OpenRegister dev stack.
+
+**Seed test data:**
+```bash
+bash ../openregister/docker/mail/seed-mail.sh
+```
+
+This populates 5 auto-created accounts (`admin@`, `behandelaar@`, `coordinator@`, `burger@`, `leverancier@` — all `@test.local`) with 11 Dutch case-management emails.
+
+**Configure the Nextcloud Mail app** — IMAP/SMTP host `greenmail` (container) or `localhost` (host), IMAP `3143`, SMTP `3025`, no TLS, username and password both set to the email address.
+
 ## Tech Stack
 
 | Layer | Technology |

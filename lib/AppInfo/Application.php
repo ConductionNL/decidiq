@@ -72,9 +72,6 @@ class Application extends App implements IBootstrap
             listener: DeepLinkRegistrationListener::class
         );
 
-        // Initialize register and schemas on install/upgrade.
-        $context->registerRepairStep(InitializeSettings::class);
-
         // Register MinutesGenerationService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
         $context->registerService(
