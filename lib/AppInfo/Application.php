@@ -177,6 +177,7 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     cache: $c->get(\OCP\ICache::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
