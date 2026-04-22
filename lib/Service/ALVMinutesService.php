@@ -156,12 +156,13 @@ TEMPLATE;
                 }
             }
 
-            // Fetch active participants.
+            // Fetch active participants scoped to this governance body.
             $params = [
                 'leftAt' => null,
                 '_limit' => 999,
             ];
             if ($bodyId !== null) {
+                $params['relations.governance-body'] = $bodyId;
                 $participants = $objectService->findObjects(
                     register: 'decidesk',
                     schema: 'Participant',
@@ -179,10 +180,11 @@ TEMPLATE;
                 $presentCount = $memberCount;
             }
 
-            // Fetch agenda items.
+            // Fetch agenda items scoped to this meeting.
             $agendaParams = [
-                '_limit' => 999,
-                '_order' => 'orderNumber:ASC',
+                'relations.meeting' => $meetingId,
+                '_limit'            => 999,
+                '_order'            => 'orderNumber:ASC',
             ];
             $agendaItems  = $objectService->findObjects(
                 register: 'decidesk',
@@ -320,12 +322,13 @@ TEMPLATE;
                 }
             }
 
-            // Fetch active participants.
+            // Fetch active participants scoped to this governance body.
             $params = [
                 'leftAt' => null,
                 '_limit' => 999,
             ];
             if ($bodyId !== null) {
+                $params['relations.governance-body'] = $bodyId;
                 $participants = $objectService->findObjects(
                     register: 'decidesk',
                     schema: 'Participant',
@@ -335,26 +338,39 @@ TEMPLATE;
                 $participants = [];
             }
 
-            // Send notifications to each participant.
-            $sentCount = 0;
+            // Resolve Nextcloud UID for each participant and send notifications.
+            $userManager = $this->container->get(\OCP\IUserManager::class);
+            $sentCount   = 0;
             foreach ($participants as $participant) {
-                $userId = $participant['email'] ?? $participant['displayName'] ?? null;
-                if (empty($userId) === true) {
+                $ncUid = $participant['nextcloudUserId'] ?? null;
+                if (empty($ncUid) === true) {
+                    $email = $participant['email'] ?? null;
+                    if (empty($email) === false) {
+                        $users = $userManager->getByEmail(email: $email);
+                        if (empty($users) === false) {
+                            $ncUid = array_values($users)[0]->getUID();
+                        }
+                    }
+                }
+
+                if (empty($ncUid) === true) {
+                    $displayName = $participant['displayName'] ?? '?';
+                    $this->logger->warning('ALVMinutesService: cannot resolve Nextcloud UID for participant', ['participant' => $displayName]);
                     continue;
                 }
 
                 try {
                     $notificationService->sendNotification(
-                        userId: $userId,
+                        userId: $ncUid,
                         title: "Notulen gepubliceerd: ".($minutes['title'] ?? 'Untitled'),
                         message: "De notulen zijn nu beschikbaar.",
                         deepLink: "/minutes/$minutesId"
                     );
                     $sentCount++;
                 } catch (\Exception $e) {
-                    $this->logger->warning("Failed to send notification to $userId: ".$e->getMessage());
+                    $this->logger->warning("Failed to send notification to $ncUid: ".$e->getMessage());
                 }
-            }
+            }//end foreach
 
             $this->logger->info("ALV minutes distributed to $sentCount participants");
 

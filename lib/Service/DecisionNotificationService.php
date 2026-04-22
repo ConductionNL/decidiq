@@ -102,14 +102,26 @@ class DecisionNotificationService
                 return 0;
             }
 
-            // Resolve recipients.
-            $recipients = $this->resolveRecipients(decisionId: $decisionId, roles: $roles);
+            // Resolve recipients (display names) and map to Nextcloud UIDs.
+            $displayNames = $this->resolveRecipients(decisionId: $decisionId, roles: $roles);
+            $userManager  = $this->container->get(\OCP\IUserManager::class);
 
             $sentCount = 0;
-            foreach ($recipients as $userDisplayName) {
+            foreach ($displayNames as $displayName) {
+                $users = $userManager->search(pattern: $displayName, limit: 1);
+                $ncUid = null;
+                if (empty($users) === false) {
+                    $ncUid = array_values($users)[0]->getUID();
+                }
+
+                if (empty($ncUid) === true) {
+                    $this->logger->warning('DecisionNotificationService: cannot resolve Nextcloud UID', ['displayName' => $displayName]);
+                    continue;
+                }
+
                 try {
                     $notificationService->sendNotification(
-                        userId: $userDisplayName,
+                        userId: $ncUid,
                         title: "Besluit gepubliceerd: ".($decision['title'] ?? 'Untitled'),
                         message: "Outcome: ".($decision['outcome'] ?? 'pending'),
                         deepLink: "/decisions/$decisionId"
@@ -118,7 +130,7 @@ class DecisionNotificationService
                 } catch (\Exception $e) {
                     $this->logger->warning("Failed to send notification: ".$e->getMessage());
                 }
-            }
+            }//end foreach
 
             return $sentCount;
         } catch (\Exception $e) {

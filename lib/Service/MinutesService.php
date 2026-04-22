@@ -125,16 +125,29 @@ class MinutesService
                 params: $params
             );
 
-            $sentCount = 0;
+            $userManager = $this->container->get(\OCP\IUserManager::class);
+            $sentCount   = 0;
             foreach ($memberships as $membership) {
-                $displayName = $membership['displayName'] ?? null;
-                if (empty($displayName) === true) {
+                $ncUid = $membership['nextcloudUserId'] ?? null;
+                if (empty($ncUid) === true) {
+                    $displayName = $membership['displayName'] ?? null;
+                    if (empty($displayName) === false) {
+                        $users = $userManager->search(pattern: $displayName, limit: 1);
+                        if (empty($users) === false) {
+                            $ncUid = array_values($users)[0]->getUID();
+                        }
+                    }
+                }
+
+                if (empty($ncUid) === true) {
+                    $memberName = $membership['displayName'] ?? '?';
+                    $this->logger->warning('MinutesService: cannot resolve Nextcloud UID', ['displayName' => $memberName]);
                     continue;
                 }
 
                 try {
                     $notificationService->sendNotification(
-                        userId: $displayName,
+                        userId: $ncUid,
                         title: "Notulen ter goedkeuring: ".($minutes['title'] ?? 'Untitled'),
                         message: "De notulen zijn ter goedkeuring ingediend.",
                         deepLink: "/minutes/$minutesId"
@@ -143,7 +156,7 @@ class MinutesService
                 } catch (\Exception $e) {
                     $this->logger->warning("Failed to send approval notification: ".$e->getMessage());
                 }
-            }
+            }//end foreach
 
             return $sentCount;
         } catch (\Exception $e) {
