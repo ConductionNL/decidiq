@@ -32,7 +32,6 @@ use OCA\Decidesk\Service\MinutesService;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -97,9 +96,10 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function generateDraft(string $minutesId): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -166,9 +166,10 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function transition(string $minutesId): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -240,9 +241,10 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function generateALVDraft(string $minutesId): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -299,9 +301,10 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function distributeALVMinutes(string $minutesId): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -355,9 +358,10 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function extractActionItems(string $minutesId): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -418,9 +422,10 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function saveExtractedActionItems(string $minutesId): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -493,9 +498,10 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function submitForApproval(string $minutesId): JSONResponse
     {
         $user = $this->userSession->getUser();

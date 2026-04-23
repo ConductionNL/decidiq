@@ -27,7 +27,6 @@ use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\LiveDecisionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -79,9 +78,10 @@ class LiveMeetingController extends Controller
      *
      * @return JSONResponse The created Decision object
      *
+     * @NoAdminRequired
+     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function recordLiveDecision(string $meetingId): JSONResponse
     {
         try {
