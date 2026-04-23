@@ -1,32 +1,11 @@
 {
   "ran": true,
-  "pass": false,
-  "blocking": [
-    {
-      "file": "lib/Controller/MinutesController.php",
-      "severity": "critical",
-      "note": "generateALVDraft has @NoAdminRequired but no auth or admin guard \u2014 any authenticated user can generate ALV drafts for arbitrary minutesId (OWASP A01/ADR-005, Clyde Barcode security review cycle 2)"
-    },
-    {
-      "file": "lib/Controller/MinutesController.php",
-      "severity": "critical",
-      "note": "distributeALVMinutes has @NoAdminRequired but no auth or admin guard \u2014 any authenticated user can trigger bulk governance-body notifications (OWASP A01/ADR-005, Clyde Barcode security review cycle 2)"
-    },
-    {
-      "file": "lib/Controller/MinutesController.php",
-      "severity": "critical",
-      "note": "extractActionItems has @NoAdminRequired but no auth or admin guard, and uses undeclared $this->container fallback to deprecated \\OC::$server (OWASP A01/ADR-005, Clyde Barcode security review cycle 2)"
-    },
-    {
-      "file": "lib/Controller/MinutesController.php",
-      "severity": "critical",
-      "note": "saveExtractedActionItems has @NoAdminRequired but no auth or admin guard \u2014 any authenticated user can create ActionItem objects linked to arbitrary Minutes (OWASP A01/ADR-005, Clyde Barcode security review cycle 2)"
-    }
-  ],
-  "turns": 9,
-  "cost_usd": 0.3002,
-  "cost_eur": 0.2762,
+  "pass": null,
+  "blocking": [],
+  "turns": 0,
+  "cost_usd": 0.0,
+  "cost_eur": 0.0,
   "pr": 127,
-  "commit": "0707d2c",
-  "timestamp": "2026-04-21T13:38:11.392647+00:00"
+  "commit": "af81652",
+  "timestamp": "2026-04-23T06:01:05.279538+00:00"
 }
