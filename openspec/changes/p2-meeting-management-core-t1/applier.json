@@ -1,22 +1,11 @@
 {
   "ran": true,
-  "pass": false,
-  "blocking": [
-    {
-      "file": "lib/Service/WorkflowService.php",
-      "severity": "warning",
-      "note": "isTransitionAllowed() and requiresChairAuthorization() defined but never called from MeetingService::transition() \u2014 any authenticated user can perform chair-only transitions (OWASP A01:2021, unfixed per Clyde Barcode security review)"
-    },
-    {
-      "file": "lib/Service/QuorumService.php",
-      "severity": "warning",
-      "note": "validateQuorum() defined but never called from MeetingService::transition() before 'open' action \u2014 meetings in quorumEnforced:true domains can be opened without quorum (OWASP A01:2021, unfixed per Clyde Barcode security review)"
-    }
-  ],
+  "pass": true,
+  "blocking": [],
   "turns": 11,
-  "cost_usd": 0.34,
-  "cost_eur": 0.3128,
+  "cost_usd": 0.3648,
+  "cost_eur": 0.3356,
   "pr": 130,
-  "commit": "0a282df",
-  "timestamp": "2026-04-21T12:21:27.580493+00:00"
+  "commit": "3f5c852",
+  "timestamp": "2026-04-21T13:27:11.884550+00:00"
 }

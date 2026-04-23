@@ -56,6 +56,7 @@ class InitializeSettings implements IRepairStep
      *
      * @return string
      *
+     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
      */
     public function getName(): string
@@ -70,6 +71,7 @@ class InitializeSettings implements IRepairStep
      *
      * @return void
      *
+     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
      */
     public function run(IOutput $output): void
