@@ -91,13 +91,13 @@ class SettingsController extends Controller
     #[NoAdminRequired]
     public function index(): JSONResponse
     {
-        $settings = $this->settingsService->getSettings();
-        $user     = $this->userSession->getUser();
-        if ($user !== null) {
-            $settings['isAdmin'] = $this->groupManager->isAdmin(uid: $user->getUID());
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
         }
 
-        return new JSONResponse($settings);
+        return new JSONResponse(
+            $this->settingsService->getSettings()
+        );
     }//end index()
 
     /**

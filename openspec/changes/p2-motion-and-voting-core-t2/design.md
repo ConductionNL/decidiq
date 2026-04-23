@@ -247,5 +247,6 @@ These objects extend the seed data already introduced in p2-motion-and-voting. T
 
 ## Status
 
-status: draft
-updated: 2026-04-16
+status: pr-created
+updated: 2026-04-21
+Progress: Backend core services (VotingBehaviourService, ProjectionController, VotingService extensions, MotionService.forwardMotion) complete and tested. Frontend views (projection, voting history, amendments diff) and translations deferred to subsequent PR phases.

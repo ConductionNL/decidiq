@@ -4,38 +4,19 @@ You are running HEADLESS. Do NOT use AskUserQuestion, interactive prompts, or sk
 Write files directly using the Write tool.
 
 ## Inputs
-- Change: p4-standards-hardening (title: Standards Hardening)
-- Context brief: openspec/changes/p4-standards-hardening/context-brief.md
+- Change: p2-motion-and-voting-core-t1 (title: Motion and Voting — Core T1)
+- Context brief: openspec/changes/p2-motion-and-voting-core-t1/context-brief.md
 - Data model ADR: openspec/architecture/adr-000-data-model.md
-
-Governance Domains:
-  1. Legislative/democratic bodies (municipalities, provinces, water boards)
-  2. Associations and NGOs (member assemblies, board meetings)
-  3. Corporate governance (shareholders, supervisory boards)
-  4. Corporate operations (management teams, project boards)
-  5. Citizen participation (initiatives, referenda, participatory budgets)
-
-Architecture:
-  Pattern: Thin client — Decidesk owns no database tables
-  Data layer: OpenRegister (JSON object storage with schema validation)
-  Frontend: Vue 2.7 + Pinia stores querying OpenRegister API directly
-  Backend: Minimal — SettingsController + SettingsService for register setup, workflow orchestration
-  Standards: Akoma Ntoso, ORI API, Gemeentewet, Wet digitaal vergaderen, Woo, MDTO, TOOI, DMN, BPMN, WCAG 2.1
-
-Shared specs: See ../openspec/specs/ for cross-project conventions
-Project guidelines: See ../project.md for workspace-wide standards
-
-## Change: p2-minutes-and-decisions (title: Minutes and Decisions)
 
 ## Step 1: Read context
 Read these files COMPLETELY before writing anything:
-- openspec/changes/p4-standards-hardening/context-brief.md (features, stories, stakeholders, journeys)
+- openspec/changes/p2-motion-and-voting-core-t1/context-brief.md (features, stories, stakeholders, journeys)
 - openspec/architecture/adr-000-data-model.md (entity definitions)
-- All files in openspec/architecture/ (app ADRs)
-- All files in .claude/openspec/architecture/ (company ADRs, if present)
+- All files in openspec/architecture/ (repo-specific ADRs — the ONLY ADRs that live in the app repo)
+- Company-wide ADRs: NOT in this repo — read from hydra/openspec/architecture/ (pre-loaded in the spec-writer container at /home/claude/.claude/openspec/architecture/)
 
 ## Step 2: Get artifact templates
-Run: `openspec instructions proposal --change p4-standards-hardening --json`
+Run: `openspec instructions proposal --change p2-motion-and-voting-core-t1 --json`
 This returns the template and rules for the proposal artifact.
 Then do the same for: design, specs, tasks (in that order).
 
@@ -54,8 +35,8 @@ For each artifact (proposal → design → specs → tasks):
 ## Step 4: Commit
 After all 4 artifacts are written:
 ```bash
-git add openspec/changes/p4-standards-hardening/
-git commit -m 'feat: Add OpenSpec change p4-standards-hardening from Specter'
+git add openspec/changes/p2-motion-and-voting-core-t1/
+git commit -m 'feat: Add OpenSpec change p2-motion-and-voting-core-t1 from Specter'
 ```
 Do NOT push — the caller handles pushing.
 Do NOT create branches — stay on the current branch.
@@ -63,128 +44,6 @@ Do NOT create branches — stay on the current branch.
 ## Rules
 - Use REAL data from context-brief.md — NEVER invent features, stories, or entities
 - Entities MUST match ADR-000 exactly
-## Your Task: Write design.md and specs/spec.md
-
-NOTE: proposal.md and tasks.md already exist — read them for context.
-
-### 1. design.md → `openspec/changes/p2-minutes-and-decisions/design.md`
-**Instruction:** Create the design document that explains HOW to implement the change.
-
-When to include design.md (create only if any apply):
-- Cross-cutting change (multiple services/modules) or new architectural pattern
-- New external dependency or significant data model changes
-- Security, performance, or migration complexity
-- Ambiguity that benefits from technical decisions before coding
-
-Sections:
-- **Context**: Background, current state, constraints, stakeholders
-- **Goals / Non-Goals**: What this design achieves and explicitly excludes
-- **Decisions**: Key technical choices with rationale (why X over Y?). Include alternatives considered for each decision.
-- **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation
-- **Migration Plan**: Steps to deploy, rollback strategy (if applicable)
-- **Open Questions**: Outstanding decisions or unknowns to resolve
-
-Focus on architecture and approach, not line-by-line implementation.
-Reference the proposal for motivation and specs for requirements.
-
-Good design docs explain the "why" behind technical decisions.
-
-**Template:**
-```markdown
-## Context
-
-<!-- Background and current state -->
-
-## Goals / Non-Goals
-
-**Goals:**
-<!-- What this design aims to achieve -->
-
-**Non-Goals:**
-<!-- What is explicitly out of scope -->
-
-## Decisions
-
-<!-- Key design decisions and rationale -->
-
-## Risks / Trade-offs
-
-<!-- Known risks and trade-offs -->
-
-```
-**Rules:** ['Uses OpenRegister API directly from frontend (no own backend CRUD)', 'Register config in lib/Settings/decidesk_register.json (OpenAPI 3.0.0 format)', 'Imported via ConfigurationService::importFromApp() in repair step', 'Workflow state machines defined as OpenRegister metadata', 'Each governance domain has a configurable workflow template']
-**MUST include:** Seed Data section (ADR-001) — 3-5 realistic Dutch example objects per entity
-
-### 2. specs/spec.md → `openspec/changes/p2-minutes-and-decisions/specs/spec.md`
-**Instruction:** Create specification files that define WHAT the system should do.
-
-Create one spec file per capability listed in the proposal's Capabilities section.
-- New capabilities: use the exact kebab-case name from the proposal (specs/<capability>/spec.md).
-- Modified capabilities: use the existing spec folder name from openspec/specs/<capability>/ when creating the delta spec at specs/<capability>/spec.md.
-
-Delta operations (use ## headers):
-- **ADDED Requirements**: New capabilities
-- **MODIFIED Requirements**: Changed behavior - MUST include full updated content
-- **REMOVED Requirements**: Deprecated features - MUST include **Reason** and **Migration**
-- **RENAMED Requirements**: Name changes only - use FROM:/TO: format
-
-Format requirements:
-- Each requirement: `### Requirement: <name>` followed by description
-- Use SHALL/MUST for normative requirements (avoid should/may)
-- Each scenario: `#### Scenario: <name>` with WHEN/THEN format
-- **CRITICAL**: Scenarios MUST use exactly 4 hashtags (`####`). Using 3 hashtags or bullets will fail silently.
-- Every requirement MUST have at least one scenario.
-
-MODIFIED requirements workflow:
-1. Locate the existing requirement in openspec/specs/<capability>/spec.md
-2. Copy the ENTIRE requirement block (from `### Requirement:` through all scenarios)
-3. Paste under `## MODIFIED Requirements` and edit to reflect new behavior
-4. Ensure header text matches exactly (whitespace-insensitive)
-
-Common pitfall: Using MODIFIED with partial content loses detail at archive time.
-If adding new concerns without changing existing behavior, use ADDED instead.
-
-Example:
-```
-## ADDED Requirements
-
-### Requirement: User can export data
-The system SHALL allow users to export their data in CSV format.
-
-#### Scenario: Successful export
-- **WHEN** user clicks "Export" button
-- **THEN** system downloads a CSV file with all user data
-
-## REMOVED Requirements
-
-### Requirement: Legacy export
-**Reason**: Replaced by new export system
-**Migration**: Use new export endpoint at /api/v2/export
-```
-
-Specs should be testable - each scenario is a potential test case.
-
-**Template:**
-```markdown
-## ADDED Requirements
-
-### Requirement: <!-- requirement name -->
-<!-- requirement text -->
-
-#### Scenario: <!-- scenario name -->
-- **WHEN** <!-- condition -->
-- **THEN** <!-- expected outcome -->
-
-```
-**Rules:** ['Use Schema.org type annotations for all entities (Event, Action, VoteAction, etc.)', 'Use Akoma Ntoso vocabulary for legislative document elements', 'Specify which Nextcloud OCP interfaces are used for integration features', 'Include ORI API field mappings for public-facing entities']
-**Format:** Requirements use REQ-XXX-NNN with GIVEN/WHEN/THEN scenarios
-
-## Steps
-1. Read context-brief.md, ADRs, proposal.md, and tasks.md
-2. Write design.md using the template (include seed data!)
-3. Create the specs/ directory if needed, then write specs/spec.md
-4. Commit all artifacts:
-   ```bash
-   git add openspec/changes/p2-minutes-and-decisions/
-   git commit -m 'feat: Add OpenSpec change p2-minutes-and-decisions from Specter'
-   ```
+- Include seed data in design.md (3-5 example objects per entity, Dutch values)
+- Requirements in specs use REQ-XXX-NNN format with GIVEN/WHEN/THEN scenarios
+- Tasks in tasks.md are checkboxes [ ] with clear implementation steps

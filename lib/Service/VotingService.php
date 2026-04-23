@@ -208,25 +208,29 @@ class VotingService
     }//end checkQuorum()
 
     /**
-     * Open a new VotingRound for a Motion.
+     * Open a VotingRound, optionally with preset participant UUIDs.
      *
-     * Verifies quorum, creates the VotingRound object, transitions the Motion to
-     * 'voting' lifecycle, and optionally creates a calendar deadline event.
+     * @param string        $motionId             The motion UUID
+     * @param string        $meetingId            The meeting UUID
+     * @param string        $votingMethod         The voting method (for-against-abstain, show-of-hands, etc.)
+     * @param bool          $isSecret             Whether the ballot is secret
+     * @param string|null   $closedAt             Optional pre-defined close time
+     * @param array<string> $presetParticipantIds Optional array of participant UUIDs for a voting group preset
      *
-     * @param string      $motionId     The motion UUID
-     * @param string      $meetingId    The meeting UUID (for quorum check)
-     * @param string      $votingMethod for-against-abstain | ranked-choice | weighted | show-of-hands
-     * @param bool        $isSecret     Whether the ballot is secret
-     * @param string|null $closedAt     Optional ISO-8601 deadline for the round
+     * @return array<string,mixed> The created voting round object with excludedPresetUuids key if any UUIDs were excluded
      *
-     * @return array<string,mixed> The created VotingRound object
+     * @throws \RuntimeException When quorum is not met or lifecycle transition fails
      *
-     * @throws \RuntimeException When quorum is not met
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      */
-    public function openVotingRound(string $motionId, string $meetingId, string $votingMethod, bool $isSecret, ?string $closedAt): array
-    {
+    public function openVotingRound(
+        string $motionId,
+        string $meetingId,
+        string $votingMethod,
+        bool $isSecret,
+        ?string $closedAt,
+        array $presetParticipantIds=[],
+    ): array {
         if ($this->checkQuorum(meetingId: $meetingId) === false) {
             throw new \RuntimeException('Quorum niet bereikt');
         }
@@ -248,6 +252,30 @@ class VotingService
             ],
         ];
 
+        // Validate preset UUIDs against active memberships.
+        $excludedUuids = [];
+        if (count($presetParticipantIds) > 0) {
+            $participantsResult = $objectService->findObjects(
+                register: 'decidesk',
+                schema: 'participant',
+                params: ['governanceBodyId' => $meetingId]
+            );
+
+            $activeParticipants = array_column(($participantsResult['results'] ?? []), 'id', 'id');
+
+            foreach ($presetParticipantIds as $uuid) {
+                if (isset($activeParticipants[$uuid]) === false) {
+                    $excludedUuids[] = $uuid;
+                }
+            }
+
+            // Store eligible preset UUIDs as relations.
+            $eligibleUuids = array_diff($presetParticipantIds, $excludedUuids);
+            foreach ($eligibleUuids as $uuid) {
+                $votingRound['relations'][] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $uuid];
+            }
+        }//end if
+
         $created = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $votingRound);
 
         // Transition motion lifecycle to 'voting' via the guarded state machine.
@@ -264,7 +292,12 @@ class VotingService
             $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
         }
 
-        return ($created ?? $votingRound);
+        $result = ($created ?? $votingRound);
+        if (count($excludedUuids) > 0) {
+            $result['excludedPresetUuids'] = $excludedUuids;
+        }
+
+        return $result;
 
     }//end openVotingRound()
 
@@ -429,15 +462,16 @@ class VotingService
     }//end castVote()
 
     /**
-     * Close a VotingRound: tally votes, set result, publish to ORI, create dossier folder.
+     * Close a VotingRound, optionally anonymising vote values.
      *
      * @param string $votingRoundId The voting round UUID
+     * @param bool   $anonymise     Whether to nullify individual vote values (GDPR anonymisation)
      *
-     * @return array<string,mixed> The updated VotingRound
+     * @return array<string,mixed> The closed voting round object
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      */
-    public function closeVotingRound(string $votingRoundId): array
+    public function closeVotingRound(string $votingRoundId, bool $anonymise=false): array
     {
         $tally = $this->tallyResults(votingRoundId: $votingRoundId);
 
@@ -495,6 +529,26 @@ class VotingService
             $this->oriPublicationService->publish($votingRoundId);
         } catch (\Throwable $e) {
             $this->logger->info('Decidesk: ORI publication deferred', ['error' => $e->getMessage()]);
+        }
+
+        // Anonymise vote values if requested (sequence: tally → publish → anonymise).
+        if ($anonymise === true) {
+            try {
+                $votesResult = $objectService->findObjects(
+                    register: 'decidesk',
+                    schema: 'vote',
+                    params: ['votingRoundId' => $votingRoundId]
+                );
+
+                foreach (($votesResult['results'] ?? []) as $vote) {
+                    $vote['value'] = null;
+                    $objectService->saveObject(register: 'decidesk', schema: 'vote', object: $vote);
+                }
+
+                $this->logger->info('Decidesk: votes anonymised', ['votingRoundId' => $votingRoundId]);
+            } catch (\Throwable $e) {
+                $this->logger->warning('Decidesk: vote anonymisation failed', ['error' => $e->getMessage()]);
+            }
         }
 
         return ($round ?? []);
@@ -671,6 +725,10 @@ class VotingService
 
         // Notify delegate — resolve the Nextcloud UID from the participant object.
         try {
+            if ($toParticipant === null) {
+                return;
+            }
+
             $nextcloudUserId = $toParticipant['nextcloudUserId'] ?? null;
 
             // Fall back to email lookup when nextcloudUserId is not stored on the participant.
@@ -769,4 +827,66 @@ class VotingService
         }
 
     }//end createDossierFolder()
+
+    /**
+     * Get public-state for a VotingRound for projection display.
+     *
+     * Returns aggregate vote counts, preselected option, and no individual vote values.
+     * Accessible without authentication.
+     *
+     * @param string $votingRoundId The voting round UUID
+     *
+     * @return array<string,mixed>|null The public-state array or null if not found
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+     */
+    public function getPublicState(string $votingRoundId): ?array
+    {
+        $objectService = $this->objectService();
+        $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+
+        if ($round === null) {
+            return null;
+        }
+
+        $motionTitle = '';
+        // Find linked motion title.
+        foreach (($round['relations'] ?? []) as $rel) {
+            if (($rel['schema'] ?? '') === 'motion') {
+                $motionId = ($rel['id'] ?? null);
+                if ($motionId !== null) {
+                    $motion      = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
+                    $motionTitle = (string) ($motion['title'] ?? '');
+                }
+
+                break;
+            }
+        }
+
+        // Compute preselected option from vote counts.
+        $votesFor     = (int) ($round['votesFor'] ?? 0);
+        $votesAgainst = (int) ($round['votesAgainst'] ?? 0);
+        $votesAbstain = (int) ($round['votesAbstain'] ?? 0);
+
+        $preselectedOption = null;
+        if ($votesFor > $votesAgainst && $votesFor > $votesAbstain) {
+            $preselectedOption = 'for';
+        } else if ($votesAgainst > $votesFor && $votesAgainst > $votesAbstain) {
+            $preselectedOption = 'against';
+        } else if ($votesAbstain > $votesFor && $votesAbstain > $votesAgainst) {
+            $preselectedOption = 'abstain';
+        }
+
+        return [
+            'motionTitle'       => $motionTitle,
+            'votingMethod'      => ($round['votingMethod'] ?? ''),
+            'isOpen'            => ($round['closedAt'] ?? null) === null,
+            'votesFor'          => $votesFor,
+            'votesAgainst'      => $votesAgainst,
+            'votesAbstain'      => $votesAbstain,
+            'preselectedOption' => $preselectedOption,
+            'openedAt'          => ($round['openedAt'] ?? null),
+        ];
+
+    }//end getPublicState()
 }//end class
