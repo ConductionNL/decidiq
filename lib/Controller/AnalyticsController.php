@@ -25,6 +25,7 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -69,10 +70,9 @@ class AnalyticsController extends Controller
      *
      * @return JSONResponse The summary metrics
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
      */
+    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function getSummary(): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -104,10 +104,9 @@ class AnalyticsController extends Controller
      *
      * @return JSONResponse Array of completion rate objects
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
      */
+    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function getCompletionRates(): JSONResponse
     {
         $user = $this->userSession->getUser();
