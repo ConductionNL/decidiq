@@ -703,7 +703,24 @@
       "outcome": "in-flight",
       "outcome_reason": null,
       "pattern_tags": [],
-      "stages": []
+      "stages": [
+        {
+          "stage": "fix",
+          "persona": "Al Gorithm",
+          "model": "sonnet",
+          "container": "hydra-builder",
+          "started_at": "2026-04-23T18:30:54Z",
+          "ended_at": "2026-04-23T18:41:57Z",
+          "exit_code": 0,
+          "turns_used": 150,
+          "turns_budget": 40,
+          "checks_run": [],
+          "checks_skipped": [],
+          "findings": [],
+          "decisions": [],
+          "verdict": "pass"
+        }
+      ]
     }
   ]
 }
