@@ -1,11 +1,22 @@
 {
   "ran": true,
-  "pass": null,
-  "blocking": [],
-  "turns": 0,
-  "cost_usd": 0.0,
-  "cost_eur": 0.0,
+  "pass": false,
+  "blocking": [
+    {
+      "file": "lib/Service/DecisionApprovalService.php",
+      "severity": "warning",
+      "note": "authorizeAssignment() accepts $uid but never uses it for role verification \u2014 any authenticated NC user can assign any Person as reviewer to any Decision (OWASP A01:2021 / CWE-862); unfixed per Clyde Barcode final security review 2026-04-23T05:55"
+    },
+    {
+      "file": "lib/Service/DecisionApprovalService.php",
+      "severity": "warning",
+      "note": "authorizeReminder() accepts $uid and $personId but never uses them for role verification \u2014 any authenticated user can trigger reminder dispatch on any Decision/Person pair (OWASP A01:2021 / CWE-862); unfixed per Clyde Barcode final security review 2026-04-23T05:55"
+    }
+  ],
+  "turns": 23,
+  "cost_usd": 1.2011,
+  "cost_eur": 1.105,
   "pr": 129,
-  "commit": "7421301",
-  "timestamp": "2026-04-23T18:07:17.489800+00:00"
+  "commit": "0212de6",
+  "timestamp": "2026-04-23T18:25:09.848376+00:00"
 }
