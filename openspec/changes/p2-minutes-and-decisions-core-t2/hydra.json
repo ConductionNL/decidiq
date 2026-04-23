@@ -422,7 +422,24 @@
       "outcome": "in-flight",
       "outcome_reason": null,
       "pattern_tags": [],
-      "stages": []
+      "stages": [
+        {
+          "stage": "fix",
+          "persona": "Al Gorithm",
+          "model": "haiku",
+          "container": "hydra-builder",
+          "started_at": "2026-04-23T15:19:29Z",
+          "ended_at": "2026-04-23T15:37:02Z",
+          "exit_code": 0,
+          "turns_used": 388,
+          "turns_budget": 40,
+          "checks_run": [],
+          "checks_skipped": [],
+          "findings": [],
+          "decisions": [],
+          "verdict": "pass"
+        }
+      ]
     }
   ]
 }
