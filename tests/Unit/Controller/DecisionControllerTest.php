@@ -73,11 +73,20 @@ class DecisionControllerTest extends TestCase
     private IUserSession&MockObject $userSession;
 
     /**
-     * Mock IGroupManager.
+     * Mock IGroupManager. Retained for tests that poke legacy admin-group
+     * state unrelated to action authorization. New code paths should use
+     * $actionAuth instead (ADR-023).
      *
      * @var IGroupManager&MockObject
      */
     private IGroupManager&MockObject $groupManager;
+
+    /**
+     * Mock ActionAuthService (ADR-023 action-level auth).
+     *
+     * @var \OCA\Decidesk\Service\ActionAuthService&MockObject
+     */
+    private \OCA\Decidesk\Service\ActionAuthService&MockObject $actionAuth;
 
     /**
      * Mock LoggerInterface.
@@ -113,6 +122,7 @@ class DecisionControllerTest extends TestCase
         $this->container     = $this->createMock(ContainerInterface::class);
         $this->userSession   = $this->createMock(IUserSession::class);
         $this->groupManager  = $this->createMock(IGroupManager::class);
+        $this->actionAuth    = $this->createMock(\OCA\Decidesk\Service\ActionAuthService::class);
         $this->logger        = $this->createMock(LoggerInterface::class);
         $this->user          = $this->createMock(IUser::class);
         $this->objectService = $this->createMock(ObjectService::class);
@@ -124,7 +134,7 @@ class DecisionControllerTest extends TestCase
             request: $this->request,
             container: $this->container,
             userSession: $this->userSession,
-            groupManager: $this->groupManager,
+            actionAuth: $this->actionAuth,
             logger: $this->logger,
         );
 
@@ -146,7 +156,7 @@ class DecisionControllerTest extends TestCase
             request: $this->request,
             container: $this->container,
             userSession: $unauthSession,
-            groupManager: $this->groupManager,
+            actionAuth: $this->actionAuth,
             logger: $this->logger,
         );
 
@@ -170,9 +180,13 @@ class DecisionControllerTest extends TestCase
      */
     public function testPublishByNonAdminReturns403(): void
     {
-        $this->groupManager->method('isAdmin')->with('admin')->willReturn(false);
+        // ADR-023 — denied when the user's groups don't match the matrix entry.
+        $this->actionAuth->expects($this->once())
+            ->method('requireAction')
+            ->with($this->user, 'decision.publish')
+            ->willThrowException(new \OCP\AppFramework\OCS\OCSForbiddenException('not authorized'));
 
-        // Container must NOT be called — admin check happens before delegation.
+        // Container must NOT be called — action check happens before delegation.
         $this->container->expects($this->never())->method('get');
 
         $result = $this->controller->publish('decision-uuid-001');

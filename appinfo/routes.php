@@ -9,6 +9,9 @@ return [
         ['name' => 'settings#index', 'url' => '/api/settings', 'verb' => 'GET'],
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
+        // ADR-023 action-authorization matrix (admin-only).
+        ['name' => 'settings#getActions', 'url' => '/api/settings/actions', 'verb' => 'GET'],
+        ['name' => 'settings#setActions', 'url' => '/api/settings/actions', 'verb' => 'PUT'],
 
         // Minutes endpoints — specific routes must precede the wildcard catch-all.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1

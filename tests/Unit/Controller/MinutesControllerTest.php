@@ -72,11 +72,19 @@ class MinutesControllerTest extends TestCase
     private IUserSession&MockObject $userSession;
 
     /**
-     * Mock IGroupManager.
+     * Mock IGroupManager. Retained for any legacy test paths unrelated to
+     * action authorization; new code paths should use $actionAuth (ADR-023).
      *
      * @var IGroupManager&MockObject
      */
     private IGroupManager&MockObject $groupManager;
+
+    /**
+     * Mock ActionAuthService (ADR-023).
+     *
+     * @var \OCA\Decidesk\Service\ActionAuthService&MockObject
+     */
+    private \OCA\Decidesk\Service\ActionAuthService&MockObject $actionAuth;
 
     /**
      * Mock IUser (authenticated user).
@@ -98,6 +106,7 @@ class MinutesControllerTest extends TestCase
         $this->minutesGenerationService = $this->createMock(MinutesGenerationService::class);
         $this->userSession              = $this->createMock(IUserSession::class);
         $this->groupManager             = $this->createMock(IGroupManager::class);
+        $this->actionAuth               = $this->createMock(\OCA\Decidesk\Service\ActionAuthService::class);
         $this->user                     = $this->createMock(IUser::class);
 
         $this->user->method('getUID')->willReturn('testuser');
@@ -108,7 +117,7 @@ class MinutesControllerTest extends TestCase
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
             userSession: $this->userSession,
-            groupManager: $this->groupManager,
+            actionAuth: $this->actionAuth,
         );
 
     }//end setUp()
@@ -216,9 +225,13 @@ class MinutesControllerTest extends TestCase
      */
     public function testGenerateDraftByNonAdminReturns403(): void
     {
-        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        // ADR-023 — action authorization denied throws OCSForbiddenException.
+        $this->actionAuth->expects($this->once())
+            ->method('requireAction')
+            ->with($this->user, 'minutes.generate-draft')
+            ->willThrowException(new \OCP\AppFramework\OCS\OCSForbiddenException('not authorized'));
 
-        // Service must NOT be called — access check happens before delegation.
+        // Service must NOT be called — action check happens before delegation.
         $this->minutesGenerationService->expects($this->never())->method('generateDraft');
 
         $result = $this->controller->generateDraft('minutes-uuid-001');
@@ -245,7 +258,7 @@ class MinutesControllerTest extends TestCase
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
             userSession: $unauthSession,
-            groupManager: $this->groupManager,
+            actionAuth: $this->actionAuth,
         );
 
         // The service must NOT be called for an unauthenticated request.
@@ -268,10 +281,15 @@ class MinutesControllerTest extends TestCase
      */
     public function testTransitionToApprovedByNonAdminReturns403(): void
     {
-        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
         $this->request->method('getParam')->with('lifecycle')->willReturn('approved');
 
-        // Service must NOT be called — access check happens before delegation.
+        // ADR-023 — action denied throws OCSForbiddenException.
+        $this->actionAuth->expects($this->once())
+            ->method('requireAction')
+            ->with($this->user, 'minutes.transition')
+            ->willThrowException(new \OCP\AppFramework\OCS\OCSForbiddenException('not authorized'));
+
+        // Service must NOT be called — action check happens before delegation.
         $this->minutesGenerationService->expects($this->never())->method('transition');
 
         $result = $this->controller->transition('minutes-uuid-001');

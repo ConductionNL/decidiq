@@ -74,6 +74,13 @@ class SettingsControllerTest extends TestCase
     private IUserSession&MockObject $userSession;
 
     /**
+     * Mock ActionAuthService.
+     *
+     * @var \OCA\Decidesk\Service\ActionAuthService&MockObject
+     */
+    private \OCA\Decidesk\Service\ActionAuthService&MockObject $actionAuth;
+
+    /**
      * Mock admin IUser.
      *
      * @var IUser&MockObject
@@ -100,6 +107,7 @@ class SettingsControllerTest extends TestCase
         $this->settingsService = $this->createMock(originalClassName: SettingsService::class);
         $this->groupManager    = $this->createMock(originalClassName: IGroupManager::class);
         $this->userSession     = $this->createMock(originalClassName: IUserSession::class);
+        $this->actionAuth      = $this->createMock(originalClassName: \OCA\Decidesk\Service\ActionAuthService::class);
 
         $this->adminUser = $this->createMock(originalClassName: IUser::class);
         $this->adminUser->method('getUID')->willReturn('admin');
@@ -112,6 +120,7 @@ class SettingsControllerTest extends TestCase
             settingsService: $this->settingsService,
             groupManager: $this->groupManager,
             userSession: $this->userSession,
+            actionAuth: $this->actionAuth,
         );
 
     }//end setUp()
@@ -128,6 +137,10 @@ class SettingsControllerTest extends TestCase
             'openregisters' => true,
             'isAdmin'       => false,
         ];
+
+        // index() requires an authenticated user and returns 401 otherwise —
+        // provide any user mock; the method doesn't branch on identity.
+        $this->userSession->method('getUser')->willReturn($this->nonAdminUser);
 
         $this->settingsService->expects($this->once())
             ->method('getSettings')

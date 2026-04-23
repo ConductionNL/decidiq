@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\ActionAuthService;
 use OCA\Decidesk\Service\SettingsService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -54,6 +55,7 @@ class SettingsController extends Controller
         private SettingsService $settingsService,
         private IGroupManager $groupManager,
         private IUserSession $userSession,
+        private ActionAuthService $actionAuth,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -144,4 +146,58 @@ class SettingsController extends Controller
 
         return new JSONResponse($result);
     }//end load()
+
+    /**
+     * Get the action-authorization matrix.
+     *
+     * Admin-only per ADR-023 Rule 3 (matrix configuration is the plumbing
+     * action RBAC depends on; must stay admin-gated).
+     *
+     * @spec openspec/architecture/adr-023-action-authorization.md
+     *
+     * @return JSONResponse
+     */
+    #[AuthorizedAdminSetting(Application::APP_ID)]
+    public function getActions(): JSONResponse
+    {
+        return new JSONResponse(
+            ['matrix' => $this->actionAuth->getMatrix()]
+        );
+    }//end getActions()
+
+    /**
+     * Set the action-authorization matrix.
+     *
+     * Admin-only per ADR-023 Rule 3. Accepts a JSON body shaped as
+     * `{ "matrix": { "<action>": ["<group>", ...], ... } }`. Normalization
+     * is performed server-side by ActionAuthService::setMatrix.
+     *
+     * @spec openspec/architecture/adr-023-action-authorization.md
+     *
+     * @return JSONResponse
+     */
+    #[AuthorizedAdminSetting(Application::APP_ID)]
+    public function setActions(): JSONResponse
+    {
+        $matrix = $this->request->getParam('matrix', []);
+        if (is_array($matrix) === false) {
+            return new JSONResponse(
+                ['message' => 'Invalid matrix payload — expected an object of action → groups'],
+                Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        try {
+            $this->actionAuth->setMatrix($matrix);
+        } catch (\JsonException $e) {
+            return new JSONResponse(
+                ['message' => 'Matrix could not be serialized: ' . $e->getMessage()],
+                Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        return new JSONResponse(
+            ['matrix' => $this->actionAuth->getMatrix()]
+        );
+    }//end setActions()
 }//end class

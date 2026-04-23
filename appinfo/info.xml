@@ -75,9 +75,11 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <repair-steps>
         <install>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>
+            <step>OCA\Decidesk\Repair\InitializeActions</step>
         </install>
         <post-migration>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>
+            <step>OCA\Decidesk\Repair\InitializeActions</step>
         </post-migration>
     </repair-steps>
 

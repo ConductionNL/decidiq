@@ -1,0 +1,21 @@
+{
+  "_metadata": {
+    "app": "decidesk",
+    "schema_version": 1,
+    "description": "ADR-023 action-authorization seed. First-install defaults are all ['admin'] — admin broadens via the admin settings matrix. Editing this file only affects fresh installs; existing installs keep their admin-customized matrix.",
+    "reference": "openspec/architecture/adr-023-action-authorization.md"
+  },
+  "actions": {
+    "minutes.generate-draft": ["admin"],
+    "minutes.transition": ["admin"],
+    "minutes.generate-alv-draft": ["admin"],
+    "minutes.distribute-alv": ["admin"],
+    "minutes.extract-action-items": ["admin"],
+    "minutes.save-action-items": ["admin"],
+    "minutes.submit-for-approval": ["admin"],
+    "decision.publish": ["admin"],
+    "live-meeting.record-decision": ["admin"],
+    "analytics.view-summary": ["admin"],
+    "analytics.view-completion-rates": ["admin"]
+  }
+}

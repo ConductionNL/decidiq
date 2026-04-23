@@ -23,10 +23,11 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\ActionAuthService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
@@ -49,7 +50,7 @@ class DecisionController extends Controller
      * @param IRequest           $request      The HTTP request
      * @param ContainerInterface $container    DI container (lazy-loads OpenRegister services)
      * @param IUserSession       $userSession  The current user session
-     * @param IGroupManager      $groupManager Group manager for admin checks
+     * @param ActionAuthService  $actionAuth   Action authorization service (ADR-023)
      * @param LoggerInterface    $logger       The logger
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
@@ -58,7 +59,7 @@ class DecisionController extends Controller
         IRequest $request,
         private ContainerInterface $container,
         private IUserSession $userSession,
-        private IGroupManager $groupManager,
+        private ActionAuthService $actionAuth,
         private LoggerInterface $logger,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
@@ -76,7 +77,8 @@ class DecisionController extends Controller
      *
      * Returns 200 with the updated Decision object on success.
      * Returns 401 when not authenticated.
-     * Returns 403 when the caller is not a Nextcloud administrator.
+     * Returns 403 when the caller's groups don't include any group mapped to
+     * the `decision.publish` action in the admin matrix (default: admin-only).
      * Returns 404 when the Decision object is not found.
      * Returns 422 when outcome ≠ 'adopted' or isPublished is already true.
      * Returns 503 when OpenRegister is unavailable.
@@ -88,7 +90,9 @@ class DecisionController extends Controller
      * @NoAdminRequired
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+     * @spec openspec/architecture/adr-023-action-authorization.md
      */
+    #[NoAdminRequired]
     public function publish(string $decisionId): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -99,10 +103,12 @@ class DecisionController extends Controller
             );
         }
 
-        // Only administrators may publish decisions (OWASP A01 — Broken Access Control).
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
+        // ADR-023 — action-level authorization via admin matrix.
+        try {
+            $this->actionAuth->requireAction($user, 'decision.publish');
+        } catch (OCSForbiddenException $e) {
             return new JSONResponse(
-                ['message' => 'Forbidden: only administrators may publish decisions.'],
+                ['message' => $e->getMessage()],
                 Http::STATUS_FORBIDDEN
             );
         }
