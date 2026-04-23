@@ -568,7 +568,7 @@
       "cycle": 4,
       "trigger": "retry:queued",
       "started_at": "2026-04-23T10:14:04Z",
-      "ended_at": "2026-04-23T18:07:33Z",
+      "ended_at": "2026-04-23T18:25:18Z",
       "outcome": "needs-input",
       "outcome_reason": "applier returned fail verdict",
       "pattern_tags": [],
