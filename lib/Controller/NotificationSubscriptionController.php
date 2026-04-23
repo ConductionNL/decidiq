@@ -71,7 +71,7 @@ class NotificationSubscriptionController extends Controller
     {
         $user = $this->userSession->getUser();
         if ($user === null) {
-            return new JSONResponse(['subscribed' => false, 'subscribedAt' => null]);
+            return new JSONResponse(['message' => 'Unauthenticated'], 401);
         }
 
         $subscribed = $this->notificationService->isSubscribed($id, $user->getUID());

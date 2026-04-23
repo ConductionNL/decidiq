@@ -25,6 +25,7 @@ use OCA\Decidesk\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -37,14 +38,16 @@ class DecisionSearchController extends Controller
     /**
      * Constructor for DecisionSearchController.
      *
-     * @param IRequest           $request   The HTTP request
-     * @param ContainerInterface $container The DI container
+     * @param IRequest           $request     The HTTP request
+     * @param ContainerInterface $container   The DI container
+     * @param IUserSession       $userSession The current user session
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-6
      */
     public function __construct(
         IRequest $request,
         private ContainerInterface $container,
+        private IUserSession $userSession,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -67,6 +70,11 @@ class DecisionSearchController extends Controller
      */
     public function search(?string $q=''): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Unauthenticated'], 401);
+        }
+
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable) {

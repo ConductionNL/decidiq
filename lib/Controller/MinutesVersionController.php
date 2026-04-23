@@ -26,6 +26,7 @@ use OCA\Decidesk\Service\MinutesVersionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUserSession;
 
 /**
  * Thin controller for Minutes version endpoints.
@@ -39,12 +40,14 @@ class MinutesVersionController extends Controller
      *
      * @param IRequest              $request        The HTTP request
      * @param MinutesVersionService $versionService The version service
+     * @param IUserSession          $userSession    The current user session
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t2/tasks.md#task-2
      */
     public function __construct(
         IRequest $request,
         private MinutesVersionService $versionService,
+        private IUserSession $userSession,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -65,6 +68,11 @@ class MinutesVersionController extends Controller
      */
     public function getVersionHistory(string $id): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Unauthenticated'], 401);
+        }
+
         $versions = $this->versionService->getVersionHistory($id);
         return new JSONResponse(['versions' => $versions]);
     }//end getVersionHistory()
@@ -86,6 +94,11 @@ class MinutesVersionController extends Controller
      */
     public function getVersionContent(string $id, string $version): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Unauthenticated'], 401);
+        }
+
         $versionNum = (int) $version;
         $content    = $this->versionService->getVersionContent($id, $versionNum);
 
@@ -114,6 +127,11 @@ class MinutesVersionController extends Controller
      */
     public function diffVersions(string $id, string $versionA, string $versionB): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Unauthenticated'], 401);
+        }
+
         $vNumA = (int) $versionA;
         $vNumB = (int) $versionB;
 

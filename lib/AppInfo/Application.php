@@ -170,6 +170,7 @@ class Application extends App implements IBootstrap
                     return new MinutesVersionController(
                     request: $c->get(\OCP\IRequest::class),
                     versionService: $c->get(MinutesVersionService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
                     );
                 }
                 );
@@ -249,6 +250,7 @@ class Application extends App implements IBootstrap
                     return new DecisionSearchController(
                     request: $c->get(\OCP\IRequest::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
                     );
                 }
                 );
