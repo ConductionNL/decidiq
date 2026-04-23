@@ -303,4 +303,48 @@ class MotionController extends Controller
         }
 
     }//end amendmentTransition()
+
+    /**
+     * Forward a motion to a target governance body.
+     *
+     * POST /api/motions/{id}/forward
+     * Body: { "targetBodyId": "...", "justification": "..." }
+     *
+     * @param string $id The motion UUID
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     *
+     * @return JSONResponse
+     */
+    public function forward(string $id): JSONResponse
+    {
+        $guard = $this->requireChairOrSecretary();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        $params        = $this->request->getParams();
+        $targetBodyId  = ($params['targetBodyId'] ?? '');
+        $justification = ($params['justification'] ?? '');
+        $actorId       = ($this->userSession->getUser()?->getUID() ?? '');
+
+        if ($targetBodyId === '' || $justification === '' || $actorId === '') {
+            return new JSONResponse(['message' => 'targetBodyId, justification, and authentication required'], Http::STATUS_BAD_REQUEST);
+        }
+
+        try {
+            $forwardedMotion = $this->motionService->forwardMotion(
+                motionId: $id,
+                targetBodyId: $targetBodyId,
+                actorId: $actorId,
+                justification: $justification,
+            );
+            return new JSONResponse($forwardedMotion);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+        }
+
+    }//end forward()
 }//end class
