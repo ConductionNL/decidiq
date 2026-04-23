@@ -519,6 +519,22 @@
           "findings": [],
           "decisions": [],
           "verdict": "pass"
+        },
+        {
+          "stage": "fix",
+          "persona": "Al Gorithm",
+          "model": "sonnet",
+          "container": "hydra-builder",
+          "started_at": "2026-04-23T09:15:30Z",
+          "ended_at": "2026-04-23T09:28:48Z",
+          "exit_code": 0,
+          "turns_used": 145,
+          "turns_budget": 40,
+          "checks_run": [],
+          "checks_skipped": [],
+          "findings": [],
+          "decisions": [],
+          "verdict": "pass"
         }
       ]
     }
