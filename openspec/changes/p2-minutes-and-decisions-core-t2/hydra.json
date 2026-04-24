@@ -570,9 +570,9 @@
       "cycle": 6,
       "trigger": "retry:queued",
       "started_at": "2026-04-24T08:25:56Z",
-      "ended_at": "2026-04-24T08:35:44Z",
-      "outcome": "needs-input",
-      "outcome_reason": "retry builder exited non-zero",
+      "ended_at": "2026-04-24T08:47:50Z",
+      "outcome": "aborted",
+      "outcome_reason": "rebuild:queued \u2014 human wiped prior cycle",
       "pattern_tags": [],
       "stages": [
         {
