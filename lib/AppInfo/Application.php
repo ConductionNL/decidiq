@@ -27,6 +27,8 @@ use OCA\Decidesk\Controller\AnalyticsController;
 use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Controller\LiveMeetingController;
 use OCA\Decidesk\Controller\MinutesController;
+use OCA\Decidesk\Controller\ProjectionController;
+use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
@@ -36,6 +38,7 @@ use OCA\Decidesk\Service\DecisionNotificationService;
 use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
+use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\App;
@@ -47,6 +50,8 @@ use OCP\BackgroundJob\IJobList;
 /**
  * Main application class for the Decidesk Nextcloud app.
  *
+ * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
+ * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
  */
 class Application extends App implements IBootstrap
@@ -72,6 +77,8 @@ class Application extends App implements IBootstrap
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function register(IRegistrationContext $context): void
@@ -161,6 +168,17 @@ class Application extends App implements IBootstrap
                 }
                 );
 
+        // Register VotingBehaviourService for DI.
+        // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1.
+        $context->registerService(
+                VotingBehaviourService::class,
+                static function ($c): VotingBehaviourService {
+                    return new VotingBehaviourService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    );
+                }
+                );
+
         // Register AnalyticsController for DI.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.4.
         $context->registerService(
@@ -169,6 +187,18 @@ class Application extends App implements IBootstrap
                     return new AnalyticsController(
                     request: $c->get(\OCP\IRequest::class),
                     analyticsService: $c->get(ActionItemAnalyticsService::class),
+                    );
+                }
+                );
+
+        // Register VotingBehaviourController for DI.
+        // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1.
+        $context->registerService(
+                VotingBehaviourController::class,
+                static function ($c): VotingBehaviourController {
+                    return new VotingBehaviourController(
+                    request: $c->get(\OCP\IRequest::class),
+                    behaviourService: $c->get(VotingBehaviourService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     );
@@ -249,6 +279,18 @@ class Application extends App implements IBootstrap
                 }
                 );
 
+        // Register ProjectionController for DI (public page, no auth required).
+        // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2.
+        $context->registerService(
+                ProjectionController::class,
+                static function ($c): ProjectionController {
+                    return new ProjectionController(
+                    request: $c->get(\OCP\IRequest::class),
+                    votingService: $c->get('OCA\Decidesk\Service\VotingService'),
+                    );
+                }
+                );
+
     }//end register()
 
     /**
@@ -258,6 +300,8 @@ class Application extends App implements IBootstrap
      *
      * @return void
      *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function boot(IBootContext $context): void

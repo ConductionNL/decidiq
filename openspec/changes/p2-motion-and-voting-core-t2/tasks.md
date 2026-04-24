@@ -1,36 +1,36 @@
 ## Deduplication Check (ADR-012)
 
-- [ ] 0.1 Confirm live tally polling reuses `objectStore.fetchObjects()` — no custom polling endpoint or WebSocket server needed
-- [ ] 0.2 Confirm vote behaviour aggregation uses `ObjectService.findAll()` with participant/round filters — no custom analytics entity or separate aggregation store
-- [ ] 0.3 Confirm anonymisation uses `ObjectService.saveObject()` per Vote object — no custom delete or archive mechanism
-- [ ] 0.4 Confirm `CnChartWidget` (ApexCharts, provided by `@conduction/nextcloud-vue`) covers the voting history donut chart — no custom chart component
-- [ ] 0.5 Confirm the `diff` npm library is a transitive dependency of `@conduction/nextcloud-vue` or already in `package.json` — do NOT add a duplicate if already present; document finding either way
-- [ ] 0.6 Confirm `IAppConfig` covers voting group presets and motion forwarding flags — no new OpenRegister entity proposed
+- [x] 0.1 Confirm live tally polling reuses `objectStore.fetchObjects()` — no custom polling endpoint or WebSocket server needed
+- [x] 0.2 Confirm vote behaviour aggregation uses `ObjectService.findAll()` with participant/round filters — no custom analytics entity or separate aggregation store
+- [x] 0.3 Confirm anonymisation uses `ObjectService.saveObject()` per Vote object — no custom delete or archive mechanism
+- [x] 0.4 Confirm `CnChartWidget` (ApexCharts, provided by `@conduction/nextcloud-vue`) covers the voting history donut chart — no custom chart component
+- [x] 0.5 Confirm the `diff` npm library is a transitive dependency of `@conduction/nextcloud-vue` or already in `package.json` — do NOT add a duplicate if already present; document finding either way
+- [x] 0.6 Confirm `IAppConfig` covers voting group presets and motion forwarding flags — no new OpenRegister entity proposed
 
 ## 1. Backend — VotingBehaviourService and VotingBehaviourController
 
-- [ ] 1.1 Create `lib/Service/VotingBehaviourService.php` — stateless service tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1` with method:
+- [x] 1.1 Create `lib/Service/VotingBehaviourService.php` — stateless service tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1` with method:
   - `getStats(string $participantId, string $governanceBodyId): array` — calls `ObjectService.findAll()` to fetch all closed VotingRounds for the body; for each round fetches Votes where `participantId` matches; computes `totalRounds`, `participated`, `participationRate`, `votesFor`, `votesAgainst`, `votesAbstain`, `proxiesGiven`, `proxiesReceived`; returns associative array
-- [ ] 1.2 Create `lib/Controller/VotingBehaviourController.php` — thin controller (< 10 lines/method) tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1`:
+- [x] 1.2 Create `lib/Controller/VotingBehaviourController.php` — thin controller (< 10 lines/method) tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1`:
   - `GET /api/voting-behaviour/{participantId}` → `VotingBehaviourService::getStats()`; enforce: current user may only access own stats UNLESS role is `chair`, `secretary`, or admin — return `403` otherwise
-- [ ] 1.3 Register route in `appinfo/routes.php` — specific route before wildcard `{slug}` routes
-- [ ] 1.4 Register `VotingBehaviourService` and `VotingBehaviourController` in DI container (`lib/AppInfo/Application.php`)
+- [x] 1.3 Register route in `appinfo/routes.php` — specific route before wildcard `{slug}` routes
+- [x] 1.4 Register `VotingBehaviourService` and `VotingBehaviourController` in DI container (`lib/AppInfo/Application.php`)
 - [ ] 1.5 Write PHPUnit tests in `tests/Unit/Service/VotingBehaviourServiceTest.php` covering: `getStats` returns correct totals; `getStats` counts proxies correctly; `getStats` returns zero participation for a participant with no votes; controller returns 403 for member accessing other participant's stats
 
 ## 2. Backend — ProjectionController and public-state endpoint
 
-- [ ] 2.1 Create `lib/Controller/ProjectionController.php` — annotated `#[PublicPage]` and `#[NoCSRFRequired]`, tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2`:
+- [x] 2.1 Create `lib/Controller/ProjectionController.php` — annotated `#[PublicPage]` and `#[NoCSRFRequired]`, tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2`:
   - `GET /api/voting-rounds/{id}/public-state` → calls `VotingService::getPublicState()` and returns aggregate counts plus `preselectedOption` field; 404 if round not found; NEVER includes individual `Vote.value` or Participant identity
-- [ ] 2.2 Add `getPublicState(string $votingRoundId): array` to `VotingService.php` — fetches VotingRound and linked Motion title; computes leading option from `votesFor/Against/Abstain`; returns `{ motionTitle, votingMethod, isOpen, votesFor, votesAgainst, votesAbstain, preselectedOption, openedAt }`; tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2`
-- [ ] 2.3 Register route `GET /apps/decidesk/projection/{votingRoundId}` in `appinfo/routes.php` as a public page serving `ProjectionView.vue`; register `GET /api/voting-rounds/{id}/public-state` route
+- [x] 2.2 Add `getPublicState(string $votingRoundId): array` to `VotingService.php` — fetches VotingRound and linked Motion title; computes leading option from `votesFor/Against/Abstain`; returns `{ motionTitle, votingMethod, isOpen, votesFor, votesAgainst, votesAbstain, preselectedOption, openedAt }`; tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2`
+- [x] 2.3 Register route `GET /apps/decidesk/projection/{votingRoundId}` in `appinfo/routes.php` as a public page serving `ProjectionView.vue`; register `GET /api/voting-rounds/{id}/public-state` route
 - [ ] 2.4 Write PHPUnit tests covering: `getPublicState` returns correct preselectedOption for leading option; returns `null` preselectedOption on tie; returns 404 for unknown round; confirm no Participant data in response
 
 ## 3. Backend — VotingService extensions (anonymisation + preset support + forwarding)
 
-- [ ] 3.1 Extend `VotingService::closeVotingRound()` with `anonymise: bool` parameter — when `true`: (1) tally and store result; (2) call `OriPublicationService.publish()` if configured; (3) loop Vote objects and call `ObjectService.saveObject()` setting `value: null`; (4) log "Stemmen geanonimiseerd" to `ActivityService`; tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3`
-- [ ] 3.2 Extend `VotingService::openVotingRound()` with optional `presetParticipantIds: array` parameter — validate each UUID against active Memberships via `ObjectService.findAll()`; exclude expired UUIDs; store eligible voter list as OpenRegister relation on VotingRound; return list of excluded UUIDs in response for UI warning
-- [ ] 3.3 Add `forwardMotion(string $motionId, string $targetBodyId, string $actorId, string $justification): Motion` to `MotionService.php` — (1) check actor role against `IAppConfig` `motion_forwarding_roles`; (2) create new Motion in target body via `ObjectService.saveObject()`; (3) set `lifecycle` per `motion_forwarding_requires_approval` config; (4) create OpenRegister relation forwarded Motion → source Motion; (5) add note on source Motion; (6) send Nextcloud notification to target chair if approval required; tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3`
-- [ ] 3.4 Add `POST /api/motions/{id}/forward` route in `appinfo/routes.php`; add handler method in `MotionController.php`
+- [x] 3.1 Extend `VotingService::closeVotingRound()` with `anonymise: bool` parameter — when `true`: (1) tally and store result; (2) call `OriPublicationService.publish()` if configured; (3) loop Vote objects and call `ObjectService.saveObject()` setting `value: null`; (4) log "Stemmen geanonimiseerd" to `ActivityService`; tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3`
+- [x] 3.2 Extend `VotingService::openVotingRound()` with optional `presetParticipantIds: array` parameter — validate each UUID against active Memberships via `ObjectService.findAll()`; exclude expired UUIDs; store eligible voter list as OpenRegister relation on VotingRound; return list of excluded UUIDs in response for UI warning
+- [x] 3.3 Add `forwardMotion(string $motionId, string $targetBodyId, string $actorId, string $justification): Motion` to `MotionService.php` — (1) check actor role against `IAppConfig` `motion_forwarding_roles`; (2) create new Motion in target body via `ObjectService.saveObject()`; (3) set `lifecycle` per `motion_forwarding_requires_approval` config; (4) create OpenRegister relation forwarded Motion → source Motion; (5) add note on source Motion; (6) send Nextcloud notification to target chair if approval required; tagged `@spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3`
+- [x] 3.4 Add `POST /api/motions/{id}/forward` route in `appinfo/routes.php`; add handler method in `MotionController.php`
 - [ ] 3.5 Write PHPUnit tests in `VotingServiceTest.php`: anonymisation sets Vote.value to null; anonymisation is sequenced after tally and ORI publish; preset UUID validation excludes expired memberships; returns excluded UUID list. Write `MotionServiceTest.php` tests: `forwardMotion` 403 on disallowed role; `forwardMotion` creates motion in target body; `forwardMotion` sends notification when approval required
 
 ## 4. Backend — Admin settings for presets and forwarding controls

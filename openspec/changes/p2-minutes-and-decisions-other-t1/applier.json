@@ -4,19 +4,19 @@
   "blocking": [
     {
       "file": "lib/Service/DecisionApprovalService.php",
-      "severity": "critical",
-      "note": "Silent authorization bypass (OWASP A01:2021 / CWE-863): getAuthorizationService() returns null on Throwable, and the entire REQUIRED_ROLES check is guarded by nullable \u2014 any authenticated user can advance decisions through the full approval chain when AuthorizationService is unavailable"
+      "severity": "warning",
+      "note": "authorizeAssignment() accepts $uid but never uses it for role verification \u2014 any authenticated NC user can assign any Person as reviewer to any Decision (OWASP A01:2021 / CWE-862); unfixed per Clyde Barcode final security review 2026-04-23T05:55"
     },
     {
-      "file": "lib/Controller/DecisionApprovalController.php",
-      "severity": "critical",
-      "note": "Reviewer impersonation (OWASP A01:2021 / CWE-639): personId is taken from the POST body at line 120 without verifying the authenticated Nextcloud user corresponds to that Person entity \u2014 any authenticated user can forge sign-offs on behalf of any person in the system"
+      "file": "lib/Service/DecisionApprovalService.php",
+      "severity": "warning",
+      "note": "authorizeReminder() accepts $uid and $personId but never uses them for role verification \u2014 any authenticated user can trigger reminder dispatch on any Decision/Person pair (OWASP A01:2021 / CWE-862); unfixed per Clyde Barcode final security review 2026-04-23T05:55"
     }
   ],
-  "turns": 9,
-  "cost_usd": 0.2431,
-  "cost_eur": 0.2237,
+  "turns": 23,
+  "cost_usd": 1.2011,
+  "cost_eur": 1.105,
   "pr": 129,
-  "commit": "34182b6",
-  "timestamp": "2026-04-21T13:35:11.231836+00:00"
+  "commit": "0212de6",
+  "timestamp": "2026-04-23T18:25:09.848376+00:00"
 }
