@@ -418,9 +418,9 @@
       "cycle": 3,
       "trigger": "retry:queued",
       "started_at": "2026-04-23T15:19:27Z",
-      "ended_at": null,
-      "outcome": "in-flight",
-      "outcome_reason": null,
+      "ended_at": "2026-04-24T05:36:28Z",
+      "outcome": "needs-input",
+      "outcome_reason": "retry builder exited non-zero",
       "pattern_tags": [],
       "stages": [
         {
