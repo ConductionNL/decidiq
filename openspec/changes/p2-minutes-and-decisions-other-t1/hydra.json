@@ -986,21 +986,49 @@
       "outcome": "in-flight",
       "outcome_reason": null,
       "pattern_tags": [],
-      "stages": []
+      "stages": [
+        {
+          "stage": "build",
+          "persona": "Al Gorithm",
+          "model": "sonnet",
+          "container": "hydra-builder",
+          "started_at": "2026-04-24T12:47:25Z",
+          "ended_at": "2026-04-24T13:20:50Z",
+          "exit_code": 1,
+          "turns_used": 0,
+          "turns_budget": 40,
+          "checks_run": [],
+          "checks_skipped": [],
+          "findings": [
+            {
+              "id": "build-failed",
+              "severity": "CRITICAL",
+              "gate": "builder",
+              "rule": "builder container exited non-zero",
+              "status": "open",
+              "note": "Builder container failed to complete. See logs/pipeline-*/builder-build.jsonl for detail.",
+              "autofixable": false
+            }
+          ],
+          "decisions": [],
+          "verdict": "fail",
+          "duration_seconds": 2005
+        }
+      ]
     }
   ],
   "totals": {
-    "runs": 34,
+    "runs": 35,
     "turns_used": 4558,
     "cost_usd": 0.0,
-    "duration_seconds": 30900,
-    "cycles": 8,
+    "duration_seconds": 32905,
+    "cycles": 9,
     "by_stage": {
       "build": {
-        "runs": 2,
+        "runs": 3,
         "turns_used": 160,
         "cost_usd": 0.0,
-        "duration_seconds": 3150
+        "duration_seconds": 5155
       },
       "pre-review-quality": {
         "runs": 3,
