@@ -2,10 +2,10 @@
   "ran": true,
   "pass": true,
   "blocking": [],
-  "turns": 15,
-  "cost_usd": 0.5244,
-  "cost_eur": 0.4824,
+  "turns": 24,
+  "cost_usd": 0.8757,
+  "cost_eur": 0.8056,
   "pr": 127,
-  "commit": "453236e",
-  "timestamp": "2026-04-24T06:06:46.886966+00:00"
+  "commit": "20bd572",
+  "timestamp": "2026-04-24T06:09:17.052126+00:00"
 }

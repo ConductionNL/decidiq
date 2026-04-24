@@ -761,5 +761,31 @@
         "duration_seconds": 432
       }
     }
+  },
+  "pipeline": {
+    "code_review": {
+      "pass": null,
+      "fixes_applied": [],
+      "unfixed": []
+    },
+    "security_review": {
+      "pass": null,
+      "fixes_applied": [],
+      "unfixed": []
+    },
+    "applier": {
+      "ran": true,
+      "pass": true,
+      "blocking": []
+    },
+    "build_count": 1,
+    "findings_fixed": 0,
+    "findings_open": 0,
+    "suggestions_open": 0,
+    "total_cost_usd": 2.0772,
+    "total_cost_eur": 1.91,
+    "total_turns": 114,
+    "last_code_review_pass": null,
+    "last_security_review_pass": null
   }
 }
