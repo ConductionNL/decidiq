@@ -25,7 +25,11 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
+use OCA\Decidesk\Service\ActionItemExtractionService;
+use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\Decidesk\Service\MinutesService;
+use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -65,6 +69,27 @@ class MinutesControllerTest extends TestCase
     private MinutesGenerationService&MockObject $minutesGenerationService;
 
     /**
+     * Mock ALVMinutesService.
+     *
+     * @var ALVMinutesService&MockObject
+     */
+    private ALVMinutesService&MockObject $alvMinutesService;
+
+    /**
+     * Mock ActionItemExtractionService.
+     *
+     * @var ActionItemExtractionService&MockObject
+     */
+    private ActionItemExtractionService&MockObject $extractionService;
+
+    /**
+     * Mock MinutesService.
+     *
+     * @var MinutesService&MockObject
+     */
+    private MinutesService&MockObject $minutesService;
+
+    /**
      * Mock IUserSession.
      *
      * @var IUserSession&MockObject
@@ -77,6 +102,13 @@ class MinutesControllerTest extends TestCase
      * @var IGroupManager&MockObject
      */
     private IGroupManager&MockObject $groupManager;
+
+    /**
+     * Mock ObjectService.
+     *
+     * @var ObjectService&MockObject
+     */
+    private ObjectService&MockObject $objectService;
 
     /**
      * Mock IUser (authenticated user).
@@ -94,11 +126,15 @@ class MinutesControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->request                  = $this->createMock(IRequest::class);
-        $this->minutesGenerationService = $this->createMock(MinutesGenerationService::class);
-        $this->userSession              = $this->createMock(IUserSession::class);
-        $this->groupManager             = $this->createMock(IGroupManager::class);
-        $this->user                     = $this->createMock(IUser::class);
+        $this->request                  = $this->createMock(originalClassName: IRequest::class);
+        $this->minutesGenerationService = $this->createMock(originalClassName: MinutesGenerationService::class);
+        $this->alvMinutesService        = $this->createMock(originalClassName: ALVMinutesService::class);
+        $this->extractionService        = $this->createMock(originalClassName: ActionItemExtractionService::class);
+        $this->minutesService           = $this->createMock(originalClassName: MinutesService::class);
+        $this->userSession              = $this->createMock(originalClassName: IUserSession::class);
+        $this->groupManager             = $this->createMock(originalClassName: IGroupManager::class);
+        $this->objectService            = $this->createMock(originalClassName: ObjectService::class);
+        $this->user                     = $this->createMock(originalClassName: IUser::class);
 
         $this->user->method('getUID')->willReturn('testuser');
         $this->user->method('getDisplayName')->willReturn('Test User');
@@ -107,8 +143,12 @@ class MinutesControllerTest extends TestCase
         $this->controller = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
+            alvMinutesService: $this->alvMinutesService,
+            extractionService: $this->extractionService,
+            minutesService: $this->minutesService,
             userSession: $this->userSession,
             groupManager: $this->groupManager,
+            objectService: $this->objectService,
         );
 
     }//end setUp()
@@ -244,8 +284,12 @@ class MinutesControllerTest extends TestCase
         $unauthController = new MinutesController(
             request: $this->request,
             minutesGenerationService: $this->minutesGenerationService,
+            alvMinutesService: $this->alvMinutesService,
+            extractionService: $this->extractionService,
+            minutesService: $this->minutesService,
             userSession: $unauthSession,
             groupManager: $this->groupManager,
+            objectService: $this->objectService,
         );
 
         // The service must NOT be called for an unauthenticated request.
@@ -381,5 +425,277 @@ class MinutesControllerTest extends TestCase
         self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
 
     }//end testTransitionMinutesNotFoundReturns404()
+
+    /**
+     * generateALVDraft by an unauthenticated request returns 401.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+     *
+     * @return void
+     */
+    public function testGenerateALVDraftUnauthenticatedReturns401(): void
+    {
+        $unauthSession = $this->createMock(originalClassName: IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
+        $unauthController = new MinutesController(
+            request: $this->request,
+            minutesGenerationService: $this->minutesGenerationService,
+            alvMinutesService: $this->alvMinutesService,
+            extractionService: $this->extractionService,
+            minutesService: $this->minutesService,
+            userSession: $unauthSession,
+            groupManager: $this->groupManager,
+            objectService: $this->objectService,
+        );
+
+        $this->alvMinutesService->expects($this->never())->method('generateALVDraft');
+
+        $result = $unauthController->generateALVDraft('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+
+    }//end testGenerateALVDraftUnauthenticatedReturns401()
+
+    /**
+     * generateALVDraft by a non-admin returns 403.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+     *
+     * @return void
+     */
+    public function testGenerateALVDraftByNonAdminReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->alvMinutesService->expects($this->never())->method('generateALVDraft');
+
+        $result = $this->controller->generateALVDraft('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testGenerateALVDraftByNonAdminReturns403()
+
+    /**
+     * generateALVDraft by an admin returns the preview.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+     *
+     * @return void
+     */
+    public function testGenerateALVDraftByAdminReturnsPreview(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->alvMinutesService->expects($this->once())
+            ->method('generateALVDraft')
+            ->with('minutes-uuid-001')
+            ->willReturn(['content' => 'ALV concept notulen...']);
+
+        $result = $this->controller->generateALVDraft('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertArrayHasKey('preview', $result->getData());
+
+    }//end testGenerateALVDraftByAdminReturnsPreview()
+
+    /**
+     * distributeALVMinutes by an unauthenticated request returns 401.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+     *
+     * @return void
+     */
+    public function testDistributeALVMinutesUnauthenticatedReturns401(): void
+    {
+        $unauthSession = $this->createMock(originalClassName: IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
+        $unauthController = new MinutesController(
+            request: $this->request,
+            minutesGenerationService: $this->minutesGenerationService,
+            alvMinutesService: $this->alvMinutesService,
+            extractionService: $this->extractionService,
+            minutesService: $this->minutesService,
+            userSession: $unauthSession,
+            groupManager: $this->groupManager,
+            objectService: $this->objectService,
+        );
+
+        $this->alvMinutesService->expects($this->never())->method('distribute');
+
+        $result = $unauthController->distributeALVMinutes('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+
+    }//end testDistributeALVMinutesUnauthenticatedReturns401()
+
+    /**
+     * distributeALVMinutes by a non-admin returns 403.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+     *
+     * @return void
+     */
+    public function testDistributeALVMinutesByNonAdminReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->alvMinutesService->expects($this->never())->method('distribute');
+
+        $result = $this->controller->distributeALVMinutes('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testDistributeALVMinutesByNonAdminReturns403()
+
+    /**
+     * extractActionItems by a non-admin returns 403.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+     *
+     * @return void
+     */
+    public function testExtractActionItemsByNonAdminReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->objectService->expects($this->never())->method('findObject');
+
+        $result = $this->controller->extractActionItems('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testExtractActionItemsByNonAdminReturns403()
+
+    /**
+     * extractActionItems by an admin when Minutes not found returns 404.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+     *
+     * @return void
+     */
+    public function testExtractActionItemsNotFoundReturns404(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->objectService->method('findObject')->willReturn(null);
+
+        $result = $this->controller->extractActionItems('minutes-uuid-999');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+
+    }//end testExtractActionItemsNotFoundReturns404()
+
+    /**
+     * extractActionItems by an admin succeeds and returns candidates.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+     *
+     * @return void
+     */
+    public function testExtractActionItemsByAdminReturnsCandidates(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->objectService->method('findObject')->willReturn(
+            ['id' => 'minutes-uuid-001', 'content' => 'Actie: Jan doet X']
+        );
+        $this->extractionService->method('extractFromContent')->willReturn(
+            [['title' => 'Jan doet X', 'suggestedAssignee' => 'Jan']]
+        );
+
+        $result = $this->controller->extractActionItems('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertArrayHasKey('candidates', $result->getData());
+
+    }//end testExtractActionItemsByAdminReturnsCandidates()
+
+    /**
+     * saveExtractedActionItems by a non-admin returns 403.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+     *
+     * @return void
+     */
+    public function testSaveExtractedActionItemsByNonAdminReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->objectService->expects($this->never())->method('findObject');
+
+        $result = $this->controller->saveExtractedActionItems('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testSaveExtractedActionItemsByNonAdminReturns403()
+
+    /**
+     * submitForApproval by a non-admin returns 403.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
+     *
+     * @return void
+     */
+    public function testSubmitForApprovalByNonAdminReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->objectService->expects($this->never())->method('findObject');
+
+        $result = $this->controller->submitForApproval('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testSubmitForApprovalByNonAdminReturns403()
+
+    /**
+     * submitForApproval by an admin when lifecycle is not draft returns 409.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
+     *
+     * @return void
+     */
+    public function testSubmitForApprovalNonDraftReturns409(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->objectService->method('findObject')->willReturn(
+            ['id' => 'minutes-uuid-001', 'lifecycle' => 'review']
+        );
+
+        $result = $this->controller->submitForApproval('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_CONFLICT, $result->getStatus());
+
+    }//end testSubmitForApprovalNonDraftReturns409()
+
+    /**
+     * submitForApproval by an admin with draft Minutes succeeds.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
+     *
+     * @return void
+     */
+    public function testSubmitForApprovalByAdminSucceeds(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->objectService->method('findObject')->willReturn(
+            ['id' => 'minutes-uuid-001', 'lifecycle' => 'draft']
+        );
+        $this->objectService->expects($this->once())->method('saveObject');
+        $this->minutesService->method('notifyApproversOnSubmit')->willReturn(2);
+
+        $result = $this->controller->submitForApproval('minutes-uuid-001');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertSame('review', $result->getData()['lifecycle']);
+        self::assertSame(2, $result->getData()['notified']);
+
+    }//end testSubmitForApprovalByAdminSucceeds()
 
 }//end class

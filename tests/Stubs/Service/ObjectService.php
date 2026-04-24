@@ -82,17 +82,26 @@ abstract class ObjectService
     abstract public function getObject(string $register, string $schema, string $uuid): ?array;
 
     /**
-     * Query objects with filters (new named-parameter API).
+     * Fetch a single object by register, schema, and ID.
      *
-     * Returns an array with a 'results' key containing the matching objects.
+     * @param string $register Register slug
+     * @param string $schema   Schema slug
+     * @param string $id       Object UUID
+     *
+     * @return array<string,mixed>|null
+     */
+    abstract public function findObject(string $register, string $schema, string $id): ?array;
+
+    /**
+     * Query objects with params (new named-parameter API).
      *
      * @param string              $register Register slug
      * @param string              $schema   Schema slug
-     * @param array<string,mixed> $filters  Field filters
+     * @param array<string,mixed> $params   Query params including filters and pagination
      *
-     * @return array{results: array<array<string,mixed>>}
+     * @return array<int,array<string,mixed>>
      */
-    abstract public function findObjects(string $register, string $schema, array $filters = []): array;
+    abstract public function findObjects(string $register, string $schema, array $params = []): array;
 
     /**
      * Save (create or update) an object.

@@ -31,6 +31,7 @@ use OCP\IRequest;
  *
  * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
  * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
  */
 class DashboardController extends Controller
 {
@@ -52,11 +53,10 @@ class DashboardController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      *
-     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
-     *
      * @return TemplateResponse
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function page(): TemplateResponse
     {
@@ -69,11 +69,10 @@ class DashboardController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      *
-     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
-     *
      * @return TemplateResponse
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function catchAll(): TemplateResponse
     {

@@ -23,15 +23,24 @@ namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
+use OCA\Decidesk\Controller\AnalyticsController;
 use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Controller\LiveMeetingController;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
+use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidesk\Service\ActionItemExtractionService;
+use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\DecisionNotificationService;
+use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\Decidesk\Service\MinutesService;
 use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
+use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -43,6 +52,7 @@ use OCP\BackgroundJob\IJobList;
  *
  * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
  * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
  */
 class Application extends App implements IBootstrap
 {
@@ -69,6 +79,7 @@ class Application extends App implements IBootstrap
      *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function register(IRegistrationContext $context): void
     {
@@ -105,8 +116,12 @@ class Application extends App implements IBootstrap
                     return new MinutesController(
                     request: $c->get(\OCP\IRequest::class),
                     minutesGenerationService: $c->get(MinutesGenerationService::class),
+                    alvMinutesService: $c->get(ALVMinutesService::class),
+                    extractionService: $c->get(ActionItemExtractionService::class),
+                    minutesService: $c->get(MinutesService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
+                    objectService: $c->get(ObjectService::class),
                     );
                 }
                 );
@@ -141,6 +156,18 @@ class Application extends App implements IBootstrap
                 }
                 );
 
+        // Register ActionItemAnalyticsService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.4.
+        $context->registerService(
+                ActionItemAnalyticsService::class,
+                static function ($c): ActionItemAnalyticsService {
+                    return new ActionItemAnalyticsService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
         // Register VotingBehaviourService for DI.
         // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1.
         $context->registerService(
@@ -148,6 +175,18 @@ class Application extends App implements IBootstrap
                 static function ($c): VotingBehaviourService {
                     return new VotingBehaviourService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
+                    );
+                }
+                );
+
+        // Register AnalyticsController for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.4.
+        $context->registerService(
+                AnalyticsController::class,
+                static function ($c): AnalyticsController {
+                    return new AnalyticsController(
+                    request: $c->get(\OCP\IRequest::class),
+                    analyticsService: $c->get(ActionItemAnalyticsService::class),
                     );
                 }
                 );
@@ -162,6 +201,80 @@ class Application extends App implements IBootstrap
                     behaviourService: $c->get(VotingBehaviourService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
+                    );
+                }
+                );
+
+        // Register LiveDecisionService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.4.
+        $context->registerService(
+                LiveDecisionService::class,
+                static function ($c): LiveDecisionService {
+                    return new LiveDecisionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register LiveMeetingController for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.4.
+        $context->registerService(
+                LiveMeetingController::class,
+                static function ($c): LiveMeetingController {
+                    return new LiveMeetingController(
+                    request: $c->get(\OCP\IRequest::class),
+                    liveDecisionService: $c->get(LiveDecisionService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    );
+                }
+                );
+
+        // Register ALVMinutesService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.4.
+        $context->registerService(
+                ALVMinutesService::class,
+                static function ($c): ALVMinutesService {
+                    return new ALVMinutesService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register ActionItemExtractionService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.4.
+        $context->registerService(
+                ActionItemExtractionService::class,
+                static function ($c): ActionItemExtractionService {
+                    return new ActionItemExtractionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register DecisionNotificationService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5.3.
+        $context->registerService(
+                DecisionNotificationService::class,
+                static function ($c): DecisionNotificationService {
+                    return new DecisionNotificationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register MinutesService for DI.
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.3.
+        $context->registerService(
+                MinutesService::class,
+                static function ($c): MinutesService {
+                    return new MinutesService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
                 );
@@ -189,6 +302,7 @@ class Application extends App implements IBootstrap
      *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function boot(IBootContext $context): void
     {
