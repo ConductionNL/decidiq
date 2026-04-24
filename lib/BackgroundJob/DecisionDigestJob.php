@@ -24,7 +24,7 @@ namespace OCA\Decidesk\BackgroundJob;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;
-use OCP\IMailer;
+use OCP\Mail\IMailer;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 

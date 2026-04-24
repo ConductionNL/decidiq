@@ -459,6 +459,35 @@ class DecisionApprovalService
         if ($decision === null) {
             throw new OCSForbiddenException('Decision not found or access denied');
         }
+
+        // Role check — mirror of transitionLifecycle's governance gate.
+        // $uid was previously accepted but never validated, so any
+        // authenticated user could assign reviewers (OWASP A01:2021 /
+        // CWE-862). chair/secretary are the governance roles that may
+        // assign reviewers per the approval-workflow design.
+        try {
+            $authService = $this->getAuthorizationService();
+        } catch (\RuntimeException) {
+            throw new OCSForbiddenException(
+                'Authorization service unavailable — access denied for reviewer assignment'
+            );
+        }
+
+        $hasRole = false;
+        if (method_exists($authService, 'checkUserRole') === true) {
+            foreach (['chair', 'secretary'] as $role) {
+                if ($authService->checkUserRole($uid, $role) === true) {
+                    $hasRole = true;
+                    break;
+                }
+            }
+        }
+
+        if ($hasRole === false) {
+            throw new OCSForbiddenException(
+                'Actor lacks required role (chair/secretary) to assign reviewers'
+            );
+        }
     }//end authorizeAssignment()
 
     /**
@@ -486,6 +515,32 @@ class DecisionApprovalService
         $decision = $objectService->find($decisionId);
         if ($decision === null) {
             throw new OCSForbiddenException('Decision not found or access denied');
+        }
+
+        // Role check — same pattern as authorizeAssignment. $uid and
+        // $personId were previously accepted but never validated.
+        try {
+            $authService = $this->getAuthorizationService();
+        } catch (\RuntimeException) {
+            throw new OCSForbiddenException(
+                'Authorization service unavailable — access denied for reviewer reminder'
+            );
+        }
+
+        $hasRole = false;
+        if (method_exists($authService, 'checkUserRole') === true) {
+            foreach (['chair', 'secretary'] as $role) {
+                if ($authService->checkUserRole($uid, $role) === true) {
+                    $hasRole = true;
+                    break;
+                }
+            }
+        }
+
+        if ($hasRole === false) {
+            throw new OCSForbiddenException(
+                'Actor lacks required role (chair/secretary) to send reviewer reminders'
+            );
         }
     }//end authorizeReminder()
 
