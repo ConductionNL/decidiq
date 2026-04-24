@@ -1,22 +1,11 @@
 {
   "ran": true,
-  "pass": false,
-  "blocking": [
-    {
-      "file": "lib/BackgroundJob/DecisionDigestJob.php",
-      "severity": "critical",
-      "note": "Reviewer-fix regression: code reviewer confirmed fixing 'use OCP\\IMailer' \u2192 'use OCP\\Mail\\IMailer' with Psalm verification, but a builder stage reverted it (lib/ and lib.orig/ share identical git hash 6b4f1846); at runtime IMailer::class resolves to 'OCP\\IMailer' which breaks DI and silently kills weekly digest email delivery"
-    },
-    {
-      "file": "lib/Service/DecisionApprovalService.php",
-      "severity": "warning",
-      "note": "Security reviewer Clyde Barcode most recent verdict is FAIL with 2 unfixed WARNINGs: authorizeAssignment() (line 452) and authorizeReminder() (line 480) accept caller UID but discard it, checking only Decision existence \u2014 any authenticated user can assign reviewers or trigger reminders on any Decision without a governance role (OWASP A01:2021 / CWE-862); unfixed non-SUGGESTION findings in a FAIL verdict require applier to block"
-    }
-  ],
-  "turns": 26,
-  "cost_usd": 1.2706,
-  "cost_eur": 1.169,
+  "pass": true,
+  "blocking": [],
+  "turns": 17,
+  "cost_usd": 0.7457,
+  "cost_eur": 0.686,
   "pr": 129,
-  "commit": "1c4d17a",
-  "timestamp": "2026-04-24T05:21:54.689535+00:00"
+  "commit": "78ee6d7",
+  "timestamp": "2026-04-24T06:09:39.799432+00:00"
 }
