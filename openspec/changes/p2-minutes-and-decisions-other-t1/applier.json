@@ -3,20 +3,20 @@
   "pass": false,
   "blocking": [
     {
-      "file": "lib/Service/DecisionApprovalService.php",
-      "severity": "warning",
-      "note": "authorizeAssignment() accepts $uid but never uses it for role verification \u2014 any authenticated NC user can assign any Person as reviewer to any Decision (OWASP A01:2021 / CWE-862); unfixed per Clyde Barcode final security review 2026-04-23T05:55"
+      "file": "lib/BackgroundJob/DecisionDigestJob.php",
+      "severity": "critical",
+      "note": "Reviewer-fix regression: code reviewer confirmed fixing 'use OCP\\IMailer' \u2192 'use OCP\\Mail\\IMailer' with Psalm verification, but a builder stage reverted it (lib/ and lib.orig/ share identical git hash 6b4f1846); at runtime IMailer::class resolves to 'OCP\\IMailer' which breaks DI and silently kills weekly digest email delivery"
     },
     {
       "file": "lib/Service/DecisionApprovalService.php",
       "severity": "warning",
-      "note": "authorizeReminder() accepts $uid and $personId but never uses them for role verification \u2014 any authenticated user can trigger reminder dispatch on any Decision/Person pair (OWASP A01:2021 / CWE-862); unfixed per Clyde Barcode final security review 2026-04-23T05:55"
+      "note": "Security reviewer Clyde Barcode most recent verdict is FAIL with 2 unfixed WARNINGs: authorizeAssignment() (line 452) and authorizeReminder() (line 480) accept caller UID but discard it, checking only Decision existence \u2014 any authenticated user can assign reviewers or trigger reminders on any Decision without a governance role (OWASP A01:2021 / CWE-862); unfixed non-SUGGESTION findings in a FAIL verdict require applier to block"
     }
   ],
-  "turns": 23,
-  "cost_usd": 1.2011,
-  "cost_eur": 1.105,
+  "turns": 26,
+  "cost_usd": 1.2706,
+  "cost_eur": 1.169,
   "pr": 129,
-  "commit": "0212de6",
-  "timestamp": "2026-04-23T18:25:09.848376+00:00"
+  "commit": "1c4d17a",
+  "timestamp": "2026-04-24T05:21:54.689535+00:00"
 }
