@@ -6,5 +6,33 @@
   "depends_on": [
     "p2-minutes-and-decisions"
   ],
-  "issue": null
+  "issue": null,
+  "pipeline": {
+    "code_review": {
+      "pass": null,
+      "fixes_applied": [],
+      "unfixed": []
+    },
+    "security_review": {
+      "pass": null,
+      "fixes_applied": [],
+      "unfixed": []
+    },
+    "applier": {
+      "ran": true,
+      "pass": null,
+      "blocking": []
+    },
+    "build_count": 1,
+    "findings_fixed": 0,
+    "findings_open": 0,
+    "suggestions_open": 0,
+    "total_cost_usd": 1.9453,
+    "total_cost_eur": 1.79,
+    "total_turns": 97,
+    "last_code_review_pass": null,
+    "last_security_review_pass": null
+  },
+  "schema_version": 2,
+  "cycles": []
 }
