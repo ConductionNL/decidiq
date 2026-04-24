@@ -699,9 +699,9 @@
       "cycle": 5,
       "trigger": "retry:queued",
       "started_at": "2026-04-23T18:30:52Z",
-      "ended_at": null,
-      "outcome": "in-flight",
-      "outcome_reason": null,
+      "ended_at": "2026-04-24T05:22:04Z",
+      "outcome": "needs-input",
+      "outcome_reason": "applier returned fail verdict",
       "pattern_tags": [],
       "stages": [
         {
