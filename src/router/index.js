@@ -2,6 +2,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import { generateUrl } from '@nextcloud/router'
+import { CnPageRenderer } from '@conduction/nextcloud-vue'
 
 /**
  * @spec openspec/changes/p1-crud-operations/tasks.md#task-3.4
@@ -29,8 +30,14 @@ const AmendmentDetail = () => import('../views/AmendmentDetail.vue')
 const SettingsView = () => import('../views/SettingsView.vue')
 const Minutes = () => import('../views/Minutes.vue')
 const MinutesDetail = () => import('../views/MinutesDetail.vue')
-const Decisions = () => import('../views/Decisions.vue')
-const DecisionDetail = () => import('../views/DecisionDetail.vue')
+// Decisions / DecisionDetail are mounted via CnPageRenderer driven by
+// src/manifest.json + src/customComponents.js. The route names below
+// (`Decisions`, `DecisionDetail`) match the corresponding `pages[].id`
+// entries in the manifest. CnPageRenderer dispatches on `page.type`
+// (here: "custom") and resolves the named component from the registry.
+// Pilot scope (Tier 2 of the manifest-renderer adoption pattern); the
+// remaining views still mount directly. See ConductionNL/nextcloud-vue
+// PR #89 for the renderer implementation.
 const ActionItems = () => import('../views/ActionItems.vue')
 const ActionItemDetail = () => import('../views/ActionItemDetail.vue')
 
@@ -55,9 +62,10 @@ export default new Router({
 		// Minutes routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		{ path: '/minutes', name: 'Minutes', component: Minutes },
 		{ path: '/minutes/:id', name: 'MinutesDetail', component: MinutesDetail, props: true },
-		// Decision routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
-		{ path: '/decisions', name: 'Decisions', component: Decisions },
-		{ path: '/decisions/:id', name: 'DecisionDetail', component: DecisionDetail, props: true },
+		// Decision routes — manifest-driven via CnPageRenderer.
+		// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
+		{ path: '/decisions', name: 'Decisions', component: CnPageRenderer },
+		{ path: '/decisions/:id', name: 'DecisionDetail', component: CnPageRenderer, props: true },
 		// Action item routes — @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 		{ path: '/action-items', name: 'ActionItems', component: ActionItems },
 		{ path: '/action-items/:id', name: 'ActionItemDetail', component: ActionItemDetail, props: true },

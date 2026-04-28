@@ -40,9 +40,12 @@
 <script>
 import { NcButton, NcContent, NcAppContent, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import { generateUrl, imagePath } from '@nextcloud/router'
+import { useAppManifest } from '@conduction/nextcloud-vue'
 import { initializeStores } from './store/store.js'
 import { useSettingsStore } from './store/modules/settings.js'
 import MainMenu from './navigation/MainMenu.vue'
+import bundledManifest from './manifest.json'
+import customComponents from './customComponents.js'
 
 export default {
 	name: 'App',
@@ -53,6 +56,25 @@ export default {
 		NcEmptyContent,
 		NcLoadingIcon,
 		MainMenu,
+	},
+
+	// Provide the manifest, custom-component registry, and translate
+	// function so CnPageRenderer (mounted per route in router/index.js
+	// for manifest-driven pages) can `inject` them without a full
+	// CnAppRoot shell. Tier 2 of the manifest-renderer adoption pattern;
+	// the existing App.vue / MainMenu / OpenRegister-installed gate
+	// stays untouched.
+	provide() {
+		return {
+			cnManifest: this.manifestRef,
+			cnCustomComponents: customComponents,
+			cnTranslate: (key) => this.$t('decidesk', key),
+		}
+	},
+
+	setup() {
+		const { manifest, isLoading, validationErrors } = useAppManifest('decidesk', bundledManifest)
+		return { manifestRef: manifest, manifestLoading: isLoading, manifestValidationErrors: validationErrors }
 	},
 
 	data() {

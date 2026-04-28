@@ -1,0 +1,22 @@
+{
+	"$schema": "https://raw.githubusercontent.com/ConductionNL/nextcloud-vue/main/src/schemas/app-manifest.schema.json",
+	"version": "0.1.0",
+	"dependencies": ["openregister"],
+	"menu": [],
+	"pages": [
+		{
+			"id": "Decisions",
+			"route": "/decisions",
+			"type": "custom",
+			"title": "decidesk.decisions.list",
+			"component": "DecisionsView"
+		},
+		{
+			"id": "DecisionDetail",
+			"route": "/decisions/:id",
+			"type": "custom",
+			"title": "decidesk.decisions.detail",
+			"component": "DecisionDetailView"
+		}
+	]
+}
