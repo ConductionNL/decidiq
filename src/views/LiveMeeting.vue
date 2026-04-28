@@ -315,11 +315,11 @@ export default {
 			try {
 				const meeting = await this.objectStore.fetchObject('meeting', this.id)
 				this.meeting = meeting ?? {}
-				const items = await this.objectStore.fetchObjects('agenda-item', {
+				const items = await this.objectStore.fetchCollection('agenda-item', {
 					'@self.relations.meeting': this.id,
 				})
 				this.allItems = items ?? []
-				const parts = await this.objectStore.fetchObjects('participant', {
+				const parts = await this.objectStore.fetchCollection('participant', {
 					'@self.relations.meeting': this.id,
 				})
 				this.participants = parts ?? []
@@ -332,7 +332,7 @@ export default {
 
 		async refreshItems() {
 			try {
-				const items = await this.objectStore.fetchObjects('agenda-item', {
+				const items = await this.objectStore.fetchCollection('agenda-item', {
 					'@self.relations.meeting': this.id,
 				})
 				this.allItems = items ?? []

@@ -275,7 +275,7 @@ export default {
 
 	async created() {
 		try {
-			const parts = await this.objectStore.fetchObjects('participant', {
+			const parts = await this.objectStore.fetchCollection('participant', {
 				'@self.relations.meeting': this.id,
 			})
 			this.meetingParticipants = parts ?? []

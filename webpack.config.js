@@ -25,6 +25,16 @@ webpackConfig.entry = {
 	},
 }
 
+// Webpack 5 'auto' detects the public path from the entry script's src at
+// runtime. The base @nextcloud/webpack-vue-config hardcodes
+// `/apps/<appId>/js/`, which only resolves correctly in production where
+// the appstore serves it. In nextcloud-docker-dev the app is bind-mounted
+// at /custom_apps/<appId> and its main.js is loaded from there, so
+// hardcoded chunks 404 with text/html (NC serves the app index for
+// /apps/<appId>/* paths). 'auto' makes dev and prod resolve correctly
+// without any wrapper config.
+webpackConfig.output.publicPath = 'auto'
+
 // Use local source when available (monorepo dev), otherwise fall back to npm package
 const localLib = path.resolve(__dirname, '../nextcloud-vue/src')
 const useLocalLib = fs.existsSync(localLib)
@@ -51,6 +61,14 @@ webpackConfig.module = {
 		{
 			test: /\.css$/,
 			use: ['style-loader', 'css-loader'],
+		},
+		{
+			// Required when USE_LOCAL_LIB resolves @conduction/nextcloud-vue
+			// to the library source: a small number of components ship
+			// `<style lang="scss">` blocks that are pre-compiled by Rollup
+			// in the published package but need a loader here.
+			test: /\.s[ac]ss$/i,
+			use: ['style-loader', 'css-loader', 'sass-loader'],
 		},
 	],
 }

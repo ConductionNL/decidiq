@@ -311,11 +311,11 @@ export default {
 			this.loading = true
 			try {
 				const [roundResult, participantResult] = await Promise.all([
-					this.objectStore.fetchObjects('voting-round', {
+					this.objectStore.fetchCollection('voting-round', {
 						'relations.motion': this.motionId,
 					}),
 					this.meetingId
-						? this.objectStore.fetchObjects('participant', { 'relations.meeting': this.meetingId })
+						? this.objectStore.fetchCollection('participant', { 'relations.meeting': this.meetingId })
 						: Promise.resolve(null),
 				])
 				const rounds = roundResult?.results || []

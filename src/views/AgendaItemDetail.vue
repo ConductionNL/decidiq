@@ -306,7 +306,7 @@ export default {
 			try {
 				const meetingId = this.object?.relations?.meeting?.[0]?.id
 				if (!meetingId) return
-				const motions = await this.objectStore.fetchObjects('motion', {
+				const motions = await this.objectStore.fetchCollection('motion', {
 					'@self.relations.meeting': meetingId,
 				})
 				this.availableMotions = motions ?? []
