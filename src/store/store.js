@@ -3,13 +3,12 @@
 // Per ADR-022 ("Apps consume OpenRegister abstractions over local
 // duplication") the canonical generic object store is the one shipped
 // in @conduction/nextcloud-vue. Decidesk used to maintain its own
-// fork at src/store/modules/object.js — that file has been removed.
+// per-schema CRUD stores at src/store/modules/{minutes,decisions,
+// meetings,actionItems}.js — those have been deleted in favour of
+// useObjectStore for every CRUD path.
 import { generateUrl } from '@nextcloud/router'
 import { useObjectStore } from '@conduction/nextcloud-vue'
 import { useSettingsStore } from './modules/settings.js'
-import { useMinutesStore } from './modules/minutes.js'
-import { useDecisionStore } from './modules/decisions.js'
-import { useActionItemStore } from './modules/actionItems.js'
 
 export async function initializeStores() {
 	const settingsStore = useSettingsStore()
@@ -27,13 +26,21 @@ export async function initializeStores() {
 	const settings = settingsStore.getSettings
 	const register = settings.register || 'decidesk'
 
-	// Register Minutes, Decision, and ActionItem object types.
+	// Register every object type referenced by views/components. The
+	// settings-overridable trio (minutes/decision/action-item) keeps
+	// its schema-name override; the rest default to the type slug.
 	// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-4
 	objectStore.registerObjectType('minutes', settings.minutesSchema || 'minutes', register)
 	objectStore.registerObjectType('decision', settings.decisionSchema || 'decision', register)
 	objectStore.registerObjectType('action-item', settings.actionItemSchema || 'action-item', register)
+	objectStore.registerObjectType('meeting', 'meeting', register)
+	objectStore.registerObjectType('agenda-item', 'agenda-item', register)
+	objectStore.registerObjectType('motion', 'motion', register)
+	objectStore.registerObjectType('amendment', 'amendment', register)
+	objectStore.registerObjectType('governance-body', 'governance-body', register)
+	objectStore.registerObjectType('participant', 'participant', register)
 
 	return { settingsStore, objectStore }
 }
 
-export { useObjectStore, useSettingsStore, useMinutesStore, useDecisionStore, useActionItemStore }
+export { useObjectStore, useSettingsStore }

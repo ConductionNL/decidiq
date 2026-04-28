@@ -85,8 +85,8 @@
 <script>
 import { CnDetailPage, CnDetailCard, CnDetailGrid, CnObjectSidebar, CnSchemaFormDialog, CnDeleteDialog, useDetailView } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
+import { generateUrl } from '@nextcloud/router'
 import { useObjectStore } from '../store/store.js'
-import { useDecisionStore } from '../store/modules/decisions.js'
 
 export default {
 	name: 'DecisionDetail',
@@ -96,13 +96,12 @@ export default {
 	},
 	setup(props) {
 		const objectStore = useObjectStore()
-		const decisionStore = useDecisionStore()
 		const detailView = useDetailView('decision', props.id, {
 			objectStore,
 			listRouteName: 'Decisions',
 			detailRouteName: 'DecisionDetail',
 		})
-		return { ...detailView, objectStore, decisionStore }
+		return { ...detailView, objectStore }
 	},
 	data() {
 		return {
@@ -141,10 +140,20 @@ export default {
 			this.objectStore.fetchObject('decision', this.id)
 		},
 		async publish() {
+			// Server-enforced publish endpoint (admin check, outcome
+			// validation, isPublished guard) — see DecisionController::publish.
 			this.publishing = true
 			this.publishError = null
 			try {
-				await this.decisionStore.publishDecision(this.id)
+				const url = generateUrl(`/apps/decidesk/api/decisions/${this.id}/publish`)
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: { requesttoken: OC.requestToken },
+				})
+				if (!response.ok) {
+					const errorBody = await response.json().catch(() => ({}))
+					throw new Error(errorBody.message || `Publish failed with status ${response.status}`)
+				}
 				await this.objectStore.fetchObject('decision', this.id)
 			} catch (error) {
 				this.publishError = error.message || this.t('decidesk', 'Publiceren mislukt.')

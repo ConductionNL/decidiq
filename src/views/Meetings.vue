@@ -65,7 +65,6 @@
 <script>
 import { CnIndexPage, CnSchemaFormDialog, useListView } from '@conduction/nextcloud-vue'
 import { NcButton, NcInputField, NcSelect } from '@nextcloud/vue'
-import { useMeetingStore } from '../store/modules/meetings.js'
 import { useObjectStore } from '../store/store.js'
 
 export default {
@@ -73,12 +72,11 @@ export default {
 	components: { CnIndexPage, CnSchemaFormDialog, NcButton, NcInputField, NcSelect },
 	setup() {
 		const objectStore = useObjectStore()
-		const meetingStore = useMeetingStore()
 		const listView = useListView('meeting', {
 			objectStore,
 			sidebarState: null,
 		})
-		return { ...listView, objectStore, meetingStore }
+		return { ...listView, objectStore }
 	},
 	data() {
 		return {
@@ -107,23 +105,14 @@ export default {
 		},
 		onSearch(query) {
 			this.searchQuery = query
-			this.meetingStore.setSearchQuery(query)
-			this.meetingStore.page = 1
 			this.refresh()
 		},
 		onFilterChange() {
-			const filters = {
-				lifecycle: this.selectedLifecycle.length > 0 ? this.selectedLifecycle[0].id : null,
-			}
-			this.meetingStore.setFilters(filters)
-			this.meetingStore.page = 1
 			this.refresh()
 		},
 		resetFilters() {
 			this.searchQuery = ''
 			this.selectedLifecycle = []
-			this.meetingStore.resetFilters()
-			this.meetingStore.page = 1
 			this.refresh()
 		},
 	},
