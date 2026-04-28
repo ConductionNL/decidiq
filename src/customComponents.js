@@ -4,28 +4,42 @@
 /**
  * Custom-component registry for the manifest renderer.
  *
- * Pages declared in `manifest.json` with `type: "custom"` resolve their
- * `component` field against this map. The values are full Vue component
- * definitions; each consumer (CnPageRenderer for full-page pages,
- * CnPageRenderer for slot overrides via `headerComponent` /
- * `actionsComponent`) imports this registry once and dispatches by name.
+ * Every page in `manifest.json` resolves its `component` field
+ * against this map. CnPageRenderer dispatches by route name and looks
+ * up the named component here.
  *
- * Why type:"custom" for what looks like an index/detail page?
- * Decidesk's existing list and detail views (Decisions.vue, etc.) wire
- * up data via the `useListView` / `useDetailView` composables and
- * include slot overrides (CnSchemaFormDialog inside `#create-dialog`).
- * The renderer's built-in `type: "index"` / `type: "detail"` paths only
- * forward `page.config` as props to the corresponding Cn*Page; they do
- * not run composables. Wrapping the existing views via a custom
- * registry keeps full app-side control while still routing through the
- * manifest. A future iteration can add a manifest config for
- * "index-with-store" so CnPageRenderer wires the composable itself.
+ * Each entry is wrapped in `defineAsyncComponent` so views are still
+ * lazy-loaded into separate chunks (matching the pre-Tier-4 router
+ * behaviour, where every `() => import(...)` produced its own chunk).
+ *
+ * All entries today wrap existing app views (`useListView` /
+ * `useDetailView` + slot-overridden dialogs). See
+ * https://github.com/ConductionNL/nextcloud-vue/issues/90 for the
+ * planned auto-wire that would let these become `type: "index"` /
+ * `type: "detail"` directly without per-view registration.
  */
 
-import Decisions from './views/Decisions.vue'
-import DecisionDetail from './views/DecisionDetail.vue'
+import { defineAsyncComponent } from 'vue'
 
 export default {
-	DecisionsView: Decisions,
-	DecisionDetailView: DecisionDetail,
+	DashboardView: defineAsyncComponent(() => import('./views/Dashboard.vue')),
+	GovernanceBodiesView: defineAsyncComponent(() => import('./views/GovernanceBodies.vue')),
+	GovernanceBodyDetailView: defineAsyncComponent(() => import('./views/GovernanceBodyDetail.vue')),
+	MeetingsView: defineAsyncComponent(() => import('./views/Meetings.vue')),
+	MeetingDetailView: defineAsyncComponent(() => import('./views/MeetingDetail.vue')),
+	LiveMeetingView: defineAsyncComponent(() => import('./views/LiveMeeting.vue')),
+	ParticipantsView: defineAsyncComponent(() => import('./views/Participants.vue')),
+	ParticipantDetailView: defineAsyncComponent(() => import('./views/ParticipantDetail.vue')),
+	AgendaItemsView: defineAsyncComponent(() => import('./views/AgendaItems.vue')),
+	AgendaItemDetailView: defineAsyncComponent(() => import('./views/AgendaItemDetail.vue')),
+	MotionsView: defineAsyncComponent(() => import('./views/Motions.vue')),
+	MotionDetailView: defineAsyncComponent(() => import('./views/MotionDetail.vue')),
+	AmendmentDetailView: defineAsyncComponent(() => import('./views/AmendmentDetail.vue')),
+	MinutesView: defineAsyncComponent(() => import('./views/Minutes.vue')),
+	MinutesDetailView: defineAsyncComponent(() => import('./views/MinutesDetail.vue')),
+	DecisionsView: defineAsyncComponent(() => import('./views/Decisions.vue')),
+	DecisionDetailView: defineAsyncComponent(() => import('./views/DecisionDetail.vue')),
+	ActionItemsView: defineAsyncComponent(() => import('./views/ActionItems.vue')),
+	ActionItemDetailView: defineAsyncComponent(() => import('./views/ActionItemDetail.vue')),
+	SettingsView: defineAsyncComponent(() => import('./views/SettingsView.vue')),
 }

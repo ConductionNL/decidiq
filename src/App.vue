@@ -1,108 +1,61 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- Copyright (C) 2026 Conduction B.V. -->
+<!--
+  Tier 4 of the manifest-renderer adoption pattern (see
+  https://github.com/ConductionNL/nextcloud-vue/blob/main/docs/migrating-to-manifest.md):
+  the entire app shell is rendered by `CnAppRoot`. The manifest at
+  `src/manifest.json` declares menu, pages, and dependencies; the
+  router config (`src/router/index.js`) is generated from it.
+
+  Phases handled by `CnAppRoot`:
+   - loading           → while `useAppManifest.isLoading` is true
+   - dependency-check  → uses `manifest.dependencies` + `useAppStatus`
+                         (replaces the old `useSettingsStore.hasOpenRegisters` gate)
+   - shell             → renders `CnAppNav` from `manifest.menu[]` and
+                         `<router-view>`
+
+  All store initialisation now runs in `main.js` before mount, so
+  `App.vue` no longer needs a `created()` hook.
+-->
 <template>
-	<NcContent app-name="decidesk">
-		<template v-if="storesReady && !hasOpenRegisters">
-			<NcAppContent class="open-register-missing">
-				<NcEmptyContent
-					:name="t('decidesk', 'OpenRegister is required')"
-					:description="t('decidesk', 'This app needs OpenRegister to store and manage data. Please install OpenRegister from the app store to get started.')">
-					<template #icon>
-						<img :src="appIcon"
-							alt=""
-							width="64"
-							height="64">
-					</template>
-					<template #action>
-						<NcButton
-							v-if="isAdmin"
-							type="primary"
-							:href="appStoreUrl">
-							{{ t('decidesk', 'Install OpenRegister') }}
-						</NcButton>
-					</template>
-				</NcEmptyContent>
-			</NcAppContent>
-		</template>
-		<template v-else-if="storesReady && hasOpenRegisters">
-			<MainMenu />
-			<NcAppContent>
-				<router-view />
-			</NcAppContent>
-		</template>
-		<NcAppContent v-else>
-			<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-				<NcLoadingIcon :size="64" />
-			</div>
-		</NcAppContent>
-	</NcContent>
+	<CnAppRoot
+		:manifest="manifest"
+		app-id="decidesk"
+		:is-loading="isLoading"
+		:custom-components="customComponents"
+		:translate="translate" />
 </template>
 
 <script>
-import { NcButton, NcContent, NcAppContent, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
-import { generateUrl, imagePath } from '@nextcloud/router'
-import { useAppManifest } from '@conduction/nextcloud-vue'
-import { initializeStores } from './store/store.js'
-import { useSettingsStore } from './store/modules/settings.js'
-import MainMenu from './navigation/MainMenu.vue'
+import { CnAppRoot, useAppManifest } from '@conduction/nextcloud-vue'
+import { translate as t } from '@nextcloud/l10n'
 import bundledManifest from './manifest.json'
-import customComponents from './customComponents.js'
+import customComponentsRegistry from './customComponents.js'
+
+// Closure that translates manifest keys ("Dashboard", "Minutes", etc.)
+// under the decidesk app namespace. The library never imports `t()`
+// from a specific app; instead the consumer passes its own translator
+// in. Importing `translate` directly here (rather than going through
+// the `this.t` mixin method) keeps the function pure and safe to call
+// from contexts where `this` isn't available.
+const decideskTranslate = (key) => t('decidesk', key)
 
 export default {
 	name: 'App',
-	components: {
-		NcButton,
-		NcContent,
-		NcAppContent,
-		NcEmptyContent,
-		NcLoadingIcon,
-		MainMenu,
-	},
-
-	// Provide the manifest, custom-component registry, and translate
-	// function so CnPageRenderer (mounted per route in router/index.js
-	// for manifest-driven pages) can `inject` them without a full
-	// CnAppRoot shell. Tier 2 of the manifest-renderer adoption pattern;
-	// the existing App.vue / MainMenu / OpenRegister-installed gate
-	// stays untouched.
-	provide() {
-		return {
-			cnManifest: this.manifestRef,
-			cnCustomComponents: customComponents,
-			cnTranslate: (key) => this.$t('decidesk', key),
-		}
-	},
+	components: { CnAppRoot },
 
 	setup() {
-		const { manifest, isLoading, validationErrors } = useAppManifest('decidesk', bundledManifest)
-		return { manifestRef: manifest, manifestLoading: isLoading, manifestValidationErrors: validationErrors }
-	},
-
-	data() {
-		return {
-			storesReady: false,
-		}
+		const { manifest, isLoading } = useAppManifest('decidesk', bundledManifest)
+		return { manifest, isLoading }
 	},
 
 	computed: {
-		hasOpenRegisters() {
-			const settingsStore = useSettingsStore()
-			return settingsStore.hasOpenRegisters
+		customComponents() {
+			return customComponentsRegistry
 		},
-		isAdmin() {
-			const settingsStore = useSettingsStore()
-			return settingsStore.getIsAdmin
+		translate() {
+			return decideskTranslate
 		},
-		appIcon() {
-			return imagePath('decidesk', 'app-dark.svg')
-		},
-		appStoreUrl() {
-			return generateUrl('/settings/apps/integration/openregister')
-		},
-	},
-
-	async created() {
-		await initializeStores()
-		this.storesReady = true
 	},
 }
 </script>

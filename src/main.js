@@ -27,11 +27,15 @@ Vue.use(PiniaVuePlugin)
 registerIcons({})
 registerTranslations()
 
-// Mount the app regardless of whether the per-locale translations file
-// exists — a missing l10n/<lang>.json should not block the entire app
-// from booting. The original `loadTranslations(app, callback)` form
-// silently dropped the callback on rejection, leaving #content empty
-// for users on locales without a shipped translation file.
+// Bootstrap order: load translations (graceful fallback on missing
+// per-locale file) → initialise OpenRegister object stores so types
+// are registered before any view fetches data → mount Vue.
+//
+// `initializeStores()` used to run inside `App.vue`'s `created()` hook
+// in Tier 0–3. Tier 4 moves it here so `CnAppRoot` can render the
+// shell synchronously without waiting on app-side store wiring.
+import { initializeStores } from './store/store.js'
+
 const mount = () => {
 	const app = new Vue({
 		pinia,
@@ -42,4 +46,11 @@ const mount = () => {
 	app.$mount('#content')
 }
 
-loadTranslations('decidesk').catch(() => { /* no translations for this locale */ }).then(mount)
+loadTranslations('decidesk')
+	.catch(() => { /* no translations for this locale */ })
+	.then(() => initializeStores())
+	.catch((err) => {
+		// eslint-disable-next-line no-console
+		console.warn('[decidesk] initializeStores failed:', err)
+	})
+	.then(mount)
