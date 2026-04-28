@@ -4,40 +4,82 @@ Copyright (C) 2026 Conduction B.V.
 @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
 -->
 <template>
-	<div class="decidesk-dashboard">
-		<header class="decidesk-dashboard__header">
-			<h2>{{ t('decidesk', 'Dashboard') }}</h2>
-			<p class="decidesk-dashboard__lead">
-				{{ t('decidesk', 'Overzicht van notulen, besluiten en actiepunten.') }}
-			</p>
-		</header>
+	<CnDashboardPage
+		:title="t('decidesk', 'Dashboard')"
+		:description="t('decidesk', 'Overzicht van notulen, besluiten en actiepunten.')"
+		:widgets="widgetDefs"
+		:layout="dashboardLayout"
+		:loading="loading && !hasData"
+		:empty-label="t('decidesk', 'No widgets configured')"
+		:unavailable-label="t('decidesk', 'Widget not available')">
+		<!-- Header actions: New X + Refresh, matching procest / pipelinq -->
+		<template #header-actions>
+			<NcButton type="primary"
+				@click="$router.push({ name: 'Decisions' })">
+				<template #icon>
+					<Plus :size="20" />
+				</template>
+				{{ t('decidesk', 'New Decision') }}
+			</NcButton>
+			<NcButton @click="$router.push({ name: 'ActionItems' })">
+				<template #icon>
+					<Plus :size="20" />
+				</template>
+				{{ t('decidesk', 'New Action Item') }}
+			</NcButton>
+			<NcButton @click="$router.push({ name: 'Minutes' })">
+				<template #icon>
+					<Plus :size="20" />
+				</template>
+				{{ t('decidesk', 'New Minutes') }}
+			</NcButton>
+			<NcButton :disabled="loading"
+				:aria-label="t('decidesk', 'Refresh dashboard')"
+				@click="loadCounts">
+				<template #icon>
+					<Refresh :size="20" :class="{ 'icon-spinning': loading }" />
+				</template>
+			</NcButton>
+		</template>
 
-		<!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8 -->
-		<CnKpiGrid :columns="3">
+		<!-- KPI: Notulen ter goedkeuring -->
+		<template #widget-count-minutes-review>
 			<CnStatsBlock
 				:title="t('decidesk', 'Notulen ter goedkeuring')"
 				:count="minutesInReviewCount"
 				:count-label="t('decidesk', 'notulen')"
-				:icon="FileDocumentOutlineIcon"
+				:icon="FileDocumentOutline"
 				variant="warning"
-				horizontal />
+				horizontal
+				:route="{ name: 'Minutes' }" />
+		</template>
+
+		<!-- KPI: Gepubliceerde besluiten -->
+		<template #widget-count-decisions-published>
 			<CnStatsBlock
 				:title="t('decidesk', 'Gepubliceerde besluiten')"
 				:count="publishedDecisionCount"
 				:count-label="t('decidesk', 'besluiten')"
-				:icon="CheckDecagramIcon"
+				:icon="CheckDecagram"
 				variant="success"
-				horizontal />
+				horizontal
+				:route="{ name: 'Decisions' }" />
+		</template>
+
+		<!-- KPI: Open actiepunten -->
+		<template #widget-count-action-items-open>
 			<CnStatsBlock
 				:title="t('decidesk', 'Open actiepunten')"
 				:count="openActionItemCount"
 				:count-label="t('decidesk', 'actiepunten')"
-				:icon="CheckboxMarkedOutlineIcon"
+				:icon="CheckboxMarkedOutline"
 				variant="primary"
-				horizontal />
-		</CnKpiGrid>
+				horizontal
+				:route="{ name: 'ActionItems' }" />
+		</template>
 
-		<div class="decidesk-dashboard__columns">
+		<!-- Quick links: Notulen -->
+		<template #widget-quick-minutes>
 			<CnConfigurationCard :title="t('decidesk', 'Notulen')">
 				<p class="decidesk-dashboard__hint">
 					<a class="decidesk-link" @click="$router.push({ name: 'Minutes' })">
@@ -45,6 +87,10 @@ Copyright (C) 2026 Conduction B.V.
 					</a>
 				</p>
 			</CnConfigurationCard>
+		</template>
+
+		<!-- Quick links: Besluiten -->
+		<template #widget-quick-decisions>
 			<CnConfigurationCard :title="t('decidesk', 'Besluiten')">
 				<p class="decidesk-dashboard__hint">
 					<a class="decidesk-link" @click="$router.push({ name: 'Decisions' })">
@@ -52,90 +98,101 @@ Copyright (C) 2026 Conduction B.V.
 					</a>
 				</p>
 			</CnConfigurationCard>
-		</div>
-	</div>
+		</template>
+	</CnDashboardPage>
 </template>
 
 <script>
-import { CnConfigurationCard, CnKpiGrid, CnStatsBlock } from '@conduction/nextcloud-vue'
+import { NcButton } from '@nextcloud/vue'
+import { CnConfigurationCard, CnDashboardPage, CnStatsBlock } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import CheckDecagramIcon from 'vue-material-design-icons/CheckDecagram.vue'
-import CheckboxMarkedOutlineIcon from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
-import FileDocumentOutlineIcon from 'vue-material-design-icons/FileDocumentOutline.vue'
+import CheckDecagram from 'vue-material-design-icons/CheckDecagram.vue'
+import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
+import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
+import Refresh from 'vue-material-design-icons/Refresh.vue'
+
+const WIDGET_DEFS = [
+	{ id: 'count-minutes-review', title: '', type: 'custom' },
+	{ id: 'count-decisions-published', title: '', type: 'custom' },
+	{ id: 'count-action-items-open', title: '', type: 'custom' },
+	{ id: 'quick-minutes', title: '', type: 'custom' },
+	{ id: 'quick-decisions', title: '', type: 'custom' },
+]
+
+const DEFAULT_LAYOUT = [
+	{ id: 1, widgetId: 'count-minutes-review', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2, showTitle: false },
+	{ id: 2, widgetId: 'count-decisions-published', gridX: 4, gridY: 0, gridWidth: 4, gridHeight: 2, showTitle: false },
+	{ id: 3, widgetId: 'count-action-items-open', gridX: 8, gridY: 0, gridWidth: 4, gridHeight: 2, showTitle: false },
+	{ id: 4, widgetId: 'quick-minutes', gridX: 0, gridY: 2, gridWidth: 6, gridHeight: 3, showTitle: false },
+	{ id: 5, widgetId: 'quick-decisions', gridX: 6, gridY: 2, gridWidth: 6, gridHeight: 3, showTitle: false },
+]
 
 export default {
 	name: 'Dashboard',
 	components: {
+		NcButton,
 		CnConfigurationCard,
-		CnKpiGrid,
+		CnDashboardPage,
 		CnStatsBlock,
+		CheckDecagram,
+		CheckboxMarkedOutline,
+		FileDocumentOutline,
+		Plus,
+		Refresh,
 	},
 	data() {
 		return {
-			CheckDecagramIcon,
-			CheckboxMarkedOutlineIcon,
-			FileDocumentOutlineIcon,
+			CheckDecagram,
+			CheckboxMarkedOutline,
+			FileDocumentOutline,
+			widgetDefs: WIDGET_DEFS,
+			dashboardLayout: DEFAULT_LAYOUT,
 			minutesInReviewCount: 0,
 			publishedDecisionCount: 0,
 			openActionItemCount: 0,
+			loading: false,
 		}
 	},
+	computed: {
+		hasData() {
+			return this.minutesInReviewCount > 0
+				|| this.publishedDecisionCount > 0
+				|| this.openActionItemCount > 0
+		},
+	},
 	async created() {
-		// Fetch accurate KPI totals using _limit=1 + data.total so that counts are
-		// never silently truncated on large installations (fixes 200-object cap).
-		// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
-		const base = generateUrl('/apps/openregister/api/objects')
-		const headers = { requesttoken: OC.requestToken }
-		const [minutesRes, decisionsRes, openRes, inProgressRes] = await Promise.all([
-			fetch(`${base}?register=decidesk&schema=minutes&lifecycle=review&_limit=1`, { headers }),
-			fetch(`${base}?register=decidesk&schema=decision&isPublished=true&_limit=1`, { headers }),
-			fetch(`${base}?register=decidesk&schema=action-item&taskStatus=open&_limit=1`, { headers }),
-			fetch(`${base}?register=decidesk&schema=action-item&taskStatus=in-progress&_limit=1`, { headers }),
-		])
-		if (minutesRes.ok) this.minutesInReviewCount = ((await minutesRes.json()).total ?? 0)
-		if (decisionsRes.ok) this.publishedDecisionCount = ((await decisionsRes.json()).total ?? 0)
-		const openCount = openRes.ok ? ((await openRes.json()).total ?? 0) : 0
-		const inProgressCount = inProgressRes.ok ? ((await inProgressRes.json()).total ?? 0) : 0
-		this.openActionItemCount = openCount + inProgressCount
+		await this.loadCounts()
+	},
+	methods: {
+		async loadCounts() {
+			this.loading = true
+			// Fetch accurate KPI totals using _limit=1 + data.total so that counts are
+			// never silently truncated on large installations.
+			// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-8
+			const base = generateUrl('/apps/openregister/api/objects')
+			const headers = { requesttoken: OC.requestToken }
+			try {
+				const [minutesRes, decisionsRes, openRes, inProgressRes] = await Promise.all([
+					fetch(`${base}?register=decidesk&schema=minutes&lifecycle=review&_limit=1`, { headers }),
+					fetch(`${base}?register=decidesk&schema=decision&isPublished=true&_limit=1`, { headers }),
+					fetch(`${base}?register=decidesk&schema=action-item&taskStatus=open&_limit=1`, { headers }),
+					fetch(`${base}?register=decidesk&schema=action-item&taskStatus=in-progress&_limit=1`, { headers }),
+				])
+				if (minutesRes.ok) this.minutesInReviewCount = ((await minutesRes.json()).total ?? 0)
+				if (decisionsRes.ok) this.publishedDecisionCount = ((await decisionsRes.json()).total ?? 0)
+				const openCount = openRes.ok ? ((await openRes.json()).total ?? 0) : 0
+				const inProgressCount = inProgressRes.ok ? ((await inProgressRes.json()).total ?? 0) : 0
+				this.openActionItemCount = openCount + inProgressCount
+			} finally {
+				this.loading = false
+			}
+		},
 	},
 }
 </script>
 
 <style scoped>
-.decidesk-dashboard {
-	padding: 8px 4px 24px;
-	max-width: 1200px;
-}
-
-.decidesk-dashboard__header {
-	margin-bottom: 20px;
-}
-
-.decidesk-dashboard__header h2 {
-	margin: 0 0 8px;
-	font-size: 22px;
-	font-weight: 600;
-}
-
-.decidesk-dashboard__lead {
-	margin: 0;
-	color: var(--color-text-maxcontrast);
-	line-height: 1.5;
-}
-
-.decidesk-dashboard__columns {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 16px;
-	margin-top: 20px;
-}
-
-@media (max-width: 900px) {
-	.decidesk-dashboard__columns {
-		grid-template-columns: 1fr;
-	}
-}
-
 .decidesk-dashboard__hint {
 	margin: 0;
 	line-height: 1.5;
@@ -146,5 +203,14 @@ export default {
 	cursor: pointer;
 	color: var(--color-primary-element);
 	text-decoration: underline;
+}
+
+.icon-spinning {
+	animation: cn-spin 1s linear infinite;
+}
+
+@keyframes cn-spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
 }
 </style>

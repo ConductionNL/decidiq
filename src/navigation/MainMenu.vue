@@ -13,7 +13,7 @@ Copyright (C) 2026 Conduction B.V.
 				:to="{ name: 'Dashboard' }"
 				:exact="true">
 				<template #icon>
-					<HomeIcon :size="20" />
+					<ViewDashboard :size="20" />
 				</template>
 			</NcAppNavigationItem>
 
@@ -62,39 +62,42 @@ Copyright (C) 2026 Conduction B.V.
 			</NcAppNavigationItem>
 		</template>
 		<template #footer>
-			<NcAppNavigationItem
-				:name="t('decidesk', 'Settings')"
-				:to="{ name: 'Settings' }">
-				<template #icon>
-					<CogIcon :size="20" />
-				</template>
-			</NcAppNavigationItem>
+			<NcAppNavigationSettings>
+				<NcAppNavigationItem
+					:name="t('decidesk', 'Settings')"
+					:to="{ name: 'Settings' }">
+					<template #icon>
+						<Cog :size="20" />
+					</template>
+				</NcAppNavigationItem>
+			</NcAppNavigationSettings>
 		</template>
 	</NcAppNavigation>
 </template>
 
 <script>
-import { NcAppNavigation, NcAppNavigationItem } from '@nextcloud/vue'
+import { NcAppNavigation, NcAppNavigationItem, NcAppNavigationSettings } from '@nextcloud/vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
 import CheckDecagramIcon from 'vue-material-design-icons/CheckDecagram.vue'
-import CogIcon from 'vue-material-design-icons/Cog.vue'
+import Cog from 'vue-material-design-icons/Cog.vue'
 import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
 import GavelIcon from 'vue-material-design-icons/Gavel.vue'
-import HomeIcon from 'vue-material-design-icons/Home.vue'
+import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 
 export default {
 	name: 'MainMenu',
 	components: {
 		NcAppNavigation,
 		NcAppNavigationItem,
+		NcAppNavigationSettings,
 		BookOpenVariantOutline,
 		CheckboxMarkedOutline,
 		CheckDecagramIcon,
-		CogIcon,
+		Cog,
 		FileDocumentOutline,
 		GavelIcon,
-		HomeIcon,
+		ViewDashboard,
 	},
 	methods: {
 		openLink(url, target = '_blank') {
