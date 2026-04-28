@@ -78,33 +78,29 @@ Copyright (C) 2026 Conduction B.V.
 				:route="{ name: 'ActionItems' }" />
 		</template>
 
-		<!-- Quick links: Notulen -->
+		<!-- Quick links: Notulen — content-only, CnWidgetWrapper supplies the card chrome + title -->
 		<template #widget-quick-minutes>
-			<CnConfigurationCard :title="t('decidesk', 'Notulen')">
-				<p class="decidesk-dashboard__hint">
-					<a class="decidesk-link" @click="$router.push({ name: 'Minutes' })">
-						{{ t('decidesk', 'Bekijk alle notulen →') }}
-					</a>
-				</p>
-			</CnConfigurationCard>
+			<p class="decidesk-dashboard__hint">
+				<a class="decidesk-link" @click="$router.push({ name: 'Minutes' })">
+					{{ t('decidesk', 'Bekijk alle notulen →') }}
+				</a>
+			</p>
 		</template>
 
 		<!-- Quick links: Besluiten -->
 		<template #widget-quick-decisions>
-			<CnConfigurationCard :title="t('decidesk', 'Besluiten')">
-				<p class="decidesk-dashboard__hint">
-					<a class="decidesk-link" @click="$router.push({ name: 'Decisions' })">
-						{{ t('decidesk', 'Bekijk alle besluiten →') }}
-					</a>
-				</p>
-			</CnConfigurationCard>
+			<p class="decidesk-dashboard__hint">
+				<a class="decidesk-link" @click="$router.push({ name: 'Decisions' })">
+					{{ t('decidesk', 'Bekijk alle besluiten →') }}
+				</a>
+			</p>
 		</template>
 	</CnDashboardPage>
 </template>
 
 <script>
 import { NcButton } from '@nextcloud/vue'
-import { CnConfigurationCard, CnDashboardPage, CnStatsBlock } from '@conduction/nextcloud-vue'
+import { CnDashboardPage, CnStatsBlock } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import CheckDecagram from 'vue-material-design-icons/CheckDecagram.vue'
 import CheckboxMarkedOutline from 'vue-material-design-icons/CheckboxMarkedOutline.vue'
@@ -112,27 +108,33 @@ import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.v
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Refresh from 'vue-material-design-icons/Refresh.vue'
 
-const WIDGET_DEFS = [
-	{ id: 'count-minutes-review', title: '', type: 'custom' },
-	{ id: 'count-decisions-published', title: '', type: 'custom' },
-	{ id: 'count-action-items-open', title: '', type: 'custom' },
-	{ id: 'quick-minutes', title: '', type: 'custom' },
-	{ id: 'quick-decisions', title: '', type: 'custom' },
+// Widget metadata — `title` is what CnWidgetWrapper renders as the
+// header when `showTitle !== false` in the layout entry. KPI widgets
+// (showTitle: false) keep the title for accessibility / a11y but the
+// header bar is suppressed; quick-link widgets render the title bar.
+const WIDGET_DEFS = computed => [
+	{ id: 'count-minutes-review', title: computed('Notulen ter goedkeuring'), type: 'custom' },
+	{ id: 'count-decisions-published', title: computed('Gepubliceerde besluiten'), type: 'custom' },
+	{ id: 'count-action-items-open', title: computed('Open actiepunten'), type: 'custom' },
+	{ id: 'quick-minutes', title: computed('Notulen'), type: 'custom' },
+	{ id: 'quick-decisions', title: computed('Besluiten'), type: 'custom' },
 ]
 
 const DEFAULT_LAYOUT = [
+	// KPI row — borderless, header hidden (matches procest / pipelinq).
 	{ id: 1, widgetId: 'count-minutes-review', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2, showTitle: false },
 	{ id: 2, widgetId: 'count-decisions-published', gridX: 4, gridY: 0, gridWidth: 4, gridHeight: 2, showTitle: false },
 	{ id: 3, widgetId: 'count-action-items-open', gridX: 8, gridY: 0, gridWidth: 4, gridHeight: 2, showTitle: false },
-	{ id: 4, widgetId: 'quick-minutes', gridX: 0, gridY: 2, gridWidth: 6, gridHeight: 3, showTitle: false },
-	{ id: 5, widgetId: 'quick-decisions', gridX: 6, gridY: 2, gridWidth: 6, gridHeight: 3, showTitle: false },
+	// Quick-link row — show the title bar so each card has the same
+	// visible-header chrome procest's content widgets get.
+	{ id: 4, widgetId: 'quick-minutes', gridX: 0, gridY: 2, gridWidth: 6, gridHeight: 3 },
+	{ id: 5, widgetId: 'quick-decisions', gridX: 6, gridY: 2, gridWidth: 6, gridHeight: 3 },
 ]
 
 export default {
 	name: 'Dashboard',
 	components: {
 		NcButton,
-		CnConfigurationCard,
 		CnDashboardPage,
 		CnStatsBlock,
 		CheckDecagram,
@@ -146,7 +148,6 @@ export default {
 			CheckDecagram,
 			CheckboxMarkedOutline,
 			FileDocumentOutline,
-			widgetDefs: WIDGET_DEFS,
 			dashboardLayout: DEFAULT_LAYOUT,
 			minutesInReviewCount: 0,
 			publishedDecisionCount: 0,
@@ -155,6 +156,10 @@ export default {
 		}
 	},
 	computed: {
+		// Computed so titles re-resolve when the locale changes.
+		widgetDefs() {
+			return WIDGET_DEFS((key) => t('decidesk', key))
+		},
 		hasData() {
 			return this.minutesInReviewCount > 0
 				|| this.publishedDecisionCount > 0
