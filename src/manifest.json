@@ -3,13 +3,13 @@
 	"version": "0.3.0",
 	"dependencies": ["openregister"],
 	"menu": [
-		{ "id": "Dashboard", "label": "Dashboard", "icon": "icon-dashboard", "route": "Dashboard", "order": 10 },
+		{ "id": "Dashboard", "label": "Dashboard", "icon": "icon-category-dashboard", "route": "Dashboard", "order": 10 },
 		{ "id": "Minutes", "label": "Minutes", "icon": "icon-file", "route": "Minutes", "order": 20 },
 		{ "id": "Decisions", "label": "Decisions", "icon": "icon-checkmark", "route": "Decisions", "order": 30 },
 		{ "id": "ActionItems", "label": "Action items", "icon": "icon-checkmark", "route": "ActionItems", "order": 40 },
 		{ "id": "Motions", "label": "Motions", "icon": "icon-comment", "route": "Motions", "order": 50 },
 		{ "id": "Meetings", "label": "Meetings", "icon": "icon-group", "route": "Meetings", "order": 60 },
-		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "settings", "order": 90 },
+		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "order": 90 },
 		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 }
 	],
 	"pages": [
