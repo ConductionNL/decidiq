@@ -193,7 +193,7 @@ class SettingsService
             // decidesk code passed only `appId` + `force` named args,
             // which dropped `data` and `version` and produced "Import
             // returned an empty result." on every invocation.
-            $registerPath = realpath(__DIR__ . '/../Settings/decidesk_register.json');
+            $registerPath = realpath(__DIR__.'/../Settings/decidesk_register.json');
             if ($registerPath === false || file_exists($registerPath) === false) {
                 return [
                     'success' => false,
