@@ -186,15 +186,45 @@ class SettingsService
         }
 
         try {
+            // Load + parse the bundled register/schema definition. Path
+            // resolution relies on the file shipping at the canonical
+            // location. The OpenRegister importer signature is
+            // `importFromApp(appId, data, version, force)` — earlier
+            // decidesk code passed only `appId` + `force` named args,
+            // which dropped `data` and `version` and produced "Import
+            // returned an empty result." on every invocation.
+            $registerPath = realpath(__DIR__ . '/../Settings/decidesk_register.json');
+            if ($registerPath === false || file_exists($registerPath) === false) {
+                return [
+                    'success' => false,
+                    'message' => 'decidesk_register.json not found at expected path.',
+                ];
+            }
+
+            $json = json_decode(file_get_contents($registerPath), true);
+            if (is_array($json) === false) {
+                return [
+                    'success' => false,
+                    'message' => 'decidesk_register.json could not be parsed as JSON.',
+                ];
+            }
+
+            $version = ($json['info']['version'] ?? '0.0.0');
+
             $configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
-            $result = $configurationService->importFromApp(appId: Application::APP_ID, force: $force);
+            $result = $configurationService->importFromApp(
+                appId: Application::APP_ID,
+                data: $json,
+                version: $version,
+                force: $force,
+            );
 
             if (empty($result) === false) {
                 $this->logger->info('Decidesk: register configuration imported successfully');
                 return [
                     'success' => true,
                     'message' => 'Configuration imported successfully.',
-                    'version' => ($result['version'] ?? 'unknown'),
+                    'version' => $version,
                 ];
             }
 

@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "x-openregister": {
     "type": "application",
@@ -1822,6 +1822,35 @@
             "description": "When the report was generated"
           }
         }
+      }
+    },
+    "registers": {
+      "decidesk": {
+        "slug": "decidesk",
+        "title": "Decidesk",
+        "version": "0.1.0",
+        "description": "Decision-making register for Decidesk — governance bodies, meetings, agenda items, motions, votes, decisions, and action items.",
+        "schemas": [
+          "governance-body",
+          "meeting",
+          "participant",
+          "agenda-item",
+          "motion",
+          "amendment",
+          "voting-round",
+          "vote",
+          "decision",
+          "action-item",
+          "minutes",
+          "digital-document",
+          "monetary-amount",
+          "offer",
+          "order",
+          "product",
+          "report"
+        ],
+        "tablePrefix": "",
+        "folder": "Open Registers/Decidesk"
       }
     }
   }
