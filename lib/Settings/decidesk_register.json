@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.8.0"
+    "version": "0.9.0"
   },
   "x-openregister": {
     "type": "application",
@@ -1320,7 +1320,7 @@
       "ActionItem": {
         "slug": "action-item",
         "icon": "CheckboxMarkedOutline",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "title": "ActionItem",
         "description": "A follow-up task from a meeting decision",
         "type": "object",
@@ -1340,6 +1340,16 @@
                 "diffDays": [
                   { "prop": "completedAt" },
                   { "prop": "dueDate" }
+                ]
+              }
+            },
+            "daysOpen": {
+              "type": "integer",
+              "materialise": true,
+              "expression": {
+                "diffDays": [
+                  "$now",
+                  { "prop": "@self.created" }
                 ]
               }
             },
@@ -1430,6 +1440,10 @@
           "daysLate": {
             "type": "integer",
             "description": "Days between completion and due date (negative = on time) — materialised by x-openregister-calculations."
+          },
+          "daysOpen": {
+            "type": "integer",
+            "description": "Days the action item has been open ($now − @self.created) — materialised by x-openregister-calculations."
           },
           "isOverdue": {
             "type": "boolean",
