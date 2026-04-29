@@ -294,17 +294,10 @@ class Application extends App implements IBootstrap
                 }
                 );
 
-        // Register MeetingTransitionGuard under the DI tag the schema's
-        // x-openregister-lifecycle annotation references via `requires`.
-        $context->registerService(
-                'decidesk.meeting.transitionGuard',
-                static function ($c): MeetingTransitionGuard {
-                    return new MeetingTransitionGuard(
-                    workflowService: $c->get('OCA\Decidesk\Service\WorkflowService'),
-                    quorumService: $c->get('OCA\Decidesk\Service\QuorumService'),
-                    );
-                }
-                );
+        // MeetingTransitionGuard is autowired by Nextcloud's server
+        // container — its constructor takes WorkflowService + QuorumService,
+        // both autowireable. OpenRegister's LifecycleGuardRegistry resolves
+        // it by FQCN from the server container; no manual registration here.
 
     }//end register()
 
