@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.4.0"
+    "version": "0.5.0"
   },
   "x-openregister": {
     "type": "application",
@@ -1252,7 +1252,7 @@
       "ActionItem": {
         "slug": "action-item",
         "icon": "CheckboxMarkedOutline",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "title": "ActionItem",
         "description": "A follow-up task from a meeting decision",
         "type": "object",
@@ -1264,6 +1264,28 @@
           "mailEnabled": false
         },
         "configuration": {
+          "x-openregister-calculations": {
+            "daysLate": {
+              "type": "integer",
+              "materialise": true,
+              "expression": {
+                "diffDays": [
+                  { "prop": "completedAt" },
+                  { "prop": "dueDate" }
+                ]
+              }
+            },
+            "isOverdue": {
+              "type": "boolean",
+              "materialise": true,
+              "expression": {
+                "and": [
+                  { "ne": [{ "prop": "taskStatus" }, "completed"] },
+                  { "lt": [{ "prop": "dueDate" }, "$now"] }
+                ]
+              }
+            }
+          },
           "x-openregister-aggregations": {
             "totalCompleted": {
               "metric": "count",
@@ -1285,6 +1307,15 @@
               "filter": {
                 "taskStatus": { "in": ["open", "in-progress", "overdue"] }
               }
+            },
+            "totalOverdue": {
+              "metric": "count",
+              "filter": { "isOverdue": true }
+            },
+            "avgDaysLate": {
+              "metric": "avg",
+              "field": "daysLate",
+              "filter": { "taskStatus": "completed" }
             }
           }
         },
@@ -1327,6 +1358,14 @@
             "type": "string",
             "format": "date-time",
             "description": "Completion timestamp"
+          },
+          "daysLate": {
+            "type": "integer",
+            "description": "Days between completion and due date (negative = on time) — materialised by x-openregister-calculations."
+          },
+          "isOverdue": {
+            "type": "boolean",
+            "description": "True when not completed and dueDate has passed — materialised by x-openregister-calculations."
           }
         },
         "x-openregister-relations": {
