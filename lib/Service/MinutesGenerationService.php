@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -36,21 +35,6 @@ use Psr\Log\LoggerInterface;
  */
 class MinutesGenerationService
 {
-
-    /**
-     * Allowed lifecycle transitions: current state → next state.
-     *
-     * Only sequential single-step transitions are permitted to ensure
-     * proper workflow enforcement (OWASP A04 — Insecure Design).
-     *
-     * @var array<string,string>
-     */
-    private const LIFECYCLE_TRANSITIONS = [
-        'draft'    => 'review',
-        'review'   => 'approved',
-        'approved' => 'signed',
-        'signed'   => 'published',
-    ];
 
     /**
      * Constructor for MinutesGenerationService.
@@ -159,68 +143,6 @@ class MinutesGenerationService
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
-    public function transition(string $minutesId, string $newLifecycle, string $displayName): array
-    {
-        $objectService = $this->getObjectService();
-
-        // SetRegister/setSchema are called first so that OpenRegister's session-based
-        // ACL is applied — callers without access to this object get null (OWASP A01).
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('minutes');
-        $minutesEntity = $objectService->find($minutesId);
-
-        if ($minutesEntity === null) {
-            throw new MissingObjectException(
-                message: sprintf('Minutes object "%s" not found.', $minutesId)
-            );
-        }
-
-        $minutes = $minutesEntity->getObject();
-
-        $currentLifecycle = $minutes['lifecycle'] ?? 'draft';
-
-        if ((self::LIFECYCLE_TRANSITIONS[$currentLifecycle] ?? null) !== $newLifecycle) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Invalid lifecycle transition: "%s" → "%s". Expected next state: "%s".',
-                    $currentLifecycle,
-                    $newLifecycle,
-                    self::LIFECYCLE_TRANSITIONS[$currentLifecycle] ?? 'none'
-                ),
-                422
-            );
-        }
-
-        $updated = array_merge($minutes, ['lifecycle' => $newLifecycle]);
-
-        if ($newLifecycle === 'approved') {
-            $updated['approvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
-        }
-
-        if (in_array($newLifecycle, ['approved', 'signed'], true) === true) {
-            if (is_array($minutes['signedBy'] ?? null) === true) {
-                $signers = $minutes['signedBy'];
-            } else {
-                $signers = [];
-            }
-
-            if (in_array($displayName, $signers, true) === false) {
-                $signers[] = $displayName;
-            }
-
-            $updated['signedBy'] = $signers;
-        }
-
-        $saved = $objectService->saveObject($updated, 'decidesk', 'minutes', $minutesId);
-
-        if ($saved instanceof \stdClass === true || is_array($saved) === true) {
-            return (array) $saved;
-        }
-
-        return $updated;
-
-    }//end transition()
-
     /**
      * Resolve the linked Meeting from the Minutes object.
      *

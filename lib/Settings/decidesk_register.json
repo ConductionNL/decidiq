@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.6.0"
+    "version": "0.7.0"
   },
   "x-openregister": {
     "type": "application",
@@ -621,7 +621,7 @@
       "Motion": {
         "slug": "motion",
         "icon": "TextBoxOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Motion",
         "description": "A formal proposal submitted for debate and voting",
         "type": "object",
@@ -631,6 +631,40 @@
           "hardDelete": false,
           "searchable": true,
           "mailEnabled": false
+        },
+        "configuration": {
+          "x-openregister-lifecycle": {
+            "field": "lifecycle",
+            "initial": "submitted",
+            "final": ["adopted", "rejected", "withdrawn"],
+            "transitions": {
+              "debate": {
+                "from": ["submitted"],
+                "to": "debating",
+                "description": "Move a submitted motion onto the debate floor."
+              },
+              "vote": {
+                "from": ["debating"],
+                "to": "voting",
+                "description": "Open voting on a motion that's been debated."
+              },
+              "adopt": {
+                "from": ["voting"],
+                "to": "adopted",
+                "description": "Mark the motion as adopted following a successful vote."
+              },
+              "reject": {
+                "from": ["voting"],
+                "to": "rejected",
+                "description": "Mark the motion as rejected following an unsuccessful vote."
+              },
+              "withdraw": {
+                "from": ["submitted", "debating", "voting"],
+                "to": "withdrawn",
+                "description": "Withdraw a motion before it reaches a final state."
+              }
+            }
+          }
         },
         "required": [
           "title",
@@ -752,7 +786,7 @@
       "Amendment": {
         "slug": "amendment",
         "icon": "FileDocumentEditOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Amendment",
         "description": "A proposed change to an existing motion",
         "type": "object",
@@ -762,6 +796,19 @@
           "hardDelete": false,
           "searchable": true,
           "mailEnabled": false
+        },
+        "configuration": {
+          "x-openregister-lifecycle": {
+            "field": "lifecycle",
+            "initial": "submitted",
+            "final": ["adopted", "rejected"],
+            "transitions": {
+              "debate":  { "from": ["submitted"], "to": "debating",  "description": "Move the amendment onto the debate floor." },
+              "vote":    { "from": ["debating"],  "to": "voting",    "description": "Open voting on the amendment." },
+              "adopt":   { "from": ["voting"],    "to": "adopted",   "description": "Mark the amendment as adopted." },
+              "reject":  { "from": ["voting"],    "to": "rejected",  "description": "Mark the amendment as rejected." }
+            }
+          }
         },
         "required": [
           "title",
@@ -1497,7 +1544,7 @@
       "Minutes": {
         "slug": "minutes",
         "icon": "NotebookOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Minutes",
         "description": "Official record of a meeting's proceedings",
         "type": "object",
@@ -1507,6 +1554,19 @@
           "hardDelete": false,
           "searchable": true,
           "mailEnabled": false
+        },
+        "configuration": {
+          "x-openregister-lifecycle": {
+            "field": "lifecycle",
+            "initial": "draft",
+            "final": ["published"],
+            "transitions": {
+              "submit":   { "from": ["draft"],    "to": "review",    "description": "Submit the draft minutes for review." },
+              "approve":  { "from": ["review"],   "to": "approved",  "description": "Approve the reviewed minutes." },
+              "sign":     { "from": ["approved"], "to": "signed",    "description": "Digitally sign the approved minutes (chair + secretary)." },
+              "publish":  { "from": ["signed"],   "to": "published", "description": "Publish the signed minutes." }
+            }
+          }
         },
         "required": [
           "title",

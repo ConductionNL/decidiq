@@ -37,35 +37,6 @@ class MotionService
 {
 
     /**
-     * Allowed lifecycle transitions for Motion objects.
-     *
-     * Maps each state to the list of valid target states.
-     *
-     * @var array<string, array<string>>
-     */
-    private const MOTION_TRANSITIONS = [
-        'submitted' => ['debating', 'withdrawn'],
-        'debating'  => ['voting', 'withdrawn'],
-        'voting'    => ['adopted', 'rejected', 'withdrawn'],
-        'adopted'   => [],
-        'rejected'  => [],
-        'withdrawn' => [],
-    ];
-
-    /**
-     * Allowed lifecycle transitions for Amendment objects.
-     *
-     * @var array<string, array<string>>
-     */
-    private const AMENDMENT_TRANSITIONS = [
-        'submitted' => ['debating'],
-        'debating'  => ['voting'],
-        'voting'    => ['adopted', 'rejected'],
-        'adopted'   => [],
-        'rejected'  => [],
-    ];
-
-    /**
      * Construct the MotionService.
      *
      * @param ContainerInterface $container   The DI container for lazy-loading OR services
@@ -93,65 +64,6 @@ class MotionService
         return $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
     }//end getObjectService()
-
-    /**
-     * Transition a Motion or Amendment to a new lifecycle state.
-     *
-     * Validates that the transition is allowed for the object type, then
-     * updates the `lifecycle` and `status` fields via ObjectService and logs
-     * the event to ActivityService (via OpenRegister automatic audit trail).
-     *
-     * @param string $objectId   UUID of the Motion or Amendment object
-     * @param string $objectType Schema slug: 'motion' or 'amendment'
-     * @param string $newState   Target lifecycle state
-     * @param string $actorId    Nextcloud user ID performing the transition
-     *
-     * @throws \InvalidArgumentException When the transition is not allowed
-     * @throws \RuntimeException         When the object cannot be found or saved
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
-     *
-     * @return void
-     */
-    public function transitionLifecycle(string $objectId, string $objectType, string $newState, string $actorId): void
-    {
-        $objectService = $this->getObjectService();
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema($objectType);
-
-        $object = $objectService->find($objectId);
-        if ($object === null) {
-            throw new \RuntimeException("Object $objectType/$objectId not found");
-        }
-
-        $objectArray  = $object->getObject();
-        $currentState = $objectArray['lifecycle'] ?? 'submitted';
-
-        if ($objectType === 'amendment') {
-            $transitions = self::AMENDMENT_TRANSITIONS;
-        } else {
-            $transitions = self::MOTION_TRANSITIONS;
-        }
-
-        $allowed = $transitions[$currentState] ?? [];
-        if (in_array($newState, $allowed, true) === false) {
-            throw new \InvalidArgumentException(
-                "Transition from '$currentState' to '$newState' is not allowed for $objectType"
-            );
-        }
-
-        $objectService->saveObject(
-            object: array_merge($objectArray, ['lifecycle' => $newState, 'status' => $newState]),
-            register: 'decidesk',
-            schema: $objectType,
-            uuid: $objectId,
-        );
-
-        $this->logger->info(
-            "Decidesk: $objectType $objectId transitioned from $currentState to $newState by $actorId"
-        );
-
-    }//end transitionLifecycle()
 
     /**
      * Send co-signature request notifications to listed Participants.

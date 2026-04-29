@@ -45,10 +45,9 @@ class VotingService
     /**
      * Constructor for VotingService.
      *
-     * @param ContainerInterface    $container             The DI container
+     * @param ContainerInterface    $container             The DI container (used to resolve OR's TransitionEngine)
      * @param LoggerInterface       $logger                The logger
      * @param OriPublicationService $oriPublicationService The ORI publication service
-     * @param MotionService         $motionService         The motion service for lifecycle transitions
      *
      * @return void
      *
@@ -58,7 +57,6 @@ class VotingService
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly OriPublicationService $oriPublicationService,
-        private readonly MotionService $motionService,
     ) {
     }//end __construct()
 
@@ -280,12 +278,8 @@ class VotingService
 
         // Transition motion lifecycle to 'voting' via the guarded state machine.
         try {
-            $this->motionService->transitionLifecycle(
-                objectId: $motionId,
-                objectType: 'motion',
-                newState: 'voting',
-                actorId: 'system',
-            );
+            $this->container->get(\OCA\OpenRegister\Service\Lifecycle\TransitionEngine::class)
+                ->transition(objectId: $motionId, action: 'vote');
         } catch (\InvalidArgumentException $e) {
             throw new \RuntimeException('Cannot open voting round: '.$e->getMessage(), 0, $e);
         } catch (\Throwable $e) {
@@ -492,23 +486,19 @@ class VotingService
                     $motionId = ($rel['id'] ?? null);
                     if ($motionId !== null) {
                         try {
-                            // Only transition to defined terminal states via the guarded state machine.
-                            $motionLifecycle = match ($result) {
-                                'adopted'  => 'adopted',
-                                'rejected' => 'rejected',
+                            // Only transition to defined terminal states via the schema's lifecycle annotation.
+                            $action = match ($result) {
+                                'adopted'  => 'adopt',
+                                'rejected' => 'reject',
                                 default    => null,
                             };
 
-                            if ($motionLifecycle !== null) {
-                                $this->motionService->transitionLifecycle(
-                                    objectId: $motionId,
-                                    objectType: 'motion',
-                                    newState: $motionLifecycle,
-                                    actorId: 'system',
-                                );
+                            if ($action !== null) {
+                                $this->container->get(\OCA\OpenRegister\Service\Lifecycle\TransitionEngine::class)
+                                    ->transition(objectId: $motionId, action: $action);
 
                                 // Create dossier folder if adopted.
-                                if ($motionLifecycle === 'adopted') {
+                                if ($action === 'adopt') {
                                     $motion      = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
                                     $motionTitle = (string) ($motion['title'] ?? $motionId);
                                     $this->createDossierFolder(motionId: $motionId, motionTitle: $motionTitle);
