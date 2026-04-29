@@ -75,84 +75,35 @@ class ActionItemAnalyticsService
      */
     public function getSummary(string $dateFrom, string $dateTo): array
     {
-        try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
-            $today         = new DateTime();
-            $dateFromDt    = new DateTime($dateFrom);
-            $dateToDt      = new DateTime($dateTo);
-
-            // Query all ActionItems.
-            $params   = [
-                '_limit'  => 999,
-                '_offset' => 0,
-            ];
-            $allItems = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'ActionItem',
-                params: $params
-            );
-
-            $totalOpen          = 0;
-            $totalOverdue       = 0;
-            $completedThisMonth = 0;
-            $daysToClosed       = [];
-
-            foreach ($allItems as $item) {
-                $status = $item['taskStatus'] ?? 'open';
-
-                // Count open items.
-                if ($status !== 'completed') {
-                    $totalOpen++;
-
-                    // Count overdue.
-                    if (empty($item['dueDate']) === false) {
-                        $dueDate = new DateTime($item['dueDate']);
-                        if ($dueDate < $today) {
-                            $totalOverdue++;
-                        }
-                    }
-                }
-
-                // Count completed this month.
-                if ($status === 'completed' && empty($item['completedAt']) === false) {
-                    $completedAt  = new DateTime($item['completedAt']);
-                    $currentMonth = new DateTime('first day of this month');
-                    if ($completedAt >= $currentMonth) {
-                        $completedThisMonth++;
-                    }
-
-                    // Calculate days to close.
-                    if (empty($item['createdAt']) === false) {
-                        $createdAt      = new DateTime($item['createdAt']);
-                        $days           = (int) $completedAt->diff($createdAt)->format('%a');
-                        $daysToClosed[] = $days;
-                    }
-                }
-            }//end foreach
-
-            if (count($daysToClosed) > 0) {
-                $avgDaysToClose = array_sum($daysToClosed) / count($daysToClosed);
-            } else {
-                $avgDaysToClose = 0.0;
-            }
-
-            return [
-                'totalOpen'          => $totalOpen,
-                'totalOverdue'       => $totalOverdue,
-                'completedThisMonth' => $completedThisMonth,
-                'avgDaysToClose'     => round($avgDaysToClose, 1),
-            ];
-        } catch (\Exception $e) {
-            $this->logger->error('ActionItemAnalyticsService::getSummary failed: '.$e->getMessage());
-
-            return [
-                'totalOpen'          => 0,
-                'totalOverdue'       => 0,
-                'completedThisMonth' => 0,
-                'avgDaysToClose'     => 0.0,
-            ];
-        }//end try
+        // The four metrics are now declared on the ActionItem schema's
+        // x-openregister-aggregations block. Each call hits OR's
+        // AggregationRunner directly — no PHP-side iteration over every
+        // ActionItem in this service.
+        return [
+            'totalOpen'          => $this->aggregate('totalOpen'),
+            'totalOverdue'       => $this->aggregate('totalOverdue'),
+            'completedThisMonth' => $this->aggregate('completedThisMonth'),
+            'avgDaysToClose'     => round((float) $this->aggregate('avgDaysToClose'), 1),
+        ];
     }//end getSummary()
+
+    /**
+     * Run a named aggregation declared on the ActionItem schema and
+     * return its scalar value. Returns 0 on failure.
+     */
+    private function aggregate(string $name): float|int
+    {
+        try {
+            $runner = $this->container->get('OCA\\OpenRegister\\Service\\Aggregation\\AggregationRunner');
+            $result = $runner->run(registerRef: 'decidesk', schemaRef: 'action-item', name: $name);
+            return $result['value'] ?? 0;
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'ActionItemAnalyticsService aggregation failed: '.$name.' — '.$e->getMessage()
+            );
+            return 0;
+        }
+    }//end aggregate()
 
     /**
      * Get per-meeting completion rates for the last N meetings.
