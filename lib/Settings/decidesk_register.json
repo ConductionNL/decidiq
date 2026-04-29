@@ -200,9 +200,38 @@
                 }
               ],
               "channels": [
+                "nc-notification",
+                "webhook"
+              ],
+              "webhook": {
+                "persistent": true,
+                "url": "https://example.com/decidesk/hooks/meeting-closed",
+                "events": [
+                  "ObjectTransitionedEvent"
+                ]
+              },
+              "subject": "Meeting \"{{title}}\" has been closed"
+            },
+            "meetingReminderDaily": {
+              "trigger": {
+                "type": "scheduled",
+                "intervalSec": 86400,
+                "filter": {
+                  "lifecycle": "scheduled"
+                }
+              },
+              "recipients": [
+                {
+                  "kind": "users",
+                  "users": [
+                    "admin"
+                  ]
+                }
+              ],
+              "channels": [
                 "nc-notification"
               ],
-              "subject": "Meeting \"{{title}}\" has been closed"
+              "subject": "Reminder: \"{{title}}\" is on the agenda"
             }
           },
           "x-openregister-lifecycle": {
@@ -1564,6 +1593,28 @@
               "filter": {
                 "taskStatus": "completed"
               }
+            }
+          },
+          "x-openregister-notifications": {
+            "tooManyOverdue": {
+              "trigger": {
+                "type": "threshold",
+                "aggregation": "totalOverdue",
+                "op": "gt",
+                "value": 10
+              },
+              "recipients": [
+                {
+                  "kind": "groups",
+                  "groups": [
+                    "admin"
+                  ]
+                }
+              ],
+              "channels": [
+                "nc-notification"
+              ],
+              "subject": "Action items overdue: {{value}} (over threshold {{threshold}})"
             }
           }
         },
