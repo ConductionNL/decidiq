@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.5.0"
+    "version": "0.6.0"
   },
   "x-openregister": {
     "type": "application",
@@ -148,7 +148,7 @@
       "Meeting": {
         "slug": "meeting",
         "icon": "CalendarClock",
-        "version": "0.2.2",
+        "version": "0.3.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -160,6 +160,20 @@
           "mailEnabled": false
         },
         "configuration": {
+          "x-openregister-notifications": {
+            "meetingOpened": {
+              "trigger": { "type": "transition", "action": "open" },
+              "recipients": [{ "kind": "users", "users": ["admin"] }],
+              "channels": ["nc-notification"],
+              "subject": "Meeting \"{{title}}\" is now open"
+            },
+            "meetingClosed": {
+              "trigger": { "type": "transition", "action": "close" },
+              "recipients": [{ "kind": "users", "users": ["admin"] }],
+              "channels": ["nc-notification"],
+              "subject": "Meeting \"{{title}}\" has been closed"
+            }
+          },
           "x-openregister-lifecycle": {
             "field": "lifecycle",
             "initial": "draft",
