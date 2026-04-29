@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.9.0"
+    "version": "0.10.0"
   },
   "x-openregister": {
     "type": "application",
@@ -169,54 +169,97 @@
           },
           "x-openregister-notifications": {
             "meetingOpened": {
-              "trigger": { "type": "transition", "action": "open" },
-              "recipients": [{ "kind": "users", "users": ["admin"] }],
-              "channels": ["nc-notification"],
+              "trigger": {
+                "type": "transition",
+                "action": "open"
+              },
+              "recipients": [
+                {
+                  "kind": "users",
+                  "users": [
+                    "admin"
+                  ]
+                }
+              ],
+              "channels": [
+                "nc-notification"
+              ],
               "subject": "Meeting \"{{title}}\" is now open"
             },
             "meetingClosed": {
-              "trigger": { "type": "transition", "action": "close" },
-              "recipients": [{ "kind": "users", "users": ["admin"] }],
-              "channels": ["nc-notification"],
+              "trigger": {
+                "type": "transition",
+                "action": "close"
+              },
+              "recipients": [
+                {
+                  "kind": "users",
+                  "users": [
+                    "admin"
+                  ]
+                }
+              ],
+              "channels": [
+                "nc-notification"
+              ],
               "subject": "Meeting \"{{title}}\" has been closed"
             }
           },
           "x-openregister-lifecycle": {
             "field": "lifecycle",
             "initial": "draft",
-            "final": ["closed"],
+            "final": [
+              "closed"
+            ],
             "transitions": {
               "schedule": {
-                "from": ["draft"],
+                "from": [
+                  "draft"
+                ],
                 "to": "scheduled",
                 "description": "Publish a draft meeting onto the agenda."
               },
               "open": {
-                "from": ["scheduled", "adjourned"],
+                "from": [
+                  "scheduled",
+                  "adjourned"
+                ],
                 "to": "opened",
                 "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Open the meeting for proceedings (chair-only when domain requires; quorum-checked)."
               },
               "pause": {
-                "from": ["opened"],
+                "from": [
+                  "opened"
+                ],
                 "to": "paused",
                 "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Temporarily pause an opened meeting."
               },
               "resume": {
-                "from": ["paused"],
+                "from": [
+                  "paused"
+                ],
                 "to": "opened",
                 "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Resume a paused meeting."
               },
               "adjourn": {
-                "from": ["opened", "paused"],
+                "from": [
+                  "opened",
+                  "paused"
+                ],
                 "to": "adjourned",
                 "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Adjourn an open meeting (chair-only when domain requires)."
               },
               "close": {
-                "from": ["scheduled", "opened", "paused", "adjourned"],
+                "from": [
+                  "scheduled",
+                  "opened",
+                  "paused",
+                  "adjourned"
+                ],
                 "to": "closed",
                 "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Close the meeting permanently."
@@ -643,30 +686,46 @@
           "x-openregister-lifecycle": {
             "field": "lifecycle",
             "initial": "submitted",
-            "final": ["adopted", "rejected", "withdrawn"],
+            "final": [
+              "adopted",
+              "rejected",
+              "withdrawn"
+            ],
             "transitions": {
               "debate": {
-                "from": ["submitted"],
+                "from": [
+                  "submitted"
+                ],
                 "to": "debating",
                 "description": "Move a submitted motion onto the debate floor."
               },
               "vote": {
-                "from": ["debating"],
+                "from": [
+                  "debating"
+                ],
                 "to": "voting",
                 "description": "Open voting on a motion that's been debated."
               },
               "adopt": {
-                "from": ["voting"],
+                "from": [
+                  "voting"
+                ],
                 "to": "adopted",
                 "description": "Mark the motion as adopted following a successful vote."
               },
               "reject": {
-                "from": ["voting"],
+                "from": [
+                  "voting"
+                ],
                 "to": "rejected",
                 "description": "Mark the motion as rejected following an unsuccessful vote."
               },
               "withdraw": {
-                "from": ["submitted", "debating", "voting"],
+                "from": [
+                  "submitted",
+                  "debating",
+                  "voting"
+                ],
                 "to": "withdrawn",
                 "description": "Withdraw a motion before it reaches a final state."
               }
@@ -808,12 +867,39 @@
           "x-openregister-lifecycle": {
             "field": "lifecycle",
             "initial": "submitted",
-            "final": ["adopted", "rejected"],
+            "final": [
+              "adopted",
+              "rejected"
+            ],
             "transitions": {
-              "debate":  { "from": ["submitted"], "to": "debating",  "description": "Move the amendment onto the debate floor." },
-              "vote":    { "from": ["debating"],  "to": "voting",    "description": "Open voting on the amendment." },
-              "adopt":   { "from": ["voting"],    "to": "adopted",   "description": "Mark the amendment as adopted." },
-              "reject":  { "from": ["voting"],    "to": "rejected",  "description": "Mark the amendment as rejected." }
+              "debate": {
+                "from": [
+                  "submitted"
+                ],
+                "to": "debating",
+                "description": "Move the amendment onto the debate floor."
+              },
+              "vote": {
+                "from": [
+                  "debating"
+                ],
+                "to": "voting",
+                "description": "Open voting on the amendment."
+              },
+              "adopt": {
+                "from": [
+                  "voting"
+                ],
+                "to": "adopted",
+                "description": "Mark the amendment as adopted."
+              },
+              "reject": {
+                "from": [
+                  "voting"
+                ],
+                "to": "rejected",
+                "description": "Mark the amendment as rejected."
+              }
             }
           }
         },
@@ -1320,7 +1406,7 @@
       "ActionItem": {
         "slug": "action-item",
         "icon": "CheckboxMarkedOutline",
-        "version": "0.4.0",
+        "version": "0.5.0",
         "title": "ActionItem",
         "description": "A follow-up task from a meeting decision",
         "type": "object",
@@ -1338,8 +1424,12 @@
               "materialise": true,
               "expression": {
                 "diffDays": [
-                  { "prop": "completedAt" },
-                  { "prop": "dueDate" }
+                  {
+                    "prop": "completedAt"
+                  },
+                  {
+                    "prop": "dueDate"
+                  }
                 ]
               }
             },
@@ -1349,7 +1439,9 @@
               "expression": {
                 "diffDays": [
                   "$now",
-                  { "prop": "@self.created" }
+                  {
+                    "prop": "@self.created"
+                  }
                 ]
               }
             },
@@ -1358,8 +1450,49 @@
               "materialise": true,
               "expression": {
                 "and": [
-                  { "ne": [{ "prop": "taskStatus" }, "completed"] },
-                  { "lt": [{ "prop": "dueDate" }, "$now"] }
+                  {
+                    "ne": [
+                      {
+                        "prop": "taskStatus"
+                      },
+                      "completed"
+                    ]
+                  },
+                  {
+                    "lt": [
+                      {
+                        "prop": "dueDate"
+                      },
+                      "$now"
+                    ]
+                  }
+                ]
+              }
+            },
+            "statusBadge": {
+              "type": "string",
+              "materialise": false,
+              "expression": {
+                "concat": [
+                  {
+                    "prop": "taskStatus"
+                  },
+                  " (",
+                  {
+                    "if": [
+                      {
+                        "eq": [
+                          {
+                            "prop": "isOverdue"
+                          },
+                          true
+                        ]
+                      },
+                      "overdue",
+                      "on track"
+                    ]
+                  },
+                  ")"
                 ]
               }
             }
@@ -1367,33 +1500,49 @@
           "x-openregister-aggregations": {
             "totalCompleted": {
               "metric": "count",
-              "filter": { "taskStatus": "completed" }
+              "filter": {
+                "taskStatus": "completed"
+              }
             },
             "byStatus": {
               "metric": "count",
-              "groupBy": { "field": "taskStatus" }
+              "groupBy": {
+                "field": "taskStatus"
+              }
             },
             "completedThisMonth": {
               "metric": "count",
               "filter": {
                 "taskStatus": "completed",
-                "completedAt": { "gte": "$startOfMonth" }
+                "completedAt": {
+                  "gte": "$startOfMonth"
+                }
               }
             },
             "totalOpen": {
               "metric": "count",
               "filter": {
-                "taskStatus": { "in": ["open", "in-progress", "overdue"] }
+                "taskStatus": {
+                  "in": [
+                    "open",
+                    "in-progress",
+                    "overdue"
+                  ]
+                }
               }
             },
             "totalOverdue": {
               "metric": "count",
-              "filter": { "isOverdue": true }
+              "filter": {
+                "isOverdue": true
+              }
             },
             "avgDaysLate": {
               "metric": "avg",
               "field": "daysLate",
-              "filter": { "taskStatus": "completed" }
+              "filter": {
+                "taskStatus": "completed"
+              }
             }
           }
         },
@@ -1580,12 +1729,38 @@
           "x-openregister-lifecycle": {
             "field": "lifecycle",
             "initial": "draft",
-            "final": ["published"],
+            "final": [
+              "published"
+            ],
             "transitions": {
-              "submit":   { "from": ["draft"],    "to": "review",    "description": "Submit the draft minutes for review." },
-              "approve":  { "from": ["review"],   "to": "approved",  "description": "Approve the reviewed minutes." },
-              "sign":     { "from": ["approved"], "to": "signed",    "description": "Digitally sign the approved minutes (chair + secretary)." },
-              "publish":  { "from": ["signed"],   "to": "published", "description": "Publish the signed minutes." }
+              "submit": {
+                "from": [
+                  "draft"
+                ],
+                "to": "review",
+                "description": "Submit the draft minutes for review."
+              },
+              "approve": {
+                "from": [
+                  "review"
+                ],
+                "to": "approved",
+                "description": "Approve the reviewed minutes."
+              },
+              "sign": {
+                "from": [
+                  "approved"
+                ],
+                "to": "signed",
+                "description": "Digitally sign the approved minutes (chair + secretary)."
+              },
+              "publish": {
+                "from": [
+                  "signed"
+                ],
+                "to": "published",
+                "description": "Publish the signed minutes."
+              }
             }
           }
         },
