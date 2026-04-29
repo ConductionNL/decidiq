@@ -88,7 +88,7 @@ class MinutesGenerationService
 
         // Fetch the Minutes object.
         // setRegister/setSchema are called first so that OpenRegister's session-based
-        // ACL is applied — any caller without read access gets null (same as MeetingService).
+        // ACL is applied — any caller without read access gets null.
         $objectService->setRegister('decidesk');
         $objectService->setSchema('minutes');
         $minutesEntity = $objectService->find($minutesId);

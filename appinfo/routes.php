@@ -44,13 +44,10 @@ return [
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
 
         // Meeting CRUD goes through the generic openregister endpoint
-        // (`/apps/openregister/api/objects?register=decidesk&schema=meeting`)
-        // — there's no decidesk-specific CRUD wrapper. Only domain
-        // actions live here.
-
-        // Meeting lifecycle transitions.
-        ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
-
+        // (`/apps/openregister/api/objects?register=decidesk&schema=meeting`).
+        // Lifecycle transitions go through OpenRegister's
+        // `POST /api/objects/{id}/transition` (declared via the
+        // `x-openregister-lifecycle` annotation on the Meeting schema).
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],

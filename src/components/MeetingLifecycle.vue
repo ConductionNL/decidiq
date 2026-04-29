@@ -1,9 +1,6 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
-<!--
- @spec openspec/changes/p2-meeting-management/tasks.md#task-4.1
--->
 <template>
 	<div class="meeting-lifecycle">
 		<div class="meeting-lifecycle__state">
@@ -14,11 +11,11 @@
 		<div v-if="availableActions.length > 0" class="meeting-lifecycle__actions">
 			<NcButton
 				v-for="action in availableActions"
-				:key="action.name"
-				:type="action.type"
+				:key="action.action"
+				:type="actionButtonType(action.action)"
 				:disabled="loading"
-				@click="applyTransition(action.name)">
-				{{ action.label }}
+				@click="applyTransition(action.action)">
+				{{ actionLabel(action.action) }}
 			</NcButton>
 		</div>
 
@@ -36,18 +33,11 @@ import { generateUrl } from '@nextcloud/router'
 // imported directly from @nextcloud/vue until the wrapper layer adds them.
 import { NcButton, NcBadge } from '@nextcloud/vue'
 
-/**
- * Meeting lifecycle component — renders valid transition buttons for the current state.
- *
- * @spec openspec/changes/p2-meeting-management/tasks.md#task-4.1
- */
 export default {
 	name: 'MeetingLifecycle',
 	components: { NcButton, NcBadge },
 	props: {
-		/**
-		 * The meeting object (must contain `id` and `lifecycle` fields).
-		 */
+		/** Meeting object — must contain `id` (or `@self.id`) and `lifecycle`. */
 		meeting: {
 			type: Object,
 			required: true,
@@ -57,9 +47,13 @@ export default {
 	data() {
 		return {
 			loading: false,
+			availableActions: [],
 		}
 	},
 	computed: {
+		meetingId() {
+			return this.meeting['@self']?.id ?? this.meeting.id
+		},
 		currentLifecycle() {
 			return this.meeting?.lifecycle ?? 'draft'
 		},
@@ -85,52 +79,55 @@ export default {
 			}
 			return types[this.currentLifecycle] ?? 'default'
 		},
-		availableActions() {
-			// WARNING: This transition map is a client-side mirror of MeetingService::TRANSITIONS
-			// on the backend (lib/Service/MeetingService.php). If a state or action is added or
-			// removed on the backend, this map MUST be updated in the same PR to stay in sync.
-			// Divergence will cause buttons to appear/disappear incorrectly without any error.
-			const transitions = {
-				draft: [
-					{ name: 'schedule', label: this.t('decidesk', 'Schedule'), type: 'primary' },
-				],
-				scheduled: [
-					{ name: 'open', label: this.t('decidesk', 'Open Meeting'), type: 'primary' },
-					{ name: 'close', label: this.t('decidesk', 'Cancel'), type: 'error' },
-				],
-				opened: [
-					{ name: 'pause', label: this.t('decidesk', 'Pause'), type: 'secondary' },
-					{ name: 'adjourn', label: this.t('decidesk', 'Adjourn'), type: 'secondary' },
-					{ name: 'close', label: this.t('decidesk', 'Close Meeting'), type: 'error' },
-				],
-				paused: [
-					{ name: 'resume', label: this.t('decidesk', 'Resume'), type: 'primary' },
-					{ name: 'adjourn', label: this.t('decidesk', 'Adjourn'), type: 'secondary' },
-					{ name: 'close', label: this.t('decidesk', 'Close Meeting'), type: 'error' },
-				],
-				adjourned: [
-					{ name: 'open', label: this.t('decidesk', 'Re-open'), type: 'primary' },
-					{ name: 'close', label: this.t('decidesk', 'Close Meeting'), type: 'error' },
-				],
-				closed: [],
-			}
-			return transitions[this.currentLifecycle] ?? []
+	},
+	watch: {
+		meetingId: {
+			immediate: true,
+			handler(id) {
+				if (id) this.loadAvailableActions()
+			},
+		},
+		'meeting.lifecycle'() {
+			this.loadAvailableActions()
 		},
 	},
 	methods: {
+		actionLabel(action) {
+			const labels = {
+				schedule: this.t('decidesk', 'Schedule'),
+				open: this.t('decidesk', 'Open Meeting'),
+				pause: this.t('decidesk', 'Pause'),
+				resume: this.t('decidesk', 'Resume'),
+				adjourn: this.t('decidesk', 'Adjourn'),
+				close: this.t('decidesk', 'Close Meeting'),
+			}
+			return labels[action] ?? action
+		},
+		actionButtonType(action) {
+			if (action === 'close') return 'error'
+			if (action === 'pause' || action === 'adjourn') return 'secondary'
+			return 'primary'
+		},
+		async loadAvailableActions() {
+			if (!this.meetingId) return
+			try {
+				const url = generateUrl(`/apps/openregister/api/objects/${this.meetingId}/available-actions`)
+				const { data } = await axios.get(url)
+				this.availableActions = data?.actions ?? []
+			} catch (error) {
+				this.availableActions = []
+			}
+		},
 		async applyTransition(action) {
+			if (!this.meetingId) return
 			this.loading = true
 			try {
-				const meetingId = this.meeting['@self']?.id ?? this.meeting.id
-				const url = generateUrl(`/apps/decidesk/api/meetings/${meetingId}/lifecycle`)
+				const url = generateUrl(`/apps/openregister/api/objects/${this.meetingId}/transition`)
 				const { data } = await axios.post(url, { action })
-				if (data.success) {
-					this.$emit('lifecycle-updated', data.meeting)
-				} else {
-					showError(data.message ?? this.t('decidesk', 'Lifecycle transition failed.'))
-				}
+				this.$emit('lifecycle-updated', data)
+				await this.loadAvailableActions()
 			} catch (error) {
-				showError(error.response?.data?.message ?? this.t('decidesk', 'Lifecycle transition failed.'))
+				showError(error.response?.data?.error ?? this.t('decidesk', 'Lifecycle transition failed.'))
 			} finally {
 				this.loading = false
 			}

@@ -29,6 +29,7 @@ use OCA\Decidesk\Controller\LiveMeetingController;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
+use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
@@ -289,6 +290,18 @@ class Application extends App implements IBootstrap
                     return new ProjectionController(
                     request: $c->get(\OCP\IRequest::class),
                     votingService: $c->get('OCA\Decidesk\Service\VotingService'),
+                    );
+                }
+                );
+
+        // Register MeetingTransitionGuard under the DI tag the schema's
+        // x-openregister-lifecycle annotation references via `requires`.
+        $context->registerService(
+                'decidesk.meeting.transitionGuard',
+                static function ($c): MeetingTransitionGuard {
+                    return new MeetingTransitionGuard(
+                    workflowService: $c->get('OCA\Decidesk\Service\WorkflowService'),
+                    quorumService: $c->get('OCA\Decidesk\Service\QuorumService'),
                     );
                 }
                 );
