@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.2.0"
+    "version": "0.3.2"
   },
   "x-openregister": {
     "type": "application",
@@ -148,7 +148,7 @@
       "Meeting": {
         "slug": "meeting",
         "icon": "CalendarClock",
-        "version": "0.1.0",
+        "version": "0.2.2",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -173,31 +173,31 @@
               "open": {
                 "from": ["scheduled", "adjourned"],
                 "to": "opened",
-                "requires": "decidesk.meeting.transitionGuard",
+                "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Open the meeting for proceedings (chair-only when domain requires; quorum-checked)."
               },
               "pause": {
                 "from": ["opened"],
                 "to": "paused",
-                "requires": "decidesk.meeting.transitionGuard",
+                "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Temporarily pause an opened meeting."
               },
               "resume": {
                 "from": ["paused"],
                 "to": "opened",
-                "requires": "decidesk.meeting.transitionGuard",
+                "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Resume a paused meeting."
               },
               "adjourn": {
                 "from": ["opened", "paused"],
                 "to": "adjourned",
-                "requires": "decidesk.meeting.transitionGuard",
+                "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Adjourn an open meeting (chair-only when domain requires)."
               },
               "close": {
                 "from": ["scheduled", "opened", "paused", "adjourned"],
                 "to": "closed",
-                "requires": "decidesk.meeting.transitionGuard",
+                "requires": "OCA\\Decidesk\\Lifecycle\\MeetingTransitionGuard",
                 "description": "Close the meeting permanently."
               }
             }
