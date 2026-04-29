@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.3.2"
+    "version": "0.4.0"
   },
   "x-openregister": {
     "type": "application",
@@ -1252,7 +1252,7 @@
       "ActionItem": {
         "slug": "action-item",
         "icon": "CheckboxMarkedOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "ActionItem",
         "description": "A follow-up task from a meeting decision",
         "type": "object",
@@ -1262,6 +1262,31 @@
           "hardDelete": false,
           "searchable": true,
           "mailEnabled": false
+        },
+        "configuration": {
+          "x-openregister-aggregations": {
+            "totalCompleted": {
+              "metric": "count",
+              "filter": { "taskStatus": "completed" }
+            },
+            "byStatus": {
+              "metric": "count",
+              "groupBy": { "field": "taskStatus" }
+            },
+            "completedThisMonth": {
+              "metric": "count",
+              "filter": {
+                "taskStatus": "completed",
+                "completedAt": { "gte": "$startOfMonth" }
+              }
+            },
+            "totalOpen": {
+              "metric": "count",
+              "filter": {
+                "taskStatus": { "in": ["open", "in-progress", "overdue"] }
+              }
+            }
+          }
         },
         "required": [
           "title",
