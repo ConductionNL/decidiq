@@ -103,47 +103,6 @@ class MotionController extends Controller
     }//end requireChairOrSecretary()
 
     /**
-     * Transition the lifecycle state of a Motion.
-     *
-     * POST /api/motions/{id}/transition
-     * Body: { "newState": "debating", "actorId": "uid" }
-     *
-     * @param string $id The motion UUID
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
-     *
-     * @return JSONResponse
-     */
-    public function transition(string $id): JSONResponse
-    {
-        $guard = $this->requireChairOrSecretary();
-        if ($guard !== null) {
-            return $guard;
-        }
-
-        $params   = $this->request->getParams();
-        $newState = ($params['newState'] ?? '');
-        $actorId  = ($this->userSession->getUser()?->getUID() ?? '');
-
-        try {
-            $this->motionService->transitionLifecycle(
-                objectId: $id,
-                objectType: 'motion',
-                newState: $newState,
-                actorId: $actorId
-            );
-            return new JSONResponse(['success' => true, 'newState' => $newState]);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-        }
-
-    }//end transition()
-
-    /**
      * Request co-signature from one or more participants for a Motion.
      *
      * POST /api/motions/{id}/co-sign-request
@@ -262,47 +221,6 @@ class MotionController extends Controller
         }
 
     }//end budgetImpact()
-
-    /**
-     * Transition the lifecycle state of an Amendment.
-     *
-     * POST /api/amendments/{id}/transition
-     * Body: { "newState": "debating" }
-     *
-     * @param string $id The amendment UUID
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
-     *
-     * @return JSONResponse
-     */
-    public function amendmentTransition(string $id): JSONResponse
-    {
-        $guard = $this->requireChairOrSecretary();
-        if ($guard !== null) {
-            return $guard;
-        }
-
-        $params   = $this->request->getParams();
-        $newState = ($params['newState'] ?? '');
-        $actorId  = ($this->userSession->getUser()?->getUID() ?? '');
-
-        try {
-            $this->motionService->transitionLifecycle(
-                objectId: $id,
-                objectType: 'amendment',
-                newState: $newState,
-                actorId: $actorId
-            );
-            return new JSONResponse(['success' => true, 'newState' => $newState]);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-        }
-
-    }//end amendmentTransition()
 
     /**
      * Forward a motion to a target governance body.

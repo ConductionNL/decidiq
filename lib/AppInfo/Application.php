@@ -31,6 +31,8 @@ use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
+use OCA\Decidesk\Listener\MinutesTransitionListener;
+use OCA\OpenRegister\Event\ObjectTransitionedEvent;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
@@ -89,6 +91,13 @@ class Application extends App implements IBootstrap
         $context->registerEventListener(
             event: DeepLinkRegistrationEvent::class,
             listener: DeepLinkRegistrationListener::class
+        );
+
+        // Apply Minutes-specific bookkeeping (approvedAt, signedBy) when the
+        // platform fires ObjectTransitionedEvent on the minutes schema.
+        $context->registerEventListener(
+            event: ObjectTransitionedEvent::class,
+            listener: MinutesTransitionListener::class
         );
 
         // Initialize register and schemas on install/upgrade.

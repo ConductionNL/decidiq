@@ -128,51 +128,12 @@ class MotionServiceTest extends TestCase
 
     }//end mockObjectEntity()
 
-    /**
-     * Test that transitionLifecycle succeeds for an allowed transition.
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.5
-     *
-     * @return void
-     */
-    public function testTransitionLifecycleAllowedTransition(): void
-    {
-        $motionEntity = $this->mockObjectEntity(['lifecycle' => 'submitted', 'title' => 'Test Motie'], 'motion-uuid');
-
-        $this->objectService->method('find')->willReturn($motionEntity);
-        $this->objectService->expects($this->once())
-            ->method('saveObject')
-            ->with(
-                $this->anything(),
-                $this->anything(),
-                $this->callback(fn($obj) => ($obj['lifecycle'] ?? '') === 'debating'),
-                $this->anything(),
-            )
-            ->willReturn(null);
-
-        $this->service->transitionLifecycle('motion-uuid', 'motion', 'debating', 'user1');
-
-    }//end testTransitionLifecycleAllowedTransition()
-
-    /**
-     * Test that transitionLifecycle throws when transition is not allowed.
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.5
-     *
-     * @return void
-     */
-    public function testTransitionLifecycleBlocksInvalidTransition(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        $motionEntity = $this->mockObjectEntity(['lifecycle' => 'submitted', 'title' => 'Test Motie'], 'motion-uuid');
-        $this->objectService->method('find')->willReturn($motionEntity);
-
-        // adopted → debating is not allowed.
-        $this->service->transitionLifecycle('motion-uuid', 'motion', 'adopted', 'user1');
-
-        // Transition from submitted → adopted is also not allowed directly.
-    }//end testTransitionLifecycleBlocksInvalidTransition()
+    // Lifecycle transitions are now declared via the Motion schema's
+    // x-openregister-lifecycle annotation. Validation + side-effects live
+    // in OpenRegister's TransitionEngine + LifecycleValidationListener,
+    // which are exercised by the platform's own tests. The previous
+    // testTransitionLifecycle* tests were exercising decidesk's own
+    // hardcoded transition matrix and have been removed.
 
     /**
      * Test that addCoSigner appends a new co-signer idempotently.

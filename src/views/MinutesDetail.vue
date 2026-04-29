@@ -21,10 +21,10 @@
 					<div class="decidesk-transitions">
 						<NcButton
 							v-for="action in availableTransitions"
-							:key="action.to"
+							:key="action.action"
 							type="primary"
 							:disabled="transitioning"
-							@click="transitionLifecycle(action.to)">
+							@click="applyTransition(action.action)">
 							{{ action.label }}
 						</NcButton>
 						<NcButton
@@ -121,6 +121,7 @@ export default {
 			generateError: null,
 			showDraftModal: false,
 			draftPreview: '',
+			actions: [],
 			lifecycleStages: [
 				{ key: 'draft', label: this.t('decidesk', 'Concept') },
 				{ key: 'review', label: this.t('decidesk', 'Ter beoordeling') },
@@ -140,14 +141,10 @@ export default {
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-5.2
 		 */
 		availableTransitions() {
-			const map = {
-				draft: { to: 'review', label: this.t('decidesk', 'Ter beoordeling indienen') },
-				review: { to: 'approved', label: this.t('decidesk', 'Goedkeuren') },
-				approved: { to: 'signed', label: this.t('decidesk', 'Ondertekenen') },
-				signed: { to: 'published', label: this.t('decidesk', 'Publiceren') },
-			}
-			const current = this.object?.lifecycle || 'draft'
-			return map[current] ? [map[current]] : []
+			return this.actions.map(a => ({
+				action: a.action,
+				label: this.actionLabel(a.action),
+			}))
 		},
 		propertyItems() {
 			return [
@@ -157,6 +154,13 @@ export default {
 				{ label: this.t('decidesk', 'Ondertekend door'), value: (this.object.signedBy || []).join(', ') },
 			]
 		},
+	},
+	watch: {
+		id: {
+			immediate: true,
+			handler(id) { if (id) this.loadAvailableActions() },
+		},
+		'object.lifecycle'() { this.loadAvailableActions() },
 	},
 	methods: {
 		onEditSaved() {
@@ -171,24 +175,50 @@ export default {
 		 *
 		 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-5.2
 		 */
-		async transitionLifecycle(newLifecycle) {
+		async loadAvailableActions() {
+			if (!this.id) return
+			try {
+				const url = generateUrl(`/apps/openregister/api/objects/${this.id}/available-actions`)
+				const response = await fetch(url, {
+					method: 'GET',
+					headers: { requesttoken: OC.requestToken },
+				})
+				if (response.ok) {
+					const data = await response.json()
+					this.actions = data?.actions ?? []
+				}
+			} catch (e) {
+				this.actions = []
+			}
+		},
+		actionLabel(action) {
+			const labels = {
+				submit: this.t('decidesk', 'Ter beoordeling indienen'),
+				approve: this.t('decidesk', 'Goedkeuren'),
+				sign: this.t('decidesk', 'Ondertekenen'),
+				publish: this.t('decidesk', 'Publiceren'),
+			}
+			return labels[action] ?? action
+		},
+		async applyTransition(action) {
 			this.transitioning = true
 			this.transitionError = null
 			try {
-				const url = generateUrl(`/apps/decidesk/api/minutes/${this.id}/transition`)
+				const url = generateUrl(`/apps/openregister/api/objects/${this.id}/transition`)
 				const response = await fetch(url, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 						requesttoken: OC.requestToken,
 					},
-					body: JSON.stringify({ lifecycle: newLifecycle }),
+					body: JSON.stringify({ action }),
 				})
 				if (response.ok) {
 					await this.objectStore.fetchObject('minutes', this.id)
+					await this.loadAvailableActions()
 				} else {
 					const err = await response.json().catch(() => ({}))
-					this.transitionError = err.message || this.t('decidesk', 'Verzoek mislukt.')
+					this.transitionError = err.error || err.message || this.t('decidesk', 'Verzoek mislukt.')
 				}
 			} finally {
 				this.transitioning = false

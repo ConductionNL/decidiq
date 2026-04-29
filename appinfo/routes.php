@@ -23,7 +23,8 @@ return [
         // Minutes endpoints — specific routes must precede the wildcard catch-all.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
         ['name' => 'minutes#generateDraft',   'url' => '/api/minutes/{minutesId}/generate-draft',  'verb' => 'POST'],
-        ['name' => 'minutes#transition',      'url' => '/api/minutes/{minutesId}/transition',       'verb' => 'POST'],
+        // Lifecycle transitions go through OpenRegister's POST /api/objects/{id}/transition
+        // (declared via x-openregister-lifecycle on the Minutes schema).
 
         // ALV minutes endpoints.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
@@ -57,13 +58,13 @@ return [
         ['name' => 'agenda#reorder',             'url' => '/api/agendas/{meetingId}/reorder',      'verb' => 'PUT'],
 
         // Motion lifecycle and co-signature routes (specific before wildcard).
-        ['name' => 'motion#transition',     'url' => '/api/motions/{id}/transition',      'verb' => 'POST'],
+        // Lifecycle transitions go through OpenRegister's POST /api/objects/{id}/transition
+        // (declared via x-openregister-lifecycle on Motion + Amendment schemas).
         ['name' => 'motion#coSignRequest',  'url' => '/api/motions/{id}/co-sign-request', 'verb' => 'POST'],
         ['name' => 'motion#coSignConfirm',  'url' => '/api/motions/{id}/co-sign-confirm', 'verb' => 'POST'],
         ['name' => 'motion#budgetImpact',   'url' => '/api/motions/{id}/budget-impact',   'verb' => 'POST'],
 
         // Amendment lifecycle routes (specific before wildcard).
-        ['name' => 'motion#amendmentTransition', 'url' => '/api/amendments/{id}/transition', 'verb' => 'POST'],
 
         // Voting round routes (specific before wildcard).
         ['name' => 'voting#open',        'url' => '/api/voting-rounds',             'verb' => 'POST'],
