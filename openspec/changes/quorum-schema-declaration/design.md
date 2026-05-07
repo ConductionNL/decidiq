@@ -1,7 +1,7 @@
 # Design: Quorum — Schema declaration (chain spec 1 of 3)
 
 ## Status
-proposed
+pr-created
 
 ## Spec kind & chain position (ADR-032)
 

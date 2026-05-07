@@ -148,7 +148,7 @@
       "Meeting": {
         "slug": "meeting",
         "icon": "CalendarClock",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -236,6 +236,83 @@
             "register": "decidesk",
             "schema": "GovernanceBody",
             "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-aggregations": {
+          "totalParticipantCount": {
+            "metric": "count",
+            "schema": "Participant",
+            "filter": {
+              "governanceBody": "@self.governanceBody"
+            }
+          },
+          "presentParticipantCount": {
+            "metric": "count",
+            "schema": "Participant",
+            "filter": {
+              "governanceBody": "@self.governanceBody",
+              "attendanceStatus": "present"
+            }
+          }
+        },
+        "x-openregister-calculations": {
+          "quorumPercentage": {
+            "type": "number",
+            "materialise": true,
+            "expression": {
+              "if": [
+                {
+                  "gt": [
+                    {
+                      "prop": "totalParticipantCount"
+                    },
+                    0
+                  ]
+                },
+                {
+                  "mul": [
+                    {
+                      "div": [
+                        {
+                          "prop": "presentParticipantCount"
+                        },
+                        {
+                          "prop": "totalParticipantCount"
+                        }
+                      ]
+                    },
+                    100
+                  ]
+                },
+                0
+              ]
+            }
+          },
+          "quorumMet": {
+            "type": "boolean",
+            "materialise": true,
+            "expression": {
+              "or": [
+                {
+                  "eq": [
+                    {
+                      "prop": "quorumRequired"
+                    },
+                    null
+                  ]
+                },
+                {
+                  "gte": [
+                    {
+                      "prop": "presentParticipantCount"
+                    },
+                    {
+                      "prop": "quorumRequired"
+                    }
+                  ]
+                }
+              ]
+            }
           }
         },
         "x-openregister-seeds": [
@@ -359,6 +436,17 @@
             "type": "number",
             "description": "Vote weight (default 1)",
             "example": 1
+          },
+          "attendanceStatus": {
+            "type": "string",
+            "description": "Attendance status for meetings of the governance body",
+            "enum": [
+              "present",
+              "absent",
+              "proxy",
+              "excused"
+            ],
+            "example": "present"
           }
         },
         "x-openregister-relations": {

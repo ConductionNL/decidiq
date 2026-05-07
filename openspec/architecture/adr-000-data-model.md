@@ -164,6 +164,8 @@ pagination, audit trails, file attachments, relation management, locking.
 | quorumRequired | integer | No | Minimum participants for valid meeting |
 | series | string | No | Meeting series identifier |
 
+**Derived fields (quorum-schema-declaration):** `totalParticipantCount`, `presentParticipantCount`, `quorumPercentage`, `quorumMet` — see `docs/data-model.md` Meeting section and `openspec/changes/quorum-schema-declaration/`.
+
 ---
 
 ## Membership
