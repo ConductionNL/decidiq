@@ -129,6 +129,10 @@ class SettingsControllerTest extends TestCase
             'isAdmin'       => false,
         ];
 
+        $this->userSession->expects($this->once())
+            ->method('getUser')
+            ->willReturn($this->nonAdminUser);
+
         $this->settingsService->expects($this->once())
             ->method('getSettings')
             ->willReturn($settings);
