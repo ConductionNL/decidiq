@@ -1,7 +1,7 @@
 # Design: Manifest version bump
 
 ## Status
-proposed
+pr-created
 
 ## Spec kind & sizing (ADR-032)
 

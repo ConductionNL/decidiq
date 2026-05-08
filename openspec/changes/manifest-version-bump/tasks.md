@@ -5,15 +5,15 @@
 
 ## 1. Bump manifest version
 
-- [ ] Edit `src/manifest.json`: change `"version": "0.3.0"` to
+- [x] Edit `src/manifest.json`: change `"version": "0.3.0"` to
       `"version": "0.4.0"`.
-- [ ] Verify the diff is exactly one line, exactly one character.
+- [x] Verify the diff is exactly one line, exactly one character.
 
 ## 2. Verification (mechanical)
 
-- [ ] `jq '.version' src/manifest.json` returns `"0.4.0"`.
-- [ ] `npm run check:manifest` exits 0 (schema validates).
-- [ ] `git diff --stat origin/development...HEAD` shows
+- [x] `jq '.version' src/manifest.json` returns `"0.4.0"`.
+- [x] `npm run check:manifest` exits 0 (schema validates).
+- [x] `git diff --stat origin/development...HEAD` shows
       `src/manifest.json | 2 +-` (one line removed, one line added —
       jq doesn't preserve formatting around the bump, but the net
       change is one field).
@@ -25,7 +25,7 @@ No additional manual action expected from the implementer.
 
 ## Deduplication Check
 
-- [ ] Confirmed: no duplication. This is a single-field metadata bump,
+- [x] Confirmed: no duplication. This is a single-field metadata bump,
       no abstractions involved.
 
 ---
