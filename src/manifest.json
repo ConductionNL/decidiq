@@ -1,0 +1,37 @@
+{
+	"$schema": "https://raw.githubusercontent.com/ConductionNL/nextcloud-vue/main/src/schemas/app-manifest.schema.json",
+	"version": "0.4.0",
+	"dependencies": ["openregister"],
+	"menu": [
+		{ "id": "Dashboard", "label": "Dashboard", "icon": "icon-category-dashboard", "route": "Dashboard", "order": 10 },
+		{ "id": "Minutes", "label": "Minutes", "icon": "icon-file", "route": "Minutes", "order": 20 },
+		{ "id": "Decisions", "label": "Decisions", "icon": "icon-checkmark", "route": "Decisions", "order": 30 },
+		{ "id": "ActionItems", "label": "Action items", "icon": "icon-checkmark", "route": "ActionItems", "order": 40 },
+		{ "id": "Motions", "label": "Motions", "icon": "icon-comment", "route": "Motions", "order": 50 },
+		{ "id": "Meetings", "label": "Meetings", "icon": "icon-group", "route": "Meetings", "order": 60 },
+		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "settings", "order": 90 },
+		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 }
+	],
+	"pages": [
+		{ "id": "Dashboard", "route": "/", "type": "custom", "title": "Dashboard", "component": "DashboardView" },
+		{ "id": "GovernanceBodies", "route": "/governance-bodies", "type": "custom", "title": "Governance bodies", "component": "GovernanceBodiesView" },
+		{ "id": "GovernanceBodyDetail", "route": "/governance-bodies/:id", "type": "custom", "title": "Governance body", "component": "GovernanceBodyDetailView" },
+		{ "id": "Meetings", "route": "/meetings", "type": "custom", "title": "Meetings", "component": "MeetingsView" },
+		{ "id": "MeetingDetail", "route": "/meetings/:id", "type": "custom", "title": "Meeting", "component": "MeetingDetailView" },
+		{ "id": "LiveMeeting", "route": "/meetings/:id/live", "type": "custom", "title": "Live meeting", "component": "LiveMeetingView" },
+		{ "id": "Participants", "route": "/participants", "type": "custom", "title": "Participants", "component": "ParticipantsView" },
+		{ "id": "ParticipantDetail", "route": "/participants/:id", "type": "custom", "title": "Participant", "component": "ParticipantDetailView" },
+		{ "id": "AgendaItems", "route": "/agenda-items", "type": "custom", "title": "Agenda items", "component": "AgendaItemsView" },
+		{ "id": "AgendaItemDetail", "route": "/agenda-items/:id", "type": "custom", "title": "Agenda item", "component": "AgendaItemDetailView" },
+		{ "id": "Motions", "route": "/motions", "type": "custom", "title": "Motions", "component": "MotionsView" },
+		{ "id": "MotionDetail", "route": "/motions/:id", "type": "custom", "title": "Motion", "component": "MotionDetailView" },
+		{ "id": "AmendmentDetail", "route": "/amendments/:id", "type": "custom", "title": "Amendment", "component": "AmendmentDetailView" },
+		{ "id": "Minutes", "route": "/minutes", "type": "custom", "title": "Minutes", "component": "MinutesView" },
+		{ "id": "MinutesDetail", "route": "/minutes/:id", "type": "custom", "title": "Minutes detail", "component": "MinutesDetailView" },
+		{ "id": "Decisions", "route": "/decisions", "type": "custom", "title": "Decisions", "component": "DecisionsView" },
+		{ "id": "DecisionDetail", "route": "/decisions/:id", "type": "custom", "title": "Decision", "component": "DecisionDetailView" },
+		{ "id": "ActionItems", "route": "/action-items", "type": "custom", "title": "Action items", "component": "ActionItemsView" },
+		{ "id": "ActionItemDetail", "route": "/action-items/:id", "type": "custom", "title": "Action item", "component": "ActionItemDetailView" },
+		{ "id": "Settings", "route": "/settings", "type": "custom", "title": "Settings", "component": "SettingsView" }
+	]
+}
