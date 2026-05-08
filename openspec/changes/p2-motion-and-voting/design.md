@@ -315,6 +315,6 @@ No new capabilities were identified that should be moved to OpenRegister core.
 ## Status
 
 status: pr-created
-pr: https://github.com/ConductionNL/decidesk/pull/35
-branch: feature/18/p2-motion-and-voting
-updated: 2026-04-14
+issue: 72
+branch: feature/72/p2-motion-and-voting
+updated: 2026-04-19
