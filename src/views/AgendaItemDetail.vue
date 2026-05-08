@@ -1,3 +1,4 @@
+<!-- TODO(decidesk-manifest-v1): obsolete after @conduction/nextcloud-vue release ships manifest-page-type-extensions + manifest-abstract-sidebar; delete in cleanup commit -->
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 <!-- Copyright (C) 2026 Conduction B.V. -->
 

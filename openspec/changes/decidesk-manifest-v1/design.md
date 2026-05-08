@@ -1,214 +1,310 @@
-# Design — Decidesk manifest v0.3.0 → v1.0.0
+# Design — Decidesk manifest v1: per-page Vue → JSON manifest renderer
 
 ## Approach
 
-Stabilisation in **four parallel verification gates**, then one atomic
-version bump:
+Decidesk's `src/manifest.json` (v0.4.0) is fully declarative on paper —
+it has 20 pages, all 20 set `type: "custom"`. Every page's `component`
+field points at a per-page Vue file under `src/views/`. That defeats
+the manifest pattern: a `type: "custom"` page is just a pointer to
+hand-written code, no different from rolling your own router.
 
-1. **Refactor gate** — `type:"custom"` → `type:"index"`/`type:"detail"`
-   for 16 of 39 pages. Pure manifest refactor + customComponents shrink.
-2. **Multi-tenancy gate** — consume `nextcloud-vue` multi-tenancy
-   primitives once they ship in `multi-tenancy-context` (#113).
-3. **i18n gate** — consume OR's `i18n-source-of-truth` +
-   `i18n-api-language-negotiation` (just merged in OR #1420).
-4. **Resolver gate** — consume OR's `register-resolver-service` (just
-   merged in OR #1420).
+Three sibling changes land in `@conduction/nextcloud-vue`:
 
-Only after all four gates land does `manifest.version` bump to `1.0.0`.
-Each gate ships as a separate commit on the change branch so partial
-landings are reviewable.
+- `manifest-page-type-extensions` adds `logs | settings | chat | files`
+  to the closed `pages[].type` enum, plus four new abstract page
+  components.
+- `manifest-abstract-sidebar` opens `CnObjectSidebar` to a
+  registry-driven `tabs` array and lets `CnIndexPage` auto-mount
+  `CnIndexSidebar` from a `sidebar` config block.
+- `manifest-config-defs` adds JSON-Schema `$defs` for reusable
+  sub-objects (`column`, `widgetDef`, `sidebarTab`, etc.) — additive
+  vocabulary, no `$ref`s yet.
 
-The change is **manifest stabilisation + consumer wiring only**. No
-new pages, no new schemas, no backend endpoints. Decidesk has been the
-fleet's reference Tier-4 example for multiple sprints; this change
-hardens that status.
+This change rewrites `src/manifest.json` to consume the post-merge lib
+contract: 8 indexes, 9 details, 1 dashboard, 2 documented customs. The
+per-page Vue files for migrated pages stay in place (with TODO
+markers) so the existing router keeps the app rendering until the lib
+release lands and decidesk adopts `CnAppRoot` in a follow-up commit.
 
-## Refactor gate — page-type mapping
+The change is intentionally **forward-compatible only**: it does NOT
+bump `@conduction/nextcloud-vue` in `package.json`, does NOT swap the
+shell to `CnAppRoot`, does NOT delete obsolete Vue files. Those steps
+follow the lib release.
 
-The 39-page manifest at `src/manifest.json` (v0.3.0) declares every page
-as `type:"custom"`. The audit
-(`.claude/audit-2026-05-03/research/R6-manifest-json.md` lines 165-168)
-calls this out as the primary refactor for v1.0.0.
+## Per-page mapping table
 
-Mapping after refactor:
+The 20 pages in `src/manifest.json` map as follows. Every non-custom
+entry binds to register slug `"decidesk"` and the matching schema slug
+from `lib/Settings/decidesk_register.json`. Columns are sourced from
+the existing per-page `data().columns` arrays. Detail pages declare
+`sidebarTabs[]` against the new abstract-sidebar contract.
 
-| Page id | Route | Before | After | OR schema |
+| Current id | Current type | New type | Config sketch | Reason |
 |---|---|---|---|---|
-| `Dashboard` | `/` | `custom` | `custom` (→ `dashboard` later) | n/a |
-| `GovernanceBodies` | `/governance-bodies` | `custom` | `index` | GovernanceBody |
-| `GovernanceBodyDetail` | `/governance-bodies/:id` | `custom` | `detail` | GovernanceBody |
-| `Meetings` | `/meetings` | `custom` | `index` | Meeting |
-| `MeetingDetail` | `/meetings/:id` | `custom` | `detail` | Meeting |
-| `LiveMeeting` | `/meetings/:id/live` | `custom` | `custom` | Meeting (realtime) |
-| `Participants` | `/participants` | `custom` | `index` | Participant |
-| `ParticipantDetail` | `/participants/:id` | `custom` | `detail` | Participant |
-| `AgendaItems` | `/agenda-items` | `custom` | `index` | AgendaItem |
-| `AgendaItemDetail` | `/agenda-items/:id` | `custom` | `detail` | AgendaItem |
-| `Motions` | `/motions` | `custom` | `index` | Motion |
-| `MotionDetail` | `/motions/:id` | `custom` | `detail` | Motion |
-| `AmendmentDetail` | `/amendments/:id` | `custom` | `custom` | Amendment (sub-entity) |
-| `Minutes` | `/minutes` | `custom` | `index` | Minutes |
-| `MinutesDetail` | `/minutes/:id` | `custom` | `detail` | Minutes |
-| `Decisions` | `/decisions` | `custom` | `index` | Decision |
-| `DecisionDetail` | `/decisions/:id` | `custom` | `detail` | Decision |
-| `ActionItems` | `/action-items` | `custom` | `index` | ActionItem |
-| `ActionItemDetail` | `/action-items/:id` | `custom` | `detail` | ActionItem |
-| `Settings` | `/settings` | `custom` | `custom` | n/a (admin) |
+| `Dashboard` | custom | `dashboard` | `{ widgets: [3 KPI widgets], layout: [3 grid items] }` | KPIs map to `widgetDef` entries; `CnKpiGrid` becomes a layout-driven dashboard once the lib's `dashboard` renderer is in place. |
+| `GovernanceBodies` | custom | `index` | `{ register: "decidesk", schema: "governance-body", columns: ["name","bodyType","domain","termEnd"], sidebar: { enabled: true } }` | Schema-driven list. |
+| `GovernanceBodyDetail` | custom | `detail` | `{ register: "decidesk", schema: "governance-body", sidebarTabs: [overview, members, audit] }` | Standard detail. |
+| `Meetings` | custom | `index` | `{ register: "decidesk", schema: "meeting", columns: ["title","meetingType","scheduledDate","meetingMode","lifecycle"], sidebar: { enabled: true } }` | Schema-driven list. Existing `Meetings.vue` has bespoke filter pills via `NcSelect` — represent as `sidebar.facets` in the manifest; if a filter shape is unsupported, use `headerComponent` registry override. |
+| `MeetingDetail` | custom | `detail` | `{ register: "decidesk", schema: "meeting", sidebarTabs: [overview, agenda, participants, audit] }` | Standard detail. |
+| `LiveMeeting` | custom | `custom` | (unchanged) `component: "LiveMeetingView"` | **Genuine exception** — realtime meeting shell, frame-by-frame UI, no abstract analogue. |
+| `Participants` | custom | `index` | `{ register: "decidesk", schema: "participant", columns: ["displayName","role","party","email"], sidebar: { enabled: true } }` | Schema-driven list. |
+| `ParticipantDetail` | custom | `detail` | `{ register: "decidesk", schema: "participant", sidebarTabs: [overview, audit] }` | Standard detail. |
+| `AgendaItems` | custom | `index` | `{ register: "decidesk", schema: "agenda-item", columns: ["orderNumber","title","itemType","estimatedDuration","isRecurring"], sidebar: { enabled: true } }` | Schema-driven list. |
+| `AgendaItemDetail` | custom | `detail` | `{ register: "decidesk", schema: "agenda-item", sidebarTabs: [overview, motions, audit] }` | Standard detail. |
+| `Motions` | custom | `index` | `{ register: "decidesk", schema: "motion", columns: ["title","motionType","proposer","lifecycle","submittedAt"], sidebar: { enabled: true } }` | Schema-driven list. |
+| `MotionDetail` | custom | `detail` | `{ register: "decidesk", schema: "motion", sidebarTabs: [overview, amendments, votes, audit] }` | Standard detail. |
+| `AmendmentDetail` | custom | `detail` | `{ register: "decidesk", schema: "amendment", sidebarTabs: [overview, parentMotion, audit] }` | Schema is top-level (`slug: "amendment"`); presentation-layer linkage to parent Motion lives in a sidebar tab widget. |
+| `Minutes` | custom | `index` | `{ register: "decidesk", schema: "minutes", columns: ["title","lifecycle","version","approvedAt"], sidebar: { enabled: true } }` | Schema-driven list. |
+| `MinutesDetail` | custom | `detail` | `{ register: "decidesk", schema: "minutes", sidebarTabs: [overview, signers, audit] }` | Standard detail. |
+| `Decisions` | custom | `index` | `{ register: "decidesk", schema: "decision", columns: ["title","outcome","decisionDate","isPublished"], sidebar: { enabled: true } }` | Schema-driven list. |
+| `DecisionDetail` | custom | `detail` | `{ register: "decidesk", schema: "decision", sidebarTabs: [overview, actionItems, audit] }` | Standard detail. |
+| `ActionItems` | custom | `index` | `{ register: "decidesk", schema: "action-item", columns: ["title","assignee","dueDate","taskStatus"], sidebar: { enabled: true } }` | Schema-driven list. |
+| `ActionItemDetail` | custom | `detail` | `{ register: "decidesk", schema: "action-item", sidebarTabs: [overview, audit] }` | Standard detail. |
+| `Settings` | custom | `custom` | (unchanged) `component: "SettingsView"` | **Lib gap** — current settings mixes `CnVersionInfoCard` + `CnRegisterMapping` + ORI URL + email-voting toggle. The new `type: "settings"` `config.sections[].fields[]` shape covers the URL + boolean fields, but not the register-mapping editor. Stays custom until the lib grows a `register-mapping` field type or a settings-section custom-component slot. |
 
-Tally after refactor: **8 `index` + 8 `detail` + 4 `custom` = 20** (the
-v0.3.0 manifest line count is 39 entries; the refactor merges no entries
-— it just retypes 16 of them and removes their dedicated `component`
-references in favour of the renderer's defaults).
+Final tally: **8 index + 9 detail + 1 dashboard + 2 custom = 20**.
 
-The 4 residuals are intentional:
+## Sidebar tab inventory
 
-- `Dashboard` — refactor target is `type:"dashboard"`, blocked on
-  shipping the dashboard widget config.
-- `LiveMeeting` — realtime meeting shell with no `index`/`detail`
-  analogue; would benefit from a future `type:"realtime"` library
-  built-in.
-- `AmendmentDetail` — Amendment is modelled as a sub-entity of Motion in
-  decidesk's schema; the renderer's `detail` type doesn't yet support
-  cross-schema detail lookups. Stays custom until renderer extends.
-- `Settings` — admin-shaped page; would move to a future `type:"settings"`
-  library built-in.
+For `type: "detail"` pages, `config.sidebarTabs` declares an
+open-enum array of tabs the abstract sidebar (post
+`manifest-abstract-sidebar`) renders against the registry-driven
+contract. Tab shapes: `{ id, label, icon?, widgets?, component?, order? }`.
 
-## Multi-tenancy gate — consumer wiring
+This change ships a minimal tab inventory per detail page (overview +
+audit + 0–2 per-schema tabs). The actual tab content for non-built-in
+tabs (e.g. `members` on `GovernanceBodyDetail`) resolves through the
+`customComponents` registry — those custom-component names are
+documented in this design but their implementation belongs to the
+follow-up adoption commit.
 
-Audit research
-`.claude/audit-2026-05-03/research/R2-nc-vue-multitenancy.md` documents
-8 fixes for the missing tenant-context plumbing in nextcloud-vue. Once
-`nextcloud-vue/openspec/changes/multi-tenancy-context/` (#113) ships the
-critical-priority fixes (1, 2, 3, 4 — composable, header stamping,
-`saveObject` org param, cache invalidation on tenant switch), decidesk
-consumes:
+| Detail page | Tabs |
+|---|---|
+| `GovernanceBodyDetail` | `overview` (data widget), `members` (custom: `GovernanceBodyMembersTab`), `audit` (built-in audit-trail) |
+| `MeetingDetail` | `overview`, `agenda` (custom: `MeetingAgendaTab`), `participants` (custom: `MeetingParticipantsTab`), `audit` |
+| `ParticipantDetail` | `overview`, `audit` |
+| `AgendaItemDetail` | `overview`, `motions` (custom: `AgendaMotionsTab`), `audit` |
+| `MotionDetail` | `overview`, `amendments` (custom: `MotionAmendmentsTab`), `votes` (custom: `MotionVotesTab`), `audit` |
+| `AmendmentDetail` | `overview`, `parentMotion` (custom: `AmendmentParentMotionTab`), `audit` |
+| `MinutesDetail` | `overview`, `signers` (custom: `MinutesSignersTab`), `audit` |
+| `DecisionDetail` | `overview`, `actionItems` (custom: `DecisionActionItemsTab`), `audit` |
+| `ActionItemDetail` | `overview`, `audit` |
 
-- **`useTenantContext()` in `App.vue::setup()`** — exposes active
-  organisation UUID via inject/provide; `App.vue` reads it to drive
-  per-tenant cache invalidation
-- **`organisationUuidGetter` on every `createObjectStore({ ... })`**
-  call in `src/store/store.js` (currently 17 entity stores per the
-  existing `p1-dashboard-and-navigation/spec.md` REQ-NAV-004) — wires
-  the active org into the store's HTTP layer
-- **`CnTenantBadge` in `App.vue` header / sidebar** — visual indicator
-  of active tenant; mounted next to the user-menu button
-- **Auto-fill `organisation` field** — for any form rendered via
-  `CnFormDialog` / `CnAdvancedFormDialog` whose schema declares an
-  `organisation` field, the field SHOULD default to
-  `useTenantContext()`'s active org and SHOULD NOT render as a
-  user-selectable dropdown (per `R2` finding 8)
+When this change ships, the manifest references those custom tab
+component names; the components themselves are TODO for the
+follow-up adoption commit. Manifest validation passes regardless
+because the abstract-sidebar spec lets unresolved registry names
+log a `console.warn` rather than crash (per the lib spec
+"Unknown widget type warns" scenario).
 
-The verification criterion is "all 5 wirings present and exercised in a
-browser regression test". The wiring lives in decidesk; the primitives
-live in the library.
+## Dashboard widget inventory
 
-## i18n gate — consumer wiring
+`Dashboard` config sketch:
 
-Once `openregister/openspec/specs/i18n-source-of-truth/spec.md` and
-`openregister/openspec/specs/i18n-api-language-negotiation/spec.md`
-(merged in OR #1420) are released:
+```json
+{
+  "widgets": [
+    {
+      "id": "minutes-in-review",
+      "type": "stats-block",
+      "title": "Notulen ter goedkeuring",
+      "props": {
+        "register": "decidesk",
+        "schema": "minutes",
+        "filter": { "lifecycle": "review" },
+        "variant": "warning"
+      }
+    },
+    {
+      "id": "published-decisions",
+      "type": "stats-block",
+      "title": "Gepubliceerde besluiten",
+      "props": {
+        "register": "decidesk",
+        "schema": "decision",
+        "filter": { "isPublished": true },
+        "variant": "success"
+      }
+    },
+    {
+      "id": "open-action-items",
+      "type": "stats-block",
+      "title": "Open actiepunten",
+      "props": {
+        "register": "decidesk",
+        "schema": "action-item",
+        "filter": { "taskStatus": ["open", "in-progress"] },
+        "variant": "primary"
+      }
+    }
+  ],
+  "layout": [
+    { "id": "minutes-in-review",   "gridX": 0, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
+    { "id": "published-decisions", "gridX": 4, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
+    { "id": "open-action-items",   "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2 }
+  ]
+}
+```
 
-- **PATCH / PUT to translatable fields** — the form-side service layer
-  in decidesk SHALL set the `X-Translation-Target-Language` header per
-  the OR API spec. Translatable fields include policy-document content
-  (Decisions, Motions, Minutes textual fields).
-- **GET with explicit language** — the language selector in decidesk's
-  header (or in `CnAppRoot`'s locale slot if Tier-4 exposes it) SHALL
-  call `?_lang=` per the OR negotiation spec, with a fallback to the
-  user's browser-negotiated `Accept-Language`.
-- **Manifest `label` / `title` are i18n keys** — already true at v0.3.0
-  per ADR-024 §6 / ADR-007. Verified, not changed.
-- **Translation status badges** — fields with translations in
-  `status: "draft" | "machine_translated"` SHOULD render a badge in the
-  detail view. The badge component lives in nextcloud-vue (or in OR's
-  `register-i18n` consumer kit if that ships first).
+`stats-block` is a hypothetical dashboard widget type. The current
+`Dashboard.vue` hard-codes `CnStatsBlock` instances and direct fetch
+calls. If the lib's existing `dashboard` widget registry doesn't
+expose a `stats-block` type, the manifest still validates (widget
+`type` is open-enum at schema level — only the validator's runtime
+warning surfaces) and `Dashboard` falls back to `type: "custom"` for
+the v1 release. Tracked as Open Question 1.
 
-## Resolver gate — consumer wiring
+## Custom-fallback inventory
 
-Once `openregister/openspec/specs/register-resolver-service/spec.md`
-(merged in OR #1420) is released:
+Three categories:
 
-- Search decidesk source for inline `getValueString(...register/schema...)`
-  calls. Replace each with a call to the resolver service.
-- The resolver lives in OR per ADR-022 (apps consume OR abstractions).
-  Decidesk consumes it through the standard service-injection path
-  (`OCP\Server::get(RegisterResolverService::class)` server-side; the
-  frontend uses the corresponding Vue composable or store action).
+### Genuine exceptions (lib-fit issue, not migration cost)
+
+- **`LiveMeeting`** — realtime meeting shell. WebSocket subscriptions,
+  per-frame UI updates, vote-card animations. Doesn't fit `detail` or
+  any other built-in. Documented as the canonical example for a
+  future `type: "realtime"` lib extension; until then, stays custom.
+
+### Lib gaps (could migrate if the lib were richer)
+
+- **`Settings`** — current settings has `CnVersionInfoCard` (read-only
+  version + support footer), `CnRegisterMapping` (an interactive
+  schema-mapping editor), an ORI endpoint URL field, and an
+  email-voting toggle. The new `type: "settings"`
+  `config.sections[].fields[]` shape covers the URL + toggle but
+  cannot host `CnRegisterMapping` or `CnVersionInfoCard`. Migration
+  blocker: lib needs (a) a `register-mapping` field type or (b) a
+  per-section custom-component slot. Tracked as
+  `nextcloud-vue/cn-settings-register-mapping-field`.
+- **`Dashboard`** *(if no `stats-block` widget)* — KPIs as hard-coded
+  `CnStatsBlock` calls map naturally to a `stats-block` `widgetDef`,
+  but the lib's current widget registry only exposes the dashboard
+  primitives shipped with `dashboard-widget-system`. If that doesn't
+  include a count-with-filter "stats" widget, `Dashboard` stays
+  custom. Tracked as
+  `nextcloud-vue/dashboard-stats-block-widget`. (This change
+  optimistically declares `Dashboard` as `type: "dashboard"`; if the
+  validator rejects on widget `type` resolution, downgrade to
+  `"custom"` in a follow-up edit.)
+
+### Migration cost (acceptable to defer)
+
+*(none in this round — every other page maps cleanly.)*
 
 ## Files affected
 
-- `decidesk/src/manifest.json` — 16 page-type retypes; version bump
-- `decidesk/src/customComponents.js` — shrink the registry by 16
-  entries (renderer's defaults take over)
-- `decidesk/src/App.vue` — add `useTenantContext()` setup;
-  `CnTenantBadge` mount; language selector wiring
-- `decidesk/src/store/store.js` — `organisationUuidGetter` on each of
-  the 17 `createObjectStore` calls
-- `decidesk/src/services/**` and `decidesk/src/views/**` — resolver
-  replacement; auto-fill organisation removal from forms; translation
-  header wiring
-- `decidesk/src/composables/useDecideskTenant.js` (new, optional) —
-  thin wrapper over `useTenantContext()` if decidesk needs domain-
-  specific selectors
+Modified:
+- `decidesk/src/manifest.json` — full rewrite, 16 type retypes + new
+  `config` blocks per page; `version` 0.4.0 → 1.0.0.
+- `decidesk/openspec/changes/decidesk-manifest-v1/{proposal,design,tasks}.md`
+  and `specs/decidesk-app-manifest/spec.md`.
 
-Untouched: backend (`lib/`, `appinfo/`), schemas
-(`lib/Settings/decidesk_register.json`), seed data, controllers.
+New:
+- `decidesk/tests/validate-manifest.js` — Node script that loads
+  `src/manifest.json` and validates against the merged schema.
+
+TODO-marked but NOT deleted:
+- `decidesk/src/views/Dashboard.vue`
+- `decidesk/src/views/GovernanceBodies.vue`
+- `decidesk/src/views/GovernanceBodyDetail.vue`
+- `decidesk/src/views/Meetings.vue`
+- `decidesk/src/views/MeetingDetail.vue`
+- `decidesk/src/views/Participants.vue`
+- `decidesk/src/views/ParticipantDetail.vue`
+- `decidesk/src/views/AgendaItems.vue`
+- `decidesk/src/views/AgendaItemDetail.vue`
+- `decidesk/src/views/Motions.vue`
+- `decidesk/src/views/MotionDetail.vue`
+- `decidesk/src/views/AmendmentDetail.vue`
+- `decidesk/src/views/Minutes.vue`
+- `decidesk/src/views/MinutesDetail.vue`
+- `decidesk/src/views/Decisions.vue`
+- `decidesk/src/views/DecisionDetail.vue`
+- `decidesk/src/views/ActionItems.vue`
+- `decidesk/src/views/ActionItemDetail.vue`
+
+Untouched in this commit:
+- `decidesk/src/router/index.js` — still references the per-page Vue
+  files; will be replaced when `CnAppRoot` adoption lands.
+- `decidesk/src/main.js` / `decidesk/src/App.vue` — current shell
+  preserved.
+- `decidesk/src/views/LiveMeeting.vue` and
+  `decidesk/src/views/SettingsView.vue` — surviving custom pages.
+- `decidesk/package.json` — `@conduction/nextcloud-vue` floor NOT
+  bumped.
+- `decidesk/lib/Settings/decidesk_register.json` — schemas untouched.
+
+## Cleanup follow-up (after `@conduction/nextcloud-vue` release lands)
+
+Once the sibling changes ship a published `@conduction/nextcloud-vue`
+release and decidesk bumps the floor in `package.json`, the
+follow-up commit "decidesk-manifest-v1-adopt" performs:
+
+1. Bump `package.json` `@conduction/nextcloud-vue` floor to the
+   release that includes all three sibling changes.
+2. Replace `src/main.js` shell + `src/App.vue` with `CnAppRoot` +
+   `CnPageRenderer` consumption per the manifest.
+3. Replace `src/router/index.js` with a router-from-manifest
+   builder (deriving routes from `manifest.pages[*].{id, route}`).
+4. Create `src/customComponents.js` with the four registry entries:
+   - `LiveMeetingView` → `./views/LiveMeeting.vue`
+   - `SettingsView` → `./views/SettingsView.vue`
+   - (plus the per-detail-tab custom components when those land)
+5. Delete the 18 obsolete per-page Vue files listed above.
+6. Run the full Playwright regression suite per task §6.
 
 ## Citations
 
-- **Library schema**:
-  `nextcloud-vue/src/schemas/app-manifest.schema.json` — pinned via
-  `$schema` in `manifest.json` (already correct at v0.3.0)
-- **Library renderer spec**:
+- **Library schema (post-merge)**:
+  `nextcloud-vue/src/schemas/app-manifest.schema.json` v1.1.0
+- **Library renderer parent contract**:
   `nextcloud-vue/openspec/changes/add-json-manifest-renderer/specs/json-manifest-renderer/spec.md`
-  — 17 REQ-JMR-* requirements
-- **Library multi-tenancy change** (in flight):
-  `nextcloud-vue/openspec/changes/multi-tenancy-context/` (#113)
+- **Library page-type extensions** (sibling, committed, unreleased):
+  `nextcloud-vue/openspec/changes/manifest-page-type-extensions/`
+  (commit `4b308d9` in `/tmp/worktrees/nextcloud-vue-page-type-extensions`)
+- **Library abstract sidebar** (sibling, committed, unreleased):
+  `nextcloud-vue/openspec/changes/manifest-abstract-sidebar/`
+  (commit `05a8ffb` in `/tmp/worktrees/nextcloud-vue-abstract-sidebar`)
+- **Library config $defs** (sibling, committed, unreleased):
+  `nextcloud-vue/openspec/changes/manifest-config-defs/`
+  (commit `569d553` in `/tmp/worktrees/nextcloud-vue-schema-config-defs`)
 - **Cross-app convention**:
-  `hydra/openspec/architecture/adr-024-app-manifest.md` — fleet-wide
-  adoption ADR
-- **Cross-app i18n**:
-  `hydra/openspec/architecture/adr-025-i18n-source-of-truth.md`
-- **Cross-app abstractions**:
-  `hydra/openspec/architecture/adr-022-apps-consume-or-abstractions.md`
-- **OR specs (just merged in #1420)**:
-  - `openregister/openspec/specs/register-resolver-service/spec.md`
-  - `openregister/openspec/specs/pluggable-integration-registry/spec.md`
-  - `openregister/openspec/specs/i18n-source-of-truth/spec.md`
-  - `openregister/openspec/specs/i18n-api-language-negotiation/spec.md`
-- **Hydra fleet change**:
-  `hydra/openspec/changes/adopt-app-manifest/` (#218) — this change
-  is the per-app counterpart for decidesk per ADR-024 §9
+  `hydra/openspec/architecture/adr-024-app-manifest.md`
+- **Audit recommendation**:
+  `.claude/audit-2026-05-03/research/R6-manifest-json.md` lines 165-168
 
 ## Out of scope
 
-- **Page-type enum extensions.** `Dashboard`, `LiveMeeting`,
-  `AmendmentDetail`, `Settings` stay `type:"custom"`. Adding
-  `type:"dashboard"` to `Dashboard` is a follow-up once the dashboard
-  widget config lands; the other three need library-side enum
-  extensions.
-- **Backend `/api/manifest` endpoint.** Same deferral as everywhere —
-  driven by App Builder use case.
-- **Adding new pages or schemas.** Stabilisation only.
-- **Tier-5 (post-CnAppRoot) experiments.** Decidesk is already Tier-4;
-  no upgrade path beyond Tier-4 is defined.
+- Multi-tenancy, i18n, resolver consumer wiring (separate changes).
+- `CnAppRoot` adoption / per-page Vue file deletion / router rewrite
+  (follow-up commit "decidesk-manifest-v1-adopt").
+- Backend `/api/manifest` endpoint (App Builder use case).
+- Lib extensions for `register-mapping` field type and
+  `stats-block` dashboard widget (lib-side changes in nextcloud-vue).
+- New page types beyond the eight already in the closed enum
+  (`type: "realtime"` for `LiveMeeting`, etc.).
 
 ## Open questions
 
-1. **`manifest.version` bump timing** — bump atomically when all four
-   gates land, or stage `0.4.0` (refactor only) → `0.5.0` (multi-
-   tenancy) → `1.0.0` (i18n + resolver)? Atomic is the simpler story
-   ("v1.0.0 means the four gates are verified"); staged makes partial
-   landings releasable. Default: atomic. Revisit if any gate slips
-   significantly.
-2. **`AmendmentDetail` future** — Amendment is sub-entity to Motion.
-   Should the renderer grow cross-schema `detail` lookup, or should
-   decidesk model Amendment as a top-level schema with a
-   `parentMotion` reference (current model)? Cross-schema lookup is
-   the more general fix and lifts a constraint for the whole fleet.
-3. **`LiveMeeting` and `type:"realtime"`** — the realtime meeting
-   shell has analogues in opentalk (video) and chat. Should the
-   library grow a `type:"realtime"` built-in shaped around WebSocket
-   subscriptions and per-frame UI updates? Worth surfacing as a
-   nextcloud-vue change once the page-type-enum question lands
-   (Open Question 2 in the OR change).
+1. **Dashboard widget registry.** The `manifest-page-type-extensions`
+   change does not extend the dashboard widget registry. Decidesk's
+   three KPIs (`stats-block` per-schema-with-filter) need either a
+   built-in widget type or a fall back to `type: "custom"` for
+   `Dashboard`. Default: declare `type: "dashboard"` optimistically
+   and downgrade if validation fails. Revisit when the published
+   `dashboard-widget-system` release confirms which widget types
+   ship.
+2. **Settings register-mapping editor.** `CnRegisterMapping` is a
+   complex nested editor (multiple registers + multiple schemas +
+   per-mapping save). It does not fit `config.sections[].fields[]`.
+   Two options: (a) lib grows a `register-mapping` field type;
+   (b) `type: "settings"` learns to host a per-section custom-
+   component slot. Defaulting to (b) because it generalises better
+   and matches the pattern the `slots` override already uses for
+   index/detail. Tracked as a lib-side follow-up.
+3. **`AmendmentDetail` parent-motion sidebar tab.** The sidebar tab
+   `parentMotion` reaches across schemas — Amendment object → its
+   parent Motion. The abstract-sidebar spec resolves widgets / custom
+   components against the registry, so the cross-schema lookup runs
+   inside the custom component, not the renderer. Confirmed
+   non-blocking; the manifest entry stays `type: "detail"`.
