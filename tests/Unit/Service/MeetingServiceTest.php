@@ -21,8 +21,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
 use OCA\Decidesk\Service\MeetingService;
-use OCA\Decidesk\Service\QuorumService;
 use OCA\Decidesk\Service\WorkflowService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
@@ -76,11 +76,11 @@ class MeetingServiceTest extends TestCase
     private WorkflowService&MockObject $workflowService;
 
     /**
-     * Mock QuorumService.
+     * Mock MeetingTransitionGuard.
      *
-     * @var QuorumService&MockObject
+     * @var MeetingTransitionGuard&MockObject
      */
-    private QuorumService&MockObject $quorumService;
+    private MeetingTransitionGuard&MockObject $transitionGuard;
 
     /**
      * Set up test fixtures.
@@ -98,7 +98,7 @@ class MeetingServiceTest extends TestCase
         $this->container       = $this->createMock(originalClassName: ContainerInterface::class);
         $this->logger          = $this->createMock(originalClassName: LoggerInterface::class);
         $this->workflowService = $this->createMock(originalClassName: WorkflowService::class);
-        $this->quorumService   = $this->createMock(originalClassName: QuorumService::class);
+        $this->transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
         $this->container->method('get')
             ->with('OCA\OpenRegister\Service\ObjectService')
@@ -108,7 +108,7 @@ class MeetingServiceTest extends TestCase
             container: $this->container,
             logger: $this->logger,
             workflowService: $this->workflowService,
-            quorumService: $this->quorumService,
+            transitionGuard: $this->transitionGuard,
         );
 
     }//end setUp()
@@ -338,13 +338,13 @@ class MeetingServiceTest extends TestCase
         $workflowService = $this->createMock(originalClassName: WorkflowService::class);
         $workflowService->method('isTransitionAllowed')->willReturn(false);
 
-        $quorumService = $this->createMock(originalClassName: QuorumService::class);
+        $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
-            quorumService: $quorumService,
+            transitionGuard: $transitionGuard,
         );
 
         $result = $service->transition(meetingId: $uuid, action: 'pause');
@@ -376,13 +376,13 @@ class MeetingServiceTest extends TestCase
         $workflowService->method('isTransitionAllowed')->willReturn(true);
         $workflowService->method('requiresChairAuthorization')->willReturn(true);
 
-        $quorumService = $this->createMock(originalClassName: QuorumService::class);
+        $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
-            quorumService: $quorumService,
+            transitionGuard: $transitionGuard,
         );
 
         // Caller is NOT the chair.
@@ -416,13 +416,13 @@ class MeetingServiceTest extends TestCase
         $workflowService->method('isTransitionAllowed')->willReturn(true);
         $workflowService->method('requiresChairAuthorization')->willReturn(true);
 
-        $quorumService = $this->createMock(originalClassName: QuorumService::class);
+        $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
-            quorumService: $quorumService,
+            transitionGuard: $transitionGuard,
         );
 
         // Caller IS the chair.
@@ -455,14 +455,14 @@ class MeetingServiceTest extends TestCase
         $workflowService->method('requiresChairAuthorization')->willReturn(false);
         $workflowService->method('isQuorumRequired')->willReturn(true);
 
-        $quorumService = $this->createMock(originalClassName: QuorumService::class);
-        $quorumService->method('validateQuorum')->willReturn(false);
+        $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+        $transitionGuard->method('isOpenAllowed')->willReturn(false);
 
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
-            quorumService: $quorumService,
+            transitionGuard: $transitionGuard,
         );
 
         $result = $service->transition(meetingId: $uuid, action: 'open');
