@@ -220,6 +220,8 @@ class Application extends App implements IBootstrap
                     return new AnalyticsController(
                     request: $c->get(\OCP\IRequest::class),
                     analyticsService: $c->get(ActionItemAnalyticsService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
                     );
                 }
                 );

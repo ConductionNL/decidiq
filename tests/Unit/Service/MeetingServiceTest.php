@@ -15,6 +15,9 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-3.1
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -122,7 +125,7 @@ class MeetingServiceTest extends TestCase
      *
      * @return ObjectEntity&MockObject
      */
-    private function buildMockEntity(string $lifecycle, string $domain = 'operations', ?string $chair = null): ObjectEntity&MockObject
+    private function buildMockEntity(string $lifecycle, string $domain='operations', ?string $chair=null): ObjectEntity&MockObject
     {
         $entity = $this->createMock(originalClassName: ObjectEntity::class);
         $data   = ['lifecycle' => $lifecycle, 'domain' => $domain];
@@ -143,12 +146,12 @@ class MeetingServiceTest extends TestCase
      */
     public function testValidTransitionReturnsSuccess(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
-        $uuid         = 'aaaaaaaa-0000-0000-0000-000000000001';
-        $currentState = 'scheduled';
-        $entity       = $this->buildMockEntity($currentState);
-        $updatedEntity = $this->buildMockEntity('opened');
+        $uuid          = 'aaaaaaaa-0000-0000-0000-000000000001';
+        $currentState  = 'scheduled';
+        $entity        = $this->buildMockEntity(lifecycle: $currentState);
+        $updatedEntity = $this->buildMockEntity(lifecycle: 'opened');
 
         $this->objectService->expects($this->once())
             ->method('find')
@@ -179,10 +182,10 @@ class MeetingServiceTest extends TestCase
      */
     public function testInvalidTransitionReturnsFailure(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid   = 'aaaaaaaa-0000-0000-0000-000000000002';
-        $entity = $this->buildMockEntity('draft');
+        $entity = $this->buildMockEntity(lifecycle: 'draft');
 
         $this->objectService->expects($this->once())
             ->method('find')
@@ -273,11 +276,11 @@ class MeetingServiceTest extends TestCase
      */
     public function testCloseFromOpenedReturnsSuccess(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid          = 'aaaaaaaa-0000-0000-0000-000000000003';
-        $entity        = $this->buildMockEntity('opened');
-        $updatedEntity = $this->buildMockEntity('closed');
+        $entity        = $this->buildMockEntity(lifecycle: 'opened');
+        $updatedEntity = $this->buildMockEntity(lifecycle: 'closed');
 
         $this->objectService->method('find')->willReturn($entity);
         $this->objectService->method('updateFromArray')->willReturn($updatedEntity);
@@ -403,7 +406,7 @@ class MeetingServiceTest extends TestCase
      */
     public function testChairOnlyTransitionSucceedsForChair(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid          = 'aaaaaaaa-0000-0000-0000-000000000012';
         $entity        = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', chair: 'uid-chair');
@@ -472,5 +475,4 @@ class MeetingServiceTest extends TestCase
         self::assertStringContainsString(needle: 'Quorum', haystack: $result['message']);
 
     }//end testOpenBlockedWhenQuorumNotMet()
-
 }//end class
