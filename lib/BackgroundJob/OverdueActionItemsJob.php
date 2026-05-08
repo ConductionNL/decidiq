@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Decidesk Overdue Action Items Background Job
  *

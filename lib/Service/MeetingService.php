@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Decidesk Meeting Service
  *
@@ -17,12 +16,16 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+ * @spec openspec/changes/spec/tasks.md#task-1
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -59,18 +62,19 @@ class MeetingService
     /**
      * Constructor for MeetingService.
      *
-     * @param ContainerInterface $container       The DI container (used to retrieve ObjectService)
-     * @param LoggerInterface    $logger          The logger
-     * @param WorkflowService    $workflowService Domain-specific transition rules and chair-only gates
-     * @param QuorumService      $quorumService   Quorum validation before opening meetings
+     * @param ContainerInterface     $container       The DI container (used to retrieve ObjectService)
+     * @param LoggerInterface        $logger          The logger
+     * @param WorkflowService        $workflowService Domain-specific transition rules and chair-only gates
+     * @param MeetingTransitionGuard $transitionGuard Reads quorumMet field for the open transition
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+     * @spec openspec/changes/spec/tasks.md#task-1
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly WorkflowService $workflowService,
-        private readonly QuorumService $quorumService,
+        private readonly MeetingTransitionGuard $transitionGuard,
     ) {
     }//end __construct()
 
@@ -234,7 +238,7 @@ class MeetingService
      *
      * Validates that `$action` is a known transition, enforces domain-specific
      * workflow rules (WorkflowService), chair-only authorization (OWASP A01:2021),
-     * and quorum requirements (QuorumService) before patching the object via
+     * and quorum requirements (MeetingTransitionGuard) before patching the object via
      * OpenRegister's ObjectService.
      *
      * @param string      $meetingId     UUID of the meeting to transition
@@ -244,6 +248,7 @@ class MeetingService
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+     * @spec openspec/changes/spec/tasks.md#task-1
      *
      * @return array{success: bool, meeting: array|null, message: string}
      */
@@ -318,10 +323,9 @@ class MeetingService
             }
 
             // Quorum enforcement before opening a meeting (OWASP A01:2021).
-            // Prevents meetings being opened in quorum-enforced domains when attendance
-            // is insufficient.
+            // Reads quorumMet from the declarative Meeting field (chain spec 2 of 3).
             if ($action === 'open' && $this->workflowService->isQuorumRequired(domain: $domain) === true) {
-                if ($this->quorumService->validateQuorum(meetingId: $meetingId) === false) {
+                if ($this->transitionGuard->isOpenAllowed(meeting: $meetingData) === false) {
                     return [
                         'success' => false,
                         'meeting' => null,

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Decidesk Application
  *
@@ -17,6 +16,8 @@
  * @link https://conduction.nl
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
@@ -27,8 +28,10 @@ use OCA\Decidesk\Controller\AnalyticsController;
 use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Controller\LiveMeetingController;
 use OCA\Decidesk\Controller\MinutesController;
+use OCA\Decidesk\Controller\MotionController;
 use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
+use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
@@ -38,7 +41,10 @@ use OCA\Decidesk\Service\DecisionNotificationService;
 use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
+use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\VotingBehaviourService;
+use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\App;
@@ -168,6 +174,20 @@ class Application extends App implements IBootstrap
                 }
                 );
 
+        // Register OriPublicationService for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.
+        $context->registerService(
+                OriPublicationService::class,
+                static function ($c): OriPublicationService {
+                    return new OriPublicationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    clientService: $c->get(\OCP\Http\Client\IClientService::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
         // Register VotingBehaviourService for DI.
         // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1.
         $context->registerService(
@@ -175,6 +195,19 @@ class Application extends App implements IBootstrap
                 static function ($c): VotingBehaviourService {
                     return new VotingBehaviourService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
+                    );
+                }
+                );
+
+        // Register MotionService for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.4.
+        $context->registerService(
+                MotionService::class,
+                static function ($c): MotionService {
+                    return new MotionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    userManager: $c->get(\OCP\IUserManager::class),
                     );
                 }
                 );
@@ -187,6 +220,22 @@ class Application extends App implements IBootstrap
                     return new AnalyticsController(
                     request: $c->get(\OCP\IRequest::class),
                     analyticsService: $c->get(ActionItemAnalyticsService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    );
+                }
+                );
+
+        // Register VotingService for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.4.
+        $context->registerService(
+                VotingService::class,
+                static function ($c): VotingService {
+                    return new VotingService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    oriPublicationService: $c->get(OriPublicationService::class),
+                    motionService: $c->get(MotionService::class),
                     );
                 }
                 );
@@ -201,6 +250,21 @@ class Application extends App implements IBootstrap
                     behaviourService: $c->get(VotingBehaviourService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
+                    );
+                }
+                );
+
+        // Register MotionController for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.4.
+        $context->registerService(
+                MotionController::class,
+                static function ($c): MotionController {
+                    return new MotionController(
+                    request: $c->get(\OCP\IRequest::class),
+                    motionService: $c->get(MotionService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
                     );
                 }
                 );
@@ -238,6 +302,23 @@ class Application extends App implements IBootstrap
                 static function ($c): ALVMinutesService {
                     return new ALVMinutesService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register VotingController for DI.
+        // @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.4.
+        $context->registerService(
+                VotingController::class,
+                static function ($c): VotingController {
+                    return new VotingController(
+                    request: $c->get(\OCP\IRequest::class),
+                    votingService: $c->get(VotingService::class),
+                    oriPublicationService: $c->get(OriPublicationService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }

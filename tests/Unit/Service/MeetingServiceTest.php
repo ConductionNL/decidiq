@@ -15,14 +15,17 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-3.1
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
 use OCA\Decidesk\Service\MeetingService;
-use OCA\Decidesk\Service\QuorumService;
 use OCA\Decidesk\Service\WorkflowService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
@@ -76,11 +79,11 @@ class MeetingServiceTest extends TestCase
     private WorkflowService&MockObject $workflowService;
 
     /**
-     * Mock QuorumService.
+     * Mock MeetingTransitionGuard.
      *
-     * @var QuorumService&MockObject
+     * @var MeetingTransitionGuard&MockObject
      */
-    private QuorumService&MockObject $quorumService;
+    private MeetingTransitionGuard&MockObject $transitionGuard;
 
     /**
      * Set up test fixtures.
@@ -98,7 +101,7 @@ class MeetingServiceTest extends TestCase
         $this->container       = $this->createMock(originalClassName: ContainerInterface::class);
         $this->logger          = $this->createMock(originalClassName: LoggerInterface::class);
         $this->workflowService = $this->createMock(originalClassName: WorkflowService::class);
-        $this->quorumService   = $this->createMock(originalClassName: QuorumService::class);
+        $this->transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
         $this->container->method('get')
             ->with('OCA\OpenRegister\Service\ObjectService')
@@ -108,7 +111,7 @@ class MeetingServiceTest extends TestCase
             container: $this->container,
             logger: $this->logger,
             workflowService: $this->workflowService,
-            quorumService: $this->quorumService,
+            transitionGuard: $this->transitionGuard,
         );
 
     }//end setUp()
@@ -122,7 +125,7 @@ class MeetingServiceTest extends TestCase
      *
      * @return ObjectEntity&MockObject
      */
-    private function buildMockEntity(string $lifecycle, string $domain = 'operations', ?string $chair = null): ObjectEntity&MockObject
+    private function buildMockEntity(string $lifecycle, string $domain='operations', ?string $chair=null): ObjectEntity&MockObject
     {
         $entity = $this->createMock(originalClassName: ObjectEntity::class);
         $data   = ['lifecycle' => $lifecycle, 'domain' => $domain];
@@ -143,12 +146,12 @@ class MeetingServiceTest extends TestCase
      */
     public function testValidTransitionReturnsSuccess(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
-        $uuid         = 'aaaaaaaa-0000-0000-0000-000000000001';
-        $currentState = 'scheduled';
-        $entity       = $this->buildMockEntity($currentState);
-        $updatedEntity = $this->buildMockEntity('opened');
+        $uuid          = 'aaaaaaaa-0000-0000-0000-000000000001';
+        $currentState  = 'scheduled';
+        $entity        = $this->buildMockEntity(lifecycle: $currentState);
+        $updatedEntity = $this->buildMockEntity(lifecycle: 'opened');
 
         $this->objectService->expects($this->once())
             ->method('find')
@@ -179,10 +182,10 @@ class MeetingServiceTest extends TestCase
      */
     public function testInvalidTransitionReturnsFailure(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid   = 'aaaaaaaa-0000-0000-0000-000000000002';
-        $entity = $this->buildMockEntity('draft');
+        $entity = $this->buildMockEntity(lifecycle: 'draft');
 
         $this->objectService->expects($this->once())
             ->method('find')
@@ -273,11 +276,11 @@ class MeetingServiceTest extends TestCase
      */
     public function testCloseFromOpenedReturnsSuccess(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid          = 'aaaaaaaa-0000-0000-0000-000000000003';
-        $entity        = $this->buildMockEntity('opened');
-        $updatedEntity = $this->buildMockEntity('closed');
+        $entity        = $this->buildMockEntity(lifecycle: 'opened');
+        $updatedEntity = $this->buildMockEntity(lifecycle: 'closed');
 
         $this->objectService->method('find')->willReturn($entity);
         $this->objectService->method('updateFromArray')->willReturn($updatedEntity);
@@ -338,13 +341,13 @@ class MeetingServiceTest extends TestCase
         $workflowService = $this->createMock(originalClassName: WorkflowService::class);
         $workflowService->method('isTransitionAllowed')->willReturn(false);
 
-        $quorumService = $this->createMock(originalClassName: QuorumService::class);
+        $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
-            quorumService: $quorumService,
+            transitionGuard: $transitionGuard,
         );
 
         $result = $service->transition(meetingId: $uuid, action: 'pause');
@@ -376,13 +379,13 @@ class MeetingServiceTest extends TestCase
         $workflowService->method('isTransitionAllowed')->willReturn(true);
         $workflowService->method('requiresChairAuthorization')->willReturn(true);
 
-        $quorumService = $this->createMock(originalClassName: QuorumService::class);
+        $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
-            quorumService: $quorumService,
+            transitionGuard: $transitionGuard,
         );
 
         // Caller is NOT the chair.
@@ -403,7 +406,7 @@ class MeetingServiceTest extends TestCase
      */
     public function testChairOnlyTransitionSucceedsForChair(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid          = 'aaaaaaaa-0000-0000-0000-000000000012';
         $entity        = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', chair: 'uid-chair');
@@ -416,13 +419,13 @@ class MeetingServiceTest extends TestCase
         $workflowService->method('isTransitionAllowed')->willReturn(true);
         $workflowService->method('requiresChairAuthorization')->willReturn(true);
 
-        $quorumService = $this->createMock(originalClassName: QuorumService::class);
+        $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
-            quorumService: $quorumService,
+            transitionGuard: $transitionGuard,
         );
 
         // Caller IS the chair.
@@ -455,14 +458,14 @@ class MeetingServiceTest extends TestCase
         $workflowService->method('requiresChairAuthorization')->willReturn(false);
         $workflowService->method('isQuorumRequired')->willReturn(true);
 
-        $quorumService = $this->createMock(originalClassName: QuorumService::class);
-        $quorumService->method('validateQuorum')->willReturn(false);
+        $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+        $transitionGuard->method('isOpenAllowed')->willReturn(false);
 
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
-            quorumService: $quorumService,
+            transitionGuard: $transitionGuard,
         );
 
         $result = $service->transition(meetingId: $uuid, action: 'open');
@@ -472,5 +475,4 @@ class MeetingServiceTest extends TestCase
         self::assertStringContainsString(needle: 'Quorum', haystack: $result['message']);
 
     }//end testOpenBlockedWhenQuorumNotMet()
-
 }//end class
