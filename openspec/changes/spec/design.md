@@ -1,7 +1,7 @@
 # Design: Quorum — Guard rewrite (chain spec 2 of 3)
 
 ## Status
-proposed
+pr-created
 
 ## Spec kind & chain position (ADR-032)
 
