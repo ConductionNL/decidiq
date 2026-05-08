@@ -1,0 +1,13 @@
+{
+  "spec": "openspec/changes/manifest-version-bump",
+  "verified": [
+    {
+      "task": "1",
+      "file": "src/manifest.json",
+      "ok": true,
+      "note": "version bumped from 0.3.0 to 0.4.0"
+    }
+  ],
+  "stubs": [],
+  "missing_routes": []
+}
