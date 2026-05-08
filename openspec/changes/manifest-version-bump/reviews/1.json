@@ -1,0 +1,60 @@
+{
+  "round": 1,
+  "timestamp": "2026-05-08T08:38:22.482506+00:00",
+  "pr": 154,
+  "commit": "70d963b",
+  "code_review": {
+    "pass": true,
+    "turns": 36,
+    "cost_usd": 0.9039,
+    "cost_eur": 0.8315,
+    "tokens": {
+      "input": 34,
+      "output": 19814,
+      "cache_read": 1531954,
+      "cache_create": 39028
+    },
+    "fixes_applied": [
+      {
+        "file": "lib/AppInfo/Application.php",
+        "line": 1,
+        "rule": "merge-conflict",
+        "note": "Resolved pre-merge conflict: merged HEAD registrations (ActionItemAnalyticsService, VotingBehaviourService, AnalyticsController, VotingBehaviourController, LiveDecisionService, LiveMeetingController, ALVMinutesService, ActionItemExtractionService, DecisionNotificationService, MinutesService, ProjectionController) with origin/development registrations (OriPublicationService, MotionService, VotingService, MotionController, VotingController)"
+      },
+      {
+        "file": "lib/AppInfo/Application.php",
+        "line": 218,
+        "rule": "DI-correctness",
+        "note": "Fixed AnalyticsController DI registration to include missing userSession and groupManager constructor parameters (PHPStan caught: 'Missing parameter $groupManager / $userSession')"
+      }
+    ],
+    "unfixed": []
+  },
+  "security_review": {
+    "pass": true,
+    "turns": 50,
+    "cost_usd": 1.4511,
+    "cost_eur": 1.335,
+    "tokens": {
+      "input": 37,
+      "output": 24679,
+      "cache_read": 2098223,
+      "cache_create": 78873
+    },
+    "fixes_applied": [
+      {
+        "file": "lib/AppInfo/Application.php",
+        "line": 0,
+        "rule": "merge-conflict",
+        "note": "Resolved both-sides-add merge conflict by combining all DI registrations from HEAD (analytics, projection, ALV, live-decision stack) and origin/development (motion, voting, ORI stack)"
+      },
+      {
+        "file": "lib/AppInfo/Application.php",
+        "line": 221,
+        "rule": "CWE-284 / OWASP A01:2021",
+        "note": "AnalyticsController DI registration was missing IUserSession and IGroupManager constructor args \u2014 added both, matching the LiveMeetingController pattern in the same file. Without this fix the controller's admin guard (isAdmin()) would never execute \u2014 a TypeError at construction time would short-circuit to HTTP 500 before any auth check ran."
+      }
+    ],
+    "unfixed": []
+  }
+}
