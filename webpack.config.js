@@ -70,4 +70,9 @@ webpackConfig.plugins = [
 // preventing the nextcloud-vue submodule's nested deps (Vue 3) from leaking in.
 webpackConfig.resolve.alias['@nextcloud/dialogs'] = path.resolve(__dirname, 'node_modules/@nextcloud/dialogs')
 
+// @nextcloud/axios is pinned to ~2.5.2 (via package.json overrides) which still
+// declares both `import` and `require` exports conditions, so the package can
+// be required from @nextcloud/vue's CJS bundle without webpack 5 tripping on
+// the exports field. No alias needed; the pin alone is sufficient.
+
 module.exports = webpackConfig
