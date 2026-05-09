@@ -53,6 +53,46 @@
 - [ ] 7.6 Run the full Playwright regression suite (per the existing `regression-tests` change) and confirm every route still renders. **Blocked**: `@conduction/nextcloud-vue` is not yet released to npm; runtime smoke / regression awaits the v1.x publish.
 - [ ] 7.7 If `Dashboard`'s widget types fail validation against the published widget registry, downgrade `Dashboard` to `type: "custom"` until a `stats-block` widget ships. **Blocked**: same — no runtime validation possible until the lib publishes.
 
+## 7b. Sidebar tab implementations (cross-schema relations)
+
+Replaces the 9 `CnNoteCard` placeholder stubs in `src/components/tabs/`
+with full implementations against the lib's `useObjectStore` +
+`CnDataTable` + `CnFormDialog` + `CnDeleteDialog` patterns.
+
+- [x] 7b.1 `GovernanceBodyMembersTab` — list participants where
+  `governanceBody === parent.id`; add-existing (link participant) /
+  remove (clear `governanceBody` pointer) posture.
+- [x] 7b.2 `MeetingAgendaTab` — list agenda items where
+  `meeting === parent.id`, sorted by `orderNumber`; full CRUD via
+  `CnFormDialog` driven by the `agenda-item` schema.
+- [x] 7b.3 `MeetingParticipantsTab` — list participants whose
+  `meetings[]` array contains the meeting id; add-existing /
+  remove-from-array posture.
+- [x] 7b.4 `AgendaMotionsTab` — list motions where
+  `agendaItem === parent.id`; full CRUD with lifecycle status
+  badges (lifecycle transitions stay on /motions/:id).
+- [x] 7b.5 `MotionAmendmentsTab` — list amendments where
+  `parentMotion === parent.id`; full CRUD with lifecycle status
+  badges (transitions stay on /amendments/:id).
+- [x] 7b.6 `MotionVotesTab` — read-only audit list. Walks
+  motion → voting-round → vote chain and renders each round's
+  tally + cast votes. Vote authoring stays on LiveMeeting.
+- [x] 7b.7 `AmendmentParentMotionTab` — read-only summary card +
+  click-through to /motions/:parentMotionId. Single parent display.
+- [x] 7b.8 `MinutesSignersTab` — render `minutes.signers[]` array
+  hydrated against participant store; add/remove + "Sign now"
+  CTA that calls the existing `/api/minutes/:id/transition`
+  lifecycle endpoint.
+- [x] 7b.9 `DecisionActionItemsTab` — list action items where
+  `decision === parent.id`; full CRUD with task-status pills
+  matching the standalone /action-items index.
+- [x] 7b.10 Add `src/components/tabs/useRelationStore.js` — small
+  helper that lazily registers child object types with the lib's
+  `useObjectStore` using schema slugs from the settings store.
+- [x] 7b.11 Run `node tests/validate-manifest.js` (still passes —
+  manifest unchanged) and `npx eslint src/components/tabs/`
+  (clean) before committing.
+
 ## 8. Sign-off (per ADR-024 §9)
 
 - [x] 8.1 `src/manifest.json` validates against the canonical schema.

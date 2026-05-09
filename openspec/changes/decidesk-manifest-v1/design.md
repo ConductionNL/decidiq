@@ -271,17 +271,24 @@ What this commit does:
 4. Create `src/customComponents.js` with the surviving entries:
    - `LiveMeetingView` → `./views/LiveMeeting.vue` (genuine
      realtime exception)
-   - 9 detail-tab custom components (stub today, full
-     implementation under future tickets):
-     - `GovernanceBodyMembersTab`
-     - `MeetingAgendaTab`
-     - `MeetingParticipantsTab`
-     - `AgendaMotionsTab`
-     - `MotionAmendmentsTab`
-     - `MotionVotesTab`
-     - `AmendmentParentMotionTab`
-     - `MinutesSignersTab`
-     - `DecisionActionItemsTab`
+   - 9 detail-tab custom components (full implementations as of
+     the second cleanup follow-up commit — replaces the
+     `CnNoteCard` placeholder stubs that were checked in
+     alongside `customComponents.js`):
+     - `GovernanceBodyMembersTab` (add-existing / remove)
+     - `MeetingAgendaTab` (full CRUD)
+     - `MeetingParticipantsTab` (add-existing / remove)
+     - `AgendaMotionsTab` (full CRUD)
+     - `MotionAmendmentsTab` (full CRUD)
+     - `MotionVotesTab` (read-only audit listing)
+     - `AmendmentParentMotionTab` (read-only summary + click-through)
+     - `MinutesSignersTab` (add-existing / remove + "Sign now" CTA)
+     - `DecisionActionItemsTab` (full CRUD)
+   All nine tabs are wired to the lib's `useObjectStore`
+   (cross-schema fetches via `fetchCollection` /
+   `fetchObject`) through a small `tabs/useRelationStore.js`
+   helper that registers child object types lazily with
+   schema slugs sourced from the settings store.
    `SettingsView` is **no longer** in the registry — migrated to
    `type: "settings"` with rich `widgets[]` sections per the
    `manifest-settings-rich-sections` recipe. The settings store
@@ -303,11 +310,11 @@ What this commit does **not** do (intentionally):
 - Run the full Playwright regression suite. Blocked: the
   `@conduction/nextcloud-vue` v1.x release is upstream and not yet
   on npm. Runtime smoke / regression runs once the lib publishes.
-- Implement the 9 detail-tab custom components. They ship as stubs
-  rendering a `CnNoteCard` placeholder; each carries a
-  `TODO(decidesk-manifest-v1-tab)` comment listing the data shape
-  the full version needs. Tracked separately so the manifest cleanup
-  is not gated on tab content.
+- ~~Implement the 9 detail-tab custom components.~~ DONE in the
+  second cleanup follow-up commit (see §7b in tasks.md). Replaces
+  the placeholder `CnNoteCard` stubs with full implementations
+  using `CnDataTable` + `CnFormDialog` + `CnDeleteDialog`
+  against the lib's `useObjectStore`.
 - Touch the orphan components (`AmendmentList.vue`,
   `MeetingLifecycle.vue`, `VotingRoundPanel.vue`, `GlobalSearch.vue`).
   They have no live importers post-cleanup, but deleting them is out
