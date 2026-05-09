@@ -52,6 +52,11 @@ webpackConfig.module = {
 			test: /\.css$/,
 			use: ['style-loader', 'css-loader'],
 		},
+		{
+			// SCSS used by aliased @conduction/nextcloud-vue components (e.g. CnCard, CnDataTable)
+			test: /\.scss$/,
+			use: ['style-loader', 'css-loader', 'sass-loader'],
+		},
 	],
 }
 
