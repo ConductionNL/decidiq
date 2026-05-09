@@ -53,6 +53,9 @@
 			row-key="id"
 			:empty-text="t('decidesk', 'No votes recorded for this motion yet.')"
 			:loading-text="t('decidesk', 'Loading votes…')">
+			<template #column-caster="{ row }">
+				{{ casterDisplayName(row) }}
+			</template>
 			<template #column-value="{ value }">
 				<CnStatusBadge v-if="value" :label="value" :color-map="voteColors" />
 			</template>
@@ -76,6 +79,7 @@ export default {
 			error: '',
 			rounds: [],
 			votes: [],
+			casterById: Object.create(null),
 		}
 	},
 	computed: {
@@ -127,11 +131,50 @@ export default {
 					if (Array.isArray(list)) all.push(...list)
 				}
 				this.votes = all
+				await this.hydrateCasters(all)
 			} catch (e) {
 				this.error = e?.message || this.t('decidesk', 'Failed to load votes.')
 			} finally {
 				this.loading = false
 			}
+		},
+		// Resolve raw `caster` foreign keys to participant display names.
+		// Builds a per-id lookup once per refresh; falls back to the raw
+		// value (or "—") when a participant can't be resolved (deleted /
+		// not in this register).
+		async hydrateCasters(votes) {
+			const ids = new Set()
+			for (const v of votes) {
+				const id = v && (v.caster?.id || v.caster)
+				if (id != null && id !== '') ids.add(String(id))
+			}
+			if (!ids.size) {
+				this.casterById = Object.create(null)
+				return
+			}
+			try {
+				const partStore = ensureRelationType('participant')
+				const list = await partStore.fetchCollection('participant', {
+					_limit: Math.max(50, ids.size),
+				})
+				const map = Object.create(null)
+				for (const p of list || []) {
+					if (!p) continue
+					const key = String(p.id ?? p.uuid ?? '')
+					if (!key) continue
+					map[key] = p.displayName || p.name || p.fullName || p.email || key
+				}
+				this.casterById = map
+			} catch {
+				// Non-fatal: column falls back to the raw caster value.
+				this.casterById = Object.create(null)
+			}
+		},
+		casterDisplayName(row) {
+			const raw = row && (row.caster?.id || row.caster)
+			if (raw == null || raw === '') return '—'
+			const key = String(raw)
+			return this.casterById[key] || key
 		},
 	},
 }

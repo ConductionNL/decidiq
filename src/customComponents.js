@@ -42,8 +42,10 @@ export default {
 	LiveMeetingView,
 
 	// --- Detail-tab components (one per cross-schema relation). ---
-	// Each lives in /components/tabs/. Stubs today; flesh out under
-	// individual follow-up tickets (see TODO comments inside each file).
+	// Each lives in /components/tabs/. Full-CRUD (or read-only where
+	// authoring lives elsewhere — votes are LiveMeeting-only by design).
+	// Cross-schema lookups resolve inside each component rather than the
+	// renderer, per the manifest-abstract-sidebar contract.
 	GovernanceBodyMembersTab,
 	MeetingAgendaTab,
 	MeetingParticipantsTab,
