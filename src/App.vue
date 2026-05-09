@@ -1,86 +1,135 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- Copyright (C) 2026 Conduction B.V. -->
+
+<!--
+ Decidesk app shell. Mounts CnAppRoot with the bundled manifest and the
+ customComponents registry; provides the `objectSidebarState` channel so
+ detail pages (CnDetailPage) can drive a single host-rendered
+ CnObjectSidebar through the #sidebar slot.
+
+ @spec openspec/changes/decidesk-manifest-v1/tasks.md#task-7.2
+-->
 <template>
-	<NcContent app-name="decidesk">
-		<template v-if="storesReady && !hasOpenRegisters">
-			<NcAppContent class="open-register-missing">
-				<NcEmptyContent
-					:name="t('decidesk', 'OpenRegister is required')"
-					:description="t('decidesk', 'This app needs OpenRegister to store and manage data. Please install OpenRegister from the app store to get started.')">
-					<template #icon>
-						<img :src="appIcon"
-							alt=""
-							width="64"
-							height="64">
-					</template>
-					<template #action>
-						<NcButton
-							v-if="isAdmin"
-							type="primary"
-							:href="appStoreUrl">
-							{{ t('decidesk', 'Install OpenRegister') }}
-						</NcButton>
-					</template>
-				</NcEmptyContent>
-			</NcAppContent>
+	<CnAppRoot
+		:manifest="manifest"
+		:custom-components="customComponents"
+		:page-types="pageTypes"
+		app-id="decidesk"
+		:translate="translateForApp"
+		:permissions="permissions">
+		<template #sidebar>
+			<CnObjectSidebar
+				v-if="objectSidebarState.active"
+				:title="objectSidebarState.title"
+				:subtitle="objectSidebarState.subtitle"
+				:object-type="objectSidebarState.objectType"
+				:object-id="objectSidebarState.objectId"
+				:register="objectSidebarState.register"
+				:schema="objectSidebarState.schema"
+				:hidden-tabs="objectSidebarState.hiddenTabs"
+				:tabs="objectSidebarState.tabs"
+				:open="objectSidebarState.open"
+				@update:open="objectSidebarState.open = $event" />
 		</template>
-		<template v-else-if="storesReady && hasOpenRegisters">
-			<MainMenu />
-			<NcAppContent>
-				<router-view />
-			</NcAppContent>
-		</template>
-		<NcAppContent v-else>
-			<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-				<NcLoadingIcon :size="64" />
-			</div>
-		</NcAppContent>
-	</NcContent>
+	</CnAppRoot>
 </template>
 
 <script>
-import { NcButton, NcContent, NcAppContent, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
-import { generateUrl, imagePath } from '@nextcloud/router'
+import Vue from 'vue'
+import { translate as ncT } from '@nextcloud/l10n'
+import { CnAppRoot, CnObjectSidebar } from '@conduction/nextcloud-vue'
 import { initializeStores } from './store/store.js'
-import { useSettingsStore } from './store/modules/settings.js'
-import MainMenu from './navigation/MainMenu.vue'
 
 export default {
 	name: 'App',
+
 	components: {
-		NcButton,
-		NcContent,
-		NcAppContent,
-		NcEmptyContent,
-		NcLoadingIcon,
-		MainMenu,
+		CnAppRoot,
+		CnObjectSidebar,
+	},
+
+	provide() {
+		return {
+			// Channel for CnDetailPage → host-rendered CnObjectSidebar.
+			// Vue.observable makes the plain object reactive for Vue 2.
+			objectSidebarState: this.objectSidebarState,
+		}
+	},
+
+	props: {
+		/**
+		 * Manifest object — passed from main.js bootstrap. CnAppRoot reads
+		 * `manifest.dependencies` for the dependency-check phase and
+		 * `manifest.menu` for the default CnAppNav.
+		 */
+		manifest: {
+			type: Object,
+			required: true,
+		},
+		/**
+		 * Registry of consumer-injected components used by:
+		 *   - `type: "custom"` pages (`page.component`)
+		 *   - `headerComponent` / `actionsComponent` slot overrides
+		 *   - `pages[].config.sidebarTabs[].component` (detail tab tabs)
+		 *   - `pages[].config.sections[].component` (settings rich sections)
+		 */
+		customComponents: {
+			type: Object,
+			default: () => ({}),
+		},
+		/**
+		 * Page-type registry — `{ index, detail, dashboard, settings, ... }`.
+		 * Wired through to descendant `CnPageRenderer` instances via
+		 * provide/inject.
+		 */
+		pageTypes: {
+			type: Object,
+			default: null,
+		},
 	},
 
 	data() {
 		return {
-			storesReady: false,
+			objectSidebarState: Vue.observable({
+				active: false,
+				open: true,
+				objectType: '',
+				objectId: '',
+				title: '',
+				subtitle: '',
+				register: '',
+				schema: '',
+				hiddenTabs: [],
+				tabs: undefined,
+			}),
 		}
 	},
 
 	computed: {
-		hasOpenRegisters() {
-			const settingsStore = useSettingsStore()
-			return settingsStore.hasOpenRegisters
-		},
-		isAdmin() {
-			const settingsStore = useSettingsStore()
-			return settingsStore.getIsAdmin
-		},
-		appIcon() {
-			return imagePath('decidesk', 'app-dark.svg')
-		},
-		appStoreUrl() {
-			return generateUrl('/settings/apps/integration/openregister')
+		permissions() {
+			return window.OC?.currentUser?.permissions ?? []
 		},
 	},
 
 	async created() {
+		// Pinia stores still need to come up so legacy custom components
+		// (LiveMeeting, settings store, etc.) keep working through the
+		// transition. CnAppRoot itself doesn't depend on them.
 		await initializeStores()
-		this.storesReady = true
+	},
+
+	methods: {
+		/**
+		 * Translate function passed down to CnAppRoot / CnAppNav /
+		 * CnPageRenderer. Closes over the Nextcloud `translate` import so
+		 * the lib never has to know our app id.
+		 *
+		 * @param {string} key Translation key.
+		 * @return {string} Translated string (or the key on miss).
+		 */
+		translateForApp(key) {
+			return ncT('decidesk', key)
+		},
 	},
 }
 </script>
