@@ -16,11 +16,12 @@
 //   1. Env var APP_MANIFEST_SCHEMA — explicit absolute path to a schema JSON
 //   2. node_modules/@conduction/nextcloud-vue/src/schemas/app-manifest.schema.json
 //   3. ../nextcloud-vue/src/schemas/app-manifest.schema.json (sibling worktree)
-//   4. /tmp/worktrees/nextcloud-vue-page-type-extensions/src/schemas/app-manifest.schema.json
+//   4. /tmp/worktrees/nextcloud-vue-manifest-v1/src/schemas/app-manifest.schema.json (v1.2.0 consolidation worktree)
+//   5. /tmp/worktrees/nextcloud-vue-page-type-extensions/src/schemas/app-manifest.schema.json (v1.1.0 fallback)
 //
-// The third / fourth options exist because the v1.1.0 schema is not yet
-// released to npm; the page-type-extensions worktree carries the canonical
-// in-flight v1.1.0 source. Once published, options 1 and 2 take over.
+// The fourth / fifth options exist because the v1.x schema is not yet
+// released to npm; the consolidated `manifest-v1` worktree carries the
+// canonical v1.2.0 source. Once published, options 1 and 2 take over.
 
 'use strict'
 
@@ -35,6 +36,7 @@ const SCHEMA_CANDIDATES = [
 	process.env.APP_MANIFEST_SCHEMA,
 	path.join(REPO_ROOT, 'node_modules', '@conduction', 'nextcloud-vue', 'src', 'schemas', 'app-manifest.schema.json'),
 	path.join(REPO_ROOT, '..', 'nextcloud-vue', 'src', 'schemas', 'app-manifest.schema.json'),
+	'/tmp/worktrees/nextcloud-vue-manifest-v1/src/schemas/app-manifest.schema.json',
 	'/tmp/worktrees/nextcloud-vue-page-type-extensions/src/schemas/app-manifest.schema.json',
 ].filter(Boolean)
 

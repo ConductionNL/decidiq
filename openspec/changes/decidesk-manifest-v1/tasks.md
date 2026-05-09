@@ -43,15 +43,15 @@
 - [x] 6.4 Commit on branch `feature/decidesk-manifest-v1` with no `Co-Authored-By` trailer (per project convention).
 - [x] 6.5 Do NOT push, do NOT open a PR — Hydra coordination handles those.
 
-## 7. Adoption follow-up (BLOCKED on lib release — out of this commit)
+## 7. Adoption follow-up (cleanup commit — landing alongside lib v1.x)
 
-- [ ] 7.1 **Block** until `@conduction/nextcloud-vue` ships a release including `manifest-page-type-extensions`, `manifest-abstract-sidebar`, and `manifest-config-defs`. Bump the `package.json` floor to that version.
-- [ ] 7.2 Replace `src/main.js` + `src/App.vue` with `CnAppRoot` + `CnPageRenderer` consumption.
-- [ ] 7.3 Replace `src/router/index.js` with a router-from-manifest builder (`manifest.pages[*].{id, route}`).
-- [ ] 7.4 Add `src/customComponents.js` exporting the surviving 2 entries (`LiveMeetingView`, `SettingsView`) plus the per-detail-tab custom components.
-- [ ] 7.5 Delete the 18 obsolete per-page Vue files listed in `design.md` "Cleanup follow-up".
-- [ ] 7.6 Run the full Playwright regression suite (per the existing `regression-tests` change) and confirm every route still renders.
-- [ ] 7.7 If `Dashboard`'s widget types fail validation against the published widget registry, downgrade `Dashboard` to `type: "custom"` until a `stats-block` widget ships.
+- [x] 7.1 Bump `package.json` `@conduction/nextcloud-vue` floor to `^1.0.0-beta.2` (the consolidated `manifest-v1` worktree's current declared version, which contains all six manifest sibling changes — `manifest-page-type-extensions`, `manifest-abstract-sidebar`, `manifest-schema-config-defs`, `manifest-settings-rich-sections`, `manifest-detail-sidebar-config`, `manifest-config-refs`). Placeholder pre-release tag — bump to the published v1.x semver when it ships.
+- [x] 7.2 Replace `src/main.js` + `src/App.vue` with `CnAppRoot` + `CnPageRenderer` consumption. main.js now derives the vue-router routes from `manifest.pages[*].{id, route}` and mounts every route with `CnPageRenderer`. App.vue mounts `<CnAppRoot>` with the `#sidebar` slot wired to a single host `CnObjectSidebar` via the `objectSidebarState` provide/inject channel.
+- [x] 7.3 Replace `src/router/index.js` with a router-from-manifest builder. Router config moved inline into `src/main.js` (`routesFromManifest()`); the standalone file is removed. Catch-all redirect to `/` preserved.
+- [x] 7.4 Add `src/customComponents.js` exporting the surviving entries: `LiveMeetingView` (genuine realtime exception) plus 9 detail-tab custom components (`GovernanceBodyMembersTab`, `MeetingAgendaTab`, `MeetingParticipantsTab`, `AgendaMotionsTab`, `MotionAmendmentsTab`, `MotionVotesTab`, `AmendmentParentMotionTab`, `MinutesSignersTab`, `DecisionActionItemsTab`). `SettingsView` is NO LONGER in the registry — Settings page migrated to `type: "settings"` with `widgets[]` rich sections (per `manifest-settings-rich-sections`).
+- [x] 7.5 Delete the 18 obsolete per-page Vue files listed in `design.md` "Cleanup follow-up". Also deleted: `src/views/SettingsView.vue` (replaced by manifest), `src/router/index.js` (folded into main.js), `src/navigation/MainMenu.vue` (replaced by lib's `CnAppNav` mounted by `CnAppRoot`).
+- [ ] 7.6 Run the full Playwright regression suite (per the existing `regression-tests` change) and confirm every route still renders. **Blocked**: `@conduction/nextcloud-vue` is not yet released to npm; runtime smoke / regression awaits the v1.x publish.
+- [ ] 7.7 If `Dashboard`'s widget types fail validation against the published widget registry, downgrade `Dashboard` to `type: "custom"` until a `stats-block` widget ships. **Blocked**: same — no runtime validation possible until the lib publishes.
 
 ## 8. Sign-off (per ADR-024 §9)
 

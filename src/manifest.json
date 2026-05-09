@@ -308,9 +308,82 @@
 		{
 			"id": "Settings",
 			"route": "/settings",
-			"type": "custom",
+			"type": "settings",
 			"title": "Settings",
-			"component": "SettingsView"
+			"config": {
+				"saveEndpoint": "/index.php/apps/decidesk/api/settings",
+				"sections": [
+					{
+						"title": "Version",
+						"widgets": [
+							{
+								"type": "version-info",
+								"props": {
+									"appName": "Decidesk",
+									"showUpdateButton": true,
+									"isUpToDate": true,
+									"title": "Version Information",
+									"description": "Information about the current Decidesk installation"
+								}
+							}
+						]
+					},
+					{
+						"title": "Registers",
+						"widgets": [
+							{
+								"type": "register-mapping",
+								"props": {
+									"name": "Register Configuration",
+									"description": "Configure the OpenRegister schema mappings for all Decidesk object types.",
+									"showReimportButton": true,
+									"groups": [
+										{
+											"name": "Decidesk",
+											"types": [
+												{ "slug": "governance-body", "label": "Governance Bodies" },
+												{ "slug": "meeting", "label": "Meetings" },
+												{ "slug": "participant", "label": "Participants" },
+												{ "slug": "agenda-item", "label": "Agenda Items" },
+												{ "slug": "motion", "label": "Motions" },
+												{ "slug": "amendment", "label": "Amendments" },
+												{ "slug": "voting-round", "label": "Voting Rounds" },
+												{ "slug": "vote", "label": "Votes" },
+												{ "slug": "decision", "label": "Decisions" },
+												{ "slug": "action-item", "label": "Action Items" },
+												{ "slug": "minutes", "label": "Minutes" },
+												{ "slug": "digital-document", "label": "Digital Documents" },
+												{ "slug": "monetary-amount", "label": "Monetary Amounts" },
+												{ "slug": "offer", "label": "Offers" },
+												{ "slug": "order", "label": "Orders" },
+												{ "slug": "product", "label": "Products" },
+												{ "slug": "report", "label": "Reports" }
+											]
+										}
+									]
+								}
+							}
+						]
+					},
+					{
+						"title": "Advanced",
+						"fields": [
+							{
+								"key": "ori_endpoint",
+								"type": "string",
+								"label": "ORI-eindpunt",
+								"help": "ORI API endpoint URL for publishing voting results"
+							},
+							{
+								"key": "email_voting_enabled",
+								"type": "boolean",
+								"label": "E-mail stemmen inschakelen",
+								"help": "Enable email reply voting"
+							}
+						]
+					}
+				]
+			}
 		}
 	]
 }

@@ -60,9 +60,9 @@ the existing per-page `data().columns` arrays. Detail pages declare
 | `DecisionDetail` | custom | `detail` | `{ register: "decidesk", schema: "decision", sidebarTabs: [overview, actionItems, audit] }` | Standard detail. |
 | `ActionItems` | custom | `index` | `{ register: "decidesk", schema: "action-item", columns: ["title","assignee","dueDate","taskStatus"], sidebar: { enabled: true } }` | Schema-driven list. |
 | `ActionItemDetail` | custom | `detail` | `{ register: "decidesk", schema: "action-item", sidebarTabs: [overview, audit] }` | Standard detail. |
-| `Settings` | custom | `custom` | (unchanged) `component: "SettingsView"` | **Lib gap** — current settings mixes `CnVersionInfoCard` + `CnRegisterMapping` + ORI URL + email-voting toggle. The new `type: "settings"` `config.sections[].fields[]` shape covers the URL + boolean fields, but not the register-mapping editor. Stays custom until the lib grows a `register-mapping` field type or a settings-section custom-component slot. |
+| `Settings` | custom | `settings` | `{ saveEndpoint, sections: [Version (version-info widget), Registers (register-mapping widget, 17 types), Advanced (fields: ori_endpoint, email_voting_enabled)] }` | **Migrated in cleanup commit** — `manifest-settings-rich-sections` shipped `widgets[]` on `sections[]`, unblocking the previous lib gap. `SettingsView.vue` deleted. |
 
-Final tally: **8 index + 9 detail + 1 dashboard + 2 custom = 20**.
+Final tally (after cleanup commit): **8 index + 9 detail + 1 dashboard + 1 settings + 1 custom = 20**.
 
 ## Sidebar tab inventory
 
@@ -167,15 +167,17 @@ Three categories:
 
 ### Lib gaps (could migrate if the lib were richer)
 
-- **`Settings`** — current settings has `CnVersionInfoCard` (read-only
-  version + support footer), `CnRegisterMapping` (an interactive
-  schema-mapping editor), an ORI endpoint URL field, and an
-  email-voting toggle. The new `type: "settings"`
-  `config.sections[].fields[]` shape covers the URL + toggle but
-  cannot host `CnRegisterMapping` or `CnVersionInfoCard`. Migration
-  blocker: lib needs (a) a `register-mapping` field type or (b) a
-  per-section custom-component slot. Tracked as
-  `nextcloud-vue/cn-settings-register-mapping-field`.
+- ~~**`Settings`**~~ **RESOLVED in cleanup follow-up.** The lib's
+  `manifest-settings-rich-sections` change shipped a `widgets[]`
+  extension on `pages[].config.sections[]` with built-in widget
+  types `version-info` and `register-mapping`. Decidesk's Settings
+  page migrated to `type: "settings"` with three sections — Version
+  (version-info widget), Registers (register-mapping widget covering
+  all 17 types), Advanced (flat `fields[]` for `ori_endpoint` and
+  `email_voting_enabled`). `SettingsView.vue` deleted. Save / reimport
+  events flow through `@widget-event` on `CnAppRoot` to the
+  `useSettingsStore` actions (wired in main.js / App.vue at runtime
+  once the lib publishes).
 - **`Dashboard`** *(if no `stats-block` widget)* — KPIs as hard-coded
   `CnStatsBlock` calls map naturally to a `stats-block` `widgetDef`,
   but the lib's current widget registry only exposes the dashboard
@@ -234,24 +236,83 @@ Untouched in this commit:
   bumped.
 - `decidesk/lib/Settings/decidesk_register.json` — schemas untouched.
 
-## Cleanup follow-up (after `@conduction/nextcloud-vue` release lands)
+## Cleanup follow-up — DONE in this commit
 
-Once the sibling changes ship a published `@conduction/nextcloud-vue`
-release and decidesk bumps the floor in `package.json`, the
-follow-up commit "decidesk-manifest-v1-adopt" performs:
+Originally deferred to a separate "decidesk-manifest-v1-adopt" commit;
+landed in this same change as the **cleanup follow-up commit** (the
+second commit on `feature/decidesk-manifest-v1`, on top of the
+manifest-rewrite parent). What changed since the cleanup-follow-up was
+first written:
 
-1. Bump `package.json` `@conduction/nextcloud-vue` floor to the
-   release that includes all three sibling changes.
+- The six manifest-related lib changes consolidated onto a single
+  `feature/manifest-v1` branch in the `nextcloud-vue` repo (schema
+  v1.2.0, package version `1.0.0-beta.2`). The lib now ships
+  `manifest-settings-rich-sections` — a `widgets[]` extension to
+  `pages[].config.sections[]` accepting built-in `version-info` and
+  `register-mapping` widget types. That **unblocks** decidesk's
+  `Settings` page, which was previously a `type: "custom"` survivor
+  due to the lib gap (see "Custom-fallback inventory → Lib gaps"
+  above).
+
+What this commit does:
+
+1. Bump `package.json` `@conduction/nextcloud-vue` floor to
+   `^1.0.0-beta.2`. This is a **placeholder** — the lib has not yet
+   been published to npm. Bump to the actual published semver once
+   v1.x ships.
 2. Replace `src/main.js` shell + `src/App.vue` with `CnAppRoot` +
-   `CnPageRenderer` consumption per the manifest.
-3. Replace `src/router/index.js` with a router-from-manifest
-   builder (deriving routes from `manifest.pages[*].{id, route}`).
-4. Create `src/customComponents.js` with the four registry entries:
-   - `LiveMeetingView` → `./views/LiveMeeting.vue`
-   - `SettingsView` → `./views/SettingsView.vue`
-   - (plus the per-detail-tab custom components when those land)
-5. Delete the 18 obsolete per-page Vue files listed above.
-6. Run the full Playwright regression suite per task §6.
+   `CnPageRenderer` consumption. main.js builds the vue-router
+   routes from `manifest.pages[*].{id, route}` (one `CnPageRenderer`
+   per route, `props: true` when the path declares a `:` parameter).
+   App.vue provides the `objectSidebarState` channel and slots in a
+   single host-rendered `<CnObjectSidebar>` via `#sidebar`.
+3. Fold the legacy `src/router/index.js` builder into `main.js` and
+   delete the standalone file.
+4. Create `src/customComponents.js` with the surviving entries:
+   - `LiveMeetingView` → `./views/LiveMeeting.vue` (genuine
+     realtime exception)
+   - 9 detail-tab custom components (stub today, full
+     implementation under future tickets):
+     - `GovernanceBodyMembersTab`
+     - `MeetingAgendaTab`
+     - `MeetingParticipantsTab`
+     - `AgendaMotionsTab`
+     - `MotionAmendmentsTab`
+     - `MotionVotesTab`
+     - `AmendmentParentMotionTab`
+     - `MinutesSignersTab`
+     - `DecisionActionItemsTab`
+   `SettingsView` is **no longer** in the registry — migrated to
+   `type: "settings"` with rich `widgets[]` sections per the
+   `manifest-settings-rich-sections` recipe. The settings store
+   continues to back the `register-mapping` widget through the
+   `@widget-event` re-emit pattern (wired at the consuming app
+   level when the runtime save handler lands).
+5. Migrate `src/manifest.json` Settings page from `type: "custom"`
+   to `type: "settings"` with three sections (`Version` →
+   `version-info` widget; `Registers` → `register-mapping` widget
+   covering all 17 decidesk types; `Advanced` → flat `fields[]` for
+   `ori_endpoint` (string) + `email_voting_enabled` (boolean)).
+6. Delete the 18 obsolete per-page Vue files. Also delete
+   `src/views/SettingsView.vue` (now redundant), `src/router/index.js`
+   (folded into main.js), and `src/navigation/MainMenu.vue` (replaced
+   by the lib's `CnAppNav` driven by the manifest menu).
+
+What this commit does **not** do (intentionally):
+
+- Run the full Playwright regression suite. Blocked: the
+  `@conduction/nextcloud-vue` v1.x release is upstream and not yet
+  on npm. Runtime smoke / regression runs once the lib publishes.
+- Implement the 9 detail-tab custom components. They ship as stubs
+  rendering a `CnNoteCard` placeholder; each carries a
+  `TODO(decidesk-manifest-v1-tab)` comment listing the data shape
+  the full version needs. Tracked separately so the manifest cleanup
+  is not gated on tab content.
+- Touch the orphan components (`AmendmentList.vue`,
+  `MeetingLifecycle.vue`, `VotingRoundPanel.vue`, `GlobalSearch.vue`).
+  They have no live importers post-cleanup, but deleting them is out
+  of scope for this commit and will be handled by a future
+  dead-code sweep.
 
 ## Citations
 
