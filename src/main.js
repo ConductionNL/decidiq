@@ -32,7 +32,32 @@ Vue.use(VueRouter)
 
 // Register library-side icon set + lib translations once at bootstrap.
 registerIcons()
-registerTranslations()
+try {
+	registerTranslations()
+} catch (e) {
+	// Non-fatal — lib translations fall back to English source.
+	// eslint-disable-next-line no-console
+	console.warn('[decidesk] registerTranslations failed; falling back to English', e)
+}
+
+// Fire-and-forget translation load. Some Nextcloud installs (including
+// this repo's standard dev container) only allow the JS/CSS allowlist
+// through Apache and rewrite everything else to index.php — there's no
+// route for /custom_apps/<app>/l10n/<locale>.json so the request 404s.
+// `loadTranslations` rejects on 404, so wrapping the Vue mount inside
+// its callback meant boot silently failed when translations couldn't
+// load. Strings just fall back to their English source on miss; boot
+// MUST not depend on this resolving.
+function tryLoadTranslations() {
+	try {
+		const result = loadTranslations('decidesk', () => {})
+		if (result && typeof result.then === 'function') {
+			result.then(() => {}, () => {})
+		}
+	} catch {
+		// no-op
+	}
+}
 
 /**
  * Build the vue-router config from the manifest. Each manifest page becomes
@@ -43,11 +68,19 @@ registerTranslations()
  * @param {object} manifest The bundled manifest (with `pages[]`).
  * @return {Array<object>} vue-router 3 routes config.
  */
+// Shallow-clone CnPageRenderer because the lib's barrel exports are
+// non-extensible (webpack ESM module records). Vue 2's `Vue.extend()`
+// adds an internal `_Ctor` cache to the component definition; mutating
+// a non-extensible export throws "Cannot add property _Ctor, object is
+// not extensible". Cloning gives Vue Router an extensible
+// component-options object without altering the lib's internals.
+const RoutePageRenderer = { ...CnPageRenderer }
+
 function routesFromManifest(manifest) {
 	const routes = manifest.pages.map((page) => ({
 		name: page.id,
 		path: page.route,
-		component: CnPageRenderer,
+		component: RoutePageRenderer,
 		props: page.route.includes(':'),
 	}))
 	// Catch-all redirect to dashboard, preserving prior router behaviour.
@@ -61,16 +94,26 @@ const router = new VueRouter({
 	routes: routesFromManifest(bundledManifest),
 })
 
-loadTranslations('decidesk', () => {
-	new Vue({
-		pinia,
-		router,
-		render: (h) => h(App, {
-			props: {
-				manifest: bundledManifest,
-				customComponents,
-				pageTypes: defaultPageTypes,
-			},
-		}),
-	}).$mount('#content')
-})
+tryLoadTranslations()
+
+// Pass shallow copies of the registry maps to CnAppRoot. The lib exports
+// `defaultPageTypes` (and consumers' `customComponents`) as frozen module
+// objects in some bundle shapes — Vue 2's `Vue.extend()` mutates component
+// definitions to attach an internal `_Ctor` cache, which throws
+// "Cannot add property _Ctor, object is not extensible" against a frozen
+// source map. Cloning here yields extensible objects without changing
+// the values the lib resolves at render time.
+const pageTypesProp = { ...defaultPageTypes }
+const customComponentsProp = { ...customComponents }
+
+new Vue({
+	pinia,
+	router,
+	render: (h) => h(App, {
+		props: {
+			manifest: bundledManifest,
+			customComponents: customComponentsProp,
+			pageTypes: pageTypesProp,
+		},
+	}),
+}).$mount('#content')
