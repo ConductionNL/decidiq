@@ -209,7 +209,10 @@ export default {
 			advancingBob: false,
 			processingHamerstukken: false,
 			confirmHamerstukken: false,
-			refreshInterval: null,
+			// Live-update subscription handles, populated in created().
+			// Plugin auto-falls-back to polling when notify_push is unavailable,
+			// so the page works on stacks with or without the WebSocket sidecar.
+			liveSubs: [],
 		}
 	},
 
@@ -344,13 +347,52 @@ export default {
 
 	async created() {
 		await this.fetchData()
-		// Auto-refresh every 30 seconds.
-		this.refreshInterval = setInterval(() => this.refreshItems(), 30000)
+
+		// Live updates: subscribe to the meeting object + the two collections
+		// the page renders. The store's subscribe() returns a handle and
+		// auto-refetches the affected resource when an OR notify_push event
+		// arrives. Falls back to coalesced polling (30s collections / 60s
+		// objects) when notify_push is unavailable, so this works on stacks
+		// without the WebSocket sidecar with no extra config.
+		//
+		// Why these three:
+		//   - meeting object: status / currentAgendaItem advance fires
+		//     or-object-{meetingUuid}; the page picks up the new active
+		//     agenda item and re-renders the chairperson controls.
+		//   - agenda-item collection: a new vote object created mid-meeting,
+		//     or an item removed/reordered, fires or-collection-... and
+		//     the items list refreshes.
+		//   - participant collection: late joiners / drop-offs surface
+		//     immediately so the chair indicator stays accurate.
+		try {
+			this.liveSubs.push(this.objectStore.subscribe('meeting', this.id))
+			this.liveSubs.push(this.objectStore.subscribe('agenda-item'))
+			this.liveSubs.push(this.objectStore.subscribe('participant'))
+		} catch (e) {
+			// Subscription is best-effort; if the plugin isn't available
+			// (older @conduction/nextcloud-vue) or the store isn't configured
+			// for these types, fall back to a 30s timer for refreshItems().
+			console.warn('LiveMeeting: live-updates plugin unavailable, using 30s polling', e)
+			this.refreshInterval = setInterval(() => this.refreshItems(), 30000)
+		}
 	},
 
 	beforeDestroy() {
-		if (this.refreshInterval !== null) {
+		// Tear down all live-update subscriptions; refcount drops to 0 ->
+		// the underlying notify_push listener for each event key is removed.
+		for (const handle of this.liveSubs) {
+			try {
+				this.objectStore.unsubscribe(handle)
+			} catch (e) {
+				// best-effort cleanup
+			}
+		}
+		this.liveSubs = []
+
+		// Clean up the polling fallback if it was started.
+		if (this.refreshInterval) {
 			clearInterval(this.refreshInterval)
+			this.refreshInterval = null
 		}
 	},
 }

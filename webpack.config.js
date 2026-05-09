@@ -52,6 +52,11 @@ webpackConfig.module = {
 			test: /\.css$/,
 			use: ['style-loader', 'css-loader'],
 		},
+		{
+			// SCSS used by aliased @conduction/nextcloud-vue components (e.g. CnCard, CnDataTable)
+			test: /\.scss$/,
+			use: ['style-loader', 'css-loader', 'sass-loader'],
+		},
 	],
 }
 
@@ -65,13 +70,9 @@ webpackConfig.plugins = [
 // preventing the nextcloud-vue submodule's nested deps (Vue 3) from leaking in.
 webpackConfig.resolve.alias['@nextcloud/dialogs'] = path.resolve(__dirname, 'node_modules/@nextcloud/dialogs')
 
-// Bypass @nextcloud/axios's `exports` field which only declares the `import`
-// condition. @nextcloud/vue's CJS bundle still uses require('@nextcloud/axios')
-// and webpack 5's CommonJS resolver fails the exports check with:
-//   "." is not exported under the conditions ["require","module","webpack",...]
-// Aliasing the bare specifier directly at the dist entry sidesteps the
-// exports field gate. Use the $-suffixed exact-match form so subpath imports
-// (e.g. @nextcloud/axios/dist/foo) keep their normal resolution.
-webpackConfig.resolve.alias['@nextcloud/axios$'] = path.resolve(__dirname, 'node_modules/@nextcloud/axios/dist/index.js')
+// @nextcloud/axios is pinned to ~2.5.2 (via package.json overrides) which still
+// declares both `import` and `require` exports conditions, so the package can
+// be required from @nextcloud/vue's CJS bundle without webpack 5 tripping on
+// the exports field. No alias needed; the pin alone is sufficient.
 
 module.exports = webpackConfig
