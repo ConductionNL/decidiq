@@ -16,6 +16,7 @@ import pinia from './pinia.js'
 import App from './App.vue'
 import bundledManifest from './manifest.json'
 import customComponents from './customComponents.js'
+import { initializeStores } from './store/store.js'
 
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
 import '@conduction/nextcloud-vue/css/index.css'
@@ -106,14 +107,40 @@ tryLoadTranslations()
 const pageTypesProp = { ...defaultPageTypes }
 const customComponentsProp = { ...customComponents }
 
-new Vue({
-	pinia,
-	router,
-	render: (h) => h(App, {
-		props: {
-			manifest: bundledManifest,
-			customComponents: customComponentsProp,
-			pageTypes: pageTypesProp,
-		},
-	}),
-}).$mount('#content')
+// Boot order matters: initializeStores() registers every object type
+// (meeting, agenda-item, participant, motion, ...) on the lib's shared
+// store via registerObjectType(). If we mount Vue before this resolves,
+// Vue creates child components synchronously and any `created()` hook
+// that calls fetchObject/fetchCollection/subscribe runs before the
+// types are registered — the lib throws "Object type X is not
+// registered" and the page renders empty data + a fallback header.
+// App.vue's own `await initializeStores()` was insufficient because Vue
+// doesn't wait for an async `created()` to resolve before mounting
+// children. Awaiting here, before $mount, means the store is ready by
+// the time the first child component runs.
+//
+// initializeStores() is documented as idempotent so App.vue's call
+// stays in place as a safety net for future entry points.
+;(async () => {
+	try {
+		await initializeStores()
+	} catch (e) {
+		// Boot must not depend on this resolving — the app should still
+		// mount so the user sees a usable shell. Children that need
+		// registered types will surface their own errors and recover
+		// when initializeStores() retries via App.vue's lifecycle hook.
+		console.error('Boot: initializeStores() failed; mounting anyway', e)
+	}
+
+	new Vue({
+		pinia,
+		router,
+		render: (h) => h(App, {
+			props: {
+				manifest: bundledManifest,
+				customComponents: customComponentsProp,
+				pageTypes: pageTypesProp,
+			},
+		}),
+	}).$mount('#content')
+})()
