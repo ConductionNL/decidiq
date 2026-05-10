@@ -310,20 +310,20 @@ export default {
 		async fetchCurrentRound() {
 			this.loading = true
 			try {
-				const [roundResult, participantResult] = await Promise.all([
-					this.objectStore.fetchObjects('voting-round', {
+				const [rounds, participants] = await Promise.all([
+					this.objectStore.fetchCollection('voting-round', {
 						'relations.motion': this.motionId,
 					}),
 					this.meetingId
-						? this.objectStore.fetchObjects('participant', { 'relations.meeting': this.meetingId })
+						? this.objectStore.fetchCollection('participant', { 'relations.meeting': this.meetingId })
 						: Promise.resolve(null),
 				])
-				const rounds = roundResult?.results || []
+				const roundList = rounds || []
 				// Show most recent open round, then most recent closed.
-				const open = rounds.find(r => r.openedAt && !r.closedAt)
-				const recent = rounds.sort((a, b) => new Date(b.openedAt || 0) - new Date(a.openedAt || 0))[0]
+				const open = roundList.find(r => r.openedAt && !r.closedAt)
+				const recent = roundList.slice().sort((a, b) => new Date(b.openedAt || 0) - new Date(a.openedAt || 0))[0]
 				this.currentRound = open || recent || null
-				this.participantCount = participantResult?.results?.length ?? 0
+				this.participantCount = participants?.length ?? 0
 			} catch (e) {
 				this.currentRound = null
 			} finally {
