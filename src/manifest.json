@@ -10,7 +10,7 @@
 		{ "id": "Motions", "label": "Motions", "icon": "icon-comment", "route": "Motions", "order": 50 },
 		{ "id": "Meetings", "label": "Meetings", "icon": "icon-group", "route": "Meetings", "order": 60 },
 		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "settings", "order": 90 },
-		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 }
+		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "action": "user-settings", "section": "settings", "order": 99 }
 	],
 	"pages": [
 		{
@@ -26,11 +26,14 @@
 						"title": "Notulen ter goedkeuring",
 						"iconClass": "icon-file",
 						"props": {
+							"countLabel": "notulen",
+							"variant": "warning"
+						},
+						"dataSource": {
 							"register": "decidesk",
 							"schema": "minutes",
 							"filter": { "lifecycle": "review" },
-							"countLabel": "notulen",
-							"variant": "warning"
+							"aggregate": "count"
 						}
 					},
 					{
@@ -39,11 +42,14 @@
 						"title": "Gepubliceerde besluiten",
 						"iconClass": "icon-checkmark",
 						"props": {
+							"countLabel": "besluiten",
+							"variant": "success"
+						},
+						"dataSource": {
 							"register": "decidesk",
 							"schema": "decision",
 							"filter": { "isPublished": true },
-							"countLabel": "besluiten",
-							"variant": "success"
+							"aggregate": "count"
 						}
 					},
 					{
@@ -52,11 +58,14 @@
 						"title": "Open actiepunten",
 						"iconClass": "icon-checkmark",
 						"props": {
-							"register": "decidesk",
-							"schema": "action-item",
-							"filter": { "taskStatus": ["open", "in-progress"] },
 							"countLabel": "actiepunten",
 							"variant": "primary"
+						},
+						"dataSource": {
+							"register": "decidesk",
+							"schema": "actionItem",
+							"filter": { "taskStatus": ["open", "in-progress"] },
+							"aggregate": "count"
 						}
 					}
 				],
