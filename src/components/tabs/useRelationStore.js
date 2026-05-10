@@ -14,8 +14,11 @@
 // fields, populated server-side from lib/Settings/decidesk_register.json).
 // Falls back to the literal slug when the settings store hasn't loaded.
 
-import { useObjectStore } from '@conduction/nextcloud-vue'
-import { useSettingsStore } from '../../store/store.js'
+// Use the decidesk-specific store instance (id 'decidesk-objects'),
+// not the lib's default 'conduction-objects' store. initializeStores()
+// in src/store/store.js registers all object types on this instance,
+// so the relation tabs share state with the rest of the app.
+import { useObjectStore, useSettingsStore } from '../../store/store.js'
 
 /**
  * Logical type slugs used inside the decidesk tab components.
