@@ -210,8 +210,9 @@ export default {
 			processingHamerstukken: false,
 			confirmHamerstukken: false,
 			// Live-update subscription handles, populated in created().
-			// Plugin auto-falls-back to polling when notify_push is unavailable,
-			// so the page works on stacks with or without the WebSocket sidecar.
+			// The lib's liveUpdatesPlugin auto-falls-back to polling
+			// (30s/60s) when notify_push is unavailable, so the page
+			// works on stacks with or without the WebSocket sidecar.
 			liveSubs: [],
 		}
 	},
@@ -318,11 +319,11 @@ export default {
 			try {
 				const meeting = await this.objectStore.fetchObject('meeting', this.id)
 				this.meeting = meeting ?? {}
-				const items = await this.objectStore.fetchObjects('agenda-item', {
+				const items = await this.objectStore.fetchCollection('agenda-item', {
 					'@self.relations.meeting': this.id,
 				})
 				this.allItems = items ?? []
-				const parts = await this.objectStore.fetchObjects('participant', {
+				const parts = await this.objectStore.fetchCollection('participant', {
 					'@self.relations.meeting': this.id,
 				})
 				this.participants = parts ?? []
@@ -335,7 +336,7 @@ export default {
 
 		async refreshItems() {
 			try {
-				const items = await this.objectStore.fetchObjects('agenda-item', {
+				const items = await this.objectStore.fetchCollection('agenda-item', {
 					'@self.relations.meeting': this.id,
 				})
 				this.allItems = items ?? []
@@ -348,12 +349,13 @@ export default {
 	async created() {
 		await this.fetchData()
 
-		// Live updates: subscribe to the meeting object + the two collections
-		// the page renders. The store's subscribe() returns a handle and
-		// auto-refetches the affected resource when an OR notify_push event
-		// arrives. Falls back to coalesced polling (30s collections / 60s
-		// objects) when notify_push is unavailable, so this works on stacks
-		// without the WebSocket sidecar with no extra config.
+		// Live updates: subscribe to the meeting object + the two
+		// collections the page renders. The store's subscribe() returns
+		// a handle and auto-refetches the affected resource when an OR
+		// notify_push event arrives. The plugin itself falls back to
+		// coalesced polling (30s collections / 60s objects) when
+		// notify_push is unavailable, so the page works on stacks with
+		// or without the WebSocket sidecar with no extra config.
 		//
 		// Why these three:
 		//   - meeting object: status / currentAgendaItem advance fires
@@ -364,17 +366,9 @@ export default {
 		//     the items list refreshes.
 		//   - participant collection: late joiners / drop-offs surface
 		//     immediately so the chair indicator stays accurate.
-		try {
-			this.liveSubs.push(this.objectStore.subscribe('meeting', this.id))
-			this.liveSubs.push(this.objectStore.subscribe('agenda-item'))
-			this.liveSubs.push(this.objectStore.subscribe('participant'))
-		} catch (e) {
-			// Subscription is best-effort; if the plugin isn't available
-			// (older @conduction/nextcloud-vue) or the store isn't configured
-			// for these types, fall back to a 30s timer for refreshItems().
-			console.warn('LiveMeeting: live-updates plugin unavailable, using 30s polling', e)
-			this.refreshInterval = setInterval(() => this.refreshItems(), 30000)
-		}
+		this.liveSubs.push(await this.objectStore.subscribe('meeting', this.id))
+		this.liveSubs.push(await this.objectStore.subscribe('agenda-item'))
+		this.liveSubs.push(await this.objectStore.subscribe('participant'))
 	},
 
 	beforeDestroy() {
@@ -388,12 +382,6 @@ export default {
 			}
 		}
 		this.liveSubs = []
-
-		// Clean up the polling fallback if it was started.
-		if (this.refreshInterval) {
-			clearInterval(this.refreshInterval)
-			this.refreshInterval = null
-		}
 	},
 }
 </script>

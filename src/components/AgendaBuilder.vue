@@ -448,7 +448,7 @@ export default {
 
 		async loadRecurringItems() {
 			try {
-				const all = await this.objectStore.fetchObjects('agenda-item', { isRecurring: true })
+				const all = await this.objectStore.fetchCollection('agenda-item', { isRecurring: true })
 				this.recurringItems = all ?? []
 			} catch (e) {
 				console.error('Failed to load recurring items:', e)
