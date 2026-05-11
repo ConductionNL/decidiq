@@ -9,6 +9,11 @@
 		{ "id": "ActionItems", "label": "Action items", "icon": "icon-checkmark", "route": "ActionItems", "order": 40 },
 		{ "id": "Motions", "label": "Motions", "icon": "icon-comment", "route": "Motions", "order": 50 },
 		{ "id": "Meetings", "label": "Meetings", "icon": "icon-group", "route": "Meetings", "order": 60 },
+		{ "id": "Tasks", "label": "Tasks", "icon": "icon-checkmark", "route": "Tasks", "order": 65 },
+		{ "id": "Workspaces", "label": "Workspaces", "icon": "icon-group", "route": "Workspaces", "order": 70 },
+		{ "id": "Comments", "label": "Comments", "icon": "icon-comment", "route": "Comments", "order": 75 },
+		{ "id": "EmailLinks", "label": "Email links", "icon": "icon-mail", "route": "EmailLinks", "order": 80 },
+		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
 		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "settings", "order": 90 },
 		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "action": "user-settings", "section": "settings", "order": 99 }
 	],
@@ -315,6 +320,94 @@
 			}
 		},
 		{
+			"id": "Tasks",
+			"route": "/tasks",
+			"type": "index",
+			"title": "Tasks",
+			"config": {
+				"register": "decidesk",
+				"schema": "task",
+				"columns": ["title", "assignee", "delegator", "dueDate", "taskStatus"],
+				"sidebar": { "enabled": true, "showMetadata": true }
+			}
+		},
+		{
+			"id": "TaskDetail",
+			"route": "/tasks/:id",
+			"type": "detail",
+			"title": "Task",
+			"config": {
+				"register": "decidesk",
+				"schema": "task",
+				"sidebarTabs": [
+					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
+					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+				]
+			}
+		},
+		{
+			"id": "Workspaces",
+			"route": "/workspaces",
+			"type": "index",
+			"title": "Workspaces",
+			"config": {
+				"register": "decidesk",
+				"schema": "collaboration-workspace",
+				"columns": ["name", "type", "accessLevel", "createdAt"],
+				"sidebar": { "enabled": true, "showMetadata": true }
+			}
+		},
+		{
+			"id": "WorkspaceDetail",
+			"route": "/workspaces/:id",
+			"type": "detail",
+			"title": "Workspace",
+			"config": {
+				"register": "decidesk",
+				"schema": "collaboration-workspace",
+				"sidebarTabs": [
+					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
+					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+				]
+			}
+		},
+		{
+			"id": "Comments",
+			"route": "/comments",
+			"type": "index",
+			"title": "Comments",
+			"config": {
+				"register": "decidesk",
+				"schema": "comment",
+				"columns": ["author", "text", "target", "createdAt"],
+				"sidebar": { "enabled": true, "showMetadata": true }
+			}
+		},
+		{
+			"id": "EmailLinks",
+			"route": "/email-links",
+			"type": "index",
+			"title": "Email links",
+			"config": {
+				"register": "decidesk",
+				"schema": "email-link",
+				"columns": ["subject", "from", "receivedAt", "linkedTo"],
+				"sidebar": { "enabled": true, "showMetadata": true }
+			}
+		},
+		{
+			"id": "Engagement",
+			"route": "/engagement",
+			"type": "index",
+			"title": "Engagement",
+			"config": {
+				"register": "decidesk",
+				"schema": "engagement-record",
+				"columns": ["meeting", "participant", "speakingDuration", "engagementScore"],
+				"sidebar": { "enabled": true, "showMetadata": true }
+			}
+		},
+		{
 			"id": "Settings",
 			"route": "/settings",
 			"type": "settings",
@@ -366,7 +459,14 @@
 												{ "slug": "offer", "label": "Offers" },
 												{ "slug": "order", "label": "Orders" },
 												{ "slug": "product", "label": "Products" },
-												{ "slug": "report", "label": "Reports" }
+												{ "slug": "report", "label": "Reports" },
+												{ "slug": "task", "label": "Tasks" },
+												{ "slug": "delegation", "label": "Delegations" },
+												{ "slug": "comment", "label": "Comments" },
+												{ "slug": "email-link", "label": "Email Links" },
+												{ "slug": "notification-preference", "label": "Notification Preferences" },
+												{ "slug": "engagement-record", "label": "Engagement Records" },
+												{ "slug": "collaboration-workspace", "label": "Collaboration Workspaces" }
 											]
 										}
 									]

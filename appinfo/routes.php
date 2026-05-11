@@ -108,6 +108,42 @@ return [
         ['name' => 'ori#index',         'url' => '/api/ori/v1/{resource}',      'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
 
+        // p4-collaboration routes — @spec openspec/changes/p4-collaboration/tasks.md.
+        // Task lifecycle (state machine + delegator-only reclaim).
+        ['name' => 'task#status',  'url' => '/api/tasks/{id}/status',  'verb' => 'POST'],
+        ['name' => 'task#reclaim', 'url' => '/api/tasks/{id}/reclaim', 'verb' => 'POST'],
+
+        // Delegation lifecycle (revoke / manual expire).
+        ['name' => 'delegation#revoke', 'url' => '/api/delegations/{id}',         'verb' => 'DELETE'],
+        ['name' => 'delegation#expire', 'url' => '/api/delegations/{id}/expire',  'verb' => 'POST'],
+
+        // Comment endpoints (create / target-scoped find / resolve).
+        ['name' => 'comment#create',  'url' => '/api/comments',              'verb' => 'POST'],
+        ['name' => 'comment#index',   'url' => '/api/comments',              'verb' => 'GET'],
+        ['name' => 'comment#resolve', 'url' => '/api/comments/{id}/resolve', 'verb' => 'POST'],
+
+        // Workspace member management.
+        ['name' => 'workspace#addMember',    'url' => '/api/workspaces/{id}/members',            'verb' => 'POST'],
+        ['name' => 'workspace#removeMember', 'url' => '/api/workspaces/{id}/members/{personId}', 'verb' => 'DELETE'],
+
+        // Email link endpoints.
+        ['name' => 'emailLink#create', 'url' => '/api/email-links', 'verb' => 'POST'],
+        ['name' => 'emailLink#index',  'url' => '/api/email-links', 'verb' => 'GET'],
+
+        // Notification preference endpoints (own preferences).
+        ['name' => 'notificationPreference#show',   'url' => '/api/notification-preference', 'verb' => 'GET'],
+        ['name' => 'notificationPreference#update', 'url' => '/api/notification-preference', 'verb' => 'PUT'],
+
+        // Engagement capture and query.
+        ['name' => 'engagement#capture', 'url' => '/api/engagement', 'verb' => 'POST'],
+        ['name' => 'engagement#index',   'url' => '/api/engagement', 'verb' => 'GET'],
+
+        // Motion co-authoring (specific routes before motion wildcard).
+        ['name' => 'motionCoauthor#addCoauthor',    'url' => '/api/motions/{id}/coauthors',            'verb' => 'POST'],
+        ['name' => 'motionCoauthor#removeCoauthor', 'url' => '/api/motions/{id}/coauthors/{personId}', 'verb' => 'DELETE'],
+        ['name' => 'motionCoauthor#updateText',     'url' => '/api/motions/{id}/text',                 'verb' => 'POST'],
+        ['name' => 'motionCoauthor#history',        'url' => '/api/motions/{id}/history',              'verb' => 'GET'],
+
         // SPA catch-all — same controller as the index route; must use a distinct route name
         // (duplicate names replace the earlier route in Symfony, which breaks GET /).
         ['name' => 'dashboard#catchAll', 'url' => '/{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], 'defaults' => ['path' => '']],
