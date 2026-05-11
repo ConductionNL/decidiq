@@ -49,7 +49,6 @@ use Throwable;
  */
 class HealthController extends Controller
 {
-
     /**
      * Constructor for HealthController.
      *
@@ -68,7 +67,6 @@ class HealthController extends Controller
 
     }//end __construct()
 
-
     /**
      * Return the integration health summary.
      *
@@ -85,7 +83,7 @@ class HealthController extends Controller
     public function status(): JSONResponse
     {
         $baseUrl  = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '');
-        $version  = $this->config->getAppValue(app: Application::APP_ID, key: 'installed_version', default: '0.0.0');
+        $version  = $this->config->getAppValue(appName: Application::APP_ID, key: 'installed_version', default: '0.0.0');
         $orStatus = 'unavailable';
 
         try {
@@ -97,8 +95,13 @@ class HealthController extends Controller
             $orStatus = 'unavailable';
         }
 
+        $statusValue = 'degraded';
+        if ($orStatus === 'connected') {
+            $statusValue = 'ok';
+        }
+
         $payload = [
-            'status'       => ($orStatus === 'connected' ? 'ok' : 'degraded'),
+            'status'       => $statusValue,
             'baseUrl'      => $baseUrl,
             'version'      => $version,
             'openregister' => $orStatus,
@@ -110,7 +113,6 @@ class HealthController extends Controller
         return $response;
 
     }//end status()
-
 
     /**
      * CORS preflight for the health endpoint.
@@ -130,7 +132,6 @@ class HealthController extends Controller
 
     }//end statusOptions()
 
-
     /**
      * Apply CORS headers using the configured proxy origin when available.
      *
@@ -145,11 +146,14 @@ class HealthController extends Controller
     {
         $origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
 
-        $response->addHeader(name: 'Access-Control-Allow-Origin', value: ($origin === '' ? '*' : $origin));
+        $allowedOrigin = '*';
+        if ($origin !== '') {
+            $allowedOrigin = $origin;
+        }
+
+        $response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
         $response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
         $response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
 
     }//end applyCorsHeaders()
-
-
 }//end class

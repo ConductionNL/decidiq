@@ -48,4 +48,22 @@
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/VotingService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="closeVotingRound"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="grantProxy"/>
+  <!--
+    DecideskToolProvider: single-class design per design D1 (exemplar for downstream apps to copy).
+    Complexity violations are inherent to dispatching 5 tool handlers with per-tool validation,
+    auth, and state checks in one file. Suppressed until a v2 refactor introduces per-tool
+    subclasses (non-goal per proposal.md).
+  -->
+  <violation rule="PHPMD\Rule\Design\LongClass" file="lib/Mcp/DecideskToolProvider.php"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Mcp/DecideskToolProvider.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListOpenActionItems"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleGetMeetingDetails"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleGetMeetingDetails"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleGetMeetingDetails"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleStartMeeting"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleStartMeeting"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleAddActionItem"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleAddActionItem"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleAddActionItem"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="requireParticipantOrAdmin"/>
 </phpmd-baseline>

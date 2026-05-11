@@ -92,7 +92,6 @@ class OriController extends Controller
      */
     private const ORI_CONTEXT = 'https://argu.co/ns/core';
 
-
     /**
      * Constructor.
      *
@@ -112,7 +111,6 @@ class OriController extends Controller
         parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
-
 
     /**
      * List ORI resources.
@@ -140,8 +138,8 @@ class OriController extends Controller
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
         }
 
-        $type    = self::ORI_TYPE_MAP[$resource];
-        $items   = [];
+        $type  = self::ORI_TYPE_MAP[$resource];
+        $items = [];
         foreach (($objects ?? []) as $object) {
             $items[] = $this->serializeOri(type: $type, object: (array) $object);
         }
@@ -160,7 +158,6 @@ class OriController extends Controller
         return $response;
 
     }//end index()
-
 
     /**
      * Retrieve a single ORI resource by id.
@@ -204,7 +201,6 @@ class OriController extends Controller
 
     }//end show()
 
-
     /**
      * CORS preflight handler for the list endpoint.
      *
@@ -226,7 +222,6 @@ class OriController extends Controller
         return $response;
 
     }//end preflight()
-
 
     /**
      * CORS preflight handler for the item endpoint.
@@ -250,7 +245,6 @@ class OriController extends Controller
         return $response;
 
     }//end preflightItem()
-
 
     /**
      * Serialize a Decidesk register object as a JSON-LD ORI resource.
@@ -319,7 +313,6 @@ class OriController extends Controller
 
     }//end serializeOri()
 
-
     /**
      * Build a consistent JSON error envelope (REQ-API-003).
      *
@@ -339,7 +332,6 @@ class OriController extends Controller
 
     }//end errorResponse()
 
-
     /**
      * Apply CORS headers using the configured proxy origin when available.
      *
@@ -354,11 +346,14 @@ class OriController extends Controller
     {
         $origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
 
-        $response->addHeader(name: 'Access-Control-Allow-Origin', value: ($origin === '' ? '*' : $origin));
+        $allowedOrigin = '*';
+        if ($origin !== '') {
+            $allowedOrigin = $origin;
+        }
+
+        $response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
         $response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
         $response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
 
     }//end applyCorsHeaders()
-
-
 }//end class

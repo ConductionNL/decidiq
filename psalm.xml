@@ -64,6 +64,13 @@
                 <referencedClass name="OCA\OpenRegister\Service\ObjectService"/>
                 <referencedClass name="OCA\OpenRegister\Service\ConfigurationService"/>
                 <referencedClass name="OCA\OpenRegister\Service\CalendarEventService"/>
+                <!--
+                    IMcpToolProvider is declared in openregister PR #1466
+                    (change: ai-chat-companion-orchestrator, not yet merged).
+                    Decidesk resolves it via NC's runtime autoloader once OR is installed.
+                    Suppressed until the openregister release ships the interface.
+                -->
+                <referencedClass name="OCA\OpenRegister\Mcp\IMcpToolProvider"/>
                 <!-- Nextcloud server internals -->
                 <referencedClass name="OC"/>
                 <!-- GuzzleHttp (loaded via composer at runtime) -->

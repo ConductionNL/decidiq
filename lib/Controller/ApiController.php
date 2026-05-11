@@ -97,7 +97,6 @@ class ApiController extends Controller
         'votes'             => 'votes:read',
     ];
 
-
     /**
      * Constructor.
      *
@@ -119,7 +118,6 @@ class ApiController extends Controller
         parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
-
 
     /**
      * List entities for a public REST resource.
@@ -154,25 +152,30 @@ class ApiController extends Controller
             $objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
             $offset        = (($page - 1) * $limit);
             $results       = $objectService->findAll(register: 'decidesk', schema: $schema, params: ['limit' => $limit, 'offset' => $offset]);
-            $total         = is_array($results) ? count($results) : 0;
-            $pages         = ((int) ceil((float) $total / max(1, $limit)));
+            $total         = 0;
+            if (is_array($results) === true) {
+                $total = count($results);
+            }
+
+            $pages = ((int) ceil((float) $total / max(1, $limit)));
         } catch (Throwable $e) {
             $this->logger->error(message: 'ApiController index failed', context: ['resource' => $resource, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
         }
 
-        $response = new JSONResponse([
-            'total'   => $total,
-            'page'    => $page,
-            'pages'   => $pages,
-            'results' => ($results ?? []),
-        ]);
+        $response = new JSONResponse(
+                [
+                    'total'   => $total,
+                    'page'    => $page,
+                    'pages'   => $pages,
+                    'results' => ($results ?? []),
+                ]
+                );
         $this->applyCorsHeaders(response: $response);
 
         return $response;
 
     }//end index()
-
 
     /**
      * Retrieve a single entity by id.
@@ -216,7 +219,6 @@ class ApiController extends Controller
 
     }//end show()
 
-
     /**
      * CORS preflight handler for `/api/v1/{resource}`.
      *
@@ -238,7 +240,6 @@ class ApiController extends Controller
         return $response;
 
     }//end preflight()
-
 
     /**
      * CORS preflight handler for `/api/v1/{resource}/{id}`.
@@ -263,7 +264,6 @@ class ApiController extends Controller
 
     }//end preflightItem()
 
-
     /**
      * Build a consistent JSON error envelope (REQ-API-003).
      *
@@ -283,7 +283,6 @@ class ApiController extends Controller
 
     }//end errorResponse()
 
-
     /**
      * Apply CORS headers using the configured proxy origin when available.
      *
@@ -298,11 +297,14 @@ class ApiController extends Controller
     {
         $origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
 
-        $response->addHeader(name: 'Access-Control-Allow-Origin', value: ($origin === '' ? '*' : $origin));
+        $allowedOrigin = '*';
+        if ($origin !== '') {
+            $allowedOrigin = $origin;
+        }
+
+        $response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
         $response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
         $response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
 
     }//end applyCorsHeaders()
-
-
 }//end class

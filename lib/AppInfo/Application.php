@@ -24,6 +24,7 @@ namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
+use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Controller\AnalyticsController;
 use OCA\Decidesk\Controller\CommentController;
 use OCA\Decidesk\Controller\DecisionController;
@@ -558,6 +559,16 @@ class Application extends App implements IBootstrap
                     userSession: $c->get(\OCP\IUserSession::class),
                 );
             }
+        );
+
+        // Register DecideskToolProvider as the MCP tool provider for the AI Chat Companion.
+        // The alias key 'OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk' is the format
+        // that OR's McpToolsService enumerates to discover per-app providers (design D3).
+        // The interface ships in openregister PR #1466 (ai-chat-companion-orchestrator).
+        // @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-001.
+        $context->registerServiceAlias(
+            'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk',
+            DecideskToolProvider::class
         );
 
     }//end register()

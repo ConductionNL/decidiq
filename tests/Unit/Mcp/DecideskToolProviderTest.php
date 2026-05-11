@@ -1,0 +1,998 @@
+<?php
+
+/**
+ * Unit tests for DecideskToolProvider.
+ *
+ * Covers: getAppId, getTools catalogue, invokeTool dispatch, per-tool happy
+ * paths, per-tool auth-failure paths, UUID validation, sources array shape,
+ * source truncation, and state-machine guard.
+ *
+ * @category Test
+ * @package  OCA\Decidesk\Tests\Unit\Mcp
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @version GIT: <git-id>
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-010
+ */
+
+declare(strict_types=1);
+
+namespace OCA\Decidesk\Tests\Unit\Mcp;
+
+use OCA\Decidesk\Mcp\DecideskToolProvider;
+use OCA\Decidesk\Service\MeetingService;
+use OCA\Decidesk\Service\TaskService;
+use OCP\IGroupManager;
+use OCP\IUser;
+use OCP\IUserSession;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Unit test suite for DecideskToolProvider.
+ *
+ * Every test in this class runs in isolation with mocked services.
+ * The stubs at tests/Stubs/Mcp/IMcpToolProvider.php satisfy the interface
+ * declaration when the openregister runtime is absent.
+ *
+ * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-010
+ */
+class DecideskToolProviderTest extends TestCase
+{
+
+    /**
+     * Provider under test.
+     *
+     * @var DecideskToolProvider
+     */
+    private DecideskToolProvider $provider;
+
+    /**
+     * Mock MeetingService.
+     *
+     * @var MeetingService&MockObject
+     */
+    private MeetingService&MockObject $meetingService;
+
+    /**
+     * Mock TaskService.
+     *
+     * @var TaskService&MockObject
+     */
+    private TaskService&MockObject $taskService;
+
+    /**
+     * Mock IUserSession.
+     *
+     * @var IUserSession&MockObject
+     */
+    private IUserSession&MockObject $userSession;
+
+    /**
+     * Mock IGroupManager.
+     *
+     * @var IGroupManager&MockObject
+     */
+    private IGroupManager&MockObject $groupManager;
+
+    /**
+     * Mock ContainerInterface.
+     *
+     * @var ContainerInterface&MockObject
+     */
+    private ContainerInterface&MockObject $container;
+
+    /**
+     * Mock LoggerInterface.
+     *
+     * @var LoggerInterface&MockObject
+     */
+    private LoggerInterface&MockObject $logger;
+
+    /**
+     * The UUID fixture used in tests.
+     *
+     * @var string
+     */
+    private string $meetingUuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+
+    /**
+     * The null UUID fixture.
+     *
+     * @var string
+     */
+    private string $nullUuid = '00000000-0000-0000-0000-000000000000';
+
+
+    /**
+     * Set up mocks and provider instance.
+     *
+     * @return void
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->meetingService = $this->createMock(MeetingService::class);
+        $this->taskService    = $this->createMock(TaskService::class);
+        $this->userSession    = $this->createMock(IUserSession::class);
+        $this->groupManager   = $this->createMock(IGroupManager::class);
+        $this->container      = $this->createMock(ContainerInterface::class);
+        $this->logger         = $this->createMock(LoggerInterface::class);
+
+        $this->provider = new DecideskToolProvider(
+            meetingService: $this->meetingService,
+            taskService: $this->taskService,
+            userSession: $this->userSession,
+            groupManager: $this->groupManager,
+            container: $this->container,
+            logger: $this->logger,
+        );
+
+    }//end setUp()
+
+
+    /**
+     * Build a mock IUser that returns the given UID.
+     *
+     * @param string $uid The user ID
+     *
+     * @return IUser&MockObject
+     */
+    private function makeUser(string $uid): IUser&MockObject
+    {
+        $user = $this->createMock(IUser::class);
+        $user->method('getUID')->willReturn($uid);
+        return $user;
+
+    }//end makeUser()
+
+
+    /**
+     * Configure userSession to return the given user id (or null if empty).
+     *
+     * @param string $uid The user id, or empty string for anonymous
+     *
+     * @return void
+     */
+    private function setCurrentUser(string $uid): void
+    {
+        if ($uid === '') {
+            $this->userSession->method('getUser')->willReturn(null);
+        } else {
+            $this->userSession->method('getUser')->willReturn($this->makeUser($uid));
+        }
+
+        $this->groupManager->method('isAdmin')->willReturn(false);
+
+    }//end setCurrentUser()
+
+
+    /**
+     * Configure userSession to return an admin user.
+     *
+     * @param string $uid The admin user id
+     *
+     * @return void
+     */
+    private function setAdminUser(string $uid): void
+    {
+        $this->userSession->method('getUser')->willReturn($this->makeUser($uid));
+        $this->groupManager->method('isAdmin')->with($uid)->willReturn(true);
+
+    }//end setAdminUser()
+
+
+    /**
+     * Build a minimal meeting fixture array.
+     *
+     * @param string $uuid         The meeting UUID
+     * @param string $lifecycle    The lifecycle status
+     * @param string $chairUserId  The chair user id
+     * @param array  $participants Additional participant user ids
+     *
+     * @return array<string, mixed>
+     */
+    private function makeMeeting(
+        string $uuid,
+        string $lifecycle='scheduled',
+        string $chairUserId='alice',
+        array $participants=[]
+    ): array {
+        return [
+            'uuid'         => $uuid,
+            'id'           => $uuid,
+            'title'        => "Meeting {$uuid}",
+            'lifecycle'    => $lifecycle,
+            'chair'        => $chairUserId,
+            'participants' => array_map(static fn ($uid) => ['userId' => $uid], $participants),
+        ];
+
+    }//end makeMeeting()
+
+
+    // =========================================================================
+    // Task 5.2 — getAppId + getTools catalogue
+    // =========================================================================
+
+    /**
+     * getAppId returns the canonical slug "decidesk".
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-001
+     */
+    public function testGetAppId(): void
+    {
+        self::assertSame('decidesk', $this->provider->getAppId());
+
+    }//end testGetAppId()
+
+
+    /**
+     * getTools returns exactly 5 tools with canonical ids.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-002
+     */
+    public function testGetToolsReturnsFiveCanonicalIds(): void
+    {
+        $tools = $this->provider->getTools();
+
+        self::assertCount(5, $tools);
+
+        $expectedIds = [
+            'decidesk.listOpenActionItems',
+            'decidesk.listRecentMeetings',
+            'decidesk.getMeetingDetails',
+            'decidesk.startMeeting',
+            'decidesk.addActionItem',
+        ];
+
+        $actualIds = array_column($tools, 'id');
+        self::assertEqualsCanonicalizing($expectedIds, $actualIds);
+
+    }//end testGetToolsReturnsFiveCanonicalIds()
+
+
+    /**
+     * Every tool id starts with "decidesk." and every descriptor has required keys.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-002
+     */
+    public function testGetToolsAllIdsNamespacedAndHaveRequiredKeys(): void
+    {
+        $tools = $this->provider->getTools();
+
+        foreach ($tools as $tool) {
+            // All required keys are non-empty.
+            self::assertNotEmpty($tool['id']);
+            self::assertNotEmpty($tool['name']);
+            self::assertNotEmpty($tool['description']);
+            self::assertNotEmpty($tool['inputSchema']);
+
+            // Id starts with "decidesk.".
+            self::assertStringStartsWith('decidesk.', $tool['id']);
+
+            // inputSchema has type=object and properties key.
+            self::assertSame('object', $tool['inputSchema']['type']);
+            self::assertArrayHasKey('properties', $tool['inputSchema']);
+        }//end foreach
+
+    }//end testGetToolsAllIdsNamespacedAndHaveRequiredKeys()
+
+
+    // =========================================================================
+    // Task 5.3 — unknown tool returns structured error
+    // =========================================================================
+
+    /**
+     * invokeTool with an unknown id returns a structured error, no throw.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-003
+     */
+    public function testInvokeUnknownToolReturnsStructuredError(): void
+    {
+        $result = $this->provider->invokeTool('decidesk.doesNotExist', []);
+
+        self::assertTrue($result['isError']);
+        self::assertSame('unknown_tool', $result['error']);
+        self::assertIsString($result['message']);
+        self::assertNotEmpty($result['message']);
+
+    }//end testInvokeUnknownToolReturnsStructuredError()
+
+
+    // =========================================================================
+    // Task 5.4 — invalid UUID returns invalid_arguments, service never called
+    // =========================================================================
+
+    /**
+     * startMeeting with invalid UUID returns invalid_arguments; service not called.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
+     */
+    public function testInvalidUuidStartMeetingReturnsInvalidArguments(): void
+    {
+        $this->meetingService->expects(self::never())->method('read');
+        $this->meetingService->expects(self::never())->method('transition');
+
+        $result = $this->provider->invokeTool('decidesk.startMeeting', ['meetingUuid' => 'abc']);
+
+        self::assertTrue($result['isError']);
+        self::assertSame('invalid_arguments', $result['error']);
+
+    }//end testInvalidUuidStartMeetingReturnsInvalidArguments()
+
+
+    /**
+     * getMeetingDetails with invalid UUID returns invalid_arguments; service not called.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
+     */
+    public function testInvalidUuidGetMeetingDetailsReturnsInvalidArguments(): void
+    {
+        $this->meetingService->expects(self::never())->method('read');
+
+        $result = $this->provider->invokeTool('decidesk.getMeetingDetails', ['meetingUuid' => 'abc']);
+
+        self::assertTrue($result['isError']);
+        self::assertSame('invalid_arguments', $result['error']);
+
+    }//end testInvalidUuidGetMeetingDetailsReturnsInvalidArguments()
+
+
+    /**
+     * addActionItem with invalid UUID returns invalid_arguments; service not called.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
+     */
+    public function testInvalidUuidAddActionItemReturnsInvalidArguments(): void
+    {
+        $this->meetingService->expects(self::never())->method('read');
+        $this->taskService->expects(self::never())->method('saveTask');
+
+        $result = $this->provider->invokeTool(
+            'decidesk.addActionItem',
+            ['meetingUuid' => 'abc', 'title' => 'Test task']
+        );
+
+        self::assertTrue($result['isError']);
+        self::assertSame('invalid_arguments', $result['error']);
+
+    }//end testInvalidUuidAddActionItemReturnsInvalidArguments()
+
+
+    // =========================================================================
+    // Task 5.5 — per-tool happy-path tests
+    // =========================================================================
+
+    /**
+     * listOpenActionItems happy path returns items + sources.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-006
+     */
+    public function testListOpenActionItems_happyPath(): void
+    {
+        $this->setCurrentUser('alice');
+
+        $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $objectService->method('findAll')->willReturn(
+            [
+                ['uuid' => 'ai-uuid-1', 'title' => 'Fix bug'],
+                ['uuid' => 'ai-uuid-2', 'title' => 'Write docs'],
+            ]
+        );
+        $this->container->method('get')->willReturn($objectService);
+
+        $result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => 'mine', 'limit' => 10]);
+
+        self::assertTrue($result['success']);
+        self::assertCount(2, $result['items']);
+        self::assertCount(2, $result['sources']);
+
+        $source = $result['sources'][0];
+        self::assertArrayHasKey('type', $source);
+        self::assertArrayHasKey('uuid', $source);
+        self::assertArrayHasKey('url', $source);
+        self::assertArrayHasKey('label', $source);
+        self::assertSame('decidesk.actionItem', $source['type']);
+
+    }//end testListOpenActionItems_happyPath()
+
+
+    /**
+     * listOpenActionItems with invalid scope returns invalid_arguments.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-003
+     */
+    public function testListOpenActionItems_invalidScope_returnsInvalidArguments(): void
+    {
+        $result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => 'unknown']);
+
+        self::assertTrue($result['isError']);
+        self::assertSame('invalid_arguments', $result['error']);
+
+    }//end testListOpenActionItems_invalidScope_returnsInvalidArguments()
+
+
+    /**
+     * listOpenActionItems with out-of-range limit returns invalid_arguments.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-003
+     */
+    public function testListOpenActionItems_invalidLimit_returnsInvalidArguments(): void
+    {
+        $result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['limit' => 99]);
+
+        self::assertTrue($result['isError']);
+        self::assertSame('invalid_arguments', $result['error']);
+
+    }//end testListOpenActionItems_invalidLimit_returnsInvalidArguments()
+
+
+    /**
+     * listRecentMeetings happy path returns meetings ordered newest-first.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-006
+     */
+    public function testListRecentMeetings_happyPath(): void
+    {
+        $this->setCurrentUser('alice');
+
+        $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $objectService->method('findAll')->willReturn(
+            [
+                ['uuid' => 'mtg-uuid-2', 'title' => 'Newer meeting', 'scheduledDate' => '2026-05-10'],
+                ['uuid' => 'mtg-uuid-1', 'title' => 'Older meeting', 'scheduledDate' => '2026-05-01'],
+            ]
+        );
+        $this->container->method('get')->willReturn($objectService);
+
+        $result = $this->provider->invokeTool('decidesk.listRecentMeetings', ['limit' => 10]);
+
+        self::assertTrue($result['success']);
+        self::assertCount(2, $result['meetings']);
+        self::assertCount(2, $result['sources']);
+
+        // Confirm the first result is the newest (as returned by OR, ordered DESC).
+        self::assertSame('Newer meeting', $result['meetings'][0]['title']);
+
+        $source = $result['sources'][0];
+        self::assertSame('decidesk.meeting', $source['type']);
+        self::assertStringContainsString('/apps/decidesk/meetings/', $source['url']);
+
+    }//end testListRecentMeetings_happyPath()
+
+
+    /**
+     * getMeetingDetails happy path returns meeting + agenda + decisions + actions + sources.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-006
+     */
+    public function testGetMeetingDetails_happyPath(): void
+    {
+        $this->setCurrentUser('alice');
+
+        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $this->meetingService->method('read')->willReturn($meeting);
+
+        $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $objectService->method('findAll')->willReturnCallback(
+            function (array $config) {
+                $schema = $config['filters']['schema'] ?? '';
+                if ($schema === 'agenda-item') {
+                    return [['uuid' => 'ai-1', 'title' => 'Item 1']];
+                }
+
+                if ($schema === 'decision') {
+                    return [['uuid' => 'dec-1', 'title' => 'Decision 1']];
+                }
+
+                if ($schema === 'action-item') {
+                    return [['uuid' => 'act-1', 'title' => 'Action 1']];
+                }
+
+                return [];
+            }
+        );
+        $this->container->method('get')->willReturn($objectService);
+
+        $result = $this->provider->invokeTool(
+            'decidesk.getMeetingDetails',
+            ['meetingUuid' => $this->meetingUuid]
+        );
+
+        self::assertTrue($result['success']);
+        self::assertArrayHasKey('meeting', $result);
+        self::assertArrayHasKey('agendaItems', $result);
+        self::assertArrayHasKey('decisions', $result);
+        self::assertArrayHasKey('actionItems', $result);
+        self::assertArrayHasKey('sources', $result);
+
+        // sources: 1 meeting + 1 agenda item + 1 decision + 1 action item = 4.
+        self::assertCount(4, $result['sources']);
+
+        $types = array_column($result['sources'], 'type');
+        self::assertContains('decidesk.meeting', $types);
+        self::assertContains('decidesk.agendaItem', $types);
+        self::assertContains('decidesk.decision', $types);
+        self::assertContains('decidesk.actionItem', $types);
+
+    }//end testGetMeetingDetails_happyPath()
+
+
+    /**
+     * startMeeting happy path transitions meeting and returns success payload.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-005
+     */
+    public function testStartMeeting_happyPath(): void
+    {
+        $this->setCurrentUser('alice');
+
+        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $this->meetingService->method('read')->willReturn($meeting);
+        $this->meetingService->expects(self::once())->method('transition')
+            ->with($this->meetingUuid, 'open', 'alice')
+            ->willReturn(['success' => true, 'meeting' => $meeting, 'message' => 'Opened.']);
+
+        $result = $this->provider->invokeTool(
+            'decidesk.startMeeting',
+            ['meetingUuid' => $this->meetingUuid]
+        );
+
+        self::assertTrue($result['success']);
+        self::assertTrue($result['started']);
+        self::assertSame($this->meetingUuid, $result['meetingUuid']);
+        self::assertArrayHasKey('startedAt', $result);
+        self::assertCount(1, $result['sources']);
+        self::assertSame('decidesk.meeting', $result['sources'][0]['type']);
+
+    }//end testStartMeeting_happyPath()
+
+
+    /**
+     * addActionItem happy path creates task and returns success payload.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-006
+     */
+    public function testAddActionItem_happyPath(): void
+    {
+        $this->setCurrentUser('alice');
+
+        $meeting = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
+        $this->meetingService->method('read')->willReturn($meeting);
+
+        $savedTask = ['uuid' => 'task-uuid-1', 'title' => 'Write test plan', 'taskStatus' => 'pending'];
+        $this->taskService->expects(self::once())->method('saveTask')
+            ->willReturn($savedTask);
+
+        $result = $this->provider->invokeTool(
+            'decidesk.addActionItem',
+            ['meetingUuid' => $this->meetingUuid, 'title' => 'Write test plan']
+        );
+
+        self::assertTrue($result['success']);
+        self::assertTrue($result['created']);
+        self::assertArrayHasKey('actionItem', $result);
+        self::assertCount(2, $result['sources']);
+
+        $types = array_column($result['sources'], 'type');
+        self::assertContains('decidesk.actionItem', $types);
+        self::assertContains('decidesk.meeting', $types);
+
+    }//end testAddActionItem_happyPath()
+
+
+    // =========================================================================
+    // Task 5.6 — per-tool forbidden-path tests
+    // =========================================================================
+
+    /**
+     * getMeetingDetails for a non-participant returns forbidden; service not mutated.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     */
+    public function testGetMeetingDetails_nonParticipant_returnsForbidden(): void
+    {
+        $this->setCurrentUser('carol');
+
+        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']);
+        $this->meetingService->method('read')->willReturn($meeting);
+
+        // ObjectService should never be called.
+        $this->container->expects(self::never())->method('get');
+
+        $result = $this->provider->invokeTool(
+            'decidesk.getMeetingDetails',
+            ['meetingUuid' => $this->meetingUuid]
+        );
+
+        self::assertTrue($result['isError']);
+        self::assertSame('forbidden', $result['error']);
+
+    }//end testGetMeetingDetails_nonParticipant_returnsForbidden()
+
+
+    /**
+     * startMeeting for a non-chair returns forbidden; transition never called.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     */
+    public function testStartMeeting_nonChair_returnsForbidden(): void
+    {
+        $this->setCurrentUser('bob');
+
+        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $this->meetingService->method('read')->willReturn($meeting);
+
+        // Transition must NEVER be called.
+        $this->meetingService->expects(self::never())->method('transition');
+
+        $result = $this->provider->invokeTool(
+            'decidesk.startMeeting',
+            ['meetingUuid' => $this->meetingUuid]
+        );
+
+        self::assertTrue($result['isError']);
+        self::assertSame('forbidden', $result['error']);
+        self::assertStringContainsString('chair', $result['message']);
+
+    }//end testStartMeeting_nonChair_returnsForbidden()
+
+
+    /**
+     * addActionItem for a non-participant returns forbidden; saveTask never called.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     */
+    public function testAddActionItem_nonParticipant_returnsForbidden(): void
+    {
+        $this->setCurrentUser('carol');
+
+        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']);
+        $this->meetingService->method('read')->willReturn($meeting);
+
+        $this->taskService->expects(self::never())->method('saveTask');
+
+        $result = $this->provider->invokeTool(
+            'decidesk.addActionItem',
+            ['meetingUuid' => $this->meetingUuid, 'title' => 'Some task']
+        );
+
+        self::assertTrue($result['isError']);
+        self::assertSame('forbidden', $result['error']);
+
+    }//end testAddActionItem_nonParticipant_returnsForbidden()
+
+
+    // =========================================================================
+    // Task 5.7 — startMeeting with meeting already in progress
+    // =========================================================================
+
+    /**
+     * startMeeting returns invalid_state when the meeting is already in-progress.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-005
+     */
+    public function testStartMeeting_alreadyInProgress_returnsInvalidState(): void
+    {
+        $this->setCurrentUser('alice');
+
+        // Meeting is in 'opened' state (the internal name for in-progress).
+        $meeting = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
+        $this->meetingService->method('read')->willReturn($meeting);
+
+        $this->meetingService->expects(self::never())->method('transition');
+
+        $result = $this->provider->invokeTool(
+            'decidesk.startMeeting',
+            ['meetingUuid' => $this->meetingUuid]
+        );
+
+        self::assertTrue($result['isError']);
+        self::assertSame('invalid_state', $result['error']);
+        self::assertStringContainsString('in progress', $result['message']);
+
+    }//end testStartMeeting_alreadyInProgress_returnsInvalidState()
+
+
+    // =========================================================================
+    // Task 5.8 — sources truncation at cap (35 → 20)
+    // =========================================================================
+
+    /**
+     * getMeetingDetails with 34 sub-objects produces 20 sources + truncation markers.
+     *
+     * Meeting (1) + 20 agenda items + 7 decisions + 7 action items = 35 total.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-006
+     */
+    public function testSourcesTruncationAtCap(): void
+    {
+        $this->setCurrentUser('alice');
+
+        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $this->meetingService->method('read')->willReturn($meeting);
+
+        $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+
+        // 20 agenda items + 7 decisions + 7 action items = 34, +1 meeting = 35 total.
+        $agendaItems = [];
+        for ($i = 1; $i <= 20; $i++) {
+            $agendaItems[] = ['uuid' => "ag-{$i}", 'title' => "Agenda {$i}"];
+        }
+
+        $decisions = [];
+        for ($i = 1; $i <= 7; $i++) {
+            $decisions[] = ['uuid' => "dec-{$i}", 'title' => "Decision {$i}"];
+        }
+
+        $actionItems = [];
+        for ($i = 1; $i <= 7; $i++) {
+            $actionItems[] = ['uuid' => "act-{$i}", 'title' => "Action {$i}"];
+        }
+
+        $objectService->method('findAll')->willReturnCallback(
+            function (array $config) use ($agendaItems, $decisions, $actionItems) {
+                $schema = $config['filters']['schema'] ?? '';
+                if ($schema === 'agenda-item') {
+                    return $agendaItems;
+                }
+
+                if ($schema === 'decision') {
+                    return $decisions;
+                }
+
+                if ($schema === 'action-item') {
+                    return $actionItems;
+                }
+
+                return [];
+            }
+        );
+        $this->container->method('get')->willReturn($objectService);
+
+        $result = $this->provider->invokeTool(
+            'decidesk.getMeetingDetails',
+            ['meetingUuid' => $this->meetingUuid]
+        );
+
+        self::assertTrue($result['success']);
+        self::assertCount(20, $result['sources']);
+        self::assertTrue($result['sourcesTruncated']);
+        self::assertSame(35, $result['sourcesTotalCount']);
+
+    }//end testSourcesTruncationAtCap()
+
+
+    // =========================================================================
+    // Task 5.9 — not_found for all three object-targeting tools
+    // =========================================================================
+
+    /**
+     * getMeetingDetails returns not_found when service returns null.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
+     */
+    public function testNotFound_getMeetingDetails_returnsNotFoundEnvelope(): void
+    {
+        $this->setCurrentUser('alice');
+        $this->meetingService->method('read')->willReturn(null);
+
+        $result = $this->provider->invokeTool(
+            'decidesk.getMeetingDetails',
+            ['meetingUuid' => $this->nullUuid]
+        );
+
+        self::assertTrue($result['isError']);
+        self::assertSame('not_found', $result['error']);
+
+    }//end testNotFound_getMeetingDetails_returnsNotFoundEnvelope()
+
+
+    /**
+     * startMeeting returns not_found when service returns null.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
+     */
+    public function testNotFound_startMeeting_returnsNotFoundEnvelope(): void
+    {
+        $this->setCurrentUser('alice');
+        $this->meetingService->method('read')->willReturn(null);
+
+        $result = $this->provider->invokeTool(
+            'decidesk.startMeeting',
+            ['meetingUuid' => $this->nullUuid]
+        );
+
+        self::assertTrue($result['isError']);
+        self::assertSame('not_found', $result['error']);
+
+    }//end testNotFound_startMeeting_returnsNotFoundEnvelope()
+
+
+    /**
+     * addActionItem returns not_found when service returns null.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
+     */
+    public function testNotFound_addActionItem_returnsNotFoundEnvelope(): void
+    {
+        $this->setCurrentUser('alice');
+        $this->meetingService->method('read')->willReturn(null);
+
+        $result = $this->provider->invokeTool(
+            'decidesk.addActionItem',
+            ['meetingUuid' => $this->nullUuid, 'title' => 'Some task']
+        );
+
+        self::assertTrue($result['isError']);
+        self::assertSame('not_found', $result['error']);
+
+    }//end testNotFound_addActionItem_returnsNotFoundEnvelope()
+
+
+    // =========================================================================
+    // Admin override tests
+    // =========================================================================
+
+    /**
+     * An admin can start a meeting even when not the chair.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     */
+    public function testAdmin_canStartMeetingAsNonChair(): void
+    {
+        $this->setAdminUser('admin');
+
+        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $this->meetingService->method('read')->willReturn($meeting);
+        $this->meetingService->method('transition')->willReturn(
+            ['success' => true, 'meeting' => $meeting, 'message' => 'Opened.']
+        );
+
+        $result = $this->provider->invokeTool(
+            'decidesk.startMeeting',
+            ['meetingUuid' => $this->meetingUuid]
+        );
+
+        self::assertTrue($result['success']);
+        self::assertTrue($result['started']);
+
+    }//end testAdmin_canStartMeetingAsNonChair()
+
+
+    // =========================================================================
+    // addActionItem input validation tests
+    // =========================================================================
+
+    /**
+     * addActionItem with a title that is too short returns invalid_arguments.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-003
+     */
+    public function testAddActionItem_titleTooShort_returnsInvalidArguments(): void
+    {
+        $this->meetingService->expects(self::never())->method('read');
+
+        $result = $this->provider->invokeTool(
+            'decidesk.addActionItem',
+            ['meetingUuid' => $this->meetingUuid, 'title' => 'Hi']
+        );
+
+        self::assertTrue($result['isError']);
+        self::assertSame('invalid_arguments', $result['error']);
+
+    }//end testAddActionItem_titleTooShort_returnsInvalidArguments()
+
+
+    // =========================================================================
+    // UUID validation (null UUID is syntactically valid)
+    // =========================================================================
+
+    /**
+     * The null UUID 00000000-0000-0000-0000-000000000000 is syntactically valid.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
+     */
+    public function testNullUuidIsValidSyntax(): void
+    {
+        $this->setCurrentUser('alice');
+        // Service returns null → not_found (not invalid_arguments).
+        $this->meetingService->method('read')->willReturn(null);
+
+        $result = $this->provider->invokeTool(
+            'decidesk.startMeeting',
+            ['meetingUuid' => $this->nullUuid]
+        );
+
+        // UUID is syntactically valid, so we get not_found (not invalid_arguments).
+        self::assertSame('not_found', $result['error']);
+
+    }//end testNullUuidIsValidSyntax()
+
+
+    /**
+     * Short strings like 'abc' and '' are not valid UUIDs.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
+     */
+    public function testShortStringsAreInvalidUuids(): void
+    {
+        $this->meetingService->expects(self::never())->method('read');
+
+        $result1 = $this->provider->invokeTool(
+            'decidesk.getMeetingDetails',
+            ['meetingUuid' => 'abc']
+        );
+        $result2 = $this->provider->invokeTool(
+            'decidesk.getMeetingDetails',
+            ['meetingUuid' => '']
+        );
+
+        self::assertSame('invalid_arguments', $result1['error']);
+        self::assertSame('invalid_arguments', $result2['error']);
+
+    }//end testShortStringsAreInvalidUuids()
+
+
+}//end class
