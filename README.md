@@ -35,6 +35,7 @@ Features are defined in [`openspec/specs/`](openspec/specs/). See the [roadmap](
 ### Supporting
 - **OpenRegister Integration** — Pre-wired data layer using OpenRegister objects
 - **Quality Pipeline** — PHPCS, PHPMD, Psalm, PHPStan, ESLint, Stylelint
+- **AI Chat Companion (MCP Tools)** — 5 governance tools exposed to the OpenRegister AI Chat Companion: list action items, list recent meetings, get meeting details, start a meeting, and add action items. See [docs/features/mcp-tools.md](docs/features/mcp-tools.md).
 
 ## Architecture
 
@@ -190,6 +191,7 @@ docker exec nextcloud php occ app:enable decidesk
 | [`openspec/architecture/`](openspec/architecture/) | App-specific Architectural Decision Records |
 | [`openspec/ROADMAP.md`](openspec/ROADMAP.md) | Product roadmap |
 | [`openspec/`](openspec/) | Implementation specifications and changes |
+| [`docs/features/mcp-tools.md`](docs/features/mcp-tools.md) | AI Chat Companion MCP tools — tool reference, auth, troubleshooting |
 
 ## Standards & Compliance
 
