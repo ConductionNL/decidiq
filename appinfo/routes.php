@@ -88,6 +88,26 @@ return [
         // Motion forwarding routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
         ['name' => 'motion#forward', 'url' => '/api/motions/{id}/forward', 'verb' => 'POST'],
 
+        // Public REST API — versioned v1 (REQ-API-001..004).
+        // @spec openspec/changes/p4-integration/tasks.md#task-1
+        // @spec openspec/changes/p4-integration/tasks.md#task-2
+        // Health check — public, no auth required.
+        ['name' => 'health#status',          'url' => '/api/v1/health',  'verb' => 'GET'],
+        ['name' => 'health#statusOptions',   'url' => '/api/v1/health',  'verb' => 'OPTIONS'],
+        // CORS preflight for the whole v1 surface — must precede the catch-all GET.
+        ['name' => 'api#preflight',          'url' => '/api/v1/{resource}',      'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
+        ['name' => 'api#preflightItem',      'url' => '/api/v1/{resource}/{id}', 'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
+        // Read-only public entity endpoints (REQ-API-002).
+        ['name' => 'api#index',              'url' => '/api/v1/{resource}',      'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
+        ['name' => 'api#show',               'url' => '/api/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
+
+        // ORI API 1.4 endpoints (REQ-ORI-001..004).
+        // @spec openspec/changes/p4-integration/tasks.md#task-11
+        ['name' => 'ori#preflight',     'url' => '/api/ori/v1/{resource}',      'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
+        ['name' => 'ori#preflightItem', 'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
+        ['name' => 'ori#index',         'url' => '/api/ori/v1/{resource}',      'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
+        ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
+
         // SPA catch-all — same controller as the index route; must use a distinct route name
         // (duplicate names replace the earlier route in Symfony, which breaks GET /).
         ['name' => 'dashboard#catchAll', 'url' => '/{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], 'defaults' => ['path' => '']],
