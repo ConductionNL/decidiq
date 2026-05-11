@@ -98,7 +98,7 @@ class LiveDecisionService
                 'text'         => $decisionData['text'] ?? '',
                 'outcome'      => $decisionData['outcome'] ?? 'pending',
                 'decisionDate' => date('c'),
-                'isPublished'  => false,
+                'isPublished'  => 'internal',
             ];
 
             if (empty($decisionData['legalBasis']) === false) {

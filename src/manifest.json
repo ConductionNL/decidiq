@@ -48,7 +48,7 @@
 						"dataSource": {
 							"register": "decidesk",
 							"schema": "decision",
-							"filter": { "isPublished": true },
+							"filter": { "isPublished": "public" },
 							"aggregate": "count"
 						}
 					},

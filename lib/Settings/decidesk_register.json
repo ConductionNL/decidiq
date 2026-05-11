@@ -148,7 +148,7 @@
       "Meeting": {
         "slug": "meeting",
         "icon": "CalendarClock",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -229,6 +229,12 @@
           "series": {
             "type": "string",
             "description": "Meeting series identifier"
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Whether this meeting is visible to citizens in the public transparency portal (p3-citizen-participation). When true, the agenda (if published), recordings, and approved minutes become visible to unauthenticated users.",
+            "default": false,
+            "example": false
           }
         },
         "x-openregister-relations": {
@@ -629,7 +635,7 @@
       "Motion": {
         "slug": "motion",
         "icon": "TextBoxOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Motion",
         "description": "A formal proposal submitted for debate and voting",
         "type": "object",
@@ -702,6 +708,23 @@
             "type": "string",
             "format": "date-time",
             "description": "Submission timestamp"
+          },
+          "citizenVotingAllowed": {
+            "type": "boolean",
+            "description": "Whether citizens can participate in voting on this motion (p3-citizen-participation). When true, the citizen voting endpoints accept votes from authenticated citizens and the public results endpoint exposes staff/citizen/combined tallies.",
+            "default": false,
+            "example": false
+          },
+          "citizenVotingMethod": {
+            "type": "string",
+            "description": "Voting method to render in the citizen voting UI (p3-citizen-participation). Only meaningful when citizenVotingAllowed is true. 'simple' shows Voor/Tegen/Onthoud radio buttons; 'weighted' allows numeric weight allocation; 'ranked' presents a draggable ordered preference list.",
+            "enum": [
+              "simple",
+              "weighted",
+              "ranked"
+            ],
+            "default": "simple",
+            "example": "simple"
           }
         },
         "x-openregister-relations": {
@@ -1097,7 +1120,7 @@
       "Decision": {
         "slug": "decision",
         "icon": "GavelOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Decision",
         "description": "A formal decision resulting from a vote",
         "type": "object",
@@ -1140,9 +1163,15 @@
             "example": "adopted"
           },
           "isPublished": {
-            "type": "boolean",
-            "description": "Published via ORI API",
-            "example": false
+            "type": "string",
+            "description": "Publication state controlling citizen visibility (p3-citizen-participation). 'internal' = staff-only; 'public' = visible in transparency portal and ORI API; 'confidential' = restricted access.",
+            "enum": [
+              "internal",
+              "public",
+              "confidential"
+            ],
+            "default": "internal",
+            "example": "public"
           },
           "publishedAt": {
             "type": "string",
@@ -1173,7 +1202,7 @@
             "text": "De gemeenteraad van Westerkwartier stelt de programmabegroting 2026 vast.",
             "decisionDate": "2025-04-10T21:38:00Z",
             "outcome": "adopted",
-            "isPublished": true,
+            "isPublished": "public",
             "publishedAt": "2025-04-11T09:00:00Z",
             "legalBasis": "Gemeentewet art. 189"
           },
@@ -1187,7 +1216,7 @@
             "text": "De raad verzoekt het college een plan van aanpak zonnepanelen te presenteren voor 1 januari 2026.",
             "decisionDate": "2025-04-10T21:05:00Z",
             "outcome": "adopted",
-            "isPublished": true,
+            "isPublished": "public",
             "publishedAt": "2025-04-11T09:00:00Z"
           },
           {
@@ -1200,7 +1229,7 @@
             "text": "De raad stelt het bestemmingsplan Groningen-Noord ongewijzigd vast.",
             "decisionDate": "2025-03-27T20:45:00Z",
             "outcome": "adopted",
-            "isPublished": false,
+            "isPublished": "internal",
             "legalBasis": "Wet ruimtelijke ordening art. 3.1"
           },
           {
@@ -1213,7 +1242,7 @@
             "text": "De gemeenteraad van Westerkwartier stelt het Woningbouwplan Oost 2025-2030 vast en machtigt het college tot uitvoering conform bijgaande planning en budgettering.",
             "decisionDate": "2025-03-20T21:15:00Z",
             "outcome": "adopted",
-            "isPublished": true,
+            "isPublished": "public",
             "publishedAt": "2025-03-21T09:00:00Z",
             "legalBasis": "Wet ruimtelijke ordening art. 3.1"
           },
@@ -1227,7 +1256,7 @@
             "text": "De raad stelt de Duurzaamheidsagenda Westerkwartier 2026 vast en stelt €200.000 beschikbaar voor uitvoering van de daarin opgenomen maatregelen.",
             "decisionDate": "2025-03-20T20:45:00Z",
             "outcome": "adopted",
-            "isPublished": true,
+            "isPublished": "public",
             "publishedAt": "2025-03-21T09:00:00Z",
             "legalBasis": "Gemeentewet art. 147"
           },
@@ -1241,7 +1270,7 @@
             "text": "De gemeenteraad verklaart het bezwaar van de bewonersvereniging gegrond en herroept de verleende kapvergunning voor de eik aan Dorpsstraat 12.",
             "decisionDate": "2025-04-01T14:30:00Z",
             "outcome": "adopted",
-            "isPublished": false,
+            "isPublished": "confidential",
             "legalBasis": "Algemene wet bestuursrecht art. 7:11"
           },
           {
@@ -1254,7 +1283,7 @@
             "text": "Het amendement tot verhoging van het cultuursubsidiebudget 2026 met €75.000 wordt niet aanvaard.",
             "decisionDate": "2025-04-10T21:00:00Z",
             "outcome": "rejected",
-            "isPublished": false
+            "isPublished": "internal"
           },
           {
             "@self": {
@@ -1266,7 +1295,7 @@
             "text": "De raad stemt in met de samenvoeging van dorpsraad Noord en dorpsraad Oost tot één dorpsraad Noord-Oost, ingaande 1 januari 2026.",
             "decisionDate": "2025-04-10T20:30:00Z",
             "outcome": "adopted",
-            "isPublished": true,
+            "isPublished": "public",
             "publishedAt": "2025-04-11T08:30:00Z"
           }
         ]
@@ -1886,6 +1915,535 @@
             "type": "string",
             "format": "date-time",
             "description": "When the report was generated"
+          }
+        }
+      },
+      "CitizenVote": {
+        "slug": "citizen-vote",
+        "icon": "AccountVoiceOutline",
+        "version": "0.1.0",
+        "title": "CitizenVote",
+        "description": "A vote cast by a citizen on a motion that has citizenVotingAllowed enabled (p3-citizen-participation). Distinct from staff Vote entities tied to a VotingRound — citizen votes may be participatory or advisory and are tallied separately.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:VoteAction",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "voteValue",
+          "voterId",
+          "motionId",
+          "castAt"
+        ],
+        "properties": {
+          "voteValue": {
+            "description": "Citizen vote value. For simple voting a string ('voor' | 'tegen' | 'onthoud'); for ranked voting an ordered array of option identifiers; for weighted voting a numeric weight or weight-map serialised as string.",
+            "example": "voor"
+          },
+          "voterId": {
+            "type": "string",
+            "description": "Stable identifier for the citizen voter (Nextcloud UID or pseudonymous hash for anonymous referenda)."
+          },
+          "motionId": {
+            "type": "string",
+            "description": "UUID of the Motion this vote applies to."
+          },
+          "citizenPanelId": {
+            "type": "string",
+            "description": "Optional UUID of the CitizenPanel the voter represents; omitted for individual citizen votes."
+          },
+          "weight": {
+            "type": "number",
+            "description": "Vote weight (for weighted voting; defaults to 1 for simple voting).",
+            "example": 1
+          },
+          "isProxy": {
+            "type": "boolean",
+            "description": "Cast via proxy delegation.",
+            "default": false,
+            "example": false
+          },
+          "castAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the vote was cast."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional citizen-supplied reasoning attached to the vote (may be published with consent)."
+          }
+        },
+        "x-openregister-relations": {
+          "motion": {
+            "register": "decidesk",
+            "schema": "Motion",
+            "cardinality": "many-to-one"
+          },
+          "citizenPanel": {
+            "register": "decidesk",
+            "schema": "CitizenPanel",
+            "cardinality": "many-to-one"
+          }
+        }
+      },
+      "CitizenPanel": {
+        "slug": "citizen-panel",
+        "icon": "AccountGroupOutline",
+        "version": "0.1.0",
+        "title": "CitizenPanel",
+        "description": "A structured citizen advisory group with defined membership, term, and scope (p3-citizen-participation). Modelled as schema:Organization with classification 'citizen-panel' per Popolo.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Organization",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "scope",
+          "statusLifecycle"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Panel name.",
+            "example": "Burgerpanel Duurzaamheid Westerkwartier"
+          },
+          "description": {
+            "type": "string",
+            "description": "Public description of the panel's purpose and remit."
+          },
+          "scope": {
+            "type": "string",
+            "description": "Subject-matter scope of the panel.",
+            "example": "Klimaat en energie"
+          },
+          "memberCount": {
+            "type": "integer",
+            "description": "Current number of confirmed panel members.",
+            "example": 12
+          },
+          "termStart": {
+            "type": "string",
+            "format": "date",
+            "description": "Term start date."
+          },
+          "termEnd": {
+            "type": "string",
+            "format": "date",
+            "description": "Term end date."
+          },
+          "statusLifecycle": {
+            "type": "string",
+            "description": "Panel lifecycle state.",
+            "enum": [
+              "proposed",
+              "recruiting",
+              "active",
+              "inactive",
+              "concluded"
+            ],
+            "default": "proposed",
+            "example": "active"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Nextcloud UID of the staff member who created the panel."
+          }
+        },
+        "x-openregister-relations": {
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          }
+        }
+      },
+      "ParticipatoryBudget": {
+        "slug": "participatory-budget",
+        "icon": "CurrencyEurOutline",
+        "version": "0.1.0",
+        "title": "ParticipatoryBudget",
+        "description": "A participatory budgeting round in which citizens propose projects and allocate funds (p3-citizen-participation). Modelled as schema:Grant for compatibility with funding-transparency vocabularies.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Grant",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "totalAmount",
+          "currency",
+          "status"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Budget round name.",
+            "example": "Buurtbudget Westerkwartier 2026"
+          },
+          "description": {
+            "type": "string",
+            "description": "Public description of the budget round."
+          },
+          "totalAmount": {
+            "type": "number",
+            "description": "Total amount available for allocation.",
+            "example": 250000
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code.",
+            "default": "EUR",
+            "example": "EUR"
+          },
+          "submissionDeadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Deadline for submitting BudgetProposal entries."
+          },
+          "votingDeadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Deadline for citizens to vote on proposals."
+          },
+          "status": {
+            "type": "string",
+            "description": "Budget round lifecycle.",
+            "enum": [
+              "draft",
+              "submission",
+              "voting",
+              "tallying",
+              "closed"
+            ],
+            "default": "draft",
+            "example": "submission"
+          },
+          "resultsPublished": {
+            "type": "boolean",
+            "description": "Whether final allocation results are visible to citizens.",
+            "default": false,
+            "example": false
+          }
+        },
+        "x-openregister-relations": {
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          }
+        }
+      },
+      "BudgetProposal": {
+        "slug": "budget-proposal",
+        "icon": "LightbulbOnOutline",
+        "version": "0.1.0",
+        "title": "BudgetProposal",
+        "description": "A project proposed for funding under a ParticipatoryBudget (p3-citizen-participation).",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Proposal",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "requestedAmount",
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Proposal title.",
+            "example": "Speeltuin Dorpstuin renoveren"
+          },
+          "description": {
+            "type": "string",
+            "description": "Full proposal description."
+          },
+          "requestedAmount": {
+            "type": "number",
+            "description": "Amount requested for this proposal.",
+            "example": 25000
+          },
+          "submitter": {
+            "type": "string",
+            "description": "Nextcloud UID or pseudonymous identifier of the citizen submitter."
+          },
+          "category": {
+            "type": "string",
+            "description": "Proposal category (e.g. infrastructure, social, sport).",
+            "example": "infrastructure"
+          },
+          "status": {
+            "type": "string",
+            "description": "Proposal lifecycle.",
+            "enum": [
+              "submitted",
+              "validated",
+              "voting",
+              "awarded",
+              "rejected"
+            ],
+            "default": "submitted",
+            "example": "submitted"
+          },
+          "votesFor": {
+            "type": "integer",
+            "description": "Citizen vote tally in favour.",
+            "default": 0,
+            "example": 0
+          },
+          "votesAgainst": {
+            "type": "integer",
+            "description": "Citizen vote tally against.",
+            "default": 0,
+            "example": 0
+          }
+        },
+        "x-openregister-relations": {
+          "participatoryBudget": {
+            "register": "decidesk",
+            "schema": "ParticipatoryBudget",
+            "cardinality": "many-to-one"
+          }
+        }
+      },
+      "PublicConsultation": {
+        "slug": "public-consultation",
+        "icon": "ForumOutline",
+        "version": "0.1.0",
+        "title": "PublicConsultation",
+        "description": "A formal citizen consultation round attached to a decision, motion, or policy (p3-citizen-participation).",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Event",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Consultation title.",
+            "example": "Consultatie ontwerp-omgevingsvisie 2026"
+          },
+          "description": {
+            "type": "string",
+            "description": "Public description of the consultation purpose and process."
+          },
+          "relatedDecision": {
+            "type": "string",
+            "description": "Optional UUID of the related Decision."
+          },
+          "submissionDeadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Deadline for citizens to submit feedback."
+          },
+          "feedbackRequired": {
+            "type": "boolean",
+            "description": "Whether feedback is mandatory before the consultation can close.",
+            "default": false,
+            "example": false
+          },
+          "status": {
+            "type": "string",
+            "description": "Consultation lifecycle.",
+            "enum": [
+              "draft",
+              "open",
+              "closed",
+              "summarised"
+            ],
+            "default": "draft",
+            "example": "open"
+          },
+          "submissionCount": {
+            "type": "integer",
+            "description": "Number of feedback submissions received.",
+            "default": 0,
+            "example": 0
+          }
+        },
+        "x-openregister-relations": {
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          },
+          "decision": {
+            "register": "decidesk",
+            "schema": "Decision",
+            "cardinality": "many-to-one"
+          }
+        }
+      },
+      "Deliberation": {
+        "slug": "deliberation",
+        "icon": "MessageTextOutline",
+        "version": "0.1.0",
+        "title": "Deliberation",
+        "description": "A threaded discussion forum container linked to a motion or topic for structured citizen deliberation (p3-citizen-participation). Individual posts are conceptually schema:DiscussionForumPosting children stored as related objects.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:DiscussionForumPosting",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "discussionStatus"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Deliberation title."
+          },
+          "description": {
+            "type": "string",
+            "description": "Topic description and discussion guidelines."
+          },
+          "relatedMotion": {
+            "type": "string",
+            "description": "Optional UUID of the Motion under deliberation."
+          },
+          "discussionStatus": {
+            "type": "string",
+            "description": "Discussion lifecycle.",
+            "enum": [
+              "open",
+              "moderated",
+              "closed",
+              "archived"
+            ],
+            "default": "open",
+            "example": "open"
+          },
+          "moderator": {
+            "type": "string",
+            "description": "Nextcloud UID of the staff moderator."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the deliberation was opened."
+          },
+          "postsCount": {
+            "type": "integer",
+            "description": "Number of posts in the thread.",
+            "default": 0,
+            "example": 0
+          }
+        },
+        "x-openregister-relations": {
+          "motion": {
+            "register": "decidesk",
+            "schema": "Motion",
+            "cardinality": "many-to-one"
+          }
+        }
+      },
+      "Notification": {
+        "slug": "notification",
+        "icon": "BellOutline",
+        "version": "0.1.0",
+        "title": "Notification",
+        "description": "A citizen-facing notification delivered via email, SMS, or in-app channel (p3-citizen-participation). Tracks delivery state and read state for preference-aware batching.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Message",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "recipientId",
+          "type",
+          "channel",
+          "status"
+        ],
+        "properties": {
+          "recipientId": {
+            "type": "string",
+            "description": "Nextcloud UID or stable pseudonymous identifier of the recipient."
+          },
+          "type": {
+            "type": "string",
+            "description": "Notification event type.",
+            "enum": [
+              "vote-opened",
+              "vote-closing-soon",
+              "panel-invitation",
+              "budget-submission-open",
+              "budget-results-published",
+              "consultation-deadline",
+              "decision-published",
+              "deliberation-reply"
+            ],
+            "example": "vote-opened"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Short subject line for email or push delivery."
+          },
+          "content": {
+            "type": "string",
+            "description": "Notification body (plain text or localised key)."
+          },
+          "channel": {
+            "type": "string",
+            "description": "Delivery channel.",
+            "enum": [
+              "email",
+              "sms",
+              "in-app"
+            ],
+            "example": "email"
+          },
+          "status": {
+            "type": "string",
+            "description": "Delivery state.",
+            "enum": [
+              "pending",
+              "queued",
+              "sent",
+              "delivered",
+              "failed",
+              "read",
+              "dismissed"
+            ],
+            "default": "pending",
+            "example": "pending"
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the notification was sent."
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the citizen read the in-app notification."
           }
         }
       }
