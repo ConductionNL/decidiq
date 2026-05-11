@@ -68,16 +68,19 @@ class DecisionController extends Controller
      *
      * POST /api/decisions/{decisionId}/publish
      *
-     * Validates server-side that outcome='adopted' and isPublished=false before
+     * Validates server-side that outcome='adopted' and isPublished='internal' before
      * persisting — preventing frontend-only guard bypass (OWASP A01 / ADR-005).
      * Requires Nextcloud admin role to match the governance-level protection on
      * the Minutes lifecycle.
+     *
+     * Sets isPublished to 'public' (p3-citizen-participation enum) so the decision
+     * becomes visible in the citizen transparency portal and via the ORI API.
      *
      * Returns 200 with the updated Decision object on success.
      * Returns 401 when not authenticated.
      * Returns 403 when the caller is not a Nextcloud administrator.
      * Returns 404 when the Decision object is not found.
-     * Returns 422 when outcome ≠ 'adopted' or isPublished is already true.
+     * Returns 422 when outcome ≠ 'adopted' or isPublished is not 'internal'.
      * Returns 503 when OpenRegister is unavailable.
      *
      * @param string $decisionId UUID of the Decision object
@@ -136,7 +139,11 @@ class DecisionController extends Controller
             );
         }
 
-        if (($decision['isPublished'] ?? false) === true) {
+        // P3-citizen-participation: isPublished is now an enum ('internal' | 'public' | 'confidential').
+        // Only 'internal' decisions are eligible for publication; backward-compatible with the legacy
+        // boolean form by treating true/missing-as-true as already published.
+        $currentPublication = $decision['isPublished'] ?? 'internal';
+        if ($currentPublication === 'public' || $currentPublication === 'confidential' || $currentPublication === true) {
             return new JSONResponse(
                 ['message' => 'Decision is already published.'],
                 Http::STATUS_UNPROCESSABLE_ENTITY
@@ -144,7 +151,7 @@ class DecisionController extends Controller
         }
 
         $updated = $decision;
-        $updated['isPublished'] = true;
+        $updated['isPublished'] = 'public';
         $updated['publishedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
 
         try {

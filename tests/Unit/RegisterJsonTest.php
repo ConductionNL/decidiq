@@ -81,15 +81,22 @@ class RegisterJsonTest extends TestCase
     }//end testRegisterIsValidOpenApi()
 
     /**
-     * Test that all 17 required schemas are defined.
+     * Test that all required schemas are defined.
+     *
+     * P1-schemas-and-data-model defined 17 core schemas. P3-citizen-participation
+     * extended the register with 7 additional schemas for citizen engagement
+     * (BudgetProposal, CitizenPanel, CitizenVote, Deliberation, Notification,
+     * ParticipatoryBudget, PublicConsultation), bringing the total to 24.
      *
      * @return void
      *
      * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
+     * @spec openspec/changes/p3-citizen-participation/tasks.md
      */
     public function testAllSeventeenSchemasExist(): void
     {
         $expected = [
+            // P1 core schemas (17).
             'GovernanceBody',
             'Meeting',
             'Participant',
@@ -107,9 +114,21 @@ class RegisterJsonTest extends TestCase
             'Order',
             'Product',
             'Report',
+            // P3 citizen participation schemas (7).
+            'BudgetProposal',
+            'CitizenPanel',
+            'CitizenVote',
+            'Deliberation',
+            'Notification',
+            'ParticipatoryBudget',
+            'PublicConsultation',
         ];
 
-        self::assertCount(expectedCount: 17, haystack: $this->schemas, message: 'Register must contain exactly 17 schemas');
+        self::assertCount(
+            expectedCount: 24,
+            haystack: $this->schemas,
+            message: 'Register must contain exactly 24 schemas (17 p1 core + 7 p3 citizen participation)'
+        );
 
         foreach ($expected as $name) {
             self::assertArrayHasKey(key: $name, array: $this->schemas, message: "Schema '{$name}' must exist");
@@ -256,7 +275,13 @@ class RegisterJsonTest extends TestCase
         );
 
         self::assertSame(expected: ['adopted', 'rejected'], actual: $schema['properties']['outcome']['enum']);
-        self::assertSame(expected: 'boolean', actual: $schema['properties']['isPublished']['type']);
+        // P3-citizen-participation: isPublished is now a string enum (internal | public | confidential)
+        // controlling citizen transparency portal visibility, not a boolean ORI publish flag.
+        self::assertSame(expected: 'string', actual: $schema['properties']['isPublished']['type']);
+        self::assertSame(
+            expected: ['internal', 'public', 'confidential'],
+            actual: $schema['properties']['isPublished']['enum']
+        );
 
     }//end testDecisionMailEnabled()
 

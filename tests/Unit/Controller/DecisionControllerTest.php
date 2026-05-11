@@ -248,11 +248,13 @@ class DecisionControllerTest extends TestCase
             ->willReturn($this->objectService);
 
         $entity = $this->createMock(ObjectEntity::class);
-        $entity->method('getObject')->willReturn([
-            'id'          => 'decision-uuid-002',
-            'outcome'     => 'rejected',
-            'isPublished' => false,
-        ]);
+        $entity->method('getObject')->willReturn(
+                [
+                    'id'          => 'decision-uuid-002',
+                    'outcome'     => 'rejected',
+                    'isPublished' => 'internal',
+                ]
+                );
 
         $this->objectService->method('find')->willReturn($entity);
 
@@ -280,11 +282,13 @@ class DecisionControllerTest extends TestCase
             ->willReturn($this->objectService);
 
         $entity = $this->createMock(ObjectEntity::class);
-        $entity->method('getObject')->willReturn([
-            'id'          => 'decision-uuid-003',
-            'outcome'     => 'adopted',
-            'isPublished' => true,
-        ]);
+        $entity->method('getObject')->willReturn(
+                [
+                    'id'          => 'decision-uuid-003',
+                    'outcome'     => 'adopted',
+                    'isPublished' => 'public',
+                ]
+                );
 
         $this->objectService->method('find')->willReturn($entity);
 
@@ -314,18 +318,20 @@ class DecisionControllerTest extends TestCase
             ->willReturn($this->objectService);
 
         $entity = $this->createMock(ObjectEntity::class);
-        $entity->method('getObject')->willReturn([
-            'id'          => 'decision-uuid-004',
-            'title'       => 'Besluit A',
-            'outcome'     => 'adopted',
-            'isPublished' => false,
-        ]);
+        $entity->method('getObject')->willReturn(
+                [
+                    'id'          => 'decision-uuid-004',
+                    'title'       => 'Besluit A',
+                    'outcome'     => 'adopted',
+                    'isPublished' => 'internal',
+                ]
+                );
 
         $this->objectService->method('find')->willReturn($entity);
 
         $savedData = [
             'id'          => 'decision-uuid-004',
-            'isPublished' => true,
+            'isPublished' => 'public',
             'publishedAt' => '2026-04-14T00:00:00+00:00',
         ];
 
@@ -338,7 +344,7 @@ class DecisionControllerTest extends TestCase
         self::assertInstanceOf(JSONResponse::class, $result);
         self::assertSame(Http::STATUS_OK, $result->getStatus());
         self::assertArrayHasKey('isPublished', $result->getData());
-        self::assertTrue($result->getData()['isPublished']);
+        self::assertSame('public', $result->getData()['isPublished']);
 
     }//end testPublishSucceedsReturns200()
 
@@ -358,11 +364,13 @@ class DecisionControllerTest extends TestCase
             ->willReturn($this->objectService);
 
         $entity = $this->createMock(ObjectEntity::class);
-        $entity->method('getObject')->willReturn([
-            'id'          => 'decision-uuid-005',
-            'outcome'     => 'adopted',
-            'isPublished' => false,
-        ]);
+        $entity->method('getObject')->willReturn(
+                [
+                    'id'          => 'decision-uuid-005',
+                    'outcome'     => 'adopted',
+                    'isPublished' => 'internal',
+                ]
+                );
 
         $this->objectService->method('find')->willReturn($entity);
 
@@ -376,5 +384,4 @@ class DecisionControllerTest extends TestCase
         self::assertArrayHasKey('message', $result->getData());
 
     }//end testPublishWhenSaveFailsReturns503()
-
 }//end class
