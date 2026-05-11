@@ -25,26 +25,42 @@ namespace OCA\Decidesk\AppInfo;
 use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
 use OCA\Decidesk\Controller\AnalyticsController;
+use OCA\Decidesk\Controller\CommentController;
 use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Controller\DelegationController;
+use OCA\Decidesk\Controller\EmailLinkController;
+use OCA\Decidesk\Controller\EngagementController;
 use OCA\Decidesk\Controller\LiveMeetingController;
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Controller\MotionController;
+use OCA\Decidesk\Controller\MotionCoauthorController;
+use OCA\Decidesk\Controller\NotificationPreferenceController;
 use OCA\Decidesk\Controller\ProjectionController;
+use OCA\Decidesk\Controller\TaskController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
+use OCA\Decidesk\Controller\WorkspaceController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\CommentService;
 use OCA\Decidesk\Service\DecisionNotificationService;
+use OCA\Decidesk\Service\DelegationService;
+use OCA\Decidesk\Service\EmailLinkService;
+use OCA\Decidesk\Service\EngagementService;
 use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
+use OCA\Decidesk\Service\MotionCoauthorService;
 use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Service\NotificationPreferenceService;
 use OCA\Decidesk\Service\OriPublicationService;
+use OCA\Decidesk\Service\TaskService;
 use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\Decidesk\Service\VotingService;
+use OCA\Decidesk\Service\WorkspaceService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\App;
@@ -371,6 +387,178 @@ class Application extends App implements IBootstrap
                     );
                 }
                 );
+
+        // P4-collaboration: services for collaboration, delegation, comments,
+        // workspaces, email linking, notifications, engagement, and motion
+        // co-authoring.
+        // @spec openspec/changes/p4-collaboration/tasks.md#task-2.
+        $context->registerService(
+            TaskService::class,
+            static function ($c): TaskService {
+                return new TaskService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            DelegationService::class,
+            static function ($c): DelegationService {
+                return new DelegationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            CommentService::class,
+            static function ($c): CommentService {
+                return new CommentService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            WorkspaceService::class,
+            static function ($c): WorkspaceService {
+                return new WorkspaceService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            EmailLinkService::class,
+            static function ($c): EmailLinkService {
+                return new EmailLinkService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            NotificationPreferenceService::class,
+            static function ($c): NotificationPreferenceService {
+                return new NotificationPreferenceService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            EngagementService::class,
+            static function ($c): EngagementService {
+                return new EngagementService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            MotionCoauthorService::class,
+            static function ($c): MotionCoauthorService {
+                return new MotionCoauthorService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            TaskController::class,
+            static function ($c): TaskController {
+                return new TaskController(
+                    request: $c->get(\OCP\IRequest::class),
+                    taskService: $c->get(TaskService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            DelegationController::class,
+            static function ($c): DelegationController {
+                return new DelegationController(
+                    request: $c->get(\OCP\IRequest::class),
+                    delegationService: $c->get(DelegationService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            CommentController::class,
+            static function ($c): CommentController {
+                return new CommentController(
+                    request: $c->get(\OCP\IRequest::class),
+                    commentService: $c->get(CommentService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            WorkspaceController::class,
+            static function ($c): WorkspaceController {
+                return new WorkspaceController(
+                    request: $c->get(\OCP\IRequest::class),
+                    workspaceService: $c->get(WorkspaceService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            EmailLinkController::class,
+            static function ($c): EmailLinkController {
+                return new EmailLinkController(
+                    request: $c->get(\OCP\IRequest::class),
+                    emailLinkService: $c->get(EmailLinkService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            NotificationPreferenceController::class,
+            static function ($c): NotificationPreferenceController {
+                return new NotificationPreferenceController(
+                    request: $c->get(\OCP\IRequest::class),
+                    preferenceService: $c->get(NotificationPreferenceService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            EngagementController::class,
+            static function ($c): EngagementController {
+                return new EngagementController(
+                    request: $c->get(\OCP\IRequest::class),
+                    engagementService: $c->get(EngagementService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            MotionCoauthorController::class,
+            static function ($c): MotionCoauthorController {
+                return new MotionCoauthorController(
+                    request: $c->get(\OCP\IRequest::class),
+                    coauthorService: $c->get(MotionCoauthorService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
 
     }//end register()
 
