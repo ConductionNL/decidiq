@@ -15,7 +15,7 @@
 		{ "id": "EmailLinks", "label": "Email links", "icon": "icon-mail", "route": "EmailLinks", "order": 80 },
 		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
 		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "settings", "order": 90 },
-		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "action": "user-settings", "section": "settings", "order": 99 }
+		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 }
 	],
 	"pages": [
 		{
@@ -274,7 +274,17 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
-				"columns": ["title", "outcome", "decisionDate", "isPublished"],
+				"columns": [
+					{ "key": "title", "label": "Title", "widget": "link" },
+					{ "key": "outcome", "label": "Outcome", "widget": "badge" },
+					{ "key": "decisionDate", "label": "Decision date", "formatter": "date" },
+					{ "key": "isPublished", "label": "Publication", "widget": "badge" },
+					{ "key": "legalBasis", "label": "Legal basis", "hidden": true }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "DecisionDetail", "primary": true },
+					{ "id": "publish", "label": "Publish", "icon": "icon-upload", "handler": "emit", "permission": "decidesk.decision.publish", "confirm": true }
+				],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
