@@ -28,6 +28,9 @@
 				:schema="objectSidebarState.schema"
 				:hidden-tabs="objectSidebarState.hiddenTabs"
 				:tabs="objectSidebarState.tabs"
+				:use-registry="objectSidebarState.useRegistry"
+				:exclude-integrations="objectSidebarState.excludeIntegrations"
+				:custom-components="customComponents"
 				:open="objectSidebarState.open"
 				@update:open="objectSidebarState.open = $event" />
 		</template>
@@ -101,6 +104,12 @@ export default {
 				schema: '',
 				hiddenTabs: [],
 				tabs: undefined,
+				// Pluggable integration registry (ADR-019). Set by
+				// CnDetailPage when its manifest `config.sidebar.useRegistry`
+				// is true; the host CnObjectSidebar then renders one tab per
+				// registered integration provider.
+				useRegistry: false,
+				excludeIntegrations: [],
 			}),
 		}
 	},
