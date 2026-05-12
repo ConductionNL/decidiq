@@ -2,12 +2,14 @@ name: Documentation
 
 on:
   push:
-    branches: [documentation]
+    branches: [development, documentation]
   pull_request:
-    branches: [documentation]
+    branches: [development, documentation]
 
 jobs:
   deploy:
+    # Reusable workflow defaults the source folder to `docs/` — the
+    # Docusaurus site now lives there (journeydoc / ADR-030).
     uses: ConductionNL/.github/.github/workflows/documentation.yml@main
     with:
-      cname: decidesk.app
+      cname: decidesk.conduction.nl
