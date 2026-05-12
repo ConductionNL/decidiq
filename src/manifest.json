@@ -138,6 +138,13 @@
 			}
 		},
 		{
+			"id": "MeetingIntegrations",
+			"route": "/meetings/:id/integrations",
+			"type": "custom",
+			"title": "Meeting integrations",
+			"component": "MeetingIntegrations"
+		},
+		{
 			"id": "LiveMeeting",
 			"route": "/meetings/:id/live",
 			"type": "custom",
