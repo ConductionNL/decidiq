@@ -15,7 +15,8 @@
 		{ "id": "EmailLinks", "label": "Email links", "icon": "icon-mail", "route": "EmailLinks", "order": 80 },
 		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
 		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "settings", "order": 90 },
-		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 }
+		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 },
+		{ "id": "FeaturesRoadmapMenu", "label": "Features & roadmap", "icon": "icon-toggle", "route": "FeaturesRoadmap", "section": "settings", "order": 100 }
 	],
 	"pages": [
 		{
@@ -503,6 +504,7 @@
 					}
 				]
 			}
-		}
+		},
+		{ "id": "FeaturesRoadmap", "route": "/features-roadmap", "type": "custom", "title": "Features & roadmap", "component": "FeaturesRoadmap" }
 	]
 }

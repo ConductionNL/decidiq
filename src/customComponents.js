@@ -33,6 +33,10 @@ import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
+// Features & Roadmap page — thin wrapper around the lib's
+// CnFeaturesAndRoadmapView (in-product roadmap surface powered by
+// OpenRegister's github-issue-proxy). See ConductionNL/hydra#251.
+import FeaturesRoadmapView from './views/FeaturesRoadmap.vue'
 
 export default {
 	// --- Genuine exception: realtime UI, no abstract analogue. ---
@@ -55,4 +59,6 @@ export default {
 	AmendmentParentMotionTab,
 	MinutesSignersTab,
 	DecisionActionItemsTab,
+	// Features & Roadmap page (lib's CnFeaturesAndRoadmapView).
+	FeaturesRoadmap: FeaturesRoadmapView,
 }
