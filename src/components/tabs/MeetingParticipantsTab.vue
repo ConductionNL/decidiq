@@ -10,7 +10,7 @@
  removes them from the meeting (without deleting the participant).
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--participants">
+	<div class="decidesk-tab decidesk-tab--participants" data-testid="meeting-participants-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Participants') }}
@@ -18,6 +18,7 @@
 			</h3>
 			<NcButton
 				type="primary"
+				data-testid="meeting-participants-add"
 				:aria-label="t('decidesk', 'Add participant')"
 				@click="addDialogOpen = true">
 				<template #icon>

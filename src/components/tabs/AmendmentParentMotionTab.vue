@@ -14,7 +14,7 @@
  @spec openspec/changes/decidesk-manifest-v1/design.md (open question 3)
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--parent-motion">
+	<div class="decidesk-tab decidesk-tab--parent-motion" data-testid="amendment-parent-tab">
 		<h3 class="decidesk-tab__title">
 			{{ t('decidesk', 'Parent motion') }}
 		</h3>
@@ -44,6 +44,7 @@
 			<div class="decidesk-tab__cta">
 				<NcButton
 					type="primary"
+					data-testid="amendment-parent-open"
 					:aria-label="t('decidesk', 'Open parent motion')"
 					@click="openParent">
 					{{ t('decidesk', 'View motion') }}

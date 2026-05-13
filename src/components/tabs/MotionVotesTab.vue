@@ -12,7 +12,7 @@
  was open inside a meeting context, which is now LiveMeeting-only.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--votes">
+	<div class="decidesk-tab decidesk-tab--votes" data-testid="motion-votes-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Votes') }}

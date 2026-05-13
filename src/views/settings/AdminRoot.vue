@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 <template>
-	<div class="decidesk-admin">
+	<div class="decidesk-admin" data-testid="admin-root">
 		<CnVersionInfoCard
 			:app-name="'Decidesk'"
 			:app-version="appVersion"

@@ -11,7 +11,7 @@
  /agenda-items index — out of scope for the sidebar tab.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--agenda">
+	<div class="decidesk-tab decidesk-tab--agenda" data-testid="agenda-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Agenda') }}
@@ -19,6 +19,7 @@
 			</h3>
 			<NcButton
 				type="primary"
+				data-testid="agenda-add-item"
 				:aria-label="t('decidesk', 'Add agenda item')"
 				@click="openCreate">
 				<template #icon>

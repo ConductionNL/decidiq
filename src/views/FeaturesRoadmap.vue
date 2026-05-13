@@ -1,5 +1,6 @@
 <template>
 	<CnFeaturesAndRoadmapView
+		data-testid="roadmap-view"
 		:repo="repo"
 		:features="features"
 		:disabled="disabled" />

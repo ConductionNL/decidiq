@@ -11,7 +11,7 @@
  tab — the standalone /participants index owns that workflow.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--members">
+	<div class="decidesk-tab decidesk-tab--members" data-testid="body-members-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Members') }}
@@ -19,6 +19,7 @@
 			</h3>
 			<NcButton
 				type="primary"
+				data-testid="body-members-add"
 				:aria-label="t('decidesk', 'Add member')"
 				@click="addDialogOpen = true">
 				<template #icon>

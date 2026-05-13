@@ -15,6 +15,7 @@
 		:custom-components="customComponents"
 		:page-types="pageTypes"
 		app-id="decidesk"
+		data-testid="app-root"
 		:translate="translateForApp"
 		:permissions="permissions">
 		<template #sidebar>
