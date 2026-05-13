@@ -117,7 +117,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "meeting",
-				"columns": ["title", "meetingType", "scheduledDate", "meetingMode", "lifecycle"],
+				"columns": ["title", "meetingType", "scheduledDate", { "key": "meetingMode", "label": "Mode", "widget": "badge" }, "lifecycle"],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
@@ -319,7 +319,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "action-item",
-				"columns": ["title", "assignee", "dueDate", "taskStatus"],
+				"columns": ["title", "assignee", "dueDate", { "key": "taskStatus", "label": "Status", "widget": "badge" }],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
@@ -345,7 +345,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "task",
-				"columns": ["title", "assignee", "delegator", "dueDate", "taskStatus"],
+				"columns": ["title", "assignee", "delegator", "dueDate", { "key": "taskStatus", "label": "Status", "widget": "badge" }],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
@@ -371,7 +371,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "collaboration-workspace",
-				"columns": ["name", "type", "accessLevel", "createdAt"],
+				"columns": ["name", "type", { "key": "accessLevel", "label": "Access", "widget": "badge" }, "createdAt"],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
