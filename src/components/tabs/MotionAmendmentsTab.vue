@@ -11,7 +11,7 @@
  standalone /amendments/:id detail page.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--amendments">
+	<div class="decidesk-tab decidesk-tab--amendments" data-testid="motion-amendments-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Amendments') }}
@@ -19,6 +19,7 @@
 			</h3>
 			<NcButton
 				type="primary"
+				data-testid="motion-amendments-add"
 				:aria-label="t('decidesk', 'Submit amendment')"
 				@click="openCreate">
 				<template #icon>

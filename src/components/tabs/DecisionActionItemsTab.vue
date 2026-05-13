@@ -10,7 +10,7 @@
  lets the user add / edit / delete inline.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--action-items">
+	<div class="decidesk-tab decidesk-tab--action-items" data-testid="decision-action-items-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Action items') }}
@@ -18,6 +18,7 @@
 			</h3>
 			<NcButton
 				type="primary"
+				data-testid="decision-action-items-add"
 				:aria-label="t('decidesk', 'Add action item')"
 				@click="openCreate">
 				<template #icon>

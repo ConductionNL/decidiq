@@ -11,7 +11,7 @@
  page) — this tab is the structural CRUD surface only.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--motions">
+	<div class="decidesk-tab decidesk-tab--motions" data-testid="agenda-motions-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Motions') }}
@@ -19,6 +19,7 @@
 			</h3>
 			<NcButton
 				type="primary"
+				data-testid="agenda-motions-add"
 				:aria-label="t('decidesk', 'Add motion')"
 				@click="openCreate">
 				<template #icon>

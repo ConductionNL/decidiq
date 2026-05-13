@@ -12,7 +12,7 @@
  transition endpoint when the current user matches a pending signer.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--signers">
+	<div class="decidesk-tab decidesk-tab--signers" data-testid="minutes-signers-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Signers') }}
@@ -20,6 +20,7 @@
 			</h3>
 			<NcButton
 				type="primary"
+				data-testid="minutes-signers-add"
 				:aria-label="t('decidesk', 'Add signer')"
 				@click="addDialogOpen = true">
 				<template #icon>

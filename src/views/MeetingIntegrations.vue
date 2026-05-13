@@ -21,12 +21,13 @@
 		object-type="meeting"
 		:object-id="id"
 		:sidebar="sidebarConfig">
-		<div class="meeting-integrations__body">
+		<div class="meeting-integrations__body" data-testid="meeting-integrations">
 			<p>
 				{{ t('decidesk', 'This page is backed by the pluggable integration registry. The "Articles" tab is provided by the xWiki integration via OpenConnector — linked wiki pages render with their breadcrumb and a text preview.') }}
 			</p>
 			<NcButton
 				type="tertiary"
+				data-testid="meeting-integrations-back"
 				:aria-label="t('decidesk', 'Back to meeting')"
 				@click="$router.push({ name: 'MeetingDetail', params: { id } })">
 				← {{ t('decidesk', 'Back to meeting') }}

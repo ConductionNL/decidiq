@@ -9,17 +9,18 @@
  @spec openspec/changes/p2-agenda-management/tasks.md#task-4.5
 -->
 <template>
-	<div class="live-meeting" role="main" :aria-label="t('decidesk', 'Live meeting view')">
+	<div class="live-meeting" role="main" data-testid="meeting-live" :aria-label="t('decidesk', 'Live meeting view')">
 		<NcLoadingIcon v-if="loading" :size="64" />
 
 		<template v-else>
 			<!-- Meeting header -->
-			<div class="live-meeting__header">
+			<div class="live-meeting__header" data-testid="meeting-live-header">
 				<h2 class="live-meeting__title">
 					{{ meeting.title || t('decidesk', 'Live meeting') }}
 				</h2>
 				<CnStatusBadge :status="meeting.lifecycle || 'opened'" />
 				<NcButton
+					data-testid="meeting-live-back"
 					:aria-label="t('decidesk', 'Back to meeting detail')"
 					@click="$router.push({ name: 'MeetingDetail', params: { id } })">
 					← {{ t('decidesk', 'Back') }}
@@ -50,6 +51,7 @@
 				<NcButton
 					v-if="isChair"
 					type="primary"
+					data-testid="meeting-live-adopt-consent"
 					:loading="processingHamerstukken"
 					:aria-label="t('decidesk', 'Adopt all consent agenda items')"
 					@click="confirmHamerstukken = true">
