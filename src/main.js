@@ -14,6 +14,7 @@ import {
 	installIntegrationRegistry,
 	registerBuiltinIntegrations,
 	registerXwikiIntegration,
+	registerLeafIntegrations,
 } from '@conduction/nextcloud-vue'
 import pinia from './pinia.js'
 import App from './App.vue'
@@ -37,12 +38,18 @@ Vue.use(VueRouter)
 // Pluggable integration registry (ADR-019). Install the global registry
 // (draining any pre-mount `window.OCA.OpenRegister.integrations` queue),
 // then register the built-in core integrations (files / notes / tags /
-// tasks / audit-trail) plus the xWiki "Articles" leaf. Detail pages whose
-// manifest `config.sidebar.useRegistry` is true render one sidebar tab per
-// registered integration via the host `<CnObjectSidebar>` in App.vue.
+// tasks / audit-trail) plus the xWiki "Articles" leaf plus the 17 leaf
+// integrations (calendar / contacts / email / talk / bookmarks /
+// collectives / maps / photos / activity / analytics / cospend / deck /
+// flow / forms / polls / time-tracker / shares / openproject). Detail
+// pages whose manifest `config.sidebar.useRegistry` is true render one
+// sidebar tab per registered integration via the host `<CnObjectSidebar>`
+// in App.vue; each integration's tab shows up only when the underlying
+// NC app is installed (the registry filters on isEnabled per AD-5).
 installIntegrationRegistry()
 registerBuiltinIntegrations()
 registerXwikiIntegration()
+registerLeafIntegrations()
 
 // Register library-side icon set + lib translations once at bootstrap.
 registerIcons()
