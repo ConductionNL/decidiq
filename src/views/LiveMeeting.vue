@@ -9,7 +9,11 @@
  @spec openspec/changes/p2-agenda-management/tasks.md#task-4.5
 -->
 <template>
-	<div class="live-meeting" role="main" data-testid="meeting-live" :aria-label="t('decidesk', 'Live meeting view')">
+	<div
+		class="live-meeting"
+		role="main"
+		data-testid="meeting-live"
+		:aria-label="t('decidesk', 'Live meeting view')">
 		<NcLoadingIcon v-if="loading" :size="64" />
 
 		<template v-else>
