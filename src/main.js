@@ -3,7 +3,7 @@
 
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import { PiniaVuePlugin } from 'pinia'
+import { PiniaVuePlugin, setActivePinia } from 'pinia'
 import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import {
@@ -141,6 +141,18 @@ const customComponentsProp = { ...customComponents }
 //
 // initializeStores() is documented as idempotent so App.vue's call
 // stays in place as a safety net for future entry points.
+// Activate the Pinia instance BEFORE initializeStores() runs.
+// initializeStores() calls `useObjectStore()` / `useSettingsStore()`
+// outside a Vue setup() context — Pinia's `useStore()` reads the
+// active pinia from a module-global, and `new Vue({ pinia })` is what
+// normally sets it via PiniaVuePlugin. But that happens AFTER this
+// async IIFE awaits, so any `useStore()` call here would hit
+// `getActivePinia()._s` against undefined and throw
+// "Cannot read properties of undefined (reading '_s')". Setting it
+// explicitly upfront is the idiomatic fix for boot-time store access
+// in Vue 2 + Pinia.
+setActivePinia(pinia)
+
 ;(async () => {
 	try {
 		await initializeStores()
