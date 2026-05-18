@@ -1,0 +1,27 @@
+# DeciDesk
+
+> Decidesk is an open-source decision-making app for the Nextcloud workspace.
+
+Decidesk is an open-source decision-making app for the Nextcloud workspace. It runs the full governance cycle in one place: scheduling meetings, building agendas, submitting motions and amendments, voting, publishing minutes, and tracking action items to completion. Workflows are configurable for legislative bodies, associations, corporate boards, management teams, and citizen-participation panels. All meetings, motions, and decisions live as typed OpenRegister objects with an audit trail, and a built-in AI chat companion exposes those records over MCP. Released under EUPL-1.2 and maintained by Conduction since 2019.
+
+## Docs
+
+- [Tutorials](https://decidesk.conduction.nl/tutorials): step-by-step walkthroughs.
+- [Features](https://decidesk.conduction.nl/Features): what the app does, organised by capability.
+- [Use cases](https://decidesk.conduction.nl/UseCases): real customer scenarios.
+- [Integrations](https://decidesk.conduction.nl/Integrations): which external systems the app talks to.
+- [Technical](https://decidesk.conduction.nl/Technical): architecture, data model, security posture.
+- [User guide](https://decidesk.conduction.nl/user-guide): end-user documentation.
+- [API](https://decidesk.conduction.nl/api): OpenAPI reference.
+
+## Optional
+
+- [Install](https://decidesk.conduction.nl/installation): install from the Nextcloud app store.
+- [Source](https://decidesk.conduction.nl): repository and issue tracker.
+- [App page](https://www.conduction.nl/apps/decidesk): product positioning on conduction.nl.
+
+## Contact
+
+- Email: info@conduction.nl
+- GitHub: https://github.com/ConductionNL/decidesk
+- Conduction B.V. · KvK 76741850 · Lauriergracht 14h, Amsterdam, Netherlands
