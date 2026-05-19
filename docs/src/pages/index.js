@@ -257,7 +257,7 @@ const WIDGETS = [
 export default function Home() {
   return (
     <Layout
-      title="Decidesk"
+      title="Decidesk, meetings, motions, and decision logs for Nextcloud"
       description="Decidesk runs the whole decision — meetings, agendas, motions, amendments, voting, minutes, and the decision log — with configurable workflows for governance bodies, associations, corporate boards, and operational meetings."
     >
       <main className="marketing-page">
