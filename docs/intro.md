@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+description: Get started with Decidesk, meeting and decision management on Nextcloud. Agendas, motions, voting, minutes, and a permanent decision log.
 ---
 
 # Decidesk
