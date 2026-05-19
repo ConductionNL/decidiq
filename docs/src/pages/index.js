@@ -264,8 +264,7 @@ export default function Home() {
         <DetailHero
           background="cobalt"
           appId="decidesk"
-          status={{ label: 'Beta', color: 'var(--c-orange-knvb)' }}
-          version="v0.1"
+          /* status + version dropped — preset 2.10+ auto-derives from appinfo/info.xml */
           locales="EN"
           title="Decidesk"
           tagline={TAGLINE}
