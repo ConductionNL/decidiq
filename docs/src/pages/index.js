@@ -258,7 +258,7 @@ export default function Home() {
   return (
     <Layout
       title="Decidesk, meetings, motions, and decision logs for Nextcloud"
-      description="Decidesk runs the whole decision — meetings, agendas, motions, amendments, voting, minutes, and the decision log — with configurable workflows for governance bodies, associations, corporate boards, and operational meetings."
+      description="Meetings, motions, voting, and minutes on Nextcloud. Configurable workflows for boards, councils, and operational decision logs."
     >
       <main className="marketing-page">
         <DetailHero
