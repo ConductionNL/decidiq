@@ -154,6 +154,14 @@ const customComponentsProp = { ...customComponents }
 setActivePinia(pinia)
 
 ;(async () => {
+	// Activate Pinia globally before any useStore() call. Without this,
+	// initializeStores() (which calls useObjectStore() outside any Vue
+	// component) throws "Cannot read properties of undefined (reading
+	// '_s')" because Pinia falls back to the active instance and there
+	// isn't one yet — Vue.use(PiniaVuePlugin) only auto-activates pinia
+	// when Vue itself uses it via `new Vue({ pinia })`.
+	setActivePinia(pinia)
+
 	try {
 		await initializeStores()
 	} catch (e) {

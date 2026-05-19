@@ -207,9 +207,6 @@ export default {
 
 	data() {
 		return {
-			meeting: {},
-			allItems: [],
-			participants: [],
 			loading: true,
 			activeItemId: null,
 			advancingBob: false,
@@ -224,6 +221,25 @@ export default {
 	},
 
 	computed: {
+		// Read directly from the shared store cache so the
+		// liveUpdatesPlugin's auto-refetch on `or-object-{uuid}` /
+		// `or-collection-...` events propagates to the rendered UI
+		// without per-component watcher boilerplate. Pre-migration
+		// LiveMeeting copied data into local state in fetchData(),
+		// which made the page non-reactive to live updates: the plugin
+		// updated the store cache but the local copy never re-read.
+		meeting() {
+			return this.objectStore.objects?.meeting?.[this.id] ?? {}
+		},
+		allItems() {
+			const collection = this.objectStore.collections?.['agenda-item'] ?? []
+			return collection.filter(i => i?.['@self']?.relations?.meeting === this.id || i?.relations?.meeting === this.id)
+		},
+		participants() {
+			const collection = this.objectStore.collections?.participant ?? []
+			return collection.filter(p => p?.['@self']?.relations?.meeting === this.id || p?.relations?.meeting === this.id)
+		},
+
 		isChair() {
 			const currentUser = getCurrentUser()
 			if (!currentUser) return false
@@ -322,17 +338,22 @@ export default {
 		},
 
 		async fetchData() {
+			// Trigger initial fetches to populate the shared store cache.
+			// We deliberately don't assign results to local state — the
+			// `meeting`, `allItems`, and `participants` computed getters
+			// read straight from the store, so when the liveUpdatesPlugin
+			// re-fetches on `or-object-*` / `or-collection-*` events the
+			// rendered UI updates automatically via Vue reactivity.
 			try {
-				const meeting = await this.objectStore.fetchObject('meeting', this.id)
-				this.meeting = meeting ?? {}
-				const items = await this.objectStore.fetchCollection('agenda-item', {
-					'@self.relations.meeting': this.id,
-				})
-				this.allItems = items ?? []
-				const parts = await this.objectStore.fetchCollection('participant', {
-					'@self.relations.meeting': this.id,
-				})
-				this.participants = parts ?? []
+				await Promise.all([
+					this.objectStore.fetchObject('meeting', this.id),
+					this.objectStore.fetchCollection('agenda-item', {
+						'@self.relations.meeting': this.id,
+					}),
+					this.objectStore.fetchCollection('participant', {
+						'@self.relations.meeting': this.id,
+					}),
+				])
 			} catch (e) {
 				console.error('Error fetching live meeting data:', e)
 			} finally {
@@ -342,10 +363,9 @@ export default {
 
 		async refreshItems() {
 			try {
-				const items = await this.objectStore.fetchCollection('agenda-item', {
+				await this.objectStore.fetchCollection('agenda-item', {
 					'@self.relations.meeting': this.id,
 				})
-				this.allItems = items ?? []
 			} catch (e) {
 				console.error('Error refreshing items:', e)
 			}
