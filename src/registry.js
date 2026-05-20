@@ -16,9 +16,7 @@
  */
 
 import LiveMeetingView from './views/LiveMeeting.vue'
-import FeaturesRoadmapView from './views/FeaturesRoadmap.vue'
 
 export default {
 	LiveMeetingView: { kind: 'page', component: LiveMeetingView },
-	FeaturesRoadmap: { kind: 'page', component: FeaturesRoadmapView },
 }
