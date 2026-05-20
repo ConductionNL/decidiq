@@ -36,10 +36,15 @@ import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue
 // Features & Roadmap page — thin wrapper around the lib's
 // CnFeaturesAndRoadmapView (in-product roadmap surface powered by
 // OpenRegister's github-issue-proxy). See ConductionNL/hydra#251.
+// Stays custom because the v2 type enum has no features-roadmap
+// primitive yet.
 import FeaturesRoadmapView from './views/FeaturesRoadmap.vue'
-// Meeting integrations surface — CnDetailPage with the pluggable
-// integration registry sidebar (ADR-019). See ConductionNL/openregister#1307.
-import MeetingIntegrations from './views/MeetingIntegrations.vue'
+
+// NOTE: MeetingIntegrations was eliminated in #237 — the manifest now
+// declares the /meetings/:id/integrations route as a typed `detail`
+// page with `config.sidebar.useRegistry: true`. The wrapper component
+// (src/views/MeetingIntegrations.vue) is retained for reference but no
+// longer imported here.
 
 export default {
 	// --- Genuine exception: realtime UI, no abstract analogue. ---
@@ -64,10 +69,4 @@ export default {
 	DecisionActionItemsTab,
 	// Features & Roadmap page (lib's CnFeaturesAndRoadmapView).
 	FeaturesRoadmap: FeaturesRoadmapView,
-
-	// --- Pluggable integration registry demo (ADR-019). ---
-	// Meeting "integrations" surface — CnDetailPage whose sidebar runs in
-	// registry mode (one tab per registered integration provider,
-	// including the xWiki "Articles" leaf).
-	MeetingIntegrations,
 }
