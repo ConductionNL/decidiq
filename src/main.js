@@ -13,7 +13,6 @@ import {
 	registerTranslations,
 	installIntegrationRegistry,
 	registerBuiltinIntegrations,
-	registerXwikiIntegration,
 	registerLeafIntegrations,
 } from '@conduction/nextcloud-vue'
 import pinia from './pinia.js'
@@ -48,7 +47,6 @@ Vue.use(VueRouter)
 // NC app is installed (the registry filters on isEnabled per AD-5).
 installIntegrationRegistry()
 registerBuiltinIntegrations()
-registerXwikiIntegration()
 registerLeafIntegrations()
 
 // Register library-side icon set + lib translations once at bootstrap.
