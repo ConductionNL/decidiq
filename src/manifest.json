@@ -1,6 +1,6 @@
 {
-	"$schema": "https://raw.githubusercontent.com/ConductionNL/nextcloud-vue/main/src/schemas/app-manifest.schema.json",
-	"version": "1.0.0",
+	"$schema": "https://raw.githubusercontent.com/ConductionNL/nextcloud-vue/main/src/schemas/app-manifest-v2.schema.json",
+	"version": "2.0.0",
 	"dependencies": ["openregister"],
 	"menu": [
 		{ "id": "Dashboard", "label": "Dashboard", "icon": "icon-category-dashboard", "route": "Dashboard", "order": 10 },
@@ -140,16 +140,27 @@
 		{
 			"id": "MeetingIntegrations",
 			"route": "/meetings/:id/integrations",
-			"type": "custom",
+			"type": "detail",
 			"title": "Meeting integrations",
-			"component": "MeetingIntegrations"
+			"config": {
+				"register": "decidesk",
+				"schema": "meeting",
+				"description": "External integrations linked to this meeting — open the sidebar to browse linked articles, files, notes, tags, tasks and the audit trail.",
+				"sidebar": {
+					"enabled": true,
+					"register": "decidesk",
+					"schema": "meeting",
+					"useRegistry": true
+				}
+			}
 		},
 		{
 			"id": "LiveMeeting",
 			"route": "/meetings/:id/live",
 			"type": "custom",
 			"title": "Live meeting",
-			"component": "LiveMeetingView"
+			"component": "LiveMeetingView",
+			"_note": "Realtime meeting shell — WebSocket subscriptions, frame-by-frame UI, per-vote-card animations. No typed primitive analogue; documented as the canonical example for a future type:realtime lib extension. See src/views/LiveMeeting.vue."
 		},
 		{
 			"id": "Participants",
@@ -512,6 +523,6 @@
 				]
 			}
 		},
-		{ "id": "FeaturesRoadmap", "route": "/features-roadmap", "type": "custom", "title": "Features & roadmap", "component": "FeaturesRoadmap" }
+		{ "id": "FeaturesRoadmap", "route": "/features-roadmap", "type": "custom", "title": "Features & roadmap", "component": "FeaturesRoadmap", "_note": "Thin wrapper around lib's CnFeaturesAndRoadmapView (in-product roadmap surface powered by OpenRegister's github-issue-proxy). v2 type enum has no features-roadmap primitive — stays custom until lib gains one. See src/views/FeaturesRoadmap.vue." }
 	]
 }
