@@ -38,7 +38,6 @@ import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue
 // OpenRegister's github-issue-proxy). See ConductionNL/hydra#251.
 // Stays custom because the v2 type enum has no features-roadmap
 // primitive yet.
-import FeaturesRoadmapView from './views/FeaturesRoadmap.vue'
 
 // NOTE: MeetingIntegrations was eliminated in #237 — the manifest now
 // declares the /meetings/:id/integrations route as a typed `detail`
@@ -68,5 +67,4 @@ export default {
 	MinutesSignersTab,
 	DecisionActionItemsTab,
 	// Features & Roadmap page (lib's CnFeaturesAndRoadmapView).
-	FeaturesRoadmap: FeaturesRoadmapView,
 }
