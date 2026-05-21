@@ -78,8 +78,9 @@ class ActionItemAnalyticsService
         try {
             $objectService = $this->container->get('OpenRegisterObjectService');
             $today         = new DateTime();
-            $dateFromDt    = new DateTime($dateFrom);
-            $dateToDt      = new DateTime($dateTo);
+            // Validate ISO 8601 inputs (constructor throws on malformed dates).
+            new DateTime($dateFrom);
+            new DateTime($dateTo);
 
             // Query all ActionItems.
             $params   = [
@@ -130,10 +131,9 @@ class ActionItemAnalyticsService
                 }
             }//end foreach
 
+            $avgDaysToClose = 0.0;
             if (count($daysToClosed) > 0) {
                 $avgDaysToClose = array_sum($daysToClosed) / count($daysToClosed);
-            } else {
-                $avgDaysToClose = 0.0;
             }
 
             return [
@@ -221,10 +221,9 @@ class ActionItemAnalyticsService
                 }
 
                 $total = count($actionItems);
+                $rate  = 0;
                 if ($total > 0) {
                     $rate = ($completed / $total * 100);
-                } else {
-                    $rate = 0;
                 }
 
                 $rates[] = [
@@ -294,11 +293,15 @@ class ActionItemAnalyticsService
 
                 if ($dueDate < $today) {
                     $grouped['overdue'][] = $item;
-                } else if ($dueDate <= $weekAhead) {
-                    $grouped['thisWeek'][] = $item;
-                } else {
-                    $grouped['later'][] = $item;
+                    continue;
                 }
+
+                if ($dueDate <= $weekAhead) {
+                    $grouped['thisWeek'][] = $item;
+                    continue;
+                }
+
+                $grouped['later'][] = $item;
             }
 
             return $grouped;

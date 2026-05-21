@@ -27,8 +27,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Service for creating, querying, resolving, and deleting comments.
@@ -114,7 +119,7 @@ class CommentService
             $objectService->setSchema($parsed['schema']);
             $entity = $objectService->find($parsed['uuid']);
             return $entity !== null;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->debug(
                 'Decidesk: Could not validate comment target',
                 ['target' => $target, 'error' => $e->getMessage()]
@@ -131,19 +136,19 @@ class CommentService
      *
      * @return array<string, mixed>
      *
-     * @throws \InvalidArgumentException When required fields missing
-     * @throws \RuntimeException         When the target does not exist
+     * @throws InvalidArgumentException When required fields missing
+     * @throws RuntimeException         When the target does not exist
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-5.1
      */
     public function saveComment(array $comment): array
     {
         if (empty($comment['text']) === true) {
-            throw new \InvalidArgumentException('Comment text is required');
+            throw new InvalidArgumentException('Comment text is required');
         }
 
         if (isset($comment['createdAt']) === false) {
-            $comment['createdAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $comment['createdAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
         }
 
         if (isset($comment['updatedAt']) === false) {
@@ -152,7 +157,7 @@ class CommentService
 
         $target = ($comment['target'] ?? null);
         if ($target !== null && $this->targetExists(target: (string) $target) === false) {
-            throw new \RuntimeException("Comment target '$target' does not exist");
+            throw new RuntimeException("Comment target '$target' does not exist");
         }
 
         $objectService = $this->getObjectService();
@@ -219,7 +224,7 @@ class CommentService
                 offset: 0,
                 filters: ['target' => $target],
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning(
                 'Decidesk: findCommentsForTarget failed',
                 ['target' => $target, 'error' => $e->getMessage()]
@@ -247,7 +252,7 @@ class CommentService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When the comment cannot be found
+     * @throws RuntimeException When the comment cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-5.1
      */
@@ -255,10 +260,10 @@ class CommentService
     {
         $comment = $this->findComment(commentId: $commentId);
         if ($comment === null) {
-            throw new \RuntimeException("Comment $commentId not found");
+            throw new RuntimeException("Comment $commentId not found");
         }
 
-        $comment['resolvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $comment['resolvedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 
         $objectService = $this->getObjectService();
         $objectService->saveObject(
@@ -280,7 +285,7 @@ class CommentService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When the comment cannot be found
+     * @throws RuntimeException When the comment cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-5.1
      */
@@ -288,7 +293,7 @@ class CommentService
     {
         $comment = $this->findComment(commentId: $commentId);
         if ($comment === null) {
-            throw new \RuntimeException("Comment $commentId not found");
+            throw new RuntimeException("Comment $commentId not found");
         }
 
         $allowed = ['text', 'mentions', 'resolvedAt'];
@@ -298,7 +303,7 @@ class CommentService
             }
         }
 
-        $comment['updatedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $comment['updatedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 
         $objectService = $this->getObjectService();
         $objectService->saveObject(

@@ -27,8 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Service for creating, updating, and managing membership of CollaborationWorkspace objects.
@@ -71,18 +74,18 @@ class WorkspaceService
      *
      * @return array<string, mixed>
      *
-     * @throws \InvalidArgumentException When required fields are missing
+     * @throws InvalidArgumentException When required fields are missing
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
      */
     public function createWorkspace(array $workspace): array
     {
         if (empty($workspace['name']) === true) {
-            throw new \InvalidArgumentException('Workspace name is required');
+            throw new InvalidArgumentException('Workspace name is required');
         }
 
         if (empty($workspace['type']) === true) {
-            throw new \InvalidArgumentException('Workspace type is required');
+            throw new InvalidArgumentException('Workspace type is required');
         }
 
         if (isset($workspace['accessLevel']) === false) {
@@ -90,7 +93,7 @@ class WorkspaceService
         }
 
         if (isset($workspace['createdAt']) === false) {
-            $workspace['createdAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $workspace['createdAt'] = (new DateTimeImmutable())->format(\DateTimeInterface::ATOM);
         }
 
         $objectService = $this->getObjectService();
@@ -149,7 +152,7 @@ class WorkspaceService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When the workspace cannot be found
+     * @throws RuntimeException When the workspace cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
      */
@@ -157,7 +160,7 @@ class WorkspaceService
     {
         $workspace = $this->findWorkspace(workspaceId: $workspaceId);
         if ($workspace === null) {
-            throw new \RuntimeException("Workspace $workspaceId not found");
+            throw new RuntimeException("Workspace $workspaceId not found");
         }
 
         $allowed = ['name', 'purpose', 'accessLevel', 'owner', 'type'];
@@ -187,7 +190,7 @@ class WorkspaceService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When the workspace cannot be found
+     * @throws RuntimeException When the workspace cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
      */
@@ -195,7 +198,7 @@ class WorkspaceService
     {
         $workspace = $this->findWorkspace(workspaceId: $workspaceId);
         if ($workspace === null) {
-            throw new \RuntimeException("Workspace $workspaceId not found");
+            throw new RuntimeException("Workspace $workspaceId not found");
         }
 
         $members = ($workspace['members'] ?? []);
@@ -229,7 +232,7 @@ class WorkspaceService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When the workspace cannot be found
+     * @throws RuntimeException When the workspace cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
      */
@@ -237,7 +240,7 @@ class WorkspaceService
     {
         $workspace = $this->findWorkspace(workspaceId: $workspaceId);
         if ($workspace === null) {
-            throw new \RuntimeException("Workspace $workspaceId not found");
+            throw new RuntimeException("Workspace $workspaceId not found");
         }
 
         $members = ($workspace['members'] ?? []);
