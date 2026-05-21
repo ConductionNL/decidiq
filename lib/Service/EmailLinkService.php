@@ -26,8 +26,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Service for linking emails to decisions and agenda items, with reverse
@@ -71,18 +75,18 @@ class EmailLinkService
      *
      * @return array<string, mixed>
      *
-     * @throws \InvalidArgumentException When required fields are missing
+     * @throws InvalidArgumentException When required fields are missing
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-6.1
      */
     public function linkEmailToDecision(array $emailLink): array
     {
         if (empty($emailLink['subject']) === true) {
-            throw new \InvalidArgumentException('EmailLink subject is required');
+            throw new InvalidArgumentException('EmailLink subject is required');
         }
 
         if (isset($emailLink['receivedAt']) === false) {
-            $emailLink['receivedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $emailLink['receivedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
         }
 
         $objectService = $this->getObjectService();
@@ -145,7 +149,7 @@ class EmailLinkService
                 offset: 0,
                 filters: ['linkedTo' => $target],
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning(
                 'Decidesk: findLinkedEmails failed',
                 ['target' => $target, 'error' => $e->getMessage()]

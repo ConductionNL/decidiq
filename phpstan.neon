@@ -1,3 +1,9 @@
+includes:
+    # Per-app tracked lint debt lives here (auto-generated via `phpstan --generate-baseline`).
+    # Apps without debt ship an empty baseline file; canonical includes are otherwise byte-identical
+    # across the fleet.
+    - phpstan-baseline.neon
+
 parameters:
     level: 5
     paths:
@@ -6,41 +12,48 @@ parameters:
         - phpstan-bootstrap.php
     excludePaths:
         - vendor
+        - vendor-bin
+        # Apps that ship a verbatim template snapshot under lib/Resources/template/ (e.g. openbuilt).
+        - lib/Resources/template
     scanDirectories:
         - vendor/nextcloud/ocp
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        # Nextcloud internal classes that PHPStan might not recognize
+        # Nextcloud server internals (\OC, OC_App, OC\) not stubbed in nextcloud/ocp
         - '#Call to an undefined method OC::#'
         - '#Class OC not found#'
         - '#Access to static property \$server on an unknown class OC#'
+        - '#unknown class OC\\#'
+        - '#Caught class OC\\#'
+        - '#unknown class OC_App#'
+        - '#Class OC_App not found#'
+        # OCA\DAV is server-internal and not in nextcloud/ocp stubs
+        - '#unknown class OCA\\DAV\\#'
+        - '#Class OCA\\DAV\\#'
         # OCA classes from other apps (OpenRegister) not available during static analysis
         - '#unknown class OCA\\OpenRegister\\#'
         - '#OCA\\OpenRegister\\[a-zA-Z\\]+.*not found#'
         - '#on an unknown class OCA\\OpenRegister\\#'
         - '#has invalid return type OCA\\OpenRegister\\#'
         - '#has invalid type OCA\\OpenRegister\\#'
-        # CalendarEventService is an OpenRegister type unknown to PHPStan; the property IS
-        # read in publishAgenda() but PHPStan cannot resolve calls through an unknown class.
-        - '#Property OCA\\Decidesk\\Service\\AgendaService::\$calendarEventService is never read#'
+        - '#implements unknown interface OCA\\OpenRegister\\#'
         # GuzzleHttp is available at runtime via Nextcloud but not in composer require
         - '#unknown class GuzzleHttp\\#'
         - '#GuzzleHttp\\[a-zA-Z\\]+.*not found#'
         - '#on an unknown class GuzzleHttp\\#'
         - '#invalid type GuzzleHttp\\#'
         - '#Caught class GuzzleHttp\\#'
+        # Doctrine\DBAL is shipped by Nextcloud server but not stubbed in nextcloud/ocp
+        - '#unknown class Doctrine\\DBAL\\#'
+        - '#Doctrine\\DBAL\\[a-zA-Z\\]+.*not found#'
+        - '#on an unknown class Doctrine\\DBAL\\#'
         # Dynamic HTTP status codes from business rule validation results
-        - '#Parameter \#2 \$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor expects#'
+        # (matches both `Parameter $statusCode` and `Parameter #N $statusCode` forms emitted by phpstan)
+        - '#Parameter (\#\d+ )?\$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor expects#'
         # registerRepairStep exists on server; not yet in nextcloud/ocp stub used for analysis
         - '#Call to an undefined method OCP\\AppFramework\\Bootstrap\\IRegistrationContext::registerRepairStep#'
-        # SCOPE_MAP will be used when OAuth scope enforcement is added (REQ-OAUTH-002); not yet consumed
-        - '#Constant OCA\\Decidesk\\Controller\\ApiController::SCOPE_MAP is unused#'
-        # AuthorizedAdminSetting is passed the app ID string as a guard; Nextcloud accepts this at runtime
-        - '#Parameter \#1 \$settings of attribute class OCP\\AppFramework\\Http\\Attribute\\AuthorizedAdminSetting#'
-        # PHPDoc type narrowing produces false-positive "always true" comparisons in analytics service
-        - '#Comparison operation ">" between int<1, max> and 0 is always true#'
-        - '#Else branch is unreachable because previous condition is always true#'
-        # preg_match_all offset 0 is always set; isset() guard is defensive coding
-        - '#Offset 0 on array\{array<int, string>#'
-        # PHPDoc-typed end() result produces false-positive "always false" strict comparison
-        - '#Strict comparison using === between true and false will always evaluate to false#'
+        # OCP stub gaps for methods that exist at runtime
+        - '#Call to an undefined method OCP\\IRequest::getContent\(\)#'
+        - '#Call to an undefined method OCP\\IRequest::setParameter\(\)#'
+        - '#Call to an undefined method OCP\\Mail\\IMessage::attachFile\(\)#'
+        - '#Call to an undefined method OCP\\AppFramework\\Db\\Entity::jsonSerialize#'

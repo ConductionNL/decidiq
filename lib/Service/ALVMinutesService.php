@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use Exception;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -94,7 +95,7 @@ TEMPLATE;
      * } Generated content and recipient count
      *
      * @throws MissingObjectException If Minutes or Meeting not found
-     * @throws \Exception If meeting is not ALV type
+     * @throws Exception If meeting is not ALV type
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
      */
@@ -118,15 +119,14 @@ TEMPLATE;
             $meetingId = null;
             if (empty($minutes['relations']['Meeting']) === false) {
                 $meetingRels = $minutes['relations']['Meeting'];
+                $meetingId   = $meetingRels;
                 if (is_array($meetingRels) === true) {
                     $meetingId = $meetingRels[0];
-                } else {
-                    $meetingId = $meetingRels;
                 }
             }
 
             if (empty($meetingId) === true) {
-                throw new \Exception('No Meeting linked to Minutes');
+                throw new Exception('No Meeting linked to Minutes');
             }
 
             $meeting = $objectService->findObject(
@@ -142,25 +142,25 @@ TEMPLATE;
             // Validate meeting type is ALV.
             $meetingType = strtolower($meeting['meetingType'] ?? '');
             if (strpos($meetingType, 'alv') === false && strpos($meetingType, 'algemene-ledenvergadering') === false) {
-                throw new \Exception("Meeting is not an ALV (type: $meetingType)", 422);
+                throw new Exception("Meeting is not an ALV (type: $meetingType)", 422);
             }
 
             // Get GovernanceBody ID.
             $bodyId = null;
             if (empty($meeting['relations']['GovernanceBody']) === false) {
                 $bodyRels = $meeting['relations']['GovernanceBody'];
+                $bodyId      = $bodyRels;
                 if (is_array($bodyRels) === true) {
                     $bodyId = $bodyRels[0];
-                } else {
-                    $bodyId = $bodyRels;
                 }
             }
 
             // Fetch active participants scoped to this governance body.
-            $params = [
+            $params       = [
                 'leftAt' => null,
                 '_limit' => 999,
             ];
+            $participants = [];
             if ($bodyId !== null) {
                 $params['relations.governance-body'] = $bodyId;
                 $participants = $objectService->findObjects(
@@ -168,16 +168,13 @@ TEMPLATE;
                     schema: 'Participant',
                     params: $params
                 );
-            } else {
-                $participants = [];
             }
 
             // Count active members.
-            $memberCount = count($participants);
+            $memberCount  = count($participants);
+            $presentCount = $memberCount;
             if (empty($meeting['quorumRequired']) === false) {
                 $presentCount = min($memberCount, $meeting['quorumRequired']);
-            } else {
-                $presentCount = $memberCount;
             }
 
             // Fetch agenda items scoped to this meeting.
@@ -203,11 +200,10 @@ TEMPLATE;
             }
 
             // Determine quorum status.
-            $quorumMet = $presentCount >= ($meeting['quorumRequired'] ?? 0);
+            $quorumMet    = $presentCount >= ($meeting['quorumRequired'] ?? 0);
+            $quorumStatus = "Quorum niet bereikt ($presentCount/$memberCount leden)";
             if ($quorumMet === true) {
                 $quorumStatus = "Quorum bereikt ($presentCount/$memberCount leden)";
-            } else {
-                $quorumStatus = "Quorum niet bereikt ($presentCount/$memberCount leden)";
             }
 
             // Render template.
@@ -248,7 +244,7 @@ TEMPLATE;
                 'content'        => $content,
                 'recipientCount' => $memberCount,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error("ALVMinutesService::generateALVDraft failed: ".$e->getMessage());
             throw $e;
         }//end try
@@ -266,7 +262,7 @@ TEMPLATE;
      * @return int The count of notifications sent
      *
      * @throws MissingObjectException If Minutes not found
-     * @throws \Exception If lifecycle is not approved or signed
+     * @throws Exception If lifecycle is not approved or signed
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
      */
@@ -290,17 +286,16 @@ TEMPLATE;
             // Validate lifecycle.
             $lifecycle = $minutes['lifecycle'] ?? null;
             if ($lifecycle !== 'approved' && $lifecycle !== 'signed') {
-                throw new \Exception("Minutes must be approved or signed before distribution (current: $lifecycle)", 403);
+                throw new Exception("Minutes must be approved or signed before distribution (current: $lifecycle)", 403);
             }
 
             // Get linked Meeting.
             $meetingId = null;
             if (empty($minutes['relations']['Meeting']) === false) {
                 $meetingRels = $minutes['relations']['Meeting'];
+                $meetingId   = $meetingRels;
                 if (is_array($meetingRels) === true) {
                     $meetingId = $meetingRels[0];
-                } else {
-                    $meetingId = $meetingRels;
                 }
             }
 
@@ -314,19 +309,19 @@ TEMPLATE;
                 );
                 if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
                     $bodyRels = $meeting['relations']['GovernanceBody'];
+                    $bodyId      = $bodyRels;
                     if (is_array($bodyRels) === true) {
                         $bodyId = $bodyRels[0];
-                    } else {
-                        $bodyId = $bodyRels;
                     }
                 }
             }
 
             // Fetch active participants scoped to this governance body.
-            $params = [
+            $params       = [
                 'leftAt' => null,
                 '_limit' => 999,
             ];
+            $participants = [];
             if ($bodyId !== null) {
                 $params['relations.governance-body'] = $bodyId;
                 $participants = $objectService->findObjects(
@@ -334,8 +329,6 @@ TEMPLATE;
                     schema: 'Participant',
                     params: $params
                 );
-            } else {
-                $participants = [];
             }
 
             // Resolve Nextcloud UID for each participant and send notifications.
@@ -367,7 +360,7 @@ TEMPLATE;
                         deepLink: "/minutes/$minutesId"
                     );
                     $sentCount++;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->warning("Failed to send notification to $ncUid: ".$e->getMessage());
                 }
             }//end foreach
@@ -375,7 +368,7 @@ TEMPLATE;
             $this->logger->info("ALV minutes distributed to $sentCount participants");
 
             return $sentCount;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error("ALVMinutesService::distribute failed: ".$e->getMessage());
             throw $e;
         }//end try

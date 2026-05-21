@@ -26,8 +26,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Service for capturing and querying participant engagement data.
@@ -76,7 +79,7 @@ class EngagementService
      *
      * @return array<string, mixed>
      *
-     * @throws \InvalidArgumentException When event type is unknown
+     * @throws InvalidArgumentException When event type is unknown
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
      */
@@ -88,6 +91,7 @@ class EngagementService
     ): array {
         $existing = $this->findEngagementForMeetingAndParticipant(meetingId: $meetingId, participant: $participant);
 
+        $record = $existing;
         if ($existing === null) {
             $record = [
                 'meeting'          => $meetingId,
@@ -98,8 +102,6 @@ class EngagementService
                 'speakingDuration' => 0,
                 'engagementScore'  => 0,
             ];
-        } else {
-            $record = $existing;
         }
 
         switch ($eventType) {
@@ -110,10 +112,10 @@ class EngagementService
                     && isset($eventData['startTime'], $eventData['endTime']) === true
                 ) {
                     try {
-                        $start    = new \DateTimeImmutable((string) $eventData['startTime']);
-                        $end      = new \DateTimeImmutable((string) $eventData['endTime']);
+                        $start    = new DateTimeImmutable((string) $eventData['startTime']);
+                        $end      = new DateTimeImmutable((string) $eventData['endTime']);
                         $duration = max(0, $end->getTimestamp() - $start->getTimestamp());
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         $duration = 0;
                     }
                 }
@@ -130,7 +132,7 @@ class EngagementService
                 break;
 
             default:
-                throw new \InvalidArgumentException("Unknown engagement event type '$eventType'");
+                throw new InvalidArgumentException("Unknown engagement event type '$eventType'");
         }//end switch
 
         $record['engagementScore'] = $this->calculateScore(record: $record);
@@ -187,7 +189,7 @@ class EngagementService
                     'participant' => $participant,
                 ],
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->debug(
                 'Decidesk: findEngagementForMeetingAndParticipant failed',
                 ['error' => $e->getMessage()]
@@ -230,7 +232,7 @@ class EngagementService
                 offset: 0,
                 filters: ['meeting' => $meetingId],
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning(
                 'Decidesk: findEngagementForMeeting failed',
                 ['meetingId' => $meetingId, 'error' => $e->getMessage()]

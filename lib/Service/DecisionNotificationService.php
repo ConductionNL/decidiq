@@ -90,10 +90,9 @@ class DecisionNotificationService
             $bodyId = null;
             if (empty($decision['relations']['GovernanceBody']) === false) {
                 $bodyRels = $decision['relations']['GovernanceBody'];
+                $bodyId      = $bodyRels;
                 if (is_array($bodyRels) === true) {
                     $bodyId = $bodyRels[0];
-                } else {
-                    $bodyId = $bodyRels;
                 }
             }
 
@@ -150,6 +149,8 @@ class DecisionNotificationService
      * @return array<string> Array of user display names
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5.1
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $decisionId reserved for future per-decision recipient scoping.
      */
     public function resolveRecipients(string $decisionId, array $roles=[]): array
     {

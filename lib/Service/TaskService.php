@@ -27,8 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Service for managing governance Task lifecycle, delegation, and reclaim.
@@ -87,7 +90,7 @@ class TaskService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When the object cannot be saved
+     * @throws RuntimeException When the object cannot be saved
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.1
      */
@@ -144,8 +147,8 @@ class TaskService
      *
      * @return array<string, mixed>
      *
-     * @throws \InvalidArgumentException When the transition is not allowed
-     * @throws \RuntimeException         When the task cannot be found
+     * @throws InvalidArgumentException When the transition is not allowed
+     * @throws RuntimeException         When the task cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.5
      */
@@ -153,21 +156,21 @@ class TaskService
     {
         $task = $this->findTask(taskId: $taskId);
         if ($task === null) {
-            throw new \RuntimeException("Task $taskId not found");
+            throw new RuntimeException("Task $taskId not found");
         }
 
         $current = $task['taskStatus'] ?? 'pending';
         $allowed = self::TASK_TRANSITIONS[$current] ?? [];
 
         if (in_array($newStatus, $allowed, true) === false) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "Transition from '$current' to '$newStatus' is not allowed for task"
             );
         }
 
         $task['taskStatus'] = $newStatus;
         if ($newStatus === 'completed') {
-            $task['completedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $task['completedAt'] = (new DateTimeImmutable())->format(\DateTimeInterface::ATOM);
         }
 
         $objectService = $this->getObjectService();
@@ -195,8 +198,8 @@ class TaskService
      *
      * @return array<string, mixed>
      *
-     * @throws \InvalidArgumentException When actor is not the delegator
-     * @throws \RuntimeException         When the task cannot be found
+     * @throws InvalidArgumentException When actor is not the delegator
+     * @throws RuntimeException         When the task cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.5
      */
@@ -204,12 +207,12 @@ class TaskService
     {
         $task = $this->findTask(taskId: $taskId);
         if ($task === null) {
-            throw new \RuntimeException("Task $taskId not found");
+            throw new RuntimeException("Task $taskId not found");
         }
 
         $delegator = $task['delegator'] ?? null;
         if ($delegator === null || $delegator !== $actor) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Only the original delegator may reclaim this task'
             );
         }

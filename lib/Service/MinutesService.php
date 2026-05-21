@@ -59,6 +59,8 @@ class MinutesService
      * @return int The count of notifications sent
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.1
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $actorId reserved for future audit-log enrichment.
      */
     public function notifyApproversOnSubmit(string $minutesId, string $actorId): int
     {
@@ -82,10 +84,9 @@ class MinutesService
             $meetingId = null;
             if (empty($minutes['relations']['Meeting']) === false) {
                 $meetingRels = $minutes['relations']['Meeting'];
+                $meetingId   = $meetingRels;
                 if (is_array($meetingRels) === true) {
                     $meetingId = $meetingRels[0];
-                } else {
-                    $meetingId = $meetingRels;
                 }
             }
 
@@ -100,10 +101,9 @@ class MinutesService
 
                 if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
                     $bodyRels = $meeting['relations']['GovernanceBody'];
+                    $bodyId      = $bodyRels;
                     if (is_array($bodyRels) === true) {
                         $bodyId = $bodyRels[0];
-                    } else {
-                        $bodyId = $bodyRels;
                     }
                 }
             }
