@@ -17,6 +17,17 @@ references:
 
 # Board Meeting Resolutions
 
+## Placement & Information Architecture
+
+**Placement type:** `SUB_PAGE` — Sub-page beneath a top-level menu entry. Renders as a page inside the parent surface (usually reachable via a router child route or a tab on the parent index page).
+
+**Lives at:** Besluiten > detail (board-mode label) + Vergaderingen filter "Bestuur" / split
+
+**Rationale:** Resolution is a labeled decision; meeting type filter  
+_Source: /tmp/ia-doc-dec-cat-conn.md_
+
+> **Implementation note for builders:** Respect the placement above. Do not promote this spec to a top-level menu item, sub-page, or new route unless the placement type explicitly says so. If the placement is `DETAIL_TAB`, `WIDGET`, `ACTION`, `SETTING`, or `INFRA`, the feature must NOT introduce a new entry in the app sidebar. When in doubt, ask before creating a new top-level surface.
+
 ## Purpose
 
 Enterprise board meetings — Raden van Commissarissen (RvC, supervisory boards), Raden van Bestuur (RvB, executive boards), audit committees en remuneration committees — hebben fundamenteel andere eisen dan publieke gemeentevergaderingen. Boards van beursgenoteerde ondernemingen, financiële instellingen, woningcorporaties, ziekenhuizen en grote stichtingen werken met formele resolutions die rechtsgevolg hebben, vereisen eIDAS-conforme elektronische handtekeningen op notulen, hanteren strikte vertrouwelijkheid (board materials onder NDA), en moeten een complete audit trail bieden aan externe accountant en toezichthouder (AFM, DNB, NZa, Aw). Veel Nederlandse boards zijn nog gevangen in Diligent of Nasdaq Boardvantage — proprietary tools met hoge licentiekosten (EUR 2000-EUR 8000 per gebruiker per jaar), zwakke Nederlandse compliance-positie, en data-opslag buiten de EU. Het gevolg is dat Nederlandse middelgrote boards veelal terugvallen op een mix van SharePoint-folders en versleutelde e-mailbijlagen, wat noch de audit-trail noch de vertrouwelijkheid op orde brengt en bij toezichthouder-onderzoek leidt tot reconstructie-werk dat dagen tot weken kost.
