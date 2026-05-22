@@ -2,19 +2,33 @@
 
 **App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
 **Spec:** p2-motion-and-voting-core-t3
+**Spec Type:** extension (extends `p2-motion-and-voting`)
 **Platform:** Nextcloud + OpenRegister
 
-**Depends on:** p2-motion-and-voting
+## Placement & Information Architecture
 
-## Dependency Specs (content)
+**Placement type:** `SUB_PAGE` — Sub-page beneath a top-level menu entry. Renders as a page inside the parent surface (usually reachable via a router child route or a tab on the parent index page).
 
-These specs were already decided/implemented. Use them as context.
+**Lives at:** Moties > detail T3 / Moties
 
-### p2-motion-and-voting
+**Rationale:** Tier extension  
+_Source: /tmp/ia-doc-dec-cat-conn.md_
+
+> **Implementation note for builders:** Respect the placement above. Do not promote this spec to a top-level menu item, sub-page, or new route unless the placement type explicitly says so. If the placement is `DETAIL_TAB`, `WIDGET`, `ACTION`, `SETTING`, or `INFRA`, the feature must NOT introduce a new entry in the app sidebar. When in doubt, ask before creating a new top-level surface.
+
+## EXTENSION CONTEXT — you are extending `p2-motion-and-voting`
+
+This spec is a extension of the **Motion and Voting** capability. Do NOT define new entities or build new CRUD — reuse what `p2-motion-and-voting` already provides. Your job is to add configuration, seed data, or workflow templates on top of that capability.
+
+**Why this is an extension:** This spec adds advanced motion lifecycle features (execution tracking, co-signatories, anonymized nominal votes, qualified majority verification, remote shareholder approvals) which are workflow extensions to the existing motion-and-voting capability, not new standalone entities.
+
+### Parent capability overview (excerpt from `p2-motion-and-voting` brief):
+
 # Context Brief: Motion and Voting
 
 **App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
 **Spec:** p2-motion-and-voting
+**Spec Type:** capability
 **Platform:** Nextcloud + OpenRegister
 
 **Depends on:** p1-schemas-and-data-model, p1-dashboard-and-navigation, p1-crud-operations
@@ -28,9 +42,85 @@ These specs were already decided/implemented. Use them as context.
 
 **App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
 **Spec:** p1-schemas-and-data-model
+**Spec Type:** foundation
 **Platform:** Nextcloud + OpenRegister
 
-## Features (6 total, sorted by market demand)
+## Features (6 total, spec-linked, sorted by market demand)
+
+### Resolution Register
+**demand: 206** (66 tender mentions) | Category: core
+
+### Identity Governance Management
+**demand: 91** (27 tender mentions) | Category: governance
+
+### Register to speak at committee meeting
+**demand: 56** (18 tender mentions) | Category: core
+
+### Voter Register
+**demand: 26** (6 tender mentions) | Category: other
+
+### Attendance Register
+**demand: 26** (6 tender mentions) | Category: other
+
+### Link emails to specific decisions via OpenRegister _mail metadata
+**demand: unknown** | Category: other
+
+## User Stories (6 linked)
+
+### Story 1: Configure SAML 2.0 identity provider
+**Priority:** should
+As an IAM administrator, I want to configure a SAML 2.0 identity provider using a metadata XML file, so that I can integrate with government identity federations that do not support OIDC.
+
+**Acceptance Criteria:**
+GIVEN the IdP configuration screen WHEN I upload a SAML metadata XML file THEN the entity ID, SSO URL, and signing certificate are parsed and pre-filled
+GIVEN a saved SAML configuration WHEN I download the OpenRegister service provider metadata THEN I receive a valid SAML metadata XML I can import into the identity provider
+
+### Story 2: View provenance and update metadata for a dataset
+**Priority:** should
+As a researcher, I want to view the provenance metadata of a register dataset including its source organisation, data steward, creation date, and last update timestamp, so that I can assess whether the dataset is authoritative and current enough for my research.
+
+**Acceptance Criteria:**
+GIVEN a public register WHEN I open the dataset information page THEN I see the responsible organisation (OIN), data steward contact, creation date, last modified timestamp, and the update frequency commitment
+GIVEN the dataset page THEN it links to the processing register entry and any applicable open data licence
+
+### Story 3: Link Nextcloud Mail emails to invoices
+**Priority:** must-have
+As a Nextcloud user, I want to link emails from Nextcloud Mail to invoice/expense records using OpenRegister _mail metadata, creating a native email-to-invoice connection.
+
+### Story 4: Link to Nextcloud Contacts
+**Priority:** must-ha...
+
+---
+
+**Depends on:** p2-motion-and-voting
+
+## Dependency Specs (content)
+
+These specs were already decided/implemented. Use them as context.
+
+### p2-motion-and-voting
+# Context Brief: Motion and Voting
+
+**App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
+**Spec:** p2-motion-and-voting
+**Spec Type:** capability
+**Platform:** Nextcloud + OpenRegister
+
+**Depends on:** p1-schemas-and-data-model, p1-dashboard-and-navigation, p1-crud-operations
+
+## Dependency Specs (content)
+
+These specs were already decided/implemented. Use them as context.
+
+### p1-schemas-and-data-model
+# Context Brief: Schemas and Data Model
+
+**App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
+**Spec:** p1-schemas-and-data-model
+**Spec Type:** foundation
+**Platform:** Nextcloud + OpenRegister
+
+## Features (6 total, spec-linked, sorted by market demand)
 
 ### Resolution Register
 **demand: 206** (66 tender mentions) | Category: core
@@ -101,10 +191,10 @@ Managing AV infrastructure in raadzaal and commissiekamers. Discussion systems, 
 
 ### Handle Complex Multi-Domain Citizen Question
 A citizen has a question spanning multiple domains (e.g., housing benefit, parking permit, and social assistance). The front desk officer creates linked zaken or a combined intake and routes each to the correct department.
-**Trigger:** Citizen presents with multiple interconnected service needs in a single
+**Trigger:** Citize
 ... (truncated)
 
-## Features (26 total, sorted by market demand)
+## Features (26 total, spec-linked, sorted by market demand)
 
 ### Verify qualified majority and quorum for statute amendment
 **demand: 39** (13 tender mentions) | Category: core
@@ -827,12 +917,27 @@ custom logic for domain-specific business rules. Everything below is provided fo
 ### ADR-005-security
 - Auth: Nextcloud built-in ONLY. NO custom login, sessions, tokens, password storage.
 - Admin check: `IGroupManager::isAdmin()` on BACKEND. Frontend-only checks = vulnerability.
+- Per-object authorization (IDOR prevention): every mutation endpoint that operates on a specific
+  object MUST check that the authenticated user owns, is in the group of, or is admin for THAT
+  object — not just that they are logged in. `#[NoAdminRequired]` opens the endpoint to all users;
+  without a per-object check, any user can modify any object by guessing its ID.
+  Pattern: fetch object → extract `assigneeUserId`/`assigneeGroupId`/`createdBy` → check
+  (owner OR in group OR admin) → throw `OCSForbiddenException` if none apply. Extract into a
+  reusable `authorizeXxx(object, user)` service method, called from every PUT/POST/DELETE.
 - Multi-tenant isolation: enforce at API/service level, not UI only.
 - NO PII in logs, error responses, or debug output.
 - Audit trails: use `$user->getUID()` — NEVER `$user->getDisplayName()` (mutable, spoofable).
 - Identity: always derive from `IUserSession` on backend — NEVER trust frontend-sent user IDs or display names.
+- Nextcloud endpoint defaults: NO annotation = admin-only. Non-admin endpoints (agent/staff actions)
+  MUST have `#[NoAdminRequired]` attribute. Pair every `#[NoAdminRequired]` with a per-object auth
+  check — never trust the session alone for mutation.
+- Input validation: all user-supplied strings that flow into URLs (query params, path segments)
+  MUST be URL-encoded (`encodeURIComponent` in Vue/JS, `rawurlencode` in PHP). Email Message-IDs,
+  file names, and free-text fields commonly contain `<`, `>`, `/`, `@`, `&` which break unencoded.
 - File uploads: validate type + size before storage.
 - API responses: NO stack traces, SQL, or internal paths.
+- Error messages: use static, generic messages (`'Operation failed'`, `'Not authorized'`) — NEVER
+  return `$e->getMessage()` to clients. Log the real error server-side with `$this->logger->error()`.
 - Test collections: NEVER commit default credentials — use env variable placeholders.
 
 ### ADR-006-metrics
@@ -857,6 +962,16 @@ All Conduction Nextcloud apps serve Dutch government users but must support mult
 - `l10n/en.json` is the identity-mapped source file (key == value).
 - Hardcoded Dutch strings in code MUST be converted to English keys with Dutch translations in `nl.json`.
 
+### Sentence Case for All UI Strings
+- All translation keys and user-facing strings MUST use **sentence case**: only the first word is capitalized.
+- Correct: `"Add directory"`, `"No results found"`, `"Delete selected"`, `"Save configuration"`
+- Wrong (title case): `"Add Directory"`, `"No Results Found"`, `"Delete Selected"`
+- Wrong (all lowercase): `"add directory"`, `"no results found"`
+- **Exceptions** that keep their capitalization:
+  - Proper nouns and product names: `"OpenRegister"`, `"Nextcloud"`, `"GitHub"`, `"DocuDesk"`
+  - Acronyms: `"API"`, `"URL"`, `"PDF"`, `"SOLR"`, `"JSON"`, `"RBAC"`, `"OAS"`
+  - Single-word strings still start with a capital: `"Delete"`, `"Search"`, `"Save"`
+
 ### Required Languages
 - Minimum: English (en) + Dutch (nl) translations.
 - `l10n/en.json` and `l10n/nl.json` MUST exist in every app with a UI.
@@ -877,9 +992,16 @@ All Conduction Nextcloud apps serve Dutch government users but must support mult
 - Date/number formatting: respect user locale via Nextcloud core.
 - Each app with OpenRegister: define `register-i18n` spec listing translatable fields.
 
+### Shared Component Library (@conduction/nextcloud-vue)
+- The shared library does NOT translate internally — it accepts pre-translated strings via props.
+- Components have English defaults for all label/text props (e.g., `addLabel="Add"`, `cancelLabel="Cancel"`).
+- Consumer apps are responsible for passing `t()` results as prop values.
+- The library lists `@nextcloud/l10n` as a peer dependency, not a direct dependency.
+
 ## Consequences
 - All apps maintain two translation files that must stay in sync.
 - Dutch strings used as translation keys (e.g., `t('app', 'Besluiten')`) are a violation — the English equivalent must be the key.
+- Title case in translation keys (e.g., `"Add Directory"`) is a violation — use sentence case (`"Add directory"`).
 - New features must include both `en.json` and `nl.json` entries before merging.
 
 ### ADR-008-testing
@@ -961,18 +1083,34 @@ We want to unify these into a **single priority-scheduled container pool** so th
 
 ### Container types (priority order)
 
-| Priority | Type | Source | Container image | Model |
-|----------|------|--------|-----------------|-------|
-| 1 | **bugfix** | Hydra: fix iteration after review failure | `hydra-builder` | sonnet |
-| 2 | **code-review** | Hydra: PR code review | `hydra-reviewer` | sonnet |
-| 3 | **security-review** | Hydra: PR security review | `hydra-security` | sonnet |
-| 4 | **build** | Hydra: initial spec build | `hydra-builder` | sonnet |
-| 5 | **audit** | Hydra: codebase audit | `hydra-builder` | sonnet |
-| 6 | **spec-generation** | Specter: push_spec_pipeline | `specter-llm-worker` | sonnet |
-| 7 | **schema-synthesis** | Specter: generate/dedup schemas | `specter-llm-worker` | haiku |
-| 8 | **classification** | Specter: classify/redistribute features | `specter-llm-worker` | haiku |
-| 9 | **translation** | Specter: translate requirements | `specter-llm-worker` | haiku |
-| 10 | **discovery** | Specter: research, feature extraction | `specter-llm-worker` | haiku |
+| Priority | Type | Source | Container image | Model | Fallback |
+|----------|------|--------|-----------------|-------|----------|
+| 1 | **bugfix** | Hydra: fix iteration after review failure | `hydra-builder` | haiku | — |
+| 2 | **code-review** | Hydra: PR code review | `hydra-reviewer` | sonnet | opus |
+| 3 | **security-review** | Hydra: PR security review | `hydra-security` | sonnet | opus |
+| 4 | **build** | Hydra: initial spec build | `hydra-builder` | haiku | — |
+| 5 | **audit** | Hydra: codebase audit | `hydra-builder` | sonnet | opus |
+| 6 | **spec-generation** | Specter: push_spec_pipeline | `specter-llm-worker` | sonnet | haiku |
+| 7 | **schema-synthesis** | Specter: generate/dedup schemas | `specter-llm-worker` | haiku | — |
+| 8 | **classification** | Specter: classify/redistribute features | `specter-llm-worker` | haiku | — |
+| 9 | **translation** | Specter: translate requirements | `specter-llm-worker` | haiku | — |
+| 10 | **discovery** | Specter: research, feature extraction | `specter-llm-worker` | haiku | — |
+
+### Model strategy
+
+**Principle:** Use the cheapest model that can do the job. Reserve expensive models for judgment work.
+
+| Work type | Model | Rationale |
+|-----------|-------|-----------|
+| Build (implementation) | **Haiku** | Clear instructions (tasks.md, design.md). Pattern-following, not judgment. Faster and cheaper — 5 parallel Haiku builds burn far less quota than Sonnet. |
+| Fix (quality/browser/review) | **Haiku** | "Fix this PHPCS error" or "fix this review finding" — explicit, targeted corrections. |
+| Code review | **Sonnet → Opus** | Judgment work: spotting architectural issues, missed edge cases, style problems. Falls back to deeper model (Opus) when Sonnet quota is exhausted. |
+| Security review | **Sonnet → Opus** | Critical: injection vectors, auth bypasses, secret leaks. Same fallback logic. |
+| Audit | **Sonnet → Opus** | Full codebase analysis — needs depth. |
+
+**Quota optimization:** Claude Max plans have separate "Sonnet only" and "all models" weekly limits. By defaulting builders to Haiku, the Sonnet quota is reserved for reviews only (~20 turns each, 2 per PR). When Sonnet runs out, reviews fall back to the **deeper** model (Opus), not the shallower one — because reviews are the last line of defense before human approval.
+
+**Overrides:** Set `HYDRA_BUILDER_MODEL`, `HYDRA_REVIEWER_MODEL`, or `HYDRA_REVIEWER_FALLBACK_MODEL` env vars to change defaults.
 
 ### Architecture
 
@@ -1380,7 +1518,7 @@ With CSS:
 - Code reviews should flag action controls placed in card content as a pattern violation
 - The `actions` slot name in CnConfigurationCard and CnVersionInfoCard is deprecated but retained for backwards compatibility
 
-## App-Specific ADRs (5)
+## App-Specific ADRs (4)
 
 These ADRs are specific to Decidesk.
 
@@ -1789,370 +1927,6 @@ pagination, audit trails, file attachments, relation management, locking.
 | votesAbstain | integer | No | Count of abstentions |
 
 ---
-
-
-### adr-000-data-model: ADR-000: Data Model — Decidesk
-# ADR-000: Data Model — Decidesk
-
-**Status:** accepted
-**Standard:** Popolo (popoloproject.com) + ORI extensions (VNG Open Raadsinformatie)
-**Storage:** CalDAV-first for meetings/tasks, OpenRegister for governance entities
-**Entities:** 17 active (2 deprecated)
-
-## Context
-
-The data model follows the **Popolo international standard** as its primary schema, with
-**ORI (Open Raadsinformatie)** extensions for Dutch municipal governance concepts.
-
-Storage is split across two layers:
-- **CalDAV (Nextcloud Calendar/Tasks):** Meetings as VEVENT, ActionItems as VTODO — native
-  Nextcloud integration, no sync layer needed. Governance metadata stored as RFC 5545
-  X-DECIDESK-* extended properties.
-- **OpenRegister:** All governance-specific entities (motions, votes, amendments, minutes,
-  people, organizations) that have no CalDAV equivalent. Thin wrapper objects reference
-  CalDAV UIDs for relational queries.
-
-OpenRegister built-in fields (NOT listed below, always available):
-id, uuid, uri, version, createdAt, updatedAt, owner, organization,
-register, schema, relations, files, auditTrail, notes, tasks, tags, status, locked.
-
-## CalDAV-Primary Entities
-
-### Meeting
-**Popolo/ORI:** `meeting:Meeting` (subclass of `schema:Event`)
-**Storage:** CalDAV VEVENT with X-DECIDESK-* properties + OpenRegister wrapper
-_A scheduled governance meeting with agenda, participants, and lifecycle_
-**Primary spec:** p2-meeting-management
-
-| Property | Type | Required | CalDAV Mapping | Description |
-|----------|------|----------|----------------|-------------|
-| title | string | Yes | SUMMARY | Meeting title |
-| meetingType | string | Yes | X-DECIDESK-MEETING-TYPE | regular, extraordinary, committee, public hearing |
-| scheduledDate | datetime | Yes | DTSTART | Start date and time |
-| endDate | datetime | No | DTEND | End date and time |
-| location | string | No | LOCATION | Physical location or video link |
-| meetingMode | string | Yes | X-DECIDESK-MEETING-MODE | in-person, digital, hybrid |
-| lifecycle | string | Yes | X-DECIDESK-LIFECYCLE | draft, scheduled, opened, paused, adjourned, closed |
-| quorumRequired | integer | No | X-DECIDESK-QUORUM-REQUIRED | Minimum participants for valid meeting |
-| series | string | No | X-DECIDESK-SERIES | Meeting series identifier |
-| description | string | No | DESCRIPTION | Meeting description/notes |
-
-**CalDAV attendees:** Participants mapped to ATTENDEE properties with ROLE parameter.
-**OpenRegister wrapper:** Stores CalDAV UID reference for relational queries.
-
-**Relations:**
-- → GovernanceBody (many-to-one, via X-DECIDESK-BODY-UID)
-- → AgendaItem (one-to-many, via OpenRegister)
-
-### ActionItem
-**Popolo/ORI:** Custom (not in Popolo)
-**Storage:** CalDAV VTODO in Nextcloud Tasks
-_A follow-up task from an adopted motion_
-**Primary spec:** p2-minutes-and-decisions
-
-| Property | Type | Required | CalDAV Mapping | Description |
-|----------|------|----------|----------------|-------------|
-| title | string | Yes | SUMMARY | Task title |
-| description | string | No | DESCRIPTION | Task details |
-| assignee | string | No | ATTENDEE | Assigned participant |
-| dueDate | datetime | No | DUE | Due date |
-| taskStatus | string | Yes | STATUS | NEEDS-ACTION, IN-PROCESS, COMPLETED |
-| completedAt | datetime | No | COMPLETED | Completion timestamp |
-
-**Relations:**
-- → Motion (many-to-one, via X-DECIDESK-MOTION-UID)
-- → Meeting (many-to-one, via X-DECIDESK-MEETING-UID)
-
-## OpenRegister Entities — Popolo Core
-
-### Person
-**Popolo:** `foaf:Person`
-_An individual who participates in governance_
-**Primary spec:** p3-governance-bodies
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| name | string | Yes | name | Full display name |
-| familyName | string | No | family_name | Family name |
-| givenName | string | No | given_name | Given name |
-| gender | string | No | gender | Gender |
-| birthDate | date | No | birth_date | Date of birth |
-| image | string | No | image | URL to photo |
-| biography | string | No | biography | Short bio |
-| email | string | No | email | Primary email (convenience) |
-
-**Relations:**
-- → Membership (one-to-many)
-- → ContactDetail (one-to-many)
-- → Vote (one-to-many)
-- → Speech (one-to-many)
-
-### GovernanceBody
-**Popolo:** `org:Organization`
-**ORI:** `meeting:Committee` (subclass for committees)
-_A governance body (council, board, committee, assembly). Managed by OpenRegister organizations._
-**Primary spec:** p3-governance-bodies
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| name | string | Yes | name | Body name |
-| bodyType | string | Yes | classification | legislative, association, corporate-board, operational, citizen-panel |
-| domain | string | Yes | — | Governance domain preset |
-| workflowTemplate | string | No | — | State machine workflow config |
-| quorumRule | string | No | — | Quorum calculation method |
-| votingDefault | string | No | — | Default voting method |
-| termStart | datetime | No | founding_date | Current term start |
-| termEnd | datetime | No | dissolution_date | Current term end |
-
-**Relations:**
-- → Meeting (one-to-many)
-- → Membership (one-to-many)
-- → Post (one-to-many)
-- → Area (many-to-one)
-
-### Membership
-**Popolo:** `org:Membership`
-_Relationship between a Person and a GovernanceBody, with role and time bounds_
-**Primary spec:** p3-governance-bodies
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| role | string | Yes | role | chair, vice-chair, secretary, member, observer, guest |
-| label | string | No | label | Descriptive label |
-| startDate | datetime | No | start_date | When the membership started |
-| endDate | datetime | No | end_date | When the membership ended (null = active) |
-| votingWeight | number | No | — | Vote weight (default 1) |
-| party | string | No | on_behalf_of | Political party or faction |
-
-**Relations:**
-- → Person (many-to-one)
-- → GovernanceBody (many-to-one)
-- → Post (many-to-one)
-
-### Post
-**Popolo:** `org:Post`
-_A formal position within a governance body_
-**Primary spec:** p3-governance-bodies
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| label | string | Yes | label | Position title |
-| role | string | No | role | chair, vice-chair, secretary, member |
-| startDate | datetime | No | start_date | When the post was created |
-| endDate | datetime | No | end_date | When the post was abolished |
-
-**Relations:**
-- → GovernanceBody (many-to-one)
-
-### ContactDetail
-**Popolo:** `popolo:ContactDetail`
-_A means of contacting a person or organization_
-**Primary spec:** p3-governance-bodies
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| type | string | Yes | type | email, phone, fax, cell, address, url |
-| value | string | Yes | value | Contact value |
-| label | string | No | label | Human-readable label |
-| note | string | No | note | Usage note |
-| validFrom | datetime | No | valid_from | Start of validity |
-| validUntil | datetime | No | valid_until | End of validity |
-
-**Relations:**
-- → Person (many-to-one)
-- → GovernanceBody (many-to-one)
-
-### Area
-**Popolo:** `popolo:Area`
-_A geographic or jurisdictional area_
-**Primary spec:** p3-governance-bodies
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| name | string | Yes | name | Area name |
-| identifier | string | No | identifier | Official code (e.g. CBS gemeentecode) |
-| classification | string | No | classification | municipality, province, waterboard, national |
-
-**Relations:**
-- → GovernanceBody (one-to-many)
-
-## OpenRegister Entities — Motions & Voting
-
-### Motion
-**Popolo:** `opengov:Motion`
-_A formal proposal submitted for debate and voting. When adopted, includes decision outcome.
-No separate Decision entity — follows Popolo where the result lives on the Motion._
-**Primary spec:** p2-motion-and-voting
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| title | string | Yes | name | Motion title |
-| text | string | Yes | text | Full motion text |
-| motionType | string | Yes | classification | motion, amendment, order, procedural |
-| proposer | string | Yes | creator | Name of proposer |
-| coSigners | array | No | — | List of co-signers |
-| lifecycle | string | Yes | — | submitted, debating, voting, adopted, rejected, withdrawn |
-| submittedAt | datetime | Yes | proposal_date | Submission timestamp |
-| requirement | string | No | requirement | Requirement for adoption (e.g. simple majority) |
-| decisionText | string | No | — | Formal decision text when adopted |
-| decisionDate | datetime | No | — | When the decision was formally made |
-| isPublished | boolean | No | — | Published via ORI API |
-| publishedAt | datetime | No | — | ORI publication timestamp |
-| legalBasis | string | No | — | Legal article or regulation |
-
-**Relations:**
-- → AgendaItem (many-to-one)
-- → Amendment (one-to-many)
-- → VotingRound (one-to-many)
-- → ActionItem (one-to-many)
-
-### Amendment
-**Popolo/ORI:** `meeting:Amendment` (subclass of `opengov:Motion`)
-_A proposed change to an existing motion_
-**Primary spec:** p2-motion-and-voting
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| title | string | Yes | name | Amendment title |
-| text | string | Yes | text | Amendment text (change description) |
-| proposer | string | Yes | creator | Name of proposer |
-| lifecycle | string | Yes | — | submitted, debating, voting, adopted, rejected |
-| submittedAt | datetime | Yes | proposal_date | Submission timestamp |
-
-**Relations:**
-- → Motion (many-to-one, ORI: amends)
-
-### VotingRound
-**Popolo:** `opengov:VoteEvent`
-_A voting session on a motion or amendment_
-**Primary spec:** p2-motion-and-voting
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| votingMethod | string | Yes | classification | for-against-abstain, ranked-choice, weighted, show-of-hands |
-| isSecret | boolean | Yes | — | Secret ballot |
-| openedAt | datetime | No | start_date | When voting opened |
-| closedAt | datetime | No | end_date | When voting closed |
-| quorumMet | boolean | No | — | Was quorum met |
-| result | string | No | result | adopted, rejected, tied, invalid (Popolo: pass/fail) |
-| votesFor | integer | No | — | Count of votes for (Popolo: Count with YesCount) |
-| votesAgainst | integer | No | — | Count of votes against (Popolo: Count with NoCount) |
-| votesAbstain | integer | No | — | Count of abstentions (Popolo: Count with AbstainCount) |
-
-**Relations:**
-- → Motion (many-to-one, Popolo: motion)
-- → Vote (one-to-many, Popolo: votes)
-
-### Vote
-**Popolo:** `opengov:Vote`
-_An individual vote cast in a voting round_
-**Primary spec:** p2-motion-and-voting
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| value | string | Yes | option | for, against, abstain (Popolo: yes/no/abstain) |
-| weight | number | No | weight | Vote weight (for weighted voting) |
-| isProxy | boolean | No | — | Cast via proxy delegation |
-| castAt | datetime | Yes | — | When the vote was cast |
-
-**Relations:**
-- → VotingRound (many-to-one, Popolo: vote_event)
-- → Person (many-to-one, Popolo: voter)
-
-## OpenRegister Entities — Records & Agenda
-
-### AgendaItem
-**ORI:** `meeting:AgendaItem` (subclass of `schema:Event`)
-_An item on a meeting agenda with type, time, and ordering_
-**Primary spec:** p2-agenda-management
-
-| Property | Type | Required | ORI Field | Description |
-|----------|------|----------|-----------|-------------|
-| title | string | Yes | name | Agenda item title |
-| itemType | string | Yes | — | informational, discussion, decision |
-| orderNumber | integer | Yes | position | Position on the agenda |
-| estimatedDuration | integer | No | — | Estimated minutes |
-| actualDuration | integer | No | — | Actual minutes spent |
-| description | string | No | description | Detailed description |
-| isRecurring | boolean | No | — | Appears on every meeting |
-
-**Relations:**
-- → Meeting (many-to-one, via OpenRegister wrapper CalDAV UID)
-- → Motion (one-to-many)
-- → Speech (one-to-many)
-
-### Minutes
-**ORI:** `meeting:Report` (subclass of `schema:Event` + `schema:CreativeWork`)
-_Official record of a meeting's proceedings_
-**Primary spec:** p2-minutes-and-decisions
-
-| Property | Type | Required | ORI Field | Description |
-|----------|------|----------|-----------|-------------|
-| title | string | Yes | — | Minutes title |
-| lifecycle | string | Yes | — | draft, review, approved, signed, published |
-| content | string | No | — | Full minutes text |
-| approvedAt | datetime | No | — | Approval timestamp |
-| signedBy | array | No | — | Digital signers (chair + secretary) |
-| version | integer | No | — | Revision number |
-
-**Relations:**
-- → Meeting (one-to-one, via OpenRegister wrapper CalDAV UID)
-
-### Speech
-**Popolo:** `opengov:Speech`
-**ORI:** Subtypes: SpeechQuestion, SpeechAnswer, SpeechNarrative, SpeechSummary
-_A speech or statement made during a meeting (later phase)_
-
-| Property | Type | Required | Popolo Field | Description |
-|----------|------|----------|--------------|-------------|
-| text | string | Yes | text | Transcript text |
-| role | string | No | role | Speaker role: chair, member, guest |
-| startDate | datetime | No | start_date | When the speech started |
-| endDate | datetime | No | end_date | When the speech ended |
-| audio | string | No | audio | URL to audio recording |
-| video | string | No | video | URL to video recording |
-
-**Relations:**
-- → Meeting (many-to-one, Popolo: event)
-- → AgendaItem (many-to-one)
-- → Person (many-to-one, Popolo: creator)
-
-## Deprecated Entities
-
-### ~~Decision~~ (merged into Motion)
-Decision is now the outcome of a Motion. When a motion is adopted, the `decisionText`,
-`decisionDate`, `isPublished`, `publishedAt`, and `legalBasis` fields on Motion capture
-the decision. This follows the Popolo standard which has no separate Decision class.
-
-### ~~Participant~~ (split into Person + Membership + Post)
-Participant has been decomposed into three Popolo-aligned entities: Person (identity),
-Membership (organization relationship with role and time bounds), and Post (formal positions).
-
-## Popolo Coverage
-
-| Popolo Class | DecideDesk Entity | Notes |
-|---|---|---|
-| Person | Person | Direct |
-| Organization | GovernanceBody | + bodyType, domain fields |
-| Membership | Membership | Direct |
-| Post | Post | Direct |
-| ContactDetail | ContactDetail | Direct |
-| Motion | Motion | + decision outcome fields |
-| VoteEvent | VotingRound | + counts flattened |
-| Vote | Vote | Direct |
-| Count | (fields on VotingRound) | Flattened into votesFor/Against/Abstain |
-| Event | Meeting (CalDAV VEVENT) | CalDAV-primary storage |
-| Area | Area | Direct |
-| Speech | Speech | Later phase |
-
-## ORI Extensions
-
-| ORI Class | DecideDesk Entity | Notes |
-|---|---|---|
-| AgendaItem | AgendaItem | Direct |
-| Amendment | Amendment | Subclass of Motion |
-| Report | Minutes | Direct |
-| Committee | GovernanceBody (bodyType) | Flat field, not subclass |
 
 
 ### adr-001-popolo-data-standard: ADR-001: Popolo as Primary Data Standard
