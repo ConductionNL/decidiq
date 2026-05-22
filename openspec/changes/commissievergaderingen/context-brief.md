@@ -15,6 +15,17 @@ references:
 
 # Commissievergaderingen
 
+## Placement & Information Architecture
+
+**Placement type:** `SUB_PAGE` — Sub-page beneath a top-level menu entry. Renders as a page inside the parent surface (usually reachable via a router child route or a tab on the parent index page).
+
+**Lives at:** Vergaderingen filter "Commissie" + Fracties & Organen > Commissies / split
+
+**Rationale:** A meeting type + an organ definition  
+_Source: /tmp/ia-doc-dec-cat-conn.md_
+
+> **Implementation note for builders:** Respect the placement above. Do not promote this spec to a top-level menu item, sub-page, or new route unless the placement type explicitly says so. If the placement is `DETAIL_TAB`, `WIDGET`, `ACTION`, `SETTING`, or `INFRA`, the feature must NOT introduce a new entry in the app sidebar. When in doubt, ask before creating a new top-level surface.
+
 ## Purpose
 
 Vrijwel elke Nederlandse gemeenteraad werkt met raadscommissies als voorbereidende organen op de plenaire raadsvergadering. Veelvoorkomende commissies zijn de audit-commissie (financiën en rekenkamer), commissie ruimte (ruimtelijke ordening, wonen, mobiliteit), commissie sociaal (zorg, jeugd, participatie), en commissie bestuur (algemeen bestuur, veiligheid, dienstverlening). De commissies hebben geen besluitvormende bevoegdheid maar geven advies aan de raad over voorliggende voorstellen, voeren technische beraadslagingen, en horen burgers en organisaties via inspraak. Een gemeente kent typisch 3 tot 6 commissies die elk maandelijks vergaderen — voor de griffie een aanzienlijke planningslast, en voor commissieleden een complex puzzelstuk van agenda's, dossiers en belangenverstrengelings-meldingen. Daarnaast worden in toenemende mate raadsbrede thema-bijeenkomsten en informele beeldvormende sessies onder de commissie-vlag georganiseerd, wat aparte planning-, presentie- en publicatie-regels vraagt.
