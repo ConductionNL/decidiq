@@ -16,6 +16,17 @@ references:
 
 # Motie en Amendement Administratie
 
+## Placement & Information Architecture
+
+**Placement type:** `SUB_PAGE` — Sub-page beneath a top-level menu entry. Renders as a page inside the parent surface (usually reachable via a router child route or a tab on the parent index page).
+
+**Lives at:** Moties > Moties + amendementen / Moties
+
+**Rationale:** Dutch parliamentary amendment flow  
+_Source: /tmp/ia-doc-dec-cat-conn.md_
+
+> **Implementation note for builders:** Respect the placement above. Do not promote this spec to a top-level menu item, sub-page, or new route unless the placement type explicitly says so. If the placement is `DETAIL_TAB`, `WIDGET`, `ACTION`, `SETTING`, or `INFRA`, the feature must NOT introduce a new entry in the app sidebar. When in doubt, ask before creating a new top-level surface.
+
 ## Purpose
 
 Nederlandse gemeenteraden gebruiken moties en amendementen als de twee meest gebruikte politieke instrumenten om het college te sturen, raadsvoorstellen te wijzigen en politieke standpunten formeel vast te leggen. Een gemeente van gemiddelde omvang verwerkt 80 tot 200 moties per jaar en 30 tot 80 amendementen, vrijwel allemaal handmatig bijgehouden in Word-documenten, losse spreadsheets of het concept-verslag van de griffie. Hierdoor verdwijnt de uitvoeringsstatus van aangenomen moties uit beeld, kan een raadslid niet snel terugvinden hoe een fractie eerder gestemd heeft, en moet de griffier elke vier jaar bij installatie van een nieuwe raad een handmatige inventarisatie maken van openstaande moties. Bovendien is het zogenaamde "motie-bingo" — een fenomeen waarbij collegeleden tijdens een vergadering moties bij voorbaat overnemen zonder dat er een degelijk uitvoerings-spoor wordt aangelegd — een hardnekkig probleem dat alleen oplost als de toezegging als verplichte uitvoerings-update wordt vastgelegd met een terugkoppelings-deadline.
