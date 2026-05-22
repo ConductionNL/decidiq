@@ -16,6 +16,17 @@ references:
 
 # Fractievoorzitter en Fractie Koppeling
 
+## Placement & Information Architecture
+
+**Placement type:** `SUB_PAGE` — Sub-page beneath a top-level menu entry. Renders as a page inside the parent surface (usually reachable via a router child route or a tab on the parent index page).
+
+**Lives at:** Fracties & Organen > Fractie detail / Fracties & Organen
+
+**Rationale:** Member roles inside a fraction  
+_Source: /tmp/ia-doc-dec-cat-conn.md_
+
+> **Implementation note for builders:** Respect the placement above. Do not promote this spec to a top-level menu item, sub-page, or new route unless the placement type explicitly says so. If the placement is `DETAIL_TAB`, `WIDGET`, `ACTION`, `SETTING`, or `INFRA`, the feature must NOT introduce a new entry in the app sidebar. When in doubt, ask before creating a new top-level surface.
+
 ## Purpose
 
 De fractie is in de Nederlandse politieke praktijk de centrale eenheid van politieke samenwerking — niet de individuele raadslid en niet de politieke partij, maar de groep raadsleden die namens dezelfde lijst is gekozen en als groep coördineert. Een fractie heeft een voorzitter die spreekrecht claimt namens de groep, vaste vragen-tijd in de raadsvergadering, ondersteuning vanuit de griffie, een fractie-vergoeding voor scholing en onderzoek, en een eigen vertegenwoordiging in het seniorenconvent waar agendaplanning wordt afgestemd. Een fractie is niet statisch — raadsleden splitsen af (denk aan landelijke voorbeelden waarbij raadsleden hun fractie verlaten en als eenmansfractie verdergaan), keren terug, fuseren met een andere fractie, of treden uit de raad waarna een opvolger op de partijlijst de zetel inneemt. Per raadsperiode zijn er gemiddeld 2 tot 4 zulke fractie-wijzigingen, in politiek roerige perioden oplopend tot 6 of meer — voldoende om elke griffie met handmatige administratie tot wanhoop te drijven en voldoende om elke onderzoeker die historisch stemgedrag wil analyseren tot grove fouten te brengen.
