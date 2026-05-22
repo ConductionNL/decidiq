@@ -3,6 +3,17 @@ status: draft
 ---
 # Raadsvergadering Livestream met Automatische Transcriptie
 
+## Placement & Information Architecture
+
+**Placement type:** `DETAIL_TAB` — Tab on the detail view of an existing object. NOT a standalone page — appears inside the parent record's detail surface (e.g. an extra tab on the existing detail header).
+
+**Lives at:** Vergaderingen > detail > Live & transcript tab + Live-modus page / Vergaderingen
+
+**Rationale:** Live meeting overlay  
+_Source: /tmp/ia-doc-dec-cat-conn.md_
+
+> **Implementation note for builders:** Respect the placement above. Do not promote this spec to a top-level menu item, sub-page, or new route unless the placement type explicitly says so. If the placement is `DETAIL_TAB`, `WIDGET`, `ACTION`, `SETTING`, or `INFRA`, the feature must NOT introduce a new entry in the app sidebar. When in doubt, ask before creating a new top-level surface.
+
 ## Purpose
 
 Nederlandse gemeenten zijn wettelijk verplicht om raadsvergaderingen openbaar te maken (Gemeentewet artikel 23). In de praktijk gebeurt dit via livestreams die door griffies worden geleverd via NOTUBIZ, iBabs of Companion-streaming. Het terugkijken van een vergadering kost echter veel tijd: een gemiddelde raadsvergadering duurt 3-4 uur, en burgers, journalisten en belangenorganisaties moeten vaak het hele bestand doorlopen om één agendapunt of één sprekersmoment te vinden. Bovendien zijn de huidige streams meestal niet WCAG-conform (geen closed captions, geen transcript, geen hoofdstuk-navigatie), wat een toegankelijkheidsprobleem vormt voor doven en slechthorenden (ongeveer 1,5 miljoen Nederlanders) en voor mensen die op een andere manier informatie verwerken.
