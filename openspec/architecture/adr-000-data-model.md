@@ -164,6 +164,15 @@ pagination, audit trails, file attachments, relation management, locking.
 | quorumRequired | integer | No | Minimum participants for valid meeting |
 | series | string | No | Meeting series identifier |
 
+**Derived fields (quorum-schema-declaration, schema v0.2.0):**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| totalParticipantCount | integer | Count of Participants whose governanceBody matches this Meeting's body (aggregation). |
+| presentParticipantCount | integer | Count of Participants with attendanceStatus = present in this Meeting's body (aggregation). |
+| quorumPercentage | number | presentParticipantCount / totalParticipantCount × 100; 0 when totalParticipantCount = 0 (calculation). |
+| quorumMet | boolean | true when quorumRequired is null OR presentParticipantCount ≥ quorumRequired (calculation). |
+
 ---
 
 ## Membership
