@@ -4,7 +4,7 @@
  * Meeting Transition Guard
  *
  * Guards the meeting lifecycle's open transition by reading the declaratively
- * computed quorumMet field instead of invoking QuorumService.
+ * computed quorumMet field from the Meeting schema.
  *
  * @category Lifecycle
  * @package  OCA\Decidesk\Lifecycle
@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/spec/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -28,11 +28,10 @@ namespace OCA\Decidesk\Lifecycle;
 /**
  * Guard for meeting lifecycle transitions.
  *
- * Chain spec 2 of 3: reads quorumMet from the declarative Meeting schema
- * (computed by x-openregister-calculations in chain spec 1) rather than
- * calling QuorumService.
+ * Reads quorumMet from the declarative Meeting schema
+ * (computed by x-openregister-calculations).
  *
- * @spec openspec/changes/spec/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-1
  */
 class MeetingTransitionGuard
 {
@@ -46,7 +45,7 @@ class MeetingTransitionGuard
      *
      * @param array<string, mixed> $meeting Meeting object array (already loaded by the caller)
      *
-     * @spec openspec/changes/spec/tasks.md#task-1
+     * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-1
      *
      * @return bool True when quorum is met or no quorum is required, false otherwise
      */
