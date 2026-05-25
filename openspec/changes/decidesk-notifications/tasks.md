@@ -1,14 +1,14 @@
 # Tasks
 
-- [ ] Add `x-openregister-notifications` to `Meeting` (meetingScheduled created + meetingReminder scheduled)
-- [ ] Add `x-openregister-notifications` to `ActionItem` (actionAssigned created + actionOverdue scheduled)
-- [ ] Add `x-openregister-notifications` to `Motion` (motionSubmitted created)
-- [ ] Add `x-openregister-notifications` to `Decision` (decisionRecorded created)
-- [ ] Add `x-openregister-notifications` to `PublicConsultation` (consultationDeadline scheduled, filter status=open)
-- [ ] Add `x-openregister-notifications` to `BudgetProposal` (deadline scheduled, filter status=voting)
-- [ ] Route all recipients to `object-acl` + `groups` (NOT `field`) for Meeting/ActionItem/Motion/Decision since assignee/proposer/participant are not uids
-- [ ] Provide inline `subject{nl,en}` for every rule
-- [ ] Validate `lib/Settings/decidesk_register.json` parses as JSON and every block uses verified keys only
+- [x] Add `x-openregister-notifications` to `Meeting` (meetingScheduled created + meetingReminder scheduled)
+- [x] Add `x-openregister-notifications` to `ActionItem` (actionAssigned created + actionOverdue scheduled)
+- [x] Add `x-openregister-notifications` to `Motion` (motionSubmitted created)
+- [x] Add `x-openregister-notifications` to `Decision` (decisionRecorded created)
+- [x] Add `x-openregister-notifications` to `PublicConsultation` (consultationDeadline scheduled, filter status=open)
+- [x] Add `x-openregister-notifications` to `BudgetProposal` (deadline scheduled, filter status=voting)
+- [x] Route all recipients to `object-acl` + `groups` (NOT `field`) for Meeting/ActionItem/Motion/Decision since assignee/proposer/participant are not uids
+- [x] Provide inline `subject{nl,en}` for every rule
+- [x] Validate `lib/Settings/decidesk_register.json` parses as JSON and every block uses verified keys only
 
 ## Acceptance criteria
 
