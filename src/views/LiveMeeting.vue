@@ -200,6 +200,7 @@ export default {
 		id: { type: String, required: true },
 	},
 
+	/** @spec exclude setup() only wires the shared object store ref; no domain logic */
 	setup() {
 		const objectStore = useObjectStore()
 		return { objectStore }
@@ -228,18 +229,22 @@ export default {
 		// LiveMeeting copied data into local state in fetchData(),
 		// which made the page non-reactive to live updates: the plugin
 		// updated the store cache but the local copy never re-read.
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		meeting() {
 			return this.objectStore.objects?.meeting?.[this.id] ?? {}
 		},
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		allItems() {
 			const collection = this.objectStore.collections?.['agenda-item'] ?? []
 			return collection.filter(i => i?.['@self']?.relations?.meeting === this.id || i?.relations?.meeting === this.id)
 		},
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		participants() {
 			const collection = this.objectStore.collections?.participant ?? []
 			return collection.filter(p => p?.['@self']?.relations?.meeting === this.id || p?.relations?.meeting === this.id)
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		isChair() {
 			const currentUser = getCurrentUser()
 			if (!currentUser) return false
@@ -248,40 +253,48 @@ export default {
 			)
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		bobStages() {
 			return BOB_STAGES.map(s => ({ ...s, label: this.t('decidesk', s.label) }))
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
 		hamerstukken() {
 			return this.allItems.filter(i => (i.tags ?? []).includes('hamerstuk'))
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		regularItems() {
 			return this.allItems
 				.filter(i => !(i.tags ?? []).includes('hamerstuk'))
 				.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2 */
 		activeItem() {
 			return this.allItems.find(i => i.id === this.activeItemId) ?? null
 		},
 	},
 
 	methods: {
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		currentBobStageIndex(item) {
 			const status = item?.status ?? 'beeldvorming'
 			const idx = BOB_STAGES.findIndex(s => s.id === status)
 			return idx === -1 ? 0 : idx
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		canAdvanceBob(item) {
 			return item?.status !== BOB_FINAL && item?.itemType !== 'informational'
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2 */
 		activateItem(item) {
 			this.activeItemId = item.id
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		async advanceBobPhase(item) {
 			this.advancingBob = true
 			try {
@@ -304,6 +317,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
 		async processHamerstukken() {
 			this.processingHamerstukken = true
 			this.confirmHamerstukken = false
@@ -327,6 +341,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
 		async removeFromHamerstukken(item) {
 			const tags = (item.tags ?? []).filter(t => t !== 'hamerstuk')
 			try {
@@ -337,6 +352,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		async fetchData() {
 			// Trigger initial fetches to populate the shared store cache.
 			// We deliberately don't assign results to local state — the
@@ -361,6 +377,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		async refreshItems() {
 			try {
 				await this.objectStore.fetchCollection('agenda-item', {
@@ -372,6 +389,7 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 	async created() {
 		await this.fetchData()
 
@@ -397,6 +415,7 @@ export default {
 		this.liveSubs.push(await this.objectStore.subscribe('participant'))
 	},
 
+	/** @spec exclude lifecycle teardown; only unsubscribes the live-update handles created in created() */
 	beforeDestroy() {
 		// Tear down all live-update subscriptions; refcount drops to 0 ->
 		// the underlying notify_push listener for each event key is removed.

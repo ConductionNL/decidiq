@@ -37,6 +37,7 @@ export default {
 			appVersion: document.getElementById('decidesk-settings')?.dataset?.version || 'Unknown',
 		}
 	},
+	/** @spec exclude lifecycle hook; only boots Pinia stores then flips the storesReady flag, framework setup */
 	async created() {
 		await initializeStores()
 		this.storesReady = true

@@ -96,6 +96,7 @@ export default {
 		}
 	},
 	computed: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		columns() {
 			return [
 				{ key: 'orderNumber', label: this.t('decidesk', '#'), width: '60px' },
@@ -104,12 +105,14 @@ export default {
 				{ key: 'estimatedDuration', label: this.t('decidesk', 'Duration (min)') },
 			]
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
 		rowActions() {
 			return [
 				{ label: this.t('decidesk', 'Edit'), icon: Pencil, handler: (row) => this.openEdit(row) },
 				{ label: this.t('decidesk', 'Delete'), icon: TrashCanOutline, destructive: true, handler: (row) => { this.deleteTarget = { ...row } } },
 			]
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		excludedFields() {
 			// Hide system / parent-link fields — we set `meeting` ourselves.
 			return ['id', 'uuid', 'meeting', 'created', 'updated']
@@ -118,10 +121,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
+			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 			handler() { this.refresh() },
 		},
 	},
 	methods: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -141,18 +146,21 @@ export default {
 				this.loading = false
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async openCreate() {
 			const store = ensureRelationType('agenda-item')
 			if (!this.agendaSchema) this.agendaSchema = await store.fetchSchema('agenda-item')
 			this.editTarget = null
 			this.formOpen = true
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async openEdit(row) {
 			const store = ensureRelationType('agenda-item')
 			if (!this.agendaSchema) this.agendaSchema = await store.fetchSchema('agenda-item')
 			this.editTarget = { ...row }
 			this.formOpen = true
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async onConfirm(formData) {
 			const store = ensureRelationType('agenda-item')
 			try {
@@ -163,6 +171,7 @@ export default {
 				this.$refs.formDialog?.setResult({ error: e?.message || this.t('decidesk', 'Save failed.') })
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async confirmDelete() {
 			const store = ensureRelationType('agenda-item')
 			try {
