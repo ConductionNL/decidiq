@@ -81,12 +81,14 @@ export default {
 		}
 	},
 	computed: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 		parentMotionId() {
 			const ref = this.amendment?.parentMotion
 			if (!ref) return ''
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 		propertyItems() {
 			if (!this.motion) return []
 			return [
@@ -101,10 +103,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
+			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 			handler() { this.refresh() },
 		},
 	},
 	methods: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -123,6 +127,7 @@ export default {
 				this.loading = false
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 		openParent() {
 			if (!this.parentMotionId) return
 			this.$router.push({ name: 'MotionDetail', params: { id: this.parentMotionId } })

@@ -264,6 +264,7 @@ export default {
 
 	emits: ['reordered', 'item-updated'],
 
+	/** @spec exclude setup() only wires the shared object store ref; no domain logic */
 	setup() {
 		const objectStore = useObjectStore()
 		return { objectStore }
@@ -286,10 +287,12 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
 		sortedItems() {
 			return this.localItems.slice().sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.2 */
 		totalDuration() {
 			return this.localItems.reduce((sum, item) => {
 				const d = item.estimatedDuration
@@ -297,14 +300,17 @@ export default {
 			}, 0)
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.5 */
 		proposalItems() {
 			return this.localItems.filter(i => i.status === 'voorstel')
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.4 */
 		canEdit() {
 			return ['scheduled', 'opened'].includes(this.lifecycle)
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.3 */
 		canShowRecurring() {
 			return true
 		},
@@ -314,6 +320,7 @@ export default {
 		items: {
 			immediate: true,
 			deep: true,
+			/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
 			handler(val) {
 				this.localItems = val ? val.slice() : []
 			},
@@ -325,6 +332,7 @@ export default {
 		// Drag-and-drop helpers
 		// -----------------------------------------------------------------------
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
 		onDragStart(event, index) {
 			this.dragIndex = index
 			if (event.dataTransfer) {
@@ -332,11 +340,13 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
 		onDragOver(event, index) {
 			if (this.dragIndex === null || this.dragIndex === index) return
 			event.preventDefault()
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
 		onDrop(event, targetIndex) {
 			if (this.dragIndex === null || this.dragIndex === targetIndex) return
 			const reordered = this.sortedItems.slice()
@@ -348,10 +358,12 @@ export default {
 			this.persistReorder()
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
 		onDragEnd() {
 			this.dragIndex = null
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.7 */
 		moveUp(index) {
 			if (index === 0) return
 			const reordered = this.sortedItems.slice()
@@ -361,6 +373,7 @@ export default {
 			this.persistReorder()
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.7 */
 		moveDown(index) {
 			if (index >= this.sortedItems.length - 1) return
 			const reordered = this.sortedItems.slice()
@@ -370,6 +383,7 @@ export default {
 			this.persistReorder()
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
 		async persistReorder() {
 			const ids = this.sortedItems.map(i => i.id)
 			try {
@@ -399,10 +413,12 @@ export default {
 			return item?.relations?.spokesperson?.[0]?.owner ?? null
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.6 */
 		openSpokespersonDialog(item) {
 			this.spokespersonDialog = { open: true, item }
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.6 */
 		async assignSpokesperson(item, participant) {
 			try {
 				await this.objectStore.saveObject('agenda-item', {
@@ -420,6 +436,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.6 */
 		async removeSpokesperson(item) {
 			try {
 				const relations = { ...(item.relations ?? {}) }
@@ -437,6 +454,7 @@ export default {
 		// COI badge
 		// -----------------------------------------------------------------------
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-5.2 */
 		coiCount(item) {
 			const notes = item?.notes ?? []
 			return notes.filter(n => (n.title ?? '').startsWith('COI:')).length
@@ -446,6 +464,7 @@ export default {
 		// Recurring items
 		// -----------------------------------------------------------------------
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.3 */
 		async loadRecurringItems() {
 			try {
 				const all = await this.objectStore.fetchCollection('agenda-item', { isRecurring: true })
@@ -455,6 +474,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.3 */
 		toggleRecurring(id) {
 			const idx = this.selectedRecurring.indexOf(id)
 			if (idx === -1) {
@@ -464,6 +484,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.3 */
 		async addSelectedRecurring() {
 			const nextOrder = this.localItems.length + 1
 			let order = nextOrder
@@ -496,6 +517,7 @@ export default {
 		// Proposal inbox (chair)
 		// -----------------------------------------------------------------------
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.5 */
 		async approveProposal(item) {
 			const nextOrder = this.localItems.filter(i => i.status !== 'voorstel').length + 1
 			try {
@@ -510,6 +532,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.5 */
 		async rejectProposal(item) {
 			try {
 				await this.objectStore.saveObject('agenda-item', { ...item, status: 'afgewezen' })
@@ -523,6 +546,7 @@ export default {
 		// Submit proposal (all participants)
 		// -----------------------------------------------------------------------
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.4 */
 		async submitProposal() {
 			try {
 				await this.objectStore.saveObject('agenda-item', {
@@ -543,6 +567,7 @@ export default {
 		},
 	},
 
+	/** @spec exclude lifecycle hook; body only calls the already-spec'd loadRecurringItems() */
 	created() {
 		this.loadRecurringItems()
 	},

@@ -235,6 +235,7 @@ export default {
 		motionLifecycle: { type: String, default: '' },
 		meetingId: { type: String, default: '' },
 	},
+	/** @spec exclude setup() only wires the shared object + settings store refs; no domain logic */
 	setup() {
 		const objectStore = useObjectStore()
 		const settingsStore = useSettingsStore()
@@ -265,10 +266,12 @@ export default {
 		}
 	},
 	computed: {
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		roundId() {
 			if (!this.currentRound) return null
 			return this.currentRound.id || this.currentRound.uuid || null
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		isRoundOpen() {
 			if (!this.currentRound) return false
 			if (!this.currentRound.openedAt) return false
@@ -276,6 +279,7 @@ export default {
 			if (closedAt && new Date(closedAt) <= new Date()) return false
 			return true
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 		tallyTotal() {
 			if (!this.currentRound) return 0
 			return (this.currentRound.votesFor || 0) + (this.currentRound.votesAgainst || 0) + (this.currentRound.votesAbstain || 0)
@@ -283,6 +287,7 @@ export default {
 		isChairOrSecretary() {
 			return this.settingsStore.isAdmin === true
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
 		oriStatusLabel() {
 			const labels = {
 				published: this.t('decidesk', 'Gepubliceerd naar ORI'),
@@ -292,6 +297,7 @@ export default {
 			return labels[this.oriStatus] || this.oriStatus
 		},
 	},
+	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 	async mounted() {
 		await this.fetchCurrentRound()
 		// Poll every 5 seconds when round is open.
@@ -301,12 +307,14 @@ export default {
 			}
 		}, 5000)
 	},
+	/** @spec exclude lifecycle teardown; only clears the polling interval started in mounted() */
 	beforeDestroy() {
 		if (this.pollInterval) {
 			clearInterval(this.pollInterval)
 		}
 	},
 	methods: {
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		async fetchCurrentRound() {
 			this.loading = true
 			try {
@@ -330,6 +338,7 @@ export default {
 				this.loading = false
 			}
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		async castVote(value) {
 			this.castVoteError = null
 			try {
@@ -357,6 +366,7 @@ export default {
 				this.castVoteError = this.t('decidesk', 'Stem uitbrengen mislukt')
 			}
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 */
 		async openRound() {
 			this.openingRound = true
 			this.openRoundError = null
@@ -388,6 +398,7 @@ export default {
 				this.openingRound = false
 			}
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 */
 		async closeRound() {
 			this.confirmCloseRound = false
 			try {
@@ -405,6 +416,7 @@ export default {
 				// ignore
 			}
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 */
 		async saveShowOfHands() {
 			try {
 				const resp = await fetch(
@@ -426,6 +438,7 @@ export default {
 				// ignore
 			}
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.1 */
 		async grantProxy() {
 			try {
 				const resp = await fetch(
@@ -447,6 +460,7 @@ export default {
 				// ignore
 			}
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.2 */
 		async revokeProxy() {
 			try {
 				const resp = await fetch(
@@ -464,6 +478,7 @@ export default {
 				// ignore
 			}
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
 		async publishToOri() {
 			try {
 				const resp = await fetch(

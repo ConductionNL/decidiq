@@ -129,6 +129,7 @@ export default {
 		}
 	},
 	computed: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		columns() {
 			return [
 				{ key: 'displayName', label: this.t('decidesk', 'Name') },
@@ -136,9 +137,11 @@ export default {
 				{ key: 'signedAt', label: this.t('decidesk', 'Status') },
 			]
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		rawSigners() {
 			return Array.isArray(this.minutes?.signers) ? this.minutes.signers : []
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		signersWithName() {
 			return this.rawSigners.map((entry) => {
 				const participantId = typeof entry === 'object'
@@ -155,6 +158,7 @@ export default {
 				}
 			})
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		canSignNow() {
 			const user = getCurrentUser()
 			if (!user) return false
@@ -166,13 +170,16 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
+			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 			handler() { this.refresh() },
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		addDialogOpen(open) {
 			if (open) this.loadCandidates()
 		},
 	},
 	methods: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
 		rowActionsFor(row) {
 			return [
 				{
@@ -183,9 +190,11 @@ export default {
 				},
 			]
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		candidateLabel(p) {
 			return p.displayName || p.name || p.id
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -213,6 +222,7 @@ export default {
 				this.loading = false
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		async loadCandidates() {
 			this.loadingCandidates = true
 			try {
@@ -226,6 +236,7 @@ export default {
 				this.loadingCandidates = false
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		async addSigner(participant) {
 			const minutesStore = ensureRelationType('minutes')
 			const next = (this.rawSigners.slice()).concat([{ participant: participant.id || participant.uuid }])
@@ -238,6 +249,7 @@ export default {
 				this.error = e?.message || this.t('decidesk', 'Failed to add signer.')
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		async confirmRemove() {
 			const target = this.removeTarget
 			const next = this.rawSigners.filter((e) => {
@@ -254,6 +266,7 @@ export default {
 				this.$refs.removeDialog?.setResult({ error: e?.message || this.t('decidesk', 'Remove failed.') })
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-5 */
 		async signNow() {
 			this.signError = ''
 			try {
