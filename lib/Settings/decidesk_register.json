@@ -146,6 +146,27 @@
         ]
       },
       "Meeting": {
+        "x-openregister-notifications": {
+          "meetingScheduled": {
+            "trigger": { "type": "created" },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              { "kind": "object-acl", "permission": "read" },
+              { "kind": "groups", "groups": ["decidesk-members"] }
+            ],
+            "subject": { "nl": "Nieuwe vergadering ingepland: {{title}}", "en": "New meeting scheduled: {{title}}" }
+          },
+          "meetingReminder": {
+            "trigger": { "type": "scheduled", "intervalSec": 86400, "filter": { "lifecycle": "scheduled" } },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              { "kind": "object-acl", "permission": "read" }
+            ],
+            "subject": { "nl": "Herinnering: vergadering '{{title}}' komt eraan", "en": "Reminder: meeting '{{title}}' is coming up" }
+          }
+        },
         "slug": "meeting",
         "icon": "CalendarClock",
         "version": "0.3.0",
@@ -633,6 +654,18 @@
         ]
       },
       "Motion": {
+        "x-openregister-notifications": {
+          "motionSubmitted": {
+            "trigger": { "type": "created" },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              { "kind": "object-acl", "permission": "read" },
+              { "kind": "groups", "groups": ["decidesk-members"] }
+            ],
+            "subject": { "nl": "Nieuwe motie ingediend: {{title}}", "en": "New motion submitted: {{title}}" }
+          }
+        },
         "slug": "motion",
         "icon": "TextBoxOutline",
         "version": "0.2.0",
@@ -1118,6 +1151,18 @@
         ]
       },
       "Decision": {
+        "x-openregister-notifications": {
+          "decisionRecorded": {
+            "trigger": { "type": "created" },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              { "kind": "object-acl", "permission": "read" },
+              { "kind": "groups", "groups": ["decidesk-members"] }
+            ],
+            "subject": { "nl": "Besluit vastgelegd: {{title}}", "en": "Decision recorded: {{title}}" }
+          }
+        },
         "slug": "decision",
         "icon": "GavelOutline",
         "version": "0.2.0",
@@ -1301,6 +1346,28 @@
         ]
       },
       "ActionItem": {
+        "x-openregister-notifications": {
+          "actionAssigned": {
+            "trigger": { "type": "created" },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              { "kind": "object-acl", "permission": "manage" },
+              { "kind": "groups", "groups": ["decidesk-members"] }
+            ],
+            "subject": { "nl": "Nieuwe actie toegewezen: {{title}}", "en": "New action item assigned: {{title}}" }
+          },
+          "actionOverdue": {
+            "trigger": { "type": "scheduled", "intervalSec": 86400, "filter": { "taskStatus": "overdue" } },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              { "kind": "object-acl", "permission": "manage" },
+              { "kind": "groups", "groups": ["decidesk-members"] }
+            ],
+            "subject": { "nl": "Actie over tijd: {{title}}", "en": "Action item overdue: {{title}}" }
+          }
+        },
         "slug": "action-item",
         "icon": "CheckboxMarkedOutline",
         "version": "0.1.0",
@@ -2144,6 +2211,18 @@
         }
       },
       "BudgetProposal": {
+        "x-openregister-notifications": {
+          "budgetProposalVotingDeadline": {
+            "trigger": { "type": "scheduled", "intervalSec": 86400, "filter": { "status": "voting" } },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              { "kind": "object-acl", "permission": "read" },
+              { "kind": "groups", "groups": ["decidesk-members"] }
+            ],
+            "subject": { "nl": "Stemtermijn begrotingsvoorstel '{{title}}' verloopt binnenkort", "en": "Budget proposal '{{title}}' voting deadline is approaching" }
+          }
+        },
         "slug": "budget-proposal",
         "icon": "LightbulbOnOutline",
         "version": "0.1.0",
@@ -2221,6 +2300,18 @@
         }
       },
       "PublicConsultation": {
+        "x-openregister-notifications": {
+          "consultationDeadline": {
+            "trigger": { "type": "scheduled", "intervalSec": 86400, "filter": { "status": "open" } },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              { "kind": "object-acl", "permission": "read" },
+              { "kind": "groups", "groups": ["decidesk-members"] }
+            ],
+            "subject": { "nl": "Inspraaktermijn '{{title}}' verloopt binnenkort", "en": "Consultation '{{title}}' deadline is approaching" }
+          }
+        },
         "slug": "public-consultation",
         "icon": "ForumOutline",
         "version": "0.1.0",
