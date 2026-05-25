@@ -523,6 +523,6 @@
 				]
 			}
 		},
-		{ "id": "FeaturesRoadmap", "route": "/features-roadmap", "type": "roadmap", "title": "Features & roadmap" }
+		{ "id": "FeaturesRoadmap", "route": "/features-roadmap", "type": "roadmap", "title": "Features & roadmap", "config": { "documentationUrl": "https://decidesk.conduction.nl" } }
 	]
 }
