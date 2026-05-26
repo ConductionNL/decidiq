@@ -34,6 +34,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IAppConfig;
 use OCP\IConfig;
 use OCP\IRequest;
 use Psr\Container\ContainerInterface;
@@ -54,6 +55,7 @@ class HealthController extends Controller
      *
      * @param IRequest           $request   The request object
      * @param IConfig            $config    The Nextcloud config service
+     * @param IAppConfig         $appConfig The typed app-config service
      * @param ContainerInterface $container The DI container (for lazy OR lookup)
      *
      * @return void
@@ -61,6 +63,7 @@ class HealthController extends Controller
     public function __construct(
         IRequest $request,
         private readonly IConfig $config,
+        private readonly IAppConfig $appConfig,
         private readonly ContainerInterface $container,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
@@ -83,7 +86,7 @@ class HealthController extends Controller
     public function status(): JSONResponse
     {
         $baseUrl  = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '');
-        $version  = $this->config->getAppValue(appName: Application::APP_ID, key: 'installed_version', default: '0.0.0');
+        $version  = $this->appConfig->getValueString(app: Application::APP_ID, key: 'installed_version', default: '0.0.0');
         $orStatus = 'unavailable';
 
         try {
