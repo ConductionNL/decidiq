@@ -35,7 +35,7 @@ use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 
 /**
- * Controller for meeting CRUD and lifecycle transitions.
+ * Controller for meeting lifecycle transitions.
  *
  * ## Access control design (OWASP A01 / ADR-005)
  *
@@ -55,10 +55,6 @@ use Psr\Container\ContainerInterface;
  * This is the approved pattern per ADR-005 for resources governed by
  * OpenRegister's own RBAC instead of Nextcloud group membership.
  *
- * CRUD (index/create/show/update/destroy) calls ObjectService directly — per
- * ADR-022 (apps-consume-or-abstractions), pass-through service wrappers are
- * removed and the controller owns the OR interaction for simple CRUD.
- *
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-2.1
  */
 class MeetingController extends Controller
@@ -67,7 +63,7 @@ class MeetingController extends Controller
      * Constructor for MeetingController.
      *
      * @param IRequest           $request        The HTTP request
-     * @param MeetingService     $meetingService The meeting service (lifecycle only)
+     * @param MeetingService     $meetingService The meeting service
      * @param IUserSession       $userSession    The user session
      * @param ContainerInterface $container      The DI container
      *
@@ -148,15 +144,9 @@ class MeetingController extends Controller
                 );
             }
 
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $meeting = $this->meetingService->create($data);
 
-            $object = $objectService->createFromArray(
-                register: 'decidesk',
-                schema: 'meeting',
-                object: $data,
-            );
-
-            return new JSONResponse($object->jsonSerialize(), Http::STATUS_CREATED);
+            return new JSONResponse($meeting, Http::STATUS_CREATED);
         } catch (\Throwable $e) {
             return new JSONResponse(
                 ['message' => 'Failed to create meeting'],
@@ -184,23 +174,22 @@ class MeetingController extends Controller
         }
 
         try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $entity        = $objectService->find(id: $id);
+            $meeting = $this->meetingService->read($id);
 
-            if ($entity === null) {
+            if ($meeting === null) {
                 return new JSONResponse(
                     ['message' => 'Meeting not found'],
                     Http::STATUS_NOT_FOUND
                 );
             }
 
-            return new JSONResponse($entity->jsonSerialize());
+            return new JSONResponse($meeting);
         } catch (\Throwable $e) {
             return new JSONResponse(
                 ['message' => 'Failed to retrieve meeting'],
                 Http::STATUS_INTERNAL_SERVER_ERROR
             );
-        }//end try
+        }
     }//end show()
 
     /**
@@ -222,24 +211,18 @@ class MeetingController extends Controller
         }
 
         try {
-            $data          = $this->request->getParams();
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $data = $this->request->getParams();
 
-            $updated = $objectService->updateFromArray(
-                id: $id,
-                object: $data,
-                updateVersion: true,
-                patch: true,
-            );
+            $meeting = $this->meetingService->update($id, $data);
 
-            if ($updated === null) {
+            if ($meeting === null) {
                 return new JSONResponse(
                     ['message' => 'Meeting not found or update failed'],
                     Http::STATUS_NOT_FOUND
                 );
             }
 
-            return new JSONResponse($updated->jsonSerialize());
+            return new JSONResponse($meeting);
         } catch (\Throwable $e) {
             return new JSONResponse(
                 ['message' => 'Failed to update meeting'],
@@ -267,8 +250,14 @@ class MeetingController extends Controller
         }
 
         try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $objectService->deleteFromId(id: $id);
+            $deleted = $this->meetingService->delete($id);
+
+            if ($deleted === false) {
+                return new JSONResponse(
+                    ['message' => 'Meeting not found or deletion failed'],
+                    Http::STATUS_NOT_FOUND
+                );
+            }
 
             return new JSONResponse(statusCode: Http::STATUS_NO_CONTENT);
         } catch (\Throwable $e) {
@@ -276,7 +265,7 @@ class MeetingController extends Controller
                 ['message' => 'Failed to delete meeting'],
                 Http::STATUS_INTERNAL_SERVER_ERROR
             );
-        }//end try
+        }
     }//end destroy()
 
     /**
