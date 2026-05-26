@@ -21,6 +21,9 @@
  * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-010
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+// SPDX-License-Identifier: EUPL-1.2
+
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Mcp;
@@ -28,6 +31,8 @@ namespace OCA\Decidesk\Tests\Unit\Mcp;
 use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\TaskService;
+use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Service\ObjectService;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -42,6 +47,9 @@ use Psr\Log\LoggerInterface;
  * Every test in this class runs in isolation with mocked services.
  * The stubs at tests/Stubs/Mcp/IMcpToolProvider.php satisfy the interface
  * declaration when the openregister runtime is absent.
+ *
+ * Meeting read now goes through ObjectService::find() (ADR-022: no pass-through
+ * CRUD in MeetingService). Tests mock the container/ObjectService accordingly.
  *
  * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-010
  */
@@ -219,6 +227,62 @@ class DecideskToolProviderTest extends TestCase
     }//end makeMeeting()
 
 
+    /**
+     * Wrap a meeting array in a mock ObjectEntity.
+     *
+     * The provider now calls `$objectService->find()` (returns ObjectEntity|null)
+     * then `->jsonSerialize()` — this helper builds that mock.
+     *
+     * @param array<string, mixed>|null $meetingArray The meeting data, or null to simulate not-found
+     *
+     * @return ObjectEntity&MockObject|null
+     */
+    private function makeObjectEntityMock(?array $meetingArray): ?MockObject
+    {
+        if ($meetingArray === null) {
+            return null;
+        }
+
+        $entity = $this->createMock(ObjectEntity::class);
+        $entity->method('jsonSerialize')->willReturn($meetingArray);
+        return $entity;
+
+    }//end makeObjectEntityMock()
+
+
+    /**
+     * Configure the container mock to return an ObjectService mock.
+     *
+     * When $meetingEntity is provided, `find()` returns it (or null for not-found).
+     * findAll() returns an empty array by default.
+     *
+     * @param ObjectEntity&MockObject|null $meetingEntity  Entity to return from find(), or null
+     * @param callable|null                $findAllCallback Optional callback for findAll responses
+     *
+     * @return ObjectService&MockObject
+     */
+    private function mockObjectService(?MockObject $meetingEntity=null, ?callable $findAllCallback=null): MockObject
+    {
+        $objectService = $this->createMock(ObjectService::class);
+
+        if ($meetingEntity !== null) {
+            $objectService->method('find')->willReturn($meetingEntity);
+        } else {
+            $objectService->method('find')->willReturn(null);
+        }
+
+        if ($findAllCallback !== null) {
+            $objectService->method('findAll')->willReturnCallback($findAllCallback);
+        } else {
+            $objectService->method('findAll')->willReturn([]);
+        }
+
+        $this->container->method('get')->willReturn($objectService);
+        return $objectService;
+
+    }//end mockObjectService()
+
+
     // =========================================================================
     // Task 5.2 — getAppId + getTools catalogue
     // =========================================================================
@@ -321,7 +385,7 @@ class DecideskToolProviderTest extends TestCase
     // =========================================================================
 
     /**
-     * startMeeting with invalid UUID returns invalid_arguments; service not called.
+     * startMeeting with invalid UUID returns invalid_arguments; services not called.
      *
      * @return void
      *
@@ -329,7 +393,6 @@ class DecideskToolProviderTest extends TestCase
      */
     public function testInvalidUuidStartMeetingReturnsInvalidArguments(): void
     {
-        $this->meetingService->expects(self::never())->method('read');
         $this->meetingService->expects(self::never())->method('transition');
 
         $result = $this->provider->invokeTool('decidesk.startMeeting', ['meetingUuid' => 'abc']);
@@ -349,8 +412,6 @@ class DecideskToolProviderTest extends TestCase
      */
     public function testInvalidUuidGetMeetingDetailsReturnsInvalidArguments(): void
     {
-        $this->meetingService->expects(self::never())->method('read');
-
         $result = $this->provider->invokeTool('decidesk.getMeetingDetails', ['meetingUuid' => 'abc']);
 
         self::assertTrue($result['isError']);
@@ -368,7 +429,6 @@ class DecideskToolProviderTest extends TestCase
      */
     public function testInvalidUuidAddActionItemReturnsInvalidArguments(): void
     {
-        $this->meetingService->expects(self::never())->method('read');
         $this->taskService->expects(self::never())->method('saveTask');
 
         $result = $this->provider->invokeTool(
@@ -397,7 +457,7 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setCurrentUser('alice');
 
-        $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $objectService = $this->createMock(ObjectService::class);
         $objectService->method('findAll')->willReturn(
             [
                 ['uuid' => 'ai-uuid-1', 'title' => 'Fix bug'],
@@ -467,7 +527,7 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setCurrentUser('alice');
 
-        $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $objectService = $this->createMock(ObjectService::class);
         $objectService->method('findAll')->willReturn(
             [
                 ['uuid' => 'mtg-uuid-2', 'title' => 'Newer meeting', 'scheduledDate' => '2026-05-10'],
@@ -503,10 +563,11 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setCurrentUser('alice');
 
-        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
-        $this->meetingService->method('read')->willReturn($meeting);
+        $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $meetingEntity = $this->makeObjectEntityMock($meeting);
 
-        $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $objectService = $this->createMock(ObjectService::class);
+        $objectService->method('find')->willReturn($meetingEntity);
         $objectService->method('findAll')->willReturnCallback(
             function (array $config) {
                 $schema = $config['filters']['schema'] ?? '';
@@ -562,8 +623,10 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setCurrentUser('alice');
 
-        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
-        $this->meetingService->method('read')->willReturn($meeting);
+        $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $meetingEntity = $this->makeObjectEntityMock($meeting);
+        $this->mockObjectService(meetingEntity: $meetingEntity);
+
         $this->meetingService->expects(self::once())->method('transition')
             ->with($this->meetingUuid, 'open', 'alice')
             ->willReturn(['success' => true, 'meeting' => $meeting, 'message' => 'Opened.']);
@@ -594,8 +657,9 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setCurrentUser('alice');
 
-        $meeting = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
-        $this->meetingService->method('read')->willReturn($meeting);
+        $meeting       = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
+        $meetingEntity = $this->makeObjectEntityMock($meeting);
+        $this->mockObjectService(meetingEntity: $meetingEntity);
 
         $savedTask = ['uuid' => 'task-uuid-1', 'title' => 'Write test plan', 'taskStatus' => 'pending'];
         $this->taskService->expects(self::once())->method('saveTask')
@@ -623,7 +687,7 @@ class DecideskToolProviderTest extends TestCase
     // =========================================================================
 
     /**
-     * getMeetingDetails for a non-participant returns forbidden; service not mutated.
+     * getMeetingDetails for a non-participant returns forbidden; findAll never called.
      *
      * @return void
      *
@@ -633,11 +697,14 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setCurrentUser('carol');
 
-        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']);
-        $this->meetingService->method('read')->willReturn($meeting);
+        $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']);
+        $meetingEntity = $this->makeObjectEntityMock($meeting);
 
-        // ObjectService should never be called.
-        $this->container->expects(self::never())->method('get');
+        $objectService = $this->createMock(ObjectService::class);
+        $objectService->method('find')->willReturn($meetingEntity);
+        // findAll should never be called — access is blocked after find().
+        $objectService->expects(self::never())->method('findAll');
+        $this->container->method('get')->willReturn($objectService);
 
         $result = $this->provider->invokeTool(
             'decidesk.getMeetingDetails',
@@ -661,8 +728,9 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setCurrentUser('bob');
 
-        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
-        $this->meetingService->method('read')->willReturn($meeting);
+        $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $meetingEntity = $this->makeObjectEntityMock($meeting);
+        $this->mockObjectService(meetingEntity: $meetingEntity);
 
         // Transition must NEVER be called.
         $this->meetingService->expects(self::never())->method('transition');
@@ -690,8 +758,9 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setCurrentUser('carol');
 
-        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']);
-        $this->meetingService->method('read')->willReturn($meeting);
+        $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']);
+        $meetingEntity = $this->makeObjectEntityMock($meeting);
+        $this->mockObjectService(meetingEntity: $meetingEntity);
 
         $this->taskService->expects(self::never())->method('saveTask');
 
@@ -722,8 +791,9 @@ class DecideskToolProviderTest extends TestCase
         $this->setCurrentUser('alice');
 
         // Meeting is in 'opened' state (the internal name for in-progress).
-        $meeting = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
-        $this->meetingService->method('read')->willReturn($meeting);
+        $meeting       = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
+        $meetingEntity = $this->makeObjectEntityMock($meeting);
+        $this->mockObjectService(meetingEntity: $meetingEntity);
 
         $this->meetingService->expects(self::never())->method('transition');
 
@@ -756,10 +826,11 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setCurrentUser('alice');
 
-        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
-        $this->meetingService->method('read')->willReturn($meeting);
+        $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $meetingEntity = $this->makeObjectEntityMock($meeting);
 
-        $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $objectService = $this->createMock(ObjectService::class);
+        $objectService->method('find')->willReturn($meetingEntity);
 
         // 20 agenda items + 7 decisions + 7 action items = 34, +1 meeting = 35 total.
         $agendaItems = [];
@@ -815,7 +886,7 @@ class DecideskToolProviderTest extends TestCase
     // =========================================================================
 
     /**
-     * getMeetingDetails returns not_found when service returns null.
+     * getMeetingDetails returns not_found when ObjectService::find returns null.
      *
      * @return void
      *
@@ -824,7 +895,7 @@ class DecideskToolProviderTest extends TestCase
     public function testNotFound_getMeetingDetails_returnsNotFoundEnvelope(): void
     {
         $this->setCurrentUser('alice');
-        $this->meetingService->method('read')->willReturn(null);
+        $this->mockObjectService(meetingEntity: null);
 
         $result = $this->provider->invokeTool(
             'decidesk.getMeetingDetails',
@@ -838,7 +909,7 @@ class DecideskToolProviderTest extends TestCase
 
 
     /**
-     * startMeeting returns not_found when service returns null.
+     * startMeeting returns not_found when ObjectService::find returns null.
      *
      * @return void
      *
@@ -847,7 +918,7 @@ class DecideskToolProviderTest extends TestCase
     public function testNotFound_startMeeting_returnsNotFoundEnvelope(): void
     {
         $this->setCurrentUser('alice');
-        $this->meetingService->method('read')->willReturn(null);
+        $this->mockObjectService(meetingEntity: null);
 
         $result = $this->provider->invokeTool(
             'decidesk.startMeeting',
@@ -861,7 +932,7 @@ class DecideskToolProviderTest extends TestCase
 
 
     /**
-     * addActionItem returns not_found when service returns null.
+     * addActionItem returns not_found when ObjectService::find returns null.
      *
      * @return void
      *
@@ -870,7 +941,7 @@ class DecideskToolProviderTest extends TestCase
     public function testNotFound_addActionItem_returnsNotFoundEnvelope(): void
     {
         $this->setCurrentUser('alice');
-        $this->meetingService->method('read')->willReturn(null);
+        $this->mockObjectService(meetingEntity: null);
 
         $result = $this->provider->invokeTool(
             'decidesk.addActionItem',
@@ -898,8 +969,10 @@ class DecideskToolProviderTest extends TestCase
     {
         $this->setAdminUser('admin');
 
-        $meeting = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
-        $this->meetingService->method('read')->willReturn($meeting);
+        $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
+        $meetingEntity = $this->makeObjectEntityMock($meeting);
+        $this->mockObjectService(meetingEntity: $meetingEntity);
+
         $this->meetingService->method('transition')->willReturn(
             ['success' => true, 'meeting' => $meeting, 'message' => 'Opened.']
         );
@@ -928,8 +1001,6 @@ class DecideskToolProviderTest extends TestCase
      */
     public function testAddActionItem_titleTooShort_returnsInvalidArguments(): void
     {
-        $this->meetingService->expects(self::never())->method('read');
-
         $result = $this->provider->invokeTool(
             'decidesk.addActionItem',
             ['meetingUuid' => $this->meetingUuid, 'title' => 'Hi']
@@ -955,8 +1026,8 @@ class DecideskToolProviderTest extends TestCase
     public function testNullUuidIsValidSyntax(): void
     {
         $this->setCurrentUser('alice');
-        // Service returns null → not_found (not invalid_arguments).
-        $this->meetingService->method('read')->willReturn(null);
+        // ObjectService returns null → not_found (not invalid_arguments).
+        $this->mockObjectService(meetingEntity: null);
 
         $result = $this->provider->invokeTool(
             'decidesk.startMeeting',
@@ -978,8 +1049,6 @@ class DecideskToolProviderTest extends TestCase
      */
     public function testShortStringsAreInvalidUuids(): void
     {
-        $this->meetingService->expects(self::never())->method('read');
-
         $result1 = $this->provider->invokeTool(
             'decidesk.getMeetingDetails',
             ['meetingUuid' => 'abc']

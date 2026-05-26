@@ -25,14 +25,18 @@ class ObjectService
     /**
      * Find an object by ID.
      *
-     * @param string $id     The object UUID.
-     * @param mixed  $extend Optional extend parameter.
-     * @param string $register Register slug.
-     * @param string $schema  Schema slug.
+     * Matches the real ObjectService::find() signature with named parameters
+     * for register and schema scope.
+     *
+     * @param int|string      $id       The object UUID or integer ID.
+     * @param array|null      $_extend  Optional extend parameter.
+     * @param bool            $files    Whether to include file information.
+     * @param string|int|null $register Register slug or ID (optional).
+     * @param string|int|null $schema   Schema slug or ID (optional).
      *
      * @return object|null
      */
-    public function find(string $id, mixed $extend=null, string $register='', string $schema=''): ?object
+    public function find(int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null): ?object
     {
         return null;
 
@@ -54,37 +58,21 @@ class ObjectService
 
 
     /**
-     * Save an object.
+     * Save an object using named-parameter API.
      *
      * @param array<string,mixed> $object   The object data.
-     * @param string              $register Register slug.
-     * @param string              $schema   Schema slug.
-     * @param string              $uuid     Object UUID.
+     * @param array|null          $extend   Extend options.
+     * @param string|int|null     $register Register slug or ID.
+     * @param string|int|null     $schema   Schema slug or ID.
+     * @param string|null         $uuid     Object UUID.
      *
-     * @return object
+     * @return mixed ObjectEntity on success; tests may return array for legacy mock compatibility
      */
-    public function saveObject(array $object, string $register='', string $schema='', string $uuid=''): object
+    public function saveObject(array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): mixed
     {
         return new \stdClass();
 
     }//end saveObject()
-
-
-    /**
-     * Update an object from array.
-     *
-     * @param string              $id            Object UUID.
-     * @param array<string,mixed> $object        Updated data.
-     * @param bool                $updateVersion Whether to bump version.
-     * @param bool                $patch         Whether to patch (partial update).
-     *
-     * @return object|null
-     */
-    public function updateFromArray(string $id, array $object, bool $updateVersion=false, bool $patch=false): ?object
-    {
-        return null;
-
-    }//end updateFromArray()
 
 
     /**
@@ -145,6 +133,22 @@ class ObjectService
         return [];
 
     }//end findObjects()
+
+
+    /**
+     * Fetch a single object directly (named-parameter API).
+     *
+     * @param string $register Register slug.
+     * @param string $schema   Schema slug.
+     * @param string $uuid     Object UUID.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function getObject(string $register, string $schema, string $uuid): ?array
+    {
+        return null;
+
+    }//end getObject()
 
 
 }//end class
