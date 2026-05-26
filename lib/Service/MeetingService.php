@@ -31,10 +31,11 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Service for managing meeting CRUD operations and lifecycle state transitions.
+ * Service for managing meeting lifecycle state transitions.
  *
- * Implements the state machine defined in design.md:
- *   draft → scheduled → opened ↔ paused → adjourned → (re-)opened → closed
+ * CRUD operations (create/read/update/delete) are handled directly by the
+ * frontend via OpenRegister's object API. This service is responsible only
+ * for the guarded lifecycle state machine.
  *
  * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.3
  */
@@ -77,139 +78,6 @@ class MeetingService
         private readonly MeetingTransitionGuard $transitionGuard,
     ) {
     }//end __construct()
-
-    /**
-     * Create a new meeting object in OpenRegister.
-     *
-     * @param array<string, mixed> $meetingData Meeting data including title, meetingType, scheduledDate, etc.
-     *
-     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.3
-     *
-     * @return array<string, mixed> The created meeting object
-     */
-    public function create(array $meetingData): array
-    {
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-            $object = $objectService->createFromArray(
-                register: 'decidesk',
-                schema: 'meeting',
-                object: $meetingData,
-            );
-
-            $this->logger->info(
-                'Decidesk: meeting created',
-                ['id' => $object->getId()]
-            );
-
-            return $object->jsonSerialize();
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: meeting creation failed',
-                ['exception' => $e->getMessage()]
-            );
-            throw $e;
-        }//end try
-    }//end create()
-
-    /**
-     * Read a meeting object from OpenRegister by ID.
-     *
-     * @param string $meetingId UUID of the meeting to read
-     *
-     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.3
-     *
-     * @return array<string, mixed>|null The meeting object or null if not found
-     */
-    public function read(string $meetingId): ?array
-    {
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-            $entity = $objectService->find(id: $meetingId);
-
-            if ($entity === null) {
-                return null;
-            }
-
-            return $entity->jsonSerialize();
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: meeting read failed',
-                ['id' => $meetingId, 'exception' => $e->getMessage()]
-            );
-            return null;
-        }
-    }//end read()
-
-    /**
-     * Update an existing meeting object in OpenRegister.
-     *
-     * @param string               $meetingId   UUID of the meeting to update
-     * @param array<string, mixed> $meetingData Updated meeting data
-     *
-     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.3
-     *
-     * @return array<string, mixed>|null The updated meeting object or null on failure
-     */
-    public function update(string $meetingId, array $meetingData): ?array
-    {
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-            $updated = $objectService->updateFromArray(
-                id: $meetingId,
-                object: $meetingData,
-                updateVersion: true,
-                patch: true,
-            );
-
-            $this->logger->info(
-                'Decidesk: meeting updated',
-                ['id' => $meetingId]
-            );
-
-            return $updated->jsonSerialize();
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: meeting update failed',
-                ['id' => $meetingId, 'exception' => $e->getMessage()]
-            );
-            return null;
-        }//end try
-    }//end update()
-
-    /**
-     * Delete a meeting object from OpenRegister.
-     *
-     * @param string $meetingId UUID of the meeting to delete
-     *
-     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.3
-     *
-     * @return bool True on success, false on failure
-     */
-    public function delete(string $meetingId): bool
-    {
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-            $objectService->deleteFromId(id: $meetingId);
-
-            $this->logger->info(
-                'Decidesk: meeting deleted',
-                ['id' => $meetingId]
-            );
-
-            return true;
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: meeting deletion failed',
-                ['id' => $meetingId, 'exception' => $e->getMessage()]
-            );
-            return false;
-        }
-    }//end delete()
 
     /**
      * Returns the list of valid action names for a given lifecycle state.
@@ -334,16 +202,16 @@ class MeetingService
                 }
             }
 
-            // Object-level write ACL: OpenRegister's ObjectService::updateFromArray()
-            // checks that the current Nextcloud session user has write access to this
-            // specific object before applying the patch. If the caller lacks write
-            // access an exception is thrown and caught by the \Throwable handler below,
-            // returning a generic error response without leaking object details.
-            $updated = $objectService->updateFromArray(
-                id: $meetingId,
-                object: ['lifecycle' => $transition['to']],
-                updateVersion: true,
-                patch: true,
+            // Object-level write ACL: ObjectService::saveObject() checks that the
+            // current Nextcloud session user has write access to this specific object
+            // before applying the patch. If the caller lacks write access an exception
+            // is thrown and caught by the \Throwable handler below, returning a generic
+            // error response without leaking object details.
+            $updated = $objectService->saveObject(
+                object: array_merge($meetingData, ['lifecycle' => $transition['to']]),
+                register: 'decidesk',
+                schema: 'meeting',
+                uuid: $meetingId,
             );
 
             $this->logger->info(
