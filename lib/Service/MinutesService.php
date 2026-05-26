@@ -101,7 +101,7 @@ class MinutesService
 
                 if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
                     $bodyRels = $meeting['relations']['GovernanceBody'];
-                    $bodyId      = $bodyRels;
+                    $bodyId   = $bodyRels;
                     if (is_array($bodyRels) === true) {
                         $bodyId = $bodyRels[0];
                     }
