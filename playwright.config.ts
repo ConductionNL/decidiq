@@ -18,14 +18,18 @@
  *                      `docs/static/screenshots/tutorials/{user,admin}/`.
  *
  * Point at a running Nextcloud with NEXTCLOUD_URL (default
- * http://localhost:8080). Authentication / storage-state wiring is
- * left for the team to add when the first real e2e spec lands.
+ * http://localhost:8080). `globalSetup` logs in once (admin/admin by
+ * default; override with NC_ADMIN_USER / NC_ADMIN_PASS) and persists
+ * the session to `tests/e2e/.auth/admin.json`; every spec reuses it via
+ * `use.storageState`.
  */
 
 import { defineConfig, devices } from '@playwright/test'
+import * as path from 'path'
 
 export default defineConfig({
 	testDir: './tests/e2e',
+	globalSetup: path.resolve(__dirname, 'tests/e2e/global-setup.ts'),
 	timeout: 30_000,
 	expect: { timeout: 10_000 },
 	fullyParallel: false,
@@ -39,6 +43,7 @@ export default defineConfig({
 
 	use: {
 		baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
+		storageState: path.resolve(__dirname, 'tests/e2e/.auth/admin.json'),
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 	},

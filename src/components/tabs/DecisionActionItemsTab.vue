@@ -10,7 +10,7 @@
  lets the user add / edit / delete inline.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--action-items">
+	<div class="decidesk-tab decidesk-tab--action-items" data-testid="decision-action-items-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Action items') }}
@@ -18,6 +18,7 @@
 			</h3>
 			<NcButton
 				type="primary"
+				data-testid="decision-action-items-add"
 				:aria-label="t('decidesk', 'Add action item')"
 				@click="openCreate">
 				<template #icon>
@@ -97,6 +98,7 @@ export default {
 		}
 	},
 	computed: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		columns() {
 			return [
 				{ key: 'title', label: this.t('decidesk', 'Title') },
@@ -105,6 +107,7 @@ export default {
 				{ key: 'taskStatus', label: this.t('decidesk', 'Status') },
 			]
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
 		statusColors() {
 			return {
 				open: 'primary',
@@ -113,12 +116,14 @@ export default {
 				overdue: 'error',
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
 		rowActions() {
 			return [
 				{ label: this.t('decidesk', 'Edit'), icon: Pencil, handler: (row) => this.openEdit(row) },
 				{ label: this.t('decidesk', 'Delete'), icon: TrashCanOutline, destructive: true, handler: (row) => { this.deleteTarget = { ...row } } },
 			]
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		excludedFields() {
 			return ['id', 'uuid', 'decision', 'created', 'updated']
 		},
@@ -126,10 +131,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
+			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 			handler() { this.refresh() },
 		},
 	},
 	methods: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -148,18 +155,21 @@ export default {
 				this.loading = false
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async openCreate() {
 			const store = ensureRelationType('action-item')
 			if (!this.actionItemSchema) this.actionItemSchema = await store.fetchSchema('action-item')
 			this.editTarget = null
 			this.formOpen = true
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async openEdit(row) {
 			const store = ensureRelationType('action-item')
 			if (!this.actionItemSchema) this.actionItemSchema = await store.fetchSchema('action-item')
 			this.editTarget = { ...row }
 			this.formOpen = true
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async onConfirm(formData) {
 			const store = ensureRelationType('action-item')
 			try {
@@ -170,6 +180,7 @@ export default {
 				this.$refs.formDialog?.setResult({ error: e?.message || this.t('decidesk', 'Save failed.') })
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async confirmDelete() {
 			const store = ensureRelationType('action-item')
 			try {

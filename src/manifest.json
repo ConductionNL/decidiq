@@ -1,6 +1,6 @@
 {
-	"$schema": "https://raw.githubusercontent.com/ConductionNL/nextcloud-vue/main/src/schemas/app-manifest.schema.json",
-	"version": "1.0.0",
+	"$schema": "https://raw.githubusercontent.com/ConductionNL/nextcloud-vue/main/src/schemas/app-manifest-v2.schema.json",
+	"version": "2.0.0",
 	"dependencies": ["openregister"],
 	"menu": [
 		{ "id": "Dashboard", "label": "Dashboard", "icon": "icon-category-dashboard", "route": "Dashboard", "order": 10 },
@@ -14,9 +14,9 @@
 		{ "id": "Comments", "label": "Comments", "icon": "icon-comment", "route": "Comments", "order": 75 },
 		{ "id": "EmailLinks", "label": "Email links", "icon": "icon-mail", "route": "EmailLinks", "order": 80 },
 		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
-		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "settings", "order": 90 },
+		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "footer", "order": 90 },
 		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 },
-		{ "id": "FeaturesRoadmapMenu", "label": "Features & roadmap", "icon": "icon-toggle", "route": "FeaturesRoadmap", "section": "settings", "order": 100 }
+		{ "id": "FeaturesRoadmapMenu", "label": "Features & roadmap", "icon": "icon-toggle", "route": "FeaturesRoadmap", "section": "footer", "order": 100 }
 	],
 	"pages": [
 		{
@@ -117,7 +117,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "meeting",
-				"columns": ["title", "meetingType", "scheduledDate", "meetingMode", "lifecycle"],
+				"columns": ["title", "meetingType", "scheduledDate", { "key": "meetingMode", "label": "Mode", "widget": "badge" }, "lifecycle"],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
@@ -140,16 +140,27 @@
 		{
 			"id": "MeetingIntegrations",
 			"route": "/meetings/:id/integrations",
-			"type": "custom",
+			"type": "detail",
 			"title": "Meeting integrations",
-			"component": "MeetingIntegrations"
+			"config": {
+				"register": "decidesk",
+				"schema": "meeting",
+				"description": "External integrations linked to this meeting — open the sidebar to browse linked articles, files, notes, tags, tasks and the audit trail.",
+				"sidebar": {
+					"enabled": true,
+					"register": "decidesk",
+					"schema": "meeting",
+					"useRegistry": true
+				}
+			}
 		},
 		{
 			"id": "LiveMeeting",
 			"route": "/meetings/:id/live",
 			"type": "custom",
 			"title": "Live meeting",
-			"component": "LiveMeetingView"
+			"component": "LiveMeetingView",
+			"_note": "Realtime meeting shell — WebSocket subscriptions, frame-by-frame UI, per-vote-card animations. No typed primitive analogue; documented as the canonical example for a future type:realtime lib extension. See src/views/LiveMeeting.vue."
 		},
 		{
 			"id": "Participants",
@@ -319,7 +330,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "action-item",
-				"columns": ["title", "assignee", "dueDate", "taskStatus"],
+				"columns": ["title", "assignee", "dueDate", { "key": "taskStatus", "label": "Status", "widget": "badge" }],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
@@ -345,7 +356,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "task",
-				"columns": ["title", "assignee", "delegator", "dueDate", "taskStatus"],
+				"columns": ["title", "assignee", "delegator", "dueDate", { "key": "taskStatus", "label": "Status", "widget": "badge" }],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
@@ -371,7 +382,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "collaboration-workspace",
-				"columns": ["name", "type", "accessLevel", "createdAt"],
+				"columns": ["name", "type", { "key": "accessLevel", "label": "Access", "widget": "badge" }, "createdAt"],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
@@ -512,6 +523,6 @@
 				]
 			}
 		},
-		{ "id": "FeaturesRoadmap", "route": "/features-roadmap", "type": "custom", "title": "Features & roadmap", "component": "FeaturesRoadmap" }
+		{ "id": "FeaturesRoadmap", "route": "/features-roadmap", "type": "roadmap", "title": "Features & roadmap", "config": { "documentationUrl": "https://decidesk.conduction.nl" } }
 	]
 }

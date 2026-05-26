@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use Exception;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -63,9 +64,11 @@ class LiveDecisionService
      * @return string The slug of the created Decision
      *
      * @throws MissingObjectException If the Meeting is not found
-     * @throws \Exception If the Meeting lifecycle is not 'opened'
+     * @throws Exception If the Meeting lifecycle is not 'opened'
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $actorId reserved for future audit-log enrichment.
      */
     public function recordDecision(string $meetingId, array $decisionData, string $actorId): string
     {
@@ -86,11 +89,11 @@ class LiveDecisionService
             // Verify lifecycle is 'opened'.
             $lifecycle = $meeting['lifecycle'] ?? null;
             if ($lifecycle !== 'opened') {
-                throw new \Exception("Meeting is not in 'opened' state (current: $lifecycle)", 409);
+                throw new Exception("Meeting is not in 'opened' state (current: $lifecycle)", 409);
             }
 
-            // Ensure draft Minutes exist.
-            $minutesSlug = $this->ensureDraftMinutes(meetingId: $meetingId);
+            // Ensure draft Minutes exist (side-effect: creates draft if missing).
+            $this->ensureDraftMinutes(meetingId: $meetingId);
 
             // Create Decision.
             $decisionToSave = [
@@ -121,7 +124,7 @@ class LiveDecisionService
             $this->logger->info("Decision recorded in live mode for meeting $meetingId: $decisionSlug");
 
             return $decisionSlug;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error("LiveDecisionService::recordDecision failed: ".$e->getMessage());
             throw $e;
         }//end try
@@ -137,6 +140,8 @@ class LiveDecisionService
      * @param string $meetingId The Meeting ID
      *
      * @return string The slug of the Minutes object (existing or new)
+     *
+     * @psalm-suppress UnusedReturnValue Return preserved for future-callers; current callsites only use the side effect of creating the Minutes record.
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
      */
@@ -199,7 +204,7 @@ class LiveDecisionService
             $this->logger->info("Draft Minutes created for meeting $meetingId: $minutesSlug");
 
             return $minutesSlug;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error("LiveDecisionService::ensureDraftMinutes failed: ".$e->getMessage());
             throw $e;
         }//end try

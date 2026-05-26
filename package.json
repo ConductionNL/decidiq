@@ -13,13 +13,15 @@
 		"lint": "eslint src",
 		"lint-fix": "npm run lint -- --fix",
 		"stylelint": "stylelint src/**/*.vue src/**/*.scss src/**/*.css",
-		"stylelint-fix": "stylelint src/**/*.vue src/**/*.scss src/**/*.css --fix"
+		"stylelint-fix": "stylelint src/**/*.vue src/**/*.scss src/**/*.css --fix",
+		"test:e2e": "playwright test",
+		"test:e2e:docs": "playwright test --project docs-capture"
 	},
 	"browserslist": [
 		"extends @nextcloud/browserslist-config"
 	],
 	"dependencies": {
-		"@conduction/nextcloud-vue": "^1.0.0-beta.40",
+		"@conduction/nextcloud-vue": "^1.0.0-beta.101",
 		"@nextcloud/auth": "^2.5.0",
 		"@nextcloud/axios": "~2.5.2",
 		"@nextcloud/dialogs": "^3.2.0",
@@ -51,6 +53,7 @@
 		"@nextcloud/eslint-plugin": "^2.2.1",
 		"@nextcloud/stylelint-config": "^2.4.0",
 		"@nextcloud/webpack-vue-config": "^6.0.1",
+		"@playwright/test": "^1.59.1",
 		"@typescript-eslint/eslint-plugin": "^7.18.0",
 		"@typescript-eslint/parser": "^7.18.0",
 		"@vue/eslint-config-typescript": "^13.0.0",

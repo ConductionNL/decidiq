@@ -9,17 +9,22 @@
  @spec openspec/changes/p2-agenda-management/tasks.md#task-4.5
 -->
 <template>
-	<div class="live-meeting" role="main" :aria-label="t('decidesk', 'Live meeting view')">
+	<div
+		class="live-meeting"
+		role="main"
+		data-testid="meeting-live"
+		:aria-label="t('decidesk', 'Live meeting view')">
 		<NcLoadingIcon v-if="loading" :size="64" />
 
 		<template v-else>
 			<!-- Meeting header -->
-			<div class="live-meeting__header">
+			<div class="live-meeting__header" data-testid="meeting-live-header">
 				<h2 class="live-meeting__title">
 					{{ meeting.title || t('decidesk', 'Live meeting') }}
 				</h2>
 				<CnStatusBadge :status="meeting.lifecycle || 'opened'" />
 				<NcButton
+					data-testid="meeting-live-back"
 					:aria-label="t('decidesk', 'Back to meeting detail')"
 					@click="$router.push({ name: 'MeetingDetail', params: { id } })">
 					← {{ t('decidesk', 'Back') }}
@@ -50,6 +55,7 @@
 				<NcButton
 					v-if="isChair"
 					type="primary"
+					data-testid="meeting-live-adopt-consent"
 					:loading="processingHamerstukken"
 					:aria-label="t('decidesk', 'Adopt all consent agenda items')"
 					@click="confirmHamerstukken = true">
@@ -194,6 +200,7 @@ export default {
 		id: { type: String, required: true },
 	},
 
+	/** @spec exclude setup() only wires the shared object store ref; no domain logic */
 	setup() {
 		const objectStore = useObjectStore()
 		return { objectStore }
@@ -201,9 +208,6 @@ export default {
 
 	data() {
 		return {
-			meeting: {},
-			allItems: [],
-			participants: [],
 			loading: true,
 			activeItemId: null,
 			advancingBob: false,
@@ -218,6 +222,29 @@ export default {
 	},
 
 	computed: {
+		// Read directly from the shared store cache so the
+		// liveUpdatesPlugin's auto-refetch on `or-object-{uuid}` /
+		// `or-collection-...` events propagates to the rendered UI
+		// without per-component watcher boilerplate. Pre-migration
+		// LiveMeeting copied data into local state in fetchData(),
+		// which made the page non-reactive to live updates: the plugin
+		// updated the store cache but the local copy never re-read.
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		meeting() {
+			return this.objectStore.objects?.meeting?.[this.id] ?? {}
+		},
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		allItems() {
+			const collection = this.objectStore.collections?.['agenda-item'] ?? []
+			return collection.filter(i => i?.['@self']?.relations?.meeting === this.id || i?.relations?.meeting === this.id)
+		},
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		participants() {
+			const collection = this.objectStore.collections?.participant ?? []
+			return collection.filter(p => p?.['@self']?.relations?.meeting === this.id || p?.relations?.meeting === this.id)
+		},
+
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		isChair() {
 			const currentUser = getCurrentUser()
 			if (!currentUser) return false
@@ -226,40 +253,48 @@ export default {
 			)
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		bobStages() {
 			return BOB_STAGES.map(s => ({ ...s, label: this.t('decidesk', s.label) }))
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
 		hamerstukken() {
 			return this.allItems.filter(i => (i.tags ?? []).includes('hamerstuk'))
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		regularItems() {
 			return this.allItems
 				.filter(i => !(i.tags ?? []).includes('hamerstuk'))
 				.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2 */
 		activeItem() {
 			return this.allItems.find(i => i.id === this.activeItemId) ?? null
 		},
 	},
 
 	methods: {
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		currentBobStageIndex(item) {
 			const status = item?.status ?? 'beeldvorming'
 			const idx = BOB_STAGES.findIndex(s => s.id === status)
 			return idx === -1 ? 0 : idx
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		canAdvanceBob(item) {
 			return item?.status !== BOB_FINAL && item?.itemType !== 'informational'
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2 */
 		activateItem(item) {
 			this.activeItemId = item.id
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
 		async advanceBobPhase(item) {
 			this.advancingBob = true
 			try {
@@ -282,6 +317,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
 		async processHamerstukken() {
 			this.processingHamerstukken = true
 			this.confirmHamerstukken = false
@@ -305,6 +341,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
 		async removeFromHamerstukken(item) {
 			const tags = (item.tags ?? []).filter(t => t !== 'hamerstuk')
 			try {
@@ -315,18 +352,24 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		async fetchData() {
+			// Trigger initial fetches to populate the shared store cache.
+			// We deliberately don't assign results to local state — the
+			// `meeting`, `allItems`, and `participants` computed getters
+			// read straight from the store, so when the liveUpdatesPlugin
+			// re-fetches on `or-object-*` / `or-collection-*` events the
+			// rendered UI updates automatically via Vue reactivity.
 			try {
-				const meeting = await this.objectStore.fetchObject('meeting', this.id)
-				this.meeting = meeting ?? {}
-				const items = await this.objectStore.fetchCollection('agenda-item', {
-					'@self.relations.meeting': this.id,
-				})
-				this.allItems = items ?? []
-				const parts = await this.objectStore.fetchCollection('participant', {
-					'@self.relations.meeting': this.id,
-				})
-				this.participants = parts ?? []
+				await Promise.all([
+					this.objectStore.fetchObject('meeting', this.id),
+					this.objectStore.fetchCollection('agenda-item', {
+						'@self.relations.meeting': this.id,
+					}),
+					this.objectStore.fetchCollection('participant', {
+						'@self.relations.meeting': this.id,
+					}),
+				])
 			} catch (e) {
 				console.error('Error fetching live meeting data:', e)
 			} finally {
@@ -334,18 +377,19 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		async refreshItems() {
 			try {
-				const items = await this.objectStore.fetchCollection('agenda-item', {
+				await this.objectStore.fetchCollection('agenda-item', {
 					'@self.relations.meeting': this.id,
 				})
-				this.allItems = items ?? []
 			} catch (e) {
 				console.error('Error refreshing items:', e)
 			}
 		},
 	},
 
+	/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 	async created() {
 		await this.fetchData()
 
@@ -371,6 +415,7 @@ export default {
 		this.liveSubs.push(await this.objectStore.subscribe('participant'))
 	},
 
+	/** @spec exclude lifecycle teardown; only unsubscribes the live-update handles created in created() */
 	beforeDestroy() {
 		// Tear down all live-update subscriptions; refcount drops to 0 ->
 		// the underlying notify_push listener for each event key is removed.

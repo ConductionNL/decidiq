@@ -28,8 +28,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Service for motion co-authoring: members, text updates, version history,
@@ -73,7 +77,7 @@ class MotionCoauthorService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When the motion cannot be found
+     * @throws RuntimeException When the motion cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
      */
@@ -85,7 +89,7 @@ class MotionCoauthorService
 
         $entity = $objectService->find($motionId);
         if ($entity === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         return $entity->getObject();
@@ -177,7 +181,7 @@ class MotionCoauthorService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When an overlapping edit conflict is detected
+     * @throws RuntimeException When an overlapping edit conflict is detected
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
      */
@@ -203,14 +207,14 @@ class MotionCoauthorService
                 'Decidesk: Motion edit conflict detected',
                 ['motionId' => $motionId, 'paragraph' => $conflict]
             );
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 "Overlapping edit conflict on paragraph: $conflict"
             );
         }
 
         $previousHistory[] = [
             'author'    => $author,
-            'timestamp' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'timestamp' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
             'text'      => $previousText,
             'summary'   => $changeSummary,
         ];
@@ -273,12 +277,12 @@ class MotionCoauthorService
         }
 
         try {
-            $latestTime = new \DateTimeImmutable((string) $latestTimestamp);
-        } catch (\Throwable $e) {
+            $latestTime = new DateTimeImmutable((string) $latestTimestamp);
+        } catch (Throwable $e) {
             return null;
         }
 
-        $diff = (new \DateTimeImmutable())->getTimestamp() - $latestTime->getTimestamp();
+        $diff = (new DateTimeImmutable())->getTimestamp() - $latestTime->getTimestamp();
         if ($diff > 300) {
             return null;
         }
@@ -327,7 +331,7 @@ class MotionCoauthorService
 
         $history[] = [
             'author'    => $author,
-            'timestamp' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'timestamp' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
             'text'      => (string) ($motion['text'] ?? ''),
             'summary'   => $changeSummary,
         ];

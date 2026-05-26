@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 <template>
-	<div class="decidesk-admin">
+	<div class="decidesk-admin" data-testid="admin-root">
 		<CnVersionInfoCard
 			:app-name="'Decidesk'"
 			:app-version="appVersion"
@@ -37,6 +37,7 @@ export default {
 			appVersion: document.getElementById('decidesk-settings')?.dataset?.version || 'Unknown',
 		}
 	},
+	/** @spec exclude lifecycle hook; only boots Pinia stores then flips the storesReady flag, framework setup */
 	async created() {
 		await initializeStores()
 		this.storesReady = true

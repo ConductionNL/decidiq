@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/spec/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -29,9 +29,9 @@ use PHPUnit\Framework\TestCase;
  * Tests for MeetingTransitionGuard.isOpenAllowed.
  *
  * Verifies that the guard reads the declarative quorumMet field
- * rather than calling QuorumService.
+ * from the Meeting schema (computed by x-openregister-calculations).
  *
- * @spec openspec/changes/spec/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
  */
 class MeetingTransitionGuardTest extends TestCase
 {
@@ -58,7 +58,7 @@ class MeetingTransitionGuardTest extends TestCase
     /**
      * Meeting with quorumMet = true allows the open transition.
      *
-     * @spec openspec/changes/spec/tasks.md#task-4
+     * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
      *
      * @return void
      */
@@ -78,7 +78,7 @@ class MeetingTransitionGuardTest extends TestCase
     /**
      * Meeting with quorumMet = false blocks the open transition.
      *
-     * @spec openspec/changes/spec/tasks.md#task-4
+     * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
      *
      * @return void
      */
@@ -101,7 +101,7 @@ class MeetingTransitionGuardTest extends TestCase
      * When no quorum rule is configured, the x-openregister-calculations
      * expression sets quorumMet = true. The guard honours that signal.
      *
-     * @spec openspec/changes/spec/tasks.md#task-4
+     * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
      *
      * @return void
      */
@@ -121,7 +121,7 @@ class MeetingTransitionGuardTest extends TestCase
     /**
      * Meeting without quorumMet key defaults to false (safe default).
      *
-     * @spec openspec/changes/spec/tasks.md#task-4
+     * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-4
      *
      * @return void
      */

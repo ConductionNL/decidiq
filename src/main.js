@@ -3,7 +3,7 @@
 
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import { PiniaVuePlugin } from 'pinia'
+import { PiniaVuePlugin, setActivePinia } from 'pinia'
 import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import {
@@ -13,7 +13,7 @@ import {
 	registerTranslations,
 	installIntegrationRegistry,
 	registerBuiltinIntegrations,
-	registerXwikiIntegration,
+	registerLeafIntegrations,
 } from '@conduction/nextcloud-vue'
 import pinia from './pinia.js'
 import App from './App.vue'
@@ -37,12 +37,17 @@ Vue.use(VueRouter)
 // Pluggable integration registry (ADR-019). Install the global registry
 // (draining any pre-mount `window.OCA.OpenRegister.integrations` queue),
 // then register the built-in core integrations (files / notes / tags /
-// tasks / audit-trail) plus the xWiki "Articles" leaf. Detail pages whose
-// manifest `config.sidebar.useRegistry` is true render one sidebar tab per
-// registered integration via the host `<CnObjectSidebar>` in App.vue.
+// tasks / audit-trail) plus the xWiki "Articles" leaf plus the 17 leaf
+// integrations (calendar / contacts / email / talk / bookmarks /
+// collectives / maps / photos / activity / analytics / cospend / deck /
+// flow / forms / polls / time-tracker / shares / openproject). Detail
+// pages whose manifest `config.sidebar.useRegistry` is true render one
+// sidebar tab per registered integration via the host `<CnObjectSidebar>`
+// in App.vue; each integration's tab shows up only when the underlying
+// NC app is installed (the registry filters on isEnabled per AD-5).
 installIntegrationRegistry()
 registerBuiltinIntegrations()
-registerXwikiIntegration()
+registerLeafIntegrations()
 
 // Register library-side icon set + lib translations once at bootstrap.
 registerIcons()
@@ -134,7 +139,27 @@ const customComponentsProp = { ...customComponents }
 //
 // initializeStores() is documented as idempotent so App.vue's call
 // stays in place as a safety net for future entry points.
+// Activate the Pinia instance BEFORE initializeStores() runs.
+// initializeStores() calls `useObjectStore()` / `useSettingsStore()`
+// outside a Vue setup() context — Pinia's `useStore()` reads the
+// active pinia from a module-global, and `new Vue({ pinia })` is what
+// normally sets it via PiniaVuePlugin. But that happens AFTER this
+// async IIFE awaits, so any `useStore()` call here would hit
+// `getActivePinia()._s` against undefined and throw
+// "Cannot read properties of undefined (reading '_s')". Setting it
+// explicitly upfront is the idiomatic fix for boot-time store access
+// in Vue 2 + Pinia.
+setActivePinia(pinia)
+
 ;(async () => {
+	// Activate Pinia globally before any useStore() call. Without this,
+	// initializeStores() (which calls useObjectStore() outside any Vue
+	// component) throws "Cannot read properties of undefined (reading
+	// '_s')" because Pinia falls back to the active instance and there
+	// isn't one yet — Vue.use(PiniaVuePlugin) only auto-activates pinia
+	// when Vue itself uses it via `new Vue({ pinia })`.
+	setActivePinia(pinia)
+
 	try {
 		await initializeStores()
 	} catch (e) {

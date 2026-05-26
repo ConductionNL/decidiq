@@ -98,6 +98,7 @@ export default {
 			successMessage: '',
 		}
 	},
+	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
 	created() {
 		const settingsStore = useSettingsStore()
 		this.form.register = settingsStore.settings?.register || ''
@@ -105,6 +106,7 @@ export default {
 		this.form.email_voting_enabled = settingsStore.settings?.email_voting_enabled === '1' || settingsStore.settings?.email_voting_enabled === true
 	},
 	methods: {
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
 		async save() {
 			this.saving = true
 			this.successMessage = ''
@@ -115,12 +117,14 @@ export default {
 			}
 			this.saving = false
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 */
 		async saveOri() {
 			this.savingOri = true
 			const settingsStore = useSettingsStore()
 			await settingsStore.saveSettings({ ori_endpoint: this.form.ori_endpoint })
 			this.savingOri = false
 		},
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 */
 		async saveEmailVoting() {
 			const settingsStore = useSettingsStore()
 			await settingsStore.saveSettings({

@@ -14,7 +14,7 @@
  @spec openspec/changes/decidesk-manifest-v1/design.md (open question 3)
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--parent-motion">
+	<div class="decidesk-tab decidesk-tab--parent-motion" data-testid="amendment-parent-tab">
 		<h3 class="decidesk-tab__title">
 			{{ t('decidesk', 'Parent motion') }}
 		</h3>
@@ -44,6 +44,7 @@
 			<div class="decidesk-tab__cta">
 				<NcButton
 					type="primary"
+					data-testid="amendment-parent-open"
 					:aria-label="t('decidesk', 'Open parent motion')"
 					@click="openParent">
 					{{ t('decidesk', 'View motion') }}
@@ -80,12 +81,14 @@ export default {
 		}
 	},
 	computed: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 		parentMotionId() {
 			const ref = this.amendment?.parentMotion
 			if (!ref) return ''
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 		propertyItems() {
 			if (!this.motion) return []
 			return [
@@ -100,10 +103,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
+			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 			handler() { this.refresh() },
 		},
 	},
 	methods: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -122,6 +127,7 @@ export default {
 				this.loading = false
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 		openParent() {
 			if (!this.parentMotionId) return
 			this.$router.push({ name: 'MotionDetail', params: { id: this.parentMotionId } })

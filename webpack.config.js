@@ -25,8 +25,11 @@ webpackConfig.entry = {
 	},
 }
 
-// Use local source when available (monorepo dev), otherwise fall back to npm package
-const localLib = path.resolve(__dirname, '../nextcloud-vue/src')
+// Use local source when available (monorepo dev), otherwise fall back to npm package.
+// CN_NEXTCLOUD_VUE_SRC env override lets a sibling worktree pin a specific
+// nextcloud-vue source path (used when iterating on an unmerged nc-vue branch).
+const localLib = process.env.CN_NEXTCLOUD_VUE_SRC
+	|| path.resolve(__dirname, '../nextcloud-vue/src')
 const useLocalLib = fs.existsSync(localLib)
 
 webpackConfig.resolve = {

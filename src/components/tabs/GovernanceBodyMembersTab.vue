@@ -11,7 +11,7 @@
  tab — the standalone /participants index owns that workflow.
 -->
 <template>
-	<div class="decidesk-tab decidesk-tab--members">
+	<div class="decidesk-tab decidesk-tab--members" data-testid="body-members-tab">
 		<div class="decidesk-tab__header">
 			<h3 class="decidesk-tab__title">
 				{{ t('decidesk', 'Members') }}
@@ -19,6 +19,7 @@
 			</h3>
 			<NcButton
 				type="primary"
+				data-testid="body-members-add"
 				:aria-label="t('decidesk', 'Add member')"
 				@click="addDialogOpen = true">
 				<template #icon>
@@ -110,6 +111,7 @@ export default {
 		}
 	},
 	computed: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		columns() {
 			return [
 				{ key: 'displayName', label: this.t('decidesk', 'Name') },
@@ -117,6 +119,7 @@ export default {
 				{ key: 'party', label: this.t('decidesk', 'Party') },
 			]
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
 		rowActions() {
 			return [
 				{
@@ -131,13 +134,16 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
+			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
 			handler() { this.refresh() },
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
 		addDialogOpen(open) {
 			if (open) this.loadCandidates()
 		},
 	},
 	methods: {
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -155,9 +161,11 @@ export default {
 				this.loading = false
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
 		candidateLabel(p) {
 			return p.displayName || p.name || p.id
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
 		async loadCandidates() {
 			this.loadingCandidates = true
 			try {
@@ -173,12 +181,14 @@ export default {
 				this.loadingCandidates = false
 			}
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
 		async linkParticipant(participant) {
 			const store = ensureRelationType('participant')
 			await store.saveObject('participant', { ...participant, governanceBody: this.objectId })
 			this.addDialogOpen = false
 			this.refresh()
 		},
+		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
 		async confirmRemove() {
 			const store = ensureRelationType('participant')
 			const target = this.removeTarget

@@ -1,0 +1,8 @@
+{
+  "spec_slug": "mcp-tools",
+  "title": "mcp-tools Specification",
+  "app": "decidesk",
+  "repo": "https://github.com/ConductionNL/decidesk",
+  "depends_on": [],
+  "issue": "https://github.com/ConductionNL/decidesk/issues/239"
+}

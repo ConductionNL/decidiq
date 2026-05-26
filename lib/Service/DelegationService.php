@@ -25,8 +25,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Service for creating, revoking, and expiring task delegations.
@@ -69,14 +73,14 @@ class DelegationService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When persisting fails
+     * @throws RuntimeException When persisting fails
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.2
      */
     public function createDelegation(array $delegation): array
     {
         if (isset($delegation['delegatedAt']) === false) {
-            $delegation['delegatedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $delegation['delegatedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
         }
 
         if (isset($delegation['status']) === false) {
@@ -138,7 +142,7 @@ class DelegationService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When the delegation cannot be found
+     * @throws RuntimeException When the delegation cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.2
      */
@@ -146,7 +150,7 @@ class DelegationService
     {
         $delegation = $this->findDelegation(delegationId: $delegationId);
         if ($delegation === null) {
-            throw new \RuntimeException("Delegation $delegationId not found");
+            throw new RuntimeException("Delegation $delegationId not found");
         }
 
         $delegation['status'] = 'revoked';
@@ -190,12 +194,12 @@ class DelegationService
         }
 
         try {
-            $expiry = new \DateTimeImmutable((string) $expiresAt);
-        } catch (\Throwable $e) {
+            $expiry = new DateTimeImmutable((string) $expiresAt);
+        } catch (Throwable $e) {
             return false;
         }
 
-        return $expiry > new \DateTimeImmutable();
+        return $expiry > new DateTimeImmutable();
 
     }//end isSubstituteActive()
 
@@ -208,7 +212,7 @@ class DelegationService
      *
      * @return array<string, mixed>
      *
-     * @throws \RuntimeException When the delegation cannot be found
+     * @throws RuntimeException When the delegation cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.2
      */
@@ -216,7 +220,7 @@ class DelegationService
     {
         $delegation = $this->findDelegation(delegationId: $delegationId);
         if ($delegation === null) {
-            throw new \RuntimeException("Delegation $delegationId not found");
+            throw new RuntimeException("Delegation $delegationId not found");
         }
 
         $delegation['status'] = 'expired';

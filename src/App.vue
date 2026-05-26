@@ -15,6 +15,7 @@
 		:custom-components="customComponents"
 		:page-types="pageTypes"
 		app-id="decidesk"
+		data-testid="app-root"
 		:translate="translateForApp"
 		:permissions="permissions">
 		<template #sidebar>
@@ -51,6 +52,7 @@ export default {
 		CnObjectSidebar,
 	},
 
+	/** @spec exclude Vue provide() wiring only; exposes the objectSidebarState channel, no domain logic */
 	provide() {
 		return {
 			// Channel for CnDetailPage → host-rendered CnObjectSidebar.
@@ -115,11 +117,13 @@ export default {
 	},
 
 	computed: {
+		/** @spec exclude trivial framework-state passthrough of window.OC currentUser permissions */
 		permissions() {
 			return window.OC?.currentUser?.permissions ?? []
 		},
 	},
 
+	/** @spec exclude lifecycle hook; only boots Pinia stores via initializeStores(), framework setup */
 	async created() {
 		// Pinia stores still need to come up so legacy custom components
 		// (LiveMeeting, settings store, etc.) keep working through the
@@ -133,6 +137,7 @@ export default {
 		 * CnPageRenderer. Closes over the Nextcloud `translate` import so
 		 * the lib never has to know our app id.
 		 *
+		 * @spec exclude pure i18n passthrough wrapping @nextcloud/l10n translate for the decidesk app id
 		 * @param {string} key Translation key.
 		 * @return {string} Translated string (or the key on miss).
 		 */
