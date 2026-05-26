@@ -22,7 +22,7 @@ return [
 
         // Live meeting endpoints — live decision recording during active meetings.
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
-        ['name' => 'live_meeting#recordLiveDecision', 'url' => '/api/meetings/{meetingId}/live-decisions', 'verb' => 'POST'],
+        ['name' => 'liveMeeting#recordLiveDecision', 'url' => '/api/meetings/{meetingId}/live-decisions', 'verb' => 'POST'],
 
         // Minutes endpoints — specific routes must precede the wildcard catch-all.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
