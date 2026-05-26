@@ -141,7 +141,8 @@ class LiveDecisionService
      *
      * @return string The slug of the Minutes object (existing or new)
      *
-     * @psalm-suppress UnusedReturnValue Return preserved for future-callers; current callsites only use the side effect of creating the Minutes record.
+     * @psalm-suppress UnusedReturnValue Return preserved for future-callers; current callsites only use
+     *                 the side effect of creating the Minutes record.
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
      */

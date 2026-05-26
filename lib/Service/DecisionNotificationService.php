@@ -90,7 +90,7 @@ class DecisionNotificationService
             $bodyId = null;
             if (empty($decision['relations']['GovernanceBody']) === false) {
                 $bodyRels = $decision['relations']['GovernanceBody'];
-                $bodyId      = $bodyRels;
+                $bodyId   = $bodyRels;
                 if (is_array($bodyRels) === true) {
                     $bodyId = $bodyRels[0];
                 }
