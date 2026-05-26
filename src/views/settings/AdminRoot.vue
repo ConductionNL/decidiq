@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import { loadState } from '@nextcloud/initial-state'
 import { CnVersionInfoCard } from '@conduction/nextcloud-vue'
 import Settings from './Settings.vue'
 import { initializeStores } from '../../store/store.js'
@@ -34,7 +35,7 @@ export default {
 	data() {
 		return {
 			storesReady: false,
-			appVersion: document.getElementById('decidesk-settings')?.dataset?.version || 'Unknown',
+			appVersion: loadState('decidesk', 'version', 'Unknown'),
 		}
 	},
 	/** @spec exclude lifecycle hook; only boots Pinia stores then flips the storesReady flag, framework setup */
