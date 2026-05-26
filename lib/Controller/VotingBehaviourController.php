@@ -87,11 +87,12 @@ class VotingBehaviourController extends Controller
 
         $uid = $user->getUID();
 
-        // Check authorization: user may access own stats OR user must be chair/secretary/admin.
-        $isAdmin    = $this->groupManager->isAdmin($uid);
-        $isOwnStats = ($participantId === $uid);
+        // Authorization: user may access own stats or must hold admin rights.
+        // Allow if this is the user's own stats, otherwise require admin.
+        $isOwnStats  = ($participantId === $uid);
+        $canViewOther = $isOwnStats || $this->groupManager->isAdmin($uid);
 
-        if ($isOwnStats === false && $isAdmin === false) {
+        if ($canViewOther === false) {
             return new JSONResponse(['message' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 

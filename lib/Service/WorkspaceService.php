@@ -268,20 +268,4 @@ class WorkspaceService
 
     }//end removeMember()
 
-    /**
-     * Determine if a person UUID is a member of the workspace.
-     *
-     * @param array<string, mixed> $workspace Workspace object
-     * @param string               $personId  Person UUID
-     *
-     * @return bool
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-4.5
-     */
-    public function isMember(array $workspace, string $personId): bool
-    {
-        $members = ($workspace['members'] ?? []);
-        return in_array($personId, $members, true);
-
-    }//end isMember()
 }//end class

@@ -29,7 +29,6 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -45,7 +44,6 @@ class SettingsController extends Controller
      *
      * @param IRequest        $request         The request object
      * @param SettingsService $settingsService The settings service
-     * @param IGroupManager   $groupManager    The group manager for admin checks
      * @param IUserSession    $userSession     The user session
      *
      * @return void
@@ -53,26 +51,10 @@ class SettingsController extends Controller
     public function __construct(
         IRequest $request,
         private SettingsService $settingsService,
-        private IGroupManager $groupManager,
         private IUserSession $userSession,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
-
-    /**
-     * Check whether the current user is an admin. Returns a 403 JSONResponse if not.
-     *
-     * @return JSONResponse|null Null if admin, 403 response if not.
-     */
-    private function requireAdmin(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null || $this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(['message' => 'Admin required'], Http::STATUS_FORBIDDEN);
-        }
-
-        return null;
-    }//end requireAdmin()
 
     /**
      * Retrieve all current settings.
@@ -99,20 +81,16 @@ class SettingsController extends Controller
     /**
      * Update settings with provided data.
      *
-     * @NoAdminRequired
+     * Requires admin privileges — enforced via the AuthorizedAdminSetting
+     * attribute (NC28+ settings panel).
      *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(Application::APP_ID)]
     public function create(): JSONResponse
     {
-        $denied = $this->requireAdmin();
-        if ($denied !== null) {
-            return $denied;
-        }
-
         $data   = $this->request->getParams();
         $config = $this->settingsService->updateSettings($data);
 
@@ -130,7 +108,8 @@ class SettingsController extends Controller
      * Forces a fresh import regardless of version, auto-configuring
      * all schema and register IDs from the import result.
      *
-     * @NoAdminRequired
+     * Requires admin privileges — enforced via the AuthorizedAdminSetting
+     * attribute (NC28+ settings panel).
      *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
@@ -141,11 +120,6 @@ class SettingsController extends Controller
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function load(): JSONResponse
     {
-        $denied = $this->requireAdmin();
-        if ($denied !== null) {
-            return $denied;
-        }
-
         $result = $this->settingsService->loadConfiguration(force: true);
 
         return new JSONResponse($result);

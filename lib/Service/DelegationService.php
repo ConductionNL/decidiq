@@ -30,7 +30,6 @@ use DateTimeInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use Throwable;
 
 /**
  * Service for creating, revoking, and expiring task delegations.
@@ -168,40 +167,6 @@ class DelegationService
         return $delegation;
 
     }//end revokeDelegation()
-
-    /**
-     * Check whether a substitute is currently active (within expiry window).
-     *
-     * @param array<string, mixed> $delegation Delegation object
-     *
-     * @return bool
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-2.2
-     */
-    public function isSubstituteActive(array $delegation): bool
-    {
-        if (($delegation['status'] ?? '') !== 'active') {
-            return false;
-        }
-
-        if (empty($delegation['substitute']) === true) {
-            return false;
-        }
-
-        $expiresAt = ($delegation['expiresAt'] ?? null);
-        if ($expiresAt === null) {
-            return true;
-        }
-
-        try {
-            $expiry = new DateTimeImmutable((string) $expiresAt);
-        } catch (Throwable $e) {
-            return false;
-        }
-
-        return $expiry > new DateTimeImmutable();
-
-    }//end isSubstituteActive()
 
     /**
      * Expire a delegation (set status='expired').
