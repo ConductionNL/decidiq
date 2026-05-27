@@ -3,8 +3,8 @@
 
 <!--
  Decidesk app shell. Mounts CnAppRoot with the bundled manifest and the
- customComponents registry; provides the `objectSidebarState` channel so
- detail pages (CnDetailPage) can drive a single host-rendered
+ v2 kind-tagged registry prop (ADR-036); provides the `objectSidebarState`
+ channel so detail pages (CnDetailPage) can drive a single host-rendered
  CnObjectSidebar through the #sidebar slot.
 
  @spec openspec/changes/decidesk-manifest-v1/tasks.md#task-7.2
@@ -12,7 +12,7 @@
 <template>
 	<CnAppRoot
 		:manifest="manifest"
-		:custom-components="customComponents"
+		:registry="registry"
 		:page-types="pageTypes"
 		app-id="decidesk"
 		data-testid="app-root"
@@ -31,7 +31,7 @@
 				:tabs="objectSidebarState.tabs"
 				:use-registry="objectSidebarState.useRegistry"
 				:exclude-integrations="objectSidebarState.excludeIntegrations"
-				:custom-components="customComponents"
+				:registry="registry"
 				:open="objectSidebarState.open"
 				@update:open="objectSidebarState.open = $event" />
 		</template>
@@ -72,13 +72,14 @@ export default {
 			required: true,
 		},
 		/**
-		 * Registry of consumer-injected components used by:
-		 *   - `type: "custom"` pages (`page.component`)
-		 *   - `headerComponent` / `actionsComponent` slot overrides
-		 *   - `pages[].config.sidebarTabs[].component` (detail tab tabs)
-		 *   - `pages[].config.sections[].component` (settings rich sections)
+		 * v2 kind-tagged component registry (ADR-036). Passed as the `registry`
+		 * prop to CnAppRoot and CnObjectSidebar. Each entry is shaped as
+		 * `{ kind: "page", component }` so CnPageRenderer can dispatch
+		 * `type: "custom"` pages and sidebar tabs by name.
+		 *
+		 * Replaces the deprecated `customComponents` prop.
 		 */
-		customComponents: {
+		registry: {
 			type: Object,
 			default: () => ({}),
 		},
