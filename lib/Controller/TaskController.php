@@ -32,6 +32,7 @@ use OCA\Decidesk\Service\TaskService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -45,9 +46,10 @@ class TaskController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest     $request     HTTP request
-     * @param TaskService  $taskService Task service
-     * @param IUserSession $userSession Current user session
+     * @param IRequest      $request      HTTP request
+     * @param TaskService   $taskService  Task service
+     * @param IUserSession  $userSession  Current user session
+     * @param IGroupManager $groupManager Group manager for admin checks
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.3
      */
@@ -55,6 +57,7 @@ class TaskController extends Controller
         IRequest $request,
         private readonly TaskService $taskService,
         private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -87,11 +90,22 @@ class TaskController extends Controller
             );
         }
 
+        // Admins bypass ownership check; regular users are checked inside the service
+        // against assignee/delegator (OWASP A01 — Broken Access Control).
+        $callerUid    = $user->getUID();
+        $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+
         try {
-            $task = $this->taskService->updateTaskStatus($id, $newStatus);
+            $task = $this->taskService->updateTaskStatus($id, $newStatus, $callerIsAdmin ? null : $callerUid);
             return new JSONResponse($task);
         } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
+            // Distinguish between "transition not allowed" (422) and "not owner" (403).
+            $msg = $e->getMessage();
+            if (str_contains($msg, 'assignee or delegator') === true) {
+                return new JSONResponse(['message' => $msg], Http::STATUS_FORBIDDEN);
+            }
+
+            return new JSONResponse(['message' => $msg], Http::STATUS_UNPROCESSABLE_ENTITY);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }//end try

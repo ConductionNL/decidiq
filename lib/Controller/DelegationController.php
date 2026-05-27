@@ -77,8 +77,10 @@ class DelegationController extends Controller
         }
 
         try {
-            $delegation = $this->delegationService->revokeDelegation($id);
+            $delegation = $this->delegationService->revokeDelegation($id, $user->getUID());
             return new JSONResponse($delegation);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
@@ -106,8 +108,10 @@ class DelegationController extends Controller
         }
 
         try {
-            $delegation = $this->delegationService->expireDelegation($id);
+            $delegation = $this->delegationService->expireDelegation($id, $user->getUID());
             return new JSONResponse($delegation);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }

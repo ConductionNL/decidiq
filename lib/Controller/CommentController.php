@@ -31,6 +31,7 @@ use OCA\Decidesk\Service\CommentService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -47,6 +48,7 @@ class CommentController extends Controller
      * @param IRequest       $request        HTTP request
      * @param CommentService $commentService Comment service
      * @param IUserSession   $userSession    Current user session
+     * @param IGroupManager  $groupManager   Group manager for admin checks
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-5.2
      */
@@ -54,6 +56,7 @@ class CommentController extends Controller
         IRequest $request,
         private readonly CommentService $commentService,
         private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -148,9 +151,16 @@ class CommentController extends Controller
             return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
         }
 
+        // Admins may resolve any thread; non-admins are checked against authorship
+        // in CommentService::resolveThread (OWASP A01 — Broken Access Control).
+        $callerUid    = $user->getUID();
+        $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+
         try {
-            $comment = $this->commentService->resolveThread($id);
+            $comment = $this->commentService->resolveThread($id, $callerIsAdmin ? null : $callerUid);
             return new JSONResponse($comment);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }

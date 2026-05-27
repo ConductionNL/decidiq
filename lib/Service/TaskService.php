@@ -140,23 +140,37 @@ class TaskService
     }//end findTask()
 
     /**
-     * Update the status of a Task with state-machine validation.
+     * Update the status of a Task with state-machine validation and ownership check.
      *
-     * @param string $taskId    UUID of the Task object
-     * @param string $newStatus Target taskStatus
+     * Only the task assignee, the delegator, or an NC admin (checked by the
+     * controller) may transition a task's status (OWASP A01:2021 / ADR-005).
+     * Pass `$callerUid = null` only from background-job or admin-only paths.
+     *
+     * @param string      $taskId    UUID of the Task object
+     * @param string      $newStatus Target taskStatus
+     * @param string|null $callerUid Nextcloud UID of the requester (null = skip check)
      *
      * @return array<string, mixed>
      *
-     * @throws InvalidArgumentException When the transition is not allowed
+     * @throws InvalidArgumentException When the transition is not allowed or caller lacks permission
      * @throws RuntimeException         When the task cannot be found
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.5
      */
-    public function updateTaskStatus(string $taskId, string $newStatus): array
+    public function updateTaskStatus(string $taskId, string $newStatus, ?string $callerUid = null): array
     {
         $task = $this->findTask(taskId: $taskId);
         if ($task === null) {
             throw new RuntimeException("Task $taskId not found");
+        }
+
+        // OWASP A01 — only the assignee or delegator may transition a task's status.
+        if ($callerUid !== null) {
+            $assignee  = (string) ($task['assignee'] ?? '');
+            $delegator = (string) ($task['delegator'] ?? '');
+            if ($callerUid !== $assignee && $callerUid !== $delegator) {
+                throw new InvalidArgumentException('Only the task assignee or delegator may update this task\'s status');
+            }
         }
 
         $current = $task['taskStatus'] ?? 'pending';
@@ -183,7 +197,7 @@ class TaskService
 
         $this->logger->info(
             'Decidesk: Task status updated',
-            ['taskId' => $taskId, 'from' => $current, 'to' => $newStatus]
+            ['taskId' => $taskId, 'from' => $current, 'to' => $newStatus, 'by' => $callerUid]
         );
 
         return $task;

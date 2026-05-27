@@ -137,19 +137,34 @@ class DelegationService
     /**
      * Revoke a delegation (set status='revoked').
      *
-     * @param string $delegationId UUID of the Delegation object
+     * Only the principal (the user who created the delegation, stored in
+     * `delegatedBy`) or a system admin (NC admin) may revoke it.
+     * Pass `$callerUid = null` only from background jobs or admin-only paths
+     * that have already enforced their own access check.
+     *
+     * @param string      $delegationId UUID of the Delegation object
+     * @param string|null $callerUid    Nextcloud UID of the caller (null = skip owner check)
      *
      * @return array<string, mixed>
      *
-     * @throws RuntimeException When the delegation cannot be found
+     * @throws RuntimeException         When the delegation cannot be found
+     * @throws \InvalidArgumentException When the caller is not the principal
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.2
      */
-    public function revokeDelegation(string $delegationId): array
+    public function revokeDelegation(string $delegationId, ?string $callerUid = null): array
     {
         $delegation = $this->findDelegation(delegationId: $delegationId);
         if ($delegation === null) {
             throw new RuntimeException("Delegation $delegationId not found");
+        }
+
+        // OWASP A01 — only the principal may revoke their own delegation.
+        if ($callerUid !== null) {
+            $principal = (string) ($delegation['delegatedBy'] ?? '');
+            if ($principal === '' || $principal !== $callerUid) {
+                throw new \InvalidArgumentException('Only the delegation principal may revoke this delegation');
+            }
         }
 
         $delegation['status'] = 'revoked';
@@ -162,7 +177,7 @@ class DelegationService
             uuid: $delegationId,
         );
 
-        $this->logger->info('Decidesk: Delegation revoked', ['delegationId' => $delegationId]);
+        $this->logger->info('Decidesk: Delegation revoked', ['delegationId' => $delegationId, 'by' => $callerUid]);
 
         return $delegation;
 
@@ -171,21 +186,33 @@ class DelegationService
     /**
      * Expire a delegation (set status='expired').
      *
-     * Called by background job or explicit API.
+     * Intended to be called by a background job (no caller check) or by the
+     * principal themselves. To prevent IDOR, pass `$callerUid` when invoked
+     * from a user-facing API; omit only for background-job or admin-only paths.
      *
-     * @param string $delegationId UUID of the Delegation object
+     * @param string      $delegationId UUID of the Delegation object
+     * @param string|null $callerUid    Nextcloud UID of the caller (null = skip owner check)
      *
      * @return array<string, mixed>
      *
-     * @throws RuntimeException When the delegation cannot be found
+     * @throws RuntimeException         When the delegation cannot be found
+     * @throws \InvalidArgumentException When the caller is not the principal
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.2
      */
-    public function expireDelegation(string $delegationId): array
+    public function expireDelegation(string $delegationId, ?string $callerUid = null): array
     {
         $delegation = $this->findDelegation(delegationId: $delegationId);
         if ($delegation === null) {
             throw new RuntimeException("Delegation $delegationId not found");
+        }
+
+        // OWASP A01 — only the principal may manually expire their own delegation.
+        if ($callerUid !== null) {
+            $principal = (string) ($delegation['delegatedBy'] ?? '');
+            if ($principal === '' || $principal !== $callerUid) {
+                throw new \InvalidArgumentException('Only the delegation principal may expire this delegation');
+            }
         }
 
         $delegation['status'] = 'expired';
@@ -198,7 +225,7 @@ class DelegationService
             uuid: $delegationId,
         );
 
-        $this->logger->info('Decidesk: Delegation expired', ['delegationId' => $delegationId]);
+        $this->logger->info('Decidesk: Delegation expired', ['delegationId' => $delegationId, 'by' => $callerUid]);
 
         return $delegation;
 
