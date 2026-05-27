@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "x-openregister": {
     "type": "application",
@@ -169,7 +169,7 @@
         },
         "slug": "meeting",
         "icon": "CalendarClock",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -251,6 +251,11 @@
             "type": "string",
             "description": "Meeting series identifier"
           },
+          "chair": {
+            "type": "string",
+            "description": "UUID of the Participant who chairs this meeting. Resolved to the Participant record in MCP and minutes generation; the chair field on the Participant (role=chair) applies to the governance body broadly, while this field overrides the chair for this specific meeting.",
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          },
           "isPublic": {
             "type": "boolean",
             "description": "Whether this meeting is visible to citizens in the public transparency portal (p3-citizen-participation). When true, the agenda (if published), recordings, and approved minutes become visible to unauthenticated users.",
@@ -320,6 +325,74 @@
             }
           }
         },
+        "x-openregister-lifecycle": {
+          "field": "lifecycle",
+          "initialState": "draft",
+          "states": {
+            "draft": {
+              "label": "Draft",
+              "description": "Meeting has been created but is not yet on the agenda."
+            },
+            "scheduled": {
+              "label": "Scheduled",
+              "description": "Meeting is on the agenda with a confirmed date/time."
+            },
+            "opened": {
+              "label": "Opened",
+              "description": "Meeting has been called to order and is in session."
+            },
+            "paused": {
+              "label": "Paused",
+              "description": "Meeting is temporarily suspended (recess / break)."
+            },
+            "adjourned": {
+              "label": "Adjourned",
+              "description": "Meeting has been adjourned without formal closure."
+            },
+            "closed": {
+              "label": "Closed",
+              "description": "Meeting is formally closed; no further business can be taken."
+            }
+          },
+          "transitions": {
+            "schedule": {
+              "from": "draft",
+              "to": "scheduled",
+              "label": "Schedule meeting",
+              "description": "Place the meeting on the agenda with a confirmed date/time."
+            },
+            "open": {
+              "from": "scheduled",
+              "to": "opened",
+              "label": "Open meeting",
+              "description": "Call the meeting to order; a guard checks quorum before allowing the transition."
+            },
+            "pause": {
+              "from": "opened",
+              "to": "paused",
+              "label": "Pause meeting",
+              "description": "Call a temporary recess; the meeting can be resumed."
+            },
+            "resume": {
+              "from": "paused",
+              "to": "opened",
+              "label": "Resume meeting",
+              "description": "Reopen the meeting after a recess."
+            },
+            "adjourn": {
+              "from": "opened",
+              "to": "adjourned",
+              "label": "Adjourn meeting",
+              "description": "Adjourn the meeting without formally closing it."
+            },
+            "close": {
+              "from": "opened",
+              "to": "closed",
+              "label": "Close meeting",
+              "description": "Formally close the meeting. Terminal state."
+            }
+          }
+        },
         "x-openregister-seeds": [
           {
             "@self": {
@@ -383,7 +456,7 @@
       "Participant": {
         "slug": "participant",
         "icon": "AccountOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Participant",
         "description": "A member or attendee of a governance body",
         "type": "object",
@@ -441,6 +514,11 @@
             "type": "number",
             "description": "Vote weight (default 1)",
             "example": 1
+          },
+          "nextcloudUserId": {
+            "type": "string",
+            "description": "The Nextcloud user ID (login name / UID) of the Nextcloud user who represents this participant. Used by VotingService::resolveParticipantUuid() to find the Participant record for the currently logged-in user, enabling vote-casting, proxy delegation, and vote-link personalisation. Must be set when the participant has a corresponding Nextcloud account.",
+            "example": "jdoe"
           },
           "attendanceStatus": {
             "type": "string",
@@ -765,6 +843,62 @@
             "register": "decidesk",
             "schema": "AgendaItem",
             "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-lifecycle": {
+          "field": "lifecycle",
+          "initialState": "submitted",
+          "states": {
+            "submitted": {
+              "label": "Submitted",
+              "description": "Motion has been submitted and is awaiting debate."
+            },
+            "debating": {
+              "label": "Debating",
+              "description": "Motion is currently being debated on the floor."
+            },
+            "voting": {
+              "label": "Voting",
+              "description": "Debate is closed and a vote is open on the motion."
+            },
+            "adopted": {
+              "label": "Adopted",
+              "description": "Motion has been adopted by the body. Terminal state."
+            },
+            "rejected": {
+              "label": "Rejected",
+              "description": "Motion has been rejected by the body. Terminal state."
+            },
+            "withdrawn": {
+              "label": "Withdrawn",
+              "description": "Motion was withdrawn before or during proceedings. Terminal state."
+            }
+          },
+          "transitions": {
+            "debate": {
+              "from": "submitted",
+              "to": "debating",
+              "label": "Open debate",
+              "description": "Move the motion into debate on the floor."
+            },
+            "vote": {
+              "from": "debating",
+              "to": "voting",
+              "label": "Call the vote",
+              "description": "Close debate and open the vote on the motion."
+            },
+            "adopt": {
+              "from": "voting",
+              "to": "adopted",
+              "label": "Adopt motion",
+              "description": "Record the motion as adopted. Terminal."
+            },
+            "reject": {
+              "from": "voting",
+              "to": "rejected",
+              "label": "Reject motion",
+              "description": "Record the motion as rejected. Terminal."
+            }
           }
         },
         "x-openregister-seeds": [
@@ -1434,6 +1568,105 @@
             "cardinality": "many-to-one"
           }
         },
+        "x-openregister-lifecycle": {
+          "field": "taskStatus",
+          "initialState": "open",
+          "states": {
+            "open": {
+              "label": "Open",
+              "description": "Action item has been created and is awaiting work."
+            },
+            "in-progress": {
+              "label": "In progress",
+              "description": "Action item is being actively worked on by its assignee."
+            },
+            "completed": {
+              "label": "Completed",
+              "description": "Action item has been finished."
+            },
+            "overdue": {
+              "label": "Overdue",
+              "description": "Due date has passed without completion."
+            }
+          },
+          "transitions": {
+            "start": {
+              "from": "open",
+              "to": "in-progress",
+              "label": "Start work",
+              "description": "Pick up the action item and begin work."
+            },
+            "complete": {
+              "from": "in-progress",
+              "to": "completed",
+              "label": "Mark complete",
+              "description": "Mark the action item as finished. A listener sets @self.completedAt."
+            }
+          }
+        },
+        "x-openregister-aggregations": {
+          "totalCompleted": {
+            "field": "id",
+            "operation": "count",
+            "description": "Total number of completed action items across the register.",
+            "filter": { "taskStatus": "completed" }
+          },
+          "byStatus": {
+            "field": "taskStatus",
+            "operation": "count",
+            "description": "Action-item count grouped by taskStatus (open / in-progress / completed / overdue).",
+            "groupBy": "taskStatus"
+          },
+          "completedThisMonth": {
+            "field": "id",
+            "operation": "count",
+            "description": "Action items completed in the current calendar month (rolling start-of-month).",
+            "filter": {
+              "taskStatus": "completed",
+              "completedAt": { ">=": "$startOfMonth" }
+            }
+          },
+          "avgDaysLate": {
+            "field": "daysLate",
+            "operation": "avg",
+            "description": "Average days late, across items that finished after their dueDate (daysLate > 0). Uses the materialised daysLate calculation.",
+            "filter": { "daysLate": { ">": 0 } }
+          }
+        },
+        "x-openregister-calculations": {
+          "daysOpen": {
+            "type": "integer",
+            "materialise": true,
+            "description": "Days the action item has been open (now - @self.created). Drives dashboards / mentor sort order.",
+            "expression": {
+              "dateDiff": ["@now", { "prop": "@self.created" }, "days"]
+            }
+          },
+          "daysLate": {
+            "type": "integer",
+            "materialise": true,
+            "description": "Positive number of days completed past the dueDate; 0 when on time, on-time-incomplete, or dueDate is unset.",
+            "expression": {
+              "if": [
+                { "eq": [{ "prop": "dueDate" }, null] },
+                0,
+                {
+                  "if": [
+                    { "eq": [{ "prop": "completedAt" }, null] },
+                    0,
+                    {
+                      "if": [
+                        { "gt": [{ "prop": "completedAt" }, { "prop": "dueDate" }] },
+                        { "dateDiff": [{ "prop": "completedAt" }, { "prop": "dueDate" }, "days"] },
+                        0
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
         "x-openregister-seeds": [
           {
             "@self": {
@@ -1601,6 +1834,58 @@
             "register": "decidesk",
             "schema": "Meeting",
             "cardinality": "one-to-one"
+          }
+        },
+        "x-openregister-lifecycle": {
+          "field": "lifecycle",
+          "initialState": "draft",
+          "states": {
+            "draft": {
+              "label": "Draft",
+              "description": "Minutes are being drafted by the clerk."
+            },
+            "review": {
+              "label": "In review",
+              "description": "Minutes have been submitted for chair / participant review."
+            },
+            "approved": {
+              "label": "Approved",
+              "description": "Minutes have been approved. A listener sets @self.approvedAt and signedBy."
+            },
+            "signed": {
+              "label": "Signed",
+              "description": "Minutes have been formally signed off."
+            },
+            "published": {
+              "label": "Published",
+              "description": "Minutes are publicly available. Terminal state."
+            }
+          },
+          "transitions": {
+            "submit": {
+              "from": "draft",
+              "to": "review",
+              "label": "Submit for review",
+              "description": "Send the minutes to the chair / participants for review."
+            },
+            "approve": {
+              "from": "review",
+              "to": "approved",
+              "label": "Approve minutes",
+              "description": "Approve the minutes. The decidesk listener sets approvedAt + signedBy on this transition."
+            },
+            "sign": {
+              "from": "approved",
+              "to": "signed",
+              "label": "Sign minutes",
+              "description": "Formally sign the approved minutes."
+            },
+            "publish": {
+              "from": "signed",
+              "to": "published",
+              "label": "Publish minutes",
+              "description": "Make the signed minutes publicly available. Terminal."
+            }
           }
         },
         "x-openregister-seeds": [
