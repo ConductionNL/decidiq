@@ -5,6 +5,7 @@ status: idea
 # Meeting Efficiency Specification
 
 ## Purpose
+@e2e exclude V1 feature — agenda item timers, speaking-time tracking, meeting cost calculator, and analytics dashboard are not yet implemented in the SPA (no corresponding manifest pages or Vue components exist for these features).
 
 Meeting efficiency features help governance bodies run productive meetings. This includes real-time timers for agenda items and speaking time, a meeting cost calculator (based on participant hourly rates), analytics on meeting duration and decision throughput, and tools to keep discussions focused. These features transform Decidesk from a compliance tool into a productivity platform that actively improves organizational decision-making.
 

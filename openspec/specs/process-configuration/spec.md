@@ -5,6 +5,7 @@ status: idea
 # Process Configuration Specification
 
 ## Purpose
+@e2e exclude V1 feature — no processTemplate pages exist in the manifest and no process configuration UI is built in the SPA. The YAML/DMN state-machine editor and built-in template selection UI are planned but not yet implemented.
 
 Process configuration enables administrators to define and customize decision-making workflows for different governance contexts. A process template defines the state machine, voting rules, quorum requirements, and procedural rules for a specific type of decision or meeting. The system uses YAML-based Symfony Workflow definitions for state machines and DMN-inspired decision tables for voting rules. This allows Decidesk to serve municipal councils, corporate boards, associations, and operational teams with their own procedural rules.
 

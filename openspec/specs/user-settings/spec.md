@@ -5,6 +5,7 @@ status: idea
 # User Settings Specification
 
 ## Purpose
+@e2e exclude The personal notification preferences, display preferences, delegation, and communication preferences UIs described in this spec are not yet implemented. The decidesk settings page (manifest type:settings) only shows version-info and register-mapping; no notification channel toggles, no default-view selector, no absence delegation form, and no governance email override field exist in the SPA or in the Nextcloud personal settings panel.
 
 User settings allow individual Decidesk users to configure their personal preferences for notifications, display, and participation. These settings control how and when users receive alerts about meetings, votes, and decisions, as well as display preferences for the dashboard and meeting interface.
 

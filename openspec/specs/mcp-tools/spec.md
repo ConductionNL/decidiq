@@ -1,6 +1,8 @@
 # mcp-tools Specification
 
 ## Purpose
+@e2e exclude Pure PHP backend spec — all scenarios are server-side DI/service-layer contracts covered by PHPUnit (tests/Unit/Mcp/DecideskToolProviderTest.php and tests/Integration/Mcp/DecideskToolProviderIntegrationTest.php). No browser UI surface exists.
+
 TBD - created by archiving change decidesk-mcp-tools. Update Purpose after archive.
 ## Requirements
 ### Requirement: REQ-DMCP-001 — Implement IMcpToolProvider
