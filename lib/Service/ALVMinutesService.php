@@ -105,11 +105,11 @@ TEMPLATE;
             $objectService = $this->container->get('OpenRegisterObjectService');
 
             // Fetch Minutes.
-            $minutes = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Minutes',
-                id: $minutesId
-            );
+            $minutesEntity = $objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+            $minutes       = null;
+            if ($minutesEntity !== null) {
+                $minutes = $minutesEntity->jsonSerialize();
+            }
 
             if ($minutes === null) {
                 throw new MissingObjectException(message: "Minutes not found: $minutesId");
@@ -129,11 +129,11 @@ TEMPLATE;
                 throw new Exception('No Meeting linked to Minutes');
             }
 
-            $meeting = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Meeting',
-                id: $meetingId
-            );
+            $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+            $meeting       = null;
+            if ($meetingEntity !== null) {
+                $meeting = $meetingEntity->jsonSerialize();
+            }
 
             if ($meeting === null) {
                 throw new MissingObjectException(message: "Meeting not found: $meetingId");
@@ -163,11 +163,10 @@ TEMPLATE;
             $participants = [];
             if ($bodyId !== null) {
                 $params['relations.governance-body'] = $bodyId;
-                $participants = $objectService->findObjects(
-                    register: 'decidesk',
-                    schema: 'Participant',
-                    params: $params
-                );
+                $objectService->setRegister('decidesk');
+                $objectService->setSchema('participant');
+                $participantEntities = $objectService->findAll(['filters' => $params]);
+                $participants        = array_map(fn($e) => $e->jsonSerialize(), $participantEntities);
             }
 
             // Count active members.
@@ -183,11 +182,10 @@ TEMPLATE;
                 '_limit'            => 999,
                 '_order'            => 'orderNumber:ASC',
             ];
-            $agendaItems  = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'AgendaItem',
-                params: $agendaParams
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('agenda-item');
+            $agendaItemEntities = $objectService->findAll(['filters' => $agendaParams]);
+            $agendaItems        = array_map(fn($e) => $e->jsonSerialize(), $agendaItemEntities);
 
             // Format agenda items.
             $agendaText = '';
@@ -273,11 +271,11 @@ TEMPLATE;
             $notificationService = $this->container->get('OpenRegisterNotificationService');
 
             // Fetch Minutes.
-            $minutes = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Minutes',
-                id: $minutesId
-            );
+            $minutesEntity = $objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+            $minutes       = null;
+            if ($minutesEntity !== null) {
+                $minutes = $minutesEntity->jsonSerialize();
+            }
 
             if ($minutes === null) {
                 throw new MissingObjectException(message: "Minutes not found: $minutesId");
@@ -302,11 +300,12 @@ TEMPLATE;
             // Get GovernanceBody ID.
             $bodyId = null;
             if ($meetingId !== null) {
-                $meeting = $objectService->findObject(
-                    register: 'decidesk',
-                    schema: 'Meeting',
-                    id: $meetingId
-                );
+                $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+                $meeting       = null;
+                if ($meetingEntity !== null) {
+                    $meeting = $meetingEntity->jsonSerialize();
+                }
+
                 if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
                     $bodyRels = $meeting['relations']['GovernanceBody'];
                     $bodyId   = $bodyRels;
@@ -324,11 +323,10 @@ TEMPLATE;
             $participants = [];
             if ($bodyId !== null) {
                 $params['relations.governance-body'] = $bodyId;
-                $participants = $objectService->findObjects(
-                    register: 'decidesk',
-                    schema: 'Participant',
-                    params: $params
-                );
+                $objectService->setRegister('decidesk');
+                $objectService->setSchema('participant');
+                $participantEntities = $objectService->findAll(['filters' => $params]);
+                $participants        = array_map(fn($e) => $e->jsonSerialize(), $participantEntities);
             }
 
             // Resolve Nextcloud UID for each participant and send notifications.

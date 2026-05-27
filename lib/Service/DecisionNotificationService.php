@@ -68,11 +68,11 @@ class DecisionNotificationService
             $notificationService = $this->container->get('OpenRegisterNotificationService');
 
             // Fetch Decision.
-            $decision = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Decision',
-                id: $decisionId
-            );
+            $decisionEntity = $objectService->find(id: $decisionId, register: 'decidesk', schema: 'decision');
+            $decision       = null;
+            if ($decisionEntity !== null) {
+                $decision = $decisionEntity->jsonSerialize();
+            }
 
             if ($decision === null) {
                 $this->logger->warning("Decision not found: $decisionId");
@@ -167,14 +167,13 @@ class DecisionNotificationService
                 '_limit' => 999,
             ];
 
-            $memberships = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'Membership',
-                params: $params
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('participant');
+            $membershipEntities = $objectService->findAll(['filters' => $params]);
 
             $recipients = [];
-            foreach ($memberships as $membership) {
+            foreach ($membershipEntities as $membershipEntity) {
+                $membership  = $membershipEntity->jsonSerialize();
                 $displayName = $membership['displayName'] ?? null;
                 if (empty($displayName) === false) {
                     $recipients[] = $displayName;

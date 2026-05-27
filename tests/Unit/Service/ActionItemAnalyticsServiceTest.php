@@ -46,8 +46,40 @@ class ActionItemAnalyticsServiceTest extends TestCase
     {
         parent::setUp();
         $this->container = $this->createMock(ContainerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->service = new ActionItemAnalyticsService($this->container, $this->logger);
+        $this->logger    = $this->createMock(LoggerInterface::class);
+        $this->service   = new ActionItemAnalyticsService($this->container, $this->logger);
+    }
+
+    /**
+     * Build a mock ObjectEntity returning $data from jsonSerialize().
+     *
+     * @param array<string,mixed> $data
+     *
+     * @return object
+     */
+    private function makeEntity(array $data): object
+    {
+        $entity = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['jsonSerialize'])
+            ->getMock();
+        $entity->method('jsonSerialize')->willReturn($data);
+        return $entity;
+    }
+
+    /**
+     * Build an ObjectService mock with setRegister/setSchema/findAll/saveObject.
+     *
+     * @param array<int,object> $findAllReturn
+     *
+     * @return \OCA\OpenRegister\Service\ObjectService&\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function makeObjectService(array $findAllReturn): object
+    {
+        $svc = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $svc->method('setRegister')->willReturnSelf();
+        $svc->method('setSchema')->willReturnSelf();
+        $svc->method('findAll')->willReturn($findAllReturn);
+        return $svc;
     }
 
     /**
@@ -59,23 +91,22 @@ class ActionItemAnalyticsServiceTest extends TestCase
      */
     public function testGetSummaryReturnsCorrectOverdueCount(): void
     {
-        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $mockObjectService->expects($this->once())
-            ->method('findObjects')
-            ->willReturn([
-                [
-                    'id' => 'item-1',
-                    'taskStatus' => 'open',
-                    'dueDate' => date('Y-m-d', strtotime('-5 days')),
-                    'createdAt' => date('Y-m-d', strtotime('-10 days')),
-                ],
-                [
-                    'id' => 'item-2',
-                    'taskStatus' => 'open',
-                    'dueDate' => date('Y-m-d', strtotime('+5 days')),
-                    'createdAt' => date('Y-m-d', strtotime('-10 days')),
-                ],
-            ]);
+        $items = [
+            $this->makeEntity([
+                'id'         => 'item-1',
+                'taskStatus' => 'open',
+                'dueDate'    => date('Y-m-d', strtotime('-5 days')),
+                'createdAt'  => date('Y-m-d', strtotime('-10 days')),
+            ]),
+            $this->makeEntity([
+                'id'         => 'item-2',
+                'taskStatus' => 'open',
+                'dueDate'    => date('Y-m-d', strtotime('+5 days')),
+                'createdAt'  => date('Y-m-d', strtotime('-10 days')),
+            ]),
+        ];
+
+        $mockObjectService = $this->makeObjectService($items);
 
         $this->container->expects($this->once())
             ->method('get')
@@ -98,21 +129,20 @@ class ActionItemAnalyticsServiceTest extends TestCase
      */
     public function testGetCompletionRatesReturnsZeroPercentForNoCompletedItems(): void
     {
-        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $mockObjectService->expects($this->once())
-            ->method('findObjects')
-            ->willReturn([
-                [
-                    'id' => 'meeting-1',
-                    'title' => 'Council Meeting',
-                    'relations' => [
-                        'ActionItem' => [
-                            ['taskStatus' => 'open'],
-                            ['taskStatus' => 'in-progress'],
-                        ],
+        $meetingEntities = [
+            $this->makeEntity([
+                'id'        => 'meeting-1',
+                'title'     => 'Council Meeting',
+                'relations' => [
+                    'ActionItem' => [
+                        ['taskStatus' => 'open'],
+                        ['taskStatus' => 'in-progress'],
                     ],
                 ],
-            ]);
+            ]),
+        ];
+
+        $mockObjectService = $this->makeObjectService($meetingEntities);
 
         $this->container->expects($this->once())
             ->method('get')
@@ -136,32 +166,31 @@ class ActionItemAnalyticsServiceTest extends TestCase
      */
     public function testGetMyItemsGroupsOverdueItemsCorrectly(): void
     {
-        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $mockObjectService->expects($this->once())
-            ->method('findObjects')
-            ->willReturn([
-                [
-                    'id' => 'item-1',
-                    'title' => 'Overdue Task',
-                    'assignee' => 'John Doe',
-                    'taskStatus' => 'open',
-                    'dueDate' => date('Y-m-d', strtotime('-3 days')),
-                ],
-                [
-                    'id' => 'item-2',
-                    'title' => 'This Week Task',
-                    'assignee' => 'John Doe',
-                    'taskStatus' => 'open',
-                    'dueDate' => date('Y-m-d', strtotime('+3 days')),
-                ],
-                [
-                    'id' => 'item-3',
-                    'title' => 'Later Task',
-                    'assignee' => 'John Doe',
-                    'taskStatus' => 'open',
-                    'dueDate' => date('Y-m-d', strtotime('+20 days')),
-                ],
-            ]);
+        $items = [
+            $this->makeEntity([
+                'id'         => 'item-1',
+                'title'      => 'Overdue Task',
+                'assignee'   => 'John Doe',
+                'taskStatus' => 'open',
+                'dueDate'    => date('Y-m-d', strtotime('-3 days')),
+            ]),
+            $this->makeEntity([
+                'id'         => 'item-2',
+                'title'      => 'This Week Task',
+                'assignee'   => 'John Doe',
+                'taskStatus' => 'open',
+                'dueDate'    => date('Y-m-d', strtotime('+3 days')),
+            ]),
+            $this->makeEntity([
+                'id'         => 'item-3',
+                'title'      => 'Later Task',
+                'assignee'   => 'John Doe',
+                'taskStatus' => 'open',
+                'dueDate'    => date('Y-m-d', strtotime('+20 days')),
+            ]),
+        ];
+
+        $mockObjectService = $this->makeObjectService($items);
 
         $this->container->expects($this->once())
             ->method('get')
@@ -185,23 +214,22 @@ class ActionItemAnalyticsServiceTest extends TestCase
      */
     public function testGetSummaryCalculatesAverageDaysToCloseCorrectly(): void
     {
-        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $mockObjectService->expects($this->once())
-            ->method('findObjects')
-            ->willReturn([
-                [
-                    'id' => 'item-1',
-                    'taskStatus' => 'completed',
-                    'createdAt' => date('Y-m-d', strtotime('-10 days')),
-                    'completedAt' => date('Y-m-d'), // 10 days
-                ],
-                [
-                    'id' => 'item-2',
-                    'taskStatus' => 'completed',
-                    'createdAt' => date('Y-m-d', strtotime('-5 days')),
-                    'completedAt' => date('Y-m-d'), // 5 days
-                ],
-            ]);
+        $items = [
+            $this->makeEntity([
+                'id'          => 'item-1',
+                'taskStatus'  => 'completed',
+                'createdAt'   => date('Y-m-d', strtotime('-10 days')),
+                'completedAt' => date('Y-m-d'),
+            ]),
+            $this->makeEntity([
+                'id'          => 'item-2',
+                'taskStatus'  => 'completed',
+                'createdAt'   => date('Y-m-d', strtotime('-5 days')),
+                'completedAt' => date('Y-m-d'),
+            ]),
+        ];
+
+        $mockObjectService = $this->makeObjectService($items);
 
         $this->container->expects($this->once())
             ->method('get')

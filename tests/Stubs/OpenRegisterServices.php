@@ -59,11 +59,15 @@ if (class_exists(ObjectService::class) === false) {
         /**
          * Find a single object by ID.
          *
-         * @param string $id Object UUID
+         * @param int|string      $id       Object UUID or integer ID
+         * @param array|null      $_extend  Properties to extend
+         * @param bool            $files    Include file info
+         * @param string|int|null $register Register slug or ID
+         * @param string|int|null $schema   Schema slug or ID
          *
-         * @return \OCA\OpenRegister\Db\ObjectEntity|array<string,mixed>|null
+         * @return \OCA\OpenRegister\Db\ObjectEntity|null
          */
-        public function find(string $id): mixed
+        public function find(int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null): ?\OCA\OpenRegister\Db\ObjectEntity
         {
             return null;
         }//end find()
@@ -73,9 +77,9 @@ if (class_exists(ObjectService::class) === false) {
          *
          * @param array<string,mixed> $config Filter configuration
          *
-         * @return array<int,mixed>
+         * @return array<int,\OCA\OpenRegister\Db\ObjectEntity>
          */
-        public function findAll(array $config = []): array
+        public function findAll(array $config=[]): array
         {
             return [];
         }//end findAll()
@@ -83,17 +87,42 @@ if (class_exists(ObjectService::class) === false) {
         /**
          * Save (create or update) an object.
          *
-         * @param array<string,mixed> $object        The object data
-         * @param string              $register      Register slug
-         * @param string              $schema        Schema slug
-         * @param string              $uuid          Object UUID
+         * @param array<string,mixed> $object   The object data
+         * @param array|null          $extend   Extend options
+         * @param string|int|null     $register Register slug or ID
+         * @param string|int|null     $schema   Schema slug or ID
+         * @param string|null         $uuid     Object UUID
          *
-         * @return array<string,mixed>
+         * @return mixed
          */
-        public function saveObject(array $object, string $register, string $schema, string $uuid): array
+        public function saveObject(array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): mixed
         {
             return $object;
         }//end saveObject()
+
+        /**
+         * Set active register context.
+         *
+         * @param string $register Register slug
+         *
+         * @return static
+         */
+        public function setRegister(string $register): static
+        {
+            return $this;
+        }//end setRegister()
+
+        /**
+         * Set active schema context.
+         *
+         * @param string $schema Schema slug
+         *
+         * @return static
+         */
+        public function setSchema(string $schema): static
+        {
+            return $this;
+        }//end setSchema()
 
         /**
          * Update an existing object from an array of changed fields.
@@ -105,7 +134,7 @@ if (class_exists(ObjectService::class) === false) {
          *
          * @return \OCA\OpenRegister\Db\ObjectEntity
          */
-        public function updateFromArray(string $id, array $object, bool $updateVersion = false, bool $patch = false): \OCA\OpenRegister\Db\ObjectEntity
+        public function updateFromArray(string $id, array $object, bool $updateVersion=false, bool $patch=false): \OCA\OpenRegister\Db\ObjectEntity
         {
             return new \OCA\OpenRegister\Db\ObjectEntity();
         }//end updateFromArray()

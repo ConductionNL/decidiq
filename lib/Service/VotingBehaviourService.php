@@ -76,13 +76,11 @@ class VotingBehaviourService
         $objectService = $this->objectService();
 
         // Fetch all closed VotingRounds for this governance body.
-        $roundsResult = $objectService->findObjects(
-            register: 'decidesk',
-            schema: 'voting-round',
-            params: ['governanceBodyId' => $governanceBodyId]
-        );
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('voting-round');
+        $roundEntities = $objectService->findAll(['filters' => ['governanceBodyId' => $governanceBodyId]]);
 
-        $rounds = ($roundsResult['results'] ?? []);
+        $rounds = array_map(fn($e) => $e->jsonSerialize(), $roundEntities);
 
         // Filter to closed rounds only (closedAt is not null).
         $closedRounds = array_filter(
@@ -107,16 +105,18 @@ class VotingBehaviourService
                 continue;
             }
 
-            $votesResult = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'vote',
-                params: [
-                    'participantId' => $participantId,
-                    'votingRoundId' => $roundId,
-                ]
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('vote');
+            $voteEntities = $objectService->findAll(
+                    [
+                        'filters' => [
+                            'participantId' => $participantId,
+                            'votingRoundId' => $roundId,
+                        ],
+                    ]
+                    );
 
-            $votes = ($votesResult['results'] ?? []);
+            $votes = array_map(fn($e) => $e->jsonSerialize(), $voteEntities);
             if (count($votes) > 0) {
                 $participated++;
 

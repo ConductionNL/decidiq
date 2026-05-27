@@ -381,11 +381,11 @@ class MinutesController extends Controller
 
         try {
             // Fetch the Minutes object to get content.
-            $minutes = $this->objectService->findObject(
-                register: 'decidesk',
-                schema: 'Minutes',
-                id: $minutesId
-            );
+            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+            $minutes       = null;
+            if ($minutesEntity !== null) {
+                $minutes = $minutesEntity->jsonSerialize();
+            }
 
             if ($minutes === null) {
                 return new JSONResponse(
@@ -447,11 +447,11 @@ class MinutesController extends Controller
             $confirmed = $this->request->getParam('confirmed', []);
 
             // Fetch Minutes to verify lifecycle before saving.
-            $minutes = $this->objectService->findObject(
-                register: 'decidesk',
-                schema: 'Minutes',
-                id: $minutesId
-            );
+            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+            $minutes       = null;
+            if ($minutesEntity !== null) {
+                $minutes = $minutesEntity->jsonSerialize();
+            }
 
             if ($minutes === null) {
                 return new JSONResponse(
@@ -521,11 +521,11 @@ class MinutesController extends Controller
 
         try {
             // Fetch Minutes.
-            $minutes = $this->objectService->findObject(
-                register: 'decidesk',
-                schema: 'Minutes',
-                id: $minutesId
-            );
+            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+            $minutes       = null;
+            if ($minutesEntity !== null) {
+                $minutes = $minutesEntity->jsonSerialize();
+            }
 
             if ($minutes === null) {
                 return new JSONResponse(
