@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -87,10 +88,9 @@ class DecisionController extends Controller
      *
      * @return JSONResponse
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      */
+    #[NoAdminRequired]
     public function publish(string $decisionId): JSONResponse
     {
         $user = $this->userSession->getUser();

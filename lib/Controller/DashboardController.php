@@ -24,6 +24,8 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 
@@ -51,14 +53,13 @@ class DashboardController extends Controller
     /**
      * Render the main dashboard page.
      *
-     * @NoAdminRequired
-     * @NoCSRFRequired
-     *
      * @return TemplateResponse
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
     public function page(): TemplateResponse
     {
         return new TemplateResponse(Application::APP_ID, 'index');
@@ -67,14 +68,13 @@ class DashboardController extends Controller
     /**
      * Serve the SPA for deep links (Vue history mode). Delegates to {@see page()}.
      *
-     * @NoAdminRequired
-     * @NoCSRFRequired
-     *
      * @return TemplateResponse
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
     public function catchAll(): TemplateResponse
     {
         return $this->page();

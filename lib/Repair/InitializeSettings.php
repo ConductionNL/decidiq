@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Repair;
 
 use OCA\Decidesk\Service\SettingsService;
+use OCP\IAppConfig;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -42,12 +43,14 @@ class InitializeSettings implements IRepairStep
      * Constructor for InitializeSettings.
      *
      * @param SettingsService $settingsService The settings service
+     * @param IAppConfig      $appConfig       The app config
      * @param LoggerInterface $logger          The logger interface
      *
      * @return void
      */
     public function __construct(
         private SettingsService $settingsService,
+        private IAppConfig $appConfig,
         private LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -80,6 +83,13 @@ class InitializeSettings implements IRepairStep
     public function run(IOutput $output): void
     {
         $output->info('Initializing Decidesk configuration...');
+
+        // Ensure voter_token_secret is initialized exactly once, at install/upgrade time,
+        // to prevent a concurrent first-call race in VotingService::voterTokenSecret().
+        if ($this->appConfig->getValueString('decidesk', 'voter_token_secret', '') === '') {
+            $this->appConfig->setValueString('decidesk', 'voter_token_secret', bin2hex(random_bytes(32)));
+            $output->info('Generated voter_token_secret for Decidesk.');
+        }
 
         if ($this->settingsService->isOpenRegisterAvailable() === false) {
             $output->warning(

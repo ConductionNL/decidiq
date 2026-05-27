@@ -31,6 +31,7 @@ use OCA\Decidesk\Service\MinutesService;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -80,6 +81,94 @@ class MinutesController extends Controller
     }//end __construct()
 
     /**
+     * Require chair, secretary, or NC admin role for operations on a Minutes record.
+     *
+     * Resolves the associated meeting via the minutes relations map and checks
+     * participant records for a chair or secretary role, mirroring AgendaController.
+     *
+     * @param string $minutesId UUID of the Minutes object
+     *
+     * @return JSONResponse|null Null if authorised, a 401/403 JSONResponse otherwise.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     */
+    private function requireChairOrAdminForMinutes(string $minutesId): ?JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(
+                ['message' => 'Unauthenticated.'],
+                Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        $userId = $user->getUID();
+
+        if ($this->groupManager->isAdmin($userId) === true) {
+            return null;
+        }
+
+        // Resolve the meeting UUID from the minutes object.
+        $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+        if ($minutesEntity === null) {
+            // Let the calling method handle the 404; return null so the caller can produce the 404 response.
+            return null;
+        }
+
+        $minutes   = $minutesEntity->jsonSerialize();
+        $meetingId = null;
+
+        $meetingRelation = $minutes['relations']['meeting'] ?? $minutes['meeting'] ?? null;
+        if ($meetingRelation !== null) {
+            if (is_array($meetingRelation) === true) {
+                $meetingId = $meetingRelation['id'] ?? null;
+            } else {
+                $meetingId = (string) $meetingRelation;
+            }
+        }
+
+        if ($meetingId === null || $meetingId === '') {
+            // No meeting linked — deny non-admins.
+            return new JSONResponse(
+                ['message' => 'Forbidden: could not resolve meeting for authorisation.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
+        $participants = $this->objectService->findAll(
+            [
+                'filters' => [
+                    'register'                => 'decidesk',
+                    'schema'                  => 'participant',
+                    '@self.relations.meeting' => $meetingId,
+                ],
+            ]
+        );
+
+        foreach ($participants as $p) {
+            $pData           = is_array($p) === true ? $p : (array) $p;
+            $nextcloudUserId = $pData['nextcloudUserId'] ?? null;
+            $ownerField      = $pData['owner'] ?? null;
+            $role            = $pData['role'] ?? null;
+
+            $isCallerMatch = ($nextcloudUserId !== null && $nextcloudUserId === $userId)
+                || ($nextcloudUserId === null && $ownerField !== null && $ownerField === $userId);
+
+            if ($isCallerMatch === true
+                && in_array(needle: $role, haystack: ['chair', 'secretary'], strict: true) === true
+            ) {
+                return null;
+            }
+        }
+
+        return new JSONResponse(
+            ['message' => 'Forbidden: chair or secretary role required for this minutes record.'],
+            Http::STATUS_FORBIDDEN
+        );
+
+    }//end requireChairOrAdminForMinutes()
+
+    /**
      * Generate a Dutch draft text for the given Minutes object.
      *
      * POST /api/minutes/{minutesId}/generate-draft
@@ -95,27 +184,14 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
+    #[NoAdminRequired]
     public function generateDraft(string $minutesId): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                ['message' => 'Unauthenticated.'],
-                Http::STATUS_UNAUTHORIZED
-            );
-        }
-
-        // Require admin rights to prevent information disclosure across governance bodies
-        // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: only administrators may generate minutes drafts.'],
-                Http::STATUS_FORBIDDEN
-            );
+        $denied = $this->requireChairOrAdminForMinutes(minutesId: $minutesId);
+        if ($denied !== null) {
+            return $denied;
         }
 
         try {
@@ -165,19 +241,17 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
+    #[NoAdminRequired]
     public function transition(string $minutesId): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                ['message' => 'Unauthenticated.'],
-                Http::STATUS_UNAUTHORIZED
-            );
+        $denied = $this->requireChairOrAdminForMinutes(minutesId: $minutesId);
+        if ($denied !== null) {
+            return $denied;
         }
+
+        $user = $this->userSession->getUser();
 
         $newLifecycle = $this->request->getParam('lifecycle');
         if ($newLifecycle === null || is_string($newLifecycle) === false || $newLifecycle === '') {
@@ -187,17 +261,7 @@ class MinutesController extends Controller
             );
         }
 
-        // Gate ALL lifecycle transitions behind admin — prevents cross-tenant manipulation
-        // by arbitrary authenticated users regardless of the lifecycle value passed
-        // (OWASP A01 — Broken Access Control / ADR-005 tenant isolation).
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: only administrators may perform lifecycle transitions on minutes.'],
-                Http::STATUS_FORBIDDEN
-            );
-        }
-
-        $displayName = $user->getDisplayName();
+        $displayName = ($user !== null ? $user->getDisplayName() : '');
 
         try {
             $updated = $this->minutesGenerationService->transition(
@@ -240,26 +304,14 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
      */
+    #[NoAdminRequired]
     public function generateALVDraft(string $minutesId): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                ['message' => 'Unauthenticated.'],
-                Http::STATUS_UNAUTHORIZED
-            );
-        }
-
-        // Require admin rights to prevent unauthorised ALV draft generation (OWASP A01 / ADR-005).
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: only administrators may generate ALV minutes drafts.'],
-                Http::STATUS_FORBIDDEN
-            );
+        $denied = $this->requireChairOrAdminForMinutes(minutesId: $minutesId);
+        if ($denied !== null) {
+            return $denied;
         }
 
         try {
@@ -300,26 +352,14 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
      */
+    #[NoAdminRequired]
     public function distributeALVMinutes(string $minutesId): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                ['message' => 'Unauthenticated.'],
-                Http::STATUS_UNAUTHORIZED
-            );
-        }
-
-        // Require admin rights to prevent bulk governance-body notifications by arbitrary users (OWASP A01 / ADR-005).
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: only administrators may distribute ALV minutes.'],
-                Http::STATUS_FORBIDDEN
-            );
+        $denied = $this->requireChairOrAdminForMinutes(minutesId: $minutesId);
+        if ($denied !== null) {
+            return $denied;
         }
 
         try {
@@ -357,26 +397,14 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
      */
+    #[NoAdminRequired]
     public function extractActionItems(string $minutesId): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                ['message' => 'Unauthenticated.'],
-                Http::STATUS_UNAUTHORIZED
-            );
-        }
-
-        // Require admin rights to prevent action item extraction on arbitrary minutes (OWASP A01 / ADR-005).
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: only administrators may extract action items.'],
-                Http::STATUS_FORBIDDEN
-            );
+        $denied = $this->requireChairOrAdminForMinutes(minutesId: $minutesId);
+        if ($denied !== null) {
+            return $denied;
         }
 
         try {
@@ -421,26 +449,14 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
      */
+    #[NoAdminRequired]
     public function saveExtractedActionItems(string $minutesId): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                ['message' => 'Unauthenticated.'],
-                Http::STATUS_UNAUTHORIZED
-            );
-        }
-
-        // Require admin rights to prevent arbitrary users creating ActionItem objects on any Minutes (OWASP A01 / ADR-005).
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: only administrators may save extracted action items.'],
-                Http::STATUS_FORBIDDEN
-            );
+        $denied = $this->requireChairOrAdminForMinutes(minutesId: $minutesId);
+        if ($denied !== null) {
+            return $denied;
         }
 
         try {
@@ -497,27 +513,17 @@ class MinutesController extends Controller
      *
      * @return JSONResponse
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
      */
+    #[NoAdminRequired]
     public function submitForApproval(string $minutesId): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                ['message' => 'Unauthenticated.'],
-                Http::STATUS_UNAUTHORIZED
-            );
+        $denied = $this->requireChairOrAdminForMinutes(minutesId: $minutesId);
+        if ($denied !== null) {
+            return $denied;
         }
 
-        // Require admin rights to prevent non-admin users from submitting minutes for approval (OWASP A01 / ADR-005).
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: only administrators may submit minutes for approval.'],
-                Http::STATUS_FORBIDDEN
-            );
-        }
+        $user = $this->userSession->getUser();
 
         try {
             // Fetch Minutes.
