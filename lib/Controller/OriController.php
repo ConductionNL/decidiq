@@ -132,7 +132,16 @@ class OriController extends Controller
 
         try {
             $objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
-            $objects       = $objectService->findAll(register: 'decidesk', schema: $schema, params: ['limit' => 100]);
+            // #316: Only return published objects on public ORI endpoints — draft/closed/unpublished
+            // objects must not be visible to anonymous callers.
+            $objects = $objectService->findAll(
+                register: 'decidesk',
+                schema: $schema,
+                params: [
+                    'limit'   => 100,
+                    'filters' => ['lifecycle' => 'published'],
+                ]
+            );
         } catch (Throwable $e) {
             $this->logger->error(message: 'OriController index failed', context: ['resource' => $resource, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -191,6 +200,13 @@ class OriController extends Controller
         }
 
         if ($object === null) {
+            return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+        }
+
+        // #316: Treat non-published objects as not-found for anonymous callers.
+        // Return 404 (not 403) to avoid confirming the object exists.
+        $lifecycle = $object['lifecycle'] ?? $object['status'] ?? '';
+        if ($lifecycle !== 'published') {
             return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
         }
 

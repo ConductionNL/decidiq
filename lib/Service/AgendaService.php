@@ -153,12 +153,18 @@ class AgendaService
         // Update the meeting calendar entry to reflect the published agenda.
         $this->calendarEventService->updateMeetingEvent(meetingId: $meetingId);
 
-        // Update meeting lifecycle to 'opened'.
+        // #315: Read the full meeting object before saving so that a partial payload cannot
+        // silently wipe required fields that are not included in the update.
+        $meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+        if ($meetingEntity === null) {
+            throw new \OCA\Decidesk\Exception\NotFoundException(message: "Meeting {$meetingId} not found");
+        }
+
+        $meetingData = $this->toArray(item: $meetingEntity);
+
+        // Update meeting lifecycle to 'opened' using a full-object merge.
         $this->objectService->saveObject(
-            object: [
-                'id'        => $meetingId,
-                'lifecycle' => 'opened',
-            ],
+            object: array_merge($meetingData, ['lifecycle' => 'opened']),
             register: 'decidesk',
             schema: 'meeting',
             uuid: $meetingId,
@@ -353,11 +359,16 @@ class AgendaService
      */
     public function reviseAgenda(string $meetingId): void
     {
+        // #315: Read the full meeting object before saving to avoid wiping required fields.
+        $meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+        if ($meetingEntity === null) {
+            throw new \OCA\Decidesk\Exception\NotFoundException(message: "Meeting {$meetingId} not found");
+        }
+
+        $meetingData = $this->toArray(item: $meetingEntity);
+
         $this->objectService->saveObject(
-            object: [
-                'id'        => $meetingId,
-                'lifecycle' => 'scheduled',
-            ],
+            object: array_merge($meetingData, ['lifecycle' => 'scheduled']),
             register: 'decidesk',
             schema: 'meeting',
             uuid: $meetingId,

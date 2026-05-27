@@ -73,6 +73,23 @@ class WorkflowService
     ];
 
     /**
+     * Default-deny fallback workflow used for unrecognized domains (#314).
+     *
+     * Unknown domains fall back to the most restrictive configuration: quorum
+     * enforced, no pause, no adjourn, no chair-only overrides. This prevents
+     * a mis-typed or injected domain string from silently granting the permissive
+     * 'operations' workflow.
+     *
+     * @var array<string, mixed>
+     */
+    private const RESTRICTED_WORKFLOW = [
+        'allowPause'           => false,
+        'allowAdjourn'         => false,
+        'quorumEnforced'       => true,
+        'chairOnlyTransitions' => [],
+    ];
+
+    /**
      * Constructor for WorkflowService.
      *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.1
@@ -84,6 +101,10 @@ class WorkflowService
     /**
      * Get the workflow configuration for a given domain.
      *
+     * #314: Unknown domains fall back to RESTRICTED_WORKFLOW (default-deny) instead of
+     * the permissive 'operations' workflow, so a mis-typed or injected domain string
+     * cannot silently grant elevated permissions.
+     *
      * @param string $domain The governance domain (legislative|association|corporate|operations|citizen)
      *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.1
@@ -92,11 +113,16 @@ class WorkflowService
      */
     public function getDomainWorkflow(string $domain): array
     {
-        return self::DOMAIN_WORKFLOWS[$domain] ?? self::DOMAIN_WORKFLOWS['operations'];
+        return self::DOMAIN_WORKFLOWS[$domain] ?? self::RESTRICTED_WORKFLOW;
     }//end getDomainWorkflow()
 
     /**
      * Validate whether a state transition is allowed for a given governance body domain.
+     *
+     * #313: Domain allow-flags are evaluated FIRST so they cannot be short-circuited
+     * by a match in chairOnlyTransitions. A chair-only transition that is also
+     * domain-forbidden must still return false. Callers must separately verify
+     * chair authorization via requiresChairAuthorization() when this returns true.
      *
      * @param string $domain    The governance domain
      * @param string $fromState The current lifecycle state
@@ -104,17 +130,13 @@ class WorkflowService
      *
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
      *
-     * @return bool True if the transition is allowed, false otherwise
+     * @return bool True if the transition is permitted by domain rules (does NOT imply chair auth satisfied)
      */
     public function isTransitionAllowed(string $domain, string $fromState, string $toState): bool
     {
         $workflow = $this->getDomainWorkflow(domain: $domain);
 
-        $transition = "$fromState:$toState";
-        if (in_array(needle: $transition, haystack: $workflow['chairOnlyTransitions'] ?? [], strict: true) === true) {
-            return true;
-        }
-
+        // #313: Evaluate domain-level allow-flags FIRST — these override everything.
         if ($fromState === 'opened' && $toState === 'paused' && ($workflow['allowPause'] ?? true) === false) {
             return false;
         }
@@ -123,6 +145,8 @@ class WorkflowService
             return false;
         }
 
+        // Chair-only transitions are allowed by domain rules; the caller must separately
+        // enforce that the actor holds the chair role via requiresChairAuthorization().
         return true;
     }//end isTransitionAllowed()
 

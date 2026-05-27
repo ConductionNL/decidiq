@@ -307,8 +307,9 @@ class VotingService
     /**
      * Cast a vote in a VotingRound.
      *
-     * Checks the round is open, prevents duplicates (overwrites existing vote),
-     * and enforces one-proxy-per-round for proxy votes.
+     * Checks the round is open, verifies the participant is a member of the
+     * meeting that owns the round (#300), prevents duplicates (overwrites
+     * existing vote), and enforces one-proxy-per-round for proxy votes.
      *
      * @param string      $votingRoundId The voting round UUID
      * @param string      $participantId The participant UUID
@@ -318,7 +319,8 @@ class VotingService
      *
      * @return array<string,mixed> The created/updated Vote object
      *
-     * @throws \RuntimeException When the round is not open, or proxy rules are violated
+     * @throws \RuntimeException When the round is not open, the caller is not a meeting member,
+     *                           or proxy rules are violated
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
      */
@@ -342,6 +344,46 @@ class VotingService
 
         if (($round['openedAt'] ?? null) === null) {
             throw new \RuntimeException('Stemronde is nog niet geopend');
+        }
+
+        // #300: Verify the participant is actually a member of the meeting that owns this round.
+        // The round is linked to a Motion; the Motion is linked to a Meeting via its relations.
+        $meetingId = null;
+        foreach (($round['relations'] ?? []) as $roundRel) {
+            if (($roundRel['schema'] ?? '') === 'motion') {
+                $motionId = ($roundRel['id'] ?? null);
+                if ($motionId !== null) {
+                    $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+                    if ($motionEntity !== null) {
+                        $motionData = $motionEntity->jsonSerialize();
+                        foreach (($motionData['relations'] ?? []) as $motionRel) {
+                            if (($motionRel['schema'] ?? '') === 'meeting') {
+                                $meetingId = ($motionRel['id'] ?? null);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                break;
+            }
+        }
+
+        if ($meetingId !== null) {
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('participant');
+            $memberEntities = $objectService->findAll(
+                [
+                    'filters' => [
+                        '@self.relations.meeting' => $meetingId,
+                        'id'                      => $participantId,
+                    ],
+                ]
+            );
+
+            if (empty($memberEntities) === true) {
+                throw new \RuntimeException('Deelnemer is geen lid van de vergadering');
+            }
         }
 
         $isSecret = (bool) ($round['isSecret'] ?? false);
@@ -690,6 +732,57 @@ class VotingService
             throw new \RuntimeException('saveShowOfHandsTally is only valid for show-of-hands rounds');
         }
 
+        // #302: Validate submitted counts against the actual participant count for the meeting.
+        // The round relates to a motion, which relates to a meeting; count active participants.
+        $meetingId = null;
+        foreach (($round['relations'] ?? []) as $roundRel) {
+            if (($roundRel['schema'] ?? '') === 'motion') {
+                $motionId = ($roundRel['id'] ?? null);
+                if ($motionId !== null) {
+                    $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+                    if ($motionEntity !== null) {
+                        $motionData = $motionEntity->jsonSerialize();
+                        foreach (($motionData['relations'] ?? []) as $motionRel) {
+                            if (($motionRel['schema'] ?? '') === 'meeting') {
+                                $meetingId = ($motionRel['id'] ?? null);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                break;
+            }
+        }
+
+        if ($meetingId !== null) {
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('participant');
+            $participantEntities = $objectService->findAll(
+                [
+                    'filters' => [
+                        '@self.relations.meeting' => $meetingId,
+                    ],
+                ]
+            );
+
+            // Count only active participants (leftAt is null).
+            $activeCount = 0;
+            foreach ($participantEntities as $pe) {
+                $pd = $pe->jsonSerialize();
+                if (($pd['leftAt'] ?? null) === null) {
+                    $activeCount++;
+                }
+            }
+
+            $submittedTotal = ($votesFor + $votesAgainst + $votesAbstain);
+            if ($activeCount > 0 && $submittedTotal > $activeCount) {
+                throw new \RuntimeException(
+                    "Ingevoerde tellingen ({$submittedTotal}) overschrijden het aantal actieve deelnemers ({$activeCount})"
+                );
+            }
+        }//end if
+
         $total  = ($votesFor + $votesAgainst + $votesAbstain);
         $result = match (true) {
             $total === 0      => 'invalid',
@@ -887,9 +980,16 @@ class VotingService
      * Returns aggregate vote counts, preselected option, and no individual vote values.
      * Accessible without authentication.
      *
+     * #303: Returns null (treating as not-found) when:
+     * - The round has isSecret==true (secret ballots must not leak even aggregate
+     *   counts to unauthenticated projection displays until the chair explicitly
+     *   publishes results).
+     * - The round's lifecycle is not 'published' (draft/closed rounds are not visible
+     *   to anonymous callers).
+     *
      * @param string $votingRoundId The voting round UUID
      *
-     * @return array<string,mixed>|null The public-state array or null if not found
+     * @return array<string,mixed>|null The public-state array or null if not found / not accessible
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
      */
@@ -903,6 +1003,19 @@ class VotingService
         }
 
         if ($round === null) {
+            return null;
+        }
+
+        // #303: Secret voting rounds must never be surfaced to anonymous projection callers.
+        if ((bool) ($round['isSecret'] ?? false) === true) {
+            return null;
+        }
+
+        // #303: Only rounds that have been explicitly published (lifecycle == 'published') are
+        // visible to unauthenticated callers. Draft, open, and closed-but-unpublished rounds
+        // must not leak to the public projection endpoint.
+        $lifecycle = $round['lifecycle'] ?? $round['status'] ?? '';
+        if ($lifecycle !== 'published') {
             return null;
         }
 

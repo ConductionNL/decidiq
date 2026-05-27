@@ -148,6 +148,17 @@ class AgendaServiceTest extends TestCase
             ['displayName' => 'Carol', 'leftAt' => null, 'owner' => 'carol'],
         ];
 
+        // Meeting entity stub for the #315 full-object read in publishAgenda.
+        $meetingEntity = new class(['id' => $meetingId, 'title' => 'Test Meeting', 'lifecycle' => 'scheduled']) {
+            public function __construct(private array $data) {}
+            public function jsonSerialize(): array { return $this->data; }
+            public function getObject(): array { return $this->data; }
+        };
+
+        $this->objectService
+            ->method('find')
+            ->willReturn($meetingEntity);
+
         $this->objectService
             ->method('findAll')
             ->willReturnCallback(function (array $config) use ($participants) {
