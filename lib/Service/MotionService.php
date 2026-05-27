@@ -102,12 +102,21 @@ class MotionService
      * updates the `lifecycle` and `status` fields via ObjectService and logs
      * the event to ActivityService (via OpenRegister automatic audit trail).
      *
+     * #317: The actorId must be a non-empty Nextcloud user UID or the reserved
+     * sentinel 'system' (used only for internal service-to-service calls such as
+     * VotingService closing a round). An empty actorId is rejected to prevent
+     * unauthenticated DI-path callers from transitioning lifecycle without
+     * first performing their own auth check.
+     *
+     * Controllers that expose this via HTTP must call their own requireChairOrSecretary()
+     * guard BEFORE invoking this method and pass the authenticated UID as actorId.
+     *
      * @param string $objectId   UUID of the Motion or Amendment object
      * @param string $objectType Schema slug: 'motion' or 'amendment'
      * @param string $newState   Target lifecycle state
-     * @param string $actorId    Nextcloud user ID performing the transition
+     * @param string $actorId    Nextcloud user UID performing the transition, or 'system' for internal calls
      *
-     * @throws \InvalidArgumentException When the transition is not allowed
+     * @throws \InvalidArgumentException When the transition is not allowed or actorId is empty
      * @throws \RuntimeException         When the object cannot be found or saved
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
@@ -116,6 +125,11 @@ class MotionService
      */
     public function transitionLifecycle(string $objectId, string $objectType, string $newState, string $actorId): void
     {
+        // #317: Reject calls without an authenticated actor to prevent bare DI-path abuse.
+        if ($actorId === '') {
+            throw new \InvalidArgumentException('actorId must be a non-empty Nextcloud user UID or the sentinel "system"');
+        }
+
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
         $objectService->setSchema($objectType);
