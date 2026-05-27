@@ -66,7 +66,11 @@ class CommentController extends Controller
      *
      * POST /api/comments
      *
-     * Body: { text, target, author, mentions[], parentComment }
+     * Body: { text, target, mentions[], parentComment }
+     *
+     * NOTE: The `author` field is always derived from the authenticated session —
+     * any client-supplied `author` value is silently ignored. This prevents
+     * accountability record spoofing (OWASP A01:2021 — Broken Access Control).
      *
      * @return JSONResponse
      *
@@ -84,7 +88,8 @@ class CommentController extends Controller
         $payload = [
             'text'          => (string) $this->request->getParam('text', ''),
             'target'        => $this->request->getParam('target'),
-            'author'        => ($this->request->getParam('author') ?? $user->getUID()),
+            // Always use the authenticated user's UID — never trust client-supplied author.
+            'author'        => $user->getUID(),
             'mentions'      => $this->request->getParam('mentions', []),
             'parentComment' => $this->request->getParam('parentComment'),
         ];
