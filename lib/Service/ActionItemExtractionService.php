@@ -147,7 +147,16 @@ class ActionItemExtractionService
                 }
 
                 if (empty($candidate['dueDate']) === false) {
-                    $actionItem['dueDate'] = $candidate['dueDate'];
+                    // Accept only ISO-8601 date strings to prevent strtotime relative-expression injection
+                    // (e.g. "yesterday", "next Monday") that produce silently wrong deadline values.
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?Z?)?$/', (string) $candidate['dueDate']) === 1) {
+                        $actionItem['dueDate'] = $candidate['dueDate'];
+                    } else {
+                        $this->logger->warning(
+                            'ActionItemExtractionService: rejected non-ISO-8601 dueDate',
+                            ['dueDate' => $candidate['dueDate']]
+                        );
+                    }
                 }
 
                 try {

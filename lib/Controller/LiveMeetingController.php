@@ -25,8 +25,10 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\LiveDecisionService;
+use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -48,6 +50,7 @@ class LiveMeetingController extends Controller
      * @param LiveDecisionService $liveDecisionService The live decision service
      * @param IUserSession        $userSession         The current user session
      * @param IGroupManager       $groupManager        Group manager for admin checks
+     * @param ObjectService       $objectService       OpenRegister object service for role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
      */
@@ -56,9 +59,63 @@ class LiveMeetingController extends Controller
         private LiveDecisionService $liveDecisionService,
         private IUserSession $userSession,
         private IGroupManager $groupManager,
+        private ObjectService $objectService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
+
+    /**
+     * Verify that the caller is an NC admin or holds a chair/secretary role for the meeting.
+     *
+     * @param string $meetingId UUID of the meeting
+     *
+     * @return JSONResponse|null Null if authorised, a 403/401 JSONResponse otherwise.
+     */
+    private function requireChairOrAdmin(string $meetingId): ?JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $userId = $user->getUID();
+
+        if ($this->groupManager->isAdmin($userId) === true) {
+            return null;
+        }
+
+        $participants = $this->objectService->findAll(
+            [
+                'filters' => [
+                    'register'                => 'decidesk',
+                    'schema'                  => 'participant',
+                    '@self.relations.meeting' => $meetingId,
+                ],
+            ]
+        );
+
+        foreach ($participants as $p) {
+            $pData           = is_array($p) === true ? $p : (array) $p;
+            $nextcloudUserId = $pData['nextcloudUserId'] ?? null;
+            $ownerField      = $pData['owner'] ?? null;
+            $role            = $pData['role'] ?? null;
+
+            $isCallerMatch = ($nextcloudUserId !== null && $nextcloudUserId === $userId)
+                || ($nextcloudUserId === null && $ownerField !== null && $ownerField === $userId);
+
+            if ($isCallerMatch === true
+                && in_array(needle: $role, haystack: ['chair', 'secretary'], strict: true) === true
+            ) {
+                return null;
+            }
+        }
+
+        return new JSONResponse(
+            ['error' => 'Forbidden: chair or secretary role required for this meeting.'],
+            Http::STATUS_FORBIDDEN
+        );
+
+    }//end requireChairOrAdmin()
 
     /**
      * Record a decision during an active meeting.
@@ -70,7 +127,7 @@ class LiveMeetingController extends Controller
      * Returns 200 with the created Decision object on success.
      * Returns 400 when required fields are missing.
      * Returns 401 when not authenticated.
-     * Returns 403 when the caller is not a Nextcloud admin.
+     * Returns 403 when the caller does not hold a chair or secretary role for the meeting.
      * Returns 404 when the Meeting is not found.
      * Returns 409 when the Meeting is not in 'opened' state.
      *
@@ -78,23 +135,19 @@ class LiveMeetingController extends Controller
      *
      * @return JSONResponse The created Decision object
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
      */
+    #[NoAdminRequired]
     public function recordLiveDecision(string $meetingId): JSONResponse
     {
-        try {
-            $user = $this->userSession->getUser();
-            if ($user === null) {
-                return new JSONResponse(['error' => 'Not authenticated'], 401);
-            }
+        $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
+        if ($denied !== null) {
+            return $denied;
+        }
 
-            // Require admin rights to prevent IDOR — any authenticated user recording decisions
-            // on arbitrary meetings they don't own (OWASP A01:2021 / ADR-005 Rule 3).
-            if ($this->groupManager->isAdmin($user->getUID()) === false) {
-                return new JSONResponse(['error' => 'Forbidden: only administrators may record live decisions.'], Http::STATUS_FORBIDDEN);
-            }
+        $user = $this->userSession->getUser();
+
+        try {
 
             $title   = $this->request->getParam('title');
             $text    = $this->request->getParam('text');

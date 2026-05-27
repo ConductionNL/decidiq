@@ -190,8 +190,8 @@ class VotingService
         }
 
         if ($governanceBodyId === null) {
-            // No governance body linked — cannot verify quorum.
-            return true;
+            // No governance body linked — cannot verify quorum; fail closed.
+            return false;
         }
 
         $objectService->setRegister('decidesk');
@@ -234,7 +234,8 @@ class VotingService
         ?string $closedAt,
         array $presetParticipantIds=[],
     ): array {
-        if ($this->checkQuorum(meetingId: $meetingId) === false) {
+        $quorumMet = $this->checkQuorum(meetingId: $meetingId);
+        if ($quorumMet === false) {
             throw new \RuntimeException('Quorum niet bereikt');
         }
 
@@ -245,7 +246,7 @@ class VotingService
             'isSecret'     => $isSecret,
             'openedAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
             'closedAt'     => $closedAt,
-            'quorumMet'    => true,
+            'quorumMet'    => $quorumMet,
             'result'       => null,
             'votesFor'     => 0,
             'votesAgainst' => 0,
