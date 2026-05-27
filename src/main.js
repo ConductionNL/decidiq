@@ -18,7 +18,7 @@ import {
 import pinia from './pinia.js'
 import App from './App.vue'
 import bundledManifest from './manifest.json'
-import customComponents from './customComponents.js'
+import registry from './registry.js'
 import { initializeStores } from './store/store.js'
 
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
@@ -116,14 +116,14 @@ const router = new VueRouter({
 tryLoadTranslations()
 
 // Pass shallow copies of the registry maps to CnAppRoot. The lib exports
-// `defaultPageTypes` (and consumers' `customComponents`) as frozen module
-// objects in some bundle shapes — Vue 2's `Vue.extend()` mutates component
-// definitions to attach an internal `_Ctor` cache, which throws
-// "Cannot add property _Ctor, object is not extensible" against a frozen
-// source map. Cloning here yields extensible objects without changing
-// the values the lib resolves at render time.
+// `defaultPageTypes` (and our `registry`) as frozen module objects in some
+// bundle shapes — Vue 2's `Vue.extend()` mutates component definitions to
+// attach an internal `_Ctor` cache, which throws "Cannot add property _Ctor,
+// object is not extensible" against a frozen source map. Cloning here yields
+// extensible objects without changing the values the lib resolves at render
+// time.
 const pageTypesProp = { ...defaultPageTypes }
-const customComponentsProp = { ...customComponents }
+const registryProp = { ...registry }
 
 // Boot order matters: initializeStores() registers every object type
 // (meeting, agenda-item, participant, motion, ...) on the lib's shared
@@ -176,7 +176,7 @@ setActivePinia(pinia)
 		render: (h) => h(App, {
 			props: {
 				manifest: bundledManifest,
-				customComponents: customComponentsProp,
+				registry: registryProp,
 				pageTypes: pageTypesProp,
 			},
 		}),
