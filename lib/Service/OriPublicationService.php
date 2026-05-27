@@ -157,14 +157,25 @@ class OriPublicationService
                 throw new \RuntimeException('JSON encoding of ORI payload failed: '.json_last_error_msg());
             }
 
+            // #320: Attach the configurable ORI bearer token when set.
+            // The secret is stored in IAppConfig under key 'ori_bearer_secret'.
+            // When not configured the Authorization header is omitted (ORI endpoints
+            // that require auth will return 401, surfacing a configuration gap).
+            $headers = [
+                'Content-Type' => 'application/ld+json',
+                'Accept'       => 'application/json',
+            ];
+
+            $bearerSecret = $this->appConfig->getValueString(Application::APP_ID, 'ori_bearer_secret', '');
+            if ($bearerSecret !== '') {
+                $headers['Authorization'] = 'Bearer '.$bearerSecret;
+            }
+
             $client = $this->clientService->newClient();
             $client->post(
                 $endpoint,
                 [
-                    'headers' => [
-                        'Content-Type' => 'application/ld+json',
-                        'Accept'       => 'application/json',
-                    ],
+                    'headers' => $headers,
                     'body'    => $body,
                     'timeout' => 10,
                 ]

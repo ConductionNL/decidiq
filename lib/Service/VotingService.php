@@ -555,20 +555,26 @@ class VotingService
         $result = ($tally['result'] ?? 'invalid');
 
         // Transition motion lifecycle based on result.
+        // #318: Re-throw \InvalidArgumentException (bad state-machine transition) so the
+        // caller learns the round was closed but motion lifecycle could not be updated.
+        // Transient/infrastructure errors are still logged-and-continued so a network hiccup
+        // does not leave the round un-closed; however they are logged at ERROR level so they
+        // surface in monitoring rather than silently disappearing.
+        $lifecycleError = null;
         if ($round !== null) {
             foreach (($round['relations'] ?? []) as $rel) {
                 if (($rel['schema'] ?? '') === 'motion') {
                     $motionId = ($rel['id'] ?? null);
                     if ($motionId !== null) {
-                        try {
-                            // Only transition to defined terminal states via the guarded state machine.
-                            $motionLifecycle = match ($result) {
-                                'adopted'  => 'adopted',
-                                'rejected' => 'rejected',
-                                default    => null,
-                            };
+                        // Only transition to defined terminal states via the guarded state machine.
+                        $motionLifecycle = match ($result) {
+                            'adopted'  => 'adopted',
+                            'rejected' => 'rejected',
+                            default    => null,
+                        };
 
-                            if ($motionLifecycle !== null) {
+                        if ($motionLifecycle !== null) {
+                            try {
                                 $this->motionService->transitionLifecycle(
                                     objectId: $motionId,
                                     objectType: 'motion',
@@ -587,10 +593,24 @@ class VotingService
                                     $motionTitle = (string) ($motion['title'] ?? $motionId);
                                     $this->createDossierFolder(motionId: $motionId, motionTitle: $motionTitle);
                                 }
-                            }
-                        } catch (\Throwable $e) {
-                            $this->logger->warning('Decidesk: lifecycle transition after close failed', ['error' => $e->getMessage()]);
-                        }//end try
+                            } catch (\InvalidArgumentException $e) {
+                                // State-machine violation: re-throw so the caller can surface it.
+                                // #318: Previously swallowed silently.
+                                throw new \RuntimeException(
+                                    'Stemronde gesloten maar motie kon niet worden bijgewerkt: '.$e->getMessage(),
+                                    0,
+                                    $e
+                                );
+                            } catch (\Throwable $e) {
+                                // Transient infrastructure failure: log at ERROR level and continue.
+                                // #318: Previously logged at WARNING and lost in monitoring noise.
+                                $this->logger->error(
+                                    'Decidesk: lifecycle transition after close failed — round is closed but motion state may be stale',
+                                    ['votingRoundId' => $votingRoundId, 'motionId' => $motionId, 'error' => $e->getMessage()]
+                                );
+                                $lifecycleError = $e->getMessage();
+                            }//end try
+                        }//end if
                     }//end if
 
                     break;
@@ -598,11 +618,23 @@ class VotingService
             }//end foreach
         }//end if
 
-        // Trigger ORI publication (fails silently if not configured).
+        // Trigger ORI publication.
+        // #318: Publication failures are now surfaced to callers when they indicate a real
+        // configuration or protocol error (not "endpoint not configured" — that is still
+        // swallowed, as `publish()` returns silently when no endpoint is set).
+        // Infrastructure/network errors are logged at ERROR level (was INFO) so they surface
+        // in monitoring.
         try {
             $this->oriPublicationService->publish($votingRoundId);
         } catch (\Throwable $e) {
-            $this->logger->info('Decidesk: ORI publication deferred', ['error' => $e->getMessage()]);
+            $this->logger->error(
+                'Decidesk: ORI publication failed after round close',
+                ['votingRoundId' => $votingRoundId, 'error' => $e->getMessage()]
+            );
+            // Attach ORI error to round data so caller can reflect it in the response.
+            if ($round !== null) {
+                $round['oriPublicationError'] = $e->getMessage();
+            }
         }
 
         // Anonymise vote values if requested (sequence: tally → publish → anonymise).

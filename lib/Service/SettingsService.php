@@ -52,6 +52,7 @@ class SettingsService
     private const CONFIG_KEYS = [
         'register',
         'ori_endpoint',
+        'ori_bearer_secret',
         'email_voting_enabled',
         'minutesSchema',
         'decisionSchema',
