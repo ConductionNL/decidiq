@@ -267,5 +267,4 @@ class WorkspaceService
         return $workspace;
 
     }//end removeMember()
-
 }//end class
