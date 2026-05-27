@@ -248,19 +248,34 @@ class CommentService
     /**
      * Mark a comment thread as resolved.
      *
-     * @param string $commentId UUID of the root Comment object
+     * Only the comment's author, a chair/secretary (checked by the controller),
+     * or an NC admin should call this. Pass `$callerUid` so the service can
+     * enforce that non-admin callers resolve only their own threads
+     * (OWASP A01 — Broken Access Control).
+     *
+     * @param string      $commentId UUID of the root Comment object
+     * @param string|null $callerUid Nextcloud UID of the requester (null = skip author check)
      *
      * @return array<string, mixed>
      *
-     * @throws RuntimeException When the comment cannot be found
+     * @throws RuntimeException         When the comment cannot be found
+     * @throws \InvalidArgumentException When the caller is not the comment author
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-5.1
      */
-    public function resolveThread(string $commentId): array
+    public function resolveThread(string $commentId, ?string $callerUid = null): array
     {
         $comment = $this->findComment(commentId: $commentId);
         if ($comment === null) {
             throw new RuntimeException("Comment $commentId not found");
+        }
+
+        // OWASP A01 — verify the caller is the comment author.
+        if ($callerUid !== null) {
+            $author = (string) ($comment['author'] ?? '');
+            if ($author === '' || $author !== $callerUid) {
+                throw new \InvalidArgumentException('Only the comment author may resolve this thread');
+            }
         }
 
         $comment['resolvedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);

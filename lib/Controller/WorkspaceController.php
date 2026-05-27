@@ -88,8 +88,10 @@ class WorkspaceController extends Controller
         }
 
         try {
-            $workspace = $this->workspaceService->addMember($id, $personId);
+            $workspace = $this->workspaceService->addMember($id, $personId, $user->getUID());
             return new JSONResponse($workspace);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
@@ -118,8 +120,10 @@ class WorkspaceController extends Controller
         }
 
         try {
-            $workspace = $this->workspaceService->removeMember($id, $personId);
+            $workspace = $this->workspaceService->removeMember($id, $personId, $user->getUID());
             return new JSONResponse($workspace);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }

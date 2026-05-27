@@ -183,22 +183,67 @@ class WorkspaceService
     }//end updateWorkspace()
 
     /**
-     * Add a member reference to the workspace's member list.
+     * Check whether a caller owns the workspace or is a known member.
      *
-     * @param string $workspaceId UUID of the workspace
-     * @param string $memberRef   Membership reference (UUID)
+     * A caller is authorised when the workspace `owner` field matches the
+     * caller's Nextcloud UID, or when the caller's UID is already in the
+     * `members` list. This prevents IDOR on membership-mutation endpoints
+     * (OWASP A01:2021 — Broken Access Control).
      *
-     * @return array<string, mixed>
+     * @param array<string, mixed> $workspace  Workspace data array
+     * @param string               $callerUid  Nextcloud UID of the requester
      *
-     * @throws RuntimeException When the workspace cannot be found
+     * @return bool True when the caller may modify membership
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
      */
-    public function addMember(string $workspaceId, string $memberRef): array
+    public function isMembershipManager(array $workspace, string $callerUid): bool
+    {
+        if ($callerUid === '') {
+            return false;
+        }
+
+        // Workspace owner may always manage membership.
+        if ((string) ($workspace['owner'] ?? '') === $callerUid) {
+            return true;
+        }
+
+        // Existing workspace members may add/remove other members.
+        $members = ($workspace['members'] ?? []);
+        if (in_array(needle: $callerUid, haystack: $members, strict: true) === true) {
+            return true;
+        }
+
+        return false;
+
+    }//end isMembershipManager()
+
+    /**
+     * Add a member reference to the workspace's member list.
+     *
+     * The caller must be the workspace owner or an existing member (OWASP A01).
+     * Pass `$callerUid = null` only from admin-only or system-internal paths.
+     *
+     * @param string      $workspaceId UUID of the workspace
+     * @param string      $memberRef   Membership reference (UUID or Nextcloud UID)
+     * @param string|null $callerUid   Nextcloud UID of the requester (null = skip check)
+     *
+     * @return array<string, mixed>
+     *
+     * @throws RuntimeException         When the workspace cannot be found
+     * @throws \InvalidArgumentException When the caller is not authorised to manage membership
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
+     */
+    public function addMember(string $workspaceId, string $memberRef, ?string $callerUid = null): array
     {
         $workspace = $this->findWorkspace(workspaceId: $workspaceId);
         if ($workspace === null) {
             throw new RuntimeException("Workspace $workspaceId not found");
+        }
+
+        if ($callerUid !== null && $this->isMembershipManager(workspace: $workspace, callerUid: $callerUid) === false) {
+            throw new \InvalidArgumentException('Only workspace owners and members may add members to this workspace');
         }
 
         $members = ($workspace['members'] ?? []);
@@ -216,7 +261,7 @@ class WorkspaceService
 
             $this->logger->info(
                 'Decidesk: Workspace member added',
-                ['workspaceId' => $workspaceId, 'member' => $memberRef]
+                ['workspaceId' => $workspaceId, 'member' => $memberRef, 'by' => $callerUid]
             );
         }
 
@@ -227,20 +272,29 @@ class WorkspaceService
     /**
      * Remove a member reference from the workspace's member list.
      *
-     * @param string $workspaceId UUID of the workspace
-     * @param string $memberRef   Membership reference (UUID)
+     * The caller must be the workspace owner or an existing member (OWASP A01).
+     * Pass `$callerUid = null` only from admin-only or system-internal paths.
+     *
+     * @param string      $workspaceId UUID of the workspace
+     * @param string      $memberRef   Membership reference (UUID or Nextcloud UID)
+     * @param string|null $callerUid   Nextcloud UID of the requester (null = skip check)
      *
      * @return array<string, mixed>
      *
-     * @throws RuntimeException When the workspace cannot be found
+     * @throws RuntimeException         When the workspace cannot be found
+     * @throws \InvalidArgumentException When the caller is not authorised to manage membership
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
      */
-    public function removeMember(string $workspaceId, string $memberRef): array
+    public function removeMember(string $workspaceId, string $memberRef, ?string $callerUid = null): array
     {
         $workspace = $this->findWorkspace(workspaceId: $workspaceId);
         if ($workspace === null) {
             throw new RuntimeException("Workspace $workspaceId not found");
+        }
+
+        if ($callerUid !== null && $this->isMembershipManager(workspace: $workspace, callerUid: $callerUid) === false) {
+            throw new \InvalidArgumentException('Only workspace owners and members may remove members from this workspace');
         }
 
         $members = ($workspace['members'] ?? []);
@@ -261,7 +315,7 @@ class WorkspaceService
 
         $this->logger->info(
             'Decidesk: Workspace member removed',
-            ['workspaceId' => $workspaceId, 'member' => $memberRef]
+            ['workspaceId' => $workspaceId, 'member' => $memberRef, 'by' => $callerUid]
         );
 
         return $workspace;
