@@ -89,7 +89,7 @@ class VotingBehaviourController extends Controller
 
         // Authorization: user may access own stats or must hold admin rights.
         // Allow if this is the user's own stats, otherwise require admin.
-        $isOwnStats  = ($participantId === $uid);
+        $isOwnStats   = ($participantId === $uid);
         $canViewOther = $isOwnStats || $this->groupManager->isAdmin($uid);
 
         if ($canViewOther === false) {

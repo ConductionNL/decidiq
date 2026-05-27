@@ -497,7 +497,12 @@ class DecideskToolProvider implements IMcpToolProvider
 
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         $meetingEntity = $objectService->find(id: (string) $meetingUuid, register: 'decidesk', schema: 'meeting');
-        $meeting       = ($meetingEntity !== null) ? $meetingEntity->jsonSerialize() : null;
+        if ($meetingEntity !== null) {
+            $meeting = $meetingEntity->jsonSerialize();
+        } else {
+            $meeting = null;
+        }
+
         if ($meeting === null) {
             return [
                 'isError' => true,
@@ -675,7 +680,12 @@ class DecideskToolProvider implements IMcpToolProvider
 
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         $meetingEntity = $objectService->find(id: (string) $meetingUuid, register: 'decidesk', schema: 'meeting');
-        $meeting       = ($meetingEntity !== null) ? $meetingEntity->jsonSerialize() : null;
+        if ($meetingEntity !== null) {
+            $meeting = $meetingEntity->jsonSerialize();
+        } else {
+            $meeting = null;
+        }
+
         if ($meeting === null) {
             return [
                 'isError' => true,
@@ -813,7 +823,12 @@ class DecideskToolProvider implements IMcpToolProvider
 
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         $meetingEntity = $objectService->find(id: (string) $meetingUuid, register: 'decidesk', schema: 'meeting');
-        $meeting       = ($meetingEntity !== null) ? $meetingEntity->jsonSerialize() : null;
+        if ($meetingEntity !== null) {
+            $meeting = $meetingEntity->jsonSerialize();
+        } else {
+            $meeting = null;
+        }
+
         if ($meeting === null) {
             return [
                 'isError' => true,
