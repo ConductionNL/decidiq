@@ -310,20 +310,50 @@ class DecideskToolProvider implements IMcpToolProvider
                 '_limit'    => $limit,
             ];
 
+            $currentUserId = $this->userSession->getUser()?->getUID() ?? '';
             if ($scope === 'mine') {
-                $currentUserId = $this->userSession->getUser()?->getUID();
-                if ($currentUserId !== null) {
+                if ($currentUserId !== '') {
                     $filters['assignee'] = $currentUserId;
                 }
             }
 
             $rawItems = $objectService->findAll(['filters' => $filters]);
 
+            // For scope=all, non-admins see only items linked to meetings they participate in.
+            // This prevents cross-governance-body data exposure (OWASP A01 / ADR-005).
+            $callerMeetingUuids = null;
+            if ($scope === 'all' && $currentUserId !== '') {
+                $callerMeetingUuids = $this->getCallerMeetingUuids(userId: $currentUserId);
+            }
+
             $items   = [];
             $sources = [];
 
             foreach ($rawItems as $raw) {
                 $item     = $this->toArray(item: $raw);
+
+                // When meeting UUIDs are restricted, only include action items whose
+                // meeting relation is in the caller's set.
+                if ($callerMeetingUuids !== null) {
+                    $itemMeetingId = $item['@self']['relations']['meeting']
+                        ?? $item['meeting']
+                        ?? null;
+
+                    if ($itemMeetingId === null) {
+                        // Action item has no meeting relation — check relations array.
+                        foreach (($item['relations'] ?? []) as $rel) {
+                            if (is_array($rel) === true && ($rel['schema'] ?? '') === 'meeting') {
+                                $itemMeetingId = $rel['id'] ?? null;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($itemMeetingId === null || in_array((string) $itemMeetingId, $callerMeetingUuids, true) === false) {
+                        continue;
+                    }
+                }
+
                 $itemUuid = $this->extractUuid(item: $item);
                 $title    = (string) ($item['title'] ?? $item['name'] ?? 'Action item');
 
@@ -418,13 +448,30 @@ class DecideskToolProvider implements IMcpToolProvider
 
             $rawMeetings = $objectService->findAll(['filters' => $filters]);
 
+            // Scope results to meetings the caller participates in.
+            // Admins see all meetings; non-admins see only their own governance bodies.
+            // (OWASP A01:2021 — Broken Access Control / ADR-005)
+            $currentUserId      = $this->userSession->getUser()?->getUID() ?? '';
+            $callerMeetingUuids = null;
+            if ($currentUserId !== '') {
+                $callerMeetingUuids = $this->getCallerMeetingUuids(userId: $currentUserId);
+            }
+
             $meetings = [];
             $sources  = [];
 
             foreach ($rawMeetings as $raw) {
                 $meeting     = $this->toArray(item: $raw);
                 $meetingUuid = $this->extractUuid(item: $meeting);
-                $title       = (string) ($meeting['title'] ?? 'Meeting');
+
+                // Filter to caller's meetings when not an admin.
+                if ($callerMeetingUuids !== null
+                    && in_array($meetingUuid, $callerMeetingUuids, true) === false
+                ) {
+                    continue;
+                }
+
+                $title = (string) ($meeting['title'] ?? 'Meeting');
 
                 $meetings[] = $meeting;
                 $sources[]  = [
@@ -1050,6 +1097,71 @@ class DecideskToolProvider implements IMcpToolProvider
         return $this->groupManager->isAdmin($userId);
 
     }//end isAdmin()
+
+    /**
+     * Return the set of meeting UUIDs the caller is a participant of.
+     *
+     * Used to scope `scope=all` MCP tool results to meetings the calling
+     * user legitimately participates in, preventing cross-governance-body
+     * data exposure (OWASP A01:2021 — Broken Access Control / ADR-005).
+     *
+     * Admins receive null (no restriction — all meetings visible).
+     *
+     * @param string $userId Nextcloud UID of the caller
+     *
+     * @return array<string>|null Set of meeting UUIDs, or null for unrestricted admin
+     *
+     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     */
+    private function getCallerMeetingUuids(string $userId): ?array
+    {
+        if ($this->isAdmin(userId: $userId) === true) {
+            return null;
+        }
+
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+            // Find all participant records for this Nextcloud user.
+            $participants = $objectService->findAll(
+                [
+                    'filters' => [
+                        'register'        => 'decidesk',
+                        'schema'          => 'participant',
+                        'nextcloudUserId' => $userId,
+                    ],
+                ]
+            );
+
+            $meetingUuids = [];
+            foreach ($participants as $raw) {
+                $p = $this->toArray(item: $raw);
+
+                // Collect from @self.relations.meeting or relations array.
+                $meetingId = $p['@self']['relations']['meeting'] ?? null;
+                if ($meetingId !== null) {
+                    $meetingUuids[] = (string) $meetingId;
+                    continue;
+                }
+
+                foreach (($p['relations'] ?? []) as $rel) {
+                    if (is_array($rel) === true && ($rel['schema'] ?? '') === 'meeting') {
+                        $meetingUuids[] = (string) ($rel['id'] ?? '');
+                    }
+                }
+            }
+
+            return array_unique(array_filter($meetingUuids));
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'Decidesk MCP: could not resolve caller meeting UUIDs, defaulting to empty',
+                ['userId' => $userId, 'error' => $e->getMessage()]
+            );
+            // Fail closed: if we can't determine memberships, return no meetings.
+            return [];
+        }
+
+    }//end getCallerMeetingUuids()
 
     /**
      * Build a deep link URL for a decidesk resource.

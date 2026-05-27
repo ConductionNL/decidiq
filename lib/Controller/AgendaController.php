@@ -115,9 +115,19 @@ class AgendaController extends Controller
                 $pData = (array) $p;
             }
 
-            $owner = $pData['owner'] ?? null;
-            $role  = $pData['role'] ?? null;
-            if ($owner === $userId && in_array(needle: $role, haystack: ['chair', 'secretary'], strict: true) === true) {
+            $role = $pData['role'] ?? null;
+            if (in_array(needle: $role, haystack: ['chair', 'secretary'], strict: true) === false) {
+                continue;
+            }
+
+            // Match on nextcloudUserId (canonical field set by PR #323) with fallback
+            // to the legacy `owner` field for pre-migration participant records.
+            $nextcloudUserId = $pData['nextcloudUserId'] ?? null;
+            $ownerField      = $pData['owner'] ?? null;
+
+            if (($nextcloudUserId !== null && $nextcloudUserId === $userId)
+                || ($nextcloudUserId === null && $ownerField !== null && $ownerField === $userId)
+            ) {
                 return null;
             }
         }
