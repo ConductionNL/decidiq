@@ -5,6 +5,7 @@ status: idea
 # Nextcloud Integration Specification
 
 ## Purpose
+@e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 Decidesk leverages Nextcloud's platform capabilities to provide a seamless governance experience without reinventing existing functionality. This specification covers integration with Nextcloud Calendar (meeting scheduling), Files (document management), Mail (convocation delivery), Talk (meeting communication), Tasks (action item tracking), Activity (audit feed), Notifications (alerts), Search (universal search), and References (rich link previews). Each integration uses the appropriate OCP interface.
 

@@ -5,6 +5,7 @@ status: idea
 # Resolution and Minutes Specification
 
 ## Purpose
+@e2e exclude V1 feature — resolution generation (trigger from adopted decision), real-time minute-taking editor inside live meeting, digital approval workflow, and Docudesk PDF generation are not yet implemented in the SPA. The Minutes list renders existing objects but the generation/editing/approval UI described in this spec does not exist.
 
 Resolutions and minutes are the formal output of the decision-making process. A resolution is the legal text of an adopted decision, suitable for archival and external communication. Minutes (notulen) are the structured record of a meeting including attendance, discussions, decisions, votes, and action items. The system supports real-time minute-taking during meetings, automated generation from meeting data, review/approval workflows, and integration with Docudesk for professional document rendering.
 

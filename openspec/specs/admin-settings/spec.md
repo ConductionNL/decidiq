@@ -5,6 +5,7 @@ status: idea
 # Admin Settings Specification
 
 ## Purpose
+@e2e exclude The governing body management, process template assignment, organisation configuration, and member import UIs described in this spec are not yet built. The Nextcloud admin settings panel for decidesk only exposes a version-info widget and register-mapping configuration; no governing-body CRUD, quorum config, role assignment, or CSV import pages exist in the SPA or the NC admin settings view.
 
 Admin settings enable organization administrators to configure Decidesk for their specific governance context. This includes setting up governing bodies (bodies), assigning members with roles, selecting process templates, configuring voting rules, and managing the OpenRegister schema setup. The admin interface is the first thing configured after installation and determines how the entire system behaves.
 
