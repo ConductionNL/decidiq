@@ -76,11 +76,11 @@ class LiveDecisionService
             $objectService = $this->container->get('OpenRegisterObjectService');
 
             // Fetch Meeting.
-            $meeting = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Meeting',
-                id: $meetingId
-            );
+            $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+            $meeting       = null;
+            if ($meetingEntity !== null) {
+                $meeting = $meetingEntity->jsonSerialize();
+            }
 
             if ($meeting === null) {
                 throw new MissingObjectException(message: "Meeting not found: $meetingId");
@@ -152,17 +152,16 @@ class LiveDecisionService
             $objectService = $this->container->get('OpenRegisterObjectService');
 
             // Check if Minutes already exist for this Meeting.
-            $params          = [
+            $params = [
                 '_limit'  => 999,
                 '_offset' => 0,
             ];
-            $existingMinutes = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'Minutes',
-                params: $params
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('minutes');
+            $existingMinutesEntities = $objectService->findAll(['filters' => $params]);
 
-            foreach ($existingMinutes as $minutes) {
+            foreach ($existingMinutesEntities as $minutesEntity) {
+                $minutes = $minutesEntity->jsonSerialize();
                 // Check if linked to the Meeting.
                 if (empty($minutes['relations']['Meeting']) === false) {
                     foreach ($minutes['relations']['Meeting'] as $linkedMeetingId) {
@@ -174,11 +173,11 @@ class LiveDecisionService
             }
 
             // No Minutes found, create one.
-            $meeting = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Meeting',
-                id: $meetingId
-            );
+            $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+            $meeting       = null;
+            if ($meetingEntity !== null) {
+                $meeting = $meetingEntity->jsonSerialize();
+            }
 
             if ($meeting === null) {
                 throw new MissingObjectException(message: "Meeting not found: $meetingId");

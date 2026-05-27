@@ -94,6 +94,128 @@ class MailReplyHandler extends TimedJob
     }//end __construct()
 
     /**
+     * HMAC algorithm used for _mail entry signatures.
+     *
+     * @var string
+     */
+    private const HMAC_ALGO = 'sha256';
+
+    /**
+     * Derive the per-round HMAC secret from the app's voter_token_secret.
+     *
+     * Uses the same underlying voter_token_secret as VotingService so that
+     * both services share one secret without tight coupling. A domain prefix
+     * differentiates this use-case from vote-token HMACs.
+     *
+     * @param string $roundId The VotingRound UUID
+     *
+     * @return string The derived per-round secret (hex)
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function mailHmacSecret(string $roundId): string
+    {
+        $base = $this->appConfig->getValueString(Application::APP_ID, 'voter_token_secret', '');
+        if ($base === '') {
+            // Generate and persist a base secret if one does not yet exist.
+            $base = bin2hex(random_bytes(32));
+            $this->appConfig->setValueString(Application::APP_ID, 'voter_token_secret', $base);
+        }
+
+        // Derive a round-scoped key using HKDF-style domain separation.
+        return hash_hmac(self::HMAC_ALGO, 'mail-reply:'.$roundId, $base);
+
+    }//end mailHmacSecret()
+
+    /**
+     * Compute the HMAC for a _mail entry.
+     *
+     * The signed payload is the canonical concatenation:
+     *   participantId + ':' + roundId + ':' + timestamp
+     * Covers the three fields that identify a unique, time-bound vote instruction.
+     * `replyBody` is intentionally excluded from the signed payload so that the
+     * ingestion path does not need to know the vote value at signing time (the vote
+     * body is trusted only after the signature is verified).
+     *
+     * @param string $participantId The participant UUID
+     * @param string $roundId       The VotingRound UUID
+     * @param string $timestamp     ISO 8601 timestamp written by the ingestion path
+     *
+     * @return string The hex HMAC
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    public function computeMailHmac(string $participantId, string $roundId, string $timestamp): string
+    {
+        $payload = $participantId.':'.$roundId.':'.$timestamp;
+        return hash_hmac(self::HMAC_ALGO, $payload, $this->mailHmacSecret(roundId: $roundId));
+
+    }//end computeMailHmac()
+
+    /**
+     * Sign a _mail entry array and return it with the hmac field set.
+     *
+     * The ingestion path (SMTP webhook, future API) MUST call this method before
+     * writing a _mail entry to the VotingRound object. Any entry lacking a valid
+     * hmac field is rejected by processRoundMailReplies() before counting.
+     *
+     * @param array<string,mixed> $entry   The raw _mail entry (must contain participantId and timestamp)
+     * @param string              $roundId The VotingRound UUID (used to derive the secret)
+     *
+     * @return array<string,mixed> The entry with hmac appended
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    public function signMailEntry(array $entry, string $roundId): array
+    {
+        $participantId = (string) ($entry['participantId'] ?? '');
+        $timestamp     = (string) ($entry['timestamp'] ?? '');
+
+        $entry['hmac'] = $this->computeMailHmac(
+            participantId: $participantId,
+            roundId: $roundId,
+            timestamp: $timestamp
+        );
+
+        return $entry;
+
+    }//end signMailEntry()
+
+    /**
+     * Verify the HMAC on a _mail entry.
+     *
+     * Returns false for any entry that is missing the hmac field, has an
+     * empty participantId, or whose HMAC does not match the expected value.
+     *
+     * @param array<string,mixed> $entry   The _mail entry to verify
+     * @param string              $roundId The VotingRound UUID
+     *
+     * @return bool True when the entry is authentically signed
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function verifyMailHmac(array $entry, string $roundId): bool
+    {
+        $providedHmac  = (string) ($entry['hmac'] ?? '');
+        $participantId = (string) ($entry['participantId'] ?? '');
+        $timestamp     = (string) ($entry['timestamp'] ?? '');
+
+        if ($providedHmac === '' || $participantId === '' || $timestamp === '') {
+            return false;
+        }
+
+        $expectedHmac = $this->computeMailHmac(
+            participantId: $participantId,
+            roundId: $roundId,
+            timestamp: $timestamp
+        );
+
+        // Constant-time comparison prevents timing-oracle attacks.
+        return hash_equals($expectedHmac, $providedHmac);
+
+    }//end verifyMailHmac()
+
+    /**
      * Run the background job: poll email replies and process votes.
      *
      * @param mixed $argument The job argument (unused)
@@ -128,13 +250,12 @@ class MailReplyHandler extends TimedJob
     {
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-        $openRounds = $objectService->findObjects(
-            register: 'decidesk',
-            schema: 'voting-round',
-            filters: ['closedAt' => null, 'openedAt' => ['!=' => null]]
-        );
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('voting-round');
+        $roundEntities = $objectService->findAll(['filters' => ['closedAt' => null, 'openedAt' => ['!=' => null]]]);
 
-        foreach (($openRounds['results'] ?? []) as $round) {
+        foreach ($roundEntities as $roundEntity) {
+            $round   = $roundEntity->jsonSerialize();
             $roundId = ($round['uuid'] ?? $round['id'] ?? null);
             if ($roundId === null) {
                 continue;
@@ -176,10 +297,30 @@ class MailReplyHandler extends TimedJob
                 continue;
             }
 
+            // Reject any _mail entry that lacks a valid HMAC signature.
+            // An entry without a signature was not written by the trusted ingestion path —
+            // it may have been injected directly into OpenRegister by a user with write
+            // access to the VotingRound object (OWASP A08:2021 / issue #299).
+            if ($this->verifyMailHmac(entry: $mailEntry, roundId: $roundId) === false) {
+                $this->logger->warning(
+                    'Decidesk: MailReplyHandler — _mail entry rejected: missing or invalid HMAC signature',
+                    [
+                        'participantId' => $participantId,
+                        'votingRoundId' => $roundId,
+                    ]
+                );
+                continue;
+            }
+
             // Validate that the participantId from _mail metadata refers to an existing Participant
             // object before casting any vote. This prevents manipulated metadata from casting
             // votes on behalf of arbitrary or non-existent participants (OWASP A07:2021).
-            $participant = $objectService->getObject(register: 'decidesk', schema: 'participant', uuid: $participantId);
+            $participantEntity = $objectService->find(id: $participantId, register: 'decidesk', schema: 'participant');
+            $participant       = null;
+            if ($participantEntity !== null) {
+                $participant = $participantEntity->jsonSerialize();
+            }
+
             if ($participant === null) {
                 $this->logger->warning(
                     'Decidesk: MailReplyHandler — unknown participantId in _mail metadata, skipping',
@@ -207,6 +348,25 @@ class MailReplyHandler extends TimedJob
                         $this->logger->warning('Decidesk: could not resolve Nextcloud UID for participant', ['participantId' => $participantId]);
                     }
                 }
+            }
+
+            // Refuse email votes on secret rounds: email does not provide ballot secrecy.
+            // An email reply is visible in transit logs and to the mail server operator;
+            // counting it as a secret ballot would undermine the anonymity guarantee
+            // (issue #299, item 4 of suggested fix).
+            if ((bool) ($round['isSecret'] ?? false) === true) {
+                $this->logger->warning(
+                    'Decidesk: MailReplyHandler — email vote rejected: round is a secret ballot',
+                    [
+                        'participantId' => $participantId,
+                        'votingRoundId' => $roundId,
+                    ]
+                );
+                $mailEntry['processed']    = true;
+                $mailEntry['abandoned']    = true;
+                $mailEntry['rejectReason'] = 'secret-ballot';
+                $dirty = true;
+                continue;
             }
 
             $keyword = $this->parseVoteKeyword(body: $replyBody);

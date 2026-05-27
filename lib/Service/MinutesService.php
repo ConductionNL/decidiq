@@ -69,11 +69,11 @@ class MinutesService
             $notificationService = $this->container->get('OpenRegisterNotificationService');
 
             // Fetch Minutes.
-            $minutes = $objectService->findObject(
-                register: 'decidesk',
-                schema: 'Minutes',
-                id: $minutesId
-            );
+            $minutesEntity = $objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
+            $minutes       = null;
+            if ($minutesEntity !== null) {
+                $minutes = $minutesEntity->jsonSerialize();
+            }
 
             if ($minutes === null) {
                 $this->logger->warning("Minutes not found: $minutesId");
@@ -93,11 +93,11 @@ class MinutesService
             // Get GovernanceBody from Meeting.
             $bodyId = null;
             if ($meetingId !== null) {
-                $meeting = $objectService->findObject(
-                    register: 'decidesk',
-                    schema: 'Meeting',
-                    id: $meetingId
-                );
+                $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+                $meeting       = null;
+                if ($meetingEntity !== null) {
+                    $meeting = $meetingEntity->jsonSerialize();
+                }
 
                 if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
                     $bodyRels = $meeting['relations']['GovernanceBody'];
@@ -119,16 +119,15 @@ class MinutesService
                 '_limit' => 999,
             ];
 
-            $memberships = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'Membership',
-                params: $params
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('participant');
+            $membershipEntities = $objectService->findAll(['filters' => $params]);
 
             $userManager = $this->container->get(\OCP\IUserManager::class);
             $sentCount   = 0;
-            foreach ($memberships as $membership) {
-                $ncUid = $membership['nextcloudUserId'] ?? null;
+            foreach ($membershipEntities as $membershipEntity) {
+                $membership = $membershipEntity->jsonSerialize();
+                $ncUid      = $membership['nextcloudUserId'] ?? null;
                 if (empty($ncUid) === true) {
                     $displayName = $membership['displayName'] ?? null;
                     if (empty($displayName) === false) {

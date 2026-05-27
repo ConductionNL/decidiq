@@ -202,7 +202,11 @@ class ApiController extends Controller
 
         try {
             $objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
-            $object        = $objectService->findObject(register: 'decidesk', schema: $schema, id: $id);
+            $entity        = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+            $object        = null;
+            if ($entity !== null) {
+                $object = $entity->jsonSerialize();
+            }
         } catch (Throwable $e) {
             $this->logger->error(message: 'ApiController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);

@@ -66,39 +66,6 @@ abstract class ObjectService
     abstract public function findAll(array $config=[]): array;
 
     /**
-     * Fetch a single object directly (new named-parameter API).
-     *
-     * @param string $register Register slug
-     * @param string $schema   Schema slug
-     * @param string $uuid     Object UUID
-     *
-     * @return array<string,mixed>|null
-     */
-    abstract public function getObject(string $register, string $schema, string $uuid): ?array;
-
-    /**
-     * Fetch a single object by register, schema and ID.
-     *
-     * @param string $register Register slug
-     * @param string $schema   Schema slug
-     * @param string $id       Object UUID
-     *
-     * @return array<string,mixed>|null
-     */
-    abstract public function findObject(string $register, string $schema, string $id): ?array;
-
-    /**
-     * Query objects with params.
-     *
-     * @param string              $register Register slug
-     * @param string              $schema   Schema slug
-     * @param array<string,mixed> $params   Query params
-     *
-     * @return array<int,array<string,mixed>>
-     */
-    abstract public function findObjects(string $register, string $schema, array $params=[]): array;
-
-    /**
      * Save (create or update) an object.
      *
      * Matches the real ObjectService::saveObject() named-parameter API.

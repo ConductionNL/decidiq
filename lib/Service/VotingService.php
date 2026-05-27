@@ -137,13 +137,12 @@ class VotingService
     public function resolveParticipantUuid(string $nextcloudUid): ?string
     {
         $objectService = $this->objectService();
-        $results       = $objectService->findObjects(
-            register: 'decidesk',
-            schema: 'participant',
-            filters: ['nextcloudUserId' => $nextcloudUid]
-        );
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('participant');
+        $entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
-        foreach (($results['results'] ?? []) as $participant) {
+        foreach ($entities as $participantEntity) {
+            $participant = $participantEntity->jsonSerialize();
             return ($participant['uuid'] ?? $participant['id'] ?? null);
         }
 
@@ -166,7 +165,11 @@ class VotingService
     public function checkQuorum(string $meetingId): bool
     {
         $objectService = $this->objectService();
-        $meeting       = $objectService->getObject(register: 'decidesk', schema: 'meeting', uuid: $meetingId);
+        $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+        $meeting       = null;
+        if ($meetingEntity !== null) {
+            $meeting = $meetingEntity->jsonSerialize();
+        }
 
         if ($meeting === null) {
             return false;
@@ -191,14 +194,13 @@ class VotingService
             return true;
         }
 
-        $participants = $objectService->findObjects(
-            register: 'decidesk',
-            schema: 'participant',
-            filters: ['relations.governance-body' => $governanceBodyId]
-        );
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('participant');
+        $participantEntities = $objectService->findAll(['filters' => ['relations.governance-body' => $governanceBodyId]]);
 
         $activeCount = 0;
-        foreach (($participants['results'] ?? []) as $participant) {
+        foreach ($participantEntities as $participantEntity) {
+            $participant = $participantEntity->jsonSerialize();
             if (($participant['leftAt'] ?? null) === null) {
                 $activeCount++;
             }
@@ -256,13 +258,12 @@ class VotingService
         // Validate preset UUIDs against active memberships.
         $excludedUuids = [];
         if (count($presetParticipantIds) > 0) {
-            $participantsResult = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'participant',
-                params: ['governanceBodyId' => $meetingId]
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('participant');
+            $participantEntities = $objectService->findAll(['filters' => ['governanceBodyId' => $meetingId]]);
+            $participantArrays   = array_map(fn($e) => $e->jsonSerialize(), $participantEntities);
 
-            $activeParticipants = array_column(($participantsResult['results'] ?? []), 'id', 'id');
+            $activeParticipants = array_column($participantArrays, 'id', 'id');
 
             foreach ($presetParticipantIds as $uuid) {
                 if (isset($activeParticipants[$uuid]) === false) {
@@ -324,7 +325,12 @@ class VotingService
     {
         $objectService = $this->objectService();
 
-        $round = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        $roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+        $round       = null;
+        if ($roundEntity !== null) {
+            $round = $roundEntity->jsonSerialize();
+        }
+
         if ($round === null) {
             throw new \RuntimeException("VotingRound {$votingRoundId} not found");
         }
@@ -362,29 +368,34 @@ class VotingService
             // For secret rounds, participant relations are suppressed for anonymity, so dedup
             // is keyed on a deterministic delegatorToken (HMAC) to avoid DNS-style rebinding.
             if ($isSecret === true) {
-                $delegatorToken  = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
-                $existingProxies = $objectService->findObjects(
-                    register: 'decidesk',
-                    schema: 'vote',
-                    filters: [
-                        'relations.voting-round' => $votingRoundId,
-                        'delegatorToken'         => $delegatorToken,
-                    ]
-                );
-                if (empty($existingProxies['results']) === false) {
+                $delegatorToken = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
+                $objectService->setRegister('decidesk');
+                $objectService->setSchema('vote');
+                $existingProxyEntities = $objectService->findAll(
+                        [
+                            'filters' => [
+                                'relations.voting-round' => $votingRoundId,
+                                'delegatorToken'         => $delegatorToken,
+                            ],
+                        ]
+                        );
+                if (empty($existingProxyEntities) === false) {
                     throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
                 }
             } else {
-                $existingProxies = $objectService->findObjects(
-                    register: 'decidesk',
-                    schema: 'vote',
-                    filters: [
-                        'relations.voting-round' => $votingRoundId,
-                        'isProxy'                => true,
-                    ]
-                );
+                $objectService->setRegister('decidesk');
+                $objectService->setSchema('vote');
+                $existingProxyEntities = $objectService->findAll(
+                        [
+                            'filters' => [
+                                'relations.voting-round' => $votingRoundId,
+                                'isProxy'                => true,
+                            ],
+                        ]
+                        );
 
-                foreach (($existingProxies['results'] ?? []) as $proxyVote) {
+                foreach ($existingProxyEntities as $proxyVoteEntity) {
+                    $proxyVote = $proxyVoteEntity->jsonSerialize();
                     foreach (($proxyVote['relations'] ?? []) as $rel) {
                         if (($rel['schema'] ?? '') === 'participant' && ($rel['id'] ?? '') === $delegatorId && ($rel['type'] ?? '') === 'delegator') {
                             throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
@@ -398,23 +409,33 @@ class VotingService
         // For secret rounds the participant relation is suppressed for anonymity,
         // so dedup is keyed on a deterministic voterToken instead.
         if ($isSecret === true) {
-            $voterToken    = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
-            $existingVotes = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'vote',
-                filters: ['relations.voting-round' => $votingRoundId, 'voterToken' => $voterToken]
-            );
+            $voterToken = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('vote');
+            $existingVoteEntities = $objectService->findAll(
+                    [
+                        'filters' => [
+                            'relations.voting-round' => $votingRoundId,
+                            'voterToken'             => $voterToken,
+                        ],
+                    ]
+                    );
         } else {
-            $existingVotes = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'vote',
-                filters: ['relations.voting-round' => $votingRoundId, 'relations.participant' => $participantId]
-            );
-        }
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('vote');
+            $existingVoteEntities = $objectService->findAll(
+                    [
+                        'filters' => [
+                            'relations.voting-round' => $votingRoundId,
+                            'relations.participant'  => $participantId,
+                        ],
+                    ]
+                    );
+        }//end if
 
         $existingVote = null;
-        foreach (($existingVotes['results'] ?? []) as $v) {
-            $existingVote = $v;
+        foreach ($existingVoteEntities as $vEntity) {
+            $existingVote = $vEntity->jsonSerialize();
             break;
         }
 
@@ -477,7 +498,11 @@ class VotingService
         $tally = $this->tallyResults(votingRoundId: $votingRoundId);
 
         $objectService = $this->objectService();
-        $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        $roundEntity   = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+        $round         = null;
+        if ($roundEntity !== null) {
+            $round = $roundEntity->jsonSerialize();
+        }
 
         if ($round !== null && ($round['closedAt'] ?? null) === null) {
             $round['closedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
@@ -510,7 +535,12 @@ class VotingService
 
                                 // Create dossier folder if adopted.
                                 if ($motionLifecycle === 'adopted') {
-                                    $motion      = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
+                                    $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+                                    $motion       = null;
+                                    if ($motionEntity !== null) {
+                                        $motion = $motionEntity->jsonSerialize();
+                                    }
+
                                     $motionTitle = (string) ($motion['title'] ?? $motionId);
                                     $this->createDossierFolder(motionId: $motionId, motionTitle: $motionTitle);
                                 }
@@ -535,13 +565,12 @@ class VotingService
         // Anonymise vote values if requested (sequence: tally → publish → anonymise).
         if ($anonymise === true) {
             try {
-                $votesResult = $objectService->findObjects(
-                    register: 'decidesk',
-                    schema: 'vote',
-                    params: ['votingRoundId' => $votingRoundId]
-                );
+                $objectService->setRegister('decidesk');
+                $objectService->setSchema('vote');
+                $voteEntities = $objectService->findAll(['filters' => ['votingRoundId' => $votingRoundId]]);
 
-                foreach (($votesResult['results'] ?? []) as $vote) {
+                foreach ($voteEntities as $voteEntity) {
+                    $vote          = $voteEntity->jsonSerialize();
                     $vote['value'] = null;
                     $objectService->saveObject(register: 'decidesk', schema: 'vote', object: $vote);
                 }
@@ -568,17 +597,16 @@ class VotingService
     public function tallyResults(string $votingRoundId): array
     {
         $objectService = $this->objectService();
-        $votes         = $objectService->findObjects(
-            register: 'decidesk',
-            schema: 'vote',
-            filters: ['relations.voting-round' => $votingRoundId]
-        );
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('vote');
+        $voteEntities = $objectService->findAll(['filters' => ['relations.voting-round' => $votingRoundId]]);
 
         $for     = 0;
         $against = 0;
         $abstain = 0;
 
-        foreach (($votes['results'] ?? []) as $vote) {
+        foreach ($voteEntities as $voteEntity) {
+            $vote   = $voteEntity->jsonSerialize();
             $val    = ($vote['value'] ?? '');
             $weight = (int) ($vote['weight'] ?? 1);
             if ($val === 'for') {
@@ -603,7 +631,12 @@ class VotingService
         }
 
         // Update VotingRound with tally.
-        $round = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        $roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+        $round       = null;
+        if ($roundEntity !== null) {
+            $round = $roundEntity->jsonSerialize();
+        }
+
         if ($round !== null) {
             $round['votesFor']     = $for;
             $round['votesAgainst'] = $against;
@@ -642,7 +675,11 @@ class VotingService
     public function saveShowOfHandsTally(string $votingRoundId, int $votesFor, int $votesAgainst, int $votesAbstain): array
     {
         $objectService = $this->objectService();
-        $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        $roundEntity   = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+        $round         = null;
+        if ($roundEntity !== null) {
+            $round = $roundEntity->jsonSerialize();
+        }
 
         if ($round === null) {
             throw new \RuntimeException("VotingRound $votingRoundId not found");
@@ -695,7 +732,12 @@ class VotingService
 
         $objectService = $this->objectService();
 
-        $toParticipant = $objectService->getObject(register: 'decidesk', schema: 'participant', uuid: $toParticipantId);
+        $toParticipantEntity = $objectService->find(id: $toParticipantId, register: 'decidesk', schema: 'participant');
+        $toParticipant       = null;
+        if ($toParticipantEntity !== null) {
+            $toParticipant = $toParticipantEntity->jsonSerialize();
+        }
+
         if ($toParticipant !== null) {
             $role = strtolower($toParticipant['role'] ?? '');
             if (in_array($role, self::NON_VOTING_ROLES, true) === true) {
@@ -713,7 +755,12 @@ class VotingService
         ];
 
         // Store proxy as a structured note on the VotingRound.
-        $round = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        $roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+        $round       = null;
+        if ($roundEntity !== null) {
+            $round = $roundEntity->jsonSerialize();
+        }
+
         if ($round !== null) {
             $notes          = ($round['notes'] ?? []);
             $notes[]        = [
@@ -775,7 +822,11 @@ class VotingService
     public function revokeProxy(string $votingRoundId, string $fromParticipantId): void
     {
         $objectService = $this->objectService();
-        $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        $roundEntity   = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+        $round         = null;
+        if ($roundEntity !== null) {
+            $round = $roundEntity->jsonSerialize();
+        }
 
         if ($round === null) {
             throw new \RuntimeException("VotingRound {$votingRoundId} not found");
@@ -844,7 +895,11 @@ class VotingService
     public function getPublicState(string $votingRoundId): ?array
     {
         $objectService = $this->objectService();
-        $round         = $objectService->getObject(register: 'decidesk', schema: 'voting-round', uuid: $votingRoundId);
+        $roundEntity   = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+        $round         = null;
+        if ($roundEntity !== null) {
+            $round = $roundEntity->jsonSerialize();
+        }
 
         if ($round === null) {
             return null;
@@ -856,7 +911,12 @@ class VotingService
             if (($rel['schema'] ?? '') === 'motion') {
                 $motionId = ($rel['id'] ?? null);
                 if ($motionId !== null) {
-                    $motion      = $objectService->getObject(register: 'decidesk', schema: 'motion', uuid: $motionId);
+                    $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+                    $motion       = null;
+                    if ($motionEntity !== null) {
+                        $motion = $motionEntity->jsonSerialize();
+                    }
+
                     $motionTitle = (string) ($motion['title'] ?? '');
                 }
 

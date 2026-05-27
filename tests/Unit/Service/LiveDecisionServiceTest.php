@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\LiveDecisionService;
-use OCA\Decidesk\Exception\MissingObjectException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -47,8 +46,24 @@ class LiveDecisionServiceTest extends TestCase
     {
         parent::setUp();
         $this->container = $this->createMock(ContainerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->service = new LiveDecisionService($this->container, $this->logger);
+        $this->logger    = $this->createMock(LoggerInterface::class);
+        $this->service   = new LiveDecisionService($this->container, $this->logger);
+    }
+
+    /**
+     * Build a mock entity that returns $data from jsonSerialize().
+     *
+     * @param array<string,mixed> $data
+     *
+     * @return object
+     */
+    private function makeEntity(array $data): object
+    {
+        $entity = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['jsonSerialize'])
+            ->getMock();
+        $entity->method('jsonSerialize')->willReturn($data);
+        return $entity;
     }
 
     /**
@@ -60,25 +75,33 @@ class LiveDecisionServiceTest extends TestCase
      */
     public function testRecordDecisionCreatesDecisionAndLinksToMeeting(): void
     {
+        $meetingEntity = $this->makeEntity([
+            'id'        => 'meeting-1',
+            'title'     => 'Council Meeting',
+            'lifecycle' => 'opened',
+        ]);
+
+        $savedDecisionArray = [
+            'id'    => 'decision-1',
+            '@self' => ['slug' => 'council-decision-1'],
+        ];
+
         $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $mockObjectService->expects($this->any())
-            ->method('findObject')
-            ->willReturn([
-                'id' => 'meeting-1',
-                'title' => 'Council Meeting',
-                'lifecycle' => 'opened',
-            ]);
+
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
 
         $mockObjectService->expects($this->any())
-            ->method('findObjects')
-            ->willReturn([]); // No existing minutes.
+            ->method('find')
+            ->willReturn($meetingEntity);
+
+        $mockObjectService->expects($this->any())
+            ->method('findAll')
+            ->willReturn([]);
 
         $mockObjectService->expects($this->any())
             ->method('saveObject')
-            ->willReturn([
-                'id' => 'decision-1',
-                '@self' => ['slug' => 'council-decision-1'],
-            ]);
+            ->willReturn($savedDecisionArray);
 
         $this->container->expects($this->any())
             ->method('get')
@@ -86,8 +109,8 @@ class LiveDecisionServiceTest extends TestCase
             ->willReturn($mockObjectService);
 
         $decisionData = [
-            'title' => 'Budget Approved',
-            'text' => 'The budget was approved unanimously',
+            'title'   => 'Budget Approved',
+            'text'    => 'The budget was approved unanimously',
             'outcome' => 'adopted',
         ];
 
@@ -105,14 +128,20 @@ class LiveDecisionServiceTest extends TestCase
      */
     public function testRecordDecisionThrows409ForNonOpenedMeeting(): void
     {
+        $meetingEntity = $this->makeEntity([
+            'id'        => 'meeting-1',
+            'title'     => 'Council Meeting',
+            'lifecycle' => 'scheduled',
+        ]);
+
         $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
+
         $mockObjectService->expects($this->once())
-            ->method('findObject')
-            ->willReturn([
-                'id' => 'meeting-1',
-                'title' => 'Council Meeting',
-                'lifecycle' => 'scheduled', // Not opened
-            ]);
+            ->method('find')
+            ->willReturn($meetingEntity);
 
         $this->container->expects($this->any())
             ->method('get')
@@ -120,8 +149,8 @@ class LiveDecisionServiceTest extends TestCase
             ->willReturn($mockObjectService);
 
         $decisionData = [
-            'title' => 'Budget Approved',
-            'text' => 'The budget was approved unanimously',
+            'title'   => 'Budget Approved',
+            'text'    => 'The budget was approved unanimously',
             'outcome' => 'adopted',
         ];
 

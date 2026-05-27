@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "x-openregister": {
     "type": "application",
@@ -169,7 +169,7 @@
         },
         "slug": "meeting",
         "icon": "CalendarClock",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -250,6 +250,11 @@
           "series": {
             "type": "string",
             "description": "Meeting series identifier"
+          },
+          "chair": {
+            "type": "string",
+            "description": "UUID of the Participant who chairs this meeting. Resolved to the Participant record in MCP and minutes generation; the chair field on the Participant (role=chair) applies to the governance body broadly, while this field overrides the chair for this specific meeting.",
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
           },
           "isPublic": {
             "type": "boolean",
@@ -383,7 +388,7 @@
       "Participant": {
         "slug": "participant",
         "icon": "AccountOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Participant",
         "description": "A member or attendee of a governance body",
         "type": "object",
@@ -441,6 +446,11 @@
             "type": "number",
             "description": "Vote weight (default 1)",
             "example": 1
+          },
+          "nextcloudUserId": {
+            "type": "string",
+            "description": "The Nextcloud user ID (login name / UID) of the Nextcloud user who represents this participant. Used by VotingService::resolveParticipantUuid() to find the Participant record for the currently logged-in user, enabling vote-casting, proxy delegation, and vote-link personalisation. Must be set when the participant has a corresponding Nextcloud account.",
+            "example": "jdoe"
           },
           "attendanceStatus": {
             "type": "string",

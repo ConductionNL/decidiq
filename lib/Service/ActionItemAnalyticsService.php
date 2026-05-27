@@ -83,22 +83,21 @@ class ActionItemAnalyticsService
             new DateTime($dateTo);
 
             // Query all ActionItems.
-            $params   = [
+            $params = [
                 '_limit'  => 999,
                 '_offset' => 0,
             ];
-            $allItems = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'ActionItem',
-                params: $params
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('action-item');
+            $allItemEntities = $objectService->findAll(['filters' => $params]);
 
             $totalOpen          = 0;
             $totalOverdue       = 0;
             $completedThisMonth = 0;
             $daysToClosed       = [];
 
-            foreach ($allItems as $item) {
+            foreach ($allItemEntities as $itemEntity) {
+                $item   = $itemEntity->jsonSerialize();
                 $status = $item['taskStatus'] ?? 'open';
 
                 // Count open items.
@@ -176,20 +175,19 @@ class ActionItemAnalyticsService
             $objectService = $this->container->get('OpenRegisterObjectService');
 
             // Get recent meetings.
-            $params   = [
+            $params = [
                 '_limit'  => $limit,
                 '_offset' => 0,
                 '_order'  => 'scheduledDate:DESC',
             ];
-            $meetings = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'Meeting',
-                params: $params
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('meeting');
+            $meetingEntities = $objectService->findAll(['filters' => $params]);
 
             $rates = [];
 
-            foreach ($meetings as $meeting) {
+            foreach ($meetingEntities as $meetingEntity) {
+                $meeting   = $meetingEntity->jsonSerialize();
                 $meetingId = $meeting['id'] ?? $meeting['@self']['id'] ?? null;
                 if ($meetingId === null) {
                     continue;
@@ -271,11 +269,9 @@ class ActionItemAnalyticsService
                 '_limit'     => 999,
                 '_offset'    => 0,
             ];
-            $items = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'ActionItem',
-                params: $params
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('action-item');
+            $itemEntities = $objectService->findAll(['filters' => $params]);
 
             $grouped = [
                 'overdue'  => [],
@@ -283,7 +279,8 @@ class ActionItemAnalyticsService
                 'later'    => [],
             ];
 
-            foreach ($items as $item) {
+            foreach ($itemEntities as $itemEntity) {
+                $item = $itemEntity->jsonSerialize();
                 if (empty($item['dueDate']) === true) {
                     $grouped['later'][] = $item;
                     continue;
@@ -302,7 +299,7 @@ class ActionItemAnalyticsService
                 }
 
                 $grouped['later'][] = $item;
-            }
+            }//end foreach
 
             return $grouped;
         } catch (\Exception $e) {

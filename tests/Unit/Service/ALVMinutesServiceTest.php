@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\ALVMinutesService;
-use OCA\Decidesk\Exception\MissingObjectException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -47,8 +46,24 @@ class ALVMinutesServiceTest extends TestCase
     {
         parent::setUp();
         $this->container = $this->createMock(ContainerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->service = new ALVMinutesService($this->container, $this->logger);
+        $this->logger    = $this->createMock(LoggerInterface::class);
+        $this->service   = new ALVMinutesService($this->container, $this->logger);
+    }
+
+    /**
+     * Build a mock ObjectEntity that returns $data from jsonSerialize().
+     *
+     * @param array<string,mixed> $data Object data
+     *
+     * @return object
+     */
+    private function makeEntity(array $data): object
+    {
+        $entity = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['jsonSerialize'])
+            ->getMock();
+        $entity->method('jsonSerialize')->willReturn($data);
+        return $entity;
     }
 
     /**
@@ -60,37 +75,44 @@ class ALVMinutesServiceTest extends TestCase
      */
     public function testGenerateALVDraftProducesCorrectQuorumStatement(): void
     {
+        $minutesData = [
+            'id'        => 'minutes-1',
+            'title'     => 'ALV 2025',
+            'relations' => ['Meeting' => ['meeting-1']],
+        ];
+        $meetingData = [
+            'id'             => 'meeting-1',
+            'meetingType'    => 'alv',
+            'title'          => 'Algemene Ledenvergadering',
+            'scheduledDate'  => '2025-04-15',
+            'location'       => 'Amsterdam',
+            'quorumRequired' => 0,
+            'relations'      => ['GovernanceBody' => ['body-1']],
+        ];
+
+        $minutesEntity = $this->makeEntity($minutesData);
+        $meetingEntity = $this->makeEntity($meetingData);
+
         $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
+
         $mockObjectService->expects($this->any())
-            ->method('findObject')
-            ->willReturnCallback(function (string $register, string $schema, string $id) {
-                if ($schema === 'Minutes') {
-                    return [
-                        'id' => 'minutes-1',
-                        'title' => 'ALV 2025',
-                        'relations' => [
-                            'Meeting' => ['meeting-1'],
-                        ],
-                    ];
-                } elseif ($schema === 'Meeting') {
-                    return [
-                        'id' => 'meeting-1',
-                        'meetingType' => 'alv',
-                        'title' => 'Algemene Ledenvergadering',
-                        'scheduledDate' => '2025-04-15',
-                        'location' => 'Amsterdam',
-                        'quorumRequired' => 0, // 0 = quorum always met regardless of attendance.
-                        'relations' => [
-                            'GovernanceBody' => ['body-1'],
-                        ],
-                    ];
+            ->method('find')
+            ->willReturnCallback(function (int|string $id) use ($minutesEntity, $meetingEntity): ?object {
+                if ($id === 'minutes-1') {
+                    return $minutesEntity;
+                }
+                if ($id === 'meeting-1') {
+                    return $meetingEntity;
                 }
                 return null;
             });
 
         $mockObjectService->expects($this->any())
-            ->method('findObjects')
-            ->willReturn([]); // No participants or agenda items.
+            ->method('findAll')
+            ->willReturn([]);
 
         $this->container->expects($this->any())
             ->method('get')
@@ -112,22 +134,31 @@ class ALVMinutesServiceTest extends TestCase
      */
     public function testGenerateALVDraftReturnsValidationErrorForNonALVMeeting(): void
     {
+        $minutesData = [
+            'id'        => 'minutes-1',
+            'relations' => ['Meeting' => ['meeting-1']],
+        ];
+        $meetingData = [
+            'id'          => 'meeting-1',
+            'meetingType' => 'council',
+        ];
+
+        $minutesEntity = $this->makeEntity($minutesData);
+        $meetingEntity = $this->makeEntity($meetingData);
+
         $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
+
         $mockObjectService->expects($this->any())
-            ->method('findObject')
-            ->willReturnCallback(function (string $register, string $schema, string $id) {
-                if ($schema === 'Minutes') {
-                    return [
-                        'id' => 'minutes-1',
-                        'relations' => [
-                            'Meeting' => ['meeting-1'],
-                        ],
-                    ];
-                } elseif ($schema === 'Meeting') {
-                    return [
-                        'id' => 'meeting-1',
-                        'meetingType' => 'council', // Not ALV.
-                    ];
+            ->method('find')
+            ->willReturnCallback(function (int|string $id) use ($minutesEntity, $meetingEntity): ?object {
+                if ($id === 'minutes-1') {
+                    return $minutesEntity;
+                }
+                if ($id === 'meeting-1') {
+                    return $meetingEntity;
                 }
                 return null;
             });
@@ -151,32 +182,39 @@ class ALVMinutesServiceTest extends TestCase
      */
     public function testDistributeReturns0ForNoParticipants(): void
     {
+        $minutesData = [
+            'id'        => 'minutes-1',
+            'lifecycle' => 'approved',
+            'relations' => ['Meeting' => ['meeting-1']],
+        ];
+        $meetingData = [
+            'id'        => 'meeting-1',
+            'relations' => ['GovernanceBody' => ['body-1']],
+        ];
+
+        $minutesEntity = $this->makeEntity($minutesData);
+        $meetingEntity = $this->makeEntity($meetingData);
+
         $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
+
         $mockObjectService->expects($this->any())
-            ->method('findObject')
-            ->willReturnCallback(function (string $register, string $schema, string $id) {
-                if ($schema === 'Minutes') {
-                    return [
-                        'id' => 'minutes-1',
-                        'lifecycle' => 'approved',
-                        'relations' => [
-                            'Meeting' => ['meeting-1'],
-                        ],
-                    ];
-                } elseif ($schema === 'Meeting') {
-                    return [
-                        'id' => 'meeting-1',
-                        'relations' => [
-                            'GovernanceBody' => ['body-1'],
-                        ],
-                    ];
+            ->method('find')
+            ->willReturnCallback(function (int|string $id) use ($minutesEntity, $meetingEntity): ?object {
+                if ($id === 'minutes-1') {
+                    return $minutesEntity;
+                }
+                if ($id === 'meeting-1') {
+                    return $meetingEntity;
                 }
                 return null;
             });
 
         $mockObjectService->expects($this->any())
-            ->method('findObjects')
-            ->willReturn([]); // No participants.
+            ->method('findAll')
+            ->willReturn([]);
 
         $this->container->expects($this->any())
             ->method('get')
@@ -196,13 +234,20 @@ class ALVMinutesServiceTest extends TestCase
      */
     public function testDistributeThrows403ForDraftLifecycle(): void
     {
+        $minutesData   = [
+            'id'        => 'minutes-1',
+            'lifecycle' => 'draft',
+        ];
+        $minutesEntity = $this->makeEntity($minutesData);
+
         $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
+
         $mockObjectService->expects($this->any())
-            ->method('findObject')
-            ->willReturn([
-                'id' => 'minutes-1',
-                'lifecycle' => 'draft', // Not approved.
-            ]);
+            ->method('find')
+            ->willReturn($minutesEntity);
 
         $this->container->expects($this->any())
             ->method('get')

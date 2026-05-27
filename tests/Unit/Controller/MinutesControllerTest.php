@@ -552,6 +552,22 @@ class MinutesControllerTest extends TestCase
     }//end testDistributeALVMinutesByNonAdminReturns403()
 
     /**
+     * Build a mock ObjectEntity returning $data from jsonSerialize().
+     *
+     * @param array<string,mixed> $data
+     *
+     * @return object
+     */
+    private function makeEntity(array $data): object
+    {
+        $entity = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['jsonSerialize'])
+            ->getMock();
+        $entity->method('jsonSerialize')->willReturn($data);
+        return $entity;
+    }
+
+    /**
      * extractActionItems by a non-admin returns 403.
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
@@ -561,7 +577,7 @@ class MinutesControllerTest extends TestCase
     public function testExtractActionItemsByNonAdminReturns403(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
-        $this->objectService->expects($this->never())->method('findObject');
+        $this->objectService->expects($this->never())->method('find');
 
         $result = $this->controller->extractActionItems('minutes-uuid-001');
 
@@ -580,7 +596,7 @@ class MinutesControllerTest extends TestCase
     public function testExtractActionItemsNotFoundReturns404(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
-        $this->objectService->method('findObject')->willReturn(null);
+        $this->objectService->method('find')->willReturn(null);
 
         $result = $this->controller->extractActionItems('minutes-uuid-999');
 
@@ -599,9 +615,8 @@ class MinutesControllerTest extends TestCase
     public function testExtractActionItemsByAdminReturnsCandidates(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
-        $this->objectService->method('findObject')->willReturn(
-            ['id' => 'minutes-uuid-001', 'content' => 'Actie: Jan doet X']
-        );
+        $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'content' => 'Actie: Jan doet X']);
+        $this->objectService->method('find')->willReturn($minutesEntity);
         $this->extractionService->method('extractFromContent')->willReturn(
             [['title' => 'Jan doet X', 'suggestedAssignee' => 'Jan']]
         );
@@ -624,7 +639,7 @@ class MinutesControllerTest extends TestCase
     public function testSaveExtractedActionItemsByNonAdminReturns403(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
-        $this->objectService->expects($this->never())->method('findObject');
+        $this->objectService->expects($this->never())->method('find');
 
         $result = $this->controller->saveExtractedActionItems('minutes-uuid-001');
 
@@ -643,7 +658,7 @@ class MinutesControllerTest extends TestCase
     public function testSubmitForApprovalByNonAdminReturns403(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
-        $this->objectService->expects($this->never())->method('findObject');
+        $this->objectService->expects($this->never())->method('find');
 
         $result = $this->controller->submitForApproval('minutes-uuid-001');
 
@@ -662,9 +677,8 @@ class MinutesControllerTest extends TestCase
     public function testSubmitForApprovalNonDraftReturns409(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
-        $this->objectService->method('findObject')->willReturn(
-            ['id' => 'minutes-uuid-001', 'lifecycle' => 'review']
-        );
+        $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'lifecycle' => 'review']);
+        $this->objectService->method('find')->willReturn($minutesEntity);
 
         $result = $this->controller->submitForApproval('minutes-uuid-001');
 
@@ -683,9 +697,8 @@ class MinutesControllerTest extends TestCase
     public function testSubmitForApprovalByAdminSucceeds(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
-        $this->objectService->method('findObject')->willReturn(
-            ['id' => 'minutes-uuid-001', 'lifecycle' => 'draft']
-        );
+        $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'lifecycle' => 'draft']);
+        $this->objectService->method('find')->willReturn($minutesEntity);
         $this->objectService->expects($this->once())->method('saveObject');
         $this->minutesService->method('notifyApproversOnSubmit')->willReturn(2);
 
