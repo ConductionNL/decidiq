@@ -28,6 +28,7 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MotionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
@@ -83,7 +84,7 @@ class MotionController extends Controller
     {
         $user = $this->userSession->getUser();
         if ($user === null) {
-            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
         }
 
         $uid        = $user->getUID();
@@ -117,6 +118,7 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function transition(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -158,6 +160,7 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function coSignRequest(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -195,6 +198,7 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function coSignConfirm(string $id): JSONResponse
     {
         // Always derive identity from the authenticated session — never trust client-supplied displayName.
@@ -238,6 +242,7 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function budgetImpact(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -278,6 +283,7 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function amendmentTransition(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -319,6 +325,7 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function forward(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
