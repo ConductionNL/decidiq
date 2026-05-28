@@ -122,10 +122,8 @@ class DelegationService
     public function findDelegation(string $delegationId): ?array
     {
         $objectService = $this->getObjectService();
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('delegation');
-
-        $entity = $objectService->find($delegationId);
+        // M4: use named-arg find() instead of setRegister/setSchema pattern.
+        $entity = $objectService->find(id: $delegationId, register: 'decidesk', schema: 'delegation');
         if ($entity === null) {
             return null;
         }
@@ -152,7 +150,7 @@ class DelegationService
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.2
      */
-    public function revokeDelegation(string $delegationId, ?string $callerUid = null): array
+    public function revokeDelegation(string $delegationId, ?string $callerUid=null): array
     {
         $delegation = $this->findDelegation(delegationId: $delegationId);
         if ($delegation === null) {
@@ -200,7 +198,7 @@ class DelegationService
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.2
      */
-    public function expireDelegation(string $delegationId, ?string $callerUid = null): array
+    public function expireDelegation(string $delegationId, ?string $callerUid=null): array
     {
         $delegation = $this->findDelegation(delegationId: $delegationId);
         if ($delegation === null) {

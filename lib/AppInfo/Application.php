@@ -493,6 +493,7 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     delegationService: $c->get(DelegationService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
                 );
             }
         );

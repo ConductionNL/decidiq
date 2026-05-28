@@ -205,8 +205,10 @@ class OriController extends Controller
 
         // #316: Treat non-published objects as not-found for anonymous callers.
         // Return 404 (not 403) to avoid confirming the object exists.
-        $lifecycle = $object['lifecycle'] ?? $object['status'] ?? '';
-        if ($lifecycle !== 'published') {
+        // M2: only enforce the lifecycle gate when the object actually carries a
+        // lifecycle/status field; schemas without it (votes, persons, etc.) pass through.
+        $lifecycle = $object['lifecycle'] ?? $object['status'] ?? null;
+        if ($lifecycle !== null && $lifecycle !== 'published') {
             return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
         }
 

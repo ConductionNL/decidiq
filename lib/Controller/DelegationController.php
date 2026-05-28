@@ -29,6 +29,7 @@ use OCA\Decidesk\Service\DelegationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -45,6 +46,7 @@ class DelegationController extends Controller
      * @param IRequest          $request           HTTP request
      * @param DelegationService $delegationService Delegation service
      * @param IUserSession      $userSession       Current user session
+     * @param IGroupManager     $groupManager      Group manager for admin checks
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.4
      */
@@ -52,6 +54,7 @@ class DelegationController extends Controller
         IRequest $request,
         private readonly DelegationService $delegationService,
         private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -76,8 +79,20 @@ class DelegationController extends Controller
             return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
         }
 
+        $callerUid     = $user->getUID();
+        $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+
+        // M1: admins bypass the ownership check (pass null); non-admins pass their UID.
+        $delegationCallerUid = null;
+        if ($callerIsAdmin === false) {
+            $delegationCallerUid = $callerUid;
+        }
+
         try {
-            $delegation = $this->delegationService->revokeDelegation($id, $user->getUID());
+            $delegation = $this->delegationService->revokeDelegation(
+                delegationId: $id,
+                callerUid: $delegationCallerUid,
+            );
             return new JSONResponse($delegation);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
@@ -107,8 +122,20 @@ class DelegationController extends Controller
             return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
         }
 
+        $callerUid     = $user->getUID();
+        $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+
+        // M1: admins bypass the ownership check (pass null); non-admins pass their UID.
+        $delegationCallerUid = null;
+        if ($callerIsAdmin === false) {
+            $delegationCallerUid = $callerUid;
+        }
+
         try {
-            $delegation = $this->delegationService->expireDelegation($id, $user->getUID());
+            $delegation = $this->delegationService->expireDelegation(
+                delegationId: $id,
+                callerUid: $delegationCallerUid,
+            );
             return new JSONResponse($delegation);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
