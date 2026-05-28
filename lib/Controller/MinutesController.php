@@ -541,7 +541,7 @@ class MinutesController extends Controller
             $minutes['lifecycle'] = 'review';
             $this->objectService->saveObject(
                 register: 'decidesk',
-                schema: 'Minutes',
+                schema: 'minutes',
                 object: $minutes
             );
 

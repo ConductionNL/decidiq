@@ -76,7 +76,7 @@ class ActionItemAnalyticsService
     public function getSummary(string $dateFrom, string $dateTo): array
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $today         = new DateTime();
             // Validate ISO 8601 inputs (constructor throws on malformed dates).
             new DateTime($dateFrom);
@@ -172,7 +172,7 @@ class ActionItemAnalyticsService
     public function getCompletionRates(int $limit=6): array
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             // Get recent meetings.
             $params = [
@@ -257,7 +257,7 @@ class ActionItemAnalyticsService
     public function getMyItems(string $userDisplayName): array
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $today         = new DateTime();
             $weekAhead     = new DateTime('+7 days');
 

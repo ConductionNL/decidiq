@@ -110,7 +110,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
         $result = $this->service->getSummary('2026-01-01', '2026-12-31');
@@ -146,7 +146,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
         $result = $this->service->getCompletionRates(6);
@@ -194,7 +194,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
         $result = $this->service->getMyItems('John Doe');
@@ -233,7 +233,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
         $result = $this->service->getSummary('2026-01-01', '2026-12-31');

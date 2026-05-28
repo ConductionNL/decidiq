@@ -317,9 +317,9 @@ class MinutesGenerationService
                 $entities = $objectService->findAll(
                         [
                             'filters' => [
-                                'register' => 'decidesk',
-                                'schema'   => $schema,
-                                'meeting'  => $meetingId,
+                                'register'          => 'decidesk',
+                                'schema'            => $schema,
+                                'relations.meeting' => $meetingId,
                             ],
                             'limit'   => $pageSize,
                             'offset'  => $offset,
