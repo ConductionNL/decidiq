@@ -25,7 +25,7 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\LiveDecisionService;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -50,7 +50,7 @@ class LiveMeetingController extends Controller
      * @param LiveDecisionService $liveDecisionService The live decision service
      * @param IUserSession        $userSession         The current user session
      * @param IGroupManager       $groupManager        Group manager for admin checks
-     * @param ObjectService       $objectService       OpenRegister object service for role checks
+     * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
      */
@@ -59,7 +59,7 @@ class LiveMeetingController extends Controller
         private LiveDecisionService $liveDecisionService,
         private IUserSession $userSession,
         private IGroupManager $groupManager,
-        private ObjectService $objectService,
+        private ParticipantResolver $participantResolver,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -84,30 +84,13 @@ class LiveMeetingController extends Controller
             return null;
         }
 
-        $participants = $this->objectService->findAll(
-            [
-                'filters' => [
-                    'register'                => 'decidesk',
-                    'schema'                  => 'participant',
-                    '@self.relations.meeting' => $meetingId,
-                ],
-            ]
-        );
-
-        foreach ($participants as $p) {
-            $pData           = is_array($p) === true ? $p : (array) $p;
-            $nextcloudUserId = $pData['nextcloudUserId'] ?? null;
-            $ownerField      = $pData['owner'] ?? null;
-            $role            = $pData['role'] ?? null;
-
-            $isCallerMatch = ($nextcloudUserId !== null && $nextcloudUserId === $userId)
-                || ($nextcloudUserId === null && $ownerField !== null && $ownerField === $userId);
-
-            if ($isCallerMatch === true
-                && in_array(needle: $role, haystack: ['chair', 'secretary'], strict: true) === true
-            ) {
-                return null;
-            }
+        if ($this->participantResolver->hasRole(
+            meetingId: $meetingId,
+            nextcloudUid: $userId,
+            roles: ['chair', 'secretary'],
+        ) === true
+        ) {
+            return null;
         }
 
         return new JSONResponse(
@@ -148,7 +131,6 @@ class LiveMeetingController extends Controller
         $user = $this->userSession->getUser();
 
         try {
-
             $title   = $this->request->getParam('title');
             $text    = $this->request->getParam('text');
             $outcome = $this->request->getParam('outcome');

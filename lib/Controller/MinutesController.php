@@ -28,6 +28,7 @@ use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -64,6 +65,7 @@ class MinutesController extends Controller
      * @param IUserSession                $userSession              The current user session
      * @param IGroupManager               $groupManager             Group manager for role checks
      * @param ObjectService               $objectService            The object service for direct data access
+     * @param ParticipantResolver         $participantResolver      Participant resolver for meeting-based role checks
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
@@ -76,6 +78,7 @@ class MinutesController extends Controller
         private IUserSession $userSession,
         private IGroupManager $groupManager,
         private ObjectService $objectService,
+        private ParticipantResolver $participantResolver,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -135,30 +138,13 @@ class MinutesController extends Controller
             );
         }
 
-        $participants = $this->objectService->findAll(
-            [
-                'filters' => [
-                    'register'                => 'decidesk',
-                    'schema'                  => 'participant',
-                    '@self.relations.meeting' => $meetingId,
-                ],
-            ]
-        );
-
-        foreach ($participants as $p) {
-            $pData           = is_array($p) === true ? $p : (array) $p;
-            $nextcloudUserId = $pData['nextcloudUserId'] ?? null;
-            $ownerField      = $pData['owner'] ?? null;
-            $role            = $pData['role'] ?? null;
-
-            $isCallerMatch = ($nextcloudUserId !== null && $nextcloudUserId === $userId)
-                || ($nextcloudUserId === null && $ownerField !== null && $ownerField === $userId);
-
-            if ($isCallerMatch === true
-                && in_array(needle: $role, haystack: ['chair', 'secretary'], strict: true) === true
-            ) {
-                return null;
-            }
+        if ($this->participantResolver->hasRole(
+            meetingId: $meetingId,
+            nextcloudUid: $userId,
+            roles: ['chair', 'secretary'],
+        ) === true
+        ) {
+            return null;
         }
 
         return new JSONResponse(
@@ -261,7 +247,10 @@ class MinutesController extends Controller
             );
         }
 
-        $displayName = ($user !== null ? $user->getDisplayName() : '');
+        $displayName = '';
+        if ($user !== null) {
+            $displayName = $user->getDisplayName();
+        }
 
         try {
             $updated = $this->minutesGenerationService->transition(
