@@ -127,10 +127,8 @@ class TaskService
     public function findTask(string $taskId): ?array
     {
         $objectService = $this->getObjectService();
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('task');
-
-        $entity = $objectService->find($taskId);
+        // M4: use named-arg find() instead of setRegister/setSchema pattern.
+        $entity = $objectService->find(id: $taskId, register: 'decidesk', schema: 'task');
         if ($entity === null) {
             return null;
         }
@@ -157,7 +155,7 @@ class TaskService
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-2.5
      */
-    public function updateTaskStatus(string $taskId, string $newStatus, ?string $callerUid = null): array
+    public function updateTaskStatus(string $taskId, string $newStatus, ?string $callerUid=null): array
     {
         $task = $this->findTask(taskId: $taskId);
         if ($task === null) {

@@ -88,10 +88,8 @@ class MotionCoauthorService
     private function findMotion(string $motionId): array
     {
         $objectService = $this->getObjectService();
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
-
-        $entity = $objectService->find($motionId);
+        // M4: use named-arg find() instead of setRegister/setSchema pattern.
+        $entity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
         if ($entity === null) {
             throw new RuntimeException("Motion $motionId not found");
         }

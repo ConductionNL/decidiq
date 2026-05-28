@@ -191,9 +191,12 @@ class OriPublicationService
 
             $this->logger->info("Decidesk ORI: VotingRound $votingRoundId published successfully to $endpoint");
         } catch (\Throwable $e) {
+            // M3: log here for diagnostics, then rethrow so the caller (VotingService)
+            // can attach the error to the round data and surface it in the response.
             $this->logger->warning(
                 "Decidesk ORI: Publication error for round $votingRoundId: {$e->getMessage()}"
             );
+            throw $e;
         }//end try
 
     }//end publish()
