@@ -92,13 +92,17 @@ class MotionCoauthorController extends Controller
 
         $callerUid     = $user->getUID();
         $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+        // Admins bypass ownership check; null callerUid skips the access check in the service.
+        $accessUid = $callerUid;
+        if ($callerIsAdmin === true) {
+            $accessUid = null;
+        }
 
         try {
             $motion = $this->coauthorService->addCoauthor(
                 motionId: $id,
                 personId: $personId,
-                callerUid: $callerUid,
-                callerIsAdmin: $callerIsAdmin,
+                callerUid: $accessUid,
             );
             return new JSONResponse($motion);
         } catch (\InvalidArgumentException $e) {
@@ -132,13 +136,17 @@ class MotionCoauthorController extends Controller
 
         $callerUid     = $user->getUID();
         $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+        // Admins bypass ownership check; null callerUid skips the access check in the service.
+        $accessUid = $callerUid;
+        if ($callerIsAdmin === true) {
+            $accessUid = null;
+        }
 
         try {
             $motion = $this->coauthorService->removeCoauthor(
                 motionId: $id,
                 personId: $personId,
-                callerUid: $callerUid,
-                callerIsAdmin: $callerIsAdmin,
+                callerUid: $accessUid,
             );
             return new JSONResponse($motion);
         } catch (\InvalidArgumentException $e) {
@@ -183,6 +191,11 @@ class MotionCoauthorController extends Controller
 
         $callerUid     = $user->getUID();
         $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+        // Admins bypass ownership check; null callerUid skips the access check in the service.
+        $accessUid = $callerUid;
+        if ($callerIsAdmin === true) {
+            $accessUid = null;
+        }
 
         try {
             $motion = $this->coauthorService->updateMotionText(
@@ -190,7 +203,7 @@ class MotionCoauthorController extends Controller
                 newText: $text,
                 author: $callerUid,
                 changeSummary: $summary,
-                callerIsAdmin: $callerIsAdmin,
+                callerUid: $accessUid,
             );
             return new JSONResponse($motion);
         } catch (\InvalidArgumentException $e) {

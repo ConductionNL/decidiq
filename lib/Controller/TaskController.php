@@ -92,11 +92,16 @@ class TaskController extends Controller
 
         // Admins bypass ownership check; regular users are checked inside the service
         // against assignee/delegator (OWASP A01 — Broken Access Control).
-        $callerUid    = $user->getUID();
+        $callerUid     = $user->getUID();
         $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
 
+        $ownerFilter = null;
+        if ($callerIsAdmin === false) {
+            $ownerFilter = $callerUid;
+        }
+
         try {
-            $task = $this->taskService->updateTaskStatus($id, $newStatus, $callerIsAdmin ? null : $callerUid);
+            $task = $this->taskService->updateTaskStatus($id, $newStatus, $ownerFilter);
             return new JSONResponse($task);
         } catch (\InvalidArgumentException $e) {
             // Distinguish between "transition not allowed" (422) and "not owner" (403).

@@ -2,6 +2,7 @@
 <phpmd-baseline>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/AppInfo/Application.php"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/AppInfo/Application.php" method="register"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/AppInfo/Application.php"/>
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/MailReplyHandler.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/BackgroundJob/MailReplyHandler.php" method="processRoundMailReplies"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/BackgroundJob/MailReplyHandler.php" method="processRoundMailReplies"/>
@@ -11,12 +12,17 @@
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/OverdueActionItemsJob.php"/>
   <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/BackgroundJob/OverdueActionItemsJob.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/AgendaController.php"/>
+  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/AgendaController.php"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/MinutesController.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/DecisionController.php" method="publish"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/DecisionController.php" method="publish"/>
   <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Controller/DecisionController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/DecisionController.php"/>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/MinutesController.php"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Controller/MinutesController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/MinutesController.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/MinutesController.php" method="requireChairOrAdminForMinutes"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/MinutesController.php" method="requireChairOrAdminForMinutes"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/MotionController.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/OriController.php" method="serializeOri"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/OriController.php" method="serializeOri"/>
@@ -27,6 +33,8 @@
   <violation rule="PHPMD\Rule\Design\LongClass" file="lib/Mcp/DecideskToolProvider.php"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Mcp/DecideskToolProvider.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListOpenActionItems"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListOpenActionItems"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleListOpenActionItems"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleGetMeetingDetails"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleGetMeetingDetails"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleGetMeetingDetails"/>
@@ -38,6 +46,10 @@
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleAddActionItem"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleAddActionItem"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="requireParticipantOrAdmin"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListRecentMeetings"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListRecentMeetings"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleListRecentMeetings"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="getCallerMeetingUuids"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ALVMinutesService.php" method="generateALVDraft"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/ALVMinutesService.php" method="generateALVDraft"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/ALVMinutesService.php" method="generateALVDraft"/>
@@ -80,6 +92,8 @@
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/SettingsService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/SettingsService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingBehaviourService.php" method="getStats"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingBehaviourService.php" method="getStats"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/VotingBehaviourService.php" method="getStats"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/VotingService.php"/>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Service/VotingService.php"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/VotingService.php"/>
@@ -91,8 +105,13 @@
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/VotingService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="closeVotingRound"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="closeVotingRound"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/VotingService.php" method="closeVotingRound"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="tallyResults"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="grantProxy"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="grantProxy"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="getPublicState"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="getPublicState"/>
+  <violation rule="PHPMD\Rule\Design\LongClass" file="lib/Service/VotingService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="saveShowOfHandsTally"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="saveShowOfHandsTally"/>
 </phpmd-baseline>

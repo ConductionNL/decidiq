@@ -30,6 +30,7 @@ namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -165,7 +166,7 @@ class MotionCoauthorService
             return;
         }
 
-        throw new \InvalidArgumentException(
+        throw new InvalidArgumentException(
             'Only the motion proposer or an existing co-author may modify this motion'
         );
 
@@ -176,12 +177,11 @@ class MotionCoauthorService
      *
      * Only the motion proposer (owner), an existing co-author, or an admin may
      * add co-authors (OWASP A01:2021 — Broken Access Control).
-     * Pass `$callerUid = null` only from admin-only or background-job paths.
+     * Pass `$callerUid = null` to bypass the ownership check (admin/background-job paths).
      *
-     * @param string      $motionId      Motion UUID
-     * @param string      $personId      Person UUID to add as co-author
-     * @param string|null $callerUid     NC UID of the requester (null = skip check)
-     * @param bool        $callerIsAdmin Whether the caller is an NC admin
+     * @param string      $motionId  Motion UUID
+     * @param string      $personId  Person UUID to add as co-author
+     * @param string|null $callerUid NC UID of the requester (null = skip access check)
      *
      * @return array<string, mixed>
      *
@@ -193,10 +193,9 @@ class MotionCoauthorService
         string $motionId,
         string $personId,
         ?string $callerUid=null,
-        bool $callerIsAdmin=false,
     ): array {
         $motion = $this->findMotion(motionId: $motionId);
-        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: $callerIsAdmin);
+        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
 
         $coauthors = ($motion['coAuthors'] ?? []);
 
@@ -227,12 +226,11 @@ class MotionCoauthorService
      *
      * Only the motion proposer (owner), an existing co-author, or an admin may
      * remove co-authors (OWASP A01:2021 — Broken Access Control).
-     * Pass `$callerUid = null` only from admin-only or background-job paths.
+     * Pass `$callerUid = null` to bypass the ownership check (admin/background-job paths).
      *
-     * @param string      $motionId      Motion UUID
-     * @param string      $personId      Person UUID to remove
-     * @param string|null $callerUid     NC UID of the requester (null = skip check)
-     * @param bool        $callerIsAdmin Whether the caller is an NC admin
+     * @param string      $motionId  Motion UUID
+     * @param string      $personId  Person UUID to remove
+     * @param string|null $callerUid NC UID of the requester (null = skip access check)
      *
      * @return array<string, mixed>
      *
@@ -244,10 +242,9 @@ class MotionCoauthorService
         string $motionId,
         string $personId,
         ?string $callerUid=null,
-        bool $callerIsAdmin=false,
     ): array {
         $motion = $this->findMotion(motionId: $motionId);
-        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: $callerIsAdmin);
+        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
         $coauthors           = ($motion['coAuthors'] ?? []);
         $motion['coAuthors'] = array_values(
             array_filter(
@@ -279,11 +276,11 @@ class MotionCoauthorService
      * Only the motion proposer (owner), an existing co-author, or an admin may
      * update the text (OWASP A01:2021 — Broken Access Control).
      *
-     * @param string $motionId      Motion UUID
-     * @param string $newText       New motion text
-     * @param string $author        NC UID of the author making the change
-     * @param string $changeSummary Human-readable change summary
-     * @param bool   $callerIsAdmin Whether the caller is an NC admin
+     * @param string      $motionId      Motion UUID
+     * @param string      $newText       New motion text
+     * @param string      $author        NC UID of the author making the change (recorded in history)
+     * @param string      $changeSummary Human-readable change summary
+     * @param string|null $callerUid     NC UID to check for access (null = skip check for admin paths)
      *
      * @return array<string, mixed>
      *
@@ -297,10 +294,10 @@ class MotionCoauthorService
         string $newText,
         string $author,
         string $changeSummary,
-        bool $callerIsAdmin=false,
+        ?string $callerUid=null,
     ): array {
         $motion = $this->findMotion(motionId: $motionId);
-        $this->checkMotionAccess(motion: $motion, callerUid: $author, callerIsAdmin: $callerIsAdmin);
+        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
         $previousText    = (string) ($motion['text'] ?? '');
         $previousHistory = ($motion['versionHistory'] ?? []);
 
