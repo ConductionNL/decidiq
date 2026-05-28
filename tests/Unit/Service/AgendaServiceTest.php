@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AgendaService;
+use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\CalendarEventService;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\Notification\IManager as INotificationManager;
@@ -75,6 +77,13 @@ class AgendaServiceTest extends TestCase
      */
     private LoggerInterface&MockObject $logger;
 
+    /**
+     * Mock ParticipantResolver.
+     *
+     * @var ParticipantResolver&MockObject
+     */
+    private ParticipantResolver&MockObject $participantResolver;
+
 
     /**
      * Set up mocks and service instance.
@@ -85,16 +94,18 @@ class AgendaServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->objectService       = $this->createMock(ObjectService::class);
-        $this->calendarEventService = $this->createMock(CalendarEventService::class);
-        $this->notificationManager = $this->createMock(INotificationManager::class);
-        $this->logger              = $this->createMock(LoggerInterface::class);
+        $this->objectService         = $this->createMock(ObjectService::class);
+        $this->calendarEventService  = $this->createMock(CalendarEventService::class);
+        $this->notificationManager   = $this->createMock(INotificationManager::class);
+        $this->logger                = $this->createMock(LoggerInterface::class);
+        $this->participantResolver   = $this->createMock(ParticipantResolver::class);
 
         $this->service = new AgendaService(
             objectService: $this->objectService,
             calendarEventService: $this->calendarEventService,
             notificationManager: $this->notificationManager,
             logger: $this->logger,
+            participantResolver: $this->participantResolver,
         );
 
     }//end setUp()
@@ -149,29 +160,31 @@ class AgendaServiceTest extends TestCase
         ];
 
         // Meeting entity stub for the #315 full-object read in publishAgenda.
-        $meetingEntity = new class(['id' => $meetingId, 'title' => 'Test Meeting', 'lifecycle' => 'scheduled']) {
-            public function __construct(private array $data) {}
-            public function jsonSerialize(): array { return $this->data; }
-            public function getObject(): array { return $this->data; }
-        };
+        $meetingEntity = $this->createMock(ObjectEntity::class);
+        $meetingEntity->method('jsonSerialize')->willReturn(
+            ['id' => $meetingId, 'title' => 'Test Meeting', 'lifecycle' => 'scheduled']
+        );
 
         $this->objectService
             ->method('find')
             ->willReturn($meetingEntity);
 
+        // Agenda-item query returns one item so the not-empty check passes.
         $this->objectService
             ->method('findAll')
-            ->willReturnCallback(function (array $config) use ($participants) {
+            ->willReturnCallback(function (array $config) {
                 if (($config['filters']['schema'] ?? '') === 'agenda-item') {
                     return [['id' => 'item-1', 'title' => 'Item 1']];
                 }
 
-                if (($config['filters']['schema'] ?? '') === 'participant') {
-                    return $participants;
-                }
-
                 return [];
             });
+
+        // Participants now come from ParticipantResolver (canonical path).
+        $this->participantResolver
+            ->method('resolveMeetingParticipants')
+            ->with($meetingId)
+            ->willReturn($participants);
 
         $notification = $this->createMock(INotification::class);
         $notification->method('setApp')->willReturnSelf();
@@ -242,6 +255,7 @@ class AgendaServiceTest extends TestCase
                 calendarEventService: $this->calendarEventService,
                 notificationManager: $this->notificationManager,
                 logger: $this->logger,
+                participantResolver: $this->participantResolver,
             );
 
             $freshService->advanceBobPhase($itemId);

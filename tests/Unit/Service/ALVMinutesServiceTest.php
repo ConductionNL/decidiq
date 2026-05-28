@@ -59,9 +59,7 @@ class ALVMinutesServiceTest extends TestCase
      */
     private function makeEntity(array $data): object
     {
-        $entity = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['jsonSerialize'])
-            ->getMock();
+        $entity = $this->createMock(\OCA\OpenRegister\Db\ObjectEntity::class);
         $entity->method('jsonSerialize')->willReturn($data);
         return $entity;
     }

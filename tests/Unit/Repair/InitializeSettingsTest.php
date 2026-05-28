@@ -23,6 +23,7 @@ namespace OCA\Decidesk\Tests\Unit\Repair;
 
 use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\SettingsService;
+use OCP\IAppConfig;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -58,6 +59,13 @@ class InitializeSettingsTest extends TestCase
     private LoggerInterface&MockObject $logger;
 
     /**
+     * Mock IAppConfig.
+     *
+     * @var IAppConfig&MockObject
+     */
+    private IAppConfig&MockObject $appConfig;
+
+    /**
      * Mock IOutput.
      *
      * @var IOutput&MockObject
@@ -75,10 +83,12 @@ class InitializeSettingsTest extends TestCase
 
         $this->settingsService = $this->createMock(originalClassName: SettingsService::class);
         $this->logger          = $this->createMock(originalClassName: LoggerInterface::class);
+        $this->appConfig       = $this->createMock(originalClassName: IAppConfig::class);
         $this->output          = $this->createMock(originalClassName: IOutput::class);
 
         $this->repairStep = new InitializeSettings(
             settingsService: $this->settingsService,
+            appConfig: $this->appConfig,
             logger: $this->logger,
         );
 
