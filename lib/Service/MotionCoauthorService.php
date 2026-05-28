@@ -73,6 +73,10 @@ class MotionCoauthorService
     /**
      * Find a motion by UUID.
      *
+     * Uses jsonSerialize() (not getObject()) so that @self metadata —
+     * including @self.owner (the NC UID of the creator) — is included in the
+     * returned array. The IDOR guard in checkMotionAccess() depends on @self.owner.
+     *
      * @param string $motionId Motion UUID
      *
      * @return array<string, mixed>
@@ -92,23 +96,110 @@ class MotionCoauthorService
             throw new RuntimeException("Motion $motionId not found");
         }
 
-        return $entity->getObject();
+        return $entity->jsonSerialize();
 
     }//end findMotion()
 
     /**
-     * Add a co-author to a motion.
+     * Resolve the OpenRegister participant UUID for a given Nextcloud user ID.
      *
-     * @param string $motionId Motion UUID
-     * @param string $personId Person UUID to add as co-author
+     * Returns null when no participant record is linked to this user.
      *
-     * @return array<string, mixed>
+     * @param string $nextcloudUid Nextcloud UID
+     *
+     * @return string|null
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
      */
-    public function addCoauthor(string $motionId, string $personId): array
+    private function resolveParticipantUuid(string $nextcloudUid): ?string
     {
-        $motion    = $this->findMotion(motionId: $motionId);
+        $objectService = $this->getObjectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('participant');
+        $entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+
+        foreach ($entities as $participantEntity) {
+            $participant = $participantEntity->jsonSerialize();
+            return ($participant['uuid'] ?? $participant['id'] ?? null);
+        }
+
+        return null;
+
+    }//end resolveParticipantUuid()
+
+    /**
+     * Assert the caller is allowed to mutate a motion's co-author list or text.
+     *
+     * A caller is allowed when:
+     *   (a) callerUid is null — caller has already been authorised (admin path), OR
+     *   (b) $callerIsAdmin === true, OR
+     *   (c) the motion's @self.owner field matches the callerUid (proposer = creator), OR
+     *   (d) the caller's participant UUID is in the motion's coAuthors list.
+     *
+     * Throws \InvalidArgumentException on access denied.
+     *
+     * @param array<string,mixed> $motion        Serialised motion object (with @self)
+     * @param string|null         $callerUid     NC UID of the requester (null = skip check)
+     * @param bool                $callerIsAdmin Whether the caller is an NC admin
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException When the caller is not authorised
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+     */
+    private function checkMotionAccess(array $motion, ?string $callerUid, bool $callerIsAdmin): void
+    {
+        if ($callerUid === null || $callerIsAdmin === true) {
+            return;
+        }
+
+        // Check whether caller is the motion's owner (proposer, stored in @self.owner).
+        $owner = (string) ($motion['@self']['owner'] ?? $motion['owner'] ?? '');
+        if ($owner !== '' && $owner === $callerUid) {
+            return;
+        }
+
+        // Check whether caller's participant UUID is listed as a coAuthor.
+        $participantUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+        $coauthors       = ($motion['coAuthors'] ?? []);
+        if ($participantUuid !== null && in_array($participantUuid, $coauthors, true) === true) {
+            return;
+        }
+
+        throw new \InvalidArgumentException(
+            'Only the motion proposer or an existing co-author may modify this motion'
+        );
+
+    }//end checkMotionAccess()
+
+    /**
+     * Add a co-author to a motion.
+     *
+     * Only the motion proposer (owner), an existing co-author, or an admin may
+     * add co-authors (OWASP A01:2021 — Broken Access Control).
+     * Pass `$callerUid = null` only from admin-only or background-job paths.
+     *
+     * @param string      $motionId      Motion UUID
+     * @param string      $personId      Person UUID to add as co-author
+     * @param string|null $callerUid     NC UID of the requester (null = skip check)
+     * @param bool        $callerIsAdmin Whether the caller is an NC admin
+     *
+     * @return array<string, mixed>
+     *
+     * @throws \InvalidArgumentException When caller is not authorised
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+     */
+    public function addCoauthor(
+        string $motionId,
+        string $personId,
+        ?string $callerUid=null,
+        bool $callerIsAdmin=false,
+    ): array {
+        $motion = $this->findMotion(motionId: $motionId);
+        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: $callerIsAdmin);
+
         $coauthors = ($motion['coAuthors'] ?? []);
 
         if (in_array($personId, $coauthors, true) === false) {
@@ -136,17 +227,30 @@ class MotionCoauthorService
     /**
      * Remove a co-author from a motion.
      *
-     * @param string $motionId Motion UUID
-     * @param string $personId Person UUID to remove
+     * Only the motion proposer (owner), an existing co-author, or an admin may
+     * remove co-authors (OWASP A01:2021 — Broken Access Control).
+     * Pass `$callerUid = null` only from admin-only or background-job paths.
+     *
+     * @param string      $motionId      Motion UUID
+     * @param string      $personId      Person UUID to remove
+     * @param string|null $callerUid     NC UID of the requester (null = skip check)
+     * @param bool        $callerIsAdmin Whether the caller is an NC admin
      *
      * @return array<string, mixed>
      *
+     * @throws \InvalidArgumentException When caller is not authorised
+     *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
      */
-    public function removeCoauthor(string $motionId, string $personId): array
-    {
-        $motion    = $this->findMotion(motionId: $motionId);
-        $coauthors = ($motion['coAuthors'] ?? []);
+    public function removeCoauthor(
+        string $motionId,
+        string $personId,
+        ?string $callerUid=null,
+        bool $callerIsAdmin=false,
+    ): array {
+        $motion = $this->findMotion(motionId: $motionId);
+        $this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: $callerIsAdmin);
+        $coauthors           = ($motion['coAuthors'] ?? []);
         $motion['coAuthors'] = array_values(
             array_filter(
                 $coauthors,
@@ -174,14 +278,19 @@ class MotionCoauthorService
      * authors, the operation throws a RuntimeException with the conflict
      * marker so the caller can prompt for manual resolution.
      *
+     * Only the motion proposer (owner), an existing co-author, or an admin may
+     * update the text (OWASP A01:2021 — Broken Access Control).
+     *
      * @param string $motionId      Motion UUID
      * @param string $newText       New motion text
-     * @param string $author        Author UUID making the change
+     * @param string $author        NC UID of the author making the change
      * @param string $changeSummary Human-readable change summary
+     * @param bool   $callerIsAdmin Whether the caller is an NC admin
      *
      * @return array<string, mixed>
      *
-     * @throws RuntimeException When an overlapping edit conflict is detected
+     * @throws \InvalidArgumentException When the caller is not authorised
+     * @throws RuntimeException          When an overlapping edit conflict is detected
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
      */
@@ -189,9 +298,11 @@ class MotionCoauthorService
         string $motionId,
         string $newText,
         string $author,
-        string $changeSummary
+        string $changeSummary,
+        bool $callerIsAdmin=false,
     ): array {
-        $motion          = $this->findMotion(motionId: $motionId);
+        $motion = $this->findMotion(motionId: $motionId);
+        $this->checkMotionAccess(motion: $motion, callerUid: $author, callerIsAdmin: $callerIsAdmin);
         $previousText    = (string) ($motion['text'] ?? '');
         $previousHistory = ($motion['versionHistory'] ?? []);
 
