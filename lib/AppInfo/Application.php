@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
 
-use OCA\Decidesk\BackgroundJob\MailReplyHandler;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
 use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Controller\AnalyticsController;
@@ -58,6 +57,7 @@ use OCA\Decidesk\Service\MotionCoauthorService;
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\NotificationPreferenceService;
 use OCA\Decidesk\Service\OriPublicationService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\TaskService;
 use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\Decidesk\Service\VotingService;
@@ -68,7 +68,6 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
-use OCP\BackgroundJob\IJobList;
 
 /**
  * Main application class for the Decidesk Nextcloud app.
@@ -145,6 +144,7 @@ class Application extends App implements IBootstrap
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     objectService: $c->get(ObjectService::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
                     );
                 }
                 );
@@ -238,7 +238,6 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     analyticsService: $c->get(ActionItemAnalyticsService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
-                    groupManager: $c->get(\OCP\IGroupManager::class),
                     );
                 }
                 );
@@ -253,6 +252,7 @@ class Application extends App implements IBootstrap
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     oriPublicationService: $c->get(OriPublicationService::class),
                     motionService: $c->get(MotionService::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
                     );
                 }
                 );
@@ -308,6 +308,7 @@ class Application extends App implements IBootstrap
                     liveDecisionService: $c->get(LiveDecisionService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
                     );
                 }
                 );
@@ -480,6 +481,7 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     taskService: $c->get(TaskService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
                 );
             }
         );
@@ -502,6 +504,7 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     commentService: $c->get(CommentService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
                 );
             }
         );
@@ -546,6 +549,8 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     engagementService: $c->get(EngagementService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
                 );
             }
         );
@@ -557,6 +562,7 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     coauthorService: $c->get(MotionCoauthorService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
                 );
             }
         );
@@ -586,11 +592,8 @@ class Application extends App implements IBootstrap
      */
     public function boot(IBootContext $context): void
     {
-        $serverContainer = $context->getServerContainer();
-        $jobList         = $serverContainer->get(IJobList::class);
-        if ($jobList->has(MailReplyHandler::class, null) === false) {
-            $jobList->add(MailReplyHandler::class);
-        }
-
+        // C2: email-voting is disabled — MailReplyHandler is not registered.
+        // The background job remains in place for future re-enablement but must
+        // not be scheduled until the feature is audited and enabled deliberately.
     }//end boot()
 }//end class

@@ -283,7 +283,9 @@ class OriController extends Controller
     private function serializeOri(string $type, array $object): array
     {
         $self = ($object['@self'] ?? []);
-        $id   = ($self['id'] ?? ($object['id'] ?? ($object['uuid'] ?? null)));
+        // L1: prefer the entity's own uuid field over @self.id (which is an
+        // internal OpenRegister reference and must not be surfaced publicly).
+        $id = ($object['uuid'] ?? ($object['id'] ?? ($self['id'] ?? null)));
 
         $payload = [
             '@context' => self::ORI_CONTEXT,
@@ -325,7 +327,9 @@ class OriController extends Controller
             $payload['text'] = $object['text'];
         }
 
-        if (isset($object['email']) === true) {
+        // C5: only expose email for Organisation-typed resources to prevent
+        // accidental leakage of private contact details from other types.
+        if ($type === 'Organization' && isset($object['email']) === true) {
             $payload['email'] = $object['email'];
         }
 
