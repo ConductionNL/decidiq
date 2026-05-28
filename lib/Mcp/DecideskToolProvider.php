@@ -584,9 +584,9 @@ class DecideskToolProvider implements IMcpToolProvider
             $agendaItems = $objectService->findAll(
                 [
                     'filters' => [
-                        'register'                => 'decidesk',
-                        'schema'                  => 'agenda-item',
-                        '@self.relations.meeting' => $meetingUuid,
+                        'register'          => 'decidesk',
+                        'schema'            => 'agenda-item',
+                        'relations.meeting' => $meetingUuid,
                     ],
                 ]
             );
@@ -594,9 +594,9 @@ class DecideskToolProvider implements IMcpToolProvider
             $decisions = $objectService->findAll(
                 [
                     'filters' => [
-                        'register'                => 'decidesk',
-                        'schema'                  => 'decision',
-                        '@self.relations.meeting' => $meetingUuid,
+                        'register'          => 'decidesk',
+                        'schema'            => 'decision',
+                        'relations.meeting' => $meetingUuid,
                     ],
                 ]
             );
@@ -604,9 +604,9 @@ class DecideskToolProvider implements IMcpToolProvider
             $actionItems = $objectService->findAll(
                 [
                     'filters' => [
-                        'register'                => 'decidesk',
-                        'schema'                  => 'action-item',
-                        '@self.relations.meeting' => $meetingUuid,
+                        'register'          => 'decidesk',
+                        'schema'            => 'action-item',
+                        'relations.meeting' => $meetingUuid,
                     ],
                 ]
             );
@@ -1120,23 +1120,43 @@ class DecideskToolProvider implements IMcpToolProvider
                 ]
             );
 
+            // Participants have no direct meeting relation; canonical path is
+            // participant → governance-body → meeting (ParticipantResolver docblock).
             $meetingUuids = [];
             foreach ($participants as $raw) {
-                $p = $this->toArray(item: $raw);
+                $p      = $this->toArray(item: $raw);
+                $bodyId = null;
 
-                // Collect from @self.relations.meeting or relations array.
-                $meetingId = $p['@self']['relations']['meeting'] ?? null;
-                if ($meetingId !== null) {
-                    $meetingUuids[] = (string) $meetingId;
+                foreach (($p['relations'] ?? []) as $rel) {
+                    if (is_array($rel) === true && ($rel['schema'] ?? '') === 'governance-body') {
+                        $bodyId = ($rel['id'] ?? null);
+                        break;
+                    }
+                }
+
+                if ($bodyId === null) {
                     continue;
                 }
 
-                foreach (($p['relations'] ?? []) as $rel) {
-                    if (is_array($rel) === true && ($rel['schema'] ?? '') === 'meeting') {
-                        $meetingUuids[] = (string) ($rel['id'] ?? '');
+                // Query meetings linked to this governance body.
+                $meetingEntities = $objectService->findAll(
+                    [
+                        'filters' => [
+                            'register'                  => 'decidesk',
+                            'schema'                    => 'meeting',
+                            'relations.governance-body' => $bodyId,
+                        ],
+                    ]
+                );
+
+                foreach ($meetingEntities as $meetingRaw) {
+                    $m   = $this->toArray(item: $meetingRaw);
+                    $mId = ($m['id'] ?? ($m['uuid'] ?? null));
+                    if ($mId !== null) {
+                        $meetingUuids[] = (string) $mId;
                     }
                 }
-            }
+            }//end foreach
 
             return array_unique(array_filter($meetingUuids));
         } catch (\Throwable $e) {

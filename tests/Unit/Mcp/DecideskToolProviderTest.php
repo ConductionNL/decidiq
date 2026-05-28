@@ -30,6 +30,7 @@ namespace OCA\Decidesk\Tests\Unit\Mcp;
 
 use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Service\MeetingService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\TaskService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
@@ -106,6 +107,13 @@ class DecideskToolProviderTest extends TestCase
     private LoggerInterface&MockObject $logger;
 
     /**
+     * Mock ParticipantResolver.
+     *
+     * @var ParticipantResolver&MockObject
+     */
+    private ParticipantResolver&MockObject $participantResolver;
+
+    /**
      * The UUID fixture used in tests.
      *
      * @var string
@@ -129,12 +137,13 @@ class DecideskToolProviderTest extends TestCase
     {
         parent::setUp();
 
-        $this->meetingService = $this->createMock(MeetingService::class);
-        $this->taskService    = $this->createMock(TaskService::class);
-        $this->userSession    = $this->createMock(IUserSession::class);
-        $this->groupManager   = $this->createMock(IGroupManager::class);
-        $this->container      = $this->createMock(ContainerInterface::class);
-        $this->logger         = $this->createMock(LoggerInterface::class);
+        $this->meetingService      = $this->createMock(MeetingService::class);
+        $this->taskService         = $this->createMock(TaskService::class);
+        $this->userSession         = $this->createMock(IUserSession::class);
+        $this->groupManager        = $this->createMock(IGroupManager::class);
+        $this->container           = $this->createMock(ContainerInterface::class);
+        $this->logger              = $this->createMock(LoggerInterface::class);
+        $this->participantResolver = $this->createMock(ParticipantResolver::class);
 
         $this->provider = new DecideskToolProvider(
             meetingService: $this->meetingService,
@@ -143,6 +152,7 @@ class DecideskToolProviderTest extends TestCase
             groupManager: $this->groupManager,
             container: $this->container,
             logger: $this->logger,
+            participantResolver: $this->participantResolver,
         );
 
     }//end setUp()
@@ -197,6 +207,22 @@ class DecideskToolProviderTest extends TestCase
         $this->groupManager->method('isAdmin')->with($uid)->willReturn(true);
 
     }//end setAdminUser()
+
+
+    /**
+     * Configure ParticipantResolver to accept the given user as a participant in any meeting.
+     *
+     * @param string $uid The user id to accept as participant
+     *
+     * @return void
+     */
+    private function setParticipant(string $uid): void
+    {
+        $this->participantResolver
+            ->method('isParticipant')
+            ->willReturnCallback(static fn($meetingId, $nextcloudUid) => $nextcloudUid === $uid);
+
+    }//end setParticipant()
 
 
     /**
@@ -525,7 +551,9 @@ class DecideskToolProviderTest extends TestCase
      */
     public function testListRecentMeetings_happyPath(): void
     {
-        $this->setCurrentUser('alice');
+        // Use admin so getCallerMeetingUuids returns null (unrestricted) and
+        // the meeting-UUID scoping filter is bypassed.
+        $this->setAdminUser('alice');
 
         $objectService = $this->createMock(ObjectService::class);
         $objectService->method('findAll')->willReturn(
@@ -562,6 +590,7 @@ class DecideskToolProviderTest extends TestCase
     public function testGetMeetingDetails_happyPath(): void
     {
         $this->setCurrentUser('alice');
+        $this->setParticipant('alice');
 
         $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
         $meetingEntity = $this->makeObjectEntityMock($meeting);
@@ -656,6 +685,7 @@ class DecideskToolProviderTest extends TestCase
     public function testAddActionItem_happyPath(): void
     {
         $this->setCurrentUser('alice');
+        $this->setParticipant('alice');
 
         $meeting       = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
         $meetingEntity = $this->makeObjectEntityMock($meeting);
@@ -825,6 +855,7 @@ class DecideskToolProviderTest extends TestCase
     public function testSourcesTruncationAtCap(): void
     {
         $this->setCurrentUser('alice');
+        $this->setParticipant('alice');
 
         $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice');
         $meetingEntity = $this->makeObjectEntityMock($meeting);

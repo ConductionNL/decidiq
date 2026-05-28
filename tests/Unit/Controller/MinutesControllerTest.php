@@ -29,6 +29,8 @@ use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
+use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -118,6 +120,13 @@ class MinutesControllerTest extends TestCase
     private IUser&MockObject $user;
 
     /**
+     * Mock ParticipantResolver.
+     *
+     * @var ParticipantResolver&MockObject
+     */
+    private ParticipantResolver&MockObject $participantResolver;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -135,6 +144,7 @@ class MinutesControllerTest extends TestCase
         $this->groupManager             = $this->createMock(originalClassName: IGroupManager::class);
         $this->objectService            = $this->createMock(originalClassName: ObjectService::class);
         $this->user                     = $this->createMock(originalClassName: IUser::class);
+        $this->participantResolver      = $this->createMock(originalClassName: ParticipantResolver::class);
 
         $this->user->method('getUID')->willReturn('testuser');
         $this->user->method('getDisplayName')->willReturn('Test User');
@@ -149,9 +159,36 @@ class MinutesControllerTest extends TestCase
             userSession: $this->userSession,
             groupManager: $this->groupManager,
             objectService: $this->objectService,
+            participantResolver: $this->participantResolver,
         );
 
     }//end setUp()
+
+
+    /**
+     * Build a minutes ObjectEntity mock linked to a meeting.
+     *
+     * The mock represents a minutes record with a meeting relation, which is
+     * required by requireChairOrAdminForMinutes to resolve the meeting ID.
+     *
+     * @param string $minutesId The minutes UUID
+     * @param string $meetingId The linked meeting UUID
+     *
+     * @return ObjectEntity&MockObject
+     */
+    private function makeMinutesEntity(string $minutesId, string $meetingId): ObjectEntity
+    {
+        $entity = $this->createMock(ObjectEntity::class);
+        $entity->method('jsonSerialize')->willReturn(
+            [
+                'id'        => $minutesId,
+                'relations' => ['meeting' => ['id' => $meetingId]],
+            ]
+        );
+        return $entity;
+
+    }//end makeMinutesEntity()
+
 
     /**
      * generateDraft returns a 200 JSON response with a preview field.
@@ -258,6 +295,13 @@ class MinutesControllerTest extends TestCase
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
 
+        // Provide a minutes entity so requireChairOrAdminForMinutes can resolve the meeting.
+        $minutesEntity = $this->makeMinutesEntity('minutes-uuid-001', 'meeting-uuid-1');
+        $this->objectService->method('find')->willReturn($minutesEntity);
+
+        // Testuser is not chair/secretary → participantResolver denies.
+        $this->participantResolver->method('hasRole')->willReturn(false);
+
         // Service must NOT be called — access check happens before delegation.
         $this->minutesGenerationService->expects($this->never())->method('generateDraft');
 
@@ -290,6 +334,7 @@ class MinutesControllerTest extends TestCase
             userSession: $unauthSession,
             groupManager: $this->groupManager,
             objectService: $this->objectService,
+            participantResolver: $this->participantResolver,
         );
 
         // The service must NOT be called for an unauthenticated request.
@@ -314,6 +359,13 @@ class MinutesControllerTest extends TestCase
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
         $this->request->method('getParam')->with('lifecycle')->willReturn('approved');
+
+        // Provide a minutes entity so requireChairOrAdminForMinutes can resolve the meeting.
+        $minutesEntity = $this->makeMinutesEntity('minutes-uuid-001', 'meeting-uuid-1');
+        $this->objectService->method('find')->willReturn($minutesEntity);
+
+        // Testuser is not chair/secretary → participantResolver denies.
+        $this->participantResolver->method('hasRole')->willReturn(false);
 
         // Service must NOT be called — access check happens before delegation.
         $this->minutesGenerationService->expects($this->never())->method('transition');
@@ -447,6 +499,7 @@ class MinutesControllerTest extends TestCase
             userSession: $unauthSession,
             groupManager: $this->groupManager,
             objectService: $this->objectService,
+            participantResolver: $this->participantResolver,
         );
 
         $this->alvMinutesService->expects($this->never())->method('generateALVDraft');
@@ -468,6 +521,12 @@ class MinutesControllerTest extends TestCase
     public function testGenerateALVDraftByNonAdminReturns403(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+
+        // Provide a minutes entity and deny role check so requireChairOrAdminForMinutes returns 403.
+        $minutesEntity = $this->makeMinutesEntity('minutes-uuid-001', 'meeting-uuid-1');
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->participantResolver->method('hasRole')->willReturn(false);
+
         $this->alvMinutesService->expects($this->never())->method('generateALVDraft');
 
         $result = $this->controller->generateALVDraft('minutes-uuid-001');
@@ -521,6 +580,7 @@ class MinutesControllerTest extends TestCase
             userSession: $unauthSession,
             groupManager: $this->groupManager,
             objectService: $this->objectService,
+            participantResolver: $this->participantResolver,
         );
 
         $this->alvMinutesService->expects($this->never())->method('distribute');
@@ -542,6 +602,12 @@ class MinutesControllerTest extends TestCase
     public function testDistributeALVMinutesByNonAdminReturns403(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+
+        // Provide a minutes entity and deny role check so requireChairOrAdminForMinutes returns 403.
+        $minutesEntity = $this->makeMinutesEntity('minutes-uuid-001', 'meeting-uuid-1');
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->participantResolver->method('hasRole')->willReturn(false);
+
         $this->alvMinutesService->expects($this->never())->method('distribute');
 
         $result = $this->controller->distributeALVMinutes('minutes-uuid-001');
@@ -560,9 +626,7 @@ class MinutesControllerTest extends TestCase
      */
     private function makeEntity(array $data): object
     {
-        $entity = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['jsonSerialize'])
-            ->getMock();
+        $entity = $this->createMock(ObjectEntity::class);
         $entity->method('jsonSerialize')->willReturn($data);
         return $entity;
     }
@@ -577,7 +641,11 @@ class MinutesControllerTest extends TestCase
     public function testExtractActionItemsByNonAdminReturns403(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
-        $this->objectService->expects($this->never())->method('find');
+
+        // requireChairOrAdminForMinutes calls find() to resolve the meeting; provide minutes entity.
+        $minutesEntity = $this->makeMinutesEntity('minutes-uuid-001', 'meeting-uuid-1');
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->participantResolver->method('hasRole')->willReturn(false);
 
         $result = $this->controller->extractActionItems('minutes-uuid-001');
 
@@ -639,7 +707,11 @@ class MinutesControllerTest extends TestCase
     public function testSaveExtractedActionItemsByNonAdminReturns403(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
-        $this->objectService->expects($this->never())->method('find');
+
+        // requireChairOrAdminForMinutes calls find() to resolve the meeting; provide minutes entity.
+        $minutesEntity = $this->makeMinutesEntity('minutes-uuid-001', 'meeting-uuid-1');
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->participantResolver->method('hasRole')->willReturn(false);
 
         $result = $this->controller->saveExtractedActionItems('minutes-uuid-001');
 
@@ -658,7 +730,11 @@ class MinutesControllerTest extends TestCase
     public function testSubmitForApprovalByNonAdminReturns403(): void
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
-        $this->objectService->expects($this->never())->method('find');
+
+        // requireChairOrAdminForMinutes calls find() to resolve the meeting; provide minutes entity.
+        $minutesEntity = $this->makeMinutesEntity('minutes-uuid-001', 'meeting-uuid-1');
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->participantResolver->method('hasRole')->willReturn(false);
 
         $result = $this->controller->submitForApproval('minutes-uuid-001');
 

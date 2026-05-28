@@ -28,6 +28,15 @@ use Psr\Container\ContainerInterface;
 /**
  * Stateless service computing voting behaviour statistics on-demand from Vote objects.
  *
+ * Traversal path for closed voting rounds:
+ *   governanceBodyId → motions (relations.governance-body = $bodyId)
+ *   → voting-rounds (relations.motion = $motionId)
+ *   → votes (relations.voting-round = $roundId, relations.participant = $participantId)
+ *
+ * This mirrors the schema design: voting-rounds are linked to a motion (not directly
+ * to a governance-body), and votes are linked to a round and a participant via
+ * their relations array — there are no scalar foreign-key fields.
+ *
  * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
  */
 class VotingBehaviourService
@@ -63,6 +72,12 @@ class VotingBehaviourService
      * Aggregates vote counts, participation rate, and proxy behaviour from all Vote
      * objects linked to the participant in closed voting rounds of the given governance body.
      *
+     * Traversal:
+     *   1. Find all motions with relations.governance-body = $governanceBodyId
+     *   2. For each motion, find all closed voting-rounds with relations.motion = $motionId
+     *   3. For each closed round, find votes with
+     *      relations.voting-round = $roundId AND relations.participant = $participantId
+     *
      * @param string $participantId    The participant UUID
      * @param string $governanceBodyId The governance body UUID
      *
@@ -75,20 +90,36 @@ class VotingBehaviourService
     {
         $objectService = $this->objectService();
 
-        // Fetch all closed VotingRounds for this governance body.
+        // Step 1: Fetch all motions for this governance body.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('voting-round');
-        $roundEntities = $objectService->findAll(['filters' => ['governanceBodyId' => $governanceBodyId]]);
+        $objectService->setSchema('motion');
+        $motionEntities = $objectService->findAll(
+            ['filters' => ['relations.governance-body' => $governanceBodyId]]
+        );
 
-        $rounds = array_map(fn($e) => $e->jsonSerialize(), $roundEntities);
+        // Step 2: For each motion, collect all closed voting-rounds.
+        $closedRounds = [];
+        foreach ($motionEntities as $motionEntity) {
+            $motion   = $motionEntity->jsonSerialize();
+            $motionId = ($motion['id'] ?? ($motion['uuid'] ?? null));
+            if ($motionId === null) {
+                continue;
+            }
 
-        // Filter to closed rounds only (closedAt is not null).
-        $closedRounds = array_filter(
-                $rounds,
-                static function (array $round) {
-                    return isset($round['closedAt']) && $round['closedAt'] !== null;
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('voting-round');
+            $roundEntities = $objectService->findAll(
+                ['filters' => ['relations.motion' => $motionId]]
+            );
+
+            foreach ($roundEntities as $roundEntity) {
+                $round = $roundEntity->jsonSerialize();
+                // Only include closed rounds (closedAt is not null).
+                if (isset($round['closedAt']) === true && $round['closedAt'] !== null) {
+                    $closedRounds[] = $round;
                 }
-                );
+            }
+        }//end foreach
 
         $totalRounds     = count($closedRounds);
         $participated    = 0;
@@ -98,9 +129,9 @@ class VotingBehaviourService
         $proxiesGiven    = 0;
         $proxiesReceived = 0;
 
-        // For each closed round, fetch votes for this participant.
+        // Step 3: For each closed round, fetch votes for this participant.
         foreach ($closedRounds as $round) {
-            $roundId = ($round['id'] ?? $round['uuid'] ?? null);
+            $roundId = ($round['id'] ?? ($round['uuid'] ?? null));
             if ($roundId === null) {
                 continue;
             }
@@ -110,8 +141,8 @@ class VotingBehaviourService
             $voteEntities = $objectService->findAll(
                     [
                         'filters' => [
-                            'participantId' => $participantId,
-                            'votingRoundId' => $roundId,
+                            'relations.voting-round' => $roundId,
+                            'relations.participant'  => $participantId,
                         ],
                     ]
                     );
@@ -131,9 +162,36 @@ class VotingBehaviourService
                         $votesAbstain++;
                     }
 
-                    // Count proxy status.
+                    // Count proxy status: isProxy=true means this participant voted as proxy
+                    // on behalf of someone else (they cast the proxy, i.e., proxiesGiven).
                     if ($vote['isProxy'] ?? false) {
                         $proxiesGiven++;
+                    }
+                }
+            }//end if
+
+            // Count proxies received: find proxy votes in this round where this
+            // participant was the delegator (a relation entry with type='delegator').
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('vote');
+            $proxyVoteEntities = $objectService->findAll(
+                [
+                    'filters' => [
+                        'relations.voting-round' => $roundId,
+                        'isProxy'                => true,
+                    ],
+                ]
+            );
+            foreach ($proxyVoteEntities as $proxyVoteEntity) {
+                $proxyVote = $proxyVoteEntity->jsonSerialize();
+                foreach (($proxyVote['relations'] ?? []) as $rel) {
+                    if (is_array($rel) === true
+                        && ($rel['schema'] ?? '') === 'participant'
+                        && ($rel['id'] ?? '') === $participantId
+                        && ($rel['type'] ?? '') === 'delegator'
+                    ) {
+                        $proxiesReceived++;
+                        break;
                     }
                 }
             }

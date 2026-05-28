@@ -33,6 +33,7 @@ use OCA\OpenRegister\Service\ObjectService;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use OCA\Decidesk\Service\ParticipantResolver;
 
 /**
  * Service for managing agenda lifecycle operations.
@@ -75,6 +76,7 @@ class AgendaService
      * @param CalendarEventService $calendarEventService OpenRegister calendar event service
      * @param INotificationManager $notificationManager  Nextcloud notification manager
      * @param LoggerInterface      $logger               PSR-3 logger
+     * @param ParticipantResolver  $participantResolver  Canonical participant resolver
      *
      * @return void
      *
@@ -85,6 +87,7 @@ class AgendaService
         private readonly CalendarEventService $calendarEventService,
         private readonly INotificationManager $notificationManager,
         private readonly LoggerInterface $logger,
+        private readonly ParticipantResolver $participantResolver,
     ) {
     }//end __construct()
 
@@ -109,9 +112,9 @@ class AgendaService
         $items = $this->objectService->findAll(
             [
                 'filters' => [
-                    'register'                => 'decidesk',
-                    'schema'                  => 'agenda-item',
-                    '@self.relations.meeting' => $meetingId,
+                    'register'          => 'decidesk',
+                    'schema'            => 'agenda-item',
+                    'relations.meeting' => $meetingId,
                 ],
             ]
         );
@@ -120,16 +123,9 @@ class AgendaService
             throw new InvalidArgumentException('Cannot publish agenda: no agenda items exist for this meeting.');
         }
 
-        // Fetch participants for this specific meeting only.
-        $participants = $this->objectService->findAll(
-            [
-                'filters' => [
-                    'register'                => 'decidesk',
-                    'schema'                  => 'participant',
-                    '@self.relations.meeting' => $meetingId,
-                ],
-            ]
-        );
+        // Fetch participants for this specific meeting via the canonical path
+        // (participant → governance-body → meeting; participants carry no direct meeting relation).
+        $participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
 
         // Notify each active participant (leftAt is null = still active).
         foreach ($participants as $participant) {
@@ -150,8 +146,12 @@ class AgendaService
             );
         }
 
-        // Update the meeting calendar entry to reflect the published agenda.
-        $this->calendarEventService->updateMeetingEvent(meetingId: $meetingId);
+        // Update the meeting calendar entry to reflect the published agenda
+        // (method guard for forward-compatibility until CalendarEventService
+        // exposes updateMeetingEvent).
+        if (method_exists($this->calendarEventService, 'updateMeetingEvent') === true) {
+            $this->calendarEventService->updateMeetingEvent(meetingId: $meetingId);
+        }
 
         // #315: Read the full meeting object before saving so that a partial payload cannot
         // silently wipe required fields that are not included in the update.
@@ -304,9 +304,9 @@ class AgendaService
         $items = $this->objectService->findAll(
             [
                 'filters' => [
-                    'register'                => 'decidesk',
-                    'schema'                  => 'agenda-item',
-                    '@self.relations.meeting' => $meetingId,
+                    'register'          => 'decidesk',
+                    'schema'            => 'agenda-item',
+                    'relations.meeting' => $meetingId,
                 ],
             ]
         );
@@ -397,9 +397,9 @@ class AgendaService
         $meetingItems = $this->objectService->findAll(
             [
                 'filters' => [
-                    'register'                => 'decidesk',
-                    'schema'                  => 'agenda-item',
-                    '@self.relations.meeting' => $meetingId,
+                    'register'          => 'decidesk',
+                    'schema'            => 'agenda-item',
+                    'relations.meeting' => $meetingId,
                 ],
             ]
         );

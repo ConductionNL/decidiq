@@ -113,11 +113,12 @@ class LiveDecisionService
                 'Meeting' => [$meetingId],
             ];
 
-            $decision = $objectService->saveObject(
+            $decisionEntity = $objectService->saveObject(
                 register: 'decidesk',
                 schema: 'Decision',
                 object: $decisionToSave
             );
+            $decision       = $decisionEntity->jsonSerialize();
 
             $decisionSlug = $decision['@self']['slug'] ?? $decision['id'] ?? '';
 
@@ -193,11 +194,12 @@ class LiveDecisionService
                 ],
             ];
 
-            $minutes = $objectService->saveObject(
+            $minutesEntity = $objectService->saveObject(
                 register: 'decidesk',
                 schema: 'Minutes',
                 object: $minutesToCreate
             );
+            $minutes       = $minutesEntity->jsonSerialize();
 
             $minutesSlug = $minutes['@self']['slug'] ?? $minutes['id'] ?? '';
 
