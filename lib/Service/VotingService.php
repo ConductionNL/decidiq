@@ -633,7 +633,7 @@ class VotingService
             try {
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('vote');
-                $voteEntities = $objectService->findAll(['filters' => ['votingRoundId' => $votingRoundId]]);
+                $voteEntities = $objectService->findAll(['filters' => ['relations.voting-round' => $votingRoundId]]);
 
                 foreach ($voteEntities as $voteEntity) {
                     $vote          = $voteEntity->jsonSerialize();
