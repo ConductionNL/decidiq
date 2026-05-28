@@ -28,6 +28,7 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\NotFoundException;
 use OCA\Decidesk\Service\AgendaService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -54,12 +55,13 @@ class AgendaController extends Controller
     /**
      * Constructor for AgendaController.
      *
-     * @param IRequest        $request       The HTTP request
-     * @param AgendaService   $agendaService The agenda service
-     * @param ObjectService   $objectService OpenRegister object service (used for auth checks)
-     * @param IUserSession    $userSession   The current user session
-     * @param IGroupManager   $groupManager  Group manager for admin checks
-     * @param LoggerInterface $logger        PSR-3 logger
+     * @param IRequest            $request             The HTTP request
+     * @param AgendaService       $agendaService       The agenda service
+     * @param ObjectService       $objectService       OpenRegister object service (used for auth checks)
+     * @param IUserSession        $userSession         The current user session
+     * @param IGroupManager       $groupManager        Group manager for admin checks
+     * @param LoggerInterface     $logger              PSR-3 logger
+     * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
      *
      * @return void
      *
@@ -72,6 +74,7 @@ class AgendaController extends Controller
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
         private readonly LoggerInterface $logger,
+        private readonly ParticipantResolver $participantResolver,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -98,38 +101,13 @@ class AgendaController extends Controller
             return null;
         }
 
-        $participants = $this->objectService->findAll(
-            [
-                'filters' => [
-                    'register'                => 'decidesk',
-                    'schema'                  => 'participant',
-                    '@self.relations.meeting' => $meetingId,
-                ],
-            ]
-        );
-
-        foreach ($participants as $p) {
-            if (is_array($p) === true) {
-                $pData = $p;
-            } else {
-                $pData = (array) $p;
-            }
-
-            $role = $pData['role'] ?? null;
-            if (in_array(needle: $role, haystack: ['chair', 'secretary'], strict: true) === false) {
-                continue;
-            }
-
-            // Match on nextcloudUserId (canonical field set by PR #323) with fallback
-            // to the legacy `owner` field for pre-migration participant records.
-            $nextcloudUserId = $pData['nextcloudUserId'] ?? null;
-            $ownerField      = $pData['owner'] ?? null;
-
-            if (($nextcloudUserId !== null && $nextcloudUserId === $userId)
-                || ($nextcloudUserId === null && $ownerField !== null && $ownerField === $userId)
-            ) {
-                return null;
-            }
+        if ($this->participantResolver->hasRole(
+            meetingId: $meetingId,
+            nextcloudUid: $userId,
+            roles: ['chair', 'secretary'],
+        ) === true
+        ) {
+            return null;
         }
 
         return new JSONResponse(

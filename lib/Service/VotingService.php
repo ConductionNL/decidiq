@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\Decidesk\Service\ParticipantResolver;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -50,6 +51,7 @@ class VotingService
      * @param LoggerInterface       $logger                The logger
      * @param OriPublicationService $oriPublicationService The ORI publication service
      * @param MotionService         $motionService         The motion service for lifecycle transitions
+     * @param ParticipantResolver   $participantResolver   Participant resolver for meeting-based membership checks
      *
      * @return void
      *
@@ -60,6 +62,7 @@ class VotingService
         private readonly LoggerInterface $logger,
         private readonly OriPublicationService $oriPublicationService,
         private readonly MotionService $motionService,
+        private readonly ParticipantResolver $participantResolver,
     ) {
     }//end __construct()
 
@@ -259,11 +262,7 @@ class VotingService
         // Validate preset UUIDs against active memberships.
         $excludedUuids = [];
         if (count($presetParticipantIds) > 0) {
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('participant');
-            $participantEntities = $objectService->findAll(['filters' => ['governanceBodyId' => $meetingId]]);
-            $participantArrays   = array_map(fn($e) => $e->jsonSerialize(), $participantEntities);
-
+            $participantArrays  = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
             $activeParticipants = array_column($participantArrays, 'id', 'id');
 
             foreach ($presetParticipantIds as $uuid) {
@@ -370,18 +369,10 @@ class VotingService
         }
 
         if ($meetingId !== null) {
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('participant');
-            $memberEntities = $objectService->findAll(
-                [
-                    'filters' => [
-                        '@self.relations.meeting' => $meetingId,
-                        'id'                      => $participantId,
-                    ],
-                ]
-            );
-
-            if (empty($memberEntities) === true) {
+            // Verify the participant belongs to the meeting's governance body.
+            $meetingParticipants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
+            $memberIds           = array_column($meetingParticipants, 'id');
+            if (in_array($participantId, $memberIds, true) === false) {
                 throw new \RuntimeException('Deelnemer is geen lid van de vergadering');
             }
         }
@@ -788,20 +779,10 @@ class VotingService
         }
 
         if ($meetingId !== null) {
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('participant');
-            $participantEntities = $objectService->findAll(
-                [
-                    'filters' => [
-                        '@self.relations.meeting' => $meetingId,
-                    ],
-                ]
-            );
-
-            // Count only active participants (leftAt is null).
-            $activeCount = 0;
-            foreach ($participantEntities as $pe) {
-                $pd = $pe->jsonSerialize();
+            // Count only active participants (leftAt is null) via canonical resolver.
+            $meetingParticipants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
+            $activeCount         = 0;
+            foreach ($meetingParticipants as $pd) {
                 if (($pd['leftAt'] ?? null) === null) {
                     $activeCount++;
                 }

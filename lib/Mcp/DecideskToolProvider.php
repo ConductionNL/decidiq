@@ -31,6 +31,7 @@ namespace OCA\Decidesk\Mcp;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidesk\Service\MeetingService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\TaskService;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use OCP\IGroupManager;
@@ -181,12 +182,13 @@ class DecideskToolProvider implements IMcpToolProvider
     /**
      * Constructor for DecideskToolProvider.
      *
-     * @param MeetingService     $meetingService The meeting service
-     * @param TaskService        $taskService    The task service
-     * @param IUserSession       $userSession    The current user session
-     * @param IGroupManager      $groupManager   The group manager (for admin checks)
-     * @param ContainerInterface $container      The DI container (for ObjectService)
-     * @param LoggerInterface    $logger         The PSR-3 logger
+     * @param MeetingService      $meetingService      The meeting service
+     * @param TaskService         $taskService         The task service
+     * @param IUserSession        $userSession         The current user session
+     * @param IGroupManager       $groupManager        The group manager (for admin checks)
+     * @param ContainerInterface  $container           The DI container (for ObjectService)
+     * @param LoggerInterface     $logger              The PSR-3 logger
+     * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
      *
      * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-008
      */
@@ -197,6 +199,7 @@ class DecideskToolProvider implements IMcpToolProvider
         private readonly IGroupManager $groupManager,
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
+        private readonly ParticipantResolver $participantResolver,
     ) {
     }//end __construct()
 
@@ -330,14 +333,12 @@ class DecideskToolProvider implements IMcpToolProvider
             $sources = [];
 
             foreach ($rawItems as $raw) {
-                $item     = $this->toArray(item: $raw);
+                $item = $this->toArray(item: $raw);
 
                 // When meeting UUIDs are restricted, only include action items whose
                 // meeting relation is in the caller's set.
                 if ($callerMeetingUuids !== null) {
-                    $itemMeetingId = $item['@self']['relations']['meeting']
-                        ?? $item['meeting']
-                        ?? null;
+                    $itemMeetingId = $item['@self']['relations']['meeting'] ?? $item['meeting'] ?? null;
 
                     if ($itemMeetingId === null) {
                         // Action item has no meeting relation — check relations array.
@@ -450,7 +451,7 @@ class DecideskToolProvider implements IMcpToolProvider
 
             // Scope results to meetings the caller participates in.
             // Admins see all meetings; non-admins see only their own governance bodies.
-            // (OWASP A01:2021 — Broken Access Control / ADR-005)
+            // (OWASP A01:2021 — Broken Access Control / ADR-005).
             $currentUserId      = $this->userSession->getUser()?->getUID() ?? '';
             $callerMeetingUuids = null;
             if ($currentUserId !== '') {
@@ -1058,28 +1059,14 @@ class DecideskToolProvider implements IMcpToolProvider
             return true;
         }
 
-        // Chair is always a participant.
-        $chairUserId = $meeting['chair'] ?? null;
-        if ($chairUserId !== null && (string) $chairUserId === $userId) {
-            return true;
-        }
-
-        // Check explicit participants array.
-        $participants = $meeting['participants'] ?? [];
-        if (is_array(value: $participants) === true) {
-            foreach ($participants as $participant) {
-                $pid = $participant;
-                if (is_array(value: $participant) === true) {
-                    $pid = $participant['userId'] ?? $participant['user'] ?? $participant['id'] ?? null;
-                }
-
-                if ($pid !== null && (string) $pid === $userId) {
-                    return true;
-                }
-            }//end foreach
-        }
-
-        return false;
+        // Use ParticipantResolver to check via the canonical schema path:
+        // meeting → governanceBody → participants (fixes C3/H1: the meeting
+        // data `participants` array is unreliable and `@self.relations.meeting`
+        // doesn't exist on the participant schema).
+        return $this->participantResolver->isParticipant(
+            meetingId: $meetingUuid,
+            nextcloudUid: $userId,
+        );
 
     }//end requireParticipantOrAdmin()
 
@@ -1159,7 +1146,7 @@ class DecideskToolProvider implements IMcpToolProvider
             );
             // Fail closed: if we can't determine memberships, return no meetings.
             return [];
-        }
+        }//end try
 
     }//end getCallerMeetingUuids()
 
