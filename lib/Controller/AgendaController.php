@@ -133,6 +133,10 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function publish(string $meetingId): JSONResponse
     {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+        }
+
         $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
         if ($denied !== null) {
             return $denied;
@@ -167,6 +171,10 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function advanceBobPhase(string $id): JSONResponse
     {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+        }
+
         try {
             // Resolve the meeting for authorization; 404 if item does not exist.
             $item = $this->objectService->find($id);
@@ -219,6 +227,10 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function processHamerstukken(string $meetingId): JSONResponse
     {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+        }
+
         $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
         if ($denied !== null) {
             return $denied;
@@ -254,6 +266,10 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function revise(string $meetingId): JSONResponse
     {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+        }
+
         $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
         if ($denied !== null) {
             return $denied;
@@ -289,6 +305,10 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function reorder(string $meetingId): JSONResponse
     {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+        }
+
         $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
         if ($denied !== null) {
             return $denied;

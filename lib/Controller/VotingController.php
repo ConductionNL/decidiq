@@ -29,6 +29,7 @@ use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
@@ -89,7 +90,7 @@ class VotingController extends Controller
     {
         $user = $this->userSession->getUser();
         if ($user === null) {
-            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
         }
 
         $uid        = $user->getUID();
@@ -122,6 +123,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function open(): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -179,6 +181,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function cast(string $id): JSONResponse
     {
         // Derive participant identity from the authenticated session — never trust client input.
@@ -238,6 +241,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function close(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -270,6 +274,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function publish(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -302,6 +307,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function proxy(string $id): JSONResponse
     {
         // Resolve the Nextcloud UID to an OpenRegister participant UUID before storing —
@@ -354,6 +360,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function tally(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -394,6 +401,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function revokeProxy(string $id): JSONResponse
     {
         // Resolve the Nextcloud UID to an OpenRegister participant UUID — must match
