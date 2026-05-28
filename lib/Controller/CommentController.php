@@ -158,11 +158,16 @@ class CommentController extends Controller
 
         // Admins may resolve any thread; non-admins are checked against authorship
         // in CommentService::resolveThread (OWASP A01 — Broken Access Control).
-        $callerUid    = $user->getUID();
+        $callerUid     = $user->getUID();
         $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
 
+        $ownerFilter = null;
+        if ($callerIsAdmin === false) {
+            $ownerFilter = $callerUid;
+        }
+
         try {
-            $comment = $this->commentService->resolveThread($id, $callerIsAdmin ? null : $callerUid);
+            $comment = $this->commentService->resolveThread($id, $ownerFilter);
             return new JSONResponse($comment);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);

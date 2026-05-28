@@ -551,7 +551,6 @@ class VotingService
         // Transient/infrastructure errors are still logged-and-continued so a network hiccup
         // does not leave the round un-closed; however they are logged at ERROR level so they
         // surface in monitoring rather than silently disappearing.
-        $lifecycleError = null;
         if ($round !== null) {
             foreach (($round['relations'] ?? []) as $rel) {
                 if (($rel['schema'] ?? '') === 'motion') {
@@ -599,7 +598,6 @@ class VotingService
                                     'Decidesk: lifecycle transition after close failed — round is closed but motion state may be stale',
                                     ['votingRoundId' => $votingRoundId, 'motionId' => $motionId, 'error' => $e->getMessage()]
                                 );
-                                $lifecycleError = $e->getMessage();
                             }//end try
                         }//end if
                     }//end if

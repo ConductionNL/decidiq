@@ -27,6 +27,7 @@ namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -161,7 +162,7 @@ class DelegationService
         if ($callerUid !== null) {
             $principal = (string) ($delegation['delegatedBy'] ?? '');
             if ($principal === '' || $principal !== $callerUid) {
-                throw new \InvalidArgumentException('Only the delegation principal may revoke this delegation');
+                throw new InvalidArgumentException('Only the delegation principal may revoke this delegation');
             }
         }
 
@@ -209,7 +210,7 @@ class DelegationService
         if ($callerUid !== null) {
             $principal = (string) ($delegation['delegatedBy'] ?? '');
             if ($principal === '' || $principal !== $callerUid) {
-                throw new \InvalidArgumentException('Only the delegation principal may expire this delegation');
+                throw new InvalidArgumentException('Only the delegation principal may expire this delegation');
             }
         }
 

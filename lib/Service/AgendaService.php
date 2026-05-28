@@ -157,7 +157,7 @@ class AgendaService
         // silently wipe required fields that are not included in the update.
         $meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
         if ($meetingEntity === null) {
-            throw new \OCA\Decidesk\Exception\NotFoundException(message: "Meeting {$meetingId} not found");
+            throw new NotFoundException(message: "Meeting {$meetingId} not found");
         }
 
         $meetingData = $this->toArray(item: $meetingEntity);
@@ -362,7 +362,7 @@ class AgendaService
         // #315: Read the full meeting object before saving to avoid wiping required fields.
         $meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
         if ($meetingEntity === null) {
-            throw new \OCA\Decidesk\Exception\NotFoundException(message: "Meeting {$meetingId} not found");
+            throw new NotFoundException(message: "Meeting {$meetingId} not found");
         }
 
         $meetingData = $this->toArray(item: $meetingEntity);
