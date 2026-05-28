@@ -30,6 +30,7 @@ use OCA\Decidesk\Service\MotionCoauthorService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -46,6 +47,7 @@ class MotionCoauthorController extends Controller
      * @param IRequest              $request         HTTP request
      * @param MotionCoauthorService $coauthorService Co-author service
      * @param IUserSession          $userSession     Current user session
+     * @param IGroupManager         $groupManager    Group manager (for admin checks)
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
      */
@@ -53,6 +55,7 @@ class MotionCoauthorController extends Controller
         IRequest $request,
         private readonly MotionCoauthorService $coauthorService,
         private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -87,9 +90,19 @@ class MotionCoauthorController extends Controller
             );
         }
 
+        $callerUid     = $user->getUID();
+        $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+
         try {
-            $motion = $this->coauthorService->addCoauthor($id, $personId);
+            $motion = $this->coauthorService->addCoauthor(
+                motionId: $id,
+                personId: $personId,
+                callerUid: $callerUid,
+                callerIsAdmin: $callerIsAdmin,
+            );
             return new JSONResponse($motion);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
@@ -117,9 +130,19 @@ class MotionCoauthorController extends Controller
             return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
         }
 
+        $callerUid     = $user->getUID();
+        $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+
         try {
-            $motion = $this->coauthorService->removeCoauthor($id, $personId);
+            $motion = $this->coauthorService->removeCoauthor(
+                motionId: $id,
+                personId: $personId,
+                callerUid: $callerUid,
+                callerIsAdmin: $callerIsAdmin,
+            );
             return new JSONResponse($motion);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
@@ -158,14 +181,20 @@ class MotionCoauthorController extends Controller
             );
         }
 
+        $callerUid     = $user->getUID();
+        $callerIsAdmin = $this->groupManager->isAdmin($callerUid);
+
         try {
             $motion = $this->coauthorService->updateMotionText(
                 motionId: $id,
                 newText: $text,
-                author: $user->getUID(),
+                author: $callerUid,
                 changeSummary: $summary,
+                callerIsAdmin: $callerIsAdmin,
             );
             return new JSONResponse($motion);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_CONFLICT);
         }

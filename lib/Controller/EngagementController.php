@@ -44,11 +44,11 @@ class EngagementController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest          $request           HTTP request
-     * @param EngagementService $engagementService Engagement service
-     * @param IUserSession      $userSession       Current user session
-     * @param IGroupManager     $groupManager      Group manager for admin checks
-     * @param ContainerInterface $container        DI container for ObjectService access
+     * @param IRequest           $request           HTTP request
+     * @param EngagementService  $engagementService Engagement service
+     * @param IUserSession       $userSession       Current user session
+     * @param IGroupManager      $groupManager      Group manager for admin checks
+     * @param ContainerInterface $container         DI container for ObjectService access
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
      */
@@ -75,13 +75,12 @@ class EngagementController extends Controller
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $results       = $objectService->findObjects(
-                register: 'decidesk',
-                schema: 'participant',
-                filters: ['nextcloudUserId' => $nextcloudUid]
-            );
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('participant');
+            $entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
 
-            foreach (($results['results'] ?? []) as $participant) {
+            foreach ($entities as $participantEntity) {
+                $participant = $participantEntity->jsonSerialize();
                 return ($participant['uuid'] ?? $participant['id'] ?? null);
             }
         } catch (\Throwable $e) {
@@ -132,7 +131,7 @@ class EngagementController extends Controller
         // Chairs/admins are allowed to record engagement for any participant.
         $callerUid = $user->getUID();
         if ($this->groupManager->isAdmin($callerUid) === false) {
-            $callerParticipantId = $this->resolveParticipantUuid($callerUid);
+            $callerParticipantId = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
             if ($callerParticipantId === null || $callerParticipantId !== $participant) {
                 return new JSONResponse(
                     ['message' => 'You may only record engagement for your own participant record.'],

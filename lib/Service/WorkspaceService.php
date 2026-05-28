@@ -183,15 +183,49 @@ class WorkspaceService
     }//end updateWorkspace()
 
     /**
+     * Resolve the participant UUID for a given Nextcloud UID.
+     *
+     * Uses the canonical OR-API path: setRegister/setSchema/findAll with a
+     * `nextcloudUserId` filter. Returns null when no participant is linked.
+     *
+     * @param string $nextcloudUid Nextcloud user ID to resolve
+     *
+     * @return string|null Participant UUID, or null when not found
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
+     */
+    private function resolveParticipantUuid(string $nextcloudUid): ?string
+    {
+        try {
+            $objectService = $this->getObjectService();
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('participant');
+            $entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+
+            foreach ($entities as $entity) {
+                $participant = $entity->jsonSerialize();
+                return ($participant['uuid'] ?? $participant['id'] ?? null);
+            }
+        } catch (\Throwable $e) {
+            // Non-fatal — service may be unavailable.
+        }
+
+        return null;
+
+    }//end resolveParticipantUuid()
+
+    /**
      * Check whether a caller owns the workspace or is a known member.
      *
      * A caller is authorised when the workspace `owner` field matches the
-     * caller's Nextcloud UID, or when the caller's UID is already in the
-     * `members` list. This prevents IDOR on membership-mutation endpoints
-     * (OWASP A01:2021 — Broken Access Control).
+     * caller's Nextcloud UID, or when the caller's resolved participant UUID
+     * is already in the `members` list. The `members` field stores participant
+     * UUIDs (OpenRegister object references), so we resolve the NC UID to a
+     * participant UUID before comparison. This prevents IDOR on
+     * membership-mutation endpoints (OWASP A01:2021 — Broken Access Control).
      *
-     * @param array<string, mixed> $workspace  Workspace data array
-     * @param string               $callerUid  Nextcloud UID of the requester
+     * @param array<string, mixed> $workspace Workspace data array
+     * @param string               $callerUid Nextcloud UID of the requester
      *
      * @return bool True when the caller may modify membership
      *
@@ -209,8 +243,14 @@ class WorkspaceService
         }
 
         // Existing workspace members may add/remove other members.
+        // members[] stores participant UUIDs — resolve caller's UID first.
+        $callerParticipantUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+        if ($callerParticipantUuid === null) {
+            return false;
+        }
+
         $members = ($workspace['members'] ?? []);
-        if (in_array(needle: $callerUid, haystack: $members, strict: true) === true) {
+        if (in_array(needle: $callerParticipantUuid, haystack: $members, strict: true) === true) {
             return true;
         }
 
@@ -235,7 +275,7 @@ class WorkspaceService
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
      */
-    public function addMember(string $workspaceId, string $memberRef, ?string $callerUid = null): array
+    public function addMember(string $workspaceId, string $memberRef, ?string $callerUid=null): array
     {
         $workspace = $this->findWorkspace(workspaceId: $workspaceId);
         if ($workspace === null) {
@@ -286,7 +326,7 @@ class WorkspaceService
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-4.1
      */
-    public function removeMember(string $workspaceId, string $memberRef, ?string $callerUid = null): array
+    public function removeMember(string $workspaceId, string $memberRef, ?string $callerUid=null): array
     {
         $workspace = $this->findWorkspace(workspaceId: $workspaceId);
         if ($workspace === null) {
