@@ -244,13 +244,13 @@ class WorkspaceService
 
         // Existing workspace members may add/remove other members.
         // members[] stores participant UUIDs — resolve caller's UID first.
-        $callerParticipantUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
-        if ($callerParticipantUuid === null) {
+        $callerPtUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+        if ($callerPtUuid === null) {
             return false;
         }
 
         $members = ($workspace['members'] ?? []);
-        if (in_array(needle: $callerParticipantUuid, haystack: $members, strict: true) === true) {
+        if (in_array(needle: $callerPtUuid, haystack: $members, strict: true) === true) {
             return true;
         }
 
@@ -283,7 +283,7 @@ class WorkspaceService
         }
 
         if ($callerUid !== null && $this->isMembershipManager(workspace: $workspace, callerUid: $callerUid) === false) {
-            throw new \InvalidArgumentException('Only workspace owners and members may add members to this workspace');
+            throw new InvalidArgumentException('Only workspace owners and members may add members to this workspace');
         }
 
         $members = ($workspace['members'] ?? []);
@@ -334,7 +334,7 @@ class WorkspaceService
         }
 
         if ($callerUid !== null && $this->isMembershipManager(workspace: $workspace, callerUid: $callerUid) === false) {
-            throw new \InvalidArgumentException('Only workspace owners and members may remove members from this workspace');
+            throw new InvalidArgumentException('Only workspace owners and members may remove members from this workspace');
         }
 
         $members = ($workspace['members'] ?? []);

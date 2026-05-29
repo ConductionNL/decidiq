@@ -1124,10 +1124,10 @@ class DecideskToolProvider implements IMcpToolProvider
             // participant → governance-body → meeting (ParticipantResolver docblock).
             $meetingUuids = [];
             foreach ($participants as $raw) {
-                $p      = $this->toArray(item: $raw);
-                $bodyId = null;
+                $participant = $this->toArray(item: $raw);
+                $bodyId      = null;
 
-                foreach (($p['relations'] ?? []) as $rel) {
+                foreach (($participant['relations'] ?? []) as $rel) {
                     if (is_array($rel) === true && ($rel['schema'] ?? '') === 'governance-body') {
                         $bodyId = ($rel['id'] ?? null);
                         break;
@@ -1150,10 +1150,10 @@ class DecideskToolProvider implements IMcpToolProvider
                 );
 
                 foreach ($meetingEntities as $meetingRaw) {
-                    $m   = $this->toArray(item: $meetingRaw);
-                    $mId = ($m['id'] ?? ($m['uuid'] ?? null));
-                    if ($mId !== null) {
-                        $meetingUuids[] = (string) $mId;
+                    $meeting   = $this->toArray(item: $meetingRaw);
+                    $meetingId = ($meeting['id'] ?? ($meeting['uuid'] ?? null));
+                    if ($meetingId !== null) {
+                        $meetingUuids[] = (string) $meetingId;
                     }
                 }
             }//end foreach

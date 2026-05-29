@@ -25,6 +25,7 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\VotingBehaviourService;
+use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -47,6 +48,7 @@ class VotingBehaviourController extends Controller
      * @param VotingBehaviourService $behaviourService The voting behaviour service
      * @param IUserSession           $userSession      The user session
      * @param IGroupManager          $groupManager     The group manager
+     * @param ObjectService          $objectService    OpenRegister object service for participant lookup
      *
      * @return void
      *
@@ -57,6 +59,7 @@ class VotingBehaviourController extends Controller
         private readonly VotingBehaviourService $behaviourService,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
+        private readonly ObjectService $objectService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -88,8 +91,17 @@ class VotingBehaviourController extends Controller
         $uid = $user->getUID();
 
         // Authorization: user may access own stats or must hold admin rights.
-        // Allow if this is the user's own stats, otherwise require admin.
-        $isOwnStats   = ($participantId === $uid);
+        // participantId is an OR UUID; $uid is a Nextcloud UID — they are different
+        // namespaces and must never be compared directly. Resolve the participant object
+        // and check the nextcloudUserId field to determine ownership.
+        $isOwnStats = false;
+        $participantEntity = $this->objectService->find($participantId, [], false, 'decidesk', 'participant');
+        if ($participantEntity !== null) {
+            $participant = $participantEntity->jsonSerialize();
+            $nextcloudUserId = $participant['nextcloudUserId'] ?? ($participant['owner'] ?? null);
+            $isOwnStats = ($nextcloudUserId !== null && $nextcloudUserId === $uid);
+        }
+
         $canViewOther = $isOwnStats || $this->groupManager->isAdmin($uid);
 
         if ($canViewOther === false) {

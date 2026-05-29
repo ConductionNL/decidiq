@@ -263,7 +263,7 @@ class CommentService
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-5.1
      */
-    public function resolveThread(string $commentId, ?string $callerUid = null): array
+    public function resolveThread(string $commentId, ?string $callerUid=null): array
     {
         $comment = $this->findComment(commentId: $commentId);
         if ($comment === null) {
@@ -274,7 +274,7 @@ class CommentService
         if ($callerUid !== null) {
             $author = (string) ($comment['author'] ?? '');
             if ($author === '' || $author !== $callerUid) {
-                throw new \InvalidArgumentException('Only the comment author may resolve this thread');
+                throw new InvalidArgumentException('Only the comment author may resolve this thread');
             }
         }
 

@@ -267,6 +267,7 @@ class Application extends App implements IBootstrap
                     behaviourService: $c->get(VotingBehaviourService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
+                    objectService: $c->get(\OCA\OpenRegister\Service\ObjectService::class),
                     );
                 }
                 );
