@@ -9,16 +9,16 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ConductionNL/decidesk/releases"><img src="https://img.shields.io/github/v/release/ConductionNL/decidesk" alt="Latest release"></a>
-  <a href="https://github.com/ConductionNL/decidesk/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-EUPL--1.2-blue" alt="License"></a>
-  <a href="https://github.com/ConductionNL/decidesk/actions"><img src="https://img.shields.io/github/actions/workflow/status/ConductionNL/decidesk/code-quality.yml?label=quality" alt="Code quality"></a>
+  <a href="https://codeberg.org/Conduction/decidesk/releases"><img src="https://img.shields.io/gitea/v/release/Conduction/decidesk?gitea_url=https%3A%2F%2Fcodeberg.org" alt="Latest release"></a>
+  <a href="https://codeberg.org/Conduction/decidesk/src/branch/main/LICENSE"><img src="https://img.shields.io/badge/license-EUPL--1.2-blue" alt="License"></a>
+  <a href="https://ci.codeberg.org/repos/Conduction/decidesk"><img src="https://ci.codeberg.org/api/badges/Conduction/decidesk/status.svg" alt="Code quality"></a>
 </p>
 
 ---
 
 Decidesk manages meetings, agendas, motions, amendments, voting, minutes, and decision tracking with configurable workflows per organization type. It serves 5 governance domains: legislative/democratic bodies, associations/NGOs, corporate governance, corporate operations, and citizen participation..
 
-> **Pre-wired for [OpenRegister](https://github.com/ConductionNL/openregister)** — all data is stored as OpenRegister objects. If your app needs OpenRegister, install it first. If not, remove the dependency from `appinfo/info.xml` and `openspec/app-config.json`.
+> **Pre-wired for [OpenRegister](https://codeberg.org/Conduction/openregister)** — all data is stored as OpenRegister objects. If your app needs OpenRegister, install it first. If not, remove the dependency from `appinfo/info.xml` and `openspec/app-config.json`.
 
 ## Screenshots
 
@@ -98,7 +98,7 @@ decidesk/
 | Nextcloud | 28 – 33 |
 | PHP | 8.1+ |
 | Node.js | 20+ |
-| [OpenRegister](https://github.com/ConductionNL/openregister) | latest |
+| [OpenRegister](https://codeberg.org/Conduction/openregister) | latest |
 
 ## Installation
 
@@ -114,7 +114,7 @@ decidesk/
 
 ```bash
 cd /var/www/html/custom_apps
-git clone https://github.com/ConductionNL/decidesk.git decidesk
+git clone https://codeberg.org/Conduction/decidesk.git decidesk
 cd decidesk
 npm install && npm run build
 php occ app:enable decidesk
@@ -202,7 +202,7 @@ docker exec nextcloud php occ app:enable decidesk
 
 ## Related Apps
 
-- **[OpenRegister](https://github.com/ConductionNL/openregister)** — Object storage layer (required dependency)
+- **[OpenRegister](https://codeberg.org/Conduction/openregister)** — Object storage layer (required dependency)
 
 _Add related apps here as integrations are built._
 
