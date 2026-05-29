@@ -26,13 +26,16 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
+use Psr\Container\ContainerInterface;
 
 /**
  * Thin controller for motion lifecycle and co-signature API endpoints.
@@ -44,11 +47,13 @@ class MotionController extends Controller
     /**
      * Constructor for MotionController.
      *
-     * @param IRequest      $request       The request object
-     * @param MotionService $motionService The motion service
-     * @param IUserSession  $userSession   The user session
-     * @param IGroupManager $groupManager  The group manager
-     * @param IAppConfig    $appConfig     The app config
+     * @param IRequest             $request             The request object
+     * @param MotionService        $motionService       The motion service
+     * @param IUserSession         $userSession         The user session
+     * @param IGroupManager        $groupManager        The group manager
+     * @param IAppConfig           $appConfig           The app config
+     * @param ParticipantResolver  $participantResolver Per-meeting participant/role resolver
+     * @param ContainerInterface   $container           DI container (lazy-loads ObjectService)
      *
      * @return void
      *
@@ -60,33 +65,60 @@ class MotionController extends Controller
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
         private readonly IAppConfig $appConfig,
+        private readonly ParticipantResolver $participantResolver,
+        private readonly ContainerInterface $container,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
 
     /**
-     * Require the current user to hold the chair/secretary governance role.
+     * Require the current user to hold the chair/secretary role on THIS motion's meeting.
      *
-     * By default, system-admin membership (IGroupManager::isAdmin) is used as a
-     * stand-in for the governance role. Organisations that want a dedicated group
-     * (e.g. "decidesk-chairs") can set the `chair_group` app config key; when set,
-     * membership of that group is checked instead of the system-admin group.
+     * When $motionId is provided, resolves the linked meeting and checks via
+     * ParticipantResolver::hasRole() that the caller holds a 'chair' or 'secretary'
+     * Participant role in that specific meeting's governance body — preventing
+     * cross-body privilege escalation in multi-council deployments.
+     *
+     * Falls back to the global chair_group / admin check only when $motionId is null
+     * (backward-compatible for callers that cannot easily resolve a meeting).
      *
      * Returns a 403 JSONResponse when the check fails, null on success.
+     *
+     * @param string|null $motionId UUID of the motion to scope the role check (optional)
      *
      * @return JSONResponse|null
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
      */
-    private function requireChairOrSecretary(): ?JSONResponse
+    private function requireChairOrSecretary(?string $motionId=null): ?JSONResponse
     {
         $user = $this->userSession->getUser();
         if ($user === null) {
-            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
         }
 
-        $uid        = $user->getUID();
+        $uid = $user->getUID();
+
+        // Per-meeting role check: resolve the meeting linked to this motion and verify
+        // that the caller holds a chair or secretary role in that meeting's governance body.
+        if ($motionId !== null) {
+            $meetingId = $this->resolveMeetingIdFromMotion(motionId: $motionId);
+            if ($meetingId !== null) {
+                $authorized = $this->participantResolver->hasRole(
+                    meetingId: $meetingId,
+                    nextcloudUid: $uid,
+                    roles: ['chair', 'secretary']
+                );
+                if ($authorized === false) {
+                    return new JSONResponse(['message' => 'Chair or secretary role required for this meeting'], Http::STATUS_FORBIDDEN);
+                }
+
+                return null;
+            }
+        }
+
+        // Fallback: global chair_group or system-admin check (no meeting context available).
         $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
 
         if ($chairGroup !== '') {
@@ -104,6 +136,36 @@ class MotionController extends Controller
     }//end requireChairOrSecretary()
 
     /**
+     * Resolve the meeting UUID linked to a motion via its relations.
+     *
+     * @param string $motionId The motion UUID
+     *
+     * @return string|null The meeting UUID or null if not found
+     */
+    private function resolveMeetingIdFromMotion(string $motionId): ?string
+    {
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $motionEntity  = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+            if ($motionEntity === null) {
+                return null;
+            }
+
+            $motion = $motionEntity->jsonSerialize();
+            foreach (($motion['relations'] ?? []) as $relation) {
+                if (($relation['schema'] ?? '') === 'meeting') {
+                    return ($relation['id'] ?? null);
+                }
+            }
+        } catch (\Throwable) {
+            // Silently fall through to global check.
+        }
+
+        return null;
+
+    }//end resolveMeetingIdFromMotion()
+
+    /**
      * Transition the lifecycle state of a Motion.
      *
      * POST /api/motions/{id}/transition
@@ -117,9 +179,10 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function transition(string $id): JSONResponse
     {
-        $guard = $this->requireChairOrSecretary();
+        $guard = $this->requireChairOrSecretary(motionId: $id);
         if ($guard !== null) {
             return $guard;
         }
@@ -158,9 +221,10 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function coSignRequest(string $id): JSONResponse
     {
-        $guard = $this->requireChairOrSecretary();
+        $guard = $this->requireChairOrSecretary(motionId: $id);
         if ($guard !== null) {
             return $guard;
         }
@@ -195,6 +259,7 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function coSignConfirm(string $id): JSONResponse
     {
         // Always derive identity from the authenticated session — never trust client-supplied displayName.
@@ -238,9 +303,10 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function budgetImpact(string $id): JSONResponse
     {
-        $guard = $this->requireChairOrSecretary();
+        $guard = $this->requireChairOrSecretary(motionId: $id);
         if ($guard !== null) {
             return $guard;
         }
@@ -278,6 +344,7 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function amendmentTransition(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -319,6 +386,7 @@ class MotionController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function forward(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();

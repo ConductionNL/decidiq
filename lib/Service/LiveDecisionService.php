@@ -73,7 +73,7 @@ class LiveDecisionService
     public function recordDecision(string $meetingId, array $decisionData, string $actorId): string
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             // Fetch Meeting.
             $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
@@ -150,7 +150,7 @@ class LiveDecisionService
     private function ensureDraftMinutes(string $meetingId): string
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             // Check if Minutes already exist for this Meeting.
             $params = [

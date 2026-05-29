@@ -34,22 +34,22 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
 **Ondersteuning:** Voor ondersteuning, neem contact op via support@conduction.nl.
     ]]></description>
-    <version>0.1.5</version>
+    <version>0.1.6</version>
     <licence>agpl</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidesk</namespace>
     <documentation>
-        <user>https://codeberg.org/Conduction/decidesk</user>
-        <admin>https://codeberg.org/Conduction/decidesk</admin>
-        <developer>https://codeberg.org/Conduction/decidesk</developer>
+        <user>https://github.com/ConductionNL/decidesk</user>
+        <admin>https://github.com/ConductionNL/decidesk</admin>
+        <developer>https://github.com/ConductionNL/decidesk</developer>
     </documentation>
     <category>organization</category>
-    <website>https://codeberg.org/Conduction/decidesk</website>
-    <discussion>https://codeberg.org/Conduction/decidesk/discussions</discussion>
-    <bugs>https://codeberg.org/Conduction/decidesk/issues</bugs>
-    <repository>https://codeberg.org/Conduction/decidesk</repository>
+    <website>https://github.com/ConductionNL/decidesk</website>
+    <discussion>https://github.com/ConductionNL/decidesk/discussions</discussion>
+    <bugs>https://github.com/ConductionNL/decidesk/issues</bugs>
+    <repository>https://github.com/ConductionNL/decidesk</repository>
 
-    <screenshot>https://codeberg.org/Conduction/decidesk/raw/branch/beta/img/app-store.svg</screenshot>
+    <screenshot>https://raw.githubusercontent.com/ConductionNL/decidesk/main/img/app-store.svg</screenshot>
 
     <dependencies>
         <nextcloud min-version="28" max-version="34"/>

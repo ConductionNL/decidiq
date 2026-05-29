@@ -125,7 +125,7 @@ class ActionItemExtractionService
     public function saveExtracted(string $minutesId, array $confirmed): int
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $savedCount    = 0;
 
             foreach ($confirmed as $candidate) {
@@ -149,13 +149,17 @@ class ActionItemExtractionService
                 if (empty($candidate['dueDate']) === false) {
                     // Accept only ISO-8601 date strings to prevent strtotime relative-expression injection
                     // (e.g. "yesterday", "next Monday") that produce silently wrong deadline values.
-                    if (preg_match('/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?Z?)?$/', (string) $candidate['dueDate']) === 1) {
-                        $actionItem['dueDate'] = $candidate['dueDate'];
-                    } else {
+                    $isoDatePattern = '/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?Z?)?$/';
+                    $isValidDate    = preg_match($isoDatePattern, (string) $candidate['dueDate']) === 1;
+                    if ($isValidDate === false) {
                         $this->logger->warning(
                             'ActionItemExtractionService: rejected non-ISO-8601 dueDate',
                             ['dueDate' => $candidate['dueDate']]
                         );
+                    }
+
+                    if ($isValidDate === true) {
+                        $actionItem['dueDate'] = $candidate['dueDate'];
                     }
                 }
 

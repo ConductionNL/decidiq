@@ -133,8 +133,11 @@ class AnalyticsController extends Controller
             return new JSONResponse(['error' => 'Not authenticated'], 401);
         }
 
-        $userDisplayName = $user->getDisplayName();
-        $items           = $this->analyticsService->getMyItems($userDisplayName);
+        // Use the Nextcloud UID (unique per user), not the display name which is
+        // user-settable and non-unique — display name spoofing would leak other
+        // users' action items (PII + workflow data).
+        $nextcloudUid = $user->getUID();
+        $items        = $this->analyticsService->getMyItems($nextcloudUid);
 
         return new JSONResponse($items);
     }//end getMyItems()

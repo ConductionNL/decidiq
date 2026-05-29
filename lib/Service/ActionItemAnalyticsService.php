@@ -76,7 +76,7 @@ class ActionItemAnalyticsService
     public function getSummary(string $dateFrom, string $dateTo): array
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $today         = new DateTime();
             // Validate ISO 8601 inputs (constructor throws on malformed dates).
             new DateTime($dateFrom);
@@ -172,7 +172,7 @@ class ActionItemAnalyticsService
     public function getCompletionRates(int $limit=6): array
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             // Get recent meetings.
             $params = [
@@ -242,28 +242,58 @@ class ActionItemAnalyticsService
     /**
      * Get action items assigned to the current user, grouped by urgency.
      *
-     * Queries ActionItems where assignee matches the user display name and
-     * taskStatus != 'completed'; groups into:
+     * Queries ActionItems where assignee matches the Participant UUID resolved
+     * from the caller's Nextcloud UID, then taskStatus != 'completed'; groups into:
      * - overdue: dueDate < today
      * - thisWeek: dueDate <= today + 7 days
      * - later: dueDate > today + 7 days
      *
-     * @param string $userDisplayName User's display name
+     * Using NC UID (not display name) prevents cross-user PII leaks via display name
+     * spoofing (display names are user-settable and non-unique).
+     *
+     * @param string $nextcloudUid The caller's Nextcloud user UID
      *
      * @return array<string, array<array>> Grouped array with keys 'overdue', 'thisWeek', 'later'
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
      */
-    public function getMyItems(string $userDisplayName): array
+    public function getMyItems(string $nextcloudUid): array
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $today         = new DateTime();
             $weekAhead     = new DateTime('+7 days');
 
-            // Query action items assigned to this user.
+            // Resolve the Participant UUID for this Nextcloud user so we can filter
+            // action items by the participant UUID stored in the assignee field.
+            // This is the canonical pattern used by VotingController/VotingBehaviourController.
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('participant');
+            $participantEntities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+
+            $participantId = null;
+            foreach ($participantEntities as $pEntity) {
+                $pData         = $pEntity->jsonSerialize();
+                $participantId = $pData['uuid'] ?? ($pData['id'] ?? null);
+                break;
+            }
+
+            if ($participantId === null) {
+                // No participant record found — return empty result.
+                $this->logger->info(
+                    'ActionItemAnalyticsService::getMyItems: no participant found',
+                    ['nextcloudUid' => $nextcloudUid]
+                );
+                return [
+                    'overdue'  => [],
+                    'thisWeek' => [],
+                    'later'    => [],
+                ];
+            }
+
+            // Query action items assigned to this participant UUID.
             $params = [
-                'assignee'   => $userDisplayName,
+                'assignee'   => $participantId,
                 'taskStatus' => ['open', 'in-progress'],
             // Exclude completed.
                 '_limit'     => 999,

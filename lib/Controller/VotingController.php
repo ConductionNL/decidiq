@@ -26,14 +26,17 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\OriPublicationService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -53,6 +56,8 @@ class VotingController extends Controller
      * @param IGroupManager         $groupManager          The group manager
      * @param IAppConfig            $appConfig             The app config
      * @param LoggerInterface       $logger                The logger
+     * @param ParticipantResolver   $participantResolver   Per-meeting participant/role resolver
+     * @param ContainerInterface    $container             DI container (lazy-loads ObjectService)
      *
      * @return void
      *
@@ -66,33 +71,55 @@ class VotingController extends Controller
         private readonly IGroupManager $groupManager,
         private readonly IAppConfig $appConfig,
         private readonly LoggerInterface $logger,
+        private readonly ParticipantResolver $participantResolver,
+        private readonly ContainerInterface $container,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
 
     /**
-     * Require the current user to hold the chair/secretary governance role.
+     * Require the current user to hold the chair/secretary role for a specific meeting.
      *
-     * By default, system-admin membership (IGroupManager::isAdmin) is used as a
-     * stand-in for the governance role. Organisations that want a dedicated group
-     * (e.g. "decidesk-chairs") can set the `chair_group` app config key; when set,
-     * membership of that group is checked instead of the system-admin group.
+     * When $meetingId is provided, checks via ParticipantResolver::hasRole() that
+     * the caller holds a 'chair' or 'secretary' Participant role in that meeting's
+     * governance body — preventing cross-body privilege escalation in multi-council
+     * deployments.
+     *
+     * Falls back to the global chair_group / admin check when $meetingId is null.
      *
      * Returns a 403 JSONResponse when the check fails, null on success.
+     *
+     * @param string|null $meetingId UUID of the meeting to scope the role check (optional)
      *
      * @return JSONResponse|null
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
      */
-    private function requireChairOrSecretary(): ?JSONResponse
+    private function requireChairOrSecretary(?string $meetingId=null): ?JSONResponse
     {
         $user = $this->userSession->getUser();
         if ($user === null) {
-            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
         }
 
-        $uid        = $user->getUID();
+        $uid = $user->getUID();
+
+        // Per-meeting role check.
+        if ($meetingId !== null) {
+            $authorized = $this->participantResolver->hasRole(
+                meetingId: $meetingId,
+                nextcloudUid: $uid,
+                roles: ['chair', 'secretary']
+            );
+            if ($authorized === false) {
+                return new JSONResponse(['message' => 'Chair or secretary role required for this meeting'], Http::STATUS_FORBIDDEN);
+            }
+
+            return null;
+        }
+
+        // Fallback: global chair_group or system-admin check.
         $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
 
         if ($chairGroup !== '') {
@@ -110,6 +137,45 @@ class VotingController extends Controller
     }//end requireChairOrSecretary()
 
     /**
+     * Resolve the meeting UUID linked to a voting round via motion relations.
+     *
+     * @param string $votingRoundId The voting round UUID
+     *
+     * @return string|null The meeting UUID or null if not found
+     */
+    private function resolveMeetingIdFromVotingRound(string $votingRoundId): ?string
+    {
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $roundEntity   = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+            if ($roundEntity === null) {
+                return null;
+            }
+
+            $round = $roundEntity->jsonSerialize();
+            foreach (($round['relations'] ?? []) as $relation) {
+                if (($relation['schema'] ?? '') === 'motion') {
+                    $motionId     = ($relation['id'] ?? null);
+                    $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+                    if ($motionEntity !== null) {
+                        $motion = $motionEntity->jsonSerialize();
+                        foreach (($motion['relations'] ?? []) as $motionRel) {
+                            if (($motionRel['schema'] ?? '') === 'meeting') {
+                                return ($motionRel['id'] ?? null);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // Silently fall through to global check.
+        }
+
+        return null;
+
+    }//end resolveMeetingIdFromVotingRound()
+
+    /**
      * Open a new VotingRound.
      *
      * POST /api/voting-rounds
@@ -122,16 +188,18 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function open(): JSONResponse
     {
-        $guard = $this->requireChairOrSecretary();
-        if ($guard !== null) {
-            return $guard;
-        }
-
         $params       = $this->request->getParams();
         $motionId     = ($params['motionId'] ?? '');
         $meetingId    = ($params['meetingId'] ?? '');
+
+        // Per-meeting chair/secretary check: use the meetingId from the request body if present.
+        $guard = $this->requireChairOrSecretary(meetingId: $meetingId !== '' ? $meetingId : null);
+        if ($guard !== null) {
+            return $guard;
+        }
         $votingMethod = ($params['votingMethod'] ?? 'for-against-abstain');
         $isSecret     = (bool) ($params['isSecret'] ?? false);
         $closedAt     = null;
@@ -179,6 +247,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function cast(string $id): JSONResponse
     {
         // Derive participant identity from the authenticated session — never trust client input.
@@ -238,9 +307,12 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function close(string $id): JSONResponse
     {
-        $guard = $this->requireChairOrSecretary();
+        // Resolve the meeting from this voting round's motion chain for per-meeting auth.
+        $meetingId = $this->resolveMeetingIdFromVotingRound(votingRoundId: $id);
+        $guard     = $this->requireChairOrSecretary(meetingId: $meetingId);
         if ($guard !== null) {
             return $guard;
         }
@@ -270,6 +342,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function publish(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -302,6 +375,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function proxy(string $id): JSONResponse
     {
         // Resolve the Nextcloud UID to an OpenRegister participant UUID before storing —
@@ -354,6 +428,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function tally(string $id): JSONResponse
     {
         $guard = $this->requireChairOrSecretary();
@@ -394,6 +469,7 @@ class VotingController extends Controller
      *
      * @return JSONResponse
      */
+    #[NoAdminRequired]
     public function revokeProxy(string $id): JSONResponse
     {
         // Resolve the Nextcloud UID to an OpenRegister participant UUID — must match

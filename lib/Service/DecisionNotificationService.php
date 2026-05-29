@@ -63,7 +63,7 @@ class DecisionNotificationService
     public function notifyOnPublish(string $decisionId): int
     {
         try {
-            $objectService       = $this->container->get('OpenRegisterObjectService');
+            $objectService       = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $appConfig           = $this->container->get('IAppConfig');
             $notificationService = $this->container->get('OpenRegisterNotificationService');
 
@@ -155,7 +155,7 @@ class DecisionNotificationService
     public function resolveRecipients(string $decisionId, array $roles=[]): array
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             if (empty($roles) === true) {
                 $roles = ['chair', 'secretary', 'member'];

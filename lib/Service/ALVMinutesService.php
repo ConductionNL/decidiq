@@ -102,7 +102,7 @@ TEMPLATE;
     public function generateALVDraft(string $minutesId): array
     {
         try {
-            $objectService = $this->container->get('OpenRegisterObjectService');
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             // Fetch Minutes.
             $minutesEntity = $objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
@@ -267,7 +267,7 @@ TEMPLATE;
     public function distribute(string $minutesId): int
     {
         try {
-            $objectService       = $this->container->get('OpenRegisterObjectService');
+            $objectService       = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $notificationService = $this->container->get('OpenRegisterNotificationService');
 
             // Fetch Minutes.

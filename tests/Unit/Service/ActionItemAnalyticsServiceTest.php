@@ -110,7 +110,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
         $result = $this->service->getSummary('2026-01-01', '2026-12-31');
@@ -146,7 +146,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
         $result = $this->service->getCompletionRates(6);
@@ -158,7 +158,10 @@ class ActionItemAnalyticsServiceTest extends TestCase
     }
 
     /**
-     * Test that getMyItems groups overdue items correctly.
+     * Test that getMyItems groups overdue items correctly using NC UID (not display name).
+     *
+     * WF3 regression: getMyItems() MUST filter by Participant UUID resolved from NC UID,
+     * NOT by display name — display names are user-settable and non-unique (PII leak risk).
      *
      * @return void
      *
@@ -166,43 +169,89 @@ class ActionItemAnalyticsServiceTest extends TestCase
      */
     public function testGetMyItemsGroupsOverdueItemsCorrectly(): void
     {
+        $participantEntity = $this->makeEntity(['id' => 'participant-uuid-john', 'uuid' => 'participant-uuid-john']);
+
         $items = [
             $this->makeEntity([
                 'id'         => 'item-1',
                 'title'      => 'Overdue Task',
-                'assignee'   => 'John Doe',
+                'assignee'   => 'participant-uuid-john',
                 'taskStatus' => 'open',
                 'dueDate'    => date('Y-m-d', strtotime('-3 days')),
             ]),
             $this->makeEntity([
                 'id'         => 'item-2',
                 'title'      => 'This Week Task',
-                'assignee'   => 'John Doe',
+                'assignee'   => 'participant-uuid-john',
                 'taskStatus' => 'open',
                 'dueDate'    => date('Y-m-d', strtotime('+3 days')),
             ]),
             $this->makeEntity([
                 'id'         => 'item-3',
                 'title'      => 'Later Task',
-                'assignee'   => 'John Doe',
+                'assignee'   => 'participant-uuid-john',
                 'taskStatus' => 'open',
                 'dueDate'    => date('Y-m-d', strtotime('+20 days')),
             ]),
         ];
 
-        $mockObjectService = $this->makeObjectService($items);
+        // First findAll() call: participant lookup by nextcloudUserId.
+        // Second findAll() call: action item query by assignee=participantUUID.
+        $callCount         = 0;
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
+        $mockObjectService->method('findAll')->willReturnCallback(function () use (&$callCount, $participantEntity, $items) {
+            $callCount++;
+            if ($callCount === 1) {
+                return [$participantEntity];
+            }
+
+            return $items;
+        });
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
-        $result = $this->service->getMyItems('John Doe');
+        // Pass NC UID (not display name) — this is the WF3 fix.
+        $result = $this->service->getMyItems('john.doe');
 
         $this->assertIsArray($result);
         $this->assertCount(1, $result['overdue']);
         $this->assertCount(1, $result['thisWeek']);
         $this->assertCount(1, $result['later']);
+    }
+
+    /**
+     * Test that getMyItems returns empty when no participant record is found for the NC UID.
+     *
+     * This guards against data leakage when an NC user has no participant profile.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.5
+     */
+    public function testGetMyItemsReturnsEmptyWhenNoParticipantFound(): void
+    {
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
+        // findAll() for participant lookup returns empty — no participant for this NC UID.
+        $mockObjectService->method('findAll')->willReturn([]);
+
+        $this->container->expects($this->once())
+            ->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($mockObjectService);
+
+        $result = $this->service->getMyItems('unknown-nc-user');
+
+        $this->assertIsArray($result);
+        $this->assertCount(0, $result['overdue']);
+        $this->assertCount(0, $result['thisWeek']);
+        $this->assertCount(0, $result['later']);
     }
 
     /**
@@ -233,7 +282,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
         $result = $this->service->getSummary('2026-01-01', '2026-12-31');

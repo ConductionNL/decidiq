@@ -368,12 +368,21 @@ class MeetingServiceTest extends TestCase
     public function testChairOnlyTransitionBlockedWithoutChairRole(): void
     {
         $uuid   = 'aaaaaaaa-0000-0000-0000-000000000011';
-        $entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', chair: 'uid-chair');
+        // chair = 'participant-uuid-chair' (a Participant UUID, not a NC UID).
+        $entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', chair: 'participant-uuid-chair');
 
-        $this->objectService->expects($this->once())
+        // The service calls find() twice: once for the meeting, once for the Participant lookup.
+        // Participant find returns null (not found) so chairNcUserId stays null → comparison fails → 403.
+        $this->objectService->expects($this->any())
             ->method('find')
-            ->with(id: $uuid)
-            ->willReturn($entity);
+            ->willReturnCallback(function ($id) use ($uuid, $entity) {
+                if ($id === $uuid) {
+                    return $entity;
+                }
+
+                // Participant lookup returns null: chair NC UID cannot be resolved.
+                return null;
+            });
 
         $workflowService = $this->createMock(originalClassName: WorkflowService::class);
         $workflowService->method('isTransitionAllowed')->willReturn(true);

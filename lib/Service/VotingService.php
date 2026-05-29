@@ -487,7 +487,25 @@ class VotingService
             }
         }
 
+        // Build the vote object.
+        // Idempotency: set a deterministic @self.slug so that concurrent castVote requests
+        // for the same (participant, round) result in an upsert rather than two inserts.
+        // - Secret rounds:     slug = voterToken (HMAC, already opaque)
+        // - Non-secret rounds: slug = "vote-{votingRoundId}-{participantId}" (truncated)
+        // OR's saveObject with a matching slug performs UPDATE rather than INSERT, so the
+        // second concurrent request safely overwrites the first with the same value.
+        if ($isSecret === true) {
+            $idempotencySlug = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
+        } else {
+            // Slugs must be URL-safe and <= 255 chars.
+            $idempotencySlug = 'vote-'.substr($votingRoundId, 0, 8).'-'.substr($participantId, 0, 8);
+            if ($isProxy === true && $delegatorId !== null) {
+                $idempotencySlug .= '-proxy-'.substr($delegatorId, 0, 8);
+            }
+        }
+
         $vote = [
+            '@self'     => ['slug' => $idempotencySlug],
             'value'     => $value,
             'weight'    => 1,
             'isProxy'   => $isProxy,
@@ -497,7 +515,7 @@ class VotingService
 
         // Store opaque dedup token for secret rounds (never contains participant identity).
         if ($isSecret === true) {
-            $vote['voterToken'] = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
+            $vote['voterToken'] = $idempotencySlug;
         }
 
         // Store delegatorToken on secret proxy votes for one-proxy-per-round enforcement
@@ -551,7 +569,6 @@ class VotingService
         // Transient/infrastructure errors are still logged-and-continued so a network hiccup
         // does not leave the round un-closed; however they are logged at ERROR level so they
         // surface in monitoring rather than silently disappearing.
-        $lifecycleError = null;
         if ($round !== null) {
             foreach (($round['relations'] ?? []) as $rel) {
                 if (($rel['schema'] ?? '') === 'motion') {
@@ -599,7 +616,6 @@ class VotingService
                                     'Decidesk: lifecycle transition after close failed — round is closed but motion state may be stale',
                                     ['votingRoundId' => $votingRoundId, 'motionId' => $motionId, 'error' => $e->getMessage()]
                                 );
-                                $lifecycleError = $e->getMessage();
                             }//end try
                         }//end if
                     }//end if

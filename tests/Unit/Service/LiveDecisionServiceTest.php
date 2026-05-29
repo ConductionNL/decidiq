@@ -103,7 +103,7 @@ class LiveDecisionServiceTest extends TestCase
 
         $this->container->expects($this->any())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
         $decisionData = [
@@ -143,7 +143,7 @@ class LiveDecisionServiceTest extends TestCase
 
         $this->container->expects($this->any())
             ->method('get')
-            ->with('OpenRegisterObjectService')
+            ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($mockObjectService);
 
         $decisionData = [

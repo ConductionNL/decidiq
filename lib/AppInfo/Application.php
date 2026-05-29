@@ -282,6 +282,8 @@ class Application extends App implements IBootstrap
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     appConfig: $c->get(\OCP\IAppConfig::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
                     );
                 }
                 );
@@ -338,6 +340,8 @@ class Application extends App implements IBootstrap
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     appConfig: $c->get(\OCP\IAppConfig::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
                     );
                 }
                 );

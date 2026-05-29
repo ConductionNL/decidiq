@@ -65,7 +65,7 @@ class MinutesService
     public function notifyApproversOnSubmit(string $minutesId, string $actorId): int
     {
         try {
-            $objectService       = $this->container->get('OpenRegisterObjectService');
+            $objectService       = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $notificationService = $this->container->get('OpenRegisterNotificationService');
 
             // Fetch Minutes.

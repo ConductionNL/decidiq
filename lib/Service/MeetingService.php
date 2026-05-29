@@ -156,7 +156,27 @@ class MeetingService
             $meetingData      = $entity->getObject();
             $currentLifecycle = $meetingData['lifecycle'] ?? 'draft';
             $domain           = $meetingData['domain'] ?? 'operations';
-            $chairUserId      = $meetingData['chair'] ?? null;
+
+            // $meetingData['chair'] is the Participant UUID (not a NC UID).
+            // Resolve the Participant object to get the linked Nextcloud user ID.
+            $chairParticipantId = $meetingData['chair'] ?? null;
+            $chairNcUserId      = null;
+            if ($chairParticipantId !== null) {
+                $chairParticipant = $objectService->find(
+                    id: $chairParticipantId,
+                    register: 'decidesk',
+                    schema: 'participant'
+                );
+                if ($chairParticipant !== null) {
+                    $chairData     = $chairParticipant->jsonSerialize();
+                    $chairNcUserId = $chairData['nextcloudUserId'] ?? ($chairData['owner'] ?? null);
+                } else {
+                    $this->logger->warning(
+                        'Decidesk MeetingService: chair participant not found',
+                        ['meetingId' => $meetingId, 'chairParticipantId' => $chairParticipantId]
+                    );
+                }
+            }
 
             if (in_array(needle: $currentLifecycle, haystack: $transition['from'], strict: true) === false) {
                 return [
@@ -180,8 +200,9 @@ class MeetingService
             // Chair-only transition enforcement (OWASP A01:2021 — broken access control).
             // requiresChairAuthorization() returns true when the transition is restricted
             // to the meeting chair (e.g. legislative:opened→adjourned).
+            // Comparison is NC UID vs NC UID (resolved above from Participant record).
             if ($this->workflowService->requiresChairAuthorization(domain: $domain, from: $currentLifecycle, to: $transition['to']) === true) {
-                if ($currentUserId === null || $currentUserId !== $chairUserId) {
+                if ($currentUserId === null || $currentUserId !== $chairNcUserId) {
                     return [
                         'success' => false,
                         'meeting' => null,
