@@ -309,7 +309,7 @@ class DecisionControllerTest extends TestCase
      */
     public function testPublishSucceedsReturns200(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
 

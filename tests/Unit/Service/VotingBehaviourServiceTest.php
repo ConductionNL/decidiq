@@ -67,7 +67,7 @@ class VotingBehaviourServiceTest extends TestCase
         $this->markTestSkipped(
             'OpenRegister ObjectService is resolved via DI at call time; '
             .'named-parameter mock for findAll() requires real class stub — '
-            .'track at https://github.com/ConductionNL/decidesk/issues/90'
+            .'track at https://codeberg.org/Conduction/decidesk/issues/90'
         );
 
         $this->container     = $this->createMock(ContainerInterface::class);

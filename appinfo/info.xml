@@ -39,17 +39,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidesk</namespace>
     <documentation>
-        <user>https://github.com/ConductionNL/decidesk</user>
-        <admin>https://github.com/ConductionNL/decidesk</admin>
-        <developer>https://github.com/ConductionNL/decidesk</developer>
+        <user>https://codeberg.org/Conduction/decidesk</user>
+        <admin>https://codeberg.org/Conduction/decidesk</admin>
+        <developer>https://codeberg.org/Conduction/decidesk</developer>
     </documentation>
     <category>organization</category>
-    <website>https://github.com/ConductionNL/decidesk</website>
-    <discussion>https://github.com/ConductionNL/decidesk/discussions</discussion>
-    <bugs>https://github.com/ConductionNL/decidesk/issues</bugs>
-    <repository>https://github.com/ConductionNL/decidesk</repository>
+    <website>https://codeberg.org/Conduction/decidesk</website>
+    <discussion>https://codeberg.org/Conduction/decidesk/discussions</discussion>
+    <bugs>https://codeberg.org/Conduction/decidesk/issues</bugs>
+    <repository>https://codeberg.org/Conduction/decidesk</repository>
 
-    <screenshot>https://raw.githubusercontent.com/ConductionNL/decidesk/main/img/app-store.svg</screenshot>
+    <screenshot>https://codeberg.org/Conduction/decidesk/raw/branch/main/img/app-store.svg</screenshot>
 
     <dependencies>
         <nextcloud min-version="28" max-version="34"/>

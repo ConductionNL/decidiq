@@ -1,5 +1,5 @@
 # Tracked phpstan debt entries surfaced when decidesk synced to the fleet canonical.
-# All entries are tracked in https://github.com/ConductionNL/decidesk/issues/242
+# All entries are tracked in https://codeberg.org/Conduction/decidesk/issues/242
 # (Phase 2 pilot lint-debt cleanup). Regenerate with:
 #     ./vendor/bin/phpstan analyse --generate-baseline
 # Entries removed as the underlying code is refactored per the issue checklist.

@@ -7,8 +7,8 @@ status: draft
 ## Purpose
 
 Decidesk implements `OCA\OpenRegister\Mcp\IMcpToolProvider` (defined in openregister and
-contractually frozen by [hydra ADR-034](https://github.com/ConductionNL/hydra) and the
-hydra [`ai-chat-companion`](https://github.com/ConductionNL/hydra) spec) so the AI Chat
+contractually frozen by [hydra ADR-034](https://codeberg.org/Conduction/hydra) and the
+hydra [`ai-chat-companion`](https://codeberg.org/Conduction/hydra) spec) so the AI Chat
 Companion's tool dispatcher can offer decidesk capabilities — listing action items and
 meetings, reading meeting details, starting a meeting, and adding action items — to an
 LLM. This spec captures the tool catalogue, the contract for each tool's input schema,

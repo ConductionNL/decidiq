@@ -224,7 +224,7 @@ class AgendaServiceTest extends TestCase
      */
     public function testAdvanceBobPhaseCyclesThroughPhases(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $transitions = [
             ['from' => 'voorstel',        'to' => 'beeldvorming'],
@@ -293,7 +293,7 @@ class AgendaServiceTest extends TestCase
      */
     public function testAdvanceBobPhaseThrowsForInformationalItem(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $itemId   = 'item-info';
         $itemData = ['id' => $itemId, 'itemType' => 'informational', 'status' => 'beeldvorming'];
@@ -319,7 +319,7 @@ class AgendaServiceTest extends TestCase
      */
     public function testAdvanceBobPhaseThrowsAtFinalPhase(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $itemId   = 'item-final';
         $itemData = ['id' => $itemId, 'itemType' => 'decision', 'status' => 'afgerond'];
@@ -349,7 +349,7 @@ class AgendaServiceTest extends TestCase
      */
     public function testProcessHamerstukkenUpdatesTaggedItemsOnly(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $meetingId = 'meeting-uuid-1';
         $items     = [
@@ -394,7 +394,7 @@ class AgendaServiceTest extends TestCase
      */
     public function testReorderItemsAssignsSequentialNumbers(): void
     {
-        $this->markTestSkipped('See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped('See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $meetingId  = 'meeting-uuid-1';
         $orderedIds = ['item-c', 'item-a', 'item-b'];

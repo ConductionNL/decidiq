@@ -11,8 +11,8 @@ id namespace-matches `{getAppId()}.`, and routes invocations.
 
 **Canonical contracts (authoritative — do NOT re-decide here):**
 
-- Interface + dispatcher live in [openregister PR #1466](https://github.com/ConductionNL/openregister) (open, awaiting review) under change `ai-chat-companion-orchestrator`.
-- The interface signature is locked by [hydra ADR-034](https://github.com/ConductionNL/hydra) and [hydra's `ai-chat-companion` spec](https://github.com/ConductionNL/hydra) on `development`.
+- Interface + dispatcher live in [openregister PR #1466](https://codeberg.org/Conduction/openregister) (open, awaiting review) under change `ai-chat-companion-orchestrator`.
+- The interface signature is locked by [hydra ADR-034](https://codeberg.org/Conduction/hydra) and [hydra's `ai-chat-companion` spec](https://codeberg.org/Conduction/hydra) on `development`.
 - Tool descriptor shape, sources-array convention, and dispatcher discovery pattern are defined in the two documents above. This design references but does not duplicate them.
 
 **Current decidesk state:**

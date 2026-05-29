@@ -146,7 +146,7 @@ class MeetingServiceTest extends TestCase
      */
     public function testValidTransitionReturnsSuccess(): void
     {
-        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid          = 'aaaaaaaa-0000-0000-0000-000000000001';
         $currentState  = 'scheduled';
@@ -182,7 +182,7 @@ class MeetingServiceTest extends TestCase
      */
     public function testInvalidTransitionReturnsFailure(): void
     {
-        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid   = 'aaaaaaaa-0000-0000-0000-000000000002';
         $entity = $this->buildMockEntity(lifecycle: 'draft');
@@ -276,7 +276,7 @@ class MeetingServiceTest extends TestCase
      */
     public function testCloseFromOpenedReturnsSuccess(): void
     {
-        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid          = 'aaaaaaaa-0000-0000-0000-000000000003';
         $entity        = $this->buildMockEntity(lifecycle: 'opened');
@@ -415,7 +415,7 @@ class MeetingServiceTest extends TestCase
      */
     public function testChairOnlyTransitionSucceedsForChair(): void
     {
-        $this->markTestSkipped(message: 'See https://github.com/ConductionNL/decidesk/issues/90 — real ObjectService loads instead of stub.');
+        $this->markTestSkipped(message: 'See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid          = 'aaaaaaaa-0000-0000-0000-000000000012';
         $entity        = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', chair: 'uid-chair');

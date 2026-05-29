@@ -1,7 +1,7 @@
 publiccodeYmlVersion: "0.4"
 
 name: Decidesk
-url: "https://github.com/ConductionNL/decidesk"
+url: "https://codeberg.org/Conduction/decidesk"
 softwareVersion: "0.1.4"
 releaseDate: "2026-05-26"
 developmentStatus: beta
