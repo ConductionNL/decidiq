@@ -41,7 +41,6 @@ use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Controller\WorkspaceController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
-use OCA\Decidesk\Repair\InitializeSettings;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
@@ -111,9 +110,6 @@ class Application extends App implements IBootstrap
             event: DeepLinkRegistrationEvent::class,
             listener: DeepLinkRegistrationListener::class
         );
-
-        // Initialize register and schemas on install/upgrade.
-        $context->registerRepairStep(InitializeSettings::class);
 
         // Register MinutesGenerationService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
