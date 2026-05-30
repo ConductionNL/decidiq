@@ -14,7 +14,7 @@ container and routes tool calls to the owning app.
 
 Decidesk is the first per-app exemplar. Until at least one app implements the interface,
 the chat companion has nothing to dispatch — and there is no reference implementation
-that downstream Conduction apps (docudesk, opencatalogi, mydash, etc.) can copy. Shipping
+that downstream Conduction apps (docudesk, opencatalogi, launchpad, etc.) can copy. Shipping
 this change unblocks (a) the chat companion's end-to-end flow, (b) the pattern other
 apps will mirror, and (c) the citation/source-array convention the widget's
 `CnAiMessageList` relies on to render `[view meeting]`-style inline links.

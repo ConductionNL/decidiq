@@ -460,7 +460,7 @@ A case handler assembles all documents related to a case into a structured dossi
 
 ### Configure External System Widget Connections
 The system administrator connects dashboard widgets to external APIs such as the zaaksysteem, HR system, financial system, and document management platform, configuring authentication and data mapping.
-**Trigger:** Deploying mydash to a new department or integrating a newly procured back-office system
+**Trigger:** Deploying launchpad to a new department or integrating a newly procured back-office system
 **Desired outcome:** Widgets pull live data from source systems without requiring individual users to manage credentials or API settings
 **Current pain:** Each integration requires custom development and manual credential management; no standardised widget connector framework exists
 **Frequency:** ad-hoc

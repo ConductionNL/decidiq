@@ -25,7 +25,7 @@ implementation in the Nextcloud DI container under a per-app alias key. OpenRegi
   primitive; `decidesk.addActionItem` maps its `inputSchema` fields directly onto this.
 
 **Stakeholders:** the openregister team owns the interface and orchestrator; decidesk
-owns this provider; downstream Conduction apps (docudesk, opencatalogi, mydash) will
+owns this provider; downstream Conduction apps (docudesk, opencatalogi, launchpad) will
 copy this exemplar.
 
 ## Goals / Non-Goals
