@@ -133,6 +133,7 @@
 					{ "id": "overview",     "label": "Overview",     "icon": "icon-info",     "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "agenda",       "label": "Agenda",       "icon": "icon-files",    "component": "MeetingAgendaTab",                          "order": 20 },
 					{ "id": "participants", "label": "Participants", "icon": "icon-group",    "component": "MeetingParticipantsTab",                    "order": 30 },
+					{ "id": "actionBoard",  "label": "Action board", "icon": "icon-checkmark","widgets": [{ "type": "integration", "integration": "deck" }], "order": 40 },
 					{ "id": "audit",        "label": "Audit trail",  "icon": "icon-history",  "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				]
 			}
@@ -318,6 +319,7 @@
 				"sidebarTabs": [
 					{ "id": "overview",    "label": "Overview",    "icon": "icon-info",      "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "actionItems", "label": "Action items","icon": "icon-checkmark", "component": "DecisionActionItemsTab",                    "order": 20 },
+					{ "id": "actionBoard", "label": "Action board","icon": "icon-checkmark", "widgets": [{ "type": "integration", "integration": "deck" }], "order": 30 },
 					{ "id": "audit",       "label": "Audit trail", "icon": "icon-history",   "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				]
 			}
