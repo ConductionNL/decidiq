@@ -12,7 +12,6 @@
 		{ "id": "Tasks", "label": "Tasks", "icon": "icon-checkmark", "route": "Tasks", "order": 65 },
 		{ "id": "Workspaces", "label": "Workspaces", "icon": "icon-group", "route": "Workspaces", "order": 70 },
 		{ "id": "Comments", "label": "Comments", "icon": "icon-comment", "route": "Comments", "order": 75 },
-		{ "id": "EmailLinks", "label": "Email links", "icon": "icon-mail", "route": "EmailLinks", "order": 80 },
 		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
 		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "footer", "order": 90 },
 		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 },
@@ -456,18 +455,6 @@
 			}
 		},
 		{
-			"id": "EmailLinks",
-			"route": "/email-links",
-			"type": "index",
-			"title": "Email links",
-			"config": {
-				"register": "decidesk",
-				"schema": "email-link",
-				"columns": ["subject", "from", "receivedAt", "linkedTo"],
-				"sidebar": { "enabled": true, "showMetadata": true }
-			}
-		},
-		{
 			"id": "Engagement",
 			"route": "/engagement",
 			"type": "index",
@@ -535,7 +522,6 @@
 												{ "slug": "task", "label": "Tasks" },
 												{ "slug": "delegation", "label": "Delegations" },
 												{ "slug": "comment", "label": "Comments" },
-												{ "slug": "email-link", "label": "Email Links" },
 												{ "slug": "notification-preference", "label": "Notification Preferences" },
 												{ "slug": "engagement-record", "label": "Engagement Records" },
 												{ "slug": "collaboration-workspace", "label": "Collaboration Workspaces" }

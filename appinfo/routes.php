@@ -123,10 +123,6 @@ return [
         ['name' => 'workspace#addMember',    'url' => '/api/workspaces/{id}/members',            'verb' => 'POST'],
         ['name' => 'workspace#removeMember', 'url' => '/api/workspaces/{id}/members/{personId}', 'verb' => 'DELETE'],
 
-        // Email link endpoints.
-        ['name' => 'emailLink#create', 'url' => '/api/email-links', 'verb' => 'POST'],
-        ['name' => 'emailLink#index',  'url' => '/api/email-links', 'verb' => 'GET'],
-
         // Notification preference endpoints (own preferences).
         ['name' => 'notificationPreference#show',   'url' => '/api/notification-preference', 'verb' => 'GET'],
         ['name' => 'notificationPreference#update', 'url' => '/api/notification-preference', 'verb' => 'PUT'],

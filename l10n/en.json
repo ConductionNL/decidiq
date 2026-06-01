@@ -511,7 +511,15 @@
         "Official title": "Official title",
         "Party affiliation": "Party affiliation",
         "Photo": "Photo",
-        "Contact methods": "Contact methods"
+        "Contact methods": "Contact methods",
+        "Decision integrations": "Decision integrations",
+        "External integrations linked to this decision dossier — open the sidebar to link emails, browse files, notes, tags, tasks and the audit trail.": "External integrations linked to this decision dossier — open the sidebar to link emails, browse files, notes, tags, tasks and the audit trail.",
+        "This page is backed by the pluggable integration registry. When the Email integration is installed, an \"Email\" tab lets you link emails to this decision dossier — the link is held by the registry, not an in-app email-link store.": "This page is backed by the pluggable integration registry. When the Email integration is installed, an \"Email\" tab lets you link emails to this decision dossier — the link is held by the registry, not an in-app email-link store.",
+        "Back to decision": "Back to decision",
+        "Agenda item integrations": "Agenda item integrations",
+        "External integrations linked to this agenda item — open the sidebar to link emails, browse files, notes, tags, tasks and the audit trail.": "External integrations linked to this agenda item — open the sidebar to link emails, browse files, notes, tags, tasks and the audit trail.",
+        "This page is backed by the pluggable integration registry. When the Email integration is installed, an \"Email\" tab lets you link emails to this agenda item — the link is held by the registry, not an in-app email-link store.": "This page is backed by the pluggable integration registry. When the Email integration is installed, an \"Email\" tab lets you link emails to this agenda item — the link is held by the registry, not an in-app email-link store.",
+        "Back to agenda item": "Back to agenda item"
     },
     "plurals": ""
 }
