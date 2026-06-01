@@ -125,9 +125,9 @@ class RegisterJsonTest extends TestCase
         ];
 
         self::assertCount(
-            expectedCount: 24,
+            expectedCount: 25,
             haystack: $this->schemas,
-            message: 'Register must contain exactly 24 schemas (17 p1 core + 7 p3 citizen participation)'
+            message: 'Register must contain exactly 25 schemas (17 p1 core + 7 p3 citizen participation + 1 retired)'
         );
 
         foreach ($expected as $name) {

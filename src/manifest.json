@@ -10,7 +10,6 @@
 		{ "id": "Motions", "label": "Motions", "icon": "icon-comment", "route": "Motions", "order": 50 },
 		{ "id": "Meetings", "label": "Meetings", "icon": "icon-group", "route": "Meetings", "order": 60 },
 		{ "id": "Tasks", "label": "Tasks", "icon": "icon-checkmark", "route": "Tasks", "order": 65 },
-		{ "id": "Workspaces", "label": "Workspaces", "icon": "icon-group", "route": "Workspaces", "order": 70 },
 		{ "id": "Comments", "label": "Comments", "icon": "icon-comment", "route": "Comments", "order": 75 },
 		{ "id": "EmailLinks", "label": "Email links", "icon": "icon-mail", "route": "EmailLinks", "order": 80 },
 		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
@@ -103,11 +102,20 @@
 				"register": "decidesk",
 				"schema": "governance-body",
 				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview", "icon": "icon-info",         "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "members",  "label": "Members",  "icon": "icon-group",        "component": "GovernanceBodyMembersTab",                  "order": 20 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history",   "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{ "id": "overview",   "label": "Overview",   "icon": "icon-info",         "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
+					{ "id": "members",    "label": "Members",    "icon": "icon-group",         "component": "GovernanceBodyMembersTab",                  "order": 20 },
+					{ "id": "workspace",  "label": "Workspace",  "icon": "icon-projects",      "route": "GovernanceBodyWorkspace",                       "order": 50 },
+					{ "id": "audit",      "label": "Audit trail","icon": "icon-history",        "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				]
 			}
+		},
+		{
+			"id": "GovernanceBodyWorkspace",
+			"route": "/governance-bodies/:id/workspace",
+			"type": "custom",
+			"title": "Governance body workspace",
+			"component": "GovernanceBodyWorkspace",
+			"config": {}
 		},
 		{
 			"id": "Meetings",
@@ -375,32 +383,6 @@
 			}
 		},
 		{
-			"id": "Workspaces",
-			"route": "/workspaces",
-			"type": "index",
-			"title": "Workspaces",
-			"config": {
-				"register": "decidesk",
-				"schema": "collaboration-workspace",
-				"columns": ["name", "type", { "key": "accessLevel", "label": "Access", "widget": "badge" }, "createdAt"],
-				"sidebar": { "enabled": true, "showMetadata": true }
-			}
-		},
-		{
-			"id": "WorkspaceDetail",
-			"route": "/workspaces/:id",
-			"type": "detail",
-			"title": "Workspace",
-			"config": {
-				"register": "decidesk",
-				"schema": "collaboration-workspace",
-				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
-				]
-			}
-		},
-		{
 			"id": "Comments",
 			"route": "/comments",
 			"type": "index",
@@ -495,7 +477,6 @@
 												{ "slug": "email-link", "label": "Email Links" },
 												{ "slug": "notification-preference", "label": "Notification Preferences" },
 												{ "slug": "engagement-record", "label": "Engagement Records" },
-												{ "slug": "collaboration-workspace", "label": "Collaboration Workspaces" }
 											]
 										}
 									]

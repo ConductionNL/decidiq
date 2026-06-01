@@ -39,7 +39,6 @@ use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\TaskController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
-use OCA\Decidesk\Controller\WorkspaceController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
@@ -60,7 +59,6 @@ use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\TaskService;
 use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\Decidesk\Service\VotingService;
-use OCA\Decidesk\Service\WorkspaceService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\App;
@@ -426,16 +424,6 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            WorkspaceService::class,
-            static function ($c): WorkspaceService {
-                return new WorkspaceService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
-            }
-        );
-
-        $context->registerService(
             EmailLinkService::class,
             static function ($c): EmailLinkService {
                 return new EmailLinkService(
@@ -507,17 +495,6 @@ class Application extends App implements IBootstrap
                     commentService: $c->get(CommentService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            WorkspaceController::class,
-            static function ($c): WorkspaceController {
-                return new WorkspaceController(
-                    request: $c->get(\OCP\IRequest::class),
-                    workspaceService: $c->get(WorkspaceService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
                 );
             }
         );

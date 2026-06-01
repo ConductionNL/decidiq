@@ -24,6 +24,7 @@
  */
 
 import LiveMeetingView from './views/LiveMeeting.vue'
+import GovernanceBodyWorkspace from './views/GovernanceBodyWorkspace.vue'
 
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
@@ -56,6 +57,9 @@ export default {
 	// per-vote-card animations. Documented as the canonical example for
 	// a future `type: "realtime"` lib extension.
 	LiveMeetingView: page(LiveMeetingView),
+
+	// Governance body workspace — registry-driven Collectives leaf tab (ADR-019).
+	GovernanceBodyWorkspace: page(GovernanceBodyWorkspace),
 
 	// --- Detail-tab components (one per cross-schema relation). ---
 	// Each lives in /components/tabs/. Full-CRUD (or read-only where

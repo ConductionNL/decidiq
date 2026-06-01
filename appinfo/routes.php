@@ -119,10 +119,6 @@ return [
         ['name' => 'comment#index',   'url' => '/api/comments',              'verb' => 'GET'],
         ['name' => 'comment#resolve', 'url' => '/api/comments/{id}/resolve', 'verb' => 'POST'],
 
-        // Workspace member management.
-        ['name' => 'workspace#addMember',    'url' => '/api/workspaces/{id}/members',            'verb' => 'POST'],
-        ['name' => 'workspace#removeMember', 'url' => '/api/workspaces/{id}/members/{personId}', 'verb' => 'DELETE'],
-
         // Email link endpoints.
         ['name' => 'emailLink#create', 'url' => '/api/email-links', 'verb' => 'POST'],
         ['name' => 'emailLink#index',  'url' => '/api/email-links', 'verb' => 'GET'],

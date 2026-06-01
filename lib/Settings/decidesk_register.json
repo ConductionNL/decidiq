@@ -26,7 +26,8 @@
           "active": true,
           "hardDelete": false,
           "searchable": true,
-          "mailEnabled": false
+          "mailEnabled": false,
+          "leaves": ["collectives"]
         },
         "required": [
           "name",
@@ -2545,6 +2546,64 @@
             "type": "string",
             "format": "date-time",
             "description": "When the citizen read the in-app notification."
+          }
+        }
+      },
+      "CollaborationWorkspace": {
+        "slug": "collaboration-workspace",
+        "icon": "AccountGroupOutline",
+        "version": "0.1.0",
+        "title": "CollaborationWorkspace",
+        "description": "RETIRED — legacy in-app workspace superseded by the Nextcloud Collectives integration leaf (ADR-019). Objects are archived for audit; the schema is inactive and no longer accepts new objects.",
+        "type": "object",
+        "x-openregister": {
+          "active": false,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Workspace name."
+          },
+          "type": {
+            "type": "string",
+            "description": "Workspace type (faction, committee, task-group)."
+          },
+          "accessLevel": {
+            "type": "string",
+            "description": "Access level.",
+            "enum": ["private", "members", "public"],
+            "default": "private"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Nextcloud UID of the workspace owner."
+          },
+          "members": {
+            "type": "array",
+            "description": "Participant UUIDs with access to this workspace.",
+            "items": { "type": "string" }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp."
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "True once the workspace has been migrated to a Collective.",
+            "default": false
+          },
+          "archivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the workspace was archived."
+          },
+          "collectiveId": {
+            "type": "integer",
+            "description": "Nextcloud Collectives id of the bound Collective created during migration (null when Collectives was not installed at migration time)."
           }
         }
       }
