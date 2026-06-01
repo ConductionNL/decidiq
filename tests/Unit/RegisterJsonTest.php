@@ -87,11 +87,14 @@ class RegisterJsonTest extends TestCase
      * extended the register with 7 additional schemas for citizen engagement
      * (BudgetProposal, CitizenPanel, CitizenVote, Deliberation, Notification,
      * ParticipatoryBudget, PublicConsultation), bringing the total to 24.
+     * migrate-engagement-analytics-to-analytics-leaf adds EngagementRecord (1),
+     * bringing the total to 25.
      *
      * @return void
      *
      * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
      * @spec openspec/changes/p3-citizen-participation/tasks.md
+     * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-2.2
      */
     public function testAllSeventeenSchemasExist(): void
     {
@@ -122,12 +125,14 @@ class RegisterJsonTest extends TestCase
             'Notification',
             'ParticipatoryBudget',
             'PublicConsultation',
+            // Analytics-leaf migration schema (1).
+            'EngagementRecord',
         ];
 
         self::assertCount(
-            expectedCount: 24,
+            expectedCount: 25,
             haystack: $this->schemas,
-            message: 'Register must contain exactly 24 schemas (17 p1 core + 7 p3 citizen participation)'
+            message: 'Register must contain exactly 25 schemas (17 p1 core + 7 p3 citizen participation + 1 EngagementRecord)'
         );
 
         foreach ($expected as $name) {
@@ -422,4 +427,97 @@ class RegisterJsonTest extends TestCase
         self::assertSame(expected: $expected, actual: $roles);
 
     }//end testParticipantRoleEnum()
+
+    /**
+     * Test that EngagementRecord schema is defined with correct structure.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-2.2
+     */
+    public function testEngagementRecordSchemaExists(): void
+    {
+        $schema = $this->schemas['EngagementRecord'];
+
+        self::assertSame(expected: 'engagement-record', actual: $schema['slug']);
+        self::assertSame(expected: 'custom:EngagementRecord', actual: $schema['x-openregister']['schemaType']);
+        self::assertContains(needle: 'meeting', haystack: $schema['required']);
+        self::assertContains(needle: 'participant', haystack: $schema['required']);
+
+        // Derived counts are exposed to the analytics leaf as calculations.
+        $calcs = ($schema['x-openregister-calculations'] ?? []);
+        self::assertArrayHasKey(key: 'speechCount', array: $calcs, message: 'speechCount calculation must exist');
+        self::assertArrayHasKey(key: 'questionCount', array: $calcs, message: 'questionCount calculation must exist');
+        self::assertArrayHasKey(key: 'topicCount', array: $calcs, message: 'topicCount calculation must exist');
+
+        // Relations to Meeting and Participant must be declared.
+        $relations = ($schema['x-openregister-relations'] ?? []);
+        self::assertArrayHasKey(key: 'meeting', array: $relations);
+        self::assertArrayHasKey(key: 'participant', array: $relations);
+
+    }//end testEngagementRecordSchemaExists()
+
+    /**
+     * Test that Meeting schema aggregations include action-item and engagement metrics.
+     *
+     * These aggregations power the analytics integration leaf (ADR-019, ADR-031),
+     * replacing the in-app ActionItemAnalyticsService dashboard methods.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-2.2
+     */
+    public function testMeetingSchemaHasAnalyticsLeafAggregations(): void
+    {
+        $aggs = ($this->schemas['Meeting']['x-openregister-aggregations'] ?? []);
+
+        self::assertArrayHasKey(
+            key: 'actionItemCount',
+            array: $aggs,
+            message: 'Meeting must have actionItemCount aggregation for analytics leaf'
+        );
+        self::assertArrayHasKey(
+            key: 'completedActionItemCount',
+            array: $aggs,
+            message: 'Meeting must have completedActionItemCount aggregation for analytics leaf'
+        );
+        self::assertArrayHasKey(
+            key: 'engagementRecordCount',
+            array: $aggs,
+            message: 'Meeting must have engagementRecordCount aggregation for analytics leaf'
+        );
+
+        // ActionItemCompletionRate is derived from actionItemCount + completedActionItemCount.
+        $calcs = ($this->schemas['Meeting']['x-openregister-calculations'] ?? []);
+        self::assertArrayHasKey(
+            key: 'actionItemCompletionRate',
+            array: $calcs,
+            message: 'Meeting must have actionItemCompletionRate calculation for analytics leaf'
+        );
+
+    }//end testMeetingSchemaHasAnalyticsLeafAggregations()
+
+    /**
+     * Test that EngagementRecord has at least 3 seed objects.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-2.2
+     */
+    public function testEngagementRecordHasSeedData(): void
+    {
+        $seeds = ($this->schemas['EngagementRecord']['x-openregister-seeds'] ?? []);
+        self::assertGreaterThanOrEqual(
+            expected: 3,
+            actual: count($seeds),
+            message: 'EngagementRecord must have at least 3 seed objects'
+        );
+
+        foreach ($seeds as $seed) {
+            self::assertArrayHasKey(key: '@self', array: $seed, message: 'Seed must have @self envelope');
+            self::assertSame(expected: 'decidesk', actual: $seed['@self']['register']);
+            self::assertSame(expected: 'EngagementRecord', actual: $seed['@self']['schema']);
+        }
+
+    }//end testEngagementRecordHasSeedData()
 }//end class

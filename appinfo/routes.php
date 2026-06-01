@@ -14,10 +14,10 @@ return [
         ['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
         ['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],
 
-        // Analytics endpoints — action item metrics and completion rates.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
-        ['name' => 'analytics#getSummary',             'url' => '/api/analytics/action-items',                 'verb' => 'GET'],
-        ['name' => 'analytics#getCompletionRates',     'url' => '/api/analytics/action-items/completion-rates', 'verb' => 'GET'],
+        // Analytics endpoint — personal action-item list only.
+        // getSummary and getCompletionRates removed: generic aggregations now live in
+        // x-openregister-aggregations on Meeting schema, rendered by the analytics leaf.
+        // @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
         ['name' => 'analytics#getMyItems',             'url' => '/api/analytics/action-items/my-items',         'verb' => 'GET'],
 
         // Live meeting endpoints — live decision recording during active meetings.
