@@ -32,7 +32,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\TaskService;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use OCP\IGroupManager;
 use OCP\IUserSession;
@@ -183,7 +182,6 @@ class DecideskToolProvider implements IMcpToolProvider
      * Constructor for DecideskToolProvider.
      *
      * @param MeetingService      $meetingService      The meeting service
-     * @param TaskService         $taskService         The task service
      * @param IUserSession        $userSession         The current user session
      * @param IGroupManager       $groupManager        The group manager (for admin checks)
      * @param ContainerInterface  $container           The DI container (for ObjectService)
@@ -194,7 +192,6 @@ class DecideskToolProvider implements IMcpToolProvider
      */
     public function __construct(
         private readonly MeetingService $meetingService,
-        private readonly TaskService $taskService,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
         private readonly ContainerInterface $container,
@@ -904,24 +901,34 @@ class DecideskToolProvider implements IMcpToolProvider
             ];
         }
 
-        $taskData = [
+        // Action items are persisted on the canonical action-item schema (the deck
+        // board is a projection over it); the retired in-app task store is gone.
+        // @spec openspec/changes/migrate-action-items-to-deck-leaf/tasks.md#task-4.
+        $actionItemData = [
             'title'      => (string) $title,
-            'meeting'    => (string) $meetingUuid,
-            'taskStatus' => 'pending',
-            'createdBy'  => $currentUserId,
+            'taskStatus' => 'open',
+            'relations'  => [
+                'Meeting' => [(string) $meetingUuid],
+            ],
         ];
 
         $assigneeUserId = $args['assigneeUserId'] ?? null;
         if ($assigneeUserId !== null && $assigneeUserId !== '') {
-            $taskData['assignee'] = (string) $assigneeUserId;
+            $actionItemData['assignee'] = (string) $assigneeUserId;
         }
 
         if ($dueDate !== null && $dueDate !== '') {
-            $taskData['dueDate'] = (string) $dueDate;
+            $actionItemData['dueDate'] = (string) $dueDate;
         }
 
         try {
-            $saved    = $this->taskService->saveTask($taskData);
+            $saved    = $this->toArray(
+                item: $objectService->saveObject(
+                    register: 'decidesk',
+                    schema: 'action-item',
+                    object: $actionItemData,
+                )
+            );
             $itemUuid = $this->extractUuid(item: $saved);
 
             return [

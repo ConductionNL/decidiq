@@ -31,7 +31,6 @@ namespace OCA\Decidesk\Tests\Unit\Mcp;
 use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\TaskService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\IGroupManager;
@@ -70,13 +69,6 @@ class DecideskToolProviderTest extends TestCase
      * @var MeetingService&MockObject
      */
     private MeetingService&MockObject $meetingService;
-
-    /**
-     * Mock TaskService.
-     *
-     * @var TaskService&MockObject
-     */
-    private TaskService&MockObject $taskService;
 
     /**
      * Mock IUserSession.
@@ -138,7 +130,6 @@ class DecideskToolProviderTest extends TestCase
         parent::setUp();
 
         $this->meetingService      = $this->createMock(MeetingService::class);
-        $this->taskService         = $this->createMock(TaskService::class);
         $this->userSession         = $this->createMock(IUserSession::class);
         $this->groupManager        = $this->createMock(IGroupManager::class);
         $this->container           = $this->createMock(ContainerInterface::class);
@@ -147,7 +138,6 @@ class DecideskToolProviderTest extends TestCase
 
         $this->provider = new DecideskToolProvider(
             meetingService: $this->meetingService,
-            taskService: $this->taskService,
             userSession: $this->userSession,
             groupManager: $this->groupManager,
             container: $this->container,
@@ -455,8 +445,6 @@ class DecideskToolProviderTest extends TestCase
      */
     public function testInvalidUuidAddActionItemReturnsInvalidArguments(): void
     {
-        $this->taskService->expects(self::never())->method('saveTask');
-
         $result = $this->provider->invokeTool(
             'decidesk.addActionItem',
             ['meetingUuid' => 'abc', 'title' => 'Test task']
@@ -689,11 +677,13 @@ class DecideskToolProviderTest extends TestCase
 
         $meeting       = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
         $meetingEntity = $this->makeObjectEntityMock($meeting);
-        $this->mockObjectService(meetingEntity: $meetingEntity);
+        $objectService = $this->mockObjectService(meetingEntity: $meetingEntity);
 
-        $savedTask = ['uuid' => 'task-uuid-1', 'title' => 'Write test plan', 'taskStatus' => 'pending'];
-        $this->taskService->expects(self::once())->method('saveTask')
-            ->willReturn($savedTask);
+        // The action item is persisted on the canonical action-item schema via
+        // OpenRegister's saveObject (the deck board is a projection over it).
+        $savedItem = ['uuid' => 'action-item-uuid-1', 'title' => 'Write test plan', 'taskStatus' => 'open'];
+        $objectService->expects(self::once())->method('saveObject')
+            ->willReturn($savedItem);
 
         $result = $this->provider->invokeTool(
             'decidesk.addActionItem',
@@ -790,9 +780,10 @@ class DecideskToolProviderTest extends TestCase
 
         $meeting       = $this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']);
         $meetingEntity = $this->makeObjectEntityMock($meeting);
-        $this->mockObjectService(meetingEntity: $meetingEntity);
+        $objectService = $this->mockObjectService(meetingEntity: $meetingEntity);
 
-        $this->taskService->expects(self::never())->method('saveTask');
+        // No action item must be persisted when access is denied.
+        $objectService->expects(self::never())->method('saveObject');
 
         $result = $this->provider->invokeTool(
             'decidesk.addActionItem',

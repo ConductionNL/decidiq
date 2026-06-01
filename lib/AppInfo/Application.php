@@ -25,9 +25,9 @@ namespace OCA\Decidesk\AppInfo;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
 use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Controller\AnalyticsController;
+use OCA\Decidesk\Controller\ActionItemDelegationController;
 use OCA\Decidesk\Controller\CommentController;
 use OCA\Decidesk\Controller\DecisionController;
-use OCA\Decidesk\Controller\DelegationController;
 use OCA\Decidesk\Controller\EmailLinkController;
 use OCA\Decidesk\Controller\EngagementController;
 use OCA\Decidesk\Controller\LiveMeetingController;
@@ -36,17 +36,16 @@ use OCA\Decidesk\Controller\MotionController;
 use OCA\Decidesk\Controller\MotionCoauthorController;
 use OCA\Decidesk\Controller\NotificationPreferenceController;
 use OCA\Decidesk\Controller\ProjectionController;
-use OCA\Decidesk\Controller\TaskController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Controller\WorkspaceController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
+use OCA\Decidesk\Service\ActionItemDelegationService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\CommentService;
 use OCA\Decidesk\Service\DecisionNotificationService;
-use OCA\Decidesk\Service\DelegationService;
 use OCA\Decidesk\Service\EmailLinkService;
 use OCA\Decidesk\Service\EngagementService;
 use OCA\Decidesk\Service\LiveDecisionService;
@@ -57,7 +56,6 @@ use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\NotificationPreferenceService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\TaskService;
 use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\Decidesk\Service\VotingService;
 use OCA\Decidesk\Service\WorkspaceService;
@@ -391,24 +389,17 @@ class Application extends App implements IBootstrap
                 }
                 );
 
-        // P4-collaboration: services for collaboration, delegation, comments,
-        // workspaces, email linking, notifications, engagement, and motion
-        // co-authoring.
+        // P4-collaboration: services for collaboration, comments, workspaces,
+        // email linking, notifications, engagement, and motion co-authoring.
         // @spec openspec/changes/p4-collaboration/tasks.md#task-2.
+        // Action-item delegation/reclaim is mapped onto the canonical
+        // action-item object (ADR-022); the retired TaskService/DelegationService
+        // object stores are replaced by ActionItemDelegationService.
+        // @spec openspec/changes/migrate-action-items-to-deck-leaf/tasks.md#task-2.
         $context->registerService(
-            TaskService::class,
-            static function ($c): TaskService {
-                return new TaskService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            DelegationService::class,
-            static function ($c): DelegationService {
-                return new DelegationService(
+            ActionItemDelegationService::class,
+            static function ($c): ActionItemDelegationService {
+                return new ActionItemDelegationService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -476,23 +467,11 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            TaskController::class,
-            static function ($c): TaskController {
-                return new TaskController(
+            ActionItemDelegationController::class,
+            static function ($c): ActionItemDelegationController {
+                return new ActionItemDelegationController(
                     request: $c->get(\OCP\IRequest::class),
-                    taskService: $c->get(TaskService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                    groupManager: $c->get(\OCP\IGroupManager::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            DelegationController::class,
-            static function ($c): DelegationController {
-                return new DelegationController(
-                    request: $c->get(\OCP\IRequest::class),
-                    delegationService: $c->get(DelegationService::class),
+                    delegationService: $c->get(ActionItemDelegationService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                 );

@@ -105,14 +105,11 @@ return [
         ['name' => 'ori#index',         'url' => '/api/ori/v1/{resource}',      'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
 
-        // p4-collaboration routes — @spec openspec/changes/p4-collaboration/tasks.md.
-        // Task lifecycle (state machine + delegator-only reclaim).
-        ['name' => 'task#status',  'url' => '/api/tasks/{id}/status',  'verb' => 'POST'],
-        ['name' => 'task#reclaim', 'url' => '/api/tasks/{id}/reclaim', 'verb' => 'POST'],
-
-        // Delegation lifecycle (revoke / manual expire).
-        ['name' => 'delegation#revoke', 'url' => '/api/delegations/{id}',         'verb' => 'DELETE'],
-        ['name' => 'delegation#expire', 'url' => '/api/delegations/{id}/expire',  'verb' => 'POST'],
+        // Action-item delegation (substitute reassignment + delegator reclaim) on the
+        // canonical action-item object — replaces the retired task/delegation routes.
+        // @spec openspec/changes/migrate-action-items-to-deck-leaf/tasks.md#task-2.
+        ['name' => 'actionItemDelegation#reassign', 'url' => '/api/action-items/{id}/reassign', 'verb' => 'POST'],
+        ['name' => 'actionItemDelegation#reclaim',  'url' => '/api/action-items/{id}/reclaim',  'verb' => 'POST'],
 
         // Comment endpoints (create / target-scoped find / resolve).
         ['name' => 'comment#create',  'url' => '/api/comments',              'verb' => 'POST'],

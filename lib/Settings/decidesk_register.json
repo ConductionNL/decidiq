@@ -1413,8 +1413,23 @@
           },
           "assignee": {
             "type": "string",
-            "description": "Assigned participant",
+            "description": "Assigned participant (current owner). Reassignment to a substitute updates this field; the deck card reflects it.",
             "example": "Wethouder Duurzaamheid"
+          },
+          "delegator": {
+            "type": "string",
+            "description": "The original delegator who may reclaim this action item from a substitute. Set when the item is reassigned away from its initial owner.",
+            "example": "Wethouder Duurzaamheid"
+          },
+          "substituteUntil": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End of the substitute window during which the substitute (current assignee) holds the item on behalf of the delegator. Carries the D2 substitute-during-absence semantics on the canonical record instead of a separate Delegation object."
+          },
+          "reclaimedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the most recent reclaim by the delegator. The reclaim event itself is preserved in the OpenRegister immutable audit trail (design.md D2)."
           },
           "dueDate": {
             "type": "string",
