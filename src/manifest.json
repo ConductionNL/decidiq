@@ -9,7 +9,6 @@
 		{ "id": "ActionItems", "label": "Action items", "icon": "icon-checkmark", "route": "ActionItems", "order": 40 },
 		{ "id": "Motions", "label": "Motions", "icon": "icon-comment", "route": "Motions", "order": 50 },
 		{ "id": "Meetings", "label": "Meetings", "icon": "icon-group", "route": "Meetings", "order": 60 },
-		{ "id": "Tasks", "label": "Tasks", "icon": "icon-checkmark", "route": "Tasks", "order": 65 },
 		{ "id": "Workspaces", "label": "Workspaces", "icon": "icon-group", "route": "Workspaces", "order": 70 },
 		{ "id": "Comments", "label": "Comments", "icon": "icon-comment", "route": "Comments", "order": 75 },
 		{ "id": "EmailLinks", "label": "Email links", "icon": "icon-mail", "route": "EmailLinks", "order": 80 },
@@ -351,32 +350,6 @@
 			}
 		},
 		{
-			"id": "Tasks",
-			"route": "/tasks",
-			"type": "index",
-			"title": "Tasks",
-			"config": {
-				"register": "decidesk",
-				"schema": "task",
-				"columns": ["title", "assignee", "delegator", "dueDate", { "key": "taskStatus", "label": "Status", "widget": "badge" }],
-				"sidebar": { "enabled": true, "showMetadata": true }
-			}
-		},
-		{
-			"id": "TaskDetail",
-			"route": "/tasks/:id",
-			"type": "detail",
-			"title": "Task",
-			"config": {
-				"register": "decidesk",
-				"schema": "task",
-				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
-				]
-			}
-		},
-		{
 			"id": "Workspaces",
 			"route": "/workspaces",
 			"type": "index",
@@ -491,8 +464,6 @@
 												{ "slug": "order", "label": "Orders" },
 												{ "slug": "product", "label": "Products" },
 												{ "slug": "report", "label": "Reports" },
-												{ "slug": "task", "label": "Tasks" },
-												{ "slug": "delegation", "label": "Delegations" },
 												{ "slug": "comment", "label": "Comments" },
 												{ "slug": "email-link", "label": "Email Links" },
 												{ "slug": "notification-preference", "label": "Notification Preferences" },

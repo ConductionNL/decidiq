@@ -80,4 +80,19 @@ abstract class ObjectService
      */
     abstract public function saveObject(array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): mixed;
 
+    /**
+     * Soft-delete (archive) an object by UUID.
+     *
+     * Matches the real ObjectService::deleteObject() named-parameter API; on
+     * schemas with hardDelete:false this performs OpenRegister's archival
+     * workflow rather than a hard purge.
+     *
+     * @param string          $uuid     Object UUID
+     * @param string|int|null $register Register slug or ID
+     * @param string|int|null $schema   Schema slug or ID
+     *
+     * @return bool
+     */
+    abstract public function deleteObject(string $uuid, string|int|null $register=null, string|int|null $schema=null): bool;
+
 }//end class
