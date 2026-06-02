@@ -196,7 +196,12 @@ class VotingController extends Controller
         $meetingId = ($params['meetingId'] ?? '');
 
         // Per-meeting chair/secretary check: use the meetingId from the request body if present.
-        $guard = $this->requireChairOrSecretary(meetingId: $meetingId !== '' ? $meetingId : null);
+        $resolvedMeetingId = null;
+        if ($meetingId !== '') {
+            $resolvedMeetingId = $meetingId;
+        }
+
+        $guard = $this->requireChairOrSecretary(meetingId: $resolvedMeetingId);
         if ($guard !== null) {
             return $guard;
         }
