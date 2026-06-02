@@ -141,6 +141,21 @@ return [
         ['name' => 'motionCoauthor#updateText',     'url' => '/api/motions/{id}/text',                 'verb' => 'POST'],
         ['name' => 'motionCoauthor#history',        'url' => '/api/motions/{id}/history',              'verb' => 'GET'],
 
+        // Board governance — materials, voting, conflicts, audit log (board-meeting-resolutions T1 backend).
+        // @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4
+        ['name' => 'boardMaterial#index', 'url' => '/api/board-materials',      'verb' => 'GET'],
+        ['name' => 'boardMaterial#show',  'url' => '/api/board-materials/{id}', 'verb' => 'GET'],
+
+        ['name' => 'boardVoting#castVote',  'url' => '/api/resolutions/{id}/cast-vote',  'verb' => 'POST'],
+        ['name' => 'boardVoting#closeVote', 'url' => '/api/resolutions/{id}/close-vote', 'verb' => 'POST'],
+        ['name' => 'boardVoting#tally',     'url' => '/api/resolutions/{id}/tally',      'verb' => 'GET'],
+
+        ['name' => 'conflictOfInterest#declareConflict', 'url' => '/api/conflicts/declare',       'verb' => 'POST'],
+        ['name' => 'conflictOfInterest#recordAction',    'url' => '/api/conflicts/{id}/action',   'verb' => 'PUT'],
+
+        ['name' => 'auditLog#index',  'url' => '/api/audit-log',             'verb' => 'GET'],
+        ['name' => 'auditLog#verify', 'url' => '/api/audit-log/{id}/verify', 'verb' => 'GET'],
+
         // SPA catch-all — same controller as the index route; must use a distinct route name
         // (duplicate names replace the earlier route in Symfony, which breaks GET /).
         ['name' => 'dashboard#catchAll', 'url' => '/{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], 'defaults' => ['path' => '']],
