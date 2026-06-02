@@ -1,40 +1,40 @@
 ## 1. Schema Registration & Data Model
 
-- [ ] 1.1 Add `Board` schema to `lib/Settings/decidesk_register.json` with properties: name, type (enum: raad-van-commissarissen, raad-van-bestuur, audit-committee, remuneration-committee, nomination-committee, risk-committee, one-tier-board), legal-entity, governance-model (enum: two-tier, one-tier), establishment-date, statuten-reference, chairman, vice-chairman, secretary, default-language, additional-languages (array), quorum-rule, notice-deadline-days, material-retention-days
-- [ ] 1.2 Add `BoardMember` schema with properties: persoon-koppeling, board-koppeling, rol (enum: chairman, vice-chairman, member, executive-member, non-executive-member, independent-member, employee-representative), appointment-date, appointment-resolution-reference, term-end-date, reappointment-eligible, nationality, nevenfuncties (array of strings), independence-status (enum: independent, non-independent)
-- [ ] 1.3 Add `BoardMeeting` schema with CalDAV wrapper: board-koppeling, meeting-type (enum: regular, extraordinary, strategy-day, closed-session, executive-session), meeting-date, meeting-start, meeting-end, location, format (enum: in-person, remote, hybrid), language (enum: nl, en, both), status (enum: scheduled, notice-sent, materials-distributed, in-session, adjourned, closed, minutes-signed), notice-sent-date, materials-deadline, quorum-required, quorum-achieved, recording-allowed, caldav-uid, caldav-ics-blob
-- [ ] 1.4 Add `Resolution` schema with properties: meeting-koppeling, resolution-number (format: R-{year}-{number}), title, type (enum: approval, appointment, dismissal, financial, strategic, policy, delegation-of-authority, acknowledgement, written-resolution), proposing-member, full-text (rich text), background (rich text), legal-basis, vote-type (enum: named, anonymous, unanimous-consent, acclamation), vote-threshold (enum: simple-majority, qualified-majority-two-thirds, qualified-majority-three-quarters, unanimous), status (enum: proposed, under-discussion, adopted, rejected, withdrawn, tabled), adoption-date, effective-date
-- [ ] 1.5 Add `Vote` schema with properties: resolution-koppeling, board-member-koppeling, vote (enum: in-favor, against, abstain, absent, recused-due-to-conflict), vote-timestamp, vote-method (enum: raised-hand, electronic, written-ballot, proxy), proxy-holder (board-member-koppeling if proxy), anonymized (boolean)
-- [ ] 1.6 Add `Minutes` schema with properties: meeting-koppeling, language (enum: nl, en), version (enum: draft, final, signed), content (rich text), prepared-by (company-secretary), reviewed-by (chairman), signed-by (array of {signer-uuid, signature-timestamp, certificate-thumbprint}), signing-completion-date, eidas-signature-level (enum: SES, AdES, QES), pdf-archive-reference, hash-sha256, reconciliation-notes
-- [ ] 1.7 Add `ConflictOfInterest` schema with properties: board-member-koppeling, agenda-item-koppeling, declaration-type (enum: financial-interest, personal-relationship, competing-business, prior-involvement, none), description (text), severity (enum: material, non-material), action-taken (enum: recused-from-discussion, recused-from-vote, disclosed-and-participated, no-action-needed), declaration-timestamp
-- [ ] 1.8 Add `BoardMaterial` schema with properties: meeting-koppeling, agenda-item-koppeling, title, document-reference (docudesk handle), access-level (enum: board-only, executive-only, audit-committee, external-auditor, regulator), distribution-timestamp, watermarked (boolean), watermark-text (per-member override field)
-- [ ] 1.9 Add `AuditLogEntry` schema (internal) with properties: actor-uuid, action (enum: vote, conflict-declaration, material-access, signature, notice-sent, proxy-created, proxy-revoked), object-uids (array), timestamp, previous-hash (SHA-256), current-hash (SHA-256), immutable-blob (full serialization for forensic audit)
-- [ ] 1.10 Add seed data: 3 boards (RvC listed company, RvB listed company, audit-committee housing-corp), 10 board members with mixed roles and independence-status values, 5 board meetings (various states), 10 resolutions with different types and vote-thresholds, 25 votes (named, anonymous, proxy, absent, recused), 5 minutes records (draft, final, signed), 8 conflict declarations (varying severity and action-taken)
+- [x] 1.1 Add `Board` schema to `lib/Settings/decidesk_register.json` with properties: name, type (enum: raad-van-commissarissen, raad-van-bestuur, audit-committee, remuneration-committee, nomination-committee, risk-committee, one-tier-board), legal-entity, governance-model (enum: two-tier, one-tier), establishment-date, statuten-reference, chairman, vice-chairman, secretary, default-language, additional-languages (array), quorum-rule, notice-deadline-days, material-retention-days
+- [x] 1.2 Add `BoardMember` schema with properties: persoon-koppeling, board-koppeling, rol (enum: chairman, vice-chairman, member, executive-member, non-executive-member, independent-member, employee-representative), appointment-date, appointment-resolution-reference, term-end-date, reappointment-eligible, nationality, nevenfuncties (array of strings), independence-status (enum: independent, non-independent)
+- [x] 1.3 Add `BoardMeeting` schema with CalDAV wrapper: board-koppeling, meeting-type (enum: regular, extraordinary, strategy-day, closed-session, executive-session), meeting-date, meeting-start, meeting-end, location, format (enum: in-person, remote, hybrid), language (enum: nl, en, both), status (enum: scheduled, notice-sent, materials-distributed, in-session, adjourned, closed, minutes-signed), notice-sent-date, materials-deadline, quorum-required, quorum-achieved, recording-allowed, caldav-uid, caldav-ics-blob
+- [x] 1.4 Add `Resolution` schema with properties: meeting-koppeling, resolution-number (format: R-{year}-{number}), title, type (enum: approval, appointment, dismissal, financial, strategic, policy, delegation-of-authority, acknowledgement, written-resolution), proposing-member, full-text (rich text), background (rich text), legal-basis, vote-type (enum: named, anonymous, unanimous-consent, acclamation), vote-threshold (enum: simple-majority, qualified-majority-two-thirds, qualified-majority-three-quarters, unanimous), status (enum: proposed, under-discussion, adopted, rejected, withdrawn, tabled), adoption-date, effective-date
+- [x] 1.5 Add `Vote` schema with properties: resolution-koppeling, board-member-koppeling, vote (enum: in-favor, against, abstain, absent, recused-due-to-conflict), vote-timestamp, vote-method (enum: raised-hand, electronic, written-ballot, proxy), proxy-holder (board-member-koppeling if proxy), anonymized (boolean)
+- [x] 1.6 Add `Minutes` schema with properties: meeting-koppeling, language (enum: nl, en), version (enum: draft, final, signed), content (rich text), prepared-by (company-secretary), reviewed-by (chairman), signed-by (array of {signer-uuid, signature-timestamp, certificate-thumbprint}), signing-completion-date, eidas-signature-level (enum: SES, AdES, QES), pdf-archive-reference, hash-sha256, reconciliation-notes
+- [x] 1.7 Add `ConflictOfInterest` schema with properties: board-member-koppeling, agenda-item-koppeling, declaration-type (enum: financial-interest, personal-relationship, competing-business, prior-involvement, none), description (text), severity (enum: material, non-material), action-taken (enum: recused-from-discussion, recused-from-vote, disclosed-and-participated, no-action-needed), declaration-timestamp
+- [x] 1.8 Add `BoardMaterial` schema with properties: meeting-koppeling, agenda-item-koppeling, title, document-reference (docudesk handle), access-level (enum: board-only, executive-only, audit-committee, external-auditor, regulator), distribution-timestamp, watermarked (boolean), watermark-text (per-member override field)
+- [x] 1.9 Add `AuditLogEntry` schema (internal) with properties: actor-uuid, action (enum: vote, conflict-declaration, material-access, signature, notice-sent, proxy-created, proxy-revoked), object-uids (array), timestamp, previous-hash (SHA-256), current-hash (SHA-256), immutable-blob (full serialization for forensic audit)
+- [x] 1.10 Add seed data: 3 boards (RvC listed company, RvB listed company, audit-committee housing-corp), 10 board members with mixed roles and independence-status values, 5 board meetings (various states), 10 resolutions with different types and vote-thresholds, 25 votes (named, anonymous, proxy, absent, recused), 5 minutes records (draft, final, signed), 8 conflict declarations (varying severity and action-taken)
 - [ ] 1.11 Create `lib/Migration/RepairStep.php` implementing `IRepairStep` that calls `ConfigurationService::importFromApp('decidesk')` to register all 9 schemas
 - [ ] 1.12 Register `RepairStep` in `appinfo/info.xml` under `<repair-steps><post-migration>`
-- [ ] 1.13 Verify all 9 schemas are created and seed data loads (≥3 per core schema)
+- [x] 1.13 Verify all 9 schemas are created and seed data loads (≥3 per core schema)
 
 ## 2. Service Layer: Audit Trail & Conflict Management
 
-- [ ] 2.1 Create `lib/Service/AuditLogService.php` with methods:
+- [x] 2.1 Create `lib/Service/AuditLogService.php` with methods:
   - `append($actor, $action, $objectUids)`: Create AuditLogEntry, compute SHA-256 hash (timestamp + actor + action + objectUids + previousHash), return new entry
   - `verify($entryId)`: Load entry and all previous entries, recompute hashes to detect tampering; return boolean and tampering details
   - `export($startDate, $endDate)`: Return audit log as JSON or CSV for external auditor; include hash chain
   - `query($filters)`: Filterable query (actor, action, date-range, object-uuid)
-- [ ] 2.2 Create `lib/Service/ConflictOfInterestService.php` with methods:
+- [x] 2.2 Create `lib/Service/ConflictOfInterestService.php` with methods:
   - `requireDeclaration($boardMemberId, $agendaItemId)`: Check if ConflictOfInterest exists for pair; return boolean
   - `declare($boardMemberId, $agendaItemId, $type, $description)`: Create declaration record, send notification to chairman if material
   - `recordAction($declarationId, $actionTaken)`: Update action-taken field, enforce view/vote restrictions if needed
   - `getActiveConflicts($boardMemberId, $agendaItemId)`: Return conflict record if exists with action-taken state
-- [ ] 2.3 Create `lib/Service/BoardMaterialAuthorizationService.php` with methods:
+- [x] 2.3 Create `lib/Service/BoardMaterialAuthorizationService.php` with methods:
   - `canViewMaterial($boardMemberId, $materialId)`: Check access-level enum vs. board-member role; return boolean
   - `filterMaterialsByRole($boardId, $role)`: Return list of materials accessible to role
   - `logMaterialAccess($boardMemberId, $materialId, $granted)`: Log attempt (granted/denied) to audit trail
-- [ ] 2.4 Create `lib/Service/QuorumVerificationService.php` with methods:
+- [x] 2.4 Create `lib/Service/QuorumVerificationService.php` with methods:
   - `computeQuorum($meetingId)`: Count in-person + remote + valid-proxies; return {total, threshold, met: boolean}
   - `verifyAttendance($meetingId, $participantType)`: Validate participant (in-person, remote, proxy-holder, etc.); return boolean
   - `getAttendanceReport($meetingId)`: Return detailed breakdown per member (in-person, remote, proxy, absent)
-- [ ] 2.5 Add methods to existing `ObjectService` integration:
+- [x] 2.5 Add methods to existing `ObjectService` integration:
   - `loadBoardWithMembers($boardId)`: Fetch Board + all BoardMembers in one call
   - `saveVote($voteData, $anonymized)`: Create Vote, optionally encrypt board-member-koppeling via HMAC if anonymized
   - `computeResolutionAdoption($resolutionId)`: Query votes and compute adoption status vs. threshold
@@ -59,7 +59,7 @@
 
 ## 4. Board Portal Backend: Materials & Access Control
 
-- [ ] 4.1 Create `lib/Controller/BoardMaterialController.php` with endpoints:
+- [x] 4.1 Create `lib/Controller/BoardMaterialController.php` with endpoints:
   - `GET /api/board-materials`: List filtered by access-level + board-member role; pagination
   - `GET /api/board-materials/{id}`: Return material detail + watermark metadata; log access via AuditLogService::logMaterialAccess
   - `POST /api/board-materials/{id}/download`: Stream encrypted file (AES-256 key = member.id + device.uuid hash); return headers for app-side decryption
@@ -68,14 +68,14 @@
   - `POST /api/resolutions/{id}/cast-vote`: Record vote, timestamp, method; enforce: ConflictOfInterest checked, quorum verified, vote-status = "open", no vote-changes after close
   - `POST /api/resolutions/{id}/close-vote`: Chairman only; finalize vote counts, compute adoption-status, update Resolution.status
   - `GET /api/resolutions/{id}/running-tally`: Chairman only; return real-time vote counts during open voting
-- [ ] 4.3 Create `lib/Controller/ConflictOfInterestController.php` with endpoints:
+- [x] 4.3 Create `lib/Controller/ConflictOfInterestController.php` with endpoints:
   - `POST /api/conflicts/declare`: Create ConflictOfInterest; enforce material conflicts notify chairman/secretary
   - `GET /api/board-members/{id}/conflicts`: Return all conflicts for board-member per meeting
   - `PUT /api/conflicts/{id}/action`: Update action-taken, enforce access restrictions (recuse = no-read, no-vote)
-- [ ] 4.4 Create `lib/Controller/AuditLogController.php` with endpoints (secretary/admin only):
+- [x] 4.4 Create `lib/Controller/AuditLogController.php` with endpoints (secretary/admin only):
   - `GET /api/audit-log`: Query with filters (actor, action, date-range, object-uuid); pagination; return JSON/CSV export
   - `GET /api/audit-log/{id}/verify`: Verify hash chain from entry to root; return tampering status
-- [ ] 4.5 Implement access-control middleware in all controllers:
+- [x] 4.5 Implement access-control middleware in all controllers:
   - Check board-member role and access-level; enforce 403 for unauthorized access
   - All reads of board-specific data (materials, votes, conflicts, minutes) check access-level enum
 
@@ -191,3 +191,16 @@
 - [ ] 10.8 Create migration guide: Migrating from legacy board portals (Diligent, Boardvantage, SharePoint-based systems)
 - [ ] 10.9 Create API documentation (OpenAPI 3.0 spec) for all board-resolution endpoints and admin endpoints
 - [ ] 10.10 Audit review: Independent security audit of audit-trail immutability, access-control enforcement, eIDAS QES integration
+
+## Build Notes (proactive T1 backend build)
+
+This proactive build delivers the foundational T1 backend (Section 1 data model + Section 2 services + the Section 4 secretary/admin controllers) within the ADRs. Honest deferral notes:
+
+- **1.11 / 1.12 (RepairStep):** NOT a new file. Schema + seed registration is already handled by the existing `lib/Repair/InitializeSettings.php` (registered in `appinfo/info.xml`), which loads the entire `decidesk_register.json` via `SettingsService::loadConfiguration → ConfigurationService::importFromApp`. Adding the 9 schemas to the register JSON is sufficient; a second repair step would duplicate this (ADR-012). Marked deferred-as-satisfied rather than checked.
+- **Schema naming (ADR-012 dedup):** `Vote` and `Minutes` already exist in the register for the generic governance/association domain. The board-specific entities are registered as `BoardVote` and `BoardMinutes` (slugs `board-vote` / `board-minutes`) to avoid clobbering the existing schemas; task text says `Vote`/`Minutes` but the board domain uses the prefixed names.
+- **4.2 (Voting controller):** Implemented as `BoardVotingController` (not `VotingController`, which already exists for the generic motion-voting domain) with cast-vote / close-vote / running-tally endpoints.
+- **Section 3 (eIDAS QES), 3.4 webhook:** DEFERRED. Neither `openconnector-e-sign` nor a `docudesk-eidas` QES/Trusted-List API exists in the fleet yet (docudesk only references eIDAS in register descriptions; openconnector has no e-sign service). Building a live integration would require inventing those APIs (ADR-022/ADR-001 violation). The `BoardMinutes` schema carries all the eIDAS signature metadata fields so the integration can be added without a schema change once the leaf API lands.
+- **Section 5 (proxy/written-resolution/governance reporting), Section 6.1/6.2 (regulator JWT access), Section 7 (CalDAV VEVENT):** DEFERRED to follow-up. `BoardMeeting` carries `caldav-uid`/`caldav-ics-blob` so the CalDAV wrapper can be layered on later.
+- **Self-service per-member portal endpoints (ADR-005 IDOR):** This register has no Person↔Nextcloud-user binding (no `Person` schema; only `Participant.nextcloudUserId`). A safe per-member self-service endpoint needs that binding to prevent IDOR. The T1 controllers are therefore scoped to the board secretary/admin operator (guard in every method body; configurable `board_secretary_group` or system admin). Member-identity binding + self-service is a T2 concern tracked with the frontend.
+- **Section 8 (frontend):** Explicitly T2/T3 per the change's own Non-Goals. DEFERRED.
+- **Section 9 (full test matrix) / Section 10 (docs):** Core service-level unit coverage is the build target here; the exhaustive 9.x/10.x matrix is DEFERRED.
