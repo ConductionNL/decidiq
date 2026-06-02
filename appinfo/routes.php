@@ -1,4 +1,18 @@
 <?php
+/**
+ * Decidesk Routes
+ *
+ * Application route definitions for the Decidesk Nextcloud app.
+ *
+ * @category AppInfo
+ * @package  OCA\Decidesk\AppInfo
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2024 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @link https://conduction.nl
+ */
 
 declare(strict_types=1);
 
@@ -15,36 +29,36 @@ return [
         ['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],
 
         // Analytics endpoints — action item metrics and completion rates.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.
         ['name' => 'analytics#getSummary',             'url' => '/api/analytics/action-items',                 'verb' => 'GET'],
         ['name' => 'analytics#getCompletionRates',     'url' => '/api/analytics/action-items/completion-rates', 'verb' => 'GET'],
         ['name' => 'analytics#getMyItems',             'url' => '/api/analytics/action-items/my-items',         'verb' => 'GET'],
 
         // Live meeting endpoints — live decision recording during active meetings.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.
         ['name' => 'liveMeeting#recordLiveDecision', 'url' => '/api/meetings/{meetingId}/live-decisions', 'verb' => 'POST'],
 
         // Minutes endpoints — specific routes must precede the wildcard catch-all.
-        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
         ['name' => 'minutes#generateDraft',   'url' => '/api/minutes/{minutesId}/generate-draft',  'verb' => 'POST'],
         ['name' => 'minutes#transition',      'url' => '/api/minutes/{minutesId}/transition',       'verb' => 'POST'],
 
         // ALV minutes endpoints.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.
         ['name' => 'minutes#generateALVDraft',    'url' => '/api/minutes/{minutesId}/generate-alv', 'verb' => 'POST'],
         ['name' => 'minutes#distributeALVMinutes', 'url' => '/api/minutes/{minutesId}/distribute',  'verb' => 'POST'],
 
         // Action item extraction endpoints.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.
         ['name' => 'minutes#extractActionItems',         'url' => '/api/minutes/{minutesId}/extract-action-items',              'verb' => 'POST'],
         ['name' => 'minutes#saveExtractedActionItems',   'url' => '/api/minutes/{minutesId}/save-extracted-action-items',       'verb' => 'POST'],
 
         // Minutes approval endpoints.
-        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6
+        // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.
         ['name' => 'minutes#submitForApproval',          'url' => '/api/minutes/{minutesId}/submit-for-approval',               'verb' => 'POST'],
 
         // Decision endpoints — server-side publish enforces governance access control.
-        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+        // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2.
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
 
         // Meeting lifecycle transitions (CRUD is handled by OpenRegister's object API directly).
@@ -76,13 +90,13 @@ return [
         ['name' => 'voting#proxy',       'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'POST'],
         ['name' => 'voting#revokeProxy', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'DELETE'],
 
-        // Voting behaviour (stats) routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+        // Voting behaviour (stats) routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1.
         ['name' => 'votingBehaviour#getStats', 'url' => '/api/voting-behaviour/{participantId}', 'verb' => 'GET'],
 
-        // Projection public-state routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+        // Projection public-state routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2.
         ['name' => 'projection#publicState', 'url' => '/api/voting-rounds/{id}/public-state', 'verb' => 'GET'],
 
-        // Motion forwarding routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+        // Motion forwarding routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3.
         ['name' => 'motion#forward', 'url' => '/api/motions/{id}/forward', 'verb' => 'POST'],
 
         // Public REST API — versioned v1 (REQ-API-001..004).
@@ -99,13 +113,13 @@ return [
         ['name' => 'api#show',               'url' => '/api/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
 
         // ORI API 1.4 endpoints (REQ-ORI-001..004).
-        // @spec openspec/changes/p4-integration/tasks.md#task-11
+        // @spec openspec/changes/p4-integration/tasks.md#task-11.
         ['name' => 'ori#preflight',     'url' => '/api/ori/v1/{resource}',      'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#preflightItem', 'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#index',         'url' => '/api/ori/v1/{resource}',      'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
 
-        // p4-collaboration routes — @spec openspec/changes/p4-collaboration/tasks.md.
+        // P4-collaboration routes — @spec openspec/changes/p4-collaboration/tasks.md.
         // Task lifecycle (state machine + delegator-only reclaim).
         ['name' => 'task#status',  'url' => '/api/tasks/{id}/status',  'verb' => 'POST'],
         ['name' => 'task#reclaim', 'url' => '/api/tasks/{id}/reclaim', 'verb' => 'POST'],
