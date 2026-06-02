@@ -47,13 +47,13 @@ class MotionController extends Controller
     /**
      * Constructor for MotionController.
      *
-     * @param IRequest             $request             The request object
-     * @param MotionService        $motionService       The motion service
-     * @param IUserSession         $userSession         The user session
-     * @param IGroupManager        $groupManager        The group manager
-     * @param IAppConfig           $appConfig           The app config
-     * @param ParticipantResolver  $participantResolver Per-meeting participant/role resolver
-     * @param ContainerInterface   $container           DI container (lazy-loads ObjectService)
+     * @param IRequest            $request             The request object
+     * @param MotionService       $motionService       The motion service
+     * @param IUserSession        $userSession         The user session
+     * @param IGroupManager       $groupManager        The group manager
+     * @param IAppConfig          $appConfig           The app config
+     * @param ParticipantResolver $participantResolver Per-meeting participant/role resolver
+     * @param ContainerInterface  $container           DI container (lazy-loads ObjectService)
      *
      * @return void
      *

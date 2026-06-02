@@ -94,12 +94,12 @@ class VotingBehaviourController extends Controller
         // participantId is an OR UUID; $uid is a Nextcloud UID — they are different
         // namespaces and must never be compared directly. Resolve the participant object
         // and check the nextcloudUserId field to determine ownership.
-        $isOwnStats = false;
+        $isOwnStats        = false;
         $participantEntity = $this->objectService->find($participantId, [], false, 'decidesk', 'participant');
         if ($participantEntity !== null) {
-            $participant = $participantEntity->jsonSerialize();
+            $participant     = $participantEntity->jsonSerialize();
             $nextcloudUserId = $participant['nextcloudUserId'] ?? ($participant['owner'] ?? null);
-            $isOwnStats = ($nextcloudUserId !== null && $nextcloudUserId === $uid);
+            $isOwnStats      = ($nextcloudUserId !== null && $nextcloudUserId === $uid);
         }
 
         $canViewOther = $isOwnStats || $this->groupManager->isAdmin($uid);
