@@ -10,6 +10,6 @@ jobs:
   deploy:
     # Reusable workflow defaults the source folder to `docs/` — the
     # Docusaurus site now lives there (journeydoc / ADR-030).
-    uses: ConductionNL/.github/.github/workflows/documentation.yml@main
+    uses: Conduction/.github/.github/workflows/documentation.yml@main
     with:
       cname: decidesk.conduction.nl
