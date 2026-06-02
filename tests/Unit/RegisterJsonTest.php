@@ -87,11 +87,15 @@ class RegisterJsonTest extends TestCase
      * extended the register with 7 additional schemas for citizen engagement
      * (BudgetProposal, CitizenPanel, CitizenVote, Deliberation, Notification,
      * ParticipatoryBudget, PublicConsultation), bringing the total to 24.
+     * board-meeting-resolutions adds 9 board-governance schemas (Board, BoardMember,
+     * BoardMeeting, Resolution, BoardVote, BoardMinutes, ConflictOfInterest,
+     * BoardMaterial, AuditLogEntry), bringing the total to 33.
      *
      * @return void
      *
      * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
      * @spec openspec/changes/p3-citizen-participation/tasks.md
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-1
      */
     public function testAllSeventeenSchemasExist(): void
     {
@@ -122,12 +126,22 @@ class RegisterJsonTest extends TestCase
             'Notification',
             'ParticipatoryBudget',
             'PublicConsultation',
+            // board-meeting-resolutions board-governance schemas (9).
+            'Board',
+            'BoardMember',
+            'BoardMeeting',
+            'Resolution',
+            'BoardVote',
+            'BoardMinutes',
+            'ConflictOfInterest',
+            'BoardMaterial',
+            'AuditLogEntry',
         ];
 
         self::assertCount(
-            expectedCount: 24,
+            expectedCount: 33,
             haystack: $this->schemas,
-            message: 'Register must contain exactly 24 schemas (17 p1 core + 7 p3 citizen participation)'
+            message: 'Register must contain exactly 33 schemas (17 p1 core + 7 p3 citizen participation + 9 board governance)'
         );
 
         foreach ($expected as $name) {
