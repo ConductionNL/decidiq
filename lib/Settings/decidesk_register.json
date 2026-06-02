@@ -2547,6 +2547,1277 @@
             "description": "When the citizen read the in-app notification."
           }
         }
+      },
+      "Board": {
+        "slug": "board",
+        "icon": "AccountTie",
+        "version": "0.1.0",
+        "title": "Board",
+        "description": "A corporate or institutional board (RvC, RvB, audit/remuneration/nomination/risk committee, one-tier board) with governance-model and statuten reference.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Organization",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "type",
+          "governance-model"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Board name.",
+            "example": "Raad van Commissarissen ACME N.V."
+          },
+          "type": {
+            "type": "string",
+            "description": "Board type.",
+            "enum": [
+              "raad-van-commissarissen",
+              "raad-van-bestuur",
+              "audit-committee",
+              "remuneration-committee",
+              "nomination-committee",
+              "risk-committee",
+              "one-tier-board"
+            ],
+            "example": "raad-van-commissarissen"
+          },
+          "legal-entity": {
+            "type": "string",
+            "description": "Legal entity the board governs (name + KvK).",
+            "example": "ACME N.V. (KvK: 01234567)"
+          },
+          "governance-model": {
+            "type": "string",
+            "description": "Governance model.",
+            "enum": [
+              "two-tier",
+              "one-tier"
+            ],
+            "example": "two-tier"
+          },
+          "establishment-date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date the board was established."
+          },
+          "statuten-reference": {
+            "type": "string",
+            "description": "Reference to the article of the statuten governing this board.",
+            "example": "ACME NV Statuten artikel 3.2"
+          },
+          "chairman": {
+            "type": "string",
+            "description": "BoardMember UUID of the chairman."
+          },
+          "vice-chairman": {
+            "type": "string",
+            "description": "BoardMember UUID of the vice-chairman."
+          },
+          "secretary": {
+            "type": "string",
+            "description": "BoardMember/company-secretary UUID."
+          },
+          "default-language": {
+            "type": "string",
+            "description": "Default minutes/notice language.",
+            "enum": ["nl", "en"],
+            "default": "nl",
+            "example": "nl"
+          },
+          "additional-languages": {
+            "type": "array",
+            "description": "Additional languages the board operates in.",
+            "items": { "type": "string" }
+          },
+          "quorum-rule": {
+            "type": "string",
+            "description": "Quorum calculation method.",
+            "enum": ["majority", "two-thirds", "three-quarters", "unanimous"],
+            "default": "majority",
+            "example": "majority"
+          },
+          "notice-deadline-days": {
+            "type": "integer",
+            "description": "Statutory minimum notice period in days before a meeting.",
+            "default": 7,
+            "example": 7
+          },
+          "material-retention-days": {
+            "type": "integer",
+            "description": "Retention period for board materials and audit log (default 7 years per MCCG).",
+            "default": 2555,
+            "example": 2555
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": { "register": "decidesk", "schema": "Board", "slug": "rvc-acme-nv" },
+            "name": "Raad van Commissarissen ACME N.V.",
+            "type": "raad-van-commissarissen",
+            "legal-entity": "ACME N.V. (KvK: 01234567)",
+            "governance-model": "two-tier",
+            "establishment-date": "2010-01-15T00:00:00Z",
+            "statuten-reference": "ACME NV Statuten artikel 3.2",
+            "default-language": "nl",
+            "additional-languages": ["en"],
+            "quorum-rule": "majority",
+            "notice-deadline-days": 7,
+            "material-retention-days": 2555
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "Board", "slug": "rvb-acme-nv" },
+            "name": "Raad van Bestuur ACME N.V.",
+            "type": "raad-van-bestuur",
+            "legal-entity": "ACME N.V. (KvK: 01234567)",
+            "governance-model": "two-tier",
+            "establishment-date": "2010-01-15T00:00:00Z",
+            "statuten-reference": "ACME NV Statuten artikel 4.1",
+            "default-language": "nl",
+            "additional-languages": ["en"],
+            "quorum-rule": "majority",
+            "notice-deadline-days": 7,
+            "material-retention-days": 2555
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "Board", "slug": "audit-committee-woningbouw-noord" },
+            "name": "Auditcommissie Woningbouw Noord",
+            "type": "audit-committee",
+            "legal-entity": "Woningbouw Noord U.A. (KvK: 98765432)",
+            "governance-model": "one-tier",
+            "establishment-date": "2015-06-01T00:00:00Z",
+            "statuten-reference": "Woningbouw Noord Statuutartikel 2.3",
+            "default-language": "nl",
+            "additional-languages": [],
+            "quorum-rule": "two-thirds",
+            "notice-deadline-days": 14,
+            "material-retention-days": 2555
+          }
+        ]
+      },
+      "BoardMember": {
+        "slug": "board-member",
+        "icon": "AccountTieOutline",
+        "version": "0.1.0",
+        "title": "BoardMember",
+        "description": "Membership of a person on a board, with role, term, independence-status and nevenfuncties.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Role",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "board-koppeling",
+          "rol"
+        ],
+        "properties": {
+          "persoon-koppeling": {
+            "type": "string",
+            "description": "UUID of the Person entity."
+          },
+          "board-koppeling": {
+            "type": "string",
+            "description": "UUID of the Board entity."
+          },
+          "rol": {
+            "type": "string",
+            "description": "Role of the member on the board.",
+            "enum": [
+              "chairman",
+              "vice-chairman",
+              "member",
+              "executive-member",
+              "non-executive-member",
+              "independent-member",
+              "employee-representative",
+              "secretary"
+            ],
+            "example": "independent-member"
+          },
+          "appointment-date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date of appointment."
+          },
+          "appointment-resolution-reference": {
+            "type": "string",
+            "description": "Resolution number that appointed this member.",
+            "example": "R-2020-001"
+          },
+          "term-end-date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End of the current term."
+          },
+          "reappointment-eligible": {
+            "type": "boolean",
+            "description": "Whether the member may be reappointed.",
+            "default": true
+          },
+          "nationality": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 nationality code.",
+            "example": "NL"
+          },
+          "nevenfuncties": {
+            "type": "array",
+            "description": "Ancillary positions (transparency requirement).",
+            "items": { "type": "string" }
+          },
+          "independence-status": {
+            "type": "string",
+            "description": "Independence status per MCCG.",
+            "enum": ["independent", "non-independent"],
+            "example": "independent"
+          }
+        },
+        "x-openregister-relations": {
+          "board": {
+            "register": "decidesk",
+            "schema": "Board",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-anna-bergstra" },
+            "board-koppeling": "rvc-acme-nv",
+            "rol": "chairman",
+            "appointment-date": "2020-03-15T00:00:00Z",
+            "appointment-resolution-reference": "R-2020-001",
+            "term-end-date": "2024-03-14T23:59:59Z",
+            "reappointment-eligible": true,
+            "nationality": "NL",
+            "nevenfuncties": ["Bestuurslid Stichting Kunst en Cultuur Rotterdam"],
+            "independence-status": "independent"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-maria-petrov" },
+            "board-koppeling": "rvc-acme-nv",
+            "rol": "non-executive-member",
+            "appointment-date": "2021-06-10T00:00:00Z",
+            "appointment-resolution-reference": "R-2021-008",
+            "term-end-date": "2025-06-09T23:59:59Z",
+            "reappointment-eligible": true,
+            "nationality": "RU",
+            "nevenfuncties": ["CFO subsidiary Amsterdam"],
+            "independence-status": "non-independent"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-peter-vermeer" },
+            "board-koppeling": "rvc-acme-nv",
+            "rol": "independent-member",
+            "appointment-date": "2022-01-01T00:00:00Z",
+            "appointment-resolution-reference": "R-2022-002",
+            "term-end-date": "2026-12-31T23:59:59Z",
+            "reappointment-eligible": true,
+            "nationality": "NL",
+            "nevenfuncties": [],
+            "independence-status": "independent"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-sophie-jansen" },
+            "board-koppeling": "rvc-acme-nv",
+            "rol": "secretary",
+            "appointment-date": "2019-09-01T00:00:00Z",
+            "term-end-date": "2027-08-31T23:59:59Z",
+            "reappointment-eligible": true,
+            "nationality": "NL",
+            "nevenfuncties": [],
+            "independence-status": "independent"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-carlos-diaz" },
+            "board-koppeling": "rvb-acme-nv",
+            "rol": "executive-member",
+            "appointment-date": "2018-01-01T00:00:00Z",
+            "appointment-resolution-reference": "R-2018-012",
+            "term-end-date": "2026-12-31T23:59:59Z",
+            "reappointment-eligible": true,
+            "nationality": "ES",
+            "nevenfuncties": [],
+            "independence-status": "non-independent"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-laura-smit" },
+            "board-koppeling": "rvb-acme-nv",
+            "rol": "executive-member",
+            "appointment-date": "2019-04-01T00:00:00Z",
+            "appointment-resolution-reference": "R-2019-005",
+            "term-end-date": "2027-03-31T23:59:59Z",
+            "reappointment-eligible": true,
+            "nationality": "NL",
+            "nevenfuncties": [],
+            "independence-status": "non-independent"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-johan-brouwer" },
+            "board-koppeling": "audit-committee-woningbouw-noord",
+            "rol": "chairman",
+            "appointment-date": "2019-01-15T00:00:00Z",
+            "appointment-resolution-reference": "R-2019-003",
+            "term-end-date": "2027-01-14T23:59:59Z",
+            "reappointment-eligible": true,
+            "nationality": "NL",
+            "nevenfuncties": ["Bestuurslid Maatschappij Belangen"],
+            "independence-status": "independent"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-fatima-elamrani" },
+            "board-koppeling": "audit-committee-woningbouw-noord",
+            "rol": "member",
+            "appointment-date": "2020-03-01T00:00:00Z",
+            "appointment-resolution-reference": "R-2020-004",
+            "term-end-date": "2028-02-29T23:59:59Z",
+            "reappointment-eligible": true,
+            "nationality": "NL",
+            "nevenfuncties": [],
+            "independence-status": "independent"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-henk-bakker" },
+            "board-koppeling": "audit-committee-woningbouw-noord",
+            "rol": "member",
+            "appointment-date": "2021-07-01T00:00:00Z",
+            "appointment-resolution-reference": "R-2021-011",
+            "term-end-date": "2025-06-30T23:59:59Z",
+            "reappointment-eligible": false,
+            "nationality": "NL",
+            "nevenfuncties": ["Penningmeester Sportvereniging Noord"],
+            "independence-status": "independent"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMember", "slug": "bm-noor-yilmaz" },
+            "board-koppeling": "rvc-acme-nv",
+            "rol": "employee-representative",
+            "appointment-date": "2023-01-01T00:00:00Z",
+            "appointment-resolution-reference": "R-2023-001",
+            "term-end-date": "2027-12-31T23:59:59Z",
+            "reappointment-eligible": true,
+            "nationality": "NL",
+            "nevenfuncties": [],
+            "independence-status": "non-independent"
+          }
+        ]
+      },
+      "BoardMeeting": {
+        "slug": "board-meeting",
+        "icon": "CalendarAccount",
+        "version": "0.1.0",
+        "title": "BoardMeeting",
+        "description": "A board meeting. Thin OpenRegister wrapper over a CalDAV VEVENT (ADR-002) used for relational queries; meeting data lives in the calendar via X-DECIDESK-* properties.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Event",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "board-koppeling",
+          "meeting-type"
+        ],
+        "properties": {
+          "board-koppeling": {
+            "type": "string",
+            "description": "UUID of the Board entity."
+          },
+          "meeting-type": {
+            "type": "string",
+            "description": "Type of board meeting.",
+            "enum": ["regular", "extraordinary", "strategy-day", "closed-session", "executive-session"],
+            "example": "regular"
+          },
+          "meeting-date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scheduled meeting date."
+          },
+          "meeting-start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Meeting start time."
+          },
+          "meeting-end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Meeting end time."
+          },
+          "location": {
+            "type": "string",
+            "description": "Meeting location."
+          },
+          "format": {
+            "type": "string",
+            "description": "Meeting format.",
+            "enum": ["in-person", "remote", "hybrid"],
+            "example": "in-person"
+          },
+          "language": {
+            "type": "string",
+            "description": "Meeting working language.",
+            "enum": ["nl", "en", "both"],
+            "example": "nl"
+          },
+          "status": {
+            "type": "string",
+            "description": "Board meeting lifecycle state.",
+            "enum": ["scheduled", "notice-sent", "materials-distributed", "in-session", "adjourned", "closed", "minutes-signed"],
+            "default": "scheduled",
+            "example": "scheduled"
+          },
+          "notice-sent-date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the formal notice was distributed."
+          },
+          "materials-deadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Deadline for material distribution."
+          },
+          "quorum-required": {
+            "type": "integer",
+            "description": "Number of members required for quorum."
+          },
+          "quorum-achieved": {
+            "type": "boolean",
+            "description": "Whether quorum was achieved.",
+            "default": false
+          },
+          "recording-allowed": {
+            "type": "boolean",
+            "description": "Whether recording is permitted.",
+            "default": false
+          },
+          "caldav-uid": {
+            "type": "string",
+            "description": "UID of the backing CalDAV VEVENT."
+          },
+          "caldav-ics-blob": {
+            "type": "string",
+            "description": "Cached ICS serialization of the VEVENT for offline relational reads."
+          }
+        },
+        "x-openregister-relations": {
+          "board": {
+            "register": "decidesk",
+            "schema": "Board",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMeeting", "slug": "meeting-rvc-2026-05-28" },
+            "board-koppeling": "rvc-acme-nv",
+            "meeting-type": "regular",
+            "meeting-date": "2026-05-28T14:00:00+02:00",
+            "meeting-start": "2026-05-28T14:00:00+02:00",
+            "meeting-end": "2026-05-28T16:30:00+02:00",
+            "location": "Amsterdam, Boardroom 3e verdieping",
+            "format": "in-person",
+            "language": "nl",
+            "status": "materials-distributed",
+            "notice-sent-date": "2026-05-21T09:00:00Z",
+            "materials-deadline": "2026-05-27T23:59:59Z",
+            "quorum-required": 4,
+            "quorum-achieved": true,
+            "recording-allowed": false,
+            "caldav-uid": "rvc-2026-05-28@acme.nl"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMeeting", "slug": "meeting-rvb-2026-06-01" },
+            "board-koppeling": "rvb-acme-nv",
+            "meeting-type": "executive-session",
+            "meeting-date": "2026-06-01T10:00:00+02:00",
+            "meeting-start": "2026-06-01T10:00:00+02:00",
+            "meeting-end": "2026-06-01T11:45:00+02:00",
+            "location": "Remote (Teams link in notice)",
+            "format": "remote",
+            "language": "en",
+            "status": "notice-sent",
+            "notice-sent-date": "2026-05-30T08:00:00Z",
+            "materials-deadline": "2026-05-31T23:59:59Z",
+            "quorum-required": 3,
+            "quorum-achieved": false,
+            "recording-allowed": false,
+            "caldav-uid": "rvb-exec-2026-06-01@acme.nl"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMeeting", "slug": "meeting-audit-2026-04-20" },
+            "board-koppeling": "audit-committee-woningbouw-noord",
+            "meeting-type": "regular",
+            "meeting-date": "2026-04-20T09:30:00+02:00",
+            "meeting-start": "2026-04-20T09:30:00+02:00",
+            "meeting-end": "2026-04-20T12:00:00+02:00",
+            "location": "Kantoor Woningbouw Noord",
+            "format": "hybrid",
+            "language": "nl",
+            "status": "minutes-signed",
+            "notice-sent-date": "2026-04-06T09:00:00Z",
+            "materials-deadline": "2026-04-19T23:59:59Z",
+            "quorum-required": 2,
+            "quorum-achieved": true,
+            "recording-allowed": false,
+            "caldav-uid": "audit-2026-04-20@woningbouw-noord.nl"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMeeting", "slug": "meeting-rvc-2026-03-12" },
+            "board-koppeling": "rvc-acme-nv",
+            "meeting-type": "strategy-day",
+            "meeting-date": "2026-03-12T09:00:00+01:00",
+            "meeting-start": "2026-03-12T09:00:00+01:00",
+            "meeting-end": "2026-03-12T17:00:00+01:00",
+            "location": "Landgoed De Horst, Driebergen",
+            "format": "in-person",
+            "language": "nl",
+            "status": "closed",
+            "notice-sent-date": "2026-02-26T09:00:00Z",
+            "materials-deadline": "2026-03-11T23:59:59Z",
+            "quorum-required": 4,
+            "quorum-achieved": true,
+            "recording-allowed": false,
+            "caldav-uid": "rvc-strategy-2026-03-12@acme.nl"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMeeting", "slug": "meeting-rvc-2026-07-09" },
+            "board-koppeling": "rvc-acme-nv",
+            "meeting-type": "extraordinary",
+            "meeting-date": "2026-07-09T15:00:00+02:00",
+            "meeting-start": "2026-07-09T15:00:00+02:00",
+            "meeting-end": "2026-07-09T16:00:00+02:00",
+            "location": "Amsterdam, Boardroom 3e verdieping",
+            "format": "hybrid",
+            "language": "nl",
+            "status": "scheduled",
+            "materials-deadline": "2026-07-08T23:59:59Z",
+            "quorum-required": 4,
+            "quorum-achieved": false,
+            "recording-allowed": false,
+            "caldav-uid": "rvc-extra-2026-07-09@acme.nl"
+          }
+        ]
+      },
+      "Resolution": {
+        "slug": "resolution",
+        "icon": "GavelOutline",
+        "version": "0.1.0",
+        "title": "Resolution",
+        "description": "A formal board resolution with vote-type, threshold and adoption status. Adoption status is computed declaratively from related Vote aggregates (ADR-031).",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:LegislationObject",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "meeting-koppeling",
+          "title",
+          "type",
+          "vote-threshold"
+        ],
+        "properties": {
+          "meeting-koppeling": {
+            "type": "string",
+            "description": "UUID of the BoardMeeting entity."
+          },
+          "resolution-number": {
+            "type": "string",
+            "description": "Resolution number (format R-{year}-{number}).",
+            "example": "R-2026-001"
+          },
+          "title": {
+            "type": "string",
+            "description": "Resolution title."
+          },
+          "type": {
+            "type": "string",
+            "description": "Resolution type.",
+            "enum": ["approval", "appointment", "dismissal", "financial", "strategic", "policy", "delegation-of-authority", "acknowledgement", "written-resolution"],
+            "example": "approval"
+          },
+          "proposing-member": {
+            "type": "string",
+            "description": "BoardMember UUID proposing the resolution."
+          },
+          "full-text": {
+            "type": "string",
+            "description": "Full text of the resolution (rich text)."
+          },
+          "background": {
+            "type": "string",
+            "description": "Background and rationale (rich text)."
+          },
+          "legal-basis": {
+            "type": "string",
+            "description": "Legal basis for the resolution."
+          },
+          "vote-type": {
+            "type": "string",
+            "description": "Voting modality.",
+            "enum": ["named", "anonymous", "unanimous-consent", "acclamation"],
+            "example": "named"
+          },
+          "vote-threshold": {
+            "type": "string",
+            "description": "Adoption threshold.",
+            "enum": ["simple-majority", "qualified-majority-two-thirds", "qualified-majority-three-quarters", "unanimous"],
+            "example": "simple-majority"
+          },
+          "status": {
+            "type": "string",
+            "description": "Resolution status.",
+            "enum": ["proposed", "under-discussion", "adopted", "rejected", "withdrawn", "tabled"],
+            "default": "proposed",
+            "example": "proposed"
+          },
+          "eligible-voter-count": {
+            "type": "integer",
+            "description": "Number of eligible voters for threshold computation.",
+            "default": 0
+          },
+          "adoption-date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date the resolution was adopted."
+          },
+          "effective-date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date the resolution takes effect."
+          }
+        },
+        "x-openregister-relations": {
+          "meeting": {
+            "register": "decidesk",
+            "schema": "BoardMeeting",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-aggregations": {
+          "votesInFavorCount": {
+            "metric": "count",
+            "schema": "Vote",
+            "filter": { "resolution-koppeling": "@self.id", "vote": "in-favor" }
+          },
+          "votesAgainstCount": {
+            "metric": "count",
+            "schema": "Vote",
+            "filter": { "resolution-koppeling": "@self.id", "vote": "against" }
+          },
+          "votesAbstainCount": {
+            "metric": "count",
+            "schema": "Vote",
+            "filter": { "resolution-koppeling": "@self.id", "vote": "abstain" }
+          }
+        },
+        "x-openregister-calculations": {
+          "thresholdAchieved": {
+            "type": "boolean",
+            "materialise": true,
+            "expression": {
+              "if": [
+                { "eq": [ { "prop": "vote-threshold" }, "unanimous" ] },
+                {
+                  "and": [
+                    { "gt": [ { "prop": "votesInFavorCount" }, 0 ] },
+                    { "eq": [ { "prop": "votesAgainstCount" }, 0 ] }
+                  ]
+                },
+                {
+                  "if": [
+                    { "eq": [ { "prop": "vote-threshold" }, "qualified-majority-two-thirds" ] },
+                    { "gte": [ { "mul": [ { "prop": "votesInFavorCount" }, 3 ] }, { "mul": [ { "prop": "eligible-voter-count" }, 2 ] } ] },
+                    {
+                      "if": [
+                        { "eq": [ { "prop": "vote-threshold" }, "qualified-majority-three-quarters" ] },
+                        { "gte": [ { "mul": [ { "prop": "votesInFavorCount" }, 4 ] }, { "mul": [ { "prop": "eligible-voter-count" }, 3 ] } ] },
+                        { "gt": [ { "prop": "votesInFavorCount" }, { "prop": "votesAgainstCount" } ] }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": { "register": "decidesk", "schema": "Resolution", "slug": "r-2026-001" },
+            "meeting-koppeling": "meeting-rvc-2026-05-28",
+            "resolution-number": "R-2026-001",
+            "title": "Approval of 2025 Annual Report and Financial Statements",
+            "type": "approval",
+            "full-text": "Resolved, that the Board approves the 2025 Annual Report and Financial Statements as presented.",
+            "legal-basis": "ACME Statuten artikel 5.3",
+            "vote-type": "named",
+            "vote-threshold": "simple-majority",
+            "status": "adopted",
+            "eligible-voter-count": 5,
+            "adoption-date": "2026-05-28T15:30:00+02:00",
+            "effective-date": "2026-05-28T15:30:00+02:00"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "Resolution", "slug": "r-2026-002" },
+            "meeting-koppeling": "meeting-rvc-2026-05-28",
+            "resolution-number": "R-2026-002",
+            "title": "Appointment of External Auditor (2026-2028)",
+            "type": "appointment",
+            "full-text": "Resolved, that the Board appoints Deloitte & Touche LLP as External Auditor for the period 2026-2028.",
+            "legal-basis": "EU Directive 2014/56",
+            "vote-type": "anonymous",
+            "vote-threshold": "qualified-majority-two-thirds",
+            "status": "adopted",
+            "eligible-voter-count": 5,
+            "adoption-date": "2026-05-28T15:45:00+02:00",
+            "effective-date": "2026-06-15T00:00:00+02:00"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "Resolution", "slug": "r-2026-003" },
+            "meeting-koppeling": "meeting-audit-2026-04-20",
+            "resolution-number": "R-2026-003",
+            "title": "Goedkeuring jaarrekening 2025 Woningbouw Noord",
+            "type": "approval",
+            "full-text": "Besloten, dat de auditcommissie de jaarrekening 2025 goedkeurt.",
+            "legal-basis": "Woningwet artikel 30",
+            "vote-type": "named",
+            "vote-threshold": "two-thirds",
+            "status": "adopted",
+            "eligible-voter-count": 3,
+            "adoption-date": "2026-04-20T11:30:00+02:00",
+            "effective-date": "2026-04-20T11:30:00+02:00"
+          }
+        ]
+      },
+      "BoardVote": {
+        "slug": "board-vote",
+        "icon": "VoteOutline",
+        "version": "0.1.0",
+        "title": "BoardVote",
+        "description": "An individual vote on a board Resolution. When anonymized, the member link is replaced by a per-resolution HMAC so the choice is unlinkable.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "resolution-koppeling",
+          "vote"
+        ],
+        "properties": {
+          "resolution-koppeling": {
+            "type": "string",
+            "description": "UUID of the Resolution entity."
+          },
+          "board-member-koppeling": {
+            "type": "string",
+            "description": "BoardMember UUID, or a per-resolution HMAC when anonymized."
+          },
+          "vote": {
+            "type": "string",
+            "description": "Vote choice.",
+            "enum": ["in-favor", "against", "abstain", "absent", "recused-due-to-conflict"],
+            "example": "in-favor"
+          },
+          "vote-timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the vote was cast."
+          },
+          "vote-method": {
+            "type": "string",
+            "description": "How the vote was cast.",
+            "enum": ["raised-hand", "electronic", "written-ballot", "proxy"],
+            "example": "electronic"
+          },
+          "proxy-holder": {
+            "type": "string",
+            "description": "BoardMember UUID of the proxy holder if cast by proxy."
+          },
+          "anonymized": {
+            "type": "boolean",
+            "description": "Whether the member link is HMAC-anonymized.",
+            "default": false
+          }
+        },
+        "x-openregister-relations": {
+          "resolution": {
+            "register": "decidesk",
+            "schema": "Resolution",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": { "register": "decidesk", "schema": "BoardVote", "slug": "vote-r2026-001-anna" },
+            "resolution-koppeling": "r-2026-001",
+            "board-member-koppeling": "bm-anna-bergstra",
+            "vote": "in-favor",
+            "vote-timestamp": "2026-05-28T15:28:00+02:00",
+            "vote-method": "electronic",
+            "anonymized": false
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardVote", "slug": "vote-r2026-001-maria" },
+            "resolution-koppeling": "r-2026-001",
+            "board-member-koppeling": "bm-maria-petrov",
+            "vote": "in-favor",
+            "vote-timestamp": "2026-05-28T15:29:00+02:00",
+            "vote-method": "electronic",
+            "anonymized": false
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardVote", "slug": "vote-r2026-001-peter" },
+            "resolution-koppeling": "r-2026-001",
+            "board-member-koppeling": "bm-peter-vermeer",
+            "vote": "in-favor",
+            "vote-timestamp": "2026-05-28T15:30:00+02:00",
+            "vote-method": "electronic",
+            "anonymized": false
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardVote", "slug": "vote-r2026-002-anon-1" },
+            "resolution-koppeling": "r-2026-002",
+            "board-member-koppeling": "hmac:2f7a9c0e",
+            "vote": "in-favor",
+            "vote-timestamp": "2026-05-28T15:43:00+02:00",
+            "vote-method": "electronic",
+            "anonymized": true
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardVote", "slug": "vote-r2026-002-anon-2" },
+            "resolution-koppeling": "r-2026-002",
+            "board-member-koppeling": "hmac:8b1d4f33",
+            "vote": "in-favor",
+            "vote-timestamp": "2026-05-28T15:44:00+02:00",
+            "vote-method": "electronic",
+            "anonymized": true
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardVote", "slug": "vote-r2026-001-proxy-carlos" },
+            "resolution-koppeling": "r-2026-001",
+            "board-member-koppeling": "bm-noor-yilmaz",
+            "vote": "abstain",
+            "vote-timestamp": "2026-05-28T15:31:00+02:00",
+            "vote-method": "proxy",
+            "proxy-holder": "bm-anna-bergstra",
+            "anonymized": false
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardVote", "slug": "vote-r2026-003-johan" },
+            "resolution-koppeling": "r-2026-003",
+            "board-member-koppeling": "bm-johan-brouwer",
+            "vote": "in-favor",
+            "vote-timestamp": "2026-04-20T11:28:00+02:00",
+            "vote-method": "raised-hand",
+            "anonymized": false
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardVote", "slug": "vote-r2026-003-fatima" },
+            "resolution-koppeling": "r-2026-003",
+            "board-member-koppeling": "bm-fatima-elamrani",
+            "vote": "in-favor",
+            "vote-timestamp": "2026-04-20T11:29:00+02:00",
+            "vote-method": "raised-hand",
+            "anonymized": false
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardVote", "slug": "vote-r2026-003-henk" },
+            "resolution-koppeling": "r-2026-003",
+            "board-member-koppeling": "bm-henk-bakker",
+            "vote": "against",
+            "vote-timestamp": "2026-04-20T11:29:30+02:00",
+            "vote-method": "raised-hand",
+            "anonymized": false
+          }
+        ]
+      },
+      "BoardMinutes": {
+        "slug": "board-minutes",
+        "icon": "FileDocumentEditOutline",
+        "version": "0.1.0",
+        "title": "BoardMinutes",
+        "description": "Minutes of a board meeting, per language, with eIDAS signature metadata and SHA-256 integrity anchor.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:CreativeWork",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "meeting-koppeling",
+          "language"
+        ],
+        "properties": {
+          "meeting-koppeling": {
+            "type": "string",
+            "description": "UUID of the BoardMeeting entity."
+          },
+          "language": {
+            "type": "string",
+            "description": "Language of this minutes version.",
+            "enum": ["nl", "en"],
+            "example": "nl"
+          },
+          "version": {
+            "type": "string",
+            "description": "Minutes lifecycle version.",
+            "enum": ["draft", "final", "signed"],
+            "default": "draft",
+            "example": "draft"
+          },
+          "content": {
+            "type": "string",
+            "description": "Minutes content (rich text)."
+          },
+          "prepared-by": {
+            "type": "string",
+            "description": "Company secretary UUID."
+          },
+          "reviewed-by": {
+            "type": "string",
+            "description": "Chairman UUID."
+          },
+          "signed-by": {
+            "type": "array",
+            "description": "Signatures applied.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "signer": { "type": "string" },
+                "signature-timestamp": { "type": "string", "format": "date-time" },
+                "certificate-thumbprint": { "type": "string" }
+              }
+            }
+          },
+          "signing-completion-date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When all required signatures were collected."
+          },
+          "eidas-signature-level": {
+            "type": "string",
+            "description": "eIDAS signature level achieved.",
+            "enum": ["SES", "AdES", "QES"]
+          },
+          "pdf-archive-reference": {
+            "type": "string",
+            "description": "docudesk handle of the signed PDF."
+          },
+          "hash-sha256": {
+            "type": "string",
+            "description": "SHA-256 hash of the signed PDF."
+          },
+          "reconciliation-notes": {
+            "type": "string",
+            "description": "Notes from multilingual reconciliation."
+          }
+        },
+        "x-openregister-relations": {
+          "meeting": {
+            "register": "decidesk",
+            "schema": "BoardMeeting",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMinutes", "slug": "minutes-rvc-2026-05-28-nl" },
+            "meeting-koppeling": "meeting-rvc-2026-05-28",
+            "language": "nl",
+            "version": "signed",
+            "content": "<h1>Notulen Raad van Commissarissen ACME N.V.</h1><p>Vergadering van 28 mei 2026, 14:00-16:30 uur.</p>",
+            "prepared-by": "bm-sophie-jansen",
+            "reviewed-by": "bm-anna-bergstra",
+            "signed-by": [
+              { "signer": "bm-anna-bergstra", "signature-timestamp": "2026-05-29T11:15:00Z", "certificate-thumbprint": "7d3a8f4c2e9b1a6c5d0e3f7a2b4c6d8e" },
+              { "signer": "bm-sophie-jansen", "signature-timestamp": "2026-05-29T11:20:00Z", "certificate-thumbprint": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6" }
+            ],
+            "signing-completion-date": "2026-05-29T11:20:00Z",
+            "eidas-signature-level": "QES",
+            "pdf-archive-reference": "docudesk://archive/pdf/rvc-2026-05-28-nl-signed.pdf",
+            "hash-sha256": "5a7f8c3b1d6e9a2f4c7b0e1a3d5f8c0b"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMinutes", "slug": "minutes-rvc-2026-05-28-en" },
+            "meeting-koppeling": "meeting-rvc-2026-05-28",
+            "language": "en",
+            "version": "signed",
+            "content": "<h1>Minutes Supervisory Board ACME N.V.</h1><p>Meeting of 28 May 2026, 14:00-16:30.</p>",
+            "prepared-by": "bm-sophie-jansen",
+            "reviewed-by": "bm-anna-bergstra",
+            "signed-by": [
+              { "signer": "bm-anna-bergstra", "signature-timestamp": "2026-05-29T11:15:00Z", "certificate-thumbprint": "7d3a8f4c2e9b1a6c5d0e3f7a2b4c6d8e" }
+            ],
+            "signing-completion-date": "2026-05-29T11:20:00Z",
+            "eidas-signature-level": "QES",
+            "pdf-archive-reference": "docudesk://archive/pdf/rvc-2026-05-28-en-signed.pdf",
+            "hash-sha256": "9c2e0a4f7b1d3e6a8c0b2d4f6a8c0e2b"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMinutes", "slug": "minutes-audit-2026-04-20-nl" },
+            "meeting-koppeling": "meeting-audit-2026-04-20",
+            "language": "nl",
+            "version": "draft",
+            "content": "<h1>Notulen Auditcommissie Woningbouw Noord</h1><p>Vergadering van 20 april 2026.</p>",
+            "prepared-by": "bm-johan-brouwer",
+            "reviewed-by": "bm-johan-brouwer"
+          }
+        ]
+      },
+      "ConflictOfInterest": {
+        "slug": "conflict-of-interest",
+        "icon": "AlertOctagonOutline",
+        "version": "0.1.0",
+        "title": "ConflictOfInterest",
+        "description": "A per-agenda-item conflict-of-interest declaration by a board member, with severity and the action taken.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Statement",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "board-member-koppeling",
+          "agenda-item-koppeling",
+          "declaration-type"
+        ],
+        "properties": {
+          "board-member-koppeling": {
+            "type": "string",
+            "description": "BoardMember UUID."
+          },
+          "agenda-item-koppeling": {
+            "type": "string",
+            "description": "AgendaItem UUID."
+          },
+          "declaration-type": {
+            "type": "string",
+            "description": "Nature of the declared interest.",
+            "enum": ["financial-interest", "personal-relationship", "competing-business", "prior-involvement", "none"],
+            "example": "financial-interest"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the conflict (required for material/non-material)."
+          },
+          "severity": {
+            "type": "string",
+            "description": "Severity of the conflict.",
+            "enum": ["material", "non-material"]
+          },
+          "action-taken": {
+            "type": "string",
+            "description": "Action taken by the member.",
+            "enum": ["recused-from-discussion", "recused-from-vote", "disclosed-and-participated", "no-action-needed"],
+            "example": "recused-from-vote"
+          },
+          "declaration-timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the declaration was filed."
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": { "register": "decidesk", "schema": "ConflictOfInterest", "slug": "coi-maria-petrov-agenda-3" },
+            "board-member-koppeling": "bm-maria-petrov",
+            "agenda-item-koppeling": "agenda-item-rvc-2026-05-28-3",
+            "declaration-type": "financial-interest",
+            "description": "Board member holds 2.3% shares in counterparty; agenda item discusses a supply contract.",
+            "severity": "material",
+            "action-taken": "recused-from-vote",
+            "declaration-timestamp": "2026-05-28T14:05:00+02:00"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "ConflictOfInterest", "slug": "coi-anna-bergstra-agenda-4" },
+            "board-member-koppeling": "bm-anna-bergstra",
+            "agenda-item-koppeling": "agenda-item-rvc-2026-05-28-4",
+            "declaration-type": "personal-relationship",
+            "description": "Board member is spouse of a candidate for a management position being discussed.",
+            "severity": "material",
+            "action-taken": "recused-from-discussion",
+            "declaration-timestamp": "2026-05-28T14:08:00+02:00"
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "ConflictOfInterest", "slug": "coi-johan-brouwer-agenda-2" },
+            "board-member-koppeling": "bm-johan-brouwer",
+            "agenda-item-koppeling": "agenda-item-audit-2026-04-20-2",
+            "declaration-type": "none",
+            "action-taken": "no-action-needed",
+            "declaration-timestamp": "2026-04-20T09:32:00+02:00"
+          }
+        ]
+      },
+      "BoardMaterial": {
+        "slug": "board-material",
+        "icon": "FileLockOutline",
+        "version": "0.1.0",
+        "title": "BoardMaterial",
+        "description": "A confidential board document with an access-level enum enforcing least-privilege at the API layer.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:DigitalDocument",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "meeting-koppeling",
+          "title",
+          "access-level"
+        ],
+        "properties": {
+          "meeting-koppeling": {
+            "type": "string",
+            "description": "UUID of the BoardMeeting entity."
+          },
+          "agenda-item-koppeling": {
+            "type": "string",
+            "description": "AgendaItem UUID."
+          },
+          "title": {
+            "type": "string",
+            "description": "Material title."
+          },
+          "document-reference": {
+            "type": "string",
+            "description": "docudesk handle of the underlying document."
+          },
+          "access-level": {
+            "type": "string",
+            "description": "Least-privilege access level enforced at the API layer.",
+            "enum": ["board-only", "executive-only", "audit-committee", "external-auditor", "regulator"],
+            "example": "board-only"
+          },
+          "distribution-timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the material was distributed."
+          },
+          "watermarked": {
+            "type": "boolean",
+            "description": "Whether the material is watermarked per viewer.",
+            "default": true
+          },
+          "watermark-text": {
+            "type": "string",
+            "description": "Per-member watermark override text."
+          }
+        },
+        "x-openregister-relations": {
+          "meeting": {
+            "register": "decidesk",
+            "schema": "BoardMeeting",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMaterial", "slug": "material-rvc-2026-05-28-agenda" },
+            "meeting-koppeling": "meeting-rvc-2026-05-28",
+            "agenda-item-koppeling": "agenda-item-rvc-2026-05-28-1",
+            "title": "Agenda RvC Meeting 28 May 2026",
+            "document-reference": "docudesk://documents/rvc-2026-05-28-agenda.pdf",
+            "access-level": "board-only",
+            "distribution-timestamp": "2026-05-27T09:00:00Z",
+            "watermarked": true
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMaterial", "slug": "material-rvc-2026-05-28-audit-report" },
+            "meeting-koppeling": "meeting-rvc-2026-05-28",
+            "agenda-item-koppeling": "agenda-item-rvc-2026-05-28-6",
+            "title": "Internal Audit Report 2025 Q4",
+            "document-reference": "docudesk://documents/audit-report-2025-q4.pdf",
+            "access-level": "audit-committee",
+            "distribution-timestamp": "2026-05-27T10:00:00Z",
+            "watermarked": true
+          },
+          {
+            "@self": { "register": "decidesk", "schema": "BoardMaterial", "slug": "material-rvb-2026-06-01-strategy" },
+            "meeting-koppeling": "meeting-rvb-2026-06-01",
+            "agenda-item-koppeling": "agenda-item-rvb-2026-06-01-1",
+            "title": "Strategic Initiatives 2026-2028 (Confidential)",
+            "document-reference": "docudesk://documents/strategy-2026-2028-confidential.pdf",
+            "access-level": "executive-only",
+            "distribution-timestamp": "2026-05-31T08:00:00Z",
+            "watermarked": true
+          }
+        ]
+      },
+      "AuditLogEntry": {
+        "slug": "audit-log-entry",
+        "icon": "ShieldLockOutline",
+        "version": "0.1.0",
+        "title": "AuditLogEntry",
+        "description": "Append-only governance audit log entry with SHA-256 hash chaining for tamper-evidence. Internal; not user-facing but queryable for investigations.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "actor-uuid",
+          "action",
+          "timestamp",
+          "current-hash"
+        ],
+        "properties": {
+          "actor-uuid": {
+            "type": "string",
+            "description": "UUID of the actor (board member or system)."
+          },
+          "action": {
+            "type": "string",
+            "description": "Governance action recorded.",
+            "enum": ["vote", "conflict-declaration", "material-access", "signature", "notice-sent", "proxy-created", "proxy-revoked"],
+            "example": "vote"
+          },
+          "object-uids": {
+            "type": "array",
+            "description": "Object UUIDs touched by the action.",
+            "items": { "type": "string" }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp of the action."
+          },
+          "previous-hash": {
+            "type": "string",
+            "description": "SHA-256 hash of the previous entry (empty for the genesis entry)."
+          },
+          "current-hash": {
+            "type": "string",
+            "description": "SHA-256 hash over timestamp + actor + action + object-uids + previous-hash."
+          },
+          "immutable-blob": {
+            "type": "string",
+            "description": "Full JSON serialization for forensic audit."
+          }
+        }
       }
     }
   }
