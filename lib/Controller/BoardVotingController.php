@@ -28,6 +28,7 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\BoardVotingService;
+use OCA\Decidesk\Service\QuorumVerificationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -48,12 +49,13 @@ class BoardVotingController extends Controller
     /**
      * Constructor for BoardVotingController.
      *
-     * @param IRequest           $request            The request object.
-     * @param BoardVotingService $boardVotingService The board voting service.
-     * @param IUserSession       $userSession        The user session.
-     * @param IGroupManager      $groupManager       The group manager.
-     * @param IAppConfig         $appConfig          The app config.
-     * @param ContainerInterface $container          DI container (lazy ObjectService).
+     * @param IRequest                  $request            The request object.
+     * @param BoardVotingService        $boardVotingService The board voting service.
+     * @param QuorumVerificationService $quorumService      The quorum verification service.
+     * @param IUserSession              $userSession        The user session.
+     * @param IGroupManager             $groupManager       The group manager.
+     * @param IAppConfig                $appConfig          The app config.
+     * @param ContainerInterface        $container          DI container (lazy ObjectService).
      *
      * @return void
      *
@@ -62,6 +64,7 @@ class BoardVotingController extends Controller
     public function __construct(
         IRequest $request,
         private readonly BoardVotingService $boardVotingService,
+        private readonly QuorumVerificationService $quorumService,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
         private readonly IAppConfig $appConfig,
@@ -133,6 +136,21 @@ class BoardVotingController extends Controller
         $resolution = $resolutionEntity->jsonSerialize();
         if (in_array((string) ($resolution['status'] ?? 'proposed'), ['adopted', 'rejected', 'withdrawn'], true) === true) {
             return new JSONResponse(['message' => 'Voting is closed for this resolution'], Http::STATUS_FORBIDDEN);
+        }
+
+        // Validate the caster's attendance type counts towards the meeting quorum
+        // before accepting the vote (proxy votes count as 'proxy', otherwise 'present').
+        $meetingId      = (string) ($resolution['meeting-koppeling'] ?? '');
+        $voteMethod     = (string) $this->request->getParam('voteMethod', 'electronic');
+        $attendanceType = 'present';
+        if ($voteMethod === 'proxy') {
+            $attendanceType = 'proxy';
+        }
+
+        if ($meetingId !== ''
+            && $this->quorumService->verifyAttendance(meetingId: $meetingId, participantType: $attendanceType) === false
+        ) {
+            return new JSONResponse(['message' => 'Voter attendance type does not count towards quorum'], Http::STATUS_FORBIDDEN);
         }
 
         $anonymized = ((string) ($resolution['vote-type'] ?? 'named') === 'anonymous');

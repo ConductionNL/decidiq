@@ -29,6 +29,7 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\BoardMaterialAuthorizationService;
+use OCA\Decidesk\Service\ConflictOfInterestService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -52,6 +53,7 @@ class BoardMaterialController extends Controller
      *
      * @param IRequest                          $request      The request object.
      * @param BoardMaterialAuthorizationService $authService  Material authorization service.
+     * @param ConflictOfInterestService         $coiService   Conflict-of-interest declaration service.
      * @param IUserSession                      $userSession  The user session.
      * @param IGroupManager                     $groupManager The group manager.
      * @param IAppConfig                        $appConfig    The app config.
@@ -65,6 +67,7 @@ class BoardMaterialController extends Controller
     public function __construct(
         IRequest $request,
         private readonly BoardMaterialAuthorizationService $authService,
+        private readonly ConflictOfInterestService $coiService,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
         private readonly IAppConfig $appConfig,
@@ -161,16 +164,30 @@ class BoardMaterialController extends Controller
             return new JSONResponse(['message' => 'boardMember parameter is required'], Http::STATUS_BAD_REQUEST);
         }
 
-        if ($this->authService->canViewMaterial(boardMemberId: $boardMemberId, materialId: $id) === false) {
-            return new JSONResponse(['message' => 'Access denied for this material'], Http::STATUS_FORBIDDEN);
-        }
-
         $entity = $this->objectService()->find(id: $id, register: 'decidesk', schema: 'board-material');
         if ($entity === null) {
             return new JSONResponse(['message' => 'Material not found'], Http::STATUS_NOT_FOUND);
         }
 
-        return new JSONResponse($entity->jsonSerialize());
+        $material   = $entity->jsonSerialize();
+        $agendaItem = (string) ($material['agenda-item-koppeling'] ?? '');
+
+        // REQ-005: materials for an agenda item are blocked until the member has filed a
+        // conflict-of-interest declaration for that (member, agenda-item) pair.
+        if ($agendaItem !== ''
+            && $this->coiService->requireDeclaration(boardMemberId: $boardMemberId, agendaItemId: $agendaItem) === false
+        ) {
+            return new JSONResponse(
+                ['message' => 'A conflict-of-interest declaration is required before accessing this agenda item'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
+        if ($this->authService->canViewMaterial(boardMemberId: $boardMemberId, materialId: $id) === false) {
+            return new JSONResponse(['message' => 'Access denied for this material'], Http::STATUS_FORBIDDEN);
+        }
+
+        return new JSONResponse($material);
 
     }//end show()
 }//end class

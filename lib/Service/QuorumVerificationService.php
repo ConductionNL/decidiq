@@ -135,9 +135,24 @@ class QuorumVerificationService
     public function verifyAttendance(string $meetingId, string $participantType): bool
     {
         $this->meeting(meetingId: $meetingId);
-        return in_array($participantType, self::PRESENT_STATUSES, true);
+        return $this->countsAsPresent(participantType: $participantType);
 
     }//end verifyAttendance()
+
+    /**
+     * Determine whether a participant type counts towards a present bucket.
+     *
+     * @param string $participantType One of present, remote, proxy.
+     *
+     * @return bool True when the type counts towards quorum.
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+     */
+    private function countsAsPresent(string $participantType): bool
+    {
+        return in_array($participantType, self::PRESENT_STATUSES, true);
+
+    }//end countsAsPresent()
 
     /**
      * Produce a per-status attendance breakdown for a meeting.
@@ -164,7 +179,10 @@ class QuorumVerificationService
         foreach ($members as $entity) {
             $data   = $entity->jsonSerialize();
             $status = (string) ($data['attendanceStatus'] ?? 'absent');
-            if (isset($counts[$status]) === false) {
+
+            // A status only counts towards a present bucket when it is a recognised
+            // present-type (present, remote, proxy); everything else falls to absent.
+            if ($this->countsAsPresent(participantType: $status) === false) {
                 $status = 'absent';
             }
 
