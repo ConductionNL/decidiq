@@ -533,7 +533,15 @@
         "Official title": "Officiële titel",
         "Party affiliation": "Partijaffiliatie",
         "Photo": "Foto",
-        "Contact methods": "Contactmethoden"
+        "Contact methods": "Contactmethoden",
+        "Decision integrations": "Besluitintegraties",
+        "External integrations linked to this decision dossier — open the sidebar to link emails, browse files, notes, tags, tasks and the audit trail.": "Externe integraties gekoppeld aan dit besluitdossier — open de zijbalk om e-mails te koppelen en bestanden, notities, labels, taken en het auditspoor te bekijken.",
+        "This page is backed by the pluggable integration registry. When the Email integration is installed, an \"Email\" tab lets you link emails to this decision dossier — the link is held by the registry, not an in-app email-link store.": "Deze pagina wordt aangedreven door het pluggable integratieregister. Wanneer de e-mailintegratie is geïnstalleerd, kunt u via een tabblad \"E-mail\" e-mails aan dit besluitdossier koppelen — de koppeling wordt door het register beheerd, niet door een interne e-mailkoppelingsopslag.",
+        "Back to decision": "Terug naar besluit",
+        "Agenda item integrations": "Agendapuntintegraties",
+        "External integrations linked to this agenda item — open the sidebar to link emails, browse files, notes, tags, tasks and the audit trail.": "Externe integraties gekoppeld aan dit agendapunt — open de zijbalk om e-mails te koppelen en bestanden, notities, labels, taken en het auditspoor te bekijken.",
+        "This page is backed by the pluggable integration registry. When the Email integration is installed, an \"Email\" tab lets you link emails to this agenda item — the link is held by the registry, not an in-app email-link store.": "Deze pagina wordt aangedreven door het pluggable integratieregister. Wanneer de e-mailintegratie is geïnstalleerd, kunt u via een tabblad \"E-mail\" e-mails aan dit agendapunt koppelen — de koppeling wordt door het register beheerd, niet door een interne e-mailkoppelingsopslag.",
+        "Back to agenda item": "Terug naar agendapunt"
     },
     "plurals": ""
 }

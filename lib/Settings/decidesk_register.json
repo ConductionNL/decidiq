@@ -9,7 +9,18 @@
     "type": "application",
     "app": "decidesk",
     "openregister": "^v0.2.10",
-    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings"
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
+    "consumes": {
+      "integrations": [
+        {
+          "leaf": "email",
+          "via": "openregister-integration-registry",
+          "boundSchemas": ["decision", "agenda-item", "voting-round"],
+          "replaces": "in-app EmailLink store (retired in migrate-email-links-to-email-leaf, ADR-022)",
+          "gracefulDegradation": "registry hides the Email tab when the Mail app / email leaf is absent; dossiers remain usable"
+        }
+      ]
+    }
   },
   "paths": {},
   "components": {
