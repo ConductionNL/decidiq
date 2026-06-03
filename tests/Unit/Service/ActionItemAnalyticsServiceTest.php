@@ -3,9 +3,14 @@
 /**
  * Test Suite for ActionItemAnalyticsService
  *
+ * Tests only getMyItems() — the personal action-item list retained after
+ * getSummary() and getCompletionRates() were migrated to the analytics leaf
+ * via x-openregister-aggregations on the Meeting schema (ADR-031, ADR-019).
+ *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Service
  *
+ * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.5
  *
  * @author    Conduction Development Team <info@conduction.nl>
@@ -25,14 +30,17 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Unit tests for ActionItemAnalyticsService.
+ * Unit tests for ActionItemAnalyticsService (getMyItems only after leaf migration).
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.5
+ * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  */
 class ActionItemAnalyticsServiceTest extends TestCase
 {
+
     private ActionItemAnalyticsService $service;
+
     private ContainerInterface|\PHPUnit\Framework\MockObject\MockObject $container;
+
     private LoggerInterface|\PHPUnit\Framework\MockObject\MockObject $logger;
 
     /**
@@ -48,7 +56,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
         $this->container = $this->createMock(ContainerInterface::class);
         $this->logger    = $this->createMock(LoggerInterface::class);
         $this->service   = new ActionItemAnalyticsService($this->container, $this->logger);
-    }
+    }//end setUp()
 
     /**
      * Build a mock ObjectEntity returning $data from jsonSerialize().
@@ -64,98 +72,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
             ->getMock();
         $entity->method('jsonSerialize')->willReturn($data);
         return $entity;
-    }
-
-    /**
-     * Build an ObjectService mock with setRegister/setSchema/findAll/saveObject.
-     *
-     * @param array<int,object> $findAllReturn
-     *
-     * @return \OCA\OpenRegister\Service\ObjectService&\PHPUnit\Framework\MockObject\MockObject
-     */
-    private function makeObjectService(array $findAllReturn): object
-    {
-        $svc = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-        $svc->method('setRegister')->willReturnSelf();
-        $svc->method('setSchema')->willReturnSelf();
-        $svc->method('findAll')->willReturn($findAllReturn);
-        return $svc;
-    }
-
-    /**
-     * Test that getSummary returns correct overdue count.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.5
-     */
-    public function testGetSummaryReturnsCorrectOverdueCount(): void
-    {
-        $items = [
-            $this->makeEntity([
-                'id'         => 'item-1',
-                'taskStatus' => 'open',
-                'dueDate'    => date('Y-m-d', strtotime('-5 days')),
-                'createdAt'  => date('Y-m-d', strtotime('-10 days')),
-            ]),
-            $this->makeEntity([
-                'id'         => 'item-2',
-                'taskStatus' => 'open',
-                'dueDate'    => date('Y-m-d', strtotime('+5 days')),
-                'createdAt'  => date('Y-m-d', strtotime('-10 days')),
-            ]),
-        ];
-
-        $mockObjectService = $this->makeObjectService($items);
-
-        $this->container->expects($this->once())
-            ->method('get')
-            ->with('OCA\OpenRegister\Service\ObjectService')
-            ->willReturn($mockObjectService);
-
-        $result = $this->service->getSummary('2026-01-01', '2026-12-31');
-
-        $this->assertIsArray($result);
-        $this->assertEquals(2, $result['totalOpen']);
-        $this->assertEquals(1, $result['totalOverdue']);
-    }
-
-    /**
-     * Test that getCompletionRates returns 0% for meetings with no completed items.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.5
-     */
-    public function testGetCompletionRatesReturnsZeroPercentForNoCompletedItems(): void
-    {
-        $meetingEntities = [
-            $this->makeEntity([
-                'id'        => 'meeting-1',
-                'title'     => 'Council Meeting',
-                'relations' => [
-                    'ActionItem' => [
-                        ['taskStatus' => 'open'],
-                        ['taskStatus' => 'in-progress'],
-                    ],
-                ],
-            ]),
-        ];
-
-        $mockObjectService = $this->makeObjectService($meetingEntities);
-
-        $this->container->expects($this->once())
-            ->method('get')
-            ->with('OCA\OpenRegister\Service\ObjectService')
-            ->willReturn($mockObjectService);
-
-        $result = $this->service->getCompletionRates(6);
-
-        $this->assertIsArray($result);
-        $this->assertCount(1, $result);
-        $this->assertEquals(0, $result[0]['completionRate']);
-        $this->assertEquals(2, $result[0]['total']);
-    }
+    }//end makeEntity()
 
     /**
      * Test that getMyItems groups overdue items correctly using NC UID (not display name).
@@ -172,27 +89,33 @@ class ActionItemAnalyticsServiceTest extends TestCase
         $participantEntity = $this->makeEntity(['id' => 'participant-uuid-john', 'uuid' => 'participant-uuid-john']);
 
         $items = [
-            $this->makeEntity([
-                'id'         => 'item-1',
-                'title'      => 'Overdue Task',
-                'assignee'   => 'participant-uuid-john',
-                'taskStatus' => 'open',
-                'dueDate'    => date('Y-m-d', strtotime('-3 days')),
-            ]),
-            $this->makeEntity([
-                'id'         => 'item-2',
-                'title'      => 'This Week Task',
-                'assignee'   => 'participant-uuid-john',
-                'taskStatus' => 'open',
-                'dueDate'    => date('Y-m-d', strtotime('+3 days')),
-            ]),
-            $this->makeEntity([
-                'id'         => 'item-3',
-                'title'      => 'Later Task',
-                'assignee'   => 'participant-uuid-john',
-                'taskStatus' => 'open',
-                'dueDate'    => date('Y-m-d', strtotime('+20 days')),
-            ]),
+            $this->makeEntity(
+                    [
+                        'id'         => 'item-1',
+                        'title'      => 'Overdue Task',
+                        'assignee'   => 'participant-uuid-john',
+                        'taskStatus' => 'open',
+                        'dueDate'    => date('Y-m-d', strtotime('-3 days')),
+                    ]
+                    ),
+            $this->makeEntity(
+                    [
+                        'id'         => 'item-2',
+                        'title'      => 'This Week Task',
+                        'assignee'   => 'participant-uuid-john',
+                        'taskStatus' => 'open',
+                        'dueDate'    => date('Y-m-d', strtotime('+3 days')),
+                    ]
+                    ),
+            $this->makeEntity(
+                    [
+                        'id'         => 'item-3',
+                        'title'      => 'Later Task',
+                        'assignee'   => 'participant-uuid-john',
+                        'taskStatus' => 'open',
+                        'dueDate'    => date('Y-m-d', strtotime('+20 days')),
+                    ]
+                    ),
         ];
 
         // First findAll() call: participant lookup by nextcloudUserId.
@@ -201,14 +124,16 @@ class ActionItemAnalyticsServiceTest extends TestCase
         $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $mockObjectService->method('setRegister')->willReturnSelf();
         $mockObjectService->method('setSchema')->willReturnSelf();
-        $mockObjectService->method('findAll')->willReturnCallback(function () use (&$callCount, $participantEntity, $items) {
-            $callCount++;
-            if ($callCount === 1) {
-                return [$participantEntity];
-            }
+        $mockObjectService->method('findAll')->willReturnCallback(
+                function () use (&$callCount, $participantEntity, $items) {
+                    $callCount++;
+                    if ($callCount === 1) {
+                        return [$participantEntity];
+                    }
 
-            return $items;
-        });
+                    return $items;
+                }
+                );
 
         $this->container->expects($this->once())
             ->method('get')
@@ -222,7 +147,7 @@ class ActionItemAnalyticsServiceTest extends TestCase
         $this->assertCount(1, $result['overdue']);
         $this->assertCount(1, $result['thisWeek']);
         $this->assertCount(1, $result['later']);
-    }
+    }//end testGetMyItemsGroupsOverdueItemsCorrectly()
 
     /**
      * Test that getMyItems returns empty when no participant record is found for the NC UID.
@@ -252,43 +177,5 @@ class ActionItemAnalyticsServiceTest extends TestCase
         $this->assertCount(0, $result['overdue']);
         $this->assertCount(0, $result['thisWeek']);
         $this->assertCount(0, $result['later']);
-    }
-
-    /**
-     * Test that avgDaysToClose calculates the correct average.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.5
-     */
-    public function testGetSummaryCalculatesAverageDaysToCloseCorrectly(): void
-    {
-        $items = [
-            $this->makeEntity([
-                'id'          => 'item-1',
-                'taskStatus'  => 'completed',
-                'createdAt'   => date('Y-m-d', strtotime('-10 days')),
-                'completedAt' => date('Y-m-d'),
-            ]),
-            $this->makeEntity([
-                'id'          => 'item-2',
-                'taskStatus'  => 'completed',
-                'createdAt'   => date('Y-m-d', strtotime('-5 days')),
-                'completedAt' => date('Y-m-d'),
-            ]),
-        ];
-
-        $mockObjectService = $this->makeObjectService($items);
-
-        $this->container->expects($this->once())
-            ->method('get')
-            ->with('OCA\OpenRegister\Service\ObjectService')
-            ->willReturn($mockObjectService);
-
-        $result = $this->service->getSummary('2026-01-01', '2026-12-31');
-
-        $this->assertIsArray($result);
-        // Average of 10 and 5 is 7.5
-        $this->assertEquals(7.5, $result['avgDaysToClose']);
-    }
-}
+    }//end testGetMyItemsReturnsEmptyWhenNoParticipantFound()
+}//end class

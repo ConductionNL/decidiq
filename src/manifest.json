@@ -106,7 +106,13 @@
 					{ "id": "overview", "label": "Overview", "icon": "icon-info",         "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "members",  "label": "Members",  "icon": "icon-group",        "component": "GovernanceBodyMembersTab",                  "order": 20 },
 					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history",   "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
-				]
+				],
+				"sidebar": {
+					"enabled": true,
+					"register": "decidesk",
+					"schema": "governance-body",
+					"useRegistry": true
+				}
 			}
 		},
 		{
@@ -185,7 +191,13 @@
 				"sidebarTabs": [
 					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
-				]
+				],
+				"sidebar": {
+					"enabled": true,
+					"register": "decidesk",
+					"schema": "participant",
+					"useRegistry": true
+				}
 			}
 		},
 		{
@@ -433,7 +445,13 @@
 				"register": "decidesk",
 				"schema": "engagement-record",
 				"columns": ["meeting", "participant", "speakingDuration", "engagementScore"],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"register": "decidesk",
+					"schema": "engagement-record",
+					"useRegistry": true
+				}
 			}
 		},
 		{
