@@ -11,7 +11,6 @@
 		{ "id": "Meetings", "label": "Meetings", "icon": "icon-group", "route": "Meetings", "order": 60 },
 		{ "id": "Tasks", "label": "Tasks", "icon": "icon-checkmark", "route": "Tasks", "order": 65 },
 		{ "id": "Workspaces", "label": "Workspaces", "icon": "icon-group", "route": "Workspaces", "order": 70 },
-		{ "id": "Comments", "label": "Comments", "icon": "icon-comment", "route": "Comments", "order": 75 },
 		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
 		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "footer", "order": 90 },
 		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 },
@@ -153,14 +152,15 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "meeting",
-				"description": "External integrations linked to this meeting — open the sidebar to browse linked articles, files, notes, tags, tasks and the audit trail.",
+				"description": "External integrations linked to this meeting — open the sidebar for Discussion (Talk), linked articles, files, notes, tags, tasks and the audit trail.",
 				"sidebar": {
 					"enabled": true,
 					"register": "decidesk",
 					"schema": "meeting",
 					"useRegistry": true
 				}
-			}
+			},
+			"_note": "Discussion is consumed from the ADR-019 Talk integration leaf bound to the meeting object (migrate-comments-to-talk-leaf), replacing the retired in-app CommentService. Registry hides the Talk tab gracefully when Talk is absent."
 		},
 		{
 			"id": "DecisionIntegrations",
@@ -280,6 +280,10 @@
 				"register": "decidesk",
 				"schema": "motion",
 				"columns": ["title", "motionType", "proposer", "lifecycle", "submittedAt"],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "MotionDetail", "primary": true },
+					{ "id": "integrations", "label": "Discussion", "icon": "icon-comment", "handler": "navigate", "route": "MotionIntegrations" }
+				],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
@@ -298,6 +302,25 @@
 					{ "id": "audit",      "label": "Audit trail",  "icon": "icon-history",    "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				]
 			}
+		},
+		{
+			"id": "MotionIntegrations",
+			"route": "/motions/:id/integrations",
+			"type": "custom",
+			"title": "Motion integrations",
+			"component": "MotionIntegrations",
+			"config": {
+				"register": "decidesk",
+				"schema": "motion",
+				"description": "External integrations linked to this motion — open the sidebar for Discussion (Talk), files, notes, tags, tasks and the audit trail.",
+				"sidebar": {
+					"enabled": true,
+					"register": "decidesk",
+					"schema": "motion",
+					"useRegistry": true
+				}
+			},
+			"_note": "Discussion is consumed from the ADR-019 Talk integration leaf bound to the motion object (migrate-comments-to-talk-leaf), replacing the retired in-app CommentService. Registry hides the Talk tab gracefully when Talk is absent."
 		},
 		{
 			"id": "AmendmentDetail",
@@ -458,18 +481,6 @@
 			}
 		},
 		{
-			"id": "Comments",
-			"route": "/comments",
-			"type": "index",
-			"title": "Comments",
-			"config": {
-				"register": "decidesk",
-				"schema": "comment",
-				"columns": ["author", "text", "target", "createdAt"],
-				"sidebar": { "enabled": true, "showMetadata": true }
-			}
-		},
-		{
 			"id": "Engagement",
 			"route": "/engagement",
 			"type": "index",
@@ -542,7 +553,7 @@
 												{ "slug": "report", "label": "Reports" },
 												{ "slug": "task", "label": "Tasks" },
 												{ "slug": "delegation", "label": "Delegations" },
-												{ "slug": "comment", "label": "Comments" },
+												{ "slug": "comment", "label": "Comments (archived — read-only)" },
 												{ "slug": "notification-preference", "label": "Notification Preferences" },
 												{ "slug": "engagement-record", "label": "Engagement Records" },
 												{ "slug": "collaboration-workspace", "label": "Collaboration Workspaces" }

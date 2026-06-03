@@ -114,11 +114,6 @@ return [
         ['name' => 'delegation#revoke', 'url' => '/api/delegations/{id}',         'verb' => 'DELETE'],
         ['name' => 'delegation#expire', 'url' => '/api/delegations/{id}/expire',  'verb' => 'POST'],
 
-        // Comment endpoints (create / target-scoped find / resolve).
-        ['name' => 'comment#create',  'url' => '/api/comments',              'verb' => 'POST'],
-        ['name' => 'comment#index',   'url' => '/api/comments',              'verb' => 'GET'],
-        ['name' => 'comment#resolve', 'url' => '/api/comments/{id}/resolve', 'verb' => 'POST'],
-
         // Workspace member management.
         ['name' => 'workspace#addMember',    'url' => '/api/workspaces/{id}/members',            'verb' => 'POST'],
         ['name' => 'workspace#removeMember', 'url' => '/api/workspaces/{id}/members/{personId}', 'verb' => 'DELETE'],
