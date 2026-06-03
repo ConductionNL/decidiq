@@ -139,6 +139,9 @@
 					{ "id": "overview",     "label": "Overview",     "icon": "icon-info",     "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "agenda",       "label": "Agenda",       "icon": "icon-files",    "component": "MeetingAgendaTab",                          "order": 20 },
 					{ "id": "participants", "label": "Participants", "icon": "icon-group",    "component": "MeetingParticipantsTab",                    "order": 30 },
+					{ "id": "minutes",      "label": "Minutes",      "icon": "icon-file",     "component": "MeetingMinutesTab",                         "order": 40 },
+					{ "id": "decisions",    "label": "Decisions",    "icon": "icon-checkmark", "component": "MeetingDecisionsTab",                      "order": 50 },
+					{ "id": "votes",        "label": "Votes",        "icon": "icon-checkmark", "component": "MeetingVotesTab",                          "order": 60 },
 					{ "id": "audit",        "label": "Audit trail",  "icon": "icon-history",  "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				]
 			}

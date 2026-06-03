@@ -28,6 +28,9 @@ import LiveMeetingView from './views/LiveMeeting.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
+import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
+import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
+import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
@@ -65,6 +68,12 @@ export default {
 	GovernanceBodyMembersTab: page(GovernanceBodyMembersTab),
 	MeetingAgendaTab: page(MeetingAgendaTab),
 	MeetingParticipantsTab: page(MeetingParticipantsTab),
+	// Per-meeting authoring/overview tabs (refactor-decidesk-ia-alignment):
+	// Minutes + Decisions are create+browse (split with the top-level
+	// register index pages); Votes is the read-only post-meeting aggregate.
+	MeetingMinutesTab: page(MeetingMinutesTab),
+	MeetingDecisionsTab: page(MeetingDecisionsTab),
+	MeetingVotesTab: page(MeetingVotesTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
 	MotionVotesTab: page(MotionVotesTab),
