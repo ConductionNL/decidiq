@@ -5,6 +5,15 @@
  * Polls for email replies to voting notification threads and casts votes
  * based on the first non-empty line of the reply body.
  *
+ * Vote-by-email is an ADR-022 statutory-voting exception: the vote-casting
+ * logic stays in the in-app voting path (VotingService::castVote) and is NOT
+ * migrated to a leaf (migrate-email-links-to-email-leaf, design D2). Thread
+ * association never used the retired in-app EmailLink store — it is held by
+ * HMAC-signed `_mail` metadata on the VotingRound OR object (the registry's
+ * own object), so retiring EmailLinkService does not affect this handler.
+ * The vote thread surfaces through the Email integration leaf bound to the
+ * motion/decision object via the registry, not an EmailLink object.
+ *
  * @category BackgroundJob
  * @package  OCA\Decidesk\BackgroundJob
  *
@@ -17,6 +26,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
+ * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-3.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.

@@ -28,7 +28,7 @@ id namespace-matches `{getAppId()}.`, and routes invocations.
   `nextcloud/ocp` plus dev tooling. Stub classes live at `tests/Stubs/` for unit tests.
 
 **Stakeholders:** the openregister team owns the interface and orchestrator; decidesk
-owns this provider; downstream Conduction apps (docudesk, opencatalogi, mydash) will
+owns this provider; downstream Conduction apps (docudesk, opencatalogi, launchpad) will
 copy this exemplar.
 
 ## Goals / Non-Goals

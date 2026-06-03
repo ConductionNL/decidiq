@@ -24,10 +24,15 @@
  */
 
 import LiveMeetingView from './views/LiveMeeting.vue'
+import DecisionIntegrations from './views/DecisionIntegrations.vue'
+import AgendaItemIntegrations from './views/AgendaItemIntegrations.vue'
 
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
+import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
+import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
+import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
@@ -57,6 +62,15 @@ export default {
 	// a future `type: "realtime"` lib extension.
 	LiveMeetingView: page(LiveMeetingView),
 
+	// --- Integration-registry surfaces (ADR-019 / ADR-022). ---
+	// Each mounts CnDetailPage in `useRegistry` mode bound to its OR
+	// object so every registered integration provider — including the
+	// Email leaf (migrate-email-links-to-email-leaf) — surfaces as a
+	// tab. Replaces the retired in-app EmailLink linking surface; email
+	// linking is now held by the registry, not an {app}_email_links store.
+	DecisionIntegrations: page(DecisionIntegrations),
+	AgendaItemIntegrations: page(AgendaItemIntegrations),
+
 	// --- Detail-tab components (one per cross-schema relation). ---
 	// Each lives in /components/tabs/. Full-CRUD (or read-only where
 	// authoring lives elsewhere — votes are LiveMeeting-only by design).
@@ -65,6 +79,12 @@ export default {
 	GovernanceBodyMembersTab: page(GovernanceBodyMembersTab),
 	MeetingAgendaTab: page(MeetingAgendaTab),
 	MeetingParticipantsTab: page(MeetingParticipantsTab),
+	// Per-meeting authoring/overview tabs (refactor-decidesk-ia-alignment):
+	// Minutes + Decisions are create+browse (split with the top-level
+	// register index pages); Votes is the read-only post-meeting aggregate.
+	MeetingMinutesTab: page(MeetingMinutesTab),
+	MeetingDecisionsTab: page(MeetingDecisionsTab),
+	MeetingVotesTab: page(MeetingVotesTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
 	MotionVotesTab: page(MotionVotesTab),

@@ -28,7 +28,6 @@ use OCA\Decidesk\Controller\AnalyticsController;
 use OCA\Decidesk\Controller\CommentController;
 use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Controller\DelegationController;
-use OCA\Decidesk\Controller\EmailLinkController;
 use OCA\Decidesk\Controller\EngagementController;
 use OCA\Decidesk\Controller\LiveMeetingController;
 use OCA\Decidesk\Controller\MinutesController;
@@ -47,7 +46,7 @@ use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\CommentService;
 use OCA\Decidesk\Service\DecisionNotificationService;
 use OCA\Decidesk\Service\DelegationService;
-use OCA\Decidesk\Service\EmailLinkService;
+use OCA\Decidesk\Service\EmailReferenceExtractor;
 use OCA\Decidesk\Service\EngagementService;
 use OCA\Decidesk\Service\LiveDecisionService;
 use OCA\Decidesk\Service\MinutesGenerationService;
@@ -436,12 +435,9 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            EmailLinkService::class,
-            static function ($c): EmailLinkService {
-                return new EmailLinkService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
+            EmailReferenceExtractor::class,
+            static function ($c): EmailReferenceExtractor {
+                return new EmailReferenceExtractor();
             }
         );
 
@@ -517,17 +513,6 @@ class Application extends App implements IBootstrap
                 return new WorkspaceController(
                     request: $c->get(\OCP\IRequest::class),
                     workspaceService: $c->get(WorkspaceService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            EmailLinkController::class,
-            static function ($c): EmailLinkController {
-                return new EmailLinkController(
-                    request: $c->get(\OCP\IRequest::class),
-                    emailLinkService: $c->get(EmailLinkService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                 );
             }
