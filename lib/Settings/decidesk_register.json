@@ -9,7 +9,18 @@
     "type": "application",
     "app": "decidesk",
     "openregister": "^v0.2.10",
-    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings"
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
+    "consumes": {
+      "integrations": [
+        {
+          "leaf": "email",
+          "via": "openregister-integration-registry",
+          "boundSchemas": ["decision", "agenda-item", "voting-round"],
+          "replaces": "in-app EmailLink store (retired in migrate-email-links-to-email-leaf, ADR-022)",
+          "gracefulDegradation": "registry hides the Email tab when the Mail app / email leaf is absent; dossiers remain usable"
+        }
+      ]
+    }
   },
   "paths": {},
   "components": {
@@ -148,23 +159,52 @@
       "Meeting": {
         "x-openregister-notifications": {
           "meetingScheduled": {
-            "trigger": { "type": "created" },
+            "trigger": {
+              "type": "created"
+            },
             "enabled": true,
-            "channels": ["nc-notification"],
-            "recipients": [
-              { "kind": "object-acl", "permission": "read" },
-              { "kind": "groups", "groups": ["decidesk-members"] }
+            "channels": [
+              "nc-notification"
             ],
-            "subject": { "nl": "Nieuwe vergadering ingepland: {{title}}", "en": "New meeting scheduled: {{title}}" }
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Nieuwe vergadering ingepland: {{title}}",
+              "en": "New meeting scheduled: {{title}}"
+            }
           },
           "meetingReminder": {
-            "trigger": { "type": "scheduled", "intervalSec": 86400, "filter": { "lifecycle": "scheduled" } },
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 86400,
+              "filter": {
+                "lifecycle": "scheduled"
+              }
+            },
             "enabled": true,
-            "channels": ["nc-notification"],
-            "recipients": [
-              { "kind": "object-acl", "permission": "read" }
+            "channels": [
+              "nc-notification"
             ],
-            "subject": { "nl": "Herinnering: vergadering '{{title}}' komt eraan", "en": "Reminder: meeting '{{title}}' is coming up" }
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Herinnering: vergadering '{{title}}' komt eraan",
+              "en": "Reminder: meeting '{{title}}' is coming up"
+            }
           }
         },
         "slug": "meeting",
@@ -285,6 +325,28 @@
               "governanceBody": "@self.governanceBody",
               "attendanceStatus": "present"
             }
+          },
+          "actionItemCount": {
+            "metric": "count",
+            "schema": "ActionItem",
+            "filter": {
+              "meeting": "@self.id"
+            }
+          },
+          "completedActionItemCount": {
+            "metric": "count",
+            "schema": "ActionItem",
+            "filter": {
+              "meeting": "@self.id",
+              "taskStatus": "completed"
+            }
+          },
+          "engagementRecordCount": {
+            "metric": "count",
+            "schema": "EngagementRecord",
+            "filter": {
+              "meeting": "@self.id"
+            }
           }
         },
         "x-openregister-calculations": {
@@ -293,13 +355,24 @@
             "materialise": true,
             "expression": {
               "if": [
-                { "gt": [ { "prop": "totalParticipantCount" }, 0 ] },
+                {
+                  "gt": [
+                    {
+                      "prop": "totalParticipantCount"
+                    },
+                    0
+                  ]
+                },
                 {
                   "mul": [
                     {
                       "div": [
-                        { "prop": "presentParticipantCount" },
-                        { "prop": "totalParticipantCount" }
+                        {
+                          "prop": "presentParticipantCount"
+                        },
+                        {
+                          "prop": "totalParticipantCount"
+                        }
                       ]
                     },
                     100
@@ -314,13 +387,56 @@
             "materialise": true,
             "expression": {
               "or": [
-                { "eq": [ { "prop": "quorumRequired" }, null ] },
+                {
+                  "eq": [
+                    {
+                      "prop": "quorumRequired"
+                    },
+                    null
+                  ]
+                },
                 {
                   "gte": [
-                    { "prop": "presentParticipantCount" },
-                    { "prop": "quorumRequired" }
+                    {
+                      "prop": "presentParticipantCount"
+                    },
+                    {
+                      "prop": "quorumRequired"
+                    }
                   ]
                 }
+              ]
+            }
+          },
+          "actionItemCompletionRate": {
+            "type": "number",
+            "materialise": true,
+            "expression": {
+              "if": [
+                {
+                  "gt": [
+                    {
+                      "prop": "actionItemCount"
+                    },
+                    0
+                  ]
+                },
+                {
+                  "mul": [
+                    {
+                      "div": [
+                        {
+                          "prop": "completedActionItemCount"
+                        },
+                        {
+                          "prop": "actionItemCount"
+                        }
+                      ]
+                    },
+                    100
+                  ]
+                },
+                0
               ]
             }
           }
@@ -666,14 +782,29 @@
       "Motion": {
         "x-openregister-notifications": {
           "motionSubmitted": {
-            "trigger": { "type": "created" },
+            "trigger": {
+              "type": "created"
+            },
             "enabled": true,
-            "channels": ["nc-notification"],
-            "recipients": [
-              { "kind": "object-acl", "permission": "read" },
-              { "kind": "groups", "groups": ["decidesk-members"] }
+            "channels": [
+              "nc-notification"
             ],
-            "subject": { "nl": "Nieuwe motie ingediend: {{title}}", "en": "New motion submitted: {{title}}" }
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Nieuwe motie ingediend: {{title}}",
+              "en": "New motion submitted: {{title}}"
+            }
           }
         },
         "slug": "motion",
@@ -1163,14 +1294,29 @@
       "Decision": {
         "x-openregister-notifications": {
           "decisionRecorded": {
-            "trigger": { "type": "created" },
+            "trigger": {
+              "type": "created"
+            },
             "enabled": true,
-            "channels": ["nc-notification"],
-            "recipients": [
-              { "kind": "object-acl", "permission": "read" },
-              { "kind": "groups", "groups": ["decidesk-members"] }
+            "channels": [
+              "nc-notification"
             ],
-            "subject": { "nl": "Besluit vastgelegd: {{title}}", "en": "Decision recorded: {{title}}" }
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Besluit vastgelegd: {{title}}",
+              "en": "Decision recorded: {{title}}"
+            }
           }
         },
         "slug": "decision",
@@ -1358,24 +1504,58 @@
       "ActionItem": {
         "x-openregister-notifications": {
           "actionAssigned": {
-            "trigger": { "type": "created" },
+            "trigger": {
+              "type": "created"
+            },
             "enabled": true,
-            "channels": ["nc-notification"],
-            "recipients": [
-              { "kind": "object-acl", "permission": "manage" },
-              { "kind": "groups", "groups": ["decidesk-members"] }
+            "channels": [
+              "nc-notification"
             ],
-            "subject": { "nl": "Nieuwe actie toegewezen: {{title}}", "en": "New action item assigned: {{title}}" }
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "manage"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Nieuwe actie toegewezen: {{title}}",
+              "en": "New action item assigned: {{title}}"
+            }
           },
           "actionOverdue": {
-            "trigger": { "type": "scheduled", "intervalSec": 86400, "filter": { "taskStatus": "overdue" } },
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 86400,
+              "filter": {
+                "taskStatus": "overdue"
+              }
+            },
             "enabled": true,
-            "channels": ["nc-notification"],
-            "recipients": [
-              { "kind": "object-acl", "permission": "manage" },
-              { "kind": "groups", "groups": ["decidesk-members"] }
+            "channels": [
+              "nc-notification"
             ],
-            "subject": { "nl": "Actie over tijd: {{title}}", "en": "Action item overdue: {{title}}" }
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "manage"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Actie over tijd: {{title}}",
+              "en": "Action item overdue: {{title}}"
+            }
           }
         },
         "slug": "action-item",
@@ -2223,14 +2403,33 @@
       "BudgetProposal": {
         "x-openregister-notifications": {
           "budgetProposalVotingDeadline": {
-            "trigger": { "type": "scheduled", "intervalSec": 86400, "filter": { "status": "voting" } },
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 86400,
+              "filter": {
+                "status": "voting"
+              }
+            },
             "enabled": true,
-            "channels": ["nc-notification"],
-            "recipients": [
-              { "kind": "object-acl", "permission": "read" },
-              { "kind": "groups", "groups": ["decidesk-members"] }
+            "channels": [
+              "nc-notification"
             ],
-            "subject": { "nl": "Stemtermijn begrotingsvoorstel '{{title}}' verloopt binnenkort", "en": "Budget proposal '{{title}}' voting deadline is approaching" }
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Stemtermijn begrotingsvoorstel '{{title}}' verloopt binnenkort",
+              "en": "Budget proposal '{{title}}' voting deadline is approaching"
+            }
           }
         },
         "slug": "budget-proposal",
@@ -2312,14 +2511,33 @@
       "PublicConsultation": {
         "x-openregister-notifications": {
           "consultationDeadline": {
-            "trigger": { "type": "scheduled", "intervalSec": 86400, "filter": { "status": "open" } },
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 86400,
+              "filter": {
+                "status": "open"
+              }
+            },
             "enabled": true,
-            "channels": ["nc-notification"],
-            "recipients": [
-              { "kind": "object-acl", "permission": "read" },
-              { "kind": "groups", "groups": ["decidesk-members"] }
+            "channels": [
+              "nc-notification"
             ],
-            "subject": { "nl": "Inspraaktermijn '{{title}}' verloopt binnenkort", "en": "Consultation '{{title}}' deadline is approaching" }
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Inspraaktermijn '{{title}}' verloopt binnenkort",
+              "en": "Consultation '{{title}}' deadline is approaching"
+            }
           }
         },
         "slug": "public-consultation",
@@ -2547,6 +2765,182 @@
             "description": "When the citizen read the in-app notification."
           }
         }
+      },
+      "EngagementRecord": {
+        "slug": "engagement-record",
+        "icon": "CommentAccountOutline",
+        "version": "0.1.0",
+        "title": "EngagementRecord",
+        "description": "A record of participant engagement during a meeting — speeches, questions raised, and topics suggested",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:EngagementRecord",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "meeting",
+          "participant"
+        ],
+        "properties": {
+          "meeting": {
+            "type": "string",
+            "description": "UUID of the linked Meeting object"
+          },
+          "participant": {
+            "type": "string",
+            "description": "UUID of the linked Participant object"
+          },
+          "speeches": {
+            "type": "array",
+            "description": "Speech events recorded for this participant",
+            "items": {
+              "type": "object"
+            }
+          },
+          "questionsRaised": {
+            "type": "array",
+            "description": "Questions raised by this participant",
+            "items": {
+              "type": "object"
+            }
+          },
+          "topicsSuggested": {
+            "type": "array",
+            "description": "Topics suggested by this participant",
+            "items": {
+              "type": "object"
+            }
+          },
+          "speakingDuration": {
+            "type": "integer",
+            "description": "Total speaking duration in seconds"
+          },
+          "engagementScore": {
+            "type": "integer",
+            "description": "Governance-specific engagement score (0–100), computed in-app by EngagementService.calculateScore() and stored on each capture"
+          }
+        },
+        "x-openregister-calculations": {
+          "speechCount": {
+            "type": "integer",
+            "description": "Number of speech events (generic count fed to the analytics leaf)",
+            "expression": {
+              "size": [
+                {
+                  "prop": "speeches"
+                }
+              ]
+            }
+          },
+          "questionCount": {
+            "type": "integer",
+            "description": "Number of questions raised (generic count fed to the analytics leaf)",
+            "expression": {
+              "size": [
+                {
+                  "prop": "questionsRaised"
+                }
+              ]
+            }
+          },
+          "topicCount": {
+            "type": "integer",
+            "description": "Number of topics suggested (generic count fed to the analytics leaf)",
+            "expression": {
+              "size": [
+                {
+                  "prop": "topicsSuggested"
+                }
+              ]
+            }
+          }
+        },
+        "x-openregister-relations": {
+          "meeting": {
+            "register": "decidesk",
+            "schema": "Meeting",
+            "cardinality": "many-to-one"
+          },
+          "participant": {
+            "register": "decidesk",
+            "schema": "Participant",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EngagementRecord",
+              "slug": "engagement-raadsvergadering-jan-de-boer"
+            },
+            "meeting": "raadsvergadering-2025-01-15",
+            "participant": "jan-de-boer",
+            "speeches": [
+              {
+                "duration": 180
+              }
+            ],
+            "questionsRaised": [
+              {
+                "text": "Vraag over begroting"
+              }
+            ],
+            "topicsSuggested": [],
+            "speakingDuration": 180,
+            "engagementScore": 15
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EngagementRecord",
+              "slug": "engagement-raadsvergadering-fatima"
+            },
+            "meeting": "raadsvergadering-2025-01-15",
+            "participant": "fatima-el-idrissi",
+            "speeches": [
+              {
+                "duration": 300
+              },
+              {
+                "duration": 120
+              }
+            ],
+            "questionsRaised": [
+              {
+                "text": "Vraag over klimaatbeleid"
+              }
+            ],
+            "topicsSuggested": [
+              {
+                "title": "Woningbouw versnellen"
+              }
+            ],
+            "speakingDuration": 420,
+            "engagementScore": 32
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EngagementRecord",
+              "slug": "engagement-rvc-q1-pieter"
+            },
+            "meeting": "rvc-vergadering-q1-2025",
+            "participant": "pieter-van-den-berg",
+            "speeches": [],
+            "questionsRaised": [],
+            "topicsSuggested": [
+              {
+                "title": "Duurzaamheidsrapportage"
+              }
+            ],
+            "speakingDuration": 0,
+            "engagementScore": 6
+          }
+        ]
       }
     }
   }

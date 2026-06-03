@@ -12,7 +12,6 @@
 		{ "id": "Tasks", "label": "Tasks", "icon": "icon-checkmark", "route": "Tasks", "order": 65 },
 		{ "id": "Workspaces", "label": "Workspaces", "icon": "icon-group", "route": "Workspaces", "order": 70 },
 		{ "id": "Comments", "label": "Comments", "icon": "icon-comment", "route": "Comments", "order": 75 },
-		{ "id": "EmailLinks", "label": "Email links", "icon": "icon-mail", "route": "EmailLinks", "order": 80 },
 		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
 		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "footer", "order": 90 },
 		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 },
@@ -106,7 +105,13 @@
 					{ "id": "overview", "label": "Overview", "icon": "icon-info",         "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "members",  "label": "Members",  "icon": "icon-group",        "component": "GovernanceBodyMembersTab",                  "order": 20 },
 					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history",   "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
-				]
+				],
+				"sidebar": {
+					"enabled": true,
+					"register": "decidesk",
+					"schema": "governance-body",
+					"useRegistry": true
+				}
 			}
 		},
 		{
@@ -133,6 +138,9 @@
 					{ "id": "overview",     "label": "Overview",     "icon": "icon-info",     "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "agenda",       "label": "Agenda",       "icon": "icon-files",    "component": "MeetingAgendaTab",                          "order": 20 },
 					{ "id": "participants", "label": "Participants", "icon": "icon-group",    "component": "MeetingParticipantsTab",                    "order": 30 },
+					{ "id": "minutes",      "label": "Minutes",      "icon": "icon-file",     "component": "MeetingMinutesTab",                         "order": 40 },
+					{ "id": "decisions",    "label": "Decisions",    "icon": "icon-checkmark", "component": "MeetingDecisionsTab",                      "order": 50 },
+					{ "id": "votes",        "label": "Votes",        "icon": "icon-checkmark", "component": "MeetingVotesTab",                          "order": 60 },
 					{ "id": "audit",        "label": "Audit trail",  "icon": "icon-history",  "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				]
 			}
@@ -153,6 +161,44 @@
 					"useRegistry": true
 				}
 			}
+		},
+		{
+			"id": "DecisionIntegrations",
+			"route": "/decisions/:id/integrations",
+			"type": "detail",
+			"title": "Decision integrations",
+			"component": "DecisionIntegrations",
+			"config": {
+				"register": "decidesk",
+				"schema": "decision",
+				"description": "External integrations linked to this decision dossier — open the sidebar to link emails, browse files, notes, tags, tasks and the audit trail.",
+				"sidebar": {
+					"enabled": true,
+					"register": "decidesk",
+					"schema": "decision",
+					"useRegistry": true
+				}
+			},
+			"_note": "Email linking is consumed from the ADR-019 Email integration leaf bound to the decision object (migrate-email-links-to-email-leaf), replacing the retired in-app EmailLink store. Registry hides the Email tab gracefully when Mail is absent."
+		},
+		{
+			"id": "AgendaItemIntegrations",
+			"route": "/agenda-items/:id/integrations",
+			"type": "detail",
+			"title": "Agenda item integrations",
+			"component": "AgendaItemIntegrations",
+			"config": {
+				"register": "decidesk",
+				"schema": "agenda-item",
+				"description": "External integrations linked to this agenda item — open the sidebar to link emails, browse files, notes, tags, tasks and the audit trail.",
+				"sidebar": {
+					"enabled": true,
+					"register": "decidesk",
+					"schema": "agenda-item",
+					"useRegistry": true
+				}
+			},
+			"_note": "Email linking is consumed from the ADR-019 Email integration leaf bound to the agenda-item object (migrate-email-links-to-email-leaf), replacing the retired in-app EmailLink store. Registry hides the Email tab gracefully when Mail is absent."
 		},
 		{
 			"id": "LiveMeeting",
@@ -185,7 +231,13 @@
 				"sidebarTabs": [
 					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
-				]
+				],
+				"sidebar": {
+					"enabled": true,
+					"register": "decidesk",
+					"schema": "participant",
+					"useRegistry": true
+				}
 			}
 		},
 		{
@@ -197,6 +249,10 @@
 				"register": "decidesk",
 				"schema": "agenda-item",
 				"columns": ["orderNumber", "title", "itemType", "estimatedDuration", "isRecurring"],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "AgendaItemDetail", "primary": true },
+					{ "id": "integrations", "label": "Integrations", "icon": "icon-mail", "handler": "navigate", "route": "AgendaItemIntegrations" }
+				],
 				"sidebar": { "enabled": true, "showMetadata": true }
 			}
 		},
@@ -302,6 +358,7 @@
 				],
 				"actions": [
 					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "DecisionDetail", "primary": true },
+					{ "id": "integrations", "label": "Integrations", "icon": "icon-mail", "handler": "navigate", "route": "DecisionIntegrations" },
 					{ "id": "publish", "label": "Publish", "icon": "icon-upload", "handler": "emit", "permission": "decidesk.decision.publish", "confirm": true }
 				],
 				"sidebar": { "enabled": true, "showMetadata": true }
@@ -413,18 +470,6 @@
 			}
 		},
 		{
-			"id": "EmailLinks",
-			"route": "/email-links",
-			"type": "index",
-			"title": "Email links",
-			"config": {
-				"register": "decidesk",
-				"schema": "email-link",
-				"columns": ["subject", "from", "receivedAt", "linkedTo"],
-				"sidebar": { "enabled": true, "showMetadata": true }
-			}
-		},
-		{
 			"id": "Engagement",
 			"route": "/engagement",
 			"type": "index",
@@ -433,7 +478,13 @@
 				"register": "decidesk",
 				"schema": "engagement-record",
 				"columns": ["meeting", "participant", "speakingDuration", "engagementScore"],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"register": "decidesk",
+					"schema": "engagement-record",
+					"useRegistry": true
+				}
 			}
 		},
 		{
@@ -492,7 +543,6 @@
 												{ "slug": "task", "label": "Tasks" },
 												{ "slug": "delegation", "label": "Delegations" },
 												{ "slug": "comment", "label": "Comments" },
-												{ "slug": "email-link", "label": "Email Links" },
 												{ "slug": "notification-preference", "label": "Notification Preferences" },
 												{ "slug": "engagement-record", "label": "Engagement Records" },
 												{ "slug": "collaboration-workspace", "label": "Collaboration Workspaces" }

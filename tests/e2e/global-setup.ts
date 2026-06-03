@@ -16,7 +16,7 @@
  * NC 28 / 29 / 30.
  *
  * Pattern reference: ADR-030 (hydra/openspec/architecture/), mirrored
- * from mydash's journeydoc setup.
+ * from launchpad's journeydoc setup.
  */
 
 import { chromium, request, type FullConfig } from '@playwright/test'
