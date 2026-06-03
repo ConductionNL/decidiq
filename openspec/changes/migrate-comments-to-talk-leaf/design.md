@@ -1,5 +1,7 @@
 # Design: Migrate in-app comments to the Talk integration leaf
 
+status: pr-created
+
 ## Context
 
 `CommentService` was built under the archived `p4-collaboration` change. It stores `Comment` objects in OpenRegister with a polymorphic target (`{register}:{schema}:{uuid}`) and threading via a `parentComment` reference. It is the in-app discussion surface on agenda items, motions, amendments, and decisions.

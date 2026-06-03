@@ -18,6 +18,13 @@
           "boundSchemas": ["decision", "agenda-item", "voting-round"],
           "replaces": "in-app EmailLink store (retired in migrate-email-links-to-email-leaf, ADR-022)",
           "gracefulDegradation": "registry hides the Email tab when the Mail app / email leaf is absent; dossiers remain usable"
+        },
+        {
+          "leaf": "talk",
+          "via": "openregister-integration-registry",
+          "boundSchemas": ["meeting", "motion"],
+          "replaces": "in-app CommentService (retired in migrate-comments-to-talk-leaf, ADR-022)",
+          "gracefulDegradation": "registry hides the Talk tab when the Talk app is absent; detail pages remain usable"
         }
       ]
     }

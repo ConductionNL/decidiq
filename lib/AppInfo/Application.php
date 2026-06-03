@@ -25,7 +25,6 @@ namespace OCA\Decidesk\AppInfo;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
 use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Controller\AnalyticsController;
-use OCA\Decidesk\Controller\CommentController;
 use OCA\Decidesk\Controller\DecisionController;
 use OCA\Decidesk\Controller\DelegationController;
 use OCA\Decidesk\Controller\EngagementController;
@@ -40,10 +39,10 @@ use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Controller\WorkspaceController;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
+use OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
-use OCA\Decidesk\Service\CommentService;
 use OCA\Decidesk\Service\DecisionNotificationService;
 use OCA\Decidesk\Service\DelegationService;
 use OCA\Decidesk\Service\EmailReferenceExtractor;
@@ -415,16 +414,6 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            CommentService::class,
-            static function ($c): CommentService {
-                return new CommentService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
-            }
-        );
-
-        $context->registerService(
             WorkspaceService::class,
             static function ($c): WorkspaceService {
                 return new WorkspaceService(
@@ -496,18 +485,6 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            CommentController::class,
-            static function ($c): CommentController {
-                return new CommentController(
-                    request: $c->get(\OCP\IRequest::class),
-                    commentService: $c->get(CommentService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                    groupManager: $c->get(\OCP\IGroupManager::class),
-                );
-            }
-        );
-
-        $context->registerService(
             WorkspaceController::class,
             static function ($c): WorkspaceController {
                 return new WorkspaceController(
@@ -550,6 +527,21 @@ class Application extends App implements IBootstrap
                     coauthorService: $c->get(MotionCoauthorService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
+                );
+            }
+        );
+
+        // Register MigrateCommentsToTalkLeaf repair step.
+        // @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1.
+        $context->registerRepairStep(MigrateCommentsToTalkLeaf::class);
+        $context->registerService(
+            MigrateCommentsToTalkLeaf::class,
+            static function ($c): MigrateCommentsToTalkLeaf {
+                return new MigrateCommentsToTalkLeaf(
+                    settingsService: $c->get(\OCA\Decidesk\Service\SettingsService::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    appManager: $c->get(\OCP\App\IAppManager::class),
                 );
             }
         );
