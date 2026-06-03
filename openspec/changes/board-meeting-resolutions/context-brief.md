@@ -172,10 +172,10 @@ Three design priorities distinguish this spec from generic meeting software. Fir
 - **openconnector**: synchronizes with Microsoft Teams, Webex, or Zoom for hybrid meetings, calendar systems (Exchange, Google Workspace) for member availability
 - **opentalk**: provides secure end-to-end-encrypted video conferencing for remote board members, with attendance verification matched to portal authentication
 - **opencatalogi**: publishes only those resolutions that are legally required to be public (e.g., for housing corporations: remuneration decisions; for listed entities: certain capital decisions)
-- **mydash**: executive dashboards for board chairs with attendance, quorum risk, upcoming term-ends, conflict declaration heatmap
+- **launchpad**: executive dashboards for board chairs with attendance, quorum risk, upcoming term-ends, conflict declaration heatmap
 - **docudesk**: secure document storage with watermarking, expiration, and forensic access logging
 - **opencatalogi external listings**: cross-publishes governance reports to AFM, DNB, or Aw portals where regulators ingest structured data
-- **mydash regulator portal**: dedicated read-only views for AFM/DNB/NZa/Aw supervisors with scoped access
+- **launchpad regulator portal**: dedicated read-only views for AFM/DNB/NZa/Aw supervisors with scoped access
 
 ## Target Users
 
