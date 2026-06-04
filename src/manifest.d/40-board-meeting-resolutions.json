@@ -1,0 +1,103 @@
+{
+    "menu": [
+        {"id": "Boards", "label": "Boards", "icon": "icon-group", "route": "Boards", "order": 110},
+        {"id": "BoardMeetings", "label": "Board meetings", "icon": "icon-calendar-dark", "route": "BoardMeetings", "order": 120},
+        {"id": "Resolutions", "label": "Resolutions", "icon": "icon-checkmark", "route": "Resolutions", "order": 130},
+        {"id": "BoardMaterials", "label": "Board materials", "icon": "icon-file", "route": "BoardMaterials", "order": 140}
+    ],
+    "pages": [
+        {
+            "id": "Boards",
+            "route": "/boards",
+            "type": "index",
+            "title": "Boards",
+            "config": {
+                "register": "decidesk",
+                "schema": "board",
+                "columns": ["name", "type", "governanceModel", "defaultLanguage"],
+                "sidebar": {"enabled": true, "showMetadata": true}
+            }
+        },
+        {
+            "id": "BoardDetail",
+            "route": "/boards/:id",
+            "type": "detail",
+            "title": "Board",
+            "config": {
+                "register": "decidesk",
+                "schema": "board",
+                "sidebarTabs": [
+                    {"id": "overview", "label": "Overview", "icon": "icon-info", "widgets": [{"type": "data"}, {"type": "metadata"}], "order": 10},
+                    {"id": "audit", "label": "Audit trail", "icon": "icon-history", "widgets": [{"type": "audit-trail"}], "order": 90}
+                ],
+                "sidebar": {"enabled": true, "register": "decidesk", "schema": "board", "useRegistry": true}
+            }
+        },
+        {
+            "id": "BoardMeetings",
+            "route": "/board-meetings",
+            "type": "index",
+            "title": "Board meetings",
+            "config": {
+                "register": "decidesk",
+                "schema": "board-meeting",
+                "columns": ["meetingType", "meetingDate", "format", "status", "quorumAchieved"],
+                "sidebar": {"enabled": true, "showMetadata": true}
+            }
+        },
+        {
+            "id": "BoardMeetingDetail",
+            "route": "/board-meetings/:id",
+            "type": "detail",
+            "title": "Board meeting",
+            "config": {
+                "register": "decidesk",
+                "schema": "board-meeting",
+                "sidebarTabs": [
+                    {"id": "overview", "label": "Overview", "icon": "icon-info", "widgets": [{"type": "data"}, {"type": "metadata"}], "order": 10},
+                    {"id": "audit", "label": "Audit trail", "icon": "icon-history", "widgets": [{"type": "audit-trail"}], "order": 90}
+                ],
+                "sidebar": {"enabled": true, "register": "decidesk", "schema": "board-meeting", "useRegistry": true}
+            }
+        },
+        {
+            "id": "Resolutions",
+            "route": "/resolutions",
+            "type": "index",
+            "title": "Resolutions",
+            "config": {
+                "register": "decidesk",
+                "schema": "resolution",
+                "columns": ["resolutionNumber", "title", "type", "voteThreshold", "status"],
+                "sidebar": {"enabled": true, "showMetadata": true}
+            }
+        },
+        {
+            "id": "ResolutionDetail",
+            "route": "/resolutions/:id",
+            "type": "detail",
+            "title": "Resolution",
+            "config": {
+                "register": "decidesk",
+                "schema": "resolution",
+                "sidebarTabs": [
+                    {"id": "overview", "label": "Overview", "icon": "icon-info", "widgets": [{"type": "data"}, {"type": "metadata"}], "order": 10},
+                    {"id": "audit", "label": "Audit trail", "icon": "icon-history", "widgets": [{"type": "audit-trail"}], "order": 90}
+                ],
+                "sidebar": {"enabled": true, "register": "decidesk", "schema": "resolution", "useRegistry": true}
+            }
+        },
+        {
+            "id": "BoardMaterials",
+            "route": "/board-materials",
+            "type": "index",
+            "title": "Board materials",
+            "config": {
+                "register": "decidesk",
+                "schema": "board-material",
+                "columns": ["title", "accessLevel", "watermarked", "distributionTimestamp"],
+                "sidebar": {"enabled": true, "showMetadata": true}
+            }
+        }
+    ]
+}

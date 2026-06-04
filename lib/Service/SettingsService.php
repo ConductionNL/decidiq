@@ -57,6 +57,14 @@ class SettingsService
         'minutesSchema',
         'decisionSchema',
         'actionItemSchema',
+        'boardSchema',
+        'boardMemberSchema',
+        'boardMeetingSchema',
+        'resolutionSchema',
+        'boardVoteSchema',
+        'boardMinutesSchema',
+        'conflictOfInterestSchema',
+        'boardMaterialSchema',
     ];
 
     /**

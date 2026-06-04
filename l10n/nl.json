@@ -1,5 +1,13 @@
 {
     "translations": {
+        "Boards": "Besturen",
+        "Board meetings": "Bestuursvergaderingen",
+        "Resolutions": "Besluiten",
+        "Board materials": "Bestuursstukken",
+        "Board": "Bestuur",
+        "Board meeting": "Bestuursvergadering",
+        "Resolution": "Besluit",
+        "Board material": "Bestuursstuk",
         "Create minutes": "Notulen aanmaken",
         "Create decision": "Besluit aanmaken",
         "Could not load minutes": "Notulen konden niet worden geladen",

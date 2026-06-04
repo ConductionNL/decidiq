@@ -132,6 +132,33 @@ return [
         ['name' => 'motionCoauthor#updateText',     'url' => '/api/motions/{id}/text',                 'verb' => 'POST'],
         ['name' => 'motionCoauthor#history',        'url' => '/api/motions/{id}/history',              'verb' => 'GET'],
 
+        // Board meeting resolutions — static/verb routes BEFORE the SPA catch-all (ADR-016).
+        // @spec openspec/changes/board-meeting-resolutions/tasks.md#section-4
+        ['name' => 'boardVoting#castVote',     'url' => '/api/board/resolutions/{id}/cast-vote',     'verb' => 'POST'],
+        ['name' => 'boardVoting#closeVote',    'url' => '/api/board/resolutions/{id}/close-vote',    'verb' => 'POST'],
+        ['name' => 'boardVoting#runningTally', 'url' => '/api/board/resolutions/{id}/running-tally', 'verb' => 'GET'],
+
+        ['name' => 'boardConflict#declare', 'url' => '/api/board/conflicts/declare',     'verb' => 'POST'],
+        ['name' => 'boardConflict#action',  'url' => '/api/board/conflicts/{id}/action', 'verb' => 'PUT'],
+
+        ['name' => 'boardMaterial#index', 'url' => '/api/board/materials',      'verb' => 'GET'],
+        ['name' => 'boardMaterial#show',  'url' => '/api/board/materials/{id}', 'verb' => 'GET'],
+
+        ['name' => 'boardAuditLog#verify', 'url' => '/api/board/audit-log/verify', 'verb' => 'GET'],
+        ['name' => 'boardAuditLog#index',  'url' => '/api/board/audit-log',        'verb' => 'GET'],
+
+        ['name' => 'boardMinutesSigning#initiateSigning', 'url' => '/api/board/minutes/{id}/initiate-signing', 'verb' => 'POST'],
+        ['name' => 'boardMinutesSigning#finalize',        'url' => '/api/board/minutes/{id}/finalize',         'verb' => 'POST'],
+
+        ['name' => 'boardProxy#create',  'url' => '/api/board/proxies',              'verb' => 'POST'],
+        ['name' => 'boardProxy#suspend', 'url' => '/api/board/proxies/{id}/suspend', 'verb' => 'PUT'],
+        ['name' => 'boardProxy#destroy', 'url' => '/api/board/proxies/{id}',         'verb' => 'DELETE'],
+
+        ['name' => 'boardGovernance#generate', 'url' => '/api/board/governance-reports', 'verb' => 'POST'],
+
+        ['name' => 'boardRegulator#grant',          'url' => '/api/board/auditor-access',  'verb' => 'POST'],
+        ['name' => 'boardRegulator#auditorRecords', 'url' => '/api/board/auditor/records', 'verb' => 'GET'],
+
         // SPA catch-all — same controller as the index route; must use a distinct route name
         // (duplicate names replace the earlier route in Symfony, which breaks GET /).
         ['name' => 'dashboard#catchAll', 'url' => '/{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], 'defaults' => ['path' => '']],

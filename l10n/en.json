@@ -1,5 +1,13 @@
 {
     "translations": {
+        "Boards": "Boards",
+        "Board meetings": "Board meetings",
+        "Resolutions": "Resolutions",
+        "Board materials": "Board materials",
+        "Board": "Board",
+        "Board meeting": "Board meeting",
+        "Resolution": "Resolution",
+        "Board material": "Board material",
         "Create minutes": "Create minutes",
         "Create decision": "Create decision",
         "Could not load minutes": "Could not load minutes",
