@@ -9,7 +9,6 @@
 		{ "id": "ActionItems", "label": "Action items", "icon": "icon-checkmark", "route": "ActionItems", "order": 40 },
 		{ "id": "Motions", "label": "Motions", "icon": "icon-comment", "route": "Motions", "order": 50 },
 		{ "id": "Meetings", "label": "Meetings", "icon": "icon-group", "route": "Meetings", "order": 60 },
-		{ "id": "Tasks", "label": "Tasks", "icon": "icon-checkmark", "route": "Tasks", "order": 65 },
 		{ "id": "Workspaces", "label": "Workspaces", "icon": "icon-group", "route": "Workspaces", "order": 70 },
 		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
 		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "footer", "order": 90 },
@@ -152,7 +151,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "meeting",
-				"description": "External integrations linked to this meeting — open the sidebar for Discussion (Talk), linked articles, files, notes, tags, tasks and the audit trail.",
+				"description": "External integrations linked to this meeting — open the sidebar for the Action items board (Deck), Discussion (Talk), linked articles, files, notes, tags and the audit trail.",
 				"sidebar": {
 					"enabled": true,
 					"register": "decidesk",
@@ -160,7 +159,7 @@
 					"useRegistry": true
 				}
 			},
-			"_note": "Discussion is consumed from the ADR-019 Talk integration leaf bound to the meeting object (migrate-comments-to-talk-leaf), replacing the retired in-app CommentService. Registry hides the Talk tab gracefully when Talk is absent."
+			"_note": "The Action items board is consumed from the ADR-019 Deck integration leaf bound to the meeting object (migrate-action-items-to-deck-leaf), projecting the CalDAV VTODO ActionItems (ADR-002 source of truth) as cards and replacing the retired in-app TaskService/DelegationService board. Discussion is consumed from the Talk leaf. The registry hides each tab gracefully when its backing app is absent — action items then remain reachable via the Nextcloud Tasks app over the same VTODOs."
 		},
 		{
 			"id": "DecisionIntegrations",
@@ -171,7 +170,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
-				"description": "External integrations linked to this decision dossier — open the sidebar to link emails, browse files, notes, tags, tasks and the audit trail.",
+				"description": "External integrations linked to this decision dossier — open the sidebar for the Action items board (Deck), to link emails, browse files, notes, tags and the audit trail.",
 				"sidebar": {
 					"enabled": true,
 					"register": "decidesk",
@@ -179,7 +178,7 @@
 					"useRegistry": true
 				}
 			},
-			"_note": "Email linking is consumed from the ADR-019 Email integration leaf bound to the decision object (migrate-email-links-to-email-leaf), replacing the retired in-app EmailLink store. Registry hides the Email tab gracefully when Mail is absent."
+			"_note": "Email linking is consumed from the ADR-019 Email integration leaf bound to the decision object (migrate-email-links-to-email-leaf), replacing the retired in-app EmailLink store. The Action items board is consumed from the ADR-019 Deck integration leaf bound to the decision object (migrate-action-items-to-deck-leaf), projecting CalDAV VTODO ActionItems (ADR-002) as cards and replacing the retired in-app TaskService/DelegationService board. The registry hides each tab gracefully when its backing app is absent — action items then remain reachable via the Nextcloud Tasks app over the same VTODOs."
 		},
 		{
 			"id": "AgendaItemIntegrations",
@@ -429,32 +428,6 @@
 			}
 		},
 		{
-			"id": "Tasks",
-			"route": "/tasks",
-			"type": "index",
-			"title": "Tasks",
-			"config": {
-				"register": "decidesk",
-				"schema": "task",
-				"columns": ["title", "assignee", "delegator", "dueDate", { "key": "taskStatus", "label": "Status", "widget": "badge" }],
-				"sidebar": { "enabled": true, "showMetadata": true }
-			}
-		},
-		{
-			"id": "TaskDetail",
-			"route": "/tasks/:id",
-			"type": "detail",
-			"title": "Task",
-			"config": {
-				"register": "decidesk",
-				"schema": "task",
-				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
-				]
-			}
-		},
-		{
 			"id": "Workspaces",
 			"route": "/workspaces",
 			"type": "index",
@@ -551,8 +524,8 @@
 												{ "slug": "order", "label": "Orders" },
 												{ "slug": "product", "label": "Products" },
 												{ "slug": "report", "label": "Reports" },
-												{ "slug": "task", "label": "Tasks" },
-												{ "slug": "delegation", "label": "Delegations" },
+												{ "slug": "task", "label": "Tasks (archived — read-only)" },
+												{ "slug": "delegation", "label": "Delegations (archived — read-only)" },
 												{ "slug": "comment", "label": "Comments (archived — read-only)" },
 												{ "slug": "notification-preference", "label": "Notification Preferences" },
 												{ "slug": "engagement-record", "label": "Engagement Records" },
