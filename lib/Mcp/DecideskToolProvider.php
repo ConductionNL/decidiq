@@ -32,7 +32,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\TaskService;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use OCP\IGroupManager;
 use OCP\IUserSession;
@@ -183,7 +182,6 @@ class DecideskToolProvider implements IMcpToolProvider
      * Constructor for DecideskToolProvider.
      *
      * @param MeetingService      $meetingService      The meeting service
-     * @param TaskService         $taskService         The task service
      * @param IUserSession        $userSession         The current user session
      * @param IGroupManager       $groupManager        The group manager (for admin checks)
      * @param ContainerInterface  $container           The DI container (for ObjectService)
@@ -194,7 +192,6 @@ class DecideskToolProvider implements IMcpToolProvider
      */
     public function __construct(
         private readonly MeetingService $meetingService,
-        private readonly TaskService $taskService,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
         private readonly ContainerInterface $container,
@@ -904,25 +901,33 @@ class DecideskToolProvider implements IMcpToolProvider
             ];
         }
 
-        $taskData = [
+        // Write the canonical CalDAV VTODO ActionItem (ADR-002 source of truth);
+        // the Deck integration leaf renders it as a board card (ADR-019 /
+        // migrate-action-items-to-deck-leaf). The retired in-app TaskService no
+        // longer mediates this write.
+        $actionItemData = [
             'title'      => (string) $title,
-            'meeting'    => (string) $meetingUuid,
-            'taskStatus' => 'pending',
-            'createdBy'  => $currentUserId,
+            'taskStatus' => 'open',
+            'relations'  => ['Meeting' => [(string) $meetingUuid]],
         ];
 
         $assigneeUserId = $args['assigneeUserId'] ?? null;
         if ($assigneeUserId !== null && $assigneeUserId !== '') {
-            $taskData['assignee'] = (string) $assigneeUserId;
+            $actionItemData['assignee'] = (string) $assigneeUserId;
         }
 
         if ($dueDate !== null && $dueDate !== '') {
-            $taskData['dueDate'] = (string) $dueDate;
+            $actionItemData['dueDate'] = (string) $dueDate;
         }
 
         try {
-            $saved    = $this->taskService->saveTask($taskData);
-            $itemUuid = $this->extractUuid(item: $saved);
+            $persisted = $objectService->saveObject(
+                register: 'decidesk',
+                schema: 'ActionItem',
+                object: $actionItemData,
+            );
+            $saved     = $this->toArray(item: $persisted);
+            $itemUuid  = $this->extractUuid(item: $saved);
 
             return [
                 'success'    => true,

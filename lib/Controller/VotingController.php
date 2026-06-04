@@ -169,7 +169,7 @@ class VotingController extends Controller
             }
         } catch (\Throwable) {
             // Silently fall through to global check.
-        }
+        }//end try
 
         return null;
 
@@ -191,15 +191,21 @@ class VotingController extends Controller
     #[NoAdminRequired]
     public function open(): JSONResponse
     {
-        $params       = $this->request->getParams();
-        $motionId     = ($params['motionId'] ?? '');
-        $meetingId    = ($params['meetingId'] ?? '');
+        $params    = $this->request->getParams();
+        $motionId  = ($params['motionId'] ?? '');
+        $meetingId = ($params['meetingId'] ?? '');
 
         // Per-meeting chair/secretary check: use the meetingId from the request body if present.
-        $guard = $this->requireChairOrSecretary(meetingId: $meetingId !== '' ? $meetingId : null);
+        $guardMeetingId = null;
+        if ($meetingId !== '') {
+            $guardMeetingId = $meetingId;
+        }
+
+        $guard = $this->requireChairOrSecretary(meetingId: $guardMeetingId);
         if ($guard !== null) {
             return $guard;
         }
+
         $votingMethod = ($params['votingMethod'] ?? 'for-against-abstain');
         $isSecret     = (bool) ($params['isSecret'] ?? false);
         $closedAt     = null;

@@ -1,0 +1,15 @@
+{
+  "x-openregister": {
+    "consumes": {
+      "integrations": [
+        {
+          "leaf": "deck",
+          "via": "openregister-integration-registry",
+          "boundSchemas": ["meeting", "decision"],
+          "replaces": "in-app TaskService / DelegationService board store (retired in migrate-action-items-to-deck-leaf, ADR-022); CalDAV VTODO ActionItems (ADR-002) remain the source of truth and are projected as deck cards",
+          "gracefulDegradation": "registry hides the Deck board tab when the Deck app is absent; action items remain reachable via the Nextcloud Tasks app over the same VTODOs"
+        }
+      ]
+    }
+  }
+}

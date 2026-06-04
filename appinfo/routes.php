@@ -106,13 +106,10 @@ return [
         ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
 
         // p4-collaboration routes — @spec openspec/changes/p4-collaboration/tasks.md.
-        // Task lifecycle (state machine + delegator-only reclaim).
-        ['name' => 'task#status',  'url' => '/api/tasks/{id}/status',  'verb' => 'POST'],
-        ['name' => 'task#reclaim', 'url' => '/api/tasks/{id}/reclaim', 'verb' => 'POST'],
-
-        // Delegation lifecycle (revoke / manual expire).
-        ['name' => 'delegation#revoke', 'url' => '/api/delegations/{id}',         'verb' => 'DELETE'],
-        ['name' => 'delegation#expire', 'url' => '/api/delegations/{id}/expire',  'verb' => 'POST'],
+        // Task/Delegation lifecycle routes were retired in
+        // migrate-action-items-to-deck-leaf (ADR-022 / task-4.2): action-item
+        // content lives on the CalDAV VTODO ActionItem (ADR-002) and the board UI
+        // is the Deck integration leaf bound via the ADR-019 registry.
 
         // Workspace member management.
         ['name' => 'workspace#addMember',    'url' => '/api/workspaces/{id}/members',            'verb' => 'POST'],
