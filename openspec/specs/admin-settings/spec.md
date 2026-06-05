@@ -5,8 +5,6 @@ status: idea
 # Admin Settings Specification
 
 ## Purpose
-@e2e exclude The governing body management, process template assignment, organisation configuration, and member import UIs described in this spec are not yet built. The Nextcloud admin settings panel for decidesk only exposes a version-info widget and register-mapping configuration; no governing-body CRUD, quorum config, role assignment, or CSV import pages exist in the SPA or the NC admin settings view.
-
 Admin settings enable organization administrators to configure Decidesk for their specific governance context. This includes setting up governing bodies (bodies), assigning members with roles, selecting process templates, configuring voting rules, and managing the OpenRegister schema setup. The admin interface is the first thing configured after installation and determines how the entire system behaves.
 
 **Standards**: Nextcloud Settings API (`OCP\Settings\ISettings`), Schema.org (`Organization`, `Role`)
@@ -24,6 +22,8 @@ The system MUST support creating and managing governing bodies (bestuursorganen)
 
 #### Scenario: Create a governing body for an association board
 
+@e2e openspec/specs/admin-settings/spec.md#create-a-governing-body-for-an-association-board
+
 - GIVEN an administrator in the Decidesk admin settings
 - WHEN they create a body with name "Bestuur", type "board", and add 5 members with roles (chair, secretary, treasurer, member, member)
 - THEN the system MUST create an OpenRegister object with the `body` schema
@@ -32,12 +32,16 @@ The system MUST support creating and managing governing bodies (bestuursorganen)
 
 #### Scenario: Configure quorum rules for a body
 
+@e2e openspec/specs/admin-settings/spec.md#configure-quorum-rules-for-a-body
+
 - GIVEN an existing body "Algemene Ledenvergadering" with 200 members
 - WHEN the administrator sets quorum to "50%+1 of members present or represented"
 - THEN the quorum rule MUST be stored on the body configuration
 - AND the quorum MUST be automatically calculated at each meeting
 
 #### Scenario: Assign roles within a body
+
+@e2e exclude Role assignment is a backend permission-semantics concern (chair/secretary/member capabilities). The members tab on a governance body renders empty in the live SPA — no role-assignment UI exists to drive from Playwright.
 
 - GIVEN an existing body with members
 - WHEN the administrator assigns the "chair" role to a member
@@ -55,6 +59,8 @@ The system MUST allow administrators to assign process templates to bodies. Each
 
 #### Scenario: Assign default and specialized templates to a body
 
+@e2e exclude No template-assignment UI exists. The governance body create dialog exposes a free-text workflowTemplate field but there is no specialized-template management surface in the SPA to drive from Playwright.
+
 - GIVEN a body "ALV" with a default template "ALV Standard Decision"
 - WHEN the administrator adds a specialized template "ALV Statute Amendment" for statute changes
 - THEN the body MUST have both templates available
@@ -71,6 +77,8 @@ The system MUST support configuring organization-level settings: organization na
 
 #### Scenario: Configure organization defaults
 
+@e2e exclude No organization-defaults UI exists (org name/logo/timezone/currency). The decidesk admin settings panel only exposes a version-info widget and register-mapping configuration — nothing to drive from Playwright.
+
 - GIVEN the administrator opens the organization settings
 - WHEN they set organization name "Vereniging De Harmonie", language "nl", timezone "Europe/Amsterdam", and currency "EUR"
 - THEN these defaults MUST apply to all meetings, decisions, and generated documents
@@ -86,6 +94,8 @@ The system MUST support importing members from Nextcloud Groups, Nextcloud Conta
 
 #### Scenario: Import members from a Nextcloud group
 
+@e2e exclude No member-import UI exists. There is no Nextcloud-group import surface in the SPA to drive from Playwright.
+
 - GIVEN a Nextcloud group "bestuur" with 5 members
 - WHEN the administrator imports the group into a Decidesk body
 - THEN all 5 Nextcloud users MUST be added as body members
@@ -93,6 +103,8 @@ The system MUST support importing members from Nextcloud Groups, Nextcloud Conta
 - AND the administrator MUST be able to assign roles after import
 
 #### Scenario: Import members from CSV
+
+@e2e exclude No CSV-import UI exists. There is no file-upload import surface in the SPA to drive from Playwright.
 
 - GIVEN a CSV file with columns: name, email, role
 - WHEN the administrator uploads the CSV for a body
