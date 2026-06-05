@@ -38,14 +38,22 @@ test('Add Agenda Item dialog opens with item type field', async ({ page }) => {
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByTestId('cn-cta-primary').click()
-	await expect(page.getByRole('dialog')).toBeVisible({ timeout: 8_000 })
-
-	// Dialog heading
 	const dialog = page.getByRole('dialog')
-	await expect(dialog).toBeVisible()
+	await expect(dialog).toBeVisible({ timeout: 8_000 })
+	await expect(dialog.getByRole('heading', { name: 'Create AgendaItem' })).toBeVisible()
+
+	// Assert the real agenda-item form fields render
+	await expect(dialog.getByText('title *', { exact: false })).toBeVisible()
+	await expect(dialog.getByText('itemType *', { exact: false })).toBeVisible()
+	await expect(dialog.getByText('orderNumber *', { exact: false })).toBeVisible()
+	// estimatedDuration supports the agenda-duration calculation scenario
+	await expect(dialog.getByText('estimatedDuration', { exact: true })).toBeVisible()
+
+	// Create button is present
+	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()
 
 	// Cancel closes it
-	await page.getByRole('button', { name: 'Cancel' }).click()
+	await dialog.getByRole('button', { name: 'Cancel' }).click()
 	await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 5_000 })
 })
 

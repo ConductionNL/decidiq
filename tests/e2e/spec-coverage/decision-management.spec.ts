@@ -40,14 +40,20 @@ test('Add Decision dialog opens', async ({ page }) => {
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
 	await page.getByTestId('cn-cta-primary').click()
-	await expect(page.getByRole('dialog')).toBeVisible({ timeout: 8_000 })
-	await expect(page.getByRole('heading', { name: 'Create Decision' })).toBeVisible()
+	const dialog = page.getByRole('dialog')
+	await expect(dialog).toBeVisible({ timeout: 8_000 })
+	await expect(dialog.getByRole('heading', { name: 'Create Decision' })).toBeVisible()
 
-	// Create button should be disabled without required fields
-	const createBtn = page.getByRole('button', { name: 'Create' })
-	await expect(createBtn).toBeVisible()
+	// Assert the real decision form fields render (not just that a dialog opened)
+	await expect(dialog.getByText('title', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('decisionDate', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('decisionType', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('governingBody', { exact: true })).toBeVisible()
 
-	await page.getByRole('button', { name: 'Cancel' }).click()
+	// Create button is present
+	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()
+
+	await dialog.getByRole('button', { name: 'Cancel' }).click()
 	await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 5_000 })
 })
 
