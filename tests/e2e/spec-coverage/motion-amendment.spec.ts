@@ -37,9 +37,12 @@ test('Add Motion dialog opens with co-signers and lifecycle fields', async ({ pa
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
 	await expect(dialog.getByRole('heading', { name: 'Create Motion' })).toBeVisible()
 
-	// coSigners label is visible inside the dialog
+	// Assert the real motion form fields render
+	await expect(dialog.getByText('title *', { exact: false })).toBeVisible()
+	await expect(dialog.getByText('proposer *', { exact: false })).toBeVisible()
+	await expect(dialog.getByText('motionType *', { exact: false })).toBeVisible()
+	// coSigners drives the co-signer threshold scenario
 	await expect(dialog.getByText('coSigners', { exact: true })).toBeVisible()
-
 	// lifecycle label is visible (required)
 	await expect(dialog.getByText('lifecycle *', { exact: false })).toBeVisible()
 
