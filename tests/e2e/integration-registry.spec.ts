@@ -54,14 +54,26 @@ const EXPECTED_IDS = [...BUILTIN_IDS, ...EXTERNAL_IDS, ...LEAF_IDS]
 const EXPECTED_COUNT = EXPECTED_IDS.length // 24
 
 /**
- * Log in via NC's HTML form. Reused across tests via `beforeEach`
- * since decidesk's Playwright config doesn't yet wire storageState.
+ * Ensure an authenticated NC session.
+ *
+ * The Playwright config wires `use.storageState` from globalSetup, so
+ * tests usually start already logged in. In that case navigating to
+ * `/login` immediately redirects to the dashboard and no login form is
+ * present — so we only drive the HTML form when it actually renders.
+ * This keeps the spec runnable both with and without storageState.
  *
  * @param page Playwright Page.
  */
 async function login(page: Page) {
 	await page.goto('/login')
-	await page.getByRole('textbox', { name: /Account name|Username/i }).fill(NC_USER)
+	// If storageState already authenticated us, NC bounces away from
+	// /login and the form never renders — nothing to do.
+	const userField = page.getByRole('textbox', { name: /Account name|Username/i })
+	if (!(await userField.isVisible({ timeout: 5_000 }).catch(() => false))) {
+		await expect(page).toHaveURL(/\/(apps|index\.php)/)
+		return
+	}
+	await userField.fill(NC_USER)
 	await page.getByRole('textbox', { name: 'Password' }).fill(NC_PASS)
 	await page.getByRole('button', { name: 'Log in', exact: true }).click()
 	// NC redirects to the apps menu (or /apps/dashboard/) after auth.
