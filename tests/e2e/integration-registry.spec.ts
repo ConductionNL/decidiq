@@ -109,6 +109,38 @@ async function waitForRegistry(page: Page): Promise<void> {
 	}, { timeout: 4_000 }).catch(() => { /* registry absent — caller skips */ })
 }
 
+// Cache the (env-wide, run-stable) answer to "is the integration registry
+// deployed?" so the 24 parametrized sidebar tests can skip BEFORE paying
+// the cost of a meeting fetch + page navigation on a partial-deploy env.
+let registryDeployedCache: boolean | undefined
+
+/**
+ * Cheaply detect whether the OR integration-provider chain is deployed,
+ * via OCS capabilities (a pure API call — no page load). The result is
+ * cached for the run. On a partial deploy this returns false and lets
+ * the sidebar tests skip without navigating.
+ *
+ * @param page Playwright Page.
+ * @return Whether the registry's OCS providers list is present + non-empty.
+ */
+async function registryDeployed(page: Page): Promise<boolean> {
+	if (registryDeployedCache !== undefined) {
+		return registryDeployedCache
+	}
+	try {
+		const res = await page.request.get('/ocs/v2.php/cloud/capabilities?format=json', {
+			headers: { 'OCS-APIRequest': 'true', Accept: 'application/json' },
+			failOnStatusCode: false,
+		})
+		const caps = await res.json()
+		const providers = caps?.ocs?.data?.capabilities?.openregister?.integrations?.providers ?? []
+		registryDeployedCache = Array.isArray(providers) && providers.length > 0
+	} catch {
+		registryDeployedCache = false
+	}
+	return registryDeployedCache
+}
+
 /**
  * Open the meeting integrations page for the first meeting we can
  * find. Returns the meeting uuid so the test can assert on it.
@@ -192,6 +224,7 @@ test.describe('Integration registry — sidebar tab rendering', () => {
 	})
 
 	test('meeting integrations page mounts one sidebar tab per registered provider', async ({ page }) => {
+		test.skip(!(await registryDeployed(page)), 'registry not deployed (OCS caps) — skipping sidebar navigation')
 		await openMeetingIntegrations(page)
 
 		// The registry-mode CnObjectSidebar renders an NcAppSidebarTab
@@ -209,6 +242,7 @@ test.describe('Integration registry — sidebar tab rendering', () => {
 
 	for (const id of EXPECTED_IDS) {
 		test(`tab-button-${id} renders in the registry sidebar`, async ({ page }) => {
+			test.skip(!(await registryDeployed(page)), 'registry not deployed (OCS caps) — skipping sidebar navigation')
 			await openMeetingIntegrations(page)
 
 			const tab = page.locator(`aside.app-sidebar [role="tab"]#tab-button-${id}`)
@@ -231,6 +265,7 @@ test.describe('Integration registry — tab activation', () => {
 
 	for (const id of REPRESENTATIVES) {
 		test(`clicking tab-button-${id} activates it + mounts the panel`, async ({ page }) => {
+			test.skip(!(await registryDeployed(page)), 'registry not deployed (OCS caps) — skipping sidebar navigation')
 			await openMeetingIntegrations(page)
 
 			const tab = page.locator(`aside.app-sidebar [role="tab"]#tab-button-${id}`)
