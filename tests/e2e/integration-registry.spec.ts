@@ -65,9 +65,20 @@ const EXPECTED_COUNT = EXPECTED_IDS.length // 24
  * @param page Playwright Page.
  */
 async function login(page: Page) {
+	// Fast path: the Playwright config wires `use.storageState` from
+	// globalSetup, so tests almost always start authenticated. Verify
+	// that cheaply via an OCS call instead of paying a full `/login`
+	// dashboard page-load in every `beforeEach` (which, multiplied across
+	// this spec's ~30 tests, dominated the runtime and blew the budget).
+	const probe = await page.request.get('/ocs/v2.php/cloud/user?format=json', {
+		headers: { 'OCS-APIRequest': 'true', Accept: 'application/json' },
+		failOnStatusCode: false,
+	})
+	if (probe.ok()) {
+		return
+	}
+	// No session (e.g. CI without storageState) — drive the HTML form.
 	await page.goto('/login')
-	// If storageState already authenticated us, NC bounces away from
-	// /login and the form never renders — nothing to do.
 	const userField = page.getByRole('textbox', { name: /Account name|Username/i })
 	if (!(await userField.isVisible({ timeout: 2_000 }).catch(() => false))) {
 		await expect(page).toHaveURL(/\/(apps|index\.php)/)
