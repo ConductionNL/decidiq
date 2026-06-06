@@ -406,7 +406,7 @@ class Application extends App implements IBootstrap
 
         $context->registerService(
             EmailReferenceExtractor::class,
-            static function ($c): EmailReferenceExtractor {
+            static function (): EmailReferenceExtractor {
                 return new EmailReferenceExtractor();
             }
         );
@@ -490,9 +490,11 @@ class Application extends App implements IBootstrap
             }
         );
 
-        // Register MigrateCommentsToTalkLeaf repair step.
+        // Register MigrateCommentsToTalkLeaf DI service. The repair step itself is
+        // registered via appinfo/info.xml <repair-steps>; IRegistrationContext has no
+        // registerRepairStep() method, so the service registration here only makes the
+        // step's constructor dependencies resolvable when Nextcloud instantiates it.
         // @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1.
-        $context->registerRepairStep(MigrateCommentsToTalkLeaf::class);
         $context->registerService(
             MigrateCommentsToTalkLeaf::class,
             static function ($c): MigrateCommentsToTalkLeaf {
@@ -505,9 +507,11 @@ class Application extends App implements IBootstrap
             }
         );
 
-        // Register MigrateActionItemsToDeckLeaf repair step.
+        // Register MigrateActionItemsToDeckLeaf DI service. The repair step itself is
+        // registered via appinfo/info.xml <repair-steps>; IRegistrationContext has no
+        // registerRepairStep() method, so the service registration here only makes the
+        // step's constructor dependencies resolvable when Nextcloud instantiates it.
         // @spec openspec/changes/migrate-action-items-to-deck-leaf/tasks.md#task-3.1.
-        $context->registerRepairStep(MigrateActionItemsToDeckLeaf::class);
         $context->registerService(
             MigrateActionItemsToDeckLeaf::class,
             static function ($c): MigrateActionItemsToDeckLeaf {
