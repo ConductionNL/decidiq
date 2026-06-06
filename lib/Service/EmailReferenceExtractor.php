@@ -71,7 +71,7 @@ class EmailReferenceExtractor
             $rawMatches
         );
 
-        if (isset($rawMatches[0]) === false || count($rawMatches[0]) === 0) {
+        if (count($rawMatches[0]) === 0) {
             return [];
         }
 

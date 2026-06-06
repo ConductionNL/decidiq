@@ -50,8 +50,10 @@ parameters:
         # Dynamic HTTP status codes from business rule validation results
         # (matches both `Parameter $statusCode` and `Parameter #N $statusCode` forms emitted by phpstan)
         - '#Parameter (\#\d+ )?\$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor expects#'
-        # registerRepairStep exists on server; not yet in nextcloud/ocp stub used for analysis
-        - '#Call to an undefined method OCP\\AppFramework\\Bootstrap\\IRegistrationContext::registerRepairStep#'
+        # NC Talk's room/conversation manager is an external app class not available during
+        # analysis; it is resolved dynamically at runtime and guarded with method_exists(),
+        # so phpstan infers stdClass and cannot see the real named-parameter signatures.
+        - '#Unknown parameter \$(objectType|objectId|type|name) in call to method stdClass::(getRoomForObject|createConversationFromObject)\(\)#'
         # OCP stub gaps for methods that exist at runtime
         - '#Call to an undefined method OCP\\IRequest::getContent\(\)#'
         - '#Call to an undefined method OCP\\IRequest::setParameter\(\)#'
