@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\SettingsService;
+use OCA\Decidesk\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -88,7 +89,7 @@ class SettingsController extends Controller
      *
      * @return JSONResponse
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function create(): JSONResponse
     {
         $data   = $this->request->getParams();
@@ -117,7 +118,7 @@ class SettingsController extends Controller
      *
      * @return JSONResponse
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function load(): JSONResponse
     {
         $result = $this->settingsService->loadConfiguration(force: true);
