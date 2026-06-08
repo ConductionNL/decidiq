@@ -12,11 +12,6 @@ parameters:
 			path: lib/Controller/ApiController.php
 
 		-
-			message: "#^Parameter \\#1 \\$settings of attribute class OCP\\\\AppFramework\\\\Http\\\\Attribute\\\\AuthorizedAdminSetting constructor expects class\\-string\\<OCP\\\\Settings\\\\IDelegatedSettings\\>, string given\\.$#"
-			count: 2
-			path: lib/Controller/SettingsController.php
-
-		-
 			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
 			count: 1
 			path: lib/Service/ActionItemAnalyticsService.php
