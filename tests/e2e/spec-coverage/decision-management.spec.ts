@@ -44,11 +44,14 @@ test('Add Decision dialog opens', async ({ page }) => {
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
 	await expect(dialog.getByRole('heading', { name: 'Create Decision' })).toBeVisible()
 
-	// Assert the real decision form fields render (not just that a dialog opened)
-	await expect(dialog.getByText('title', { exact: true })).toBeVisible()
-	await expect(dialog.getByText('decisionDate', { exact: true })).toBeVisible()
-	await expect(dialog.getByText('decisionType', { exact: true })).toBeVisible()
-	await expect(dialog.getByText('governingBody', { exact: true })).toBeVisible()
+	// Assert the real decision form fields render (not just that a dialog opened).
+	// decisionDate is a datetime-picker that renders two labels for the same
+	// field (the visible form label + a visually-hidden native-picker label),
+	// so scope to the first match to avoid a strict-mode violation.
+	await expect(dialog.getByText('title', { exact: true }).first()).toBeVisible()
+	await expect(dialog.getByText('decisionDate', { exact: true }).first()).toBeVisible()
+	await expect(dialog.getByText('decisionType', { exact: true }).first()).toBeVisible()
+	await expect(dialog.getByText('governingBody', { exact: true }).first()).toBeVisible()
 
 	// Create button is present
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()
