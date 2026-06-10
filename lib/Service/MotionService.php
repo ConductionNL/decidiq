@@ -435,9 +435,9 @@ class MotionService
         $existing = $objectService->findAll(
                 [
                     'filters' => [
-                        'register'         => 'decidesk',
-                        'schema'           => 'amendment',
-                        'relations.motion' => $motionId,
+                        'register'          => 'decidesk',
+                        'schema'            => 'amendment',
+                        '_relations.motion' => $motionId,
                     ],
                 ]
                 );

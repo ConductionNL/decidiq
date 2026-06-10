@@ -78,6 +78,102 @@ class VotingService
     }//end objectService()
 
     /**
+     * Normalise the result of ObjectService::saveObject() to an array.
+     *
+     * The saveObject() call returns an OpenRegister ObjectEntity; methods declaring a
+     * `: array` return type must serialise it (otherwise PHP raises a TypeError).
+     * Falls back to the original payload when the saved value is neither an
+     * ObjectEntity nor an array.
+     *
+     * @param mixed                $saved    The value returned by saveObject().
+     * @param array<string, mixed> $fallback The original object payload.
+     *
+     * @return array<string, mixed> The persisted object as an array.
+     */
+    private function normaliseSaved(mixed $saved, array $fallback): array
+    {
+        if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
+            return $saved->jsonSerialize();
+        }
+
+        if (is_array($saved) === true) {
+            return $saved;
+        }
+
+        return $fallback;
+
+    }//end normaliseSaved()
+
+    /**
+     * Scope a relation-filtered result set down to a specific related object id.
+     *
+     * The OpenRegister `_relations.<schema>` filter matches any object that
+     * carries a relation of that schema — it does NOT scope by the related id
+     * (the filter value is ignored). Tally/quorum/dedup logic needs an exact
+     * match, so this helper re-checks each returned object's relations and keeps
+     * only those that actually reference $targetId. Both the structured
+     * (`{"relations.N.id": "...", "relations.N.schema": "..."}`) and the legacy
+     * flat (`{"<field>": "<id>"}`) relation shapes are honoured.
+     *
+     * @param array<int, mixed> $entities The ObjectEntity result set from findAll().
+     * @param string            $schema   The related schema slug (e.g. 'voting-round').
+     * @param string            $targetId The related object UUID that must be referenced.
+     *
+     * @return array<int, mixed> Entities that genuinely reference $targetId.
+     */
+    private function filterByRelation(array $entities, string $schema, string $targetId): array
+    {
+        $matched = [];
+        foreach ($entities as $entity) {
+            $object    = $entity->jsonSerialize();
+            $relations = ($object['@self']['relations'] ?? ($object['relations'] ?? []));
+            if (is_array($relations) === false) {
+                continue;
+            }
+
+            if ($this->relationsReference(relations: $relations, schema: $schema, targetId: $targetId) === true) {
+                $matched[] = $entity;
+            }
+        }
+
+        return $matched;
+
+    }//end filterByRelation()
+
+    /**
+     * Determine whether a serialised relations structure references $targetId.
+     *
+     * @param array<mixed> $relations The object's relations structure.
+     * @param string       $schema    The expected related schema slug.
+     * @param string       $targetId  The related UUID to look for.
+     *
+     * @return bool True when $targetId is referenced by the relations.
+     */
+    private function relationsReference(array $relations, string $schema, string $targetId): bool
+    {
+        // Structured list form: [{ 'id' => ..., 'schema' => ... }, ...].
+        foreach ($relations as $value) {
+            if (is_array($value) === true) {
+                $relSchema = ($value['schema'] ?? null);
+                $relId     = ($value['id'] ?? null);
+                if ($relId === $targetId && ($relSchema === null || $relSchema === $schema)) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            // Flat scalar form: '<field>' => '<id>' or 'relations.N.id' => '<id>'.
+            if (is_string($value) === true && $value === $targetId) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }//end relationsReference()
+
+    /**
      * Resolve Nextcloud Notification IManager.
      *
      * @return \OCP\Notification\IManager
@@ -199,7 +295,11 @@ class VotingService
 
         $objectService->setRegister('decidesk');
         $objectService->setSchema('participant');
-        $participantEntities = $objectService->findAll(['filters' => ['relations.governance-body' => $governanceBodyId]]);
+        $participantEntities = $this->filterByRelation(
+            entities: $objectService->findAll(['filters' => ['_relations.governance-body' => $governanceBodyId]]),
+            schema: 'governance-body',
+            targetId: $governanceBodyId
+        );
 
         $activeCount = 0;
         foreach ($participantEntities as $participantEntity) {
@@ -294,7 +394,10 @@ class VotingService
             $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
         }
 
-        $result = ($created ?? $votingRound);
+        // ObjectService::saveObject() returns an ObjectEntity; normalise to an array so the
+        // declared `: array` return type holds and callers can subscript the result.
+        $result = $this->normaliseSaved(saved: $created, fallback: $votingRound);
+
         if (count($excludedUuids) > 0) {
             $result['excludedPresetUuids'] = $excludedUuids;
         }
@@ -405,28 +508,36 @@ class VotingService
                 $delegatorToken = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('vote');
-                $existingProxyEntities = $objectService->findAll(
+                $existingProxyEntities = $this->filterByRelation(
+                    entities: $objectService->findAll(
                         [
                             'filters' => [
-                                'relations.voting-round' => $votingRoundId,
-                                'delegatorToken'         => $delegatorToken,
+                                '_relations.voting-round' => $votingRoundId,
+                                'delegatorToken'          => $delegatorToken,
                             ],
                         ]
-                        );
+                    ),
+                    schema: 'voting-round',
+                    targetId: $votingRoundId
+                );
                 if (empty($existingProxyEntities) === false) {
                     throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
                 }
             } else {
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('vote');
-                $existingProxyEntities = $objectService->findAll(
+                $existingProxyEntities = $this->filterByRelation(
+                    entities: $objectService->findAll(
                         [
                             'filters' => [
-                                'relations.voting-round' => $votingRoundId,
-                                'isProxy'                => true,
+                                '_relations.voting-round' => $votingRoundId,
+                                'isProxy'                 => true,
                             ],
                         ]
-                        );
+                    ),
+                    schema: 'voting-round',
+                    targetId: $votingRoundId
+                );
 
                 foreach ($existingProxyEntities as $proxyVoteEntity) {
                     $proxyVote = $proxyVoteEntity->jsonSerialize();
@@ -446,25 +557,39 @@ class VotingService
             $voterToken = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
             $objectService->setRegister('decidesk');
             $objectService->setSchema('vote');
-            $existingVoteEntities = $objectService->findAll(
+            $existingVoteEntities = $this->filterByRelation(
+                entities: $objectService->findAll(
                     [
                         'filters' => [
-                            'relations.voting-round' => $votingRoundId,
-                            'voterToken'             => $voterToken,
+                            '_relations.voting-round' => $votingRoundId,
+                            'voterToken'              => $voterToken,
                         ],
                     ]
-                    );
+                ),
+                schema: 'voting-round',
+                targetId: $votingRoundId
+            );
         } else {
             $objectService->setRegister('decidesk');
             $objectService->setSchema('vote');
-            $existingVoteEntities = $objectService->findAll(
-                    [
-                        'filters' => [
-                            'relations.voting-round' => $votingRoundId,
-                            'relations.participant'  => $participantId,
-                        ],
-                    ]
-                    );
+            // Both _relations filters are schema-presence-only in OR, so scope to
+            // this round first, then to this participant, to get an exact dedup match.
+            $existingVoteEntities = $this->filterByRelation(
+                entities: $this->filterByRelation(
+                    entities: $objectService->findAll(
+                        [
+                            'filters' => [
+                                '_relations.voting-round' => $votingRoundId,
+                                '_relations.participant'  => $participantId,
+                            ],
+                        ]
+                    ),
+                    schema: 'voting-round',
+                    targetId: $votingRoundId
+                ),
+                schema: 'participant',
+                targetId: $participantId
+            );
         }//end if
 
         $existingVote = null;
@@ -531,7 +656,8 @@ class VotingService
 
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'vote', object: $vote);
 
-        return ($saved ?? $vote);
+        // The saveObject() call returns an ObjectEntity; normalise to satisfy the `: array` return type.
+        return $this->normaliseSaved(saved: $saved, fallback: $vote);
 
     }//end castVote()
 
@@ -649,7 +775,11 @@ class VotingService
             try {
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('vote');
-                $voteEntities = $objectService->findAll(['filters' => ['relations.voting-round' => $votingRoundId]]);
+                $voteEntities = $this->filterByRelation(
+                    entities: $objectService->findAll(['filters' => ['_relations.voting-round' => $votingRoundId]]),
+                    schema: 'voting-round',
+                    targetId: $votingRoundId
+                );
 
                 foreach ($voteEntities as $voteEntity) {
                     $vote          = $voteEntity->jsonSerialize();
@@ -661,7 +791,7 @@ class VotingService
             } catch (\Throwable $e) {
                 $this->logger->warning('Decidesk: vote anonymisation failed', ['error' => $e->getMessage()]);
             }
-        }
+        }//end if
 
         return ($round ?? []);
 
@@ -681,7 +811,11 @@ class VotingService
         $objectService = $this->objectService();
         $objectService->setRegister('decidesk');
         $objectService->setSchema('vote');
-        $voteEntities = $objectService->findAll(['filters' => ['relations.voting-round' => $votingRoundId]]);
+        $voteEntities = $this->filterByRelation(
+            entities: $objectService->findAll(['filters' => ['_relations.voting-round' => $votingRoundId]]),
+            schema: 'voting-round',
+            targetId: $votingRoundId
+        );
 
         $for     = 0;
         $against = 0;
@@ -827,7 +961,8 @@ class VotingService
 
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
 
-        return ($saved ?? $round);
+        // The saveObject() call returns an ObjectEntity; normalise to satisfy the `: array` return type.
+        return $this->normaliseSaved(saved: $saved, fallback: $round);
 
     }//end saveShowOfHandsTally()
 

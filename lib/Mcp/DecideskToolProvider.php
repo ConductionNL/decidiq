@@ -581,9 +581,9 @@ class DecideskToolProvider implements IMcpToolProvider
             $agendaItems = $objectService->findAll(
                 [
                     'filters' => [
-                        'register'          => 'decidesk',
-                        'schema'            => 'agenda-item',
-                        'relations.meeting' => $meetingUuid,
+                        'register'           => 'decidesk',
+                        'schema'             => 'agenda-item',
+                        '_relations.meeting' => $meetingUuid,
                     ],
                 ]
             );
@@ -591,9 +591,9 @@ class DecideskToolProvider implements IMcpToolProvider
             $decisions = $objectService->findAll(
                 [
                     'filters' => [
-                        'register'          => 'decidesk',
-                        'schema'            => 'decision',
-                        'relations.meeting' => $meetingUuid,
+                        'register'           => 'decidesk',
+                        'schema'             => 'decision',
+                        '_relations.meeting' => $meetingUuid,
                     ],
                 ]
             );
@@ -601,9 +601,9 @@ class DecideskToolProvider implements IMcpToolProvider
             $actionItems = $objectService->findAll(
                 [
                     'filters' => [
-                        'register'          => 'decidesk',
-                        'schema'            => 'action-item',
-                        'relations.meeting' => $meetingUuid,
+                        'register'           => 'decidesk',
+                        'schema'             => 'action-item',
+                        '_relations.meeting' => $meetingUuid,
                     ],
                 ]
             );
@@ -1147,9 +1147,9 @@ class DecideskToolProvider implements IMcpToolProvider
                 $meetingEntities = $objectService->findAll(
                     [
                         'filters' => [
-                            'register'                  => 'decidesk',
-                            'schema'                    => 'meeting',
-                            'relations.governance-body' => $bodyId,
+                            'register'                   => 'decidesk',
+                            'schema'                     => 'meeting',
+                            '_relations.governance-body' => $bodyId,
                         ],
                     ]
                 );

@@ -112,9 +112,9 @@ class AgendaService
         $items = $this->objectService->findAll(
             [
                 'filters' => [
-                    'register'          => 'decidesk',
-                    'schema'            => 'agenda-item',
-                    'relations.meeting' => $meetingId,
+                    'register'           => 'decidesk',
+                    'schema'             => 'agenda-item',
+                    '_relations.meeting' => $meetingId,
                 ],
             ]
         );
@@ -304,9 +304,9 @@ class AgendaService
         $items = $this->objectService->findAll(
             [
                 'filters' => [
-                    'register'          => 'decidesk',
-                    'schema'            => 'agenda-item',
-                    'relations.meeting' => $meetingId,
+                    'register'           => 'decidesk',
+                    'schema'             => 'agenda-item',
+                    '_relations.meeting' => $meetingId,
                 ],
             ]
         );
@@ -397,9 +397,9 @@ class AgendaService
         $meetingItems = $this->objectService->findAll(
             [
                 'filters' => [
-                    'register'          => 'decidesk',
-                    'schema'            => 'agenda-item',
-                    'relations.meeting' => $meetingId,
+                    'register'           => 'decidesk',
+                    'schema'             => 'agenda-item',
+                    '_relations.meeting' => $meetingId,
                 ],
             ]
         );

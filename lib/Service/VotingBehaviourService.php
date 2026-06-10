@@ -94,7 +94,7 @@ class VotingBehaviourService
         $objectService->setRegister('decidesk');
         $objectService->setSchema('motion');
         $motionEntities = $objectService->findAll(
-            ['filters' => ['relations.governance-body' => $governanceBodyId]]
+            ['filters' => ['_relations.governance-body' => $governanceBodyId]]
         );
 
         // Step 2: For each motion, collect all closed voting-rounds.
@@ -109,7 +109,7 @@ class VotingBehaviourService
             $objectService->setRegister('decidesk');
             $objectService->setSchema('voting-round');
             $roundEntities = $objectService->findAll(
-                ['filters' => ['relations.motion' => $motionId]]
+                ['filters' => ['_relations.motion' => $motionId]]
             );
 
             foreach ($roundEntities as $roundEntity) {
@@ -141,8 +141,8 @@ class VotingBehaviourService
             $voteEntities = $objectService->findAll(
                     [
                         'filters' => [
-                            'relations.voting-round' => $roundId,
-                            'relations.participant'  => $participantId,
+                            '_relations.voting-round' => $roundId,
+                            '_relations.participant'  => $participantId,
                         ],
                     ]
                     );
@@ -177,8 +177,8 @@ class VotingBehaviourService
             $proxyVoteEntities = $objectService->findAll(
                 [
                     'filters' => [
-                        'relations.voting-round' => $roundId,
-                        'isProxy'                => true,
+                        '_relations.voting-round' => $roundId,
+                        'isProxy'                 => true,
                     ],
                 ]
             );

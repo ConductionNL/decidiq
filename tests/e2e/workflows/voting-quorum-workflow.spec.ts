@@ -109,11 +109,12 @@ test('open voting round is blocked (403) when caller is not a meeting chair/secr
 	expect(after, 'no voting-round may be created when the guard blocks').toBe(before)
 })
 
-// The guard stays fail-CLOSED even when the caller is seeded as the chair (with
-// nextcloudUserId=admin). In this deployment chair resolution depends on the
-// broken relations filter (BUG-A), so the admin chair is not resolved and open
-// is still rejected — proving the guard never silently falls open.
-test('open voting round does not fail open even for a seeded chair (guard stays closed)', async ({ page }) => {
+// With the relation filter fixed (BUG-A), a participant seeded as chair (role=chair,
+// nextcloudUserId=admin) now resolves correctly, so the per-meeting guard ALLOWS the
+// authorised chair to open the round. Combined with the fail-CLOSED test above (a
+// non-chair caller is rejected with 403), this proves the guard resolves the real
+// chair role rather than blanket-blocking or blanket-allowing.
+test('open voting round succeeds for a seeded meeting chair (guard resolves the chair)', async ({ page }) => {
 	const s = await seedGovernanceScenario(page, ledger, {
 		quorumRequired: 0,
 		memberCount: 3,
@@ -130,12 +131,10 @@ test('open voting round does not fail open even for a seeded chair (guard stays 
 		},
 	})
 
-	// The guard must produce a definitive 4xx (here 403) — never a 2xx that would
-	// indicate a fail-open. We assert it is NOT a success.
-	expect(resp.status(), `open must not succeed via fail-open (got ${resp.status()})`).toBeGreaterThanOrEqual(400)
-	const rounds = await listObjects(page, 'voting-round')
-	const leaked = rounds.filter((r) => JSON.stringify(r).includes(s.motionId))
-	expect(leaked.length, 'no round may be created while the chair cannot be resolved').toBe(0)
+	// The authorised chair must be allowed through (201), and a round must be created.
+	expect(resp.status(), `seeded chair must be allowed to open (got ${resp.status()})`).toBe(201)
+	const round = await resp.json()
+	expect(objId(round), 'an opened round must be returned').toBeTruthy()
 })
 
 // ── QUORUM enforcement (REAL where reachable): no round persists when blocked ─
@@ -201,7 +200,7 @@ for (const c of TALLY_CASES) {
 	// BUG-A: votes are linked to the round but tallyResults() filters with
 	// `relations.voting-round` which matches 0 rows in this deployment, so the
 	// computed tally is always 0/0/0 = invalid regardless of the votes cast.
-	test.fixme(`tally math — ${c.name}`, async ({ page }) => {
+	test(`tally math — ${c.name}`, async ({ page }) => {
 		// Orphan round (no motion link) so close()'s auth falls back to the
 		// global-admin path and the round is actually closable.
 		const vr = await createObject(page, ledger, 'voting-round', {
@@ -239,7 +238,7 @@ for (const c of TALLY_CASES) {
 // from saveObject() → TypeError 500. The exact expected tally math (for=5,
 // against=2 → adopted) is asserted here and will pass once the return type is
 // fixed to serialise the entity.
-test.fixme('show-of-hands tally math — for=5 against=2 abstain=1 → adopted', async ({ page }) => {
+test('show-of-hands tally math — for=5 against=2 abstain=1 → adopted', async ({ page }) => {
 	const vr = await createObject(page, ledger, 'voting-round', {
 		votingMethod: 'show-of-hands',
 		isSecret: false,
@@ -260,7 +259,7 @@ test.fixme('show-of-hands tally math — for=5 against=2 abstain=1 → adopted',
 
 // BUG-B (cast): castVote() has the same `: array` return-type defect — a real
 // vote cast 500s before the tally can ever be computed from cast votes.
-test.fixme('casting a vote returns the persisted vote (no return-type 500)', async ({ page }) => {
+test('casting a vote returns the persisted vote (no return-type 500)', async ({ page }) => {
 	const s = await seedGovernanceScenario(page, ledger, {
 		quorumRequired: 0,
 		memberCount: 3,

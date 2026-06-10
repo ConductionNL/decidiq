@@ -87,9 +87,26 @@ class ParticipantResolver
         }
 
         $meeting = $meetingEntity->jsonSerialize();
-        foreach (($meeting['relations'] ?? []) as $relation) {
-            if (($relation['schema'] ?? '') === 'governance-body') {
-                return ($relation['id'] ?? null);
+
+        // OpenRegister serialises relations in two shapes: a structured list
+        // ([{ 'schema' => ..., 'id' => ... }, ...]) and a flat object keyed by the
+        // source field name ({ 'governanceBody' => '<id>', ... }). Meetings carry
+        // the body link in the flat form, so both must be honoured.
+        $relations = ($meeting['@self']['relations'] ?? ($meeting['relations'] ?? []));
+        if (is_array($relations) === true) {
+            foreach ($relations as $key => $relation) {
+                if (is_array($relation) === true) {
+                    if (($relation['schema'] ?? '') === 'governance-body') {
+                        return ($relation['id'] ?? null);
+                    }
+
+                    continue;
+                }
+
+                // Flat form: the field name is the relation target (e.g. 'governanceBody').
+                if (is_string($relation) === true && $key === 'governanceBody') {
+                    return $relation;
+                }
             }
         }
 
@@ -123,16 +140,64 @@ class ParticipantResolver
         $objectService = $this->objectService();
         $objectService->setRegister('decidesk');
         $objectService->setSchema('participant');
-        $entities = $objectService->findAll(['filters' => ['relations.governance-body' => $governanceBodyId]]);
+        $entities = $objectService->findAll(['filters' => ['_relations.governance-body' => $governanceBodyId]]);
 
         $participants = [];
         foreach ($entities as $entity) {
-            $participants[] = $entity->jsonSerialize();
+            $participant = $entity->jsonSerialize();
+            // The OR `_relations.<schema>` filter is schema-presence-only (it ignores
+            // the filter value), so re-check that this participant genuinely belongs
+            // to the requested governance body before including it.
+            if ($this->relationsReference(object: $participant, schema: 'governance-body', targetId: $governanceBodyId) === false) {
+                continue;
+            }
+
+            $participants[] = $participant;
         }
 
         return $participants;
 
     }//end resolveMeetingParticipants()
+
+    /**
+     * Determine whether a serialised object references $targetId via a relation.
+     *
+     * Honours both the structured (`{"relations.N.id": "...",
+     * "relations.N.schema": "..."}`) and the legacy flat (`{"<field>": "<id>"}`)
+     * relation shapes returned by OpenRegister.
+     *
+     * @param array<string, mixed> $object   The serialised object (jsonSerialize()).
+     * @param string               $schema   The expected related schema slug.
+     * @param string               $targetId The related UUID to look for.
+     *
+     * @return bool True when $targetId is referenced.
+     */
+    private function relationsReference(array $object, string $schema, string $targetId): bool
+    {
+        $relations = ($object['@self']['relations'] ?? ($object['relations'] ?? []));
+        if (is_array($relations) === false) {
+            return false;
+        }
+
+        foreach ($relations as $value) {
+            if (is_array($value) === true) {
+                $relSchema = ($value['schema'] ?? null);
+                $relId     = ($value['id'] ?? null);
+                if ($relId === $targetId && ($relSchema === null || $relSchema === $schema)) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if (is_string($value) === true && $value === $targetId) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }//end relationsReference()
 
     /**
      * Check whether a Nextcloud UID is a participant in a meeting.

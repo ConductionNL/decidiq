@@ -162,7 +162,7 @@ TEMPLATE;
             ];
             $participants = [];
             if ($bodyId !== null) {
-                $params['relations.governance-body'] = $bodyId;
+                $params['_relations.governance-body'] = $bodyId;
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('participant');
                 $participantEntities = $objectService->findAll(['filters' => $params]);
@@ -178,9 +178,9 @@ TEMPLATE;
 
             // Fetch agenda items scoped to this meeting.
             $agendaParams = [
-                'relations.meeting' => $meetingId,
-                '_limit'            => 999,
-                '_order'            => 'orderNumber:ASC',
+                '_relations.meeting' => $meetingId,
+                '_limit'             => 999,
+                '_order'             => 'orderNumber:ASC',
             ];
             $objectService->setRegister('decidesk');
             $objectService->setSchema('agenda-item');
@@ -322,7 +322,7 @@ TEMPLATE;
             ];
             $participants = [];
             if ($bodyId !== null) {
-                $params['relations.governance-body'] = $bodyId;
+                $params['_relations.governance-body'] = $bodyId;
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('participant');
                 $participantEntities = $objectService->findAll(['filters' => $params]);
