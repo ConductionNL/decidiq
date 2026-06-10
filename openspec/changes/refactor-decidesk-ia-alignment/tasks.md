@@ -125,7 +125,7 @@ self-contained edit a reviewer can verify in isolation.
   0); the three components compile into the emitted bundles. The only
   warnings are pre-existing (lib-internal `../../store/index.js`
   resolution + asset-size limits) and unrelated to this change.
-- [~] **7.3** Manual verify in dev container — DEFERRED. The Hydra — deferred to downstream cycle (handoff)
+- [ ] **7.3** Manual verify in dev container — DEFERRED. The Hydra
   build worktree has no running decidesk/OpenRegister instance; manual
   browser verification at `/apps/decidesk/meetings/:id` is left to the
   reviewer / a seeded environment. Static validation (lint, stylelint,
