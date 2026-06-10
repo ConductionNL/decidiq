@@ -126,8 +126,14 @@ class VotingBehaviourControllerTest extends TestCase
      */
     private function makeParticipantEntity(string $nextcloudUserId): object
     {
-        $entity = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['jsonSerialize'])
+        // Mock the real ObjectEntity type so the value is assignable to
+        // ObjectService::find()'s declared `?ObjectEntity` return when the live
+        // OpenRegister app is bootstrapped (a bare \stdClass mock is rejected by
+        // PHPUnit's IncompatibleReturnValue check). The stub ObjectEntity also
+        // declares jsonSerialize(), so this works standalone too.
+        $entity = $this->getMockBuilder(\OCA\OpenRegister\Db\ObjectEntity::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['jsonSerialize'])
             ->getMock();
         $entity->method('jsonSerialize')->willReturn(['nextcloudUserId' => $nextcloudUserId]);
         return $entity;
