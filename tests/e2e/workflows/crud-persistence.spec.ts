@@ -150,7 +150,7 @@ test('Meeting: create persists, appears in list, detail shows values, delete rem
 // that blocks Save, even when the user only changes the title. Re-entering the
 // datetime-local value does not clear it (the control does not rebind the model
 // value). Un-fixme once the edit form normalises / accepts the stored date-time.
-test.fixme('BUG: Meeting edit dialog saves a title change without a scheduledDate format error', async ({ page }) => {
+test('Meeting edit dialog saves a title change without a scheduledDate format error', async ({ page }) => {
 	const tag = `e2e-${ledger.runId}`
 	const title = `${tag}-meeting-editbug`
 	const created = await createObject(page, ledger, 'meeting', {
@@ -249,22 +249,27 @@ test('Decision: create persists, appears in list, detail shows values, delete re
 // and pre-filtered search all fail to commit the enum value to the form model,
 // so a meeting/decision with required enum fields cannot be created through the
 // UI at all. Un-fixme once the NcSelect value binds to the create-form model.
-test.fixme('BUG: Meeting Create dialog submit enables once required enums are selected', async ({ page }) => {
+test('Meeting Create dialog submit enables once required enums are selected', async ({ page }) => {
 	await gotoList(page, 'meetings')
 	await page.getByTestId('cn-cta-primary').click()
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
 
 	await dialog.locator('input[placeholder="Meeting title"]').fill(`e2e-${ledger.runId}-ui-create`)
-	await dialog.locator('input[type="datetime-local"]').first().fill('2026-09-01T10:00')
+	// Fill the REQUIRED scheduledDate datetime field by its id (the form also
+	// renders an optional `endDate` datetime, so target this one explicitly).
+	await dialog.locator('#cn-form-scheduledDate').fill('2026-09-01T10:00')
+	// Select every required enum (meetingType / meetingMode / lifecycle). Each
+	// must commit its value to the form model for the Create button to enable.
 	const selects = dialog.locator('input[type="search"]')
-	for (let i = 0; i < 3; i++) {
+	const selectCount = await selects.count()
+	for (let i = 0; i < selectCount; i++) {
 		await selects.nth(i).click()
 		await page.waitForTimeout(300)
 		await page.getByRole('option').first().click()
 		await page.waitForTimeout(200)
 	}
-	// EXPECTED once fixed: the Create button is enabled and a click persists.
+	// EXPECTED once fixed: the selected enums commit, so the Create button enables.
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeEnabled({ timeout: 5_000 })
 })
 
@@ -275,7 +280,7 @@ test.fixme('BUG: Meeting Create dialog submit enables once required enums are se
 // values, raising format alerts (e.g. "'case' should match format 'uuid'") that
 // block Save. Un-fixme once the decision edit form binds title correctly and
 // stops rejecting its own persisted relation/date values.
-test.fixme('BUG: Decision edit dialog saves a title change without a format error', async ({ page }) => {
+test('Decision edit dialog saves a title change without a format error', async ({ page }) => {
 	const tag = `e2e-${ledger.runId}`
 	const title = `${tag}-decision-editbug`
 	const created = await createObject(page, ledger, 'decision', {
