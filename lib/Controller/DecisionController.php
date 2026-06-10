@@ -120,13 +120,17 @@ class DecisionController extends Controller
 
         $objectService->setRegister('decidesk');
         $objectService->setSchema('decision');
-        $entity = $objectService->find(id: $decisionId);
+
+        // OpenRegister's find() raises DoesNotExistException for an unknown id (instead of
+        // returning null), so treat that — and a null return — as a 404 not-found.
+        try {
+            $entity = $objectService->find(id: $decisionId);
+        } catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
+            $entity = null;
+        }
 
         if ($entity === null) {
-            return new JSONResponse(
-                ['message' => sprintf('Decision "%s" not found.', $decisionId)],
-                Http::STATUS_NOT_FOUND
-            );
+            return new JSONResponse(['message' => sprintf('Decision "%s" not found.', $decisionId)], Http::STATUS_NOT_FOUND);
         }
 
         $decision = $entity->getObject();
@@ -162,10 +166,9 @@ class DecisionController extends Controller
                 uuid: $decisionId
             );
 
+            $result = $updated;
             if ($saved instanceof \stdClass === true || is_array($saved) === true) {
                 $result = (array) $saved;
-            } else {
-                $result = $updated;
             }
 
             $this->logger->info(

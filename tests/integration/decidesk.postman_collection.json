@@ -625,20 +625,17 @@
 					}
 				},
 				{
-					"name": "Publish unknown decision QUARANTINED (500, see bug 1)",
+					"name": "Publish unknown decision (404)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"// KNOWN BUG (1): DecisionController::publish assumes ObjectService::find()",
-									"// returns null for a missing object, but OpenRegister raises",
-									"// DoesNotExistException, so the `=== null` 404 branch is unreachable and the",
-									"// exception escapes unhandled -> HTTP 500. This asserts the CURRENT (buggy)",
-									"// status honestly. When the controller catches DoesNotExistException and",
-									"// returns 404, flip this assertion to 404.",
-									"pm.test('Publish unknown id: 500 (quarantined — should be 404)', () => pm.response.to.have.status(500));"
+									"// FIXED (bug 1): DecisionController::publish now catches OpenRegister's",
+									"// DoesNotExistException from find() and returns the intended 404 not-found",
+									"// response instead of letting the exception escape as a 500.",
+									"pm.test('Publish unknown id: 404', () => pm.response.to.have.status(404));"
 								]
 							}
 						}
