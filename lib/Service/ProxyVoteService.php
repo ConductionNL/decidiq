@@ -70,17 +70,16 @@ class ProxyVoteService
     ) {
     }//end __construct()
 
-
     /**
      * Register a proxy. The grantor (a board member) delegates their vote on
      * the named meeting to a holder until the meeting closes or the proxy is
      * revoked. The persisted row starts in `pending-approval`; the secretary
      * must call approve() before the proxy counts toward quorum.
      *
-     * @param string               $meetingId  UUID of the board meeting
-     * @param string               $grantorId  UUID of the granting board member
-     * @param string               $holderId   UUID of the receiving board member
-     * @param array<string, mixed> $extra      Optional fields: scope, expiresAt
+     * @param string               $meetingId UUID of the board meeting
+     * @param string               $grantorId UUID of the granting board member
+     * @param string               $holderId  UUID of the receiving board member
+     * @param array<string, mixed> $extra     Optional fields: scope, expiresAt
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
      *
@@ -153,7 +152,6 @@ class ProxyVoteService
 
     }//end register()
 
-
     /**
      * Return the proxies attached to a meeting. Optionally filtered by status.
      *
@@ -186,7 +184,7 @@ class ProxyVoteService
                 'proxies' => [],
                 'count'   => 0,
             ];
-        }
+        }//end try
 
         $out = [];
         foreach ((array) $rows as $row) {
@@ -212,7 +210,6 @@ class ProxyVoteService
         ];
 
     }//end forMeeting()
-
 
     /**
      * Transition a proxy to a new status. Mirrors the change to the audit
@@ -260,9 +257,9 @@ class ProxyVoteService
             $merged         = array_merge(
                 $current,
                 [
-                    'proxyStatus'       => $newStatus,
-                    'lastTransitionAt'  => gmdate('Y-m-d\TH:i:s\Z'),
-                    'lastTransitionBy'  => $actor,
+                    'proxyStatus'      => $newStatus,
+                    'lastTransitionAt' => gmdate('Y-m-d\TH:i:s\Z'),
+                    'lastTransitionBy' => $actor,
                 ]
             );
 
@@ -306,7 +303,6 @@ class ProxyVoteService
 
     }//end transition()
 
-
     /**
      * Convenience: suspend a proxy (e.g. grantor joins remotely).
      *
@@ -319,10 +315,9 @@ class ProxyVoteService
      */
     public function suspend(string $proxyId, string $actor): array
     {
-        return $this->transition($proxyId, 'suspended', $actor);
+        return $this->transition(proxyId: $proxyId, newStatus: 'suspended', actor: $actor);
 
     }//end suspend()
-
 
     /**
      * Convenience: revoke a proxy.
@@ -336,9 +331,7 @@ class ProxyVoteService
      */
     public function revoke(string $proxyId, string $actor): array
     {
-        return $this->transition($proxyId, 'revoked', $actor);
+        return $this->transition(proxyId: $proxyId, newStatus: 'revoked', actor: $actor);
 
     }//end revoke()
-
-
 }//end class

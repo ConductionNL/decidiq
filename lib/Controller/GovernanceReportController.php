@@ -62,7 +62,6 @@ class GovernanceReportController extends Controller
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 
-
     /**
      * Generate an annual report.
      *
@@ -96,7 +95,6 @@ class GovernanceReportController extends Controller
         );
 
     }//end generate()
-
 
     /**
      * List reports for a board.
@@ -132,7 +130,6 @@ class GovernanceReportController extends Controller
         );
 
     }//end index()
-
 
     /**
      * Show a single report (JSON).
@@ -173,7 +170,6 @@ class GovernanceReportController extends Controller
 
     }//end show()
 
-
     /**
      * Export a report in the chosen format (json or csv).
      *
@@ -202,9 +198,13 @@ class GovernanceReportController extends Controller
             );
         }
 
-        $extension = ($format === 'csv' ? 'csv' : 'json');
-        $filename  = 'governance-report-'.$id.'.'.$extension;
-        $response  = new DataDisplayResponse(
+        $extension = 'json';
+        if ($format === 'csv') {
+            $extension = 'csv';
+        }
+
+        $filename = 'governance-report-'.$id.'.'.$extension;
+        $response = new DataDisplayResponse(
             $result['body'],
             Http::STATUS_OK,
             ['Content-Type' => $result['contentType']]
@@ -213,7 +213,6 @@ class GovernanceReportController extends Controller
         return $response;
 
     }//end export()
-
 
     /**
      * Return 401 / 403 when the caller is not an admin; null otherwise.
@@ -234,6 +233,4 @@ class GovernanceReportController extends Controller
         return null;
 
     }//end requireAdmin()
-
-
 }//end class

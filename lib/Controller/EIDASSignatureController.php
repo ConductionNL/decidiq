@@ -59,7 +59,6 @@ class EIDASSignatureController extends Controller
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 
-
     /**
      * Initialise a QES signing request for a Minutes record.
      *
@@ -100,7 +99,6 @@ class EIDASSignatureController extends Controller
         );
 
     }//end initiate()
-
 
     /**
      * Verify a signature blob against the EU Trusted List.
@@ -144,7 +142,6 @@ class EIDASSignatureController extends Controller
 
     }//end verify()
 
-
     /**
      * Finalise a signed Minutes record (collect signatures, archive PDF).
      *
@@ -184,7 +181,6 @@ class EIDASSignatureController extends Controller
 
     }//end finalize()
 
-
     /**
      * Validate a certificate chain against the EU Trusted List.
      *
@@ -222,6 +218,4 @@ class EIDASSignatureController extends Controller
         );
 
     }//end validateCert()
-
-
 }//end class

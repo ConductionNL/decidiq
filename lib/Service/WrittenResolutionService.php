@@ -43,7 +43,6 @@ use Psr\Log\LoggerInterface;
  */
 class WrittenResolutionService
 {
-
     /**
      * Constructor.
      *
@@ -59,7 +58,6 @@ class WrittenResolutionService
         private readonly AuditLogService $auditLogService,
     ) {
     }//end __construct()
-
 
     /**
      * Initiate a written resolution. Creates the Resolution row with
@@ -180,7 +178,6 @@ class WrittenResolutionService
 
     }//end initiate()
 
-
     /**
      * Record a collected signature against the written resolution. The vote
      * is created as a BoardVote row with vote=in-favor, voteMethod=written-ballot.
@@ -215,7 +212,7 @@ class WrittenResolutionService
                 'voteMethod'           => 'written-ballot',
                 'anonymized'           => false,
             ];
-            $saved = $objectService->saveObject(
+            $saved         = $objectService->saveObject(
                 object: $row,
                 register: 'decidesk',
                 schema: 'board-vote'
@@ -230,7 +227,7 @@ class WrittenResolutionService
                 'vote'    => null,
                 'message' => 'Failed to record signature.',
             ];
-        }
+        }//end try
 
         $payload = $row;
         if (is_object($saved) === true) {
@@ -251,7 +248,6 @@ class WrittenResolutionService
         ];
 
     }//end collectSignature()
-
 
     /**
      * Finalize a written resolution. Counts unique in-favor votes against
@@ -369,7 +365,7 @@ class WrittenResolutionService
                 'signaturesCollected' => count($signed),
                 'message'             => 'Failed to persist adoption.',
             ];
-        }
+        }//end try
 
         $payload = $merged;
         if (is_object($saved) === true) {
@@ -384,6 +380,4 @@ class WrittenResolutionService
         ];
 
     }//end finalize()
-
-
 }//end class

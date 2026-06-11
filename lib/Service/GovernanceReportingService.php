@@ -57,7 +57,6 @@ class GovernanceReportingService
     ) {
     }//end __construct()
 
-
     /**
      * Generate an annual governance report scoped to a single board.
      *
@@ -84,33 +83,53 @@ class GovernanceReportingService
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            $meetings    = $this->normalize($objectService->findAll([
-                'register' => 'decidesk',
-                'schema'   => 'board-meeting',
-                'filters'  => ['boardKoppeling' => $boardId],
-                'limit'    => 5000,
-            ]));
-            $resolutions = $this->normalize($objectService->findAll([
-                'register' => 'decidesk',
-                'schema'   => 'resolution',
-                'limit'    => 5000,
-            ]));
-            $votes       = $this->normalize($objectService->findAll([
-                'register' => 'decidesk',
-                'schema'   => 'board-vote',
-                'limit'    => 50000,
-            ]));
-            $members     = $this->normalize($objectService->findAll([
-                'register' => 'decidesk',
-                'schema'   => 'board-member',
-                'filters'  => ['boardKoppeling' => $boardId],
-                'limit'    => 1000,
-            ]));
-            $conflicts   = $this->normalize($objectService->findAll([
-                'register' => 'decidesk',
-                'schema'   => 'conflict-of-interest',
-                'limit'    => 5000,
-            ]));
+            $meetings    = $this->normalize(
+                rows: $objectService->findAll(
+                    [
+                        'register' => 'decidesk',
+                        'schema'   => 'board-meeting',
+                        'filters'  => ['boardKoppeling' => $boardId],
+                        'limit'    => 5000,
+                    ]
+                )
+            );
+            $resolutions = $this->normalize(
+                rows: $objectService->findAll(
+                    [
+                        'register' => 'decidesk',
+                        'schema'   => 'resolution',
+                        'limit'    => 5000,
+                    ]
+                )
+            );
+            $votes       = $this->normalize(
+                rows: $objectService->findAll(
+                    [
+                        'register' => 'decidesk',
+                        'schema'   => 'board-vote',
+                        'limit'    => 50000,
+                    ]
+                )
+            );
+            $members     = $this->normalize(
+                rows: $objectService->findAll(
+                    [
+                        'register' => 'decidesk',
+                        'schema'   => 'board-member',
+                        'filters'  => ['boardKoppeling' => $boardId],
+                        'limit'    => 1000,
+                    ]
+                )
+            );
+            $conflicts   = $this->normalize(
+                rows: $objectService->findAll(
+                    [
+                        'register' => 'decidesk',
+                        'schema'   => 'conflict-of-interest',
+                        'limit'    => 5000,
+                    ]
+                )
+            );
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: GovernanceReportingService::generateAnnualReport failed',
@@ -123,7 +142,7 @@ class GovernanceReportingService
             ];
         }//end try
 
-        $meetingsInYear      = $this->filterByDate($meetings, 'meetingDate', $start, $end);
+        $meetingsInYear      = $this->filterByDate(rows: $meetings, field: 'meetingDate', start: $start, end: $end);
         $meetingIdsInYear    = array_column($meetingsInYear, 'id');
         $resolutionsInYear   = array_values(
             array_filter(
@@ -138,20 +157,20 @@ class GovernanceReportingService
                 static fn(array $v): bool => in_array((string) ($v['resolutionKoppeling'] ?? ''), array_map('strval', $resolutionIdsInYear), true)
             )
         );
-        $conflictsInYear     = $this->filterByDate($conflicts, 'declarationTimestamp', $start, $end);
+        $conflictsInYear     = $this->filterByDate(rows: $conflicts, field: 'declarationTimestamp', start: $start, end: $end);
 
-        $voteTally = $this->tallyVotes($votesInYear);
+        $voteTally = $this->tallyVotes(votes: $votesInYear);
 
-        $independenceRatio = $this->computeIndependenceRatio($members);
-        $attendanceRate    = $this->computeAttendanceRate($votesInYear, count($meetingsInYear), count($members));
+        $independenceRatio = $this->computeIndependenceRatio(members: $members);
+        $attendanceRate    = $this->computeAttendanceRate(votes: $votesInYear, meetingCount: count($meetingsInYear), memberCount: count($members));
 
         $flags = $this->complianceFlagCheck(
-            [
-                'meetingCount'       => count($meetingsInYear),
-                'resolutionCount'    => count($resolutionsInYear),
-                'independenceRatio'  => $independenceRatio,
-                'attendanceRate'     => $attendanceRate,
-                'conflictCount'      => count($conflictsInYear),
+            data: [
+                'meetingCount'      => count($meetingsInYear),
+                'resolutionCount'   => count($resolutionsInYear),
+                'independenceRatio' => $independenceRatio,
+                'attendanceRate'    => $attendanceRate,
+                'conflictCount'     => count($conflictsInYear),
             ]
         );
 
@@ -194,7 +213,6 @@ class GovernanceReportingService
         ];
 
     }//end generateAnnualReport()
-
 
     /**
      * Export a previously generated report.
@@ -280,7 +298,6 @@ class GovernanceReportingService
 
     }//end exportReport()
 
-
     /**
      * Run compliance checks against an aggregated payload.
      *
@@ -321,7 +338,6 @@ class GovernanceReportingService
 
     }//end complianceFlagCheck()
 
-
     /**
      * List historical reports for a board.
      *
@@ -353,9 +369,9 @@ class GovernanceReportingService
                 'reports' => [],
                 'count'   => 0,
             ];
-        }
+        }//end try
 
-        $out = $this->normalize($rows);
+        $out = $this->normalize(rows: $rows);
         return [
             'success' => true,
             'reports' => $out,
@@ -363,7 +379,6 @@ class GovernanceReportingService
         ];
 
     }//end listReports()
-
 
     /**
      * Normalize a heterogeneous result set into a list of plain arrays.
@@ -388,7 +403,6 @@ class GovernanceReportingService
         return $out;
 
     }//end normalize()
-
 
     /**
      * Filter rows whose `$field` is within [$start, $end] (inclusive).
@@ -418,7 +432,6 @@ class GovernanceReportingService
 
     }//end filterByDate()
 
-
     /**
      * Tally votes by vote enum.
      *
@@ -446,7 +459,6 @@ class GovernanceReportingService
 
     }//end tallyVotes()
 
-
     /**
      * Compute the share of members marked independence-status=independent.
      *
@@ -471,7 +483,6 @@ class GovernanceReportingService
         return round(($independent / $total), 4);
 
     }//end computeIndependenceRatio()
-
 
     /**
      * Compute the attendance rate as the fraction of expected votes that
@@ -501,6 +512,4 @@ class GovernanceReportingService
         return round(min(1.0, ($present / $expected)), 4);
 
     }//end computeAttendanceRate()
-
-
 }//end class

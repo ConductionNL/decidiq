@@ -52,7 +52,6 @@ interface IEIDASSignatureService
      */
     public function initializeSigningRequest(string $minutesId, array $signatories): array;
 
-
     /**
      * Verify a signature against the EU Trusted List.
      *
@@ -64,7 +63,6 @@ interface IEIDASSignatureService
      * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
      */
     public function verifySignature(string $requestId, string $signature): array;
-
 
     /**
      * Finalize signed minutes: produce the archive reference, hash the body,
@@ -79,7 +77,6 @@ interface IEIDASSignatureService
      */
     public function finalizeMinutes(string $minutesId, array $signatureList): array;
 
-
     /**
      * Verify the certificate chain against the EU eIDAS Trusted List.
      *
@@ -90,6 +87,4 @@ interface IEIDASSignatureService
      * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
      */
     public function validateCertificateChain(string $certificateThumbprint): array;
-
-
 }//end interface

@@ -56,7 +56,6 @@ class ProxyVoteController extends Controller
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 
-
     /**
      * Register a proxy.
      *
@@ -97,7 +96,6 @@ class ProxyVoteController extends Controller
 
     }//end register()
 
-
     /**
      * List proxies for the requested meeting.
      *
@@ -123,8 +121,13 @@ class ProxyVoteController extends Controller
             );
         }
 
-        $status = (string) $this->request->getParam('status', '');
-        $result = $this->proxyService->forMeeting($meetingId, ($status === '' ? null : $status));
+        $status       = (string) $this->request->getParam('status', '');
+        $statusFilter = null;
+        if ($status !== '') {
+            $statusFilter = $status;
+        }
+
+        $result = $this->proxyService->forMeeting($meetingId, $statusFilter);
 
         return new JSONResponse(
             [
@@ -134,7 +137,6 @@ class ProxyVoteController extends Controller
         );
 
     }//end index()
-
 
     /**
      * Suspend a proxy.
@@ -163,7 +165,6 @@ class ProxyVoteController extends Controller
 
     }//end suspend()
 
-
     /**
      * Revoke a proxy.
      *
@@ -190,6 +191,4 @@ class ProxyVoteController extends Controller
         );
 
     }//end revoke()
-
-
 }//end class
