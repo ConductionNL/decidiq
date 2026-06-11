@@ -65,7 +65,6 @@ class AuditLogService
         'proxy-revoked',
     ];
 
-
     /**
      * Constructor for AuditLogService.
      *
@@ -77,7 +76,6 @@ class AuditLogService
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
-
 
     /**
      * Append a new entry to the audit log.
@@ -108,7 +106,7 @@ class AuditLogService
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            $previousHash = $this->resolvePreviousHash($objectService);
+            $previousHash = $this->resolvePreviousHash(objectService: $objectService);
             $timestamp    = gmdate('Y-m-d\TH:i:s\Z');
 
             $canonicalObjectUids = array_values(array_map('strval', $objectUids));
@@ -143,6 +141,11 @@ class AuditLogService
                 (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
             );
 
+            $blob = $canonical;
+            if ($immutableBlob !== false) {
+                $blob = $immutableBlob;
+            }
+
             $entry = [
                 'actorUuid'     => $actor,
                 'action'        => $action,
@@ -150,7 +153,7 @@ class AuditLogService
                 'timestamp'     => $timestamp,
                 'previousHash'  => $previousHash,
                 'currentHash'   => $currentHash,
-                'immutableBlob' => ($immutableBlob !== false) ? $immutableBlob : $canonical,
+                'immutableBlob' => $blob,
             ];
 
             $saved = $objectService->saveObject(
@@ -164,9 +167,14 @@ class AuditLogService
                 ['actor' => $actor, 'action' => $action, 'currentHash' => $currentHash]
             );
 
+            $entryPayload = $entry;
+            if (is_object($saved) === true) {
+                $entryPayload = $saved->jsonSerialize();
+            }
+
             return [
                 'success' => true,
-                'entry'   => is_object($saved) === true ? $saved->jsonSerialize() : $entry,
+                'entry'   => $entryPayload,
                 'message' => 'Audit log entry appended.',
             ];
         } catch (\Throwable $e) {
@@ -182,7 +190,6 @@ class AuditLogService
         }//end try
 
     }//end append()
-
 
     /**
      * Verify the hash chain from the genesis up to (and including) the
@@ -200,7 +207,7 @@ class AuditLogService
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $chain         = $this->loadChain($objectService);
+            $chain         = $this->loadChain(objectService: $objectService);
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: failed to load audit log for verification',
@@ -231,7 +238,12 @@ class AuditLogService
                 (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
             );
 
-            $expected = hash('sha256', ($canonical !== false) ? $canonical : '');
+            $canonicalForHash = '';
+            if ($canonical !== false) {
+                $canonicalForHash = $canonical;
+            }
+
+            $expected = hash('sha256', $canonicalForHash);
 
             if (($row['currentHash'] ?? '') !== $expected) {
                 $tampered[] = (string) ($row['id'] ?? $row['uuid'] ?? '?');
@@ -252,7 +264,6 @@ class AuditLogService
         ];
 
     }//end verify()
-
 
     /**
      * Export audit log entries between two ISO-8601 UTC timestamps in the
@@ -280,7 +291,7 @@ class AuditLogService
 
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $chain         = $this->loadChain($objectService);
+            $chain         = $this->loadChain(objectService: $objectService);
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: failed to load audit log for export',
@@ -327,29 +338,33 @@ class AuditLogService
                 'body'    => implode("\n", $lines),
                 'count'   => count($filtered),
             ];
-        }
+        }//end if
 
         $body = json_encode(
             ['entries' => $filtered],
             (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
         );
 
+        $jsonBody = '{}';
+        if ($body !== false) {
+            $jsonBody = $body;
+        }
+
         return [
             'success' => true,
             'format'  => 'json',
-            'body'    => ($body !== false) ? $body : '{}',
+            'body'    => $jsonBody,
             'count'   => count($filtered),
         ];
 
     }//end export()
-
 
     /**
      * Filter the audit log by actor / action / date-range / object-uuid. All
      * filters are optional and combined with AND semantics. Pagination defaults
      * to 100 rows.
      *
-     * @param array{actor?: string, action?: string, startDate?: string, endDate?: string, objectUuid?: string, limit?: int, offset?: int} $filters Filter criteria
+     * @param array<string, mixed> $filters Filter criteria (actor / action / startDate / endDate / objectUuid / limit / offset)
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
      *
@@ -359,7 +374,7 @@ class AuditLogService
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $chain         = $this->loadChain($objectService);
+            $chain         = $this->loadChain(objectService: $objectService);
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: failed to load audit log for query',
@@ -427,7 +442,6 @@ class AuditLogService
 
     }//end query()
 
-
     /**
      * Resolve the previousHash for a new entry by inspecting the most recent
      * audit log row. Returns GENESIS_HASH when the log is empty.
@@ -438,7 +452,7 @@ class AuditLogService
      */
     private function resolvePreviousHash(object $objectService): string
     {
-        $chain = $this->loadChain($objectService);
+        $chain = $this->loadChain(objectService: $objectService);
         if ($chain === []) {
             return self::GENESIS_HASH;
         }
@@ -447,7 +461,6 @@ class AuditLogService
         return (string) ($last['currentHash'] ?? self::GENESIS_HASH);
 
     }//end resolvePreviousHash()
-
 
     /**
      * Load the full audit log chain ordered by timestamp ASC. Returns a list of
@@ -481,6 +494,4 @@ class AuditLogService
         return $out;
 
     }//end loadChain()
-
-
 }//end class

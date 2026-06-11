@@ -60,7 +60,6 @@ class BoardService
      */
     public const GOVERNANCE_MODELS = ['two-tier', 'one-tier'];
 
-
     /**
      * Constructor for BoardService.
      *
@@ -72,7 +71,6 @@ class BoardService
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
-
 
     /**
      * List all boards. Optional `type` filter narrows by governance type.
@@ -107,7 +105,7 @@ class BoardService
                 'count'   => 0,
                 'message' => 'Failed to load boards.',
             ];
-        }
+        }//end try
 
         $boards = [];
         foreach ((array) $rows as $row) {
@@ -134,7 +132,6 @@ class BoardService
         ];
 
     }//end list()
-
 
     /**
      * Load a single board by UUID.
@@ -178,7 +175,6 @@ class BoardService
 
     }//end get()
 
-
     /**
      * Create a new board after validating required fields and enum values.
      *
@@ -190,7 +186,7 @@ class BoardService
      */
     public function create(array $data): array
     {
-        $validation = $this->validate($data, requireName: true);
+        $validation = $this->validate(data: $data, requireName: true);
         if ($validation !== null) {
             return [
                 'success' => false,
@@ -220,14 +216,18 @@ class BoardService
 
         $this->logger->info('Decidesk: board created', ['name' => $data['name'] ?? '?']);
 
+        $boardPayload = $data;
+        if (is_object($saved) === true) {
+            $boardPayload = (array) $saved->jsonSerialize();
+        }
+
         return [
             'success' => true,
-            'board'   => is_object($saved) === true ? (array) $saved->jsonSerialize() : $data,
+            'board'   => $boardPayload,
             'message' => 'Board created.',
         ];
 
     }//end create()
-
 
     /**
      * Update an existing board.
@@ -241,7 +241,7 @@ class BoardService
      */
     public function update(string $boardId, array $data): array
     {
-        $validation = $this->validate($data, requireName: false);
+        $validation = $this->validate(data: $data, requireName: false);
         if ($validation !== null) {
             return [
                 'success' => false,
@@ -261,8 +261,12 @@ class BoardService
                 ];
             }
 
-            $current = (method_exists($entity, 'getObject') === true) ? $entity->getObject() : (array) $entity->jsonSerialize();
-            $merged  = array_merge($current, $data);
+            $current = (array) $entity->jsonSerialize();
+            if (method_exists($entity, 'getObject') === true) {
+                $current = $entity->getObject();
+            }
+
+            $merged = array_merge($current, $data);
 
             $saved = $objectService->saveObject(
                 object: $merged,
@@ -282,14 +286,18 @@ class BoardService
             ];
         }//end try
 
+        $boardPayload = $merged;
+        if (is_object($saved) === true) {
+            $boardPayload = (array) $saved->jsonSerialize();
+        }
+
         return [
             'success' => true,
-            'board'   => is_object($saved) === true ? (array) $saved->jsonSerialize() : $merged,
+            'board'   => $boardPayload,
             'message' => 'Board updated.',
         ];
 
     }//end update()
-
 
     /**
      * Validate a Board payload. Returns an error message string when
@@ -317,6 +325,4 @@ class BoardService
         return null;
 
     }//end validate()
-
-
 }//end class

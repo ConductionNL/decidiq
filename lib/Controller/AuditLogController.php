@@ -40,6 +40,7 @@ use OCP\IUserSession;
  * Access is restricted to NC administrators (the secretary group). Per
  * ADR-005 / OWASP A01, the controller verifies `IGroupManager::isAdmin()` on
  * every request rather than delegating to the framework's
+ *
  * @NoAdminRequired absence (which is silently bypassed in some test setups).
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
@@ -47,7 +48,6 @@ use OCP\IUserSession;
 class AuditLogController extends Controller
 {
     use BoardPortalControllerTrait;
-
 
     /**
      * Constructor for AuditLogController.
@@ -65,7 +65,6 @@ class AuditLogController extends Controller
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
-
 
     /**
      * Query the audit log.
@@ -114,7 +113,6 @@ class AuditLogController extends Controller
 
     }//end index()
 
-
     /**
      * Verify the hash chain up to (and including) the given entry.
      *
@@ -137,7 +135,6 @@ class AuditLogController extends Controller
         return new JSONResponse($this->auditLogService->verify($id));
 
     }//end verify()
-
 
     /**
      * Export a date-range slice of the audit log as JSON or CSV.
@@ -165,15 +162,20 @@ class AuditLogController extends Controller
             return new JSONResponse(['message' => 'Failed to export audit log.'], Http::STATUS_UNPROCESSABLE_ENTITY);
         }
 
-        $contentType = ($format === 'csv') ? 'text/csv' : 'application/json';
-        $filename    = 'board-audit-log-'.gmdate('Ymd-His').'.'.($format === 'csv' ? 'csv' : 'json');
+        $contentType = 'application/json';
+        $extension   = 'json';
+        if ($format === 'csv') {
+            $contentType = 'text/csv';
+            $extension   = 'csv';
+        }
+
+        $filename = 'board-audit-log-'.gmdate('Ymd-His').'.'.$extension;
 
         $response = new DataDisplayResponse($result['body'], Http::STATUS_OK, ['Content-Type' => $contentType]);
         $response->addHeader('Content-Disposition', 'attachment; filename="'.$filename.'"');
         return $response;
 
     }//end export()
-
 
     /**
      * Return 401 / 403 when the caller is not an admin; null otherwise.
@@ -194,6 +196,4 @@ class AuditLogController extends Controller
         return null;
 
     }//end requireAdmin()
-
-
 }//end class

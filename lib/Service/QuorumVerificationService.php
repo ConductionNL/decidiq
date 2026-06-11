@@ -46,7 +46,6 @@ class QuorumVerificationService
      */
     public const PARTICIPANT_TYPES = ['in-person', 'remote', 'proxy', 'absent'];
 
-
     /**
      * Constructor for QuorumVerificationService.
      *
@@ -58,7 +57,6 @@ class QuorumVerificationService
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
-
 
     /**
      * Compute the quorum status of a meeting. Returns an associative array
@@ -72,7 +70,7 @@ class QuorumVerificationService
      */
     public function computeQuorum(string $meetingId): array
     {
-        $report = $this->getAttendanceReport($meetingId);
+        $report = $this->getAttendanceReport(meetingId: $meetingId);
         if ($report === []) {
             return [
                 'total'     => 0,
@@ -98,7 +96,6 @@ class QuorumVerificationService
         ];
 
     }//end computeQuorum()
-
 
     /**
      * Verify that a single participant is allowed to attend in the given mode.
@@ -137,7 +134,6 @@ class QuorumVerificationService
 
     }//end verifyAttendance()
 
-
     /**
      * Build an attendance report for a meeting: list of board members with
      * their resolved attendance status plus the per-board total and threshold.
@@ -163,7 +159,7 @@ class QuorumVerificationService
                 return [];
             }
 
-            $meetingData = $this->toArray($meeting);
+            $meetingData = $this->toArray(row: $meeting);
             $boardId     = (string) ($meetingData['boardKoppeling'] ?? '');
 
             $allMembers = $objectService->findAll(
@@ -180,7 +176,7 @@ class QuorumVerificationService
                 ['meetingId' => $meetingId, 'exception' => $e->getMessage()]
             );
             return [];
-        }
+        }//end try
 
         $attendanceMap = [];
         foreach ((array) ($meetingData['attendance'] ?? []) as $entry) {
@@ -221,10 +217,10 @@ class QuorumVerificationService
                 'boardMemberKoppeling' => $memberId,
                 'status'               => $status,
             ];
-        }
+        }//end foreach
 
         $total     = count($members);
-        $threshold = $this->resolveThreshold($meetingData, $total);
+        $threshold = $this->resolveThreshold(meetingData: $meetingData, total: $total);
 
         return [
             'total'     => $total,
@@ -233,7 +229,6 @@ class QuorumVerificationService
         ];
 
     }//end getAttendanceReport()
-
 
     /**
      * Resolve the integer quorum threshold for the meeting.
@@ -251,10 +246,9 @@ class QuorumVerificationService
         }
 
         $rule = (string) ($meetingData['quorumRule'] ?? 'simple-majority');
-        return $this->thresholdForRule($rule, $total);
+        return $this->thresholdForRule(rule: $rule, total: $total);
 
     }//end resolveThreshold()
-
 
     /**
      * Translate a textual quorum rule to an integer threshold.
@@ -284,7 +278,6 @@ class QuorumVerificationService
 
     }//end thresholdForRule()
 
-
     /**
      * Convert an ObjectService row (object or array) to a plain array.
      *
@@ -298,9 +291,11 @@ class QuorumVerificationService
             return (array) $row->jsonSerialize();
         }
 
-        return is_array($row) === true ? $row : [];
+        if (is_array($row) === true) {
+            return $row;
+        }
+
+        return [];
 
     }//end toArray()
-
-
 }//end class

@@ -40,7 +40,6 @@ class ResolutionController extends Controller
 {
     use BoardPortalControllerTrait;
 
-
     /**
      * Constructor for ResolutionController.
      *
@@ -56,7 +55,6 @@ class ResolutionController extends Controller
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 
-
     /**
      * Propose a new resolution on a meeting.
      *
@@ -71,20 +69,19 @@ class ResolutionController extends Controller
     #[NoAdminRequired]
     public function propose(string $meetingId): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
 
-        $payload = $this->bodyParams($this->request, ['meetingId', '_route']);
+        $payload = $this->bodyParams(request: $this->request, stripKeys: ['meetingId', '_route']);
         return $this->respondFromResult(
-            $this->resolutionService->propose($meetingId, $payload),
-            'resolution',
-            Http::STATUS_CREATED
+            result: $this->resolutionService->propose($meetingId, $payload),
+            payloadKey: 'resolution',
+            successCode: Http::STATUS_CREATED
         );
 
     }//end propose()
-
 
     /**
      * Amend a resolution that has not yet entered voting.
@@ -100,19 +97,18 @@ class ResolutionController extends Controller
     #[NoAdminRequired]
     public function amend(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
 
-        $payload = $this->bodyParams($this->request);
+        $payload = $this->bodyParams(request: $this->request);
         return $this->respondFromResult(
-            $this->resolutionService->amend($id, $payload),
-            'resolution'
+            result: $this->resolutionService->amend($id, $payload),
+            payloadKey: 'resolution'
         );
 
     }//end amend()
-
 
     /**
      * Open voting on a resolution (quorum-guarded).
@@ -128,15 +124,14 @@ class ResolutionController extends Controller
     #[NoAdminRequired]
     public function openVote(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
 
-        return $this->respondFromResult($this->resolutionService->openVote($id), 'resolution');
+        return $this->respondFromResult(result: $this->resolutionService->openVote($id), payloadKey: 'resolution');
 
     }//end openVote()
-
 
     /**
      * Conclude voting and persist adoption status.
@@ -152,16 +147,18 @@ class ResolutionController extends Controller
     #[NoAdminRequired]
     public function conclude(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
 
         $result = $this->resolutionService->conclude($id);
         if ($result['success'] === false) {
-            $status = stripos((string) $result['message'], 'not found') !== false
-                ? Http::STATUS_NOT_FOUND
-                : Http::STATUS_UNPROCESSABLE_ENTITY;
+            $status = Http::STATUS_UNPROCESSABLE_ENTITY;
+            if (stripos((string) $result['message'], 'not found') !== false) {
+                $status = Http::STATUS_NOT_FOUND;
+            }
+
             return new JSONResponse(['message' => $result['message']], $status);
         }
 
@@ -174,6 +171,4 @@ class ResolutionController extends Controller
         );
 
     }//end conclude()
-
-
 }//end class

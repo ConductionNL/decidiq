@@ -67,7 +67,6 @@ class ResolutionService
         'unanimous',
     ];
 
-
     /**
      * Constructor for ResolutionService.
      *
@@ -83,7 +82,6 @@ class ResolutionService
         private readonly AuditLogService $auditLogService,
     ) {
     }//end __construct()
-
 
     /**
      * Propose a new resolution (status = `proposed`).
@@ -149,14 +147,18 @@ class ResolutionService
             ];
         }
 
+        $resolutionPayload = $row;
+        if (is_object($saved) === true) {
+            $resolutionPayload = (array) $saved->jsonSerialize();
+        }
+
         return [
             'success'    => true,
-            'resolution' => is_object($saved) === true ? (array) $saved->jsonSerialize() : $row,
+            'resolution' => $resolutionPayload,
             'message'    => 'Resolution proposed.',
         ];
 
     }//end propose()
-
 
     /**
      * Amend a resolution that is still in `proposed` or `under-discussion`.
@@ -181,9 +183,10 @@ class ResolutionService
                 ];
             }
 
-            $current = (method_exists($entity, 'getObject') === true)
-                ? $entity->getObject()
-                : (array) $entity->jsonSerialize();
+            $current = (array) $entity->jsonSerialize();
+            if (method_exists($entity, 'getObject') === true) {
+                $current = $entity->getObject();
+            }
 
             $status = (string) ($current['status'] ?? 'proposed');
             if (in_array($status, ['proposed', 'under-discussion'], true) === false) {
@@ -210,14 +213,18 @@ class ResolutionService
             ];
         }//end try
 
+        $resolutionPayloadMerged = $merged;
+        if (is_object($saved) === true) {
+            $resolutionPayloadMerged = (array) $saved->jsonSerialize();
+        }
+
         return [
             'success'    => true,
-            'resolution' => is_object($saved) === true ? (array) $saved->jsonSerialize() : $merged,
+            'resolution' => $resolutionPayloadMerged,
             'message'    => 'Resolution amended.',
         ];
 
     }//end amend()
-
 
     /**
      * Open voting on a resolution. The lifecycle guard validates quorum before
@@ -242,9 +249,11 @@ class ResolutionService
                 ];
             }
 
-            $current   = (method_exists($entity, 'getObject') === true)
-                ? $entity->getObject()
-                : (array) $entity->jsonSerialize();
+            $current = (array) $entity->jsonSerialize();
+            if (method_exists($entity, 'getObject') === true) {
+                $current = $entity->getObject();
+            }
+
             $meetingId = (string) ($current['meetingKoppeling'] ?? '');
 
             $gate = $this->guard->canOpenVote($meetingId);
@@ -272,14 +281,18 @@ class ResolutionService
             ];
         }//end try
 
+        $resolutionPayloadMerged = $merged;
+        if (is_object($saved) === true) {
+            $resolutionPayloadMerged = (array) $saved->jsonSerialize();
+        }
+
         return [
             'success'    => true,
-            'resolution' => is_object($saved) === true ? (array) $saved->jsonSerialize() : $merged,
+            'resolution' => $resolutionPayloadMerged,
             'message'    => 'Vote opened.',
         ];
 
     }//end openVote()
-
 
     /**
      * Conclude voting: read all BoardVote rows linked to the resolution,
@@ -306,9 +319,10 @@ class ResolutionService
                 ];
             }
 
-            $current = (method_exists($entity, 'getObject') === true)
-                ? $entity->getObject()
-                : (array) $entity->jsonSerialize();
+            $current = (array) $entity->jsonSerialize();
+            if (method_exists($entity, 'getObject') === true) {
+                $current = $entity->getObject();
+            }
 
             $votes = $objectService->findAll(
                 [
@@ -326,14 +340,14 @@ class ResolutionService
                 'tally'      => [],
                 'message'    => 'Failed to load resolution / votes.',
             ];
-        }
+        }//end try
 
         $tally = [
-            'in-favor'                 => 0,
-            'against'                  => 0,
-            'abstain'                  => 0,
-            'absent'                   => 0,
-            'recused-due-to-conflict'  => 0,
+            'in-favor'                => 0,
+            'against'                 => 0,
+            'abstain'                 => 0,
+            'absent'                  => 0,
+            'recused-due-to-conflict' => 0,
         ];
         foreach ((array) $votes as $row) {
             if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
@@ -354,15 +368,20 @@ class ResolutionService
             }
         }
 
-        $cast = ($tally['in-favor'] + $tally['against'] + $tally['abstain']);
+        $cast      = ($tally['in-favor'] + $tally['against'] + $tally['abstain']);
         $threshold = (string) ($current['voteThreshold'] ?? 'simple-majority');
 
-        $adopted = $this->isAdopted($threshold, $tally, $cast);
+        $adopted = $this->isAdopted(threshold: $threshold, tally: $tally, cast: $cast);
+
+        $status = 'rejected';
+        if ($adopted === true) {
+            $status = 'adopted';
+        }
 
         $merged = array_merge(
             $current,
             [
-                'status'       => $adopted === true ? 'adopted' : 'rejected',
+                'status'       => $status,
                 'adoptionDate' => gmdate('Y-m-d'),
             ]
         );
@@ -384,15 +403,24 @@ class ResolutionService
             ];
         }
 
+        $resolutionPayloadMerged = $merged;
+        if (is_object($saved) === true) {
+            $resolutionPayloadMerged = (array) $saved->jsonSerialize();
+        }
+
+        $statusLabel = 'rejected';
+        if ($adopted === true) {
+            $statusLabel = 'adopted';
+        }
+
         return [
             'success'    => true,
-            'resolution' => is_object($saved) === true ? (array) $saved->jsonSerialize() : $merged,
+            'resolution' => $resolutionPayloadMerged,
             'tally'      => $tally,
-            'message'    => 'Resolution '.($adopted === true ? 'adopted' : 'rejected').'.',
+            'message'    => 'Resolution '.$statusLabel.'.',
         ];
 
     }//end conclude()
-
 
     /**
      * Decide whether the configured threshold is satisfied by the given tally.
@@ -422,6 +450,4 @@ class ResolutionService
         }
 
     }//end isAdopted()
-
-
 }//end class

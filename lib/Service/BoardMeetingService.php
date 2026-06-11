@@ -44,12 +44,12 @@ class BoardMeetingService
      * @var array<string, array{from: string[], to: string}>
      */
     private const TRANSITIONS = [
-        'send-notice'         => ['from' => ['scheduled'], 'to' => 'notice-sent'],
+        'send-notice'          => ['from' => ['scheduled'], 'to' => 'notice-sent'],
         'distribute-materials' => ['from' => ['notice-sent'], 'to' => 'materials-distributed'],
-        'open'                => ['from' => ['materials-distributed', 'scheduled'], 'to' => 'in-session'],
-        'adjourn'             => ['from' => ['in-session'], 'to' => 'adjourned'],
-        'close'               => ['from' => ['in-session', 'adjourned'], 'to' => 'closed'],
-        'sign-minutes'        => ['from' => ['closed'], 'to' => 'minutes-signed'],
+        'open'                 => ['from' => ['materials-distributed', 'scheduled'], 'to' => 'in-session'],
+        'adjourn'              => ['from' => ['in-session'], 'to' => 'adjourned'],
+        'close'                => ['from' => ['in-session', 'adjourned'], 'to' => 'closed'],
+        'sign-minutes'         => ['from' => ['closed'], 'to' => 'minutes-signed'],
     ];
 
     /**
@@ -72,7 +72,6 @@ class BoardMeetingService
      */
     public const FORMATS = ['in-person', 'remote', 'hybrid'];
 
-
     /**
      * Constructor for BoardMeetingService.
      *
@@ -86,7 +85,6 @@ class BoardMeetingService
         private readonly AuditLogService $auditLogService,
     ) {
     }//end __construct()
-
 
     /**
      * Schedule a new board meeting in the `scheduled` lifecycle state.
@@ -156,7 +154,10 @@ class BoardMeetingService
             ];
         }
 
-        $serialized = is_object($saved) === true ? (array) $saved->jsonSerialize() : $row;
+        $serialized = $row;
+        if (is_object($saved) === true) {
+            $serialized = (array) $saved->jsonSerialize();
+        }
 
         $this->logger->info(
             'Decidesk: board meeting scheduled',
@@ -170,7 +171,6 @@ class BoardMeetingService
         ];
 
     }//end schedule()
-
 
     /**
      * Send the formal meeting notice. Transitions the meeting from scheduled
@@ -186,7 +186,7 @@ class BoardMeetingService
      */
     public function sendNotice(string $meetingId, string $actor): array
     {
-        $result = $this->runLifecycleTransition($meetingId, 'send-notice');
+        $result = $this->runLifecycleTransition(meetingId: $meetingId, action: 'send-notice');
         if ($result['success'] === false) {
             return $result;
         }
@@ -195,9 +195,10 @@ class BoardMeetingService
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $entity        = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'board-meeting');
             if ($entity !== null) {
-                $current = (method_exists($entity, 'getObject') === true)
-                    ? $entity->getObject()
-                    : (array) $entity->jsonSerialize();
+                $current = (array) $entity->jsonSerialize();
+                if (method_exists($entity, 'getObject') === true) {
+                    $current = $entity->getObject();
+                }
 
                 $patched = array_merge($current, ['noticeSentDate' => gmdate('Y-m-d\TH:i:s\Z')]);
 
@@ -228,7 +229,6 @@ class BoardMeetingService
         return $result;
 
     }//end sendNotice()
-
 
     /**
      * Run a single BoardMeeting lifecycle transition.
@@ -263,9 +263,10 @@ class BoardMeetingService
                 ];
             }
 
-            $current = (method_exists($entity, 'getObject') === true)
-                ? $entity->getObject()
-                : (array) $entity->jsonSerialize();
+            $current = (array) $entity->jsonSerialize();
+            if (method_exists($entity, 'getObject') === true) {
+                $current = $entity->getObject();
+            }
 
             $currentStatus = (string) ($current['status'] ?? 'scheduled');
             if (in_array($currentStatus, $transition['from'], true) === false) {
@@ -295,14 +296,18 @@ class BoardMeetingService
             ];
         }//end try
 
+        $meetingPayload = $merged;
+        if (is_object($saved) === true) {
+            $meetingPayload = (array) $saved->jsonSerialize();
+        }
+
         return [
             'success' => true,
-            'meeting' => is_object($saved) === true ? (array) $saved->jsonSerialize() : $merged,
+            'meeting' => $meetingPayload,
             'message' => "Meeting transitioned to '".$transition['to']."'.",
         ];
 
     }//end runLifecycleTransition()
-
 
     /**
      * Get the list of valid actions for the given meeting status.
@@ -325,6 +330,4 @@ class BoardMeetingService
         return $available;
 
     }//end getAvailableActions()
-
-
 }//end class

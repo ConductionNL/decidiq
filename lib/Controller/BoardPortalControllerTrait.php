@@ -32,8 +32,6 @@ use OCP\IUserSession;
  */
 trait BoardPortalControllerTrait
 {
-
-
     /**
      * Return a JSONResponse with 401 when the session lacks a user; null when
      * the caller is authenticated.
@@ -51,7 +49,6 @@ trait BoardPortalControllerTrait
         return null;
 
     }//end requireUserOr401()
-
 
     /**
      * Read the request payload, stripping URL routing params.
@@ -76,7 +73,6 @@ trait BoardPortalControllerTrait
 
     }//end bodyParams()
 
-
     /**
      * Map a service result tuple ({success, ...}) to a JSONResponse, choosing
      * the HTTP status by inspecting the error message.
@@ -91,9 +87,10 @@ trait BoardPortalControllerTrait
     {
         if (($result['success'] ?? false) === false) {
             $message = (string) ($result['message'] ?? 'Operation failed.');
-            $status  = stripos($message, 'not found') !== false
-                ? Http::STATUS_NOT_FOUND
-                : Http::STATUS_UNPROCESSABLE_ENTITY;
+            $status  = Http::STATUS_UNPROCESSABLE_ENTITY;
+            if (stripos($message, 'not found') !== false) {
+                $status = Http::STATUS_NOT_FOUND;
+            }
 
             return new JSONResponse(['message' => $message], $status);
         }
@@ -101,6 +98,4 @@ trait BoardPortalControllerTrait
         return new JSONResponse(($result[$payloadKey] ?? null), $successCode);
 
     }//end respondFromResult()
-
-
 }//end trait

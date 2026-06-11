@@ -45,8 +45,6 @@ use OCP\IUserSession;
  */
 class BoardController extends Controller
 {
-
-
     /**
      * Constructor for BoardController.
      *
@@ -61,7 +59,6 @@ class BoardController extends Controller
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
-
 
     /**
      * List boards. Supports `type` query filter.
@@ -100,7 +97,6 @@ class BoardController extends Controller
 
     }//end index()
 
-
     /**
      * Show a single board.
      *
@@ -128,7 +124,6 @@ class BoardController extends Controller
         return new JSONResponse($result['board']);
 
     }//end show()
-
 
     /**
      * Create a new board.
@@ -158,7 +153,6 @@ class BoardController extends Controller
 
     }//end create()
 
-
     /**
      * Update an existing board.
      *
@@ -182,14 +176,17 @@ class BoardController extends Controller
         $result  = $this->boardService->update($id, $payload);
 
         if ($result['success'] === false) {
-            $status = ($result['message'] === 'Board not found.') ? Http::STATUS_NOT_FOUND : Http::STATUS_UNPROCESSABLE_ENTITY;
+            $status = Http::STATUS_UNPROCESSABLE_ENTITY;
+            if ($result['message'] === 'Board not found.') {
+                $status = Http::STATUS_NOT_FOUND;
+            }
+
             return new JSONResponse(['message' => $result['message']], $status);
         }
 
         return new JSONResponse($result['board']);
 
     }//end update()
-
 
     /**
      * Return a 401 when the caller is anonymous; null when authenticated.
@@ -205,7 +202,6 @@ class BoardController extends Controller
         return null;
 
     }//end requireUser()
-
 
     /**
      * Read the request payload, stripping URL routing params (id, etc.).
@@ -223,6 +219,4 @@ class BoardController extends Controller
         return $raw;
 
     }//end jsonBody()
-
-
 }//end class

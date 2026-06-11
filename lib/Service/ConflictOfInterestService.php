@@ -70,7 +70,6 @@ class ConflictOfInterestService
      */
     public const SEVERITIES = ['material', 'non-material'];
 
-
     /**
      * Constructor for ConflictOfInterestService.
      *
@@ -84,7 +83,6 @@ class ConflictOfInterestService
         private readonly AuditLogService $auditLogService,
     ) {
     }//end __construct()
-
 
     /**
      * Check whether the given board member has an existing conflict declaration
@@ -100,11 +98,10 @@ class ConflictOfInterestService
      */
     public function requireDeclaration(string $boardMemberId, string $agendaItemId): bool
     {
-        $matches = $this->findDeclarations($boardMemberId, $agendaItemId);
+        $matches = $this->findDeclarations(boardMemberId: $boardMemberId, agendaItemId: $agendaItemId);
         return ($matches !== []);
 
     }//end requireDeclaration()
-
 
     /**
      * Record a new declaration. Material declarations are mirrored to the
@@ -162,9 +159,10 @@ class ConflictOfInterestService
                 schema: 'conflict-of-interest'
             );
 
-            $serialized = (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true)
-                ? $saved->jsonSerialize()
-                : $row;
+            $serialized = $row;
+            if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
+                $serialized = $saved->jsonSerialize();
+            }
 
             if ($severity === 'material') {
                 $this->auditLogService->append(
@@ -204,7 +202,6 @@ class ConflictOfInterestService
 
     }//end declare()
 
-
     /**
      * Update the action-taken on an existing declaration.
      *
@@ -242,9 +239,10 @@ class ConflictOfInterestService
                 ];
             }
 
-            $current = (method_exists($entity, 'getObject') === true)
-                ? $entity->getObject()
-                : (array) $entity->jsonSerialize();
+            $current = (array) $entity->jsonSerialize();
+            if (method_exists($entity, 'getObject') === true) {
+                $current = $entity->getObject();
+            }
 
             $updated = array_merge($current, ['actionTaken' => $actionTaken]);
 
@@ -255,9 +253,14 @@ class ConflictOfInterestService
                 uuid: $declarationId
             );
 
+            $payload = $updated;
+            if (is_object($saved) === true) {
+                $payload = $saved->jsonSerialize();
+            }
+
             return [
                 'success'     => true,
-                'declaration' => is_object($saved) === true ? $saved->jsonSerialize() : $updated,
+                'declaration' => $payload,
                 'message'     => 'Action recorded.',
             ];
         } catch (\Throwable $e) {
@@ -274,7 +277,6 @@ class ConflictOfInterestService
 
     }//end recordAction()
 
-
     /**
      * Return the most-restrictive active conflict for a given member + agenda
      * item pair, or null when none is on file. Restrictiveness ordering is
@@ -290,7 +292,7 @@ class ConflictOfInterestService
      */
     public function getActiveConflicts(string $boardMemberId, string $agendaItemId): ?array
     {
-        $matches = $this->findDeclarations($boardMemberId, $agendaItemId);
+        $matches = $this->findDeclarations(boardMemberId: $boardMemberId, agendaItemId: $agendaItemId);
         if ($matches === []) {
             return null;
         }
@@ -305,15 +307,13 @@ class ConflictOfInterestService
         usort(
             $matches,
             static function (array $a, array $b) use ($weight): int {
-                return (($weight[$b['actionTaken'] ?? 'no-action-needed'] ?? 0)
-                    - ($weight[$a['actionTaken'] ?? 'no-action-needed'] ?? 0));
+                return (($weight[$b['actionTaken'] ?? 'no-action-needed'] ?? 0) - ($weight[$a['actionTaken'] ?? 'no-action-needed'] ?? 0));
             }
         );
 
         return $matches[0];
 
     }//end getActiveConflicts()
-
 
     /**
      * Internal: list all declarations matching the given member + agenda item.
@@ -345,7 +345,7 @@ class ConflictOfInterestService
                 ['exception' => $e->getMessage()]
             );
             return [];
-        }
+        }//end try
 
         $out = [];
         foreach ((array) $rows as $row) {
@@ -367,6 +367,4 @@ class ConflictOfInterestService
         return $out;
 
     }//end findDeclarations()
-
-
 }//end class

@@ -43,8 +43,6 @@ use OCA\Decidesk\Service\QuorumVerificationService;
  */
 class ResolutionLifecycleGuard
 {
-
-
     /**
      * Constructor for ResolutionLifecycleGuard.
      *
@@ -56,7 +54,6 @@ class ResolutionLifecycleGuard
         private readonly ConflictOfInterestService $conflictService,
     ) {
     }//end __construct()
-
 
     /**
      * Decide whether the vote on a resolution may be opened. The parent
@@ -92,7 +89,6 @@ class ResolutionLifecycleGuard
         ];
 
     }//end canOpenVote()
-
 
     /**
      * Decide whether the given board member may cast a vote on the resolution.
@@ -135,6 +131,4 @@ class ResolutionLifecycleGuard
         ];
 
     }//end canCastVote()
-
-
 }//end class

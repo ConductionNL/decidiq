@@ -40,7 +40,6 @@ class ConflictOfInterestController extends Controller
 {
     use BoardPortalControllerTrait;
 
-
     /**
      * Constructor for ConflictOfInterestController.
      *
@@ -56,7 +55,6 @@ class ConflictOfInterestController extends Controller
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 
-
     /**
      * Record a new conflict-of-interest declaration.
      *
@@ -69,7 +67,7 @@ class ConflictOfInterestController extends Controller
     #[NoAdminRequired]
     public function declare(): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -88,13 +86,12 @@ class ConflictOfInterestController extends Controller
         }
 
         return $this->respondFromResult(
-            $this->conflictService->declare($boardMemberId, $agendaItemId, $type, $description, $severity),
-            'declaration',
-            Http::STATUS_CREATED
+            result: $this->conflictService->declare($boardMemberId, $agendaItemId, $type, $description, $severity),
+            payloadKey: 'declaration',
+            successCode: Http::STATUS_CREATED
         );
 
     }//end declare()
-
 
     /**
      * List active conflicts for a board member (optionally narrowed to one
@@ -111,7 +108,7 @@ class ConflictOfInterestController extends Controller
     #[NoAdminRequired]
     public function forMember(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -125,7 +122,6 @@ class ConflictOfInterestController extends Controller
         return new JSONResponse(['conflict' => $conflict]);
 
     }//end forMember()
-
 
     /**
      * Update the action-taken on an existing declaration.
@@ -141,7 +137,7 @@ class ConflictOfInterestController extends Controller
     #[NoAdminRequired]
     public function recordAction(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -152,11 +148,9 @@ class ConflictOfInterestController extends Controller
         }
 
         return $this->respondFromResult(
-            $this->conflictService->recordAction($id, $action),
-            'declaration'
+            result: $this->conflictService->recordAction($id, $action),
+            payloadKey: 'declaration'
         );
 
     }//end recordAction()
-
-
 }//end class

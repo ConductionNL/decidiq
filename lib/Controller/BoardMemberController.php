@@ -40,13 +40,12 @@ class BoardMemberController extends Controller
 {
     use BoardPortalControllerTrait;
 
-
     /**
      * Constructor for BoardMemberController.
      *
-     * @param IRequest           $request      The HTTP request
+     * @param IRequest           $request       The HTTP request
      * @param BoardMemberService $memberService The board-member service
-     * @param IUserSession       $userSession  The user session
+     * @param IUserSession       $userSession   The user session
      */
     public function __construct(
         IRequest $request,
@@ -55,7 +54,6 @@ class BoardMemberController extends Controller
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
-
 
     /**
      * List the members of a board.
@@ -71,7 +69,7 @@ class BoardMemberController extends Controller
     #[NoAdminRequired]
     public function index(string $boardId): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -90,7 +88,6 @@ class BoardMemberController extends Controller
 
     }//end index()
 
-
     /**
      * Invite a new member to a board.
      *
@@ -105,18 +102,17 @@ class BoardMemberController extends Controller
     #[NoAdminRequired]
     public function invite(string $boardId): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
 
-        $payload = $this->bodyParams($this->request, ['boardId', '_route']);
+        $payload = $this->bodyParams(request: $this->request, stripKeys: ['boardId', '_route']);
         $result  = $this->memberService->invite($boardId, $payload);
 
-        return $this->respondFromResult($result, 'member', Http::STATUS_CREATED);
+        return $this->respondFromResult(result: $result, payloadKey: 'member', successCode: Http::STATUS_CREATED);
 
     }//end invite()
-
 
     /**
      * Remove (end-of-term) a board member.
@@ -132,15 +128,14 @@ class BoardMemberController extends Controller
     #[NoAdminRequired]
     public function remove(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
 
-        return $this->respondFromResult($this->memberService->remove($id), 'member');
+        return $this->respondFromResult(result: $this->memberService->remove($id), payloadKey: 'member');
 
     }//end remove()
-
 
     /**
      * Change a board member's role.
@@ -156,7 +151,7 @@ class BoardMemberController extends Controller
     #[NoAdminRequired]
     public function changeRole(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -166,9 +161,7 @@ class BoardMemberController extends Controller
             return new JSONResponse(['message' => "Missing required parameter 'role'."], Http::STATUS_UNPROCESSABLE_ENTITY);
         }
 
-        return $this->respondFromResult($this->memberService->changeRole($id, $role), 'member');
+        return $this->respondFromResult(result: $this->memberService->changeRole($id, $role), payloadKey: 'member');
 
     }//end changeRole()
-
-
 }//end class

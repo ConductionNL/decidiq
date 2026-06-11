@@ -43,13 +43,12 @@ class BoardMaterialController extends Controller
 {
     use BoardPortalControllerTrait;
 
-
     /**
      * Constructor for BoardMaterialController.
      *
-     * @param IRequest                         $request      The HTTP request
+     * @param IRequest                          $request     The HTTP request
      * @param BoardMaterialAuthorizationService $authService The material auth service
-     * @param IUserSession                     $userSession  The user session
+     * @param IUserSession                      $userSession The user session
      */
     public function __construct(
         IRequest $request,
@@ -58,7 +57,6 @@ class BoardMaterialController extends Controller
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
-
 
     /**
      * List materials visible to the caller's role.
@@ -74,7 +72,7 @@ class BoardMaterialController extends Controller
     #[NoAdminRequired]
     public function index(string $boardId): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -94,7 +92,6 @@ class BoardMaterialController extends Controller
 
     }//end index()
 
-
     /**
      * Read a material; logs the read attempt to the audit log.
      *
@@ -109,7 +106,7 @@ class BoardMaterialController extends Controller
     #[NoAdminRequired]
     public function show(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -130,7 +127,6 @@ class BoardMaterialController extends Controller
 
     }//end show()
 
-
     /**
      * Initiate the encrypted download stream. The actual byte stream is
      * handled out-of-band by docudesk; this endpoint authorizes + audits.
@@ -146,9 +142,7 @@ class BoardMaterialController extends Controller
     #[NoAdminRequired]
     public function download(string $id): JSONResponse
     {
-        return $this->show($id);
+        return $this->show(id: $id);
 
     }//end download()
-
-
 }//end class

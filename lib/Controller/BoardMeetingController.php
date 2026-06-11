@@ -40,7 +40,6 @@ class BoardMeetingController extends Controller
 {
     use BoardPortalControllerTrait;
 
-
     /**
      * Constructor for BoardMeetingController.
      *
@@ -56,7 +55,6 @@ class BoardMeetingController extends Controller
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 
-
     /**
      * Schedule a new board meeting.
      *
@@ -71,20 +69,19 @@ class BoardMeetingController extends Controller
     #[NoAdminRequired]
     public function schedule(string $boardId): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
 
-        $payload = $this->bodyParams($this->request, ['boardId', '_route']);
+        $payload = $this->bodyParams(request: $this->request, stripKeys: ['boardId', '_route']);
         return $this->respondFromResult(
-            $this->meetingService->schedule($boardId, $payload),
-            'meeting',
-            Http::STATUS_CREATED
+            result: $this->meetingService->schedule($boardId, $payload),
+            payloadKey: 'meeting',
+            successCode: Http::STATUS_CREATED
         );
 
     }//end schedule()
-
 
     /**
      * Send the formal meeting notice.
@@ -100,7 +97,7 @@ class BoardMeetingController extends Controller
     #[NoAdminRequired]
     public function sendNotice(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -108,12 +105,11 @@ class BoardMeetingController extends Controller
         $actor = $this->userSession->getUser()?->getUID() ?? 'system';
 
         return $this->respondFromResult(
-            $this->meetingService->sendNotice($id, $actor),
-            'meeting'
+            result: $this->meetingService->sendNotice($id, $actor),
+            payloadKey: 'meeting'
         );
 
     }//end sendNotice()
-
 
     /**
      * Run a lifecycle transition.
@@ -129,7 +125,7 @@ class BoardMeetingController extends Controller
     #[NoAdminRequired]
     public function transition(string $id): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -140,11 +136,9 @@ class BoardMeetingController extends Controller
         }
 
         return $this->respondFromResult(
-            $this->meetingService->runLifecycleTransition($id, $action),
-            'meeting'
+            result: $this->meetingService->runLifecycleTransition($id, $action),
+            payloadKey: 'meeting'
         );
 
     }//end transition()
-
-
 }//end class

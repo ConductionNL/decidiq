@@ -52,7 +52,6 @@ class BoardVoteService
      */
     public const METHODS = ['raised-hand', 'electronic', 'written-ballot', 'proxy'];
 
-
     /**
      * Constructor for BoardVoteService.
      *
@@ -68,7 +67,6 @@ class BoardVoteService
         private readonly AuditLogService $auditLogService,
     ) {
     }//end __construct()
-
 
     /**
      * Cast a vote on a resolution. The conflict-of-interest gate is consulted
@@ -148,7 +146,10 @@ class BoardVoteService
             ];
         }
 
-        $serialized = is_object($saved) === true ? (array) $saved->jsonSerialize() : $row;
+        $serialized = $row;
+        if (is_object($saved) === true) {
+            $serialized = (array) $saved->jsonSerialize();
+        }
 
         $this->auditLogService->append(
             actor: $boardMemberId,
@@ -167,7 +168,6 @@ class BoardVoteService
         ];
 
     }//end cast()
-
 
     /**
      * Tally the votes recorded against a resolution. Returns a count per vote
@@ -202,7 +202,7 @@ class BoardVoteService
                 'cast'    => 0,
                 'total'   => 0,
             ];
-        }
+        }//end try
 
         $tally = array_fill_keys(self::VOTES, 0);
         $total = 0;
@@ -234,7 +234,6 @@ class BoardVoteService
         ];
 
     }//end tally()
-
 
     /**
      * Return the full audit log slice for one resolution (every vote cast,
@@ -288,6 +287,4 @@ class BoardVoteService
         ];
 
     }//end audit()
-
-
 }//end class

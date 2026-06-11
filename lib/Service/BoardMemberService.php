@@ -58,7 +58,6 @@ class BoardMemberService
      */
     public const INDEPENDENCE_STATUS = ['independent', 'non-independent'];
 
-
     /**
      * Constructor for BoardMemberService.
      *
@@ -70,7 +69,6 @@ class BoardMemberService
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
-
 
     /**
      * List the members of a board.
@@ -103,7 +101,7 @@ class BoardMemberService
                 'members' => [],
                 'count'   => 0,
             ];
-        }
+        }//end try
 
         $members = [];
         foreach ((array) $rows as $row) {
@@ -129,7 +127,6 @@ class BoardMemberService
         ];
 
     }//end listForBoard()
-
 
     /**
      * Invite (create) a new board member.
@@ -164,7 +161,7 @@ class BoardMemberService
         $row = array_merge(
             $data,
             [
-                'boardKoppeling' => $boardId,
+                'boardKoppeling'  => $boardId,
                 'appointmentDate' => ($data['appointmentDate'] ?? gmdate('Y-m-d')),
             ]
         );
@@ -190,14 +187,18 @@ class BoardMemberService
 
         $this->logger->info('Decidesk: board member invited', ['boardId' => $boardId, 'role' => $data['rol']]);
 
+        $memberPayload = $row;
+        if (is_object($saved) === true) {
+            $memberPayload = (array) $saved->jsonSerialize();
+        }
+
         return [
             'success' => true,
-            'member'  => is_object($saved) === true ? (array) $saved->jsonSerialize() : $row,
+            'member'  => $memberPayload,
             'message' => 'Board member invited.',
         ];
 
     }//end invite()
-
 
     /**
      * Remove a board member (sets termEndDate to today; the row is not deleted
@@ -222,9 +223,10 @@ class BoardMemberService
                 ];
             }
 
-            $current = (method_exists($entity, 'getObject') === true)
-                ? $entity->getObject()
-                : (array) $entity->jsonSerialize();
+            $current = (array) $entity->jsonSerialize();
+            if (method_exists($entity, 'getObject') === true) {
+                $current = $entity->getObject();
+            }
 
             $merged = array_merge(
                 $current,
@@ -249,14 +251,18 @@ class BoardMemberService
             ];
         }//end try
 
+        $memberPayload = $merged;
+        if (is_object($saved) === true) {
+            $memberPayload = (array) $saved->jsonSerialize();
+        }
+
         return [
             'success' => true,
-            'member'  => is_object($saved) === true ? (array) $saved->jsonSerialize() : $merged,
+            'member'  => $memberPayload,
             'message' => 'Board member term ended.',
         ];
 
     }//end remove()
-
 
     /**
      * Change a board member's role.
@@ -289,9 +295,10 @@ class BoardMemberService
                 ];
             }
 
-            $current = (method_exists($entity, 'getObject') === true)
-                ? $entity->getObject()
-                : (array) $entity->jsonSerialize();
+            $current = (array) $entity->jsonSerialize();
+            if (method_exists($entity, 'getObject') === true) {
+                $current = $entity->getObject();
+            }
 
             $merged = array_merge($current, ['rol' => $role]);
 
@@ -313,13 +320,16 @@ class BoardMemberService
             ];
         }//end try
 
+        $memberPayload = $merged;
+        if (is_object($saved) === true) {
+            $memberPayload = (array) $saved->jsonSerialize();
+        }
+
         return [
             'success' => true,
-            'member'  => is_object($saved) === true ? (array) $saved->jsonSerialize() : $merged,
+            'member'  => $memberPayload,
             'message' => 'Role updated.',
         ];
 
     }//end changeRole()
-
-
 }//end class

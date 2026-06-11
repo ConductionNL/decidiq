@@ -40,13 +40,12 @@ class BoardVoteController extends Controller
 {
     use BoardPortalControllerTrait;
 
-
     /**
      * Constructor for BoardVoteController.
      *
-     * @param IRequest         $request         The HTTP request
-     * @param BoardVoteService $voteService     The vote service
-     * @param IUserSession     $userSession     The user session
+     * @param IRequest         $request     The HTTP request
+     * @param BoardVoteService $voteService The vote service
+     * @param IUserSession     $userSession The user session
      */
     public function __construct(
         IRequest $request,
@@ -55,7 +54,6 @@ class BoardVoteController extends Controller
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
-
 
     /**
      * Cast a vote.
@@ -71,7 +69,7 @@ class BoardVoteController extends Controller
     #[NoAdminRequired]
     public function cast(string $resolutionId): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -86,20 +84,19 @@ class BoardVoteController extends Controller
         }
 
         $extra = [
-            'voteMethod'           => (string) $this->request->getParam('voteMethod', 'electronic'),
-            'agendaItemKoppeling'  => (string) $this->request->getParam('agendaItemKoppeling', ''),
-            'anonymized'           => (bool) $this->request->getParam('anonymized', false),
-            'proxyHolder'          => (string) $this->request->getParam('proxyHolder', ''),
+            'voteMethod'          => (string) $this->request->getParam('voteMethod', 'electronic'),
+            'agendaItemKoppeling' => (string) $this->request->getParam('agendaItemKoppeling', ''),
+            'anonymized'          => (bool) $this->request->getParam('anonymized', false),
+            'proxyHolder'         => (string) $this->request->getParam('proxyHolder', ''),
         ];
 
         return $this->respondFromResult(
-            $this->voteService->cast($resolutionId, $boardMemberId, $vote, $extra),
-            'vote',
-            Http::STATUS_CREATED
+            result: $this->voteService->cast($resolutionId, $boardMemberId, $vote, $extra),
+            payloadKey: 'vote',
+            successCode: Http::STATUS_CREATED
         );
 
     }//end cast()
-
 
     /**
      * Return the running tally for a resolution.
@@ -115,7 +112,7 @@ class BoardVoteController extends Controller
     #[NoAdminRequired]
     public function tally(string $resolutionId): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -135,7 +132,6 @@ class BoardVoteController extends Controller
 
     }//end tally()
 
-
     /**
      * Return the raw vote rows for a resolution.
      *
@@ -150,7 +146,7 @@ class BoardVoteController extends Controller
     #[NoAdminRequired]
     public function audit(string $resolutionId): JSONResponse
     {
-        $auth = $this->requireUserOr401($this->userSession);
+        $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
         }
@@ -168,6 +164,4 @@ class BoardVoteController extends Controller
         );
 
     }//end audit()
-
-
 }//end class

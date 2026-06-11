@@ -48,7 +48,7 @@ class BoardMaterialAuthorizationService
      * @var array<string, string[]>
      */
     private const ACCESS_MATRIX = [
-        'board-only' => [
+        'board-only'       => [
             'chairman',
             'vice-chairman',
             'member',
@@ -57,22 +57,21 @@ class BoardMaterialAuthorizationService
             'independent-member',
             'employee-representative',
         ],
-        'executive-only' => [
+        'executive-only'   => [
             'executive-member',
             'chairman',
         ],
-        'audit-committee' => [
+        'audit-committee'  => [
             'audit-committee-member',
             'chairman',
         ],
         'external-auditor' => [
             'external-auditor',
         ],
-        'regulator' => [
+        'regulator'        => [
             'regulator',
         ],
     ];
-
 
     /**
      * Constructor for BoardMaterialAuthorizationService.
@@ -87,7 +86,6 @@ class BoardMaterialAuthorizationService
         private readonly AuditLogService $auditLogService,
     ) {
     }//end __construct()
-
 
     /**
      * Return true when the given board member's roles include at least one
@@ -112,11 +110,11 @@ class BoardMaterialAuthorizationService
                 return false;
             }
 
-            $memberData   = $this->toArray($member);
-            $materialData = $this->toArray($material);
+            $memberData   = $this->toArray(row: $member);
+            $materialData = $this->toArray(row: $material);
 
             $accessLevel = (string) ($materialData['accessLevel'] ?? 'board-only');
-            $roles       = $this->memberRoles($memberData);
+            $roles       = $this->memberRoles(memberData: $memberData);
 
             $allowed = (self::ACCESS_MATRIX[$accessLevel] ?? []);
             foreach ($roles as $role) {
@@ -135,7 +133,6 @@ class BoardMaterialAuthorizationService
         return false;
 
     }//end canViewMaterial()
-
 
     /**
      * Return all materials a member with the given role can read on the given
@@ -190,12 +187,11 @@ class BoardMaterialAuthorizationService
             if (in_array($role, $allowed, true) === true) {
                 $out[] = $row;
             }
-        }
+        }//end foreach
 
         return $out;
 
     }//end filterMaterialsByRole()
-
 
     /**
      * Append a `material-access` entry to the audit log. The granted flag is
@@ -220,7 +216,6 @@ class BoardMaterialAuthorizationService
 
     }//end logMaterialAccess()
 
-
     /**
      * Convert an ObjectService row (object or array) to a plain array.
      *
@@ -234,10 +229,13 @@ class BoardMaterialAuthorizationService
             return (array) $row->jsonSerialize();
         }
 
-        return is_array($row) === true ? $row : [];
+        if (is_array($row) === true) {
+            return $row;
+        }
+
+        return [];
 
     }//end toArray()
-
 
     /**
      * Roles a member holds (primary role + optional committee memberships).
@@ -264,6 +262,4 @@ class BoardMaterialAuthorizationService
         return array_values(array_unique($roles));
 
     }//end memberRoles()
-
-
 }//end class
