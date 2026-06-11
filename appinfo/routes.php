@@ -85,6 +85,50 @@ return [
         // Motion forwarding routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
         ['name' => 'motion#forward', 'url' => '/api/motions/{id}/forward', 'verb' => 'POST'],
 
+        // Board portal — @spec openspec/changes/board-meeting-resolutions/tasks.md
+        // Board CRUD.
+        ['name' => 'board#index',  'url' => '/api/boards',      'verb' => 'GET'],
+        ['name' => 'board#create', 'url' => '/api/boards',      'verb' => 'POST'],
+        ['name' => 'board#show',   'url' => '/api/boards/{id}', 'verb' => 'GET'],
+        ['name' => 'board#update', 'url' => '/api/boards/{id}', 'verb' => 'PUT'],
+
+        // Board member management.
+        ['name' => 'boardMember#index',     'url' => '/api/boards/{boardId}/members',                'verb' => 'GET'],
+        ['name' => 'boardMember#invite',    'url' => '/api/boards/{boardId}/members',                'verb' => 'POST'],
+        ['name' => 'boardMember#remove',    'url' => '/api/board-members/{id}',                      'verb' => 'DELETE'],
+        ['name' => 'boardMember#changeRole', 'url' => '/api/board-members/{id}/role',                'verb' => 'PUT'],
+
+        // Board meeting lifecycle.
+        ['name' => 'boardMeeting#schedule',  'url' => '/api/boards/{boardId}/meetings',            'verb' => 'POST'],
+        ['name' => 'boardMeeting#sendNotice', 'url' => '/api/board-meetings/{id}/send-notice',     'verb' => 'POST'],
+        ['name' => 'boardMeeting#transition', 'url' => '/api/board-meetings/{id}/lifecycle',       'verb' => 'POST'],
+
+        // Resolutions.
+        ['name' => 'resolution#propose',  'url' => '/api/board-meetings/{meetingId}/resolutions', 'verb' => 'POST'],
+        ['name' => 'resolution#amend',    'url' => '/api/resolutions/{id}',                       'verb' => 'PUT'],
+        ['name' => 'resolution#openVote', 'url' => '/api/resolutions/{id}/open-vote',             'verb' => 'POST'],
+        ['name' => 'resolution#conclude', 'url' => '/api/resolutions/{id}/conclude',              'verb' => 'POST'],
+
+        // Board votes.
+        ['name' => 'boardVote#cast',  'url' => '/api/resolutions/{resolutionId}/votes', 'verb' => 'POST'],
+        ['name' => 'boardVote#tally', 'url' => '/api/resolutions/{resolutionId}/tally', 'verb' => 'GET'],
+        ['name' => 'boardVote#audit', 'url' => '/api/resolutions/{resolutionId}/audit', 'verb' => 'GET'],
+
+        // Board materials.
+        ['name' => 'boardMaterial#index',    'url' => '/api/boards/{boardId}/materials', 'verb' => 'GET'],
+        ['name' => 'boardMaterial#show',     'url' => '/api/board-materials/{id}',       'verb' => 'GET'],
+        ['name' => 'boardMaterial#download', 'url' => '/api/board-materials/{id}/download', 'verb' => 'POST'],
+
+        // Conflict-of-interest declarations.
+        ['name' => 'conflictOfInterest#declare',     'url' => '/api/conflicts',                  'verb' => 'POST'],
+        ['name' => 'conflictOfInterest#forMember',   'url' => '/api/board-members/{id}/conflicts', 'verb' => 'GET'],
+        ['name' => 'conflictOfInterest#recordAction', 'url' => '/api/conflicts/{id}/action',     'verb' => 'PUT'],
+
+        // Audit log (secretary/admin only — enforced inside controller).
+        ['name' => 'auditLog#index',  'url' => '/api/audit-log',                'verb' => 'GET'],
+        ['name' => 'auditLog#verify', 'url' => '/api/audit-log/{id}/verify',    'verb' => 'GET'],
+        ['name' => 'auditLog#export', 'url' => '/api/audit-log/export',         'verb' => 'GET'],
+
         // Public REST API — versioned v1 (REQ-API-001..004).
         // @spec openspec/changes/p4-integration/tasks.md#task-1
         // @spec openspec/changes/p4-integration/tasks.md#task-2
