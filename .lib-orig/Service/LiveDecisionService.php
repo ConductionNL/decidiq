@@ -1,0 +1,214 @@
+<?php
+
+/**
+ * Decidesk Live Decision Service
+ *
+ * Service for recording decisions during active meetings via the live decision panel.
+ *
+ * @category Service
+ * @package  OCA\Decidesk\Service
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @link https://conduction.nl
+ */
+
+declare(strict_types=1);
+
+namespace OCA\Decidesk\Service;
+
+use Exception;
+use OCA\Decidesk\Exception\MissingObjectException;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Stateless service that records decisions during active meetings.
+ *
+ * Verifies that the Meeting lifecycle is 'opened', creates Decision objects,
+ * auto-creates draft Minutes if needed, and links decisions to minutes.
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ */
+class LiveDecisionService
+{
+    /**
+     * Constructor.
+     *
+     * @param ContainerInterface $container The DI container
+     * @param LoggerInterface    $logger    The logger
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+     */
+    public function __construct(
+        private ContainerInterface $container,
+        private LoggerInterface $logger,
+    ) {
+    }//end __construct()
+
+    /**
+     * Record a decision during an active meeting.
+     *
+     * Verifies the Meeting lifecycle is 'opened'; creates a Decision object;
+     * calls ensureDraftMinutes to auto-create draft Minutes if needed; links
+     * the Decision to the Minutes via relation; returns the Decision's slug.
+     *
+     * @param string $meetingId    The Meeting ID
+     * @param array  $decisionData Decision data (title, text, outcome, legalBasis)
+     * @param string $actorId      The actor ID (user making the recording)
+     *
+     * @return string The slug of the created Decision
+     *
+     * @throws MissingObjectException If the Meeting is not found
+     * @throws Exception If the Meeting lifecycle is not 'opened'
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $actorId reserved for future audit-log enrichment.
+     */
+    public function recordDecision(string $meetingId, array $decisionData, string $actorId): string
+    {
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+            // Fetch Meeting.
+            $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+            $meeting       = null;
+            if ($meetingEntity !== null) {
+                $meeting = $meetingEntity->jsonSerialize();
+            }
+
+            if ($meeting === null) {
+                throw new MissingObjectException(message: "Meeting not found: $meetingId");
+            }
+
+            // Verify lifecycle is 'opened'.
+            $lifecycle = $meeting['lifecycle'] ?? null;
+            if ($lifecycle !== 'opened') {
+                throw new Exception("Meeting is not in 'opened' state (current: $lifecycle)", 409);
+            }
+
+            // Ensure draft Minutes exist (side-effect: creates draft if missing).
+            $this->ensureDraftMinutes(meetingId: $meetingId);
+
+            // Create Decision.
+            $decisionToSave = [
+                'title'        => $decisionData['title'] ?? '',
+                'text'         => $decisionData['text'] ?? '',
+                'outcome'      => $decisionData['outcome'] ?? 'pending',
+                'decisionDate' => date('c'),
+                'isPublished'  => 'internal',
+            ];
+
+            if (empty($decisionData['legalBasis']) === false) {
+                $decisionToSave['legalBasis'] = $decisionData['legalBasis'];
+            }
+
+            // Add relation to Meeting.
+            $decisionToSave['relations'] = [
+                'Meeting' => [$meetingId],
+            ];
+
+            $decisionEntity = $objectService->saveObject(
+                register: 'decidesk',
+                schema: 'Decision',
+                object: $decisionToSave
+            );
+            $decision       = $decisionEntity->jsonSerialize();
+
+            $decisionSlug = $decision['@self']['slug'] ?? $decision['id'] ?? '';
+
+            $this->logger->info("Decision recorded in live mode for meeting $meetingId: $decisionSlug");
+
+            return $decisionSlug;
+        } catch (Exception $e) {
+            $this->logger->error("LiveDecisionService::recordDecision failed: ".$e->getMessage());
+            throw $e;
+        }//end try
+    }//end recordDecision()
+
+    /**
+     * Ensure a draft Minutes object exists for the Meeting.
+     *
+     * Checks if a Minutes object is linked to the Meeting. If not, creates
+     * a draft Minutes with title "Concept notulen — {meeting.title}",
+     * lifecycle "draft", version 1, and links it to the Meeting.
+     *
+     * @param string $meetingId The Meeting ID
+     *
+     * @return string The slug of the Minutes object (existing or new)
+     *
+     * @psalm-suppress UnusedReturnValue Return preserved for future-callers; current callsites only use
+     *                 the side effect of creating the Minutes record.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
+     */
+    private function ensureDraftMinutes(string $meetingId): string
+    {
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+            // Check if Minutes already exist for this Meeting.
+            $params = [
+                '_limit'  => 999,
+                '_offset' => 0,
+            ];
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('minutes');
+            $existingMinutesEntities = $objectService->findAll(['filters' => $params]);
+
+            foreach ($existingMinutesEntities as $minutesEntity) {
+                $minutes = $minutesEntity->jsonSerialize();
+                // Check if linked to the Meeting.
+                if (empty($minutes['relations']['Meeting']) === false) {
+                    foreach ($minutes['relations']['Meeting'] as $linkedMeetingId) {
+                        if ($linkedMeetingId === $meetingId || $linkedMeetingId === ['id' => $meetingId]) {
+                            return $minutes['@self']['slug'] ?? $minutes['id'] ?? '';
+                        }
+                    }
+                }
+            }
+
+            // No Minutes found, create one.
+            $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+            $meeting       = null;
+            if ($meetingEntity !== null) {
+                $meeting = $meetingEntity->jsonSerialize();
+            }
+
+            if ($meeting === null) {
+                throw new MissingObjectException(message: "Meeting not found: $meetingId");
+            }
+
+            $minutesToCreate = [
+                'title'     => 'Concept notulen — '.($meeting['title'] ?? 'Untitled Meeting'),
+                'lifecycle' => 'draft',
+                'version'   => 1,
+                'content'   => '',
+                'relations' => [
+                    'Meeting' => [$meetingId],
+                ],
+            ];
+
+            $minutesEntity = $objectService->saveObject(
+                register: 'decidesk',
+                schema: 'Minutes',
+                object: $minutesToCreate
+            );
+            $minutes       = $minutesEntity->jsonSerialize();
+
+            $minutesSlug = $minutes['@self']['slug'] ?? $minutes['id'] ?? '';
+
+            $this->logger->info("Draft Minutes created for meeting $meetingId: $minutesSlug");
+
+            return $minutesSlug;
+        } catch (Exception $e) {
+            $this->logger->error("LiveDecisionService::ensureDraftMinutes failed: ".$e->getMessage());
+            throw $e;
+        }//end try
+    }//end ensureDraftMinutes()
+}//end class

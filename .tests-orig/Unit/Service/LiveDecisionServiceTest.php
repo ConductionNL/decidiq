@@ -1,0 +1,161 @@
+<?php
+
+/**
+ * Test Suite for LiveDecisionService
+ *
+ * @category Test
+ * @package  OCA\Decidesk\Tests\Unit\Service
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.5
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @link https://conduction.nl
+ */
+
+declare(strict_types=1);
+
+namespace OCA\Decidesk\Tests\Unit\Service;
+
+use OCA\Decidesk\Service\LiveDecisionService;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Unit tests for LiveDecisionService.
+ *
+ * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.5
+ */
+class LiveDecisionServiceTest extends TestCase
+{
+    private LiveDecisionService $service;
+    private ContainerInterface|\PHPUnit\Framework\MockObject\MockObject $container;
+    private LoggerInterface|\PHPUnit\Framework\MockObject\MockObject $logger;
+
+    /**
+     * Set up test fixtures.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.5
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->container = $this->createMock(ContainerInterface::class);
+        $this->logger    = $this->createMock(LoggerInterface::class);
+        $this->service   = new LiveDecisionService($this->container, $this->logger);
+    }
+
+    /**
+     * Build a mock entity that returns $data from jsonSerialize().
+     *
+     * @param array<string,mixed> $data
+     *
+     * @return object
+     */
+    private function makeEntity(array $data): object
+    {
+        $entity = $this->createMock(\OCA\OpenRegister\Db\ObjectEntity::class);
+        $entity->method('jsonSerialize')->willReturn($data);
+        return $entity;
+    }
+
+    /**
+     * Test that recordDecision creates Decision and links to Meeting.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.5
+     */
+    public function testRecordDecisionCreatesDecisionAndLinksToMeeting(): void
+    {
+        $meetingEntity = $this->makeEntity([
+            'id'        => 'meeting-1',
+            'title'     => 'Council Meeting',
+            'lifecycle' => 'opened',
+        ]);
+
+        $savedDecisionEntity = $this->makeEntity([
+            'id'    => 'decision-1',
+            '@self' => ['slug' => 'council-decision-1'],
+        ]);
+
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
+
+        $mockObjectService->expects($this->any())
+            ->method('find')
+            ->willReturn($meetingEntity);
+
+        $mockObjectService->expects($this->any())
+            ->method('findAll')
+            ->willReturn([]);
+
+        $mockObjectService->expects($this->any())
+            ->method('saveObject')
+            ->willReturn($savedDecisionEntity);
+
+        $this->container->expects($this->any())
+            ->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($mockObjectService);
+
+        $decisionData = [
+            'title'   => 'Budget Approved',
+            'text'    => 'The budget was approved unanimously',
+            'outcome' => 'adopted',
+        ];
+
+        $result = $this->service->recordDecision('meeting-1', $decisionData, 'user-1');
+
+        $this->assertEquals('council-decision-1', $result);
+    }
+
+    /**
+     * Test that recordDecision throws 409 when Meeting not opened.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.5
+     */
+    public function testRecordDecisionThrows409ForNonOpenedMeeting(): void
+    {
+        $meetingEntity = $this->makeEntity([
+            'id'        => 'meeting-1',
+            'title'     => 'Council Meeting',
+            'lifecycle' => 'scheduled',
+        ]);
+
+        $mockObjectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
+
+        $mockObjectService->method('setRegister')->willReturnSelf();
+        $mockObjectService->method('setSchema')->willReturnSelf();
+
+        $mockObjectService->expects($this->once())
+            ->method('find')
+            ->willReturn($meetingEntity);
+
+        $this->container->expects($this->any())
+            ->method('get')
+            ->with('OCA\OpenRegister\Service\ObjectService')
+            ->willReturn($mockObjectService);
+
+        $decisionData = [
+            'title'   => 'Budget Approved',
+            'text'    => 'The budget was approved unanimously',
+            'outcome' => 'adopted',
+        ];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionCode(409);
+
+        $this->service->recordDecision('meeting-1', $decisionData, 'user-1');
+    }
+
+}
