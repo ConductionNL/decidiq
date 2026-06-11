@@ -14,29 +14,42 @@ delivery, hash-chained audit logs, multilingual minutes reconciliation, CalDAV
 wrappers, and regulator scoped access — none of which can be honestly shipped
 inside a mop-up worktree.
 
-All 61 tasks are flipped to `[~]` with the same deferral reason: tracked as a
-follow-up multi-PR initiative (`decidesk-board-portal-v1` umbrella) that will
-ship the 9 schemas, 8 services, 6 controllers, the eIDAS adapter, and the audit
-hash-chain in their own focused changes once the design is broken down further
-and the openconnector-e-sign integration is reachable.
+The remaining ~50 tasks (services / controllers / eIDAS adapter / Vue UI / docs)
+stay flipped to `[~]` with the same deferral reason: tracked as a follow-up
+multi-PR initiative (`decidesk-board-portal-v1` umbrella).
+
+### W2-mop-up update 2026-06-11
+
+Phase 1 (Schema Registration & Data Model — Tasks 1.1-1.13) is now **shipped
+atomically**: 9 board-portal schemas with realistic seed data have been added to
+`lib/Settings/decidesk_register.json` (`Board`, `BoardMember`, `BoardMeeting`,
+`Resolution`, `BoardVote`, `BoardMinutes`, `ConflictOfInterest`, `BoardMaterial`,
+`BoardAuditLogEntry`). Naming uses the `Board*` prefix on schemas that collide
+with the existing council/local-government register (`Vote`, `Minutes`,
+`Meeting`) so both portals coexist. The existing `InitializeSettings` repair step
+(`lib/Repair/InitializeSettings.php`) calls `ConfigurationService::importFromApp('decidesk')`
+which picks up the new schemas + seeds on install/upgrade; the spec's call for a
+new `lib/Migration/RepairStep.php` is satisfied by this existing
+already-registered repair step (renaming for a new class would have been a no-op
+since the existing one is wired into `appinfo/info.xml`).
 
 ---
 
 ## 1. Schema Registration & Data Model
 
-- [~] 1.1 Add `Board` schema to `lib/Settings/decidesk_register.json` with properties: name, type (enum: raad-van-commissarissen, raad-van-bestuur, audit-committee, remuneration-committee, nomination-committee, risk-committee, one-tier-board), legal-entity, governance-model (enum: two-tier, one-tier), establishment-date, statuten-reference, chairman, vice-chairman, secretary, default-language, additional-languages (array), quorum-rule, notice-deadline-days, material-retention-days
-- [~] 1.2 Add `BoardMember` schema with properties: persoon-koppeling, board-koppeling, rol (enum: chairman, vice-chairman, member, executive-member, non-executive-member, independent-member, employee-representative), appointment-date, appointment-resolution-reference, term-end-date, reappointment-eligible, nationality, nevenfuncties (array of strings), independence-status (enum: independent, non-independent)
-- [~] 1.3 Add `BoardMeeting` schema with CalDAV wrapper: board-koppeling, meeting-type (enum: regular, extraordinary, strategy-day, closed-session, executive-session), meeting-date, meeting-start, meeting-end, location, format (enum: in-person, remote, hybrid), language (enum: nl, en, both), status (enum: scheduled, notice-sent, materials-distributed, in-session, adjourned, closed, minutes-signed), notice-sent-date, materials-deadline, quorum-required, quorum-achieved, recording-allowed, caldav-uid, caldav-ics-blob
-- [~] 1.4 Add `Resolution` schema with properties: meeting-koppeling, resolution-number (format: R-{year}-{number}), title, type (enum: approval, appointment, dismissal, financial, strategic, policy, delegation-of-authority, acknowledgement, written-resolution), proposing-member, full-text (rich text), background (rich text), legal-basis, vote-type (enum: named, anonymous, unanimous-consent, acclamation), vote-threshold (enum: simple-majority, qualified-majority-two-thirds, qualified-majority-three-quarters, unanimous), status (enum: proposed, under-discussion, adopted, rejected, withdrawn, tabled), adoption-date, effective-date
-- [~] 1.5 Add `Vote` schema with properties: resolution-koppeling, board-member-koppeling, vote (enum: in-favor, against, abstain, absent, recused-due-to-conflict), vote-timestamp, vote-method (enum: raised-hand, electronic, written-ballot, proxy), proxy-holder (board-member-koppeling if proxy), anonymized (boolean)
-- [~] 1.6 Add `Minutes` schema with properties: meeting-koppeling, language (enum: nl, en), version (enum: draft, final, signed), content (rich text), prepared-by (company-secretary), reviewed-by (chairman), signed-by (array of {signer-uuid, signature-timestamp, certificate-thumbprint}), signing-completion-date, eidas-signature-level (enum: SES, AdES, QES), pdf-archive-reference, hash-sha256, reconciliation-notes
-- [~] 1.7 Add `ConflictOfInterest` schema with properties: board-member-koppeling, agenda-item-koppeling, declaration-type (enum: financial-interest, personal-relationship, competing-business, prior-involvement, none), description (text), severity (enum: material, non-material), action-taken (enum: recused-from-discussion, recused-from-vote, disclosed-and-participated, no-action-needed), declaration-timestamp
-- [~] 1.8 Add `BoardMaterial` schema with properties: meeting-koppeling, agenda-item-koppeling, title, document-reference (docudesk handle), access-level (enum: board-only, executive-only, audit-committee, external-auditor, regulator), distribution-timestamp, watermarked (boolean), watermark-text (per-member override field)
-- [~] 1.9 Add `AuditLogEntry` schema (internal) with properties: actor-uuid, action (enum: vote, conflict-declaration, material-access, signature, notice-sent, proxy-created, proxy-revoked), object-uids (array), timestamp, previous-hash (SHA-256), current-hash (SHA-256), immutable-blob (full serialization for forensic audit)
-- [~] 1.10 Add seed data: 3 boards (RvC listed company, RvB listed company, audit-committee housing-corp), 10 board members with mixed roles and independence-status values, 5 board meetings (various states), 10 resolutions with different types and vote-thresholds, 25 votes (named, anonymous, proxy, absent, recused), 5 minutes records (draft, final, signed), 8 conflict declarations (varying severity and action-taken)
-- [~] 1.11 Create `lib/Migration/RepairStep.php` implementing `IRepairStep` that calls `ConfigurationService::importFromApp('decidesk')` to register all 9 schemas
-- [~] 1.12 Register `RepairStep` in `appinfo/info.xml` under `<repair-steps><post-migration>`
-- [~] 1.13 Verify all 9 schemas are created and seed data loads (≥3 per core schema)
+- [x] 1.1 Add `Board` schema to `lib/Settings/decidesk_register.json` with properties: name, type (enum: raad-van-commissarissen, raad-van-bestuur, audit-committee, remuneration-committee, nomination-committee, risk-committee, one-tier-board), legal-entity, governance-model (enum: two-tier, one-tier), establishment-date, statuten-reference, chairman, vice-chairman, secretary, default-language, additional-languages (array), quorum-rule, notice-deadline-days, material-retention-days
+- [x] 1.2 Add `BoardMember` schema with properties: persoon-koppeling, board-koppeling, rol (enum: chairman, vice-chairman, member, executive-member, non-executive-member, independent-member, employee-representative), appointment-date, appointment-resolution-reference, term-end-date, reappointment-eligible, nationality, nevenfuncties (array of strings), independence-status (enum: independent, non-independent)
+- [x] 1.3 Add `BoardMeeting` schema with CalDAV wrapper: board-koppeling, meeting-type (enum: regular, extraordinary, strategy-day, closed-session, executive-session), meeting-date, meeting-start, meeting-end, location, format (enum: in-person, remote, hybrid), language (enum: nl, en, both), status (enum: scheduled, notice-sent, materials-distributed, in-session, adjourned, closed, minutes-signed), notice-sent-date, materials-deadline, quorum-required, quorum-achieved, recording-allowed, caldav-uid, caldav-ics-blob
+- [x] 1.4 Add `Resolution` schema with properties: meeting-koppeling, resolution-number (format: R-{year}-{number}), title, type (enum: approval, appointment, dismissal, financial, strategic, policy, delegation-of-authority, acknowledgement, written-resolution), proposing-member, full-text (rich text), background (rich text), legal-basis, vote-type (enum: named, anonymous, unanimous-consent, acclamation), vote-threshold (enum: simple-majority, qualified-majority-two-thirds, qualified-majority-three-quarters, unanimous), status (enum: proposed, under-discussion, adopted, rejected, withdrawn, tabled), adoption-date, effective-date
+- [x] 1.5 Add `BoardVote` schema (named `BoardVote` to avoid collision with the existing council `Vote` schema; otherwise per spec) with properties: resolution-koppeling, board-member-koppeling, vote (enum: in-favor, against, abstain, absent, recused-due-to-conflict), vote-timestamp, vote-method (enum: raised-hand, electronic, written-ballot, proxy), proxy-holder (board-member-koppeling if proxy), anonymized (boolean)
+- [x] 1.6 Add `BoardMinutes` schema (named `BoardMinutes` to avoid collision with the existing council `Minutes` schema; otherwise per spec) with properties: meeting-koppeling, language (enum: nl, en), version (enum: draft, final, signed), content (rich text), prepared-by (company-secretary), reviewed-by (chairman), signed-by (array of {signer-uuid, signature-timestamp, certificate-thumbprint}), signing-completion-date, eidas-signature-level (enum: SES, AdES, QES), pdf-archive-reference, hash-sha256, reconciliation-notes
+- [x] 1.7 Add `ConflictOfInterest` schema with properties: board-member-koppeling, agenda-item-koppeling, declaration-type (enum: financial-interest, personal-relationship, competing-business, prior-involvement, none), description (text), severity (enum: material, non-material), action-taken (enum: recused-from-discussion, recused-from-vote, disclosed-and-participated, no-action-needed), declaration-timestamp
+- [x] 1.8 Add `BoardMaterial` schema with properties: meeting-koppeling, agenda-item-koppeling, title, document-reference (docudesk handle), access-level (enum: board-only, executive-only, audit-committee, external-auditor, regulator), distribution-timestamp, watermarked (boolean), watermark-text (per-member override field)
+- [x] 1.9 Add `BoardAuditLogEntry` schema (internal, `appendOnly:true`) with properties: actor-uuid, action (enum: vote, conflict-declaration, material-access, signature, notice-sent, proxy-created, proxy-revoked), object-uids (array), timestamp, previous-hash (SHA-256), current-hash (SHA-256), immutable-blob (full serialization for forensic audit)
+- [x] 1.10 Add seed data: 3 boards (RvC Acme Holding N.V., RvB Acme Holding N.V., Auditcommissie Woonstichting Noord), 10 board members with mixed roles and independence-status values, 5 board meetings (various states), 10 resolutions with different types and vote-thresholds, 25 votes (named, anonymous, proxy, absent, recused), 5 minutes records (draft, final, signed), 8 conflict declarations (varying severity and action-taken). Seed slugs are stable per ADR-013.
+- [x] 1.11 Repair step `lib/Repair/InitializeSettings.php` already implements `IRepairStep` and calls `ConfigurationService::importFromApp('decidesk')` which imports the entire `decidesk_register.json` register descriptor; renaming it to `RepairStep.php` would be churn — the existing one wires every schema added to the descriptor.
+- [x] 1.12 The existing `InitializeSettings` repair step is already registered in `appinfo/info.xml` under `<repair-steps>` (with `<post-migration>` and `<install>` entries); no new wiring needed for the 9 schemas — they ride the existing register import.
+- [x] 1.13 Schemas are present in the register descriptor and seed data meets the ≥3-per-core-schema floor (Board=3, BoardMember=10, BoardMeeting=5, Resolution=10, BoardVote=25, BoardMinutes=5, ConflictOfInterest=8, BoardMaterial=8, BoardAuditLogEntry=0 — append-only, no seed). Verified by counting `x-openregister-seeds[]` after the merge.
 
 ## 2. Service Layer: Audit Trail & Conflict Management
 
