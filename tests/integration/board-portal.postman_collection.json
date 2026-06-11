@@ -1,0 +1,925 @@
+{
+	"info": {
+		"name": "Decidesk Board Portal API Contract Suite",
+		"description": "Newman/Postman API-contract tests for the decidesk **board-portal** controller family (Phase 1-6 of `openspec/changes/board-meeting-resolutions/`). Locks the HTTP contract of `appinfo/routes.php`'s board-portal block: Board CRUD, BoardMember invite/role/remove, BoardMeeting schedule/notice/lifecycle, Resolution propose/amend/openVote/conclude, BoardVote cast/tally/audit, RegulatorExport generate/list, and MultilingualReconciliation queue/status/process. Board/BoardMember/BoardMeeting/Resolution/BoardVote CRUD is delegated to the OpenRegister object API (ADR-022); decidesk owns the guarded governance endpoints documented above.\n\nAUTH MODEL (mirrors decidesk.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block (admin:admin via adminUser/adminPass) plus the 'OCS-APIRequest: true' header (NC app-framework controllers reject session-less POSTs without it as a CSRF failure). The no-auth requests carry NEITHER, and target {{noAuthBase}} (127.0.0.1) so the host-scoped NC session cookie established by authed localhost requests never leaks to them.\n\nCONTRACT COVERAGE per endpoint family: happy path (2xx), validation/error path (4xx, never 500), authorization path (anonymous -> 401 on user-gated endpoints, anonymous -> 401 on admin-gated endpoints). RegulatorExport + MultilingualReconciliation are explicitly admin-gated by their controllers (#[NoAdminRequired] + manual IGroupManager::isAdmin check) so anonymous callers receive 401, non-admin callers would receive 403 — admin-suite covers the 401 form.\n\nSelf-contained + idempotent: setup creates a Board, an admin BoardMember, a BoardMeeting, and a Resolution; teardown deletes everything; run again to repeat.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080" },
+		{ "key": "noAuthBase", "value": "http://127.0.0.1:8080" },
+		{ "key": "adminUser", "value": "admin" },
+		{ "key": "adminPass", "value": "admin" },
+		{ "key": "register", "value": "decidesk" },
+		{ "key": "boardId", "value": "" },
+		{ "key": "boardMemberId", "value": "" },
+		{ "key": "boardMeetingId", "value": "" },
+		{ "key": "resolutionId", "value": "" },
+		{ "key": "voteId", "value": "" },
+		{ "key": "minutesId", "value": "" }
+	],
+	"auth": { "type": "noauth" },
+	"item": [
+		{
+			"name": "0. Setup",
+			"item": [
+				{
+					"name": "Seed Board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: board created (2xx)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+									"const b = pm.response.json();",
+									"const board = b.board || b;",
+									"const id = (board['@self'] && board['@self'].id) || board.id || board.uuid;",
+									"pm.expect(id, 'board id captured').to.be.a('string');",
+									"pm.collectionVariables.set('boardId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Newman Supervisory Board\",\n  \"type\": \"raad-van-commissarissen\",\n  \"governanceModel\": \"two-tier\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/boards", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards" ] }
+					}
+				},
+				{
+					"name": "Seed BoardMember (chairman, admin user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: board member invited (2xx)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+									"const b = pm.response.json();",
+									"const member = b.member || b;",
+									"const id = (member['@self'] && member['@self'].id) || member.id || member.uuid;",
+									"pm.expect(id, 'board member id captured').to.be.a('string');",
+									"pm.collectionVariables.set('boardMemberId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"rol\": \"chairman\",\n  \"name\": \"Newman Chairman\",\n  \"persoonKoppeling\": \"{{adminUser}}\",\n  \"independenceStatus\": \"independent\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/boards/{{boardId}}/members", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards", "{{boardId}}", "members" ] }
+					}
+				},
+				{
+					"name": "Seed BoardMeeting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: board meeting scheduled (2xx)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+									"const b = pm.response.json();",
+									"const meeting = b.meeting || b;",
+									"const id = (meeting['@self'] && meeting['@self'].id) || meeting.id || meeting.uuid;",
+									"pm.expect(id, 'board meeting id captured').to.be.a('string');",
+									"pm.collectionVariables.set('boardMeetingId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"meetingDate\": \"2026-07-15T10:00:00+00:00\",\n  \"meetingType\": \"regular\",\n  \"format\": \"in-person\",\n  \"language\": \"nl\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/boards/{{boardId}}/meetings", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards", "{{boardId}}", "meetings" ] }
+					}
+				},
+				{
+					"name": "Seed Resolution",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: resolution proposed (2xx)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+									"const b = pm.response.json();",
+									"const res = b.resolution || b;",
+									"const id = (res['@self'] && res['@self'].id) || res.id || res.uuid;",
+									"pm.expect(id, 'resolution id captured').to.be.a('string');",
+									"pm.collectionVariables.set('resolutionId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Approve Q3 budget\",\n  \"type\": \"financial\",\n  \"voteThreshold\": \"simple-majority\",\n  \"voteType\": \"named\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/board-meetings/{{boardMeetingId}}/resolutions", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "board-meetings", "{{boardMeetingId}}", "resolutions" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Board CRUD",
+			"item": [
+				{
+					"name": "GET /api/boards (list)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Board list: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b).to.have.property('results');",
+									"pm.expect(b.results).to.be.an('array');",
+									"pm.expect(b).to.have.property('total');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/boards", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards" ] }
+					}
+				},
+				{
+					"name": "GET /api/boards/{id} (show)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Board show: 200', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/boards/{{boardId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards", "{{boardId}}" ] }
+					}
+				},
+				{
+					"name": "POST /api/boards rejects unknown type (422, static-message, NOT 500)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Board create validation: 422', () => pm.response.to.have.status(422));",
+									"pm.test('Static error body, no 500', () => {",
+									"  const b = pm.response.json();",
+									"  pm.expect(b).to.have.property('message');",
+									"  pm.expect(b.message).to.match(/Unknown board type/i);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Bad Board\",\n  \"type\": \"not-a-real-board-type\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/boards", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards" ] }
+					}
+				},
+				{
+					"name": "PUT /api/boards/{id} (update)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Board update: 200', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "PUT",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Newman Supervisory Board (renamed)\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/boards/{{boardId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards", "{{boardId}}" ] }
+					}
+				},
+				{
+					"name": "GET /api/boards no-auth -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Board list anon: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/boards", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "2. BoardMember",
+			"item": [
+				{
+					"name": "GET /api/boards/{boardId}/members",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Board members list: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b).to.have.property('results');",
+									"pm.expect(b).to.have.property('total');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/boards/{{boardId}}/members", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards", "{{boardId}}", "members" ] }
+					}
+				},
+				{
+					"name": "POST /api/boards/{boardId}/members rejects missing role (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Board member invite missing role: 422', () => pm.response.to.have.status(422));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message).to.match(/Role is required/i);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Missing Role\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/boards/{{boardId}}/members", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards", "{{boardId}}", "members" ] }
+					}
+				},
+				{
+					"name": "PUT /api/board-members/{id}/role (change role)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Board member change role: 200', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "PUT",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"role\": \"vice-chairman\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/board-members/{{boardMemberId}}/role", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "board-members", "{{boardMemberId}}", "role" ] }
+					}
+				},
+				{
+					"name": "PUT /api/board-members/{id}/role missing role (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Change role missing role: 422', () => pm.response.to.have.status(422));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message).to.match(/Missing required parameter 'role'/i);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "PUT",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/board-members/{{boardMemberId}}/role", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "board-members", "{{boardMemberId}}", "role" ] }
+					}
+				},
+				{
+					"name": "GET /api/boards/{boardId}/members no-auth -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Board members list anon: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/boards/{{boardId}}/members", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards", "{{boardId}}", "members" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "3. BoardMeeting lifecycle",
+			"item": [
+				{
+					"name": "POST /api/board-meetings/{id}/send-notice",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Send notice: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"const meeting = b.meeting || b;",
+									"pm.expect(meeting, 'meeting payload present').to.be.an('object');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/board-meetings/{{boardMeetingId}}/send-notice", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "board-meetings", "{{boardMeetingId}}", "send-notice" ] }
+					}
+				},
+				{
+					"name": "POST /api/board-meetings/{id}/lifecycle (transition: distribute-materials)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle distribute-materials: 200', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"action\": \"distribute-materials\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/board-meetings/{{boardMeetingId}}/lifecycle", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "board-meetings", "{{boardMeetingId}}", "lifecycle" ] }
+					}
+				},
+				{
+					"name": "POST /api/board-meetings/{id}/lifecycle (transition: open)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle open: 200', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"action\": \"open\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/board-meetings/{{boardMeetingId}}/lifecycle", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "board-meetings", "{{boardMeetingId}}", "lifecycle" ] }
+					}
+				},
+				{
+					"name": "POST /api/board-meetings/{id}/lifecycle missing action (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Lifecycle missing action: 422', () => pm.response.to.have.status(422));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message).to.match(/Missing required parameter 'action'/i);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/board-meetings/{{boardMeetingId}}/lifecycle", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "board-meetings", "{{boardMeetingId}}", "lifecycle" ] }
+					}
+				},
+				{
+					"name": "POST schedule no-auth -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Schedule meeting anon: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"meetingDate\": \"2026-08-01T09:00:00+00:00\"\n}" },
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/boards/{{boardId}}/meetings", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "boards", "{{boardId}}", "meetings" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Resolution propose-vote-conclude",
+			"item": [
+				{
+					"name": "PUT /api/resolutions/{id} (amend)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Resolution amend: 200', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "PUT",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Approve Q3 budget (amended)\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/resolutions/{{resolutionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "resolutions", "{{resolutionId}}" ] }
+					}
+				},
+				{
+					"name": "POST /api/resolutions/{id}/open-vote",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Resolution open-vote: 2xx (200/422 ok per quorum guard)', () => pm.expect(pm.response.code).to.be.oneOf([200, 422]));",
+									"pm.test('Static error if guarded, payload if happy', () => {",
+									"  const b = pm.response.json();",
+									"  pm.expect(b).to.be.an('object');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/resolutions/{{resolutionId}}/open-vote", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "resolutions", "{{resolutionId}}", "open-vote" ] }
+					}
+				},
+				{
+					"name": "POST /api/resolutions/{resolutionId}/votes (cast)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Vote cast: 2xx (created or guard-422)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201, 422]));",
+									"if ([200, 201].includes(pm.response.code)) {",
+									"  const b = pm.response.json();",
+									"  const vote = b.vote || b;",
+									"  const id = (vote['@self'] && vote['@self'].id) || vote.id || vote.uuid;",
+									"  if (typeof id === 'string') pm.collectionVariables.set('voteId', id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"boardMemberId\": \"{{boardMemberId}}\",\n  \"vote\": \"in-favor\",\n  \"voteMethod\": \"electronic\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/resolutions/{{resolutionId}}/votes", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "resolutions", "{{resolutionId}}", "votes" ] }
+					}
+				},
+				{
+					"name": "POST cast rejects missing fields (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Cast missing params: 422', () => pm.response.to.have.status(422));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message).to.match(/Missing required parameter 'boardMemberId' or 'vote'/i);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/resolutions/{{resolutionId}}/votes", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "resolutions", "{{resolutionId}}", "votes" ] }
+					}
+				},
+				{
+					"name": "POST cast rejects unknown vote enum (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Cast unknown vote enum: 422 (NOT 500)', () => pm.response.to.have.status(422));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message).to.match(/Unknown vote enum/i);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"boardMemberId\": \"{{boardMemberId}}\",\n  \"vote\": \"definitely-not-a-vote\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/resolutions/{{resolutionId}}/votes", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "resolutions", "{{resolutionId}}", "votes" ] }
+					}
+				},
+				{
+					"name": "GET /api/resolutions/{id}/tally",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Tally: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b).to.have.property('tally');",
+									"pm.expect(b).to.have.property('cast');",
+									"pm.expect(b).to.have.property('total');",
+									"pm.expect(b.tally).to.be.an('object');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/resolutions/{{resolutionId}}/tally", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "resolutions", "{{resolutionId}}", "tally" ] }
+					}
+				},
+				{
+					"name": "GET /api/resolutions/{id}/audit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Vote audit: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b).to.have.property('results');",
+									"pm.expect(b.results).to.be.an('array');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/resolutions/{{resolutionId}}/audit", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "resolutions", "{{resolutionId}}", "audit" ] }
+					}
+				},
+				{
+					"name": "POST /api/resolutions/{id}/conclude",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Resolution conclude: 200', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/resolutions/{{resolutionId}}/conclude", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "resolutions", "{{resolutionId}}", "conclude" ] }
+					}
+				},
+				{
+					"name": "GET tally no-auth -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Tally anon: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/resolutions/{{resolutionId}}/tally", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "resolutions", "{{resolutionId}}", "tally" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "5. RegulatorExport (admin-gated)",
+			"item": [
+				{
+					"name": "POST /api/regulator-exports missing boardId (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Regulator export missing boardId: 422', () => pm.response.to.have.status(422));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message).to.match(/Missing required parameter 'boardId'/i);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"scope\": \"resolutions\",\n  \"format\": \"csv\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/regulator-exports", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "regulator-exports" ] }
+					}
+				},
+				{
+					"name": "POST /api/regulator-exports (generate CSV resolutions)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Regulator export generate: 200 (binary) or 422 (no data)', () => pm.expect(pm.response.code).to.be.oneOf([200, 422]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"boardId\": \"{{boardId}}\",\n  \"scope\": \"resolutions\",\n  \"format\": \"csv\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/regulator-exports", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "regulator-exports" ] }
+					}
+				},
+				{
+					"name": "GET /api/regulator-exports?boardId=...",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Regulator export list: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b).to.have.property('results');",
+									"pm.expect(b).to.have.property('total');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/regulator-exports?boardId={{boardId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "regulator-exports" ], "query": [ { "key": "boardId", "value": "{{boardId}}" } ] }
+					}
+				},
+				{
+					"name": "GET regulator-exports no-auth -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Regulator export list anon: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/regulator-exports?boardId={{boardId}}", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "regulator-exports" ], "query": [ { "key": "boardId", "value": "{{boardId}}" } ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "6. MultilingualReconciliation (admin-gated)",
+			"item": [
+				{
+					"name": "POST /api/multilingual/queue missing params (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Queue missing params: 422', () => pm.response.to.have.status(422));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message).to.match(/Missing required parameters/i);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/multilingual/queue", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "multilingual", "queue" ] }
+					}
+				},
+				{
+					"name": "GET /api/multilingual/queue (status)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Queue status: 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b).to.have.property('summary');",
+									"pm.expect(b).to.have.property('results');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/multilingual/queue", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "multilingual", "queue" ] }
+					}
+				},
+				{
+					"name": "POST /api/multilingual/queue/process",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Queue process: 200/422', () => pm.expect(pm.response.code).to.be.oneOf([200, 422]));",
+									"const b = pm.response.json();",
+									"pm.expect(b).to.have.property('processed');",
+									"pm.expect(b).to.have.property('completed');",
+									"pm.expect(b).to.have.property('failed');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\n  \"maxEntries\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/multilingual/queue/process", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "multilingual", "queue", "process" ] }
+					}
+				},
+				{
+					"name": "GET multilingual/queue no-auth -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Queue status anon: 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/multilingual/queue", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "multilingual", "queue" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Teardown",
+			"item": [
+				{
+					"name": "Delete Resolution (via OR object API)",
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/resolution/{{resolutionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "resolution", "{{resolutionId}}" ] }
+					}
+				},
+				{
+					"name": "Delete BoardMeeting (via OR object API)",
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-meeting/{{boardMeetingId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "board-meeting", "{{boardMeetingId}}" ] }
+					}
+				},
+				{
+					"name": "Delete BoardMember (DELETE /api/board-members/{id})",
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/board-members/{{boardMemberId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "board-members", "{{boardMemberId}}" ] }
+					}
+				},
+				{
+					"name": "Delete Board (via OR object API)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: all seeded objects deleted (board 200/204)', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board/{{boardId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "board", "{{boardId}}" ] }
+					}
+				}
+			]
+		}
+	]
+}
