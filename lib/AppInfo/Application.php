@@ -732,7 +732,220 @@ class Application extends App implements IBootstrap
             }
         );
 
+        $this->registerPhase4EidasBindings(context: $context);
+        $this->registerPhase5Bindings(context: $context);
+        $this->registerPhase6Bindings(context: $context);
+
     }//end register()
+
+
+    /**
+     * Phase 4 — eIDAS QES integration bindings.
+     *
+     * The IEIDASSignatureService binding picks the dormant
+     * {@see \OCA\Decidesk\Service\LogEIDASSignatureService} fallback when
+     * openconnector is absent or its `eidas-qes` Source is not configured;
+     * otherwise the openconnector-delegating
+     * {@see \OCA\Decidesk\Service\EIDASSignatureService} is used.
+     *
+     * @param IRegistrationContext $context Registration context
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+     *
+     * @return void
+     */
+    private function registerPhase4EidasBindings(IRegistrationContext $context): void
+    {
+        // Both implementations are individually constructable so tests / DI
+        // overrides can pick either side without going through the resolver.
+        $context->registerService(
+            \OCA\Decidesk\Service\EIDASSignatureService::class,
+            static function ($c): \OCA\Decidesk\Service\EIDASSignatureService {
+                return new \OCA\Decidesk\Service\EIDASSignatureService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Service\LogEIDASSignatureService::class,
+            static function ($c): \OCA\Decidesk\Service\LogEIDASSignatureService {
+                return new \OCA\Decidesk\Service\LogEIDASSignatureService(
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                );
+            }
+        );
+
+        // Resolve the IEIDASSignatureService interface at request time. If
+        // openconnector's CallService binding is registered, prefer the
+        // delegating implementation; otherwise the dormant LogEIDASSignatureService.
+        $context->registerService(
+            \OCA\Decidesk\Service\IEIDASSignatureService::class,
+            static function ($c): \OCA\Decidesk\Service\IEIDASSignatureService {
+                $hasOpenconnector = false;
+                try {
+                    $c->get('OCA\\OpenConnector\\Service\\CallService');
+                    $hasOpenconnector = true;
+                } catch (\Throwable $e) {
+                    $hasOpenconnector = false;
+                }
+
+                if ($hasOpenconnector === true) {
+                    return $c->get(\OCA\Decidesk\Service\EIDASSignatureService::class);
+                }
+
+                return $c->get(\OCA\Decidesk\Service\LogEIDASSignatureService::class);
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Lifecycle\QesGuard::class,
+            static function ($c): \OCA\Decidesk\Lifecycle\QesGuard {
+                return new \OCA\Decidesk\Lifecycle\QesGuard(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    signatureService: $c->get(\OCA\Decidesk\Service\IEIDASSignatureService::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Controller\EIDASSignatureController::class,
+            static function ($c): \OCA\Decidesk\Controller\EIDASSignatureController {
+                return new \OCA\Decidesk\Controller\EIDASSignatureController(
+                    request: $c->get(\OCP\IRequest::class),
+                    signatureService: $c->get(\OCA\Decidesk\Service\IEIDASSignatureService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
+    }//end registerPhase4EidasBindings()
+
+
+    /**
+     * Phase 5 — Proxy votes, written resolutions, governance reporting bindings.
+     *
+     * @param IRegistrationContext $context Registration context
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.2
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+     *
+     * @return void
+     */
+    private function registerPhase5Bindings(IRegistrationContext $context): void
+    {
+        $context->registerService(
+            \OCA\Decidesk\Service\ProxyVoteService::class,
+            static function ($c): \OCA\Decidesk\Service\ProxyVoteService {
+                return new \OCA\Decidesk\Service\ProxyVoteService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Controller\ProxyVoteController::class,
+            static function ($c): \OCA\Decidesk\Controller\ProxyVoteController {
+                return new \OCA\Decidesk\Controller\ProxyVoteController(
+                    request: $c->get(\OCP\IRequest::class),
+                    proxyService: $c->get(\OCA\Decidesk\Service\ProxyVoteService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Service\WrittenResolutionService::class,
+            static function ($c): \OCA\Decidesk\Service\WrittenResolutionService {
+                return new \OCA\Decidesk\Service\WrittenResolutionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    signatureService: $c->get(\OCA\Decidesk\Service\IEIDASSignatureService::class),
+                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Service\GovernanceReportingService::class,
+            static function ($c): \OCA\Decidesk\Service\GovernanceReportingService {
+                return new \OCA\Decidesk\Service\GovernanceReportingService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Controller\GovernanceReportController::class,
+            static function ($c): \OCA\Decidesk\Controller\GovernanceReportController {
+                return new \OCA\Decidesk\Controller\GovernanceReportController(
+                    request: $c->get(\OCP\IRequest::class),
+                    reportingService: $c->get(\OCA\Decidesk\Service\GovernanceReportingService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                );
+            }
+        );
+
+    }//end registerPhase5Bindings()
+
+
+    /**
+     * Phase 6 — Regulator export, multilingual reconciliation bindings.
+     *
+     * @param IRegistrationContext $context Registration context
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+     *
+     * @return void
+     */
+    private function registerPhase6Bindings(IRegistrationContext $context): void
+    {
+        $context->registerService(
+            \OCA\Decidesk\Service\RegulatorExportService::class,
+            static function ($c): \OCA\Decidesk\Service\RegulatorExportService {
+                return new \OCA\Decidesk\Service\RegulatorExportService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Controller\RegulatorExportController::class,
+            static function ($c): \OCA\Decidesk\Controller\RegulatorExportController {
+                return new \OCA\Decidesk\Controller\RegulatorExportController(
+                    request: $c->get(\OCP\IRequest::class),
+                    exportService: $c->get(\OCA\Decidesk\Service\RegulatorExportService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Service\MultilingualReconciliationService::class,
+            static function ($c): \OCA\Decidesk\Service\MultilingualReconciliationService {
+                return new \OCA\Decidesk\Service\MultilingualReconciliationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+    }//end registerPhase6Bindings()
 
     /**
      * Boot the application.

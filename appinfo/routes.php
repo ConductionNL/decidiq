@@ -129,6 +129,28 @@ return [
         ['name' => 'auditLog#verify', 'url' => '/api/audit-log/{id}/verify',    'verb' => 'GET'],
         ['name' => 'auditLog#export', 'url' => '/api/audit-log/export',         'verb' => 'GET'],
 
+        // Board portal Phase 4 — eIDAS QES integration (task-3.3).
+        ['name' => 'EIDASSignature#initiate',     'url' => '/api/minutes/{minutesId}/eidas/initiate',  'verb' => 'POST'],
+        ['name' => 'EIDASSignature#verify',       'url' => '/api/minutes/{minutesId}/eidas/verify',    'verb' => 'POST'],
+        ['name' => 'EIDASSignature#finalize',     'url' => '/api/minutes/{minutesId}/eidas/finalize',  'verb' => 'POST'],
+        ['name' => 'EIDASSignature#validateCert', 'url' => '/api/eidas/validate-cert',                 'verb' => 'POST'],
+
+        // Board portal Phase 5 — Proxy voting (task-5.1).
+        ['name' => 'proxyVote#register', 'url' => '/api/proxies',               'verb' => 'POST'],
+        ['name' => 'proxyVote#index',    'url' => '/api/proxies',               'verb' => 'GET'],
+        ['name' => 'proxyVote#suspend',  'url' => '/api/proxies/{id}/suspend',  'verb' => 'PUT'],
+        ['name' => 'proxyVote#revoke',   'url' => '/api/proxies/{id}',          'verb' => 'DELETE'],
+
+        // Board portal Phase 5 — Governance reporting (task-5.4).
+        ['name' => 'governanceReport#generate', 'url' => '/api/governance-reports',                       'verb' => 'POST'],
+        ['name' => 'governanceReport#index',    'url' => '/api/governance-reports',                       'verb' => 'GET'],
+        ['name' => 'governanceReport#show',     'url' => '/api/governance-reports/{id}',                  'verb' => 'GET'],
+        ['name' => 'governanceReport#export',   'url' => '/api/governance-reports/{id}/export/{format}',  'verb' => 'GET'],
+
+        // Board portal Phase 6 — Regulator export (task-6.1).
+        ['name' => 'regulatorExport#generate', 'url' => '/api/regulator-exports',         'verb' => 'POST'],
+        ['name' => 'regulatorExport#download', 'url' => '/api/regulator-exports/{id}',    'verb' => 'GET'],
+
         // Public REST API — versioned v1 (REQ-API-001..004).
         // @spec openspec/changes/p4-integration/tasks.md#task-1
         // @spec openspec/changes/p4-integration/tasks.md#task-2
