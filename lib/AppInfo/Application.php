@@ -534,7 +534,7 @@ class Application extends App implements IBootstrap
         );
 
         // Board portal Phase 2 services.
-        // @spec openspec/changes/board-meeting-resolutions/tasks.md
+        // @spec openspec/changes/board-meeting-resolutions/tasks.md.
         $context->registerService(
             \OCA\Decidesk\Service\AuditLogService::class,
             static function ($c): \OCA\Decidesk\Service\AuditLogService {

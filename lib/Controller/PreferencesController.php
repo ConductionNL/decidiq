@@ -34,6 +34,8 @@ use OCP\IUserSession;
 
 /**
  * Per-user preferences controller.
+ *
+ * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
  */
 class PreferencesController extends Controller
 {
