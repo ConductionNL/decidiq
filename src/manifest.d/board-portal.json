@@ -1,0 +1,53 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Board portal Phase 8 manifest fragment — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments. Tracks openspec/changes/board-meeting-resolutions/tasks.md sections 4 + 8.",
+	"menu": [
+		{ "id": "Boards", "label": "Boards", "icon": "icon-group", "route": "BoardList", "order": 15 },
+		{ "id": "BoardMeetings", "label": "Board meetings", "icon": "icon-calendar-dark", "route": "BoardMeetingList", "order": 16 },
+		{ "id": "Resolutions", "label": "Resolutions", "icon": "icon-checkmark", "route": "ResolutionList", "order": 17 }
+	],
+	"pages": [
+		{
+			"id": "BoardList",
+			"route": "/boards",
+			"type": "custom",
+			"title": "Boards",
+			"component": "BoardList"
+		},
+		{
+			"id": "BoardDetail",
+			"route": "/boards/:id",
+			"type": "custom",
+			"title": "Board",
+			"component": "BoardDetail"
+		},
+		{
+			"id": "BoardMeetingList",
+			"route": "/board-meetings",
+			"type": "custom",
+			"title": "Board meetings",
+			"component": "BoardMeetingList"
+		},
+		{
+			"id": "BoardMeetingDetail",
+			"route": "/board-meetings/:id",
+			"type": "custom",
+			"title": "Board meeting",
+			"component": "BoardMeetingDetail"
+		},
+		{
+			"id": "ResolutionList",
+			"route": "/resolutions",
+			"type": "custom",
+			"title": "Resolutions",
+			"component": "ResolutionList"
+		},
+		{
+			"id": "ResolutionDetail",
+			"route": "/resolutions/:id",
+			"type": "custom",
+			"title": "Resolution",
+			"component": "ResolutionDetail"
+		}
+	]
+}
