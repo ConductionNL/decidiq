@@ -45,7 +45,7 @@
 						id="ori_endpoint"
 						v-model="form.ori_endpoint"
 						type="url"
-						:placeholder="t('decidesk', 'https://api.ori.example.nl/v1/stemmingen')">
+						placeholder="https://api.ori.example.nl/v1/stemmingen">
 				</div>
 
 				<NcButton

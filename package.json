@@ -15,7 +15,9 @@
 		"stylelint": "stylelint src/**/*.vue src/**/*.scss src/**/*.css",
 		"stylelint-fix": "stylelint src/**/*.vue src/**/*.scss src/**/*.css --fix",
 		"test:e2e": "playwright test",
-		"test:e2e:docs": "playwright test --project docs-capture"
+		"test:e2e:docs": "playwright test --project docs-capture",
+		"test:l10n": "node tests/l10n/check-l10n.js",
+		"test:l10n:write": "node tests/l10n/check-l10n.js --write"
 	},
 	"browserslist": [
 		"extends @nextcloud/browserslist-config"

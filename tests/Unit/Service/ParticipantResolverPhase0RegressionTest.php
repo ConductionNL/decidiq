@@ -109,9 +109,16 @@ class ParticipantResolverPhase0RegressionTest extends TestCase
 
 
     /**
-     * resolveMeetingParticipants() queries participants via the
-     * `_relations.governance-body` filter (NOT `relations.`) and keeps only those
-     * whose relations actually reference the resolved governance body id.
+     * resolveMeetingParticipants() reads the full participant set
+     * (`findAll([])`) and filters in PHP via relationsReference(), keeping only
+     * those whose relations actually reference the resolved governance body id.
+     *
+     * Server-side `_relations.*` filtering was intentionally dropped (see the
+     * NOTE in ParticipantResolver::resolveMeetingParticipants): OR-object-API
+     * participants store the link as a flat camelCase field, which the
+     * structured `_relations.governance-body` filter never matched — silently
+     * returning an empty list and 403'ing seeded chairs. This regression test
+     * now pins the PHP-side scoping contract.
      *
      * @return void
      */
@@ -130,19 +137,11 @@ class ParticipantResolverPhase0RegressionTest extends TestCase
             )
         );
 
-        // findAll() must be called with the _relations.governance-body filter.
+        // findAll() reads the full participant set (no server-side relation
+        // filter — scoping happens in PHP).
         $this->objectService->expects($this->once())
             ->method('findAll')
-            ->with(
-                $this->callback(
-                    static function (array $config) use ($bodyId): bool {
-                        $filters = ($config['filters'] ?? []);
-                        return array_key_exists('_relations.governance-body', $filters)
-                            && $filters['_relations.governance-body'] === $bodyId
-                            && array_key_exists('relations.governance-body', $filters) === false;
-                    }
-                )
-            )
+            ->with([])
             ->willReturn(
                 [
                     // Genuinely in the target body.
