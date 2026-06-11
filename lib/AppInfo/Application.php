@@ -738,7 +738,6 @@ class Application extends App implements IBootstrap
 
     }//end register()
 
-
     /**
      * Phase 4 — eIDAS QES integration bindings.
      *
@@ -826,7 +825,6 @@ class Application extends App implements IBootstrap
 
     }//end registerPhase4EidasBindings()
 
-
     /**
      * Phase 5 — Proxy votes, written resolutions, governance reporting bindings.
      *
@@ -899,7 +897,6 @@ class Application extends App implements IBootstrap
 
     }//end registerPhase5Bindings()
 
-
     /**
      * Phase 6 — Regulator export, multilingual reconciliation bindings.
      *
@@ -940,6 +937,41 @@ class Application extends App implements IBootstrap
             static function ($c): \OCA\Decidesk\Service\MultilingualReconciliationService {
                 return new \OCA\Decidesk\Service\MultilingualReconciliationService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        // Dormant default translation adapter — rebind in production to delegate
+        // to openconnector's translation source service.
+        $context->registerService(
+            \OCA\Decidesk\Service\ITranslationAdapter::class,
+            static function ($c): \OCA\Decidesk\Service\ITranslationAdapter {
+                return new \OCA\Decidesk\Service\LogTranslationAdapter(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Controller\MultilingualReconciliationController::class,
+            static function ($c): \OCA\Decidesk\Controller\MultilingualReconciliationController {
+                return new \OCA\Decidesk\Controller\MultilingualReconciliationController(
+                    request: $c->get(\OCP\IRequest::class),
+                    reconciliationService: $c->get(\OCA\Decidesk\Service\MultilingualReconciliationService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\BackgroundJob\TranslationQueueJob::class,
+            static function ($c): \OCA\Decidesk\BackgroundJob\TranslationQueueJob {
+                return new \OCA\Decidesk\BackgroundJob\TranslationQueueJob(
+                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    reconciliationService: $c->get(\OCA\Decidesk\Service\MultilingualReconciliationService::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }

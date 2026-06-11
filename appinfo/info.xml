@@ -69,6 +69,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
     <background-jobs>
         <job>OCA\Decidesk\BackgroundJob\OverdueActionItemsJob</job>
+        <!-- @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3 -->
+        <job>OCA\Decidesk\BackgroundJob\TranslationQueueJob</job>
     </background-jobs>
 
     <repair-steps>
