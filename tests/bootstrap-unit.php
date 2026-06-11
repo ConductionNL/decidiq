@@ -50,6 +50,14 @@ if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === f
     require_once __DIR__.'/Stubs/Event/DeepLinkRegistrationEvent.php';
 }
 
+if (class_exists(\OCA\OpenRegister\Event\ObjectCreatedEvent::class) === false) {
+    require_once __DIR__.'/Stubs/Event/ObjectCreatedEvent.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Event\ObjectUpdatedEvent::class) === false) {
+    require_once __DIR__.'/Stubs/Event/ObjectUpdatedEvent.php';
+}
+
 if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
     require_once __DIR__.'/Stubs/Service/ObjectService.php';
 }

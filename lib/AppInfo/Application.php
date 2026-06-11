@@ -36,6 +36,7 @@ use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Controller\WorkspaceController;
+use OCA\Decidesk\Listener\BoardMeetingCalDavBridge;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf;
 use OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf;
@@ -57,6 +58,8 @@ use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\Decidesk\Service\VotingService;
 use OCA\Decidesk\Service\WorkspaceService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
+use OCA\OpenRegister\Event\ObjectCreatedEvent;
+use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -735,6 +738,7 @@ class Application extends App implements IBootstrap
         $this->registerPhase4EidasBindings(context: $context);
         $this->registerPhase5Bindings(context: $context);
         $this->registerPhase6Bindings(context: $context);
+        $this->registerPhase7CalDavBindings(context: $context);
 
     }//end register()
 
@@ -978,6 +982,56 @@ class Application extends App implements IBootstrap
         );
 
     }//end registerPhase6Bindings()
+
+    /**
+     * Phase 7 — CalDAV bridge bindings + listener.
+     *
+     * Wires the {@see \OCA\Decidesk\Service\BoardCalDavSyncService} and the
+     * {@see \OCA\Decidesk\Listener\BoardMeetingCalDavBridge} listener that
+     * mirrors BoardMeeting lifecycle events to the Nextcloud CalDAV backend
+     * (ADR-002).
+     *
+     * @param IRegistrationContext $context Registration context
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-7.1
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-7.2
+     *
+     * @return void
+     */
+    private function registerPhase7CalDavBindings(IRegistrationContext $context): void
+    {
+        $context->registerService(
+            \OCA\Decidesk\Service\BoardCalDavSyncService::class,
+            static function ($c): \OCA\Decidesk\Service\BoardCalDavSyncService {
+                return new \OCA\Decidesk\Service\BoardCalDavSyncService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            BoardMeetingCalDavBridge::class,
+            static function ($c): BoardMeetingCalDavBridge {
+                return new BoardMeetingCalDavBridge(
+                    syncService: $c->get(\OCA\Decidesk\Service\BoardCalDavSyncService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        // Subscribe to BoardMeeting OR lifecycle events.
+        $context->registerEventListener(
+            event: ObjectCreatedEvent::class,
+            listener: BoardMeetingCalDavBridge::class
+        );
+        $context->registerEventListener(
+            event: ObjectUpdatedEvent::class,
+            listener: BoardMeetingCalDavBridge::class
+        );
+
+    }//end registerPhase7CalDavBindings()
 
     /**
      * Boot the application.
