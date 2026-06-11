@@ -154,7 +154,6 @@ return [
         // migrate-action-items-to-deck-leaf (ADR-022 / task-4.2): action-item
         // content lives on the CalDAV VTODO ActionItem (ADR-002) and the board UI
         // is the Deck integration leaf bound via the ADR-019 registry.
-
         // Workspace member management.
         ['name' => 'workspace#addMember',    'url' => '/api/workspaces/{id}/members',            'verb' => 'POST'],
         ['name' => 'workspace#removeMember', 'url' => '/api/workspaces/{id}/members/{personId}', 'verb' => 'DELETE'],
