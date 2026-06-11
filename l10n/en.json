@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Agenda items": "Agenda items",
+        "Consent agenda items": "Consent agenda items",
+        "Back to meeting": "Back to meeting",
+        "Back to motion": "Back to motion",
+        "Meeting integrations": "Meeting integrations",
+        "Motion integrations": "Motion integrations",
+        "For support, contact us at": "For support, contact us at",
         "Create minutes": "Create minutes",
         "Create decision": "Create decision",
         "Could not load minutes": "Could not load minutes",

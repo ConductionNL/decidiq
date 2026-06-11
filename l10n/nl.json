@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Agenda items": "Agendapunten",
+        "Consent agenda items": "Hamerstukken",
+        "Back to meeting": "Terug naar vergadering",
+        "Back to motion": "Terug naar motie",
+        "Meeting integrations": "Vergaderintegraties",
+        "Motion integrations": "Motie-integraties",
+        "For support, contact us at": "Neem voor ondersteuning contact met ons op via",
         "Create minutes": "Notulen aanmaken",
         "Create decision": "Besluit aanmaken",
         "Could not load minutes": "Notulen konden niet worden geladen",
