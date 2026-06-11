@@ -35,7 +35,6 @@ use OCA\Decidesk\Controller\NotificationPreferenceController;
 use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
-use OCA\Decidesk\Controller\WorkspaceController;
 use OCA\Decidesk\Listener\BoardMeetingCalDavBridge;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf;
@@ -56,7 +55,6 @@ use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\Decidesk\Service\VotingService;
-use OCA\Decidesk\Service\WorkspaceService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -397,16 +395,13 @@ class Application extends App implements IBootstrap
         // on the CalDAV VTODO ActionItem (ADR-002 source of truth) and the board
         // UI is provided by the Deck integration leaf via the ADR-019 registry.
         // @spec openspec/changes/migrate-action-items-to-deck-leaf/tasks.md#task-4.1.
-        $context->registerService(
-            WorkspaceService::class,
-            static function ($c): WorkspaceService {
-                return new WorkspaceService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
-            }
-        );
-
+        //
+        // WorkspaceService was retired in migrate-workspaces-to-collectives-leaf
+        // (ADR-022): faction/committee/task-group workspaces are now Nextcloud
+        // Collectives bound to the governance-body OR object via the ADR-019
+        // registry. The collectives leaf is declared in
+        // lib/Settings/register.d/41-migrate-workspaces-to-collectives-leaf.json.
+        // @spec openspec/changes/migrate-workspaces-to-collectives-leaf/tasks.md#task-4.1.
         $context->registerService(
             EmailReferenceExtractor::class,
             static function (): EmailReferenceExtractor {
@@ -446,17 +441,8 @@ class Application extends App implements IBootstrap
 
         // TaskController / DelegationController retired alongside their services
         // (migrate-action-items-to-deck-leaf, ADR-022 / task-4.2).
-        $context->registerService(
-            WorkspaceController::class,
-            static function ($c): WorkspaceController {
-                return new WorkspaceController(
-                    request: $c->get(\OCP\IRequest::class),
-                    workspaceService: $c->get(WorkspaceService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                );
-            }
-        );
-
+        // WorkspaceController retired alongside WorkspaceService
+        // (migrate-workspaces-to-collectives-leaf, ADR-022 / task-4.1).
         $context->registerService(
             NotificationPreferenceController::class,
             static function ($c): NotificationPreferenceController {
