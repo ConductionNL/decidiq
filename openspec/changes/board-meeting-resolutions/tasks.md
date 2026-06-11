@@ -242,28 +242,44 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   - `computeQuorum($meetingId)`: Count in-person + remote + valid-proxies; return {total, threshold, met: boolean}
   - `verifyAttendance($meetingId, $participantType)`: Validate participant (in-person, remote, proxy-holder, etc.); return boolean
   - `getAttendanceReport($meetingId)`: Return detailed breakdown per member (in-person, remote, proxy, absent)
-- [~] 2.5 Add methods to existing `ObjectService` integration:
-  - `loadBoardWithMembers($boardId)`: Fetch Board + all BoardMembers in one call
-  - `saveVote($voteData, $anonymized)`: Create Vote, optionally encrypt board-member-koppeling via HMAC if anonymized
-  - `computeResolutionAdoption($resolutionId)`: Query votes and compute adoption status vs. threshold
+- [x] 2.5 Add methods to existing `ObjectService` integration:
+  - `loadBoardWithMembers($boardId)`: shipped as `BoardService::get()` (lib/Service/BoardService.php:145)
+    which loads a board via OR `ObjectService::find()`; members are fetched via the
+    delegated `BoardMember` schema (see `BoardMemberService`). Per ADR-022 we no longer add
+    custom join methods to a `decidesk\ObjectService` wrapper — OR is the
+    abstraction. (Originally specced as one wrapper method; replaced by the
+    two-call OR pattern that is uniform across the fleet.)
+  - `saveVote($voteData, $anonymized)`: shipped as `BoardVoteService::cast()`
+    (lib/Service/BoardVoteService.php:86) which writes votes through OR
+    `ObjectService::saveObject()`; anonymisation is handled in the schema mapper.
+  - `computeResolutionAdoption($resolutionId)`: shipped as `BoardVoteService::tally()`
+    (lib/Service/BoardVoteService.php:182) — aggregates votes via `ObjectService::findAll`
+    and is consumed by `ResolutionController::conclude()` which applies the threshold.
 
 ## 3. eIDAS Integration & Minutes Signing
 
-- [~] 3.1 Create `lib/Service/eIDASSignatureService.php` with methods:
-  - `initializeSigningRequest($minutesId, $signatories)`: Call openconnector-e-sign API to create QES request; return signing URL and request-id
-  - `verifySignature($requestId, $signature)`: Verify signature against EU Trusted List via docudesk-eidas; return {valid: boolean, certificate-thumbprint, timestamp}
-  - `finalizeMinutes($minutesId, $signatureList)`: Generate signed PDF via docudesk-eidas, store with reference, compute SHA-256 hash, update Minutes record; return pdf-archive-reference
-  - `validateCertificateChain($certificateThumbprint)`: Query EU eIDAS Trusted List; return validity status and issuer info
-- [~] 3.2 Create `lib/Service/MinutesReconciliationService.php` with methods:
-  - `reconcile($meetingId)`: Load Dutch and English Minutes; extract structured elements (resolutions, action items); compare counts; return {discrepancies: array, severity: warning|error}
-  - `extractStructure($minutesContent)`: Parse rich-text content (via HTML/Markdown parser) to identify sections and entities; return {resolutionCount, sectionList}
-  - `reportDiscrepancy($minutesId, $discrepancy)`: Append note to reconciliation-notes field; notify secretary
-- [~] 3.3 Integrate openconnector-e-sign in controller:
-  - Create `lib/Controller/MinutesSigningController.php` with endpoints:
-    - `POST /api/minutes/{id}/initiate-signing`: Call eIDASSignatureService::initializeSigningRequest
-    - `POST /api/minutes/{id}/verify-signature`: Receive signature blob, verify, store
-    - `POST /api/minutes/{id}/finalize`: Trigger finalizeMinutes, update status to "signed"
-- [~] 3.4 Add webhook listener for openconnector-e-sign signature callbacks (signature event = webhook → update Vote record if written-resolution)
+- [x] 3.1 Create `lib/Service/eIDASSignatureService.php` with methods:
+  - shipped as `lib/Service/EIDASSignatureService.php` (cased per PSR-12) with
+    `initializeSigningRequest` (line 77), `verifySignature` (line 152),
+    `finalizeMinutes` (line 217), and `validateCertificateChain` (line 305).
+    Backed by `IEIDASSignatureService` + `LogEIDASSignatureService` fallback.
+- [x] 3.2 Create `lib/Service/MinutesReconciliationService.php` with methods:
+  - shipped as `lib/Service/MultilingualReconciliationService.php` (renamed
+    during build to reflect the actual scope — language-pair reconciliation, not
+    minutes-only). Surface: `queue($minutesId, $sourceLocale, $targetLocales)`,
+    `status($limit)`, `processQueue($maxEntries)` — the spec's reconcile/extract/report
+    triad is folded into the queue-driven worker because reconciliation runs
+    asynchronously per language pair. See `tests/Unit/Service/MultilingualReconciliationServiceTest.php`.
+- [x] 3.3 Integrate openconnector-e-sign in controller:
+  - shipped as `lib/Controller/EIDASSignatureController.php` with `initiate()`
+    (line 74), `verify()` (line 115), `finalize()` (line 157), and
+    `validateCert()` (line 194), all `#[NoAdminRequired]` + per-object guarded
+    in the underlying service.
+- [~] 3.4 Add webhook listener for openconnector-e-sign signature callbacks —
+  DEFERRED: openconnector-e-sign callback event shape is owned by openconnector;
+  current verify path is pull-based (`EIDASSignatureController::verify` re-fetches
+  status). Webhook listener tracked for a follow-up once openconnector publishes
+  the canonical signature-callback event.
 
 ## 4. Board Portal Backend: Materials & Access Control
 
@@ -285,29 +301,40 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   - `GET /api/audit-log`: Query with filters (actor, action, date-range, object-uuid); pagination
   - `GET /api/audit-log/{id}/verify`: Verify hash chain to that entry; return checked/tampered
   - `GET /api/audit-log/export`: Download date-range slice as JSON or CSV
-- [~] 4.5 Implement access-control middleware in all controllers:
-  - Check board-member role and access-level; enforce 403 for unauthorized access
-  - All reads of board-specific data (materials, votes, conflicts, minutes) check access-level enum
+- [x] 4.5 Implement access-control middleware in all controllers:
+  - shipped as per-object RBAC enforced at the OR `ObjectService` layer (ADR-022)
+    instead of an app-local middleware. All board-portal reads go through
+    `ObjectService::find()/findAll()` which evaluate access-level + role per
+    schema; material downloads additionally call
+    `BoardMaterialAuthorizationService::canViewMaterial()` (lib/Service/BoardMaterialAuthorizationService.php)
+    and log the attempt via `AuditLogService::logMaterialAccess()`. Resolution
+    state changes are guarded by `ResolutionLifecycleGuard::canOpenVote()` /
+    `canCastVote()` (lib/Lifecycle/ResolutionLifecycleGuard.php). Documented in
+    `docs/Technical/board-portal-architecture.md` §3.
 
 ## 5. Board Portal Backend: Special Procedures
 
-- [~] 5.1 Create `lib/Controller/ProxyVotingController.php` with endpoints:
-  - `POST /api/proxies`: Register proxy (grantor requests, secretary approves); validate expiration and scope
-  - `GET /api/proxies/{meetingId}`: Return active proxies for meeting (with suspension status if member joins remotely)
-  - `PUT /api/proxies/{id}/suspend`: Suspend proxy (when grantor joins remotely); log to audit trail
-  - `DELETE /api/proxies/{id}`: Revoke proxy (automatic at meeting-close or manual by secretary); log to audit trail
-- [~] 5.2 Create `lib/Service/WrittenResolutionService.php` with methods:
-  - `initiate($resolutionData, $requiredSignatories, $responseDeadline)`: Create Resolution type="written-resolution", send signature requests via openconnector-e-sign
-  - `collectSignature($resolutionId, $signatureBlob)`: Record vote (via eIDASSignatureService::verifySignature), update vote-timestamp
-  - `finalize($resolutionId)`: Check unanimity (all required signatories signed), update status, generate Minutes, return adoption-status
-- [~] 5.3 Create `lib/Service/GovernanceReportingService.php` with methods:
-  - `generateAnnualReport($year, $format)`: Query BoardMeetings, Resolutions, Votes, BoardMembers for year; compute statistics; check compliance flags; return report object
-  - `exportReport($reportId, $format)`: Serialize to PDF, Excel, or JSON per format parameter; return binary/file-stream
-  - `complianceFlagCheck($data)`: Run checks (independence-ratio, meeting-frequency, attendance-rate, conflict-trends); return {passed: boolean, flags: array}
-- [~] 5.4 Create `lib/Controller/GovernanceReportingController.php` with endpoints:
-  - `POST /api/governance-reports`: Generate annual report (secretary/admin only); store in register; return report-id
-  - `GET /api/governance-reports/{id}`: Return report detail + optional {format: pdf|excel|json}
-  - `GET /api/governance-reports/{id}/export/{format}`: Download report in specified format
+- [x] 5.1 Create `lib/Controller/ProxyVotingController.php` with endpoints:
+  - shipped as `lib/Controller/ProxyVoteController.php` (renamed for naming
+    consistency with `BoardVoteController`) with `register()` (line 69),
+    `index()` (line 109), `suspend()` (line 153), and `revoke()` (line 180).
+    All audit-logged via `AuditLogService`; see
+    `tests/Unit/Service/ProxyVoteServiceTest.php`.
+- [x] 5.2 Create `lib/Service/WrittenResolutionService.php` with methods:
+  - shipped at `lib/Service/WrittenResolutionService.php` with `initiate()`
+    (line 75), `collectSignature()` (line 194), and `finalize()` (line 263).
+    Signature path delegates to `EIDASSignatureService::verifySignature()`.
+    Test: `tests/Unit/Service/WrittenResolutionServiceTest.php`.
+- [x] 5.3 Create `lib/Service/GovernanceReportingService.php` with methods:
+  - shipped at `lib/Service/GovernanceReportingService.php` with
+    `generateAnnualReport()` (line 70), `exportReport()` (line 227), and
+    `complianceFlagCheck()` (line 310). Test:
+    `tests/Unit/Service/GovernanceReportingServiceTest.php`.
+- [x] 5.4 Create `lib/Controller/GovernanceReportingController.php` with endpoints:
+  - shipped as `lib/Controller/GovernanceReportController.php` with `generate()`
+    (POST, line 75), `index()` (GET list, line 109), `show()` (GET id, line 146),
+    and `export()` (GET id/format, line 186). All `#[NoAdminRequired]` with
+    secretary/admin enforced server-side.
   - `GET /api/governance-reports`: List historical reports
 
 ## 6. Regulator Access & Multi-Language Support
@@ -407,8 +434,28 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
 
 ## 9. Testing & Verification
 
-- [~] 9.1 Unit tests for all services (AuditLogService, ConflictOfInterestService, eIDASSignatureService, etc.)
-- [~] 9.2 Integration tests for OpenRegister CRUD (Board, BoardMember, Resolution, Vote, Minutes, etc.)
+- [x] 9.1 Unit tests for all services (AuditLogService, ConflictOfInterestService, eIDASSignatureService, etc.)
+  — `tests/Unit/Service/` ships `AuditLogServiceTest`, `ConflictOfInterestServiceTest`,
+  `EIDASSignatureServiceTest`, `LogEIDASSignatureServiceTest`, `QuorumVerificationServiceTest`,
+  `WrittenResolutionServiceTest`, `GovernanceReportingServiceTest`,
+  `MultilingualReconciliationServiceTest`, `ProxyVoteServiceTest`, `BoardServiceTest`,
+  `BoardVoteServiceTest`, `BoardMemberServiceTest`, `BoardMeetingServiceTest`,
+  `BoardMaterialAuthorizationServiceTest`, `RegulatorExportServiceTest`,
+  `ResolutionServiceTest`, `MinutesGenerationServiceTest`, `MotionServiceTest`,
+  `BoardCalDavSyncServiceTest`, `AgendaServiceTest`, `ActionItemAnalyticsServiceTest`,
+  `ActionItemExtractionServiceTest`, `LiveDecisionServiceTest`, `ALVMinutesServiceTest`,
+  `MeetingServiceTest`, `SettingsServiceTest`, `VotingBehaviourServiceTest`,
+  `VotingServiceTest`, `VotingServicePhase0RegressionTest`, `EmailReferenceExtractorTest`,
+  `LogTranslationAdapterTest`, `RegisterFragmentMergeTest`, `ParticipantResolverPhase0RegressionTest`
+  (33 service tests).
+- [x] 9.2 Integration tests for OpenRegister CRUD (Board, BoardMember, Resolution, Vote, Minutes, etc.)
+  — covered end-to-end by the Newman collection in
+  `tests/integration/board-portal.postman_collection.json` (26 requests across
+  Board CRUD, BoardMember invite/role, BoardMeeting lifecycle, Resolution
+  amend/openVote/conclude, BoardVote cast/tally/audit, RegulatorExport
+  generate/list, MultilingualReconciliation queue/status/process) plus the
+  declarative quorum test `tests/Integration/Meeting/QuorumDeclarativeTest.php`.
+  CRUD is OR-delegated so no per-schema integration class is needed (ADR-022).
 - [x] 9.3 API endpoint tests for all controllers (authentication, authorization, edge cases)
   — `tests/integration/board-portal.postman_collection.json` (26 requests
   covering Board CRUD, BoardMember invite/role, BoardMeeting lifecycle,
@@ -417,7 +464,10 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   queue/status/process — one happy path + one 422 validation case + one
   401 anonymous case per family) + `tests/integration/decidesk-environment.json`
   + `tests/newman/run-all.sh` (aggregate runner).
-- [~] 9.4 Audit trail integrity tests (hash-chain verification, tampering detection)
+- [x] 9.4 Audit trail integrity tests (hash-chain verification, tampering detection)
+  — `tests/Unit/Service/AuditLogServiceTest.php` covers append, hash-chain
+  verification, and tampering detection; `tests/Unit/Controller/AuditLogControllerTest.php`
+  covers the admin-only verify/export endpoints.
 - [x] 9.5 CalDAV integration tests (VEVENT creation/read, X-property preservation)
   — `tests/Unit/Service/BoardCalDavSyncServiceTest.php` (5 tests covering
   ICS build, round-trip parse, no-calendar fallback, writable-calendar
@@ -425,12 +475,31 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   `tests/Unit/Listener/BoardMeetingCalDavBridgeTest.php` (5 tests covering
   event filtering by schema, forwarding of created + updated events,
   and crash-isolation on sync failures). 10 new tests, 446 total green.
-- [~] 9.6 eIDAS signature verification tests (certificate validation, QES-level enforcement)
-- [~] 9.7 Quorum computation tests (in-person, remote, proxy, threshold calculations)
-- [~] 9.8 Written resolution workflow tests (signature collection, unanimity check, minutegeneration)
-- [~] 9.9 Multilingual reconciliation tests (language-pair discrepancies, signature linking)
-- [~] 9.10 Regulator access tests (token generation, scope filtering, view logging)
+- [x] 9.6 eIDAS signature verification tests (certificate validation, QES-level enforcement)
+  — `tests/Unit/Service/EIDASSignatureServiceTest.php` +
+  `tests/Unit/Service/LogEIDASSignatureServiceTest.php` (signature initiate /
+  verify / finalize / certificate-chain validation) and
+  `tests/Unit/Controller/EIDASSignatureControllerTest.php`. QES-level enforcement
+  is exercised by `tests/Unit/Lifecycle/QesGuardTest.php`.
+- [x] 9.7 Quorum computation tests (in-person, remote, proxy, threshold calculations)
+  — `tests/Unit/Service/QuorumVerificationServiceTest.php` covers in-person /
+  remote / proxy counting + threshold edges; the declarative end-to-end case lives
+  at `tests/Integration/Meeting/QuorumDeclarativeTest.php`.
+- [x] 9.8 Written resolution workflow tests (signature collection, unanimity check, minutegeneration)
+  — `tests/Unit/Service/WrittenResolutionServiceTest.php` covers
+  `initiate`/`collectSignature`/`finalize` including unanimity check.
+- [x] 9.9 Multilingual reconciliation tests (language-pair discrepancies, signature linking)
+  — `tests/Unit/Service/MultilingualReconciliationServiceTest.php` covers
+  queue/status/processQueue across NL/EN pair (renamed from
+  `MinutesReconciliationService` — see 3.2).
+- [x] 9.10 Regulator access tests (token generation, scope filtering, view logging)
+  — `tests/Unit/Service/RegulatorExportServiceTest.php` covers token issuance,
+  scope-filtered export, and audit logging of every view; mirrored at the API
+  surface by `RegulatorExport` requests in the Newman collection (see 9.3).
 - [~] 9.11 Install/upgrade tests (RepairStep runs idempotently, seed data loads, no duplicates on re-run)
+  — DEFERRED: needs a live OR runtime to validate the RepairStep idempotency end-to-end;
+  the underlying `MigrateActionItemsToDeckLeafTest` covers the migration-shape path but
+  the cross-RepairStep re-run scenario requires a full container.
 
 ## 10. Documentation & Regulatory Compliance
 
