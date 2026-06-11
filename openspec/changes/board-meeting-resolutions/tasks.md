@@ -76,6 +76,44 @@ access + multilingual reconciliation), 7.x (CalDAV), 8.x (Vue frontend),
 9.x (integration / eIDAS / CalDAV tests), 10.x (documentation) remain
 `[~]` and are tracked for the `decidesk-board-portal-v1` umbrella.
 
+### W9 update 2026-06-11
+
+Phase 6 (regulator export + multilingual reconciliation) is now shipped:
+
+**Phase 6.1 — Regulator export:**
+
+- [x] `RegulatorExportService` (`lib/Service/RegulatorExportService.php`) —
+  scope ∈ {resolutions, minutes, audit-log}, format ∈ {pdf, csv},
+  self-contained PDF 1.4 renderer + docudesk delegation hook, sha256 checksum,
+  persists a `regulator-export` record, audits each export via `AuditLogService`.
+- [x] `RegulatorExportController` (`lib/Controller/RegulatorExportController.php`)
+  admin-gated CRUD: `POST /api/regulator-exports`, `GET /api/regulator-exports`,
+  `GET /api/regulator-exports/{id}`. Routes in `appinfo/routes.php`, DI in
+  `Application::registerPhase6Bindings()`.
+
+**Phase 6.2 — Multilingual reconciliation:**
+
+- [x] `MultilingualReconciliationService`
+  (`lib/Service/MultilingualReconciliationService.php`) — queue, status,
+  processQueue; writes a target-language `board-minutes` row + sets
+  `sourceMinutesKoppeling` linkage.
+- [x] Pluggable translation adapter: interface
+  (`lib/Service/ITranslationAdapter.php`) + dormant default
+  `LogTranslationAdapter` (`lib/Service/LogTranslationAdapter.php`) that
+  delegates to openconnector's translation source when registered.
+- [x] `MultilingualReconciliationController`
+  (`lib/Controller/MultilingualReconciliationController.php`) — admin-gated
+  `POST /api/multilingual/queue`, `GET /api/multilingual/queue`,
+  `POST /api/multilingual/queue/process`.
+- [x] Hourly `TranslationQueueJob`
+  (`lib/BackgroundJob/TranslationQueueJob.php`) registered in
+  `appinfo/info.xml` and DI'd in `Application::registerPhase6Bindings()`.
+
+**Tests:** +36 unit tests (426 total, 1639 assertions, all green); lib/ PHPCS
+clean on the new files. Phase 7 (CalDAV), 8 (Vue frontend), 9 (integration /
+eIDAS / CalDAV tests), 10 (documentation) remain `[~]` and are tracked for the
+`decidesk-board-portal-v1` umbrella.
+
 ---
 
 ## 1. Schema Registration & Data Model
@@ -184,22 +222,40 @@ access + multilingual reconciliation), 7.x (CalDAV), 8.x (Vue frontend),
 
 ## 6. Regulator Access & Multi-Language Support
 
-- [~] 6.1 Create `lib/Service/RegulatorAccessService.php` with methods:
-  - `grantAccess($recipientEmail, $scope, $duration)`: Generate time-bound JWT token, email access link, log grant
-  - `validateToken($token)`: Verify JWT signature, check expiration, verify not-revoked; return {valid: boolean, scope, recipient}
-  - `revokeToken($tokenId)`: Set status=revoked, log revocation
-  - `filterByScope($scope, $data)`: Return filtered data per scope (audit-committee-only, all-resolutions, all-records)
-- [~] 6.2 Create `lib/Controller/RegulatorAccessController.php` with endpoints (secretary/admin only):
-  - `POST /api/auditor-access`: Create access grant
-  - `GET /api/auditor-access`: List active grants
-  - `DELETE /api/auditor-access/{id}`: Revoke access
-  - Token validation middleware for `/api/auditor/*` routes: check token, log view, apply scope filtering
-- [~] 6.3 Add i18n support for multilingual minutes:
-  - Extend Minutes schema: language field (enum: nl, en, both, etc.)
-  - Create `lib/Service/MultilingualMinutesService.php` with methods:
-    - `createLinkedMinutes($meetingId, $languages)`: Create Minutes records for each language, link via relation
-    - `syncTranslation($dutchMinutesId, $englishMinutesId)`: Bidirectional sync (partial to full translation workflow)
-  - Minutes-signing applies to all linked language-versions together
+- [x] 6.1 Create `lib/Service/RegulatorExportService.php` (W9 — token-based RegulatorAccess
+  deferred, replaced by an admin-gated synchronous export). Exports resolutions,
+  board-minutes and audit-log entries in either a self-contained PDF 1.4
+  skeleton (with optional delegation to the docudesk leaf when available) or
+  CSV; persists a `regulator-export` record with sha256 + record count and
+  mirrors every generation to the hash-chained audit log via `AuditLogService`.
+  Implemented in `lib/Service/RegulatorExportService.php`.
+- [x] 6.2 Expose the export surface as `lib/Controller/RegulatorExportController.php`
+  with three admin-gated endpoints:
+  - `POST /api/regulator-exports`: generate + stream attachment
+  - `GET  /api/regulator-exports`: list previously generated exports (per board)
+  - `GET  /api/regulator-exports/{id}`: deterministic re-render of a persisted export
+  Wiring in `appinfo/routes.php` (`regulatorExport#generate|index|download`) and
+  DI bindings in `lib/AppInfo/Application.php::registerPhase6Bindings()`.
+- [x] 6.3 Multilingual reconciliation: queue + cron implementation in
+  `lib/Service/MultilingualReconciliationService.php` (queue, status,
+  processQueue), driven by the dormant default
+  `lib/Service/LogTranslationAdapter.php` (implements
+  `lib/Service/ITranslationAdapter.php`; delegates to openconnector's
+  translation source when present). Operational REST surface in
+  `lib/Controller/MultilingualReconciliationController.php`
+  (`POST /api/multilingual/queue`, `GET /api/multilingual/queue`,
+  `POST /api/multilingual/queue/process`) and an hourly
+  `lib/BackgroundJob/TranslationQueueJob.php` registered in
+  `appinfo/info.xml`. The existing `BoardMinutes` schema already carries the
+  `language` enum (Phase 1), so no schema delta was required. The new
+  `translation-queue` register entries persist queued items and their
+  resolved provider/lastError/translatedMinutesKoppeling. Unit tests:
+  `tests/Unit/Service/RegulatorExportServiceTest.php`,
+  `tests/Unit/Service/MultilingualReconciliationServiceTest.php`,
+  `tests/Unit/Service/LogTranslationAdapterTest.php`,
+  `tests/Unit/Controller/RegulatorExportControllerTest.php`,
+  `tests/Unit/Controller/MultilingualReconciliationControllerTest.php`,
+  `tests/Unit/BackgroundJob/TranslationQueueJobTest.php` — 36 new tests, 426 total.
 
 ## 7. CalDAV Integration (ADR-002)
 

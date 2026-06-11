@@ -149,7 +149,13 @@ return [
 
         // Board portal Phase 6 — Regulator export (task-6.1).
         ['name' => 'regulatorExport#generate', 'url' => '/api/regulator-exports',         'verb' => 'POST'],
+        ['name' => 'regulatorExport#index',    'url' => '/api/regulator-exports',         'verb' => 'GET'],
         ['name' => 'regulatorExport#download', 'url' => '/api/regulator-exports/{id}',    'verb' => 'GET'],
+
+        // Board portal Phase 6 — Multilingual reconciliation (task-6.3).
+        ['name' => 'multilingualReconciliation#queue',    'url' => '/api/multilingual/queue',          'verb' => 'POST'],
+        ['name' => 'multilingualReconciliation#status',   'url' => '/api/multilingual/queue',          'verb' => 'GET'],
+        ['name' => 'multilingualReconciliation#process',  'url' => '/api/multilingual/queue/process',  'verb' => 'POST'],
 
         // Public REST API — versioned v1 (REQ-API-001..004).
         // @spec openspec/changes/p4-integration/tasks.md#task-1
