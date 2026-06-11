@@ -105,6 +105,8 @@ class AdminSettings implements IDelegatedSettings
     /**
      * Human-readable name of the delegated settings section.
      *
+     * @spec openspec/changes/authorizedadminsetting-fix-fleet/tasks.md
+     *
      * @return string|null The section name, or null to use the section default.
      */
     public function getName(): ?string
@@ -118,6 +120,8 @@ class AdminSettings implements IDelegatedSettings
      * Returned as a map of appId => list of allowed config keys. Decidesk
      * exposes no delegatable sub-keys yet, so this is intentionally empty;
      * the attribute still scopes the endpoint to full admins.
+     *
+     * @spec openspec/changes/authorizedadminsetting-fix-fleet/tasks.md
      *
      * @return array<string,string[]> Map of appId to allowed config keys.
      */

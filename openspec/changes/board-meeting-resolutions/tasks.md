@@ -33,6 +33,49 @@ new `lib/Migration/RepairStep.php` is satisfied by this existing
 already-registered repair step (renaming for a new class would have been a no-op
 since the existing one is wired into `appinfo/info.xml`).
 
+### W3-r3 update 2026-06-11
+
+Phase 2 (services) + Phase 3 (controllers) for the board-portal core surface are
+now shipped:
+
+**Phase 2 services** (`lib/Service/`, `lib/Lifecycle/`):
+
+- [x] `AuditLogService` — hash-chained append-only log (see task 2.1)
+- [x] `ConflictOfInterestService` — declare/recordAction/getActiveConflicts (task 2.2)
+- [x] `BoardMaterialAuthorizationService` — access-level matrix + audit (task 2.3)
+- [x] `QuorumVerificationService` — rule-driven quorum (task 2.4)
+- [x] `BoardService` — CRUD on Board with enum validation
+- [x] `BoardMemberService` — invite/remove/changeRole
+- [x] `BoardMeetingService` — lifecycle (schedule → notice-sent → ... → minutes-signed)
+- [x] `ResolutionService` — propose/amend/openVote (quorum-guarded) / conclude
+- [x] `BoardVoteService` — cast (conflict-guarded) / tally / audit
+- [x] `ResolutionLifecycleGuard` — composes QuorumVerificationService + ConflictOfInterestService
+
+**Phase 3 controllers** (`lib/Controller/`):
+
+- [x] `BoardController` (REST CRUD)
+- [x] `BoardMemberController` (invite/remove/role)
+- [x] `BoardMeetingController` (schedule/notice/transition)
+- [x] `ResolutionController` (propose/amend/openVote/conclude)
+- [x] `BoardVoteController` (cast/tally/audit)
+- [x] `BoardMaterialController` (task 4.1)
+- [x] `ConflictOfInterestController` (task 4.3)
+- [x] `AuditLogController` (task 4.4; admin-gated)
+
+Routes are registered in `appinfo/routes.php` under
+`/api/boards/...`, `/api/board-meetings/...`, `/api/board-members/...`,
+`/api/resolutions/...`, `/api/board-materials/...`, `/api/conflicts/...`
+and `/api/audit-log/...`. DI wiring lives in `lib/AppInfo/Application.php`.
+Every new class is covered by PHPUnit (329 tests, 1377 assertions, green).
+
+Tasks 2.5, 3.x, 4.2 (the dedicated `VotingController` with chairman-only
+running-tally / close-vote endpoints; now folded into `BoardVoteController`
+and `ResolutionController`), 4.5 (cross-cutting middleware), 5.x (proxy
+voting / written resolutions / governance reporting), 6.x (regulator
+access + multilingual reconciliation), 7.x (CalDAV), 8.x (Vue frontend),
+9.x (integration / eIDAS / CalDAV tests), 10.x (documentation) remain
+`[~]` and are tracked for the `decidesk-board-portal-v1` umbrella.
+
 ---
 
 ## 1. Schema Registration & Data Model
@@ -53,21 +96,21 @@ since the existing one is wired into `appinfo/info.xml`).
 
 ## 2. Service Layer: Audit Trail & Conflict Management
 
-- [~] 2.1 Create `lib/Service/AuditLogService.php` with methods:
+- [x] 2.1 Create `lib/Service/AuditLogService.php` with methods:
   - `append($actor, $action, $objectUids)`: Create AuditLogEntry, compute SHA-256 hash (timestamp + actor + action + objectUids + previousHash), return new entry
   - `verify($entryId)`: Load entry and all previous entries, recompute hashes to detect tampering; return boolean and tampering details
   - `export($startDate, $endDate)`: Return audit log as JSON or CSV for external auditor; include hash chain
   - `query($filters)`: Filterable query (actor, action, date-range, object-uuid)
-- [~] 2.2 Create `lib/Service/ConflictOfInterestService.php` with methods:
+- [x] 2.2 Create `lib/Service/ConflictOfInterestService.php` with methods:
   - `requireDeclaration($boardMemberId, $agendaItemId)`: Check if ConflictOfInterest exists for pair; return boolean
   - `declare($boardMemberId, $agendaItemId, $type, $description)`: Create declaration record, send notification to chairman if material
   - `recordAction($declarationId, $actionTaken)`: Update action-taken field, enforce view/vote restrictions if needed
   - `getActiveConflicts($boardMemberId, $agendaItemId)`: Return conflict record if exists with action-taken state
-- [~] 2.3 Create `lib/Service/BoardMaterialAuthorizationService.php` with methods:
+- [x] 2.3 Create `lib/Service/BoardMaterialAuthorizationService.php` with methods:
   - `canViewMaterial($boardMemberId, $materialId)`: Check access-level enum vs. board-member role; return boolean
   - `filterMaterialsByRole($boardId, $role)`: Return list of materials accessible to role
   - `logMaterialAccess($boardMemberId, $materialId, $granted)`: Log attempt (granted/denied) to audit trail
-- [~] 2.4 Create `lib/Service/QuorumVerificationService.php` with methods:
+- [x] 2.4 Create `lib/Service/QuorumVerificationService.php` with methods:
   - `computeQuorum($meetingId)`: Count in-person + remote + valid-proxies; return {total, threshold, met: boolean}
   - `verifyAttendance($meetingId, $participantType)`: Validate participant (in-person, remote, proxy-holder, etc.); return boolean
   - `getAttendanceReport($meetingId)`: Return detailed breakdown per member (in-person, remote, proxy, absent)
@@ -96,22 +139,24 @@ since the existing one is wired into `appinfo/info.xml`).
 
 ## 4. Board Portal Backend: Materials & Access Control
 
-- [~] 4.1 Create `lib/Controller/BoardMaterialController.php` with endpoints:
-  - `GET /api/board-materials`: List filtered by access-level + board-member role; pagination
-  - `GET /api/board-materials/{id}`: Return material detail + watermark metadata; log access via AuditLogService::logMaterialAccess
-  - `POST /api/board-materials/{id}/download`: Stream encrypted file (AES-256 key = member.id + device.uuid hash); return headers for app-side decryption
-- [~] 4.2 Create `lib/Controller/VotingController.php` with endpoints:
-  - `GET /api/resolutions/{id}/votes`: Return vote list (tally if chairman, else anonymous aggregate); filter by access-level (vote-type, anonymization)
-  - `POST /api/resolutions/{id}/cast-vote`: Record vote, timestamp, method; enforce: ConflictOfInterest checked, quorum verified, vote-status = "open", no vote-changes after close
-  - `POST /api/resolutions/{id}/close-vote`: Chairman only; finalize vote counts, compute adoption-status, update Resolution.status
-  - `GET /api/resolutions/{id}/running-tally`: Chairman only; return real-time vote counts during open voting
-- [~] 4.3 Create `lib/Controller/ConflictOfInterestController.php` with endpoints:
-  - `POST /api/conflicts/declare`: Create ConflictOfInterest; enforce material conflicts notify chairman/secretary
-  - `GET /api/board-members/{id}/conflicts`: Return all conflicts for board-member per meeting
-  - `PUT /api/conflicts/{id}/action`: Update action-taken, enforce access restrictions (recuse = no-read, no-vote)
-- [~] 4.4 Create `lib/Controller/AuditLogController.php` with endpoints (secretary/admin only):
-  - `GET /api/audit-log`: Query with filters (actor, action, date-range, object-uuid); pagination; return JSON/CSV export
-  - `GET /api/audit-log/{id}/verify`: Verify hash chain from entry to root; return tampering status
+- [x] 4.1 Create `lib/Controller/BoardMaterialController.php` with endpoints:
+  - `GET /api/boards/{boardId}/materials`: List filtered by access-level + board-member role
+  - `GET /api/board-materials/{id}`: Authorize via BoardMaterialAuthorizationService::canViewMaterial + log access via logMaterialAccess
+  - `POST /api/board-materials/{id}/download`: Authorize + log access; the encrypted byte stream itself is delegated to docudesk
+- [x] 4.2 Cast / tally / audit endpoints land on `BoardVoteController` + `ResolutionController` (open-vote / conclude):
+  - `POST /api/resolutions/{resolutionId}/votes`: cast (conflict-guarded), records vote, timestamp, method
+  - `POST /api/resolutions/{id}/open-vote`: open vote (quorum-guarded via ResolutionLifecycleGuard)
+  - `POST /api/resolutions/{id}/conclude`: tally + apply threshold + transition resolution status
+  - `GET /api/resolutions/{resolutionId}/tally`: running tally per vote enum
+  - `GET /api/resolutions/{resolutionId}/audit`: raw cast list
+- [x] 4.3 Create `lib/Controller/ConflictOfInterestController.php` with endpoints:
+  - `POST /api/conflicts`: declare ConflictOfInterest; material declarations mirrored to audit log via ConflictOfInterestService
+  - `GET /api/board-members/{id}/conflicts`: return active conflict for member/agenda-item pair
+  - `PUT /api/conflicts/{id}/action`: update actionTaken (recused-from-vote / -discussion / disclosed-and-participated / no-action-needed)
+- [x] 4.4 Create `lib/Controller/AuditLogController.php` with endpoints (admin only — IGroupManager::isAdmin):
+  - `GET /api/audit-log`: Query with filters (actor, action, date-range, object-uuid); pagination
+  - `GET /api/audit-log/{id}/verify`: Verify hash chain to that entry; return checked/tampered
+  - `GET /api/audit-log/export`: Download date-range slice as JSON or CSV
 - [~] 4.5 Implement access-control middleware in all controllers:
   - Check board-member role and access-level; enforce 403 for unauthorized access
   - All reads of board-specific data (materials, votes, conflicts, minutes) check access-level enum

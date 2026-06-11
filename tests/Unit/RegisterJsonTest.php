@@ -127,12 +127,22 @@ class RegisterJsonTest extends TestCase
             'PublicConsultation',
             // Analytics-leaf migration schema (1).
             'EngagementRecord',
+            // Board portal schemas (9 — board-meeting-resolutions Phase 1).
+            'Board',
+            'BoardMember',
+            'BoardMeeting',
+            'Resolution',
+            'BoardVote',
+            'BoardMinutes',
+            'ConflictOfInterest',
+            'BoardMaterial',
+            'BoardAuditLogEntry',
         ];
 
         self::assertCount(
-            expectedCount: 25,
+            expectedCount: 34,
             haystack: $this->schemas,
-            message: 'Register must contain exactly 25 schemas (17 p1 core + 7 p3 citizen participation + 1 EngagementRecord)'
+            message: 'Register must contain exactly 34 schemas (17 p1 core + 7 p3 citizen participation + 1 EngagementRecord + 9 board-portal)'
         );
 
         foreach ($expected as $name) {
