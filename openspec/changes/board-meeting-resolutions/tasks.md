@@ -159,6 +159,51 @@ unit tests. Phases 5 (proxy / written-resolution / governance reporting
 surfaces in the UI), 9.x remaining (eIDAS / Newman API harnesses), and
 10 (documentation) remain `[~]` for the umbrella.
 
+### W13 update 2026-06-11
+
+Phase 9 (Newman API harness for the board-portal HTTP contract) and
+Phase 10 (user / admin / architecture documentation) are now shipped:
+
+**Phase 9 — Newman API harness:**
+
+- [x] `tests/integration/board-portal.postman_collection.json` —
+  26 requests; one happy path + one validation-422 + one anonymous-401
+  per endpoint family covering Board CRUD, BoardMember invite/role,
+  BoardMeeting send-notice/lifecycle, Resolution amend/openVote/conclude,
+  BoardVote cast/tally/audit, RegulatorExport generate/list (admin-gated)
+  and MultilingualReconciliation queue/status/process (admin-gated).
+  Self-contained + idempotent: seeds + tears down its own Board,
+  BoardMember, BoardMeeting and Resolution.
+- [x] `tests/integration/decidesk-environment.json` — Postman
+  environment with baseUrl + noAuthBase + admin credentials.
+- [x] `tests/newman/run-all.sh` — aggregate runner that walks every
+  collection in `tests/integration/` (decidesk + board-portal),
+  flock-serialised so parallel CI agents do not trip Nextcloud
+  brute-force protection.
+
+**Phase 10 — Documentation:**
+
+- [x] `docs/Features/board-portal.md` — Dutch user guide for board
+  members and corporate secretaries; covers Boards, BoardMembers,
+  BoardMeetings lifecycle, Resolutions / voting, written resolutions,
+  conflict-of-interest, and board materials.
+- [x] `docs/admin/board-portal-admin.md` — admin runbook: install /
+  upgrade, RBAC, quorum + notice config, eIDAS integration, multilingual
+  queue ops, regulator exports, audit-log verification, CalDAV bridge
+  ops, observability, backup / restore, troubleshooting.
+- [x] `docs/Technical/board-portal-architecture.md` — architecture
+  overview: layered diagram, 9-schema data model, HTTP surface table,
+  BoardMeeting + Resolution state machines, audit-log hash chain, eIDAS
+  flow, CalDAV bridge X-properties, multilingual reconciliation, regulator
+  export, frontend manifest wiring, testing matrix.
+
+The remaining `[~]` tasks (9.6 eIDAS deep tests, 9.7 quorum unit-tests
+beyond happy path, 9.8 written-resolution workflow tests, 9.9
+multilingual reconciliation deep tests, 9.10 regulator scope-filtering
+tests, 9.11 install/upgrade tests, 10.7 compliance guide, 10.8
+migration guide, 10.9 OpenAPI 3.0 spec, 10.10 independent security
+audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
+
 ---
 
 ## 1. Schema Registration & Data Model
@@ -364,7 +409,14 @@ surfaces in the UI), 9.x remaining (eIDAS / Newman API harnesses), and
 
 - [~] 9.1 Unit tests for all services (AuditLogService, ConflictOfInterestService, eIDASSignatureService, etc.)
 - [~] 9.2 Integration tests for OpenRegister CRUD (Board, BoardMember, Resolution, Vote, Minutes, etc.)
-- [~] 9.3 API endpoint tests for all controllers (authentication, authorization, edge cases)
+- [x] 9.3 API endpoint tests for all controllers (authentication, authorization, edge cases)
+  — `tests/integration/board-portal.postman_collection.json` (26 requests
+  covering Board CRUD, BoardMember invite/role, BoardMeeting lifecycle,
+  Resolution amend/openVote/conclude, BoardVote cast/tally/audit,
+  RegulatorExport generate/list, MultilingualReconciliation
+  queue/status/process — one happy path + one 422 validation case + one
+  401 anonymous case per family) + `tests/integration/decidesk-environment.json`
+  + `tests/newman/run-all.sh` (aggregate runner).
 - [~] 9.4 Audit trail integrity tests (hash-chain verification, tampering detection)
 - [x] 9.5 CalDAV integration tests (VEVENT creation/read, X-property preservation)
   — `tests/Unit/Service/BoardCalDavSyncServiceTest.php` (5 tests covering
@@ -382,12 +434,31 @@ surfaces in the UI), 9.x remaining (eIDAS / Newman API harnesses), and
 
 ## 10. Documentation & Regulatory Compliance
 
-- [~] 10.1 Document data model (Board, BoardMember, BoardMeeting, Resolution, Vote, Minutes, ConflictOfInterest, BoardMaterial, AuditLogEntry) in ARCHITECTURE.md
-- [~] 10.2 Document eIDAS integration and QES flow in ARCHITECTURE.md
-- [~] 10.3 Document audit trail immutability guarantee and hash-chain algorithm in ARCHITECTURE.md
-- [~] 10.4 Document access-level enforcement and least-privilege model in ARCHITECTURE.md
-- [~] 10.5 Create admin guide: Board setup, member registration, quorum configuration, notice deadlines, language preferences
-- [~] 10.6 Create user guide: Board member portal, voting, conflict-of-interest declaration, material download
+- [x] 10.1 Document data model (Board, BoardMember, BoardMeeting, Resolution, Vote, Minutes, ConflictOfInterest, BoardMaterial, AuditLogEntry) in ARCHITECTURE.md
+  — covered in `docs/Technical/board-portal-architecture.md` §2 (9-schema
+  table with key fields per schema) and §1 (layered architecture diagram).
+- [x] 10.2 Document eIDAS integration and QES flow in ARCHITECTURE.md
+  — covered in `docs/Technical/board-portal-architecture.md` §6 (initiate
+  → verify → finalize flow via openconnector + LOTL certificate
+  validation).
+- [x] 10.3 Document audit trail immutability guarantee and hash-chain algorithm in ARCHITECTURE.md
+  — covered in `docs/Technical/board-portal-architecture.md` §5 (hash
+  computation, verification, tampering propagation).
+- [x] 10.4 Document access-level enforcement and least-privilege model in ARCHITECTURE.md
+  — covered in `docs/Technical/board-portal-architecture.md` §3 (HTTP
+  surface table with per-route auth column + `#[NoAdminRequired]` +
+  admin-gating notes) and §1 (delegated per-object RBAC via
+  `ObjectService`, ADR-022).
+- [x] 10.5 Create admin guide: Board setup, member registration, quorum configuration, notice deadlines, language preferences
+  — `docs/admin/board-portal-admin.md` (install/upgrade + RBAC + quorum
+  + notice rule config + eIDAS + multilingual queue + regulator export +
+  audit-log verification + CalDAV bridge + observability + backup +
+  troubleshooting matrix).
+- [x] 10.6 Create user guide: Board member portal, voting, conflict-of-interest declaration, material download
+  — `docs/Features/board-portal.md` (Dutch user guide covering Boards,
+  BoardMembers, BoardMeetings lifecycle, Resolutions + voting, written
+  resolutions, conflict-of-interest, board materials with the access-level
+  matrix, and a troubleshooting section).
 - [~] 10.7 Create compliance guide: MCCG alignment, eIDAS compliance, audit-trail export for regulators, minutes signature process
 - [~] 10.8 Create migration guide: Migrating from legacy board portals (Diligent, Boardvantage, SharePoint-based systems)
 - [~] 10.9 Create API documentation (OpenAPI 3.0 spec) for all board-resolution endpoints and admin endpoints
