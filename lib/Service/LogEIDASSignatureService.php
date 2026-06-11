@@ -63,7 +63,6 @@ class LogEIDASSignatureService implements IEIDASSignatureService
     ) {
     }//end __construct()
 
-
     /**
      * {@inheritDoc}
      *
@@ -101,7 +100,6 @@ class LogEIDASSignatureService implements IEIDASSignatureService
 
     }//end initializeSigningRequest()
 
-
     /**
      * {@inheritDoc}
      *
@@ -127,7 +125,6 @@ class LogEIDASSignatureService implements IEIDASSignatureService
         ];
 
     }//end verifySignature()
-
 
     /**
      * {@inheritDoc}
@@ -166,7 +163,6 @@ class LogEIDASSignatureService implements IEIDASSignatureService
 
     }//end finalizeMinutes()
 
-
     /**
      * {@inheritDoc}
      *
@@ -191,6 +187,4 @@ class LogEIDASSignatureService implements IEIDASSignatureService
         ];
 
     }//end validateCertificateChain()
-
-
 }//end class

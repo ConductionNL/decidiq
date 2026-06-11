@@ -64,7 +64,6 @@ class EIDASSignatureService implements IEIDASSignatureService
     ) {
     }//end __construct()
 
-
     /**
      * {@inheritDoc}
      *
@@ -121,15 +120,24 @@ class EIDASSignatureService implements IEIDASSignatureService
             payload: ['phase' => 'initiate', 'signatories' => array_values($signatories)]
         );
 
+        $requestIdOut = null;
+        if ($requestId !== '') {
+            $requestIdOut = $requestId;
+        }
+
+        $signingUrlOut = null;
+        if ($signingUrl !== '') {
+            $signingUrlOut = $signingUrl;
+        }
+
         return [
             'success'    => true,
-            'requestId'  => ($requestId !== '' ? $requestId : null),
-            'signingUrl' => ($signingUrl !== '' ? $signingUrl : null),
+            'requestId'  => $requestIdOut,
+            'signingUrl' => $signingUrlOut,
             'message'    => 'Signing request initiated.',
         ];
 
     }//end initializeSigningRequest()
-
 
     /**
      * {@inheritDoc}
@@ -173,19 +181,28 @@ class EIDASSignatureService implements IEIDASSignatureService
             ];
         }
 
-        $valid       = (bool) ($response['valid'] ?? false);
-        $thumbprint  = (string) ($response['certificateThumbprint'] ?? '');
-        $timestamp   = (string) ($response['timestamp'] ?? gmdate('Y-m-d\TH:i:s\Z'));
+        $valid      = (bool) ($response['valid'] ?? false);
+        $thumbprint = (string) ($response['certificateThumbprint'] ?? '');
+        $timestamp  = (string) ($response['timestamp'] ?? gmdate('Y-m-d\TH:i:s\Z'));
+
+        $thumbprintOut = null;
+        if ($thumbprint !== '') {
+            $thumbprintOut = $thumbprint;
+        }
+
+        $messageOut = 'Signature rejected.';
+        if ($valid === true) {
+            $messageOut = 'Signature verified.';
+        }
 
         return [
             'valid'                 => $valid,
-            'certificateThumbprint' => ($thumbprint !== '' ? $thumbprint : null),
+            'certificateThumbprint' => $thumbprintOut,
             'timestamp'             => $timestamp,
-            'message'               => ($valid === true ? 'Signature verified.' : 'Signature rejected.'),
+            'message'               => $messageOut,
         ];
 
     }//end verifySignature()
-
 
     /**
      * {@inheritDoc}
@@ -230,18 +247,18 @@ class EIDASSignatureService implements IEIDASSignatureService
         }
 
         $archiveReference = (string) ($response['pdfArchiveReference'] ?? '');
-        $hash             = (string) ($response['hashSha256'] ?? '');
+        $hash = (string) ($response['hashSha256'] ?? '');
 
         // Persist the archive reference + hash + signed payload on the BoardMinutes row.
         $this->updateMinutesRow(
             minutesId: $minutesId,
             patch: [
-                'pdfArchiveReference'    => $archiveReference,
-                'hashSha256'             => $hash,
-                'signingCompletionDate'  => gmdate('Y-m-d'),
-                'eidasSignatureLevel'    => 'QES',
-                'version'                => 'signed',
-                'signedBy'               => array_values($signatureList),
+                'pdfArchiveReference'   => $archiveReference,
+                'hashSha256'            => $hash,
+                'signingCompletionDate' => gmdate('Y-m-d'),
+                'eidasSignatureLevel'   => 'QES',
+                'version'               => 'signed',
+                'signedBy'              => array_values($signatureList),
             ]
         );
 
@@ -257,15 +274,24 @@ class EIDASSignatureService implements IEIDASSignatureService
             ]
         );
 
+        $archiveReferenceOut = null;
+        if ($archiveReference !== '') {
+            $archiveReferenceOut = $archiveReference;
+        }
+
+        $hashOut = null;
+        if ($hash !== '') {
+            $hashOut = $hash;
+        }
+
         return [
             'success'             => true,
-            'pdfArchiveReference' => ($archiveReference !== '' ? $archiveReference : null),
-            'hashSha256'          => ($hash !== '' ? $hash : null),
+            'pdfArchiveReference' => $archiveReferenceOut,
+            'hashSha256'          => $hashOut,
             'message'             => 'Minutes finalized.',
         ];
 
     }//end finalizeMinutes()
-
 
     /**
      * {@inheritDoc}
@@ -309,15 +335,29 @@ class EIDASSignatureService implements IEIDASSignatureService
         $issuer = (string) ($response['issuer'] ?? '');
         $level  = (string) ($response['trustListLevel'] ?? '');
 
+        $issuerOut = null;
+        if ($issuer !== '') {
+            $issuerOut = $issuer;
+        }
+
+        $levelOut = null;
+        if ($level !== '') {
+            $levelOut = $level;
+        }
+
+        $validateMessage = 'Certificate not on EU Trusted List.';
+        if ($valid === true) {
+            $validateMessage = 'Certificate chain valid.';
+        }
+
         return [
             'valid'          => $valid,
-            'issuer'         => ($issuer !== '' ? $issuer : null),
-            'trustListLevel' => ($level !== '' ? $level : null),
-            'message'        => ($valid === true ? 'Certificate chain valid.' : 'Certificate not on EU Trusted List.'),
+            'issuer'         => $issuerOut,
+            'trustListLevel' => $levelOut,
+            'message'        => $validateMessage,
         ];
 
     }//end validateCertificateChain()
-
 
     /**
      * Invoke the openconnector e-sign source via the CallService. The
@@ -335,7 +375,7 @@ class EIDASSignatureService implements IEIDASSignatureService
         // Resolve openconnector's CallService lazily. If the app is absent
         // or the binding is missing, throw — the DI factory uses the
         // LogEIDASSignatureService fallback when openconnector is unwired.
-        $callService = $this->container->get('OCA\OpenConnector\Service\CallService');
+        $callService  = $this->container->get('OCA\OpenConnector\Service\CallService');
         $sourceMapper = $this->container->get('OCA\OpenConnector\Db\SourceMapper');
 
         $source = $sourceMapper->findBySlug(slug: self::ESIGN_SOURCE_SLUG);
@@ -359,7 +399,11 @@ class EIDASSignatureService implements IEIDASSignatureService
             $body = (string) ($raw['body'] ?? '');
         }
 
-        $decoded = ($body !== '' ? json_decode($body, true) : null);
+        $decoded = null;
+        if ($body !== '') {
+            $decoded = json_decode($body, true);
+        }
+
         if (is_array($decoded) === false) {
             return [];
         }
@@ -367,7 +411,6 @@ class EIDASSignatureService implements IEIDASSignatureService
         return $decoded;
 
     }//end invokeOpenconnector()
-
 
     /**
      * Persist a partial update on a BoardMinutes row. Wrapped in a try/catch so
@@ -410,6 +453,4 @@ class EIDASSignatureService implements IEIDASSignatureService
         }//end try
 
     }//end updateMinutesRow()
-
-
 }//end class

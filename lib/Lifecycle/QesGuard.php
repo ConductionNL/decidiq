@@ -52,7 +52,6 @@ use Psr\Log\LoggerInterface;
  */
 class QesGuard
 {
-
     /**
      * Construct the guard.
      *
@@ -67,13 +66,12 @@ class QesGuard
     ) {
     }//end __construct()
 
-
     /**
      * Decide whether the resolution may transition to `adopted` based on
      * eIDAS QES presence + validity. Returns a structured tuple so the caller
      * can map success/failure to HTTP status without throwing.
      *
-     * @param string             $resolutionId UUID of the resolution
+     * @param string             $resolutionId    UUID of the resolution
      * @param array<int, string> $requiredSigners List of required board-member UUIDs
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
@@ -149,7 +147,6 @@ class QesGuard
 
     }//end canConclude()
 
-
     /**
      * Load the `signedBy` array from the BoardMinutes row linked to the
      * Resolution's parent meeting.
@@ -208,7 +205,6 @@ class QesGuard
 
     }//end loadSignedBy()
 
-
     /**
      * Build the soft-block reason string for the response tuple.
      *
@@ -231,6 +227,4 @@ class QesGuard
         return 'Resolution cannot be adopted — '.implode('; ', $parts).'.';
 
     }//end buildReason()
-
-
 }//end class
