@@ -183,9 +183,13 @@ return [
         // content lives on the CalDAV VTODO ActionItem (ADR-002) and the board UI
         // is the Deck integration leaf bound via the ADR-019 registry.
 
-        // Workspace member management.
-        ['name' => 'workspace#addMember',    'url' => '/api/workspaces/{id}/members',            'verb' => 'POST'],
-        ['name' => 'workspace#removeMember', 'url' => '/api/workspaces/{id}/members/{personId}', 'verb' => 'DELETE'],
+        // Workspace member-management routes retired in
+        // migrate-workspaces-to-collectives-leaf (ADR-022 / task-4.2): the
+        // faction/committee workspace is now a Nextcloud Collective surfaced via
+        // the ADR-019 registry binding declared in
+        // lib/Settings/register.d/41-migrate-workspaces-to-collectives-leaf.json,
+        // so membership lives on the Collective and object-level RBAC stays in
+        // OR AuthorizationService.
 
         // Notification preference endpoints (own preferences).
         ['name' => 'notificationPreference#show',   'url' => '/api/notification-preference', 'verb' => 'GET'],
