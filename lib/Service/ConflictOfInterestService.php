@@ -1,0 +1,372 @@
+<?php
+/**
+ * Decidesk Conflict-of-Interest Service
+ *
+ * Manages `conflict-of-interest` declarations: detection, declaration, action
+ * recording, and lookup. Material declarations append a `conflict-declaration`
+ * row to the board audit log.
+ *
+ * @category Service
+ * @package  OCA\Decidesk\Service
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @version GIT: <git-id>
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+ */
+
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
+declare(strict_types=1);
+
+namespace OCA\Decidesk\Service;
+
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Service for managing conflict-of-interest declarations and their effect on
+ * read/vote access to specific agenda items.
+ *
+ * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+ */
+class ConflictOfInterestService
+{
+
+    /**
+     * Allowed declaration-type enum values.
+     *
+     * @var string[]
+     */
+    public const DECLARATION_TYPES = [
+        'financial-interest',
+        'personal-relationship',
+        'competing-business',
+        'prior-involvement',
+        'none',
+    ];
+
+    /**
+     * Allowed action-taken enum values.
+     *
+     * @var string[]
+     */
+    public const ACTIONS = [
+        'recused-from-discussion',
+        'recused-from-vote',
+        'disclosed-and-participated',
+        'no-action-needed',
+    ];
+
+    /**
+     * Allowed severity values.
+     *
+     * @var string[]
+     */
+    public const SEVERITIES = ['material', 'non-material'];
+
+
+    /**
+     * Constructor for ConflictOfInterestService.
+     *
+     * @param ContainerInterface $container       The DI container (used to resolve ObjectService)
+     * @param LoggerInterface    $logger          The logger
+     * @param AuditLogService    $auditLogService Audit log dependency for material declarations
+     */
+    public function __construct(
+        private readonly ContainerInterface $container,
+        private readonly LoggerInterface $logger,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }//end __construct()
+
+
+    /**
+     * Check whether the given board member has an existing conflict declaration
+     * for the given agenda item. Returns true when at least one declaration
+     * exists regardless of severity.
+     *
+     * @param string $boardMemberId UUID of the board member
+     * @param string $agendaItemId  UUID of the agenda item under consideration
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+     *
+     * @return bool True when at least one declaration exists, false otherwise
+     */
+    public function requireDeclaration(string $boardMemberId, string $agendaItemId): bool
+    {
+        $matches = $this->findDeclarations($boardMemberId, $agendaItemId);
+        return ($matches !== []);
+
+    }//end requireDeclaration()
+
+
+    /**
+     * Record a new declaration. Material declarations are mirrored to the
+     * audit log and the resulting object is returned alongside success status.
+     *
+     * @param string $boardMemberId UUID of the declaring board member
+     * @param string $agendaItemId  UUID of the agenda item
+     * @param string $type          One of self::DECLARATION_TYPES
+     * @param string $description   Free-text rationale
+     * @param string $severity      'material' or 'non-material' (defaults to material)
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+     *
+     * @return array{success: bool, declaration: array|null, message: string}
+     */
+    public function declare(
+        string $boardMemberId,
+        string $agendaItemId,
+        string $type,
+        string $description,
+        string $severity='material',
+    ): array {
+        if (in_array($type, self::DECLARATION_TYPES, true) === false) {
+            return [
+                'success'     => false,
+                'declaration' => null,
+                'message'     => 'Unknown declaration type: '.$type,
+            ];
+        }
+
+        if (in_array($severity, self::SEVERITIES, true) === false) {
+            return [
+                'success'     => false,
+                'declaration' => null,
+                'message'     => 'Unknown severity: '.$severity,
+            ];
+        }
+
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+            $row = [
+                'boardMemberKoppeling' => $boardMemberId,
+                'agendaItemKoppeling'  => $agendaItemId,
+                'declarationType'      => $type,
+                'description'          => $description,
+                'severity'             => $severity,
+                'actionTaken'          => 'no-action-needed',
+                'declarationTimestamp' => gmdate('Y-m-d\TH:i:s\Z'),
+            ];
+
+            $saved = $objectService->saveObject(
+                object: $row,
+                register: 'decidesk',
+                schema: 'conflict-of-interest'
+            );
+
+            $serialized = (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true)
+                ? $saved->jsonSerialize()
+                : $row;
+
+            if ($severity === 'material') {
+                $this->auditLogService->append(
+                    actor: $boardMemberId,
+                    action: 'conflict-declaration',
+                    objectUids: [(string) ($serialized['id'] ?? $serialized['uuid'] ?? ''), $agendaItemId],
+                    payload: ['type' => $type, 'severity' => $severity]
+                );
+            }
+
+            $this->logger->info(
+                'Decidesk: conflict-of-interest declared',
+                [
+                    'boardMemberId' => $boardMemberId,
+                    'agendaItemId'  => $agendaItemId,
+                    'type'          => $type,
+                    'severity'      => $severity,
+                ]
+            );
+
+            return [
+                'success'     => true,
+                'declaration' => $serialized,
+                'message'     => 'Declaration recorded.',
+            ];
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: failed to record conflict-of-interest declaration',
+                ['exception' => $e->getMessage()]
+            );
+            return [
+                'success'     => false,
+                'declaration' => null,
+                'message'     => 'Failed to record declaration.',
+            ];
+        }//end try
+
+    }//end declare()
+
+
+    /**
+     * Update the action-taken on an existing declaration.
+     *
+     * @param string $declarationId UUID of the conflict-of-interest record
+     * @param string $actionTaken   One of self::ACTIONS
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+     *
+     * @return array{success: bool, declaration: array|null, message: string}
+     */
+    public function recordAction(string $declarationId, string $actionTaken): array
+    {
+        if (in_array($actionTaken, self::ACTIONS, true) === false) {
+            return [
+                'success'     => false,
+                'declaration' => null,
+                'message'     => 'Unknown action-taken: '.$actionTaken,
+            ];
+        }
+
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+            $entity = $objectService->find(
+                id: $declarationId,
+                register: 'decidesk',
+                schema: 'conflict-of-interest'
+            );
+
+            if ($entity === null) {
+                return [
+                    'success'     => false,
+                    'declaration' => null,
+                    'message'     => 'Declaration not found.',
+                ];
+            }
+
+            $current = (method_exists($entity, 'getObject') === true)
+                ? $entity->getObject()
+                : (array) $entity->jsonSerialize();
+
+            $updated = array_merge($current, ['actionTaken' => $actionTaken]);
+
+            $saved = $objectService->saveObject(
+                object: $updated,
+                register: 'decidesk',
+                schema: 'conflict-of-interest',
+                uuid: $declarationId
+            );
+
+            return [
+                'success'     => true,
+                'declaration' => is_object($saved) === true ? $saved->jsonSerialize() : $updated,
+                'message'     => 'Action recorded.',
+            ];
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: failed to update conflict action',
+                ['declarationId' => $declarationId, 'exception' => $e->getMessage()]
+            );
+            return [
+                'success'     => false,
+                'declaration' => null,
+                'message'     => 'Failed to record action.',
+            ];
+        }//end try
+
+    }//end recordAction()
+
+
+    /**
+     * Return the most-restrictive active conflict for a given member + agenda
+     * item pair, or null when none is on file. Restrictiveness ordering is
+     * "recused-from-vote" > "recused-from-discussion" > "disclosed-and-participated"
+     * > "no-action-needed".
+     *
+     * @param string $boardMemberId UUID of the board member
+     * @param string $agendaItemId  UUID of the agenda item
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getActiveConflicts(string $boardMemberId, string $agendaItemId): ?array
+    {
+        $matches = $this->findDeclarations($boardMemberId, $agendaItemId);
+        if ($matches === []) {
+            return null;
+        }
+
+        $weight = [
+            'recused-from-vote'          => 4,
+            'recused-from-discussion'    => 3,
+            'disclosed-and-participated' => 2,
+            'no-action-needed'           => 1,
+        ];
+
+        usort(
+            $matches,
+            static function (array $a, array $b) use ($weight): int {
+                return (($weight[$b['actionTaken'] ?? 'no-action-needed'] ?? 0)
+                    - ($weight[$a['actionTaken'] ?? 'no-action-needed'] ?? 0));
+            }
+        );
+
+        return $matches[0];
+
+    }//end getActiveConflicts()
+
+
+    /**
+     * Internal: list all declarations matching the given member + agenda item.
+     *
+     * @param string $boardMemberId UUID of the board member
+     * @param string $agendaItemId  UUID of the agenda item
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function findDeclarations(string $boardMemberId, string $agendaItemId): array
+    {
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+            $rows = $objectService->findAll(
+                [
+                    'register' => 'decidesk',
+                    'schema'   => 'conflict-of-interest',
+                    'filters'  => [
+                        'boardMemberKoppeling' => $boardMemberId,
+                        'agendaItemKoppeling'  => $agendaItemId,
+                    ],
+                    'limit'    => 100,
+                ]
+            );
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: failed to query conflict declarations',
+                ['exception' => $e->getMessage()]
+            );
+            return [];
+        }
+
+        $out = [];
+        foreach ((array) $rows as $row) {
+            if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+                $row = (array) $row->jsonSerialize();
+            }
+
+            if (is_array($row) === false) {
+                continue;
+            }
+
+            $memberMatches = (($row['boardMemberKoppeling'] ?? null) === $boardMemberId);
+            $itemMatches   = (($row['agendaItemKoppeling'] ?? null) === $agendaItemId);
+            if ($memberMatches === true && $itemMatches === true) {
+                $out[] = $row;
+            }
+        }
+
+        return $out;
+
+    }//end findDeclarations()
+
+
+}//end class
