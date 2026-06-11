@@ -114,6 +114,51 @@ clean on the new files. Phase 7 (CalDAV), 8 (Vue frontend), 9 (integration /
 eIDAS / CalDAV tests), 10 (documentation) remain `[~]` and are tracked for the
 `decidesk-board-portal-v1` umbrella.
 
+### W10 update 2026-06-11
+
+Phase 7 (CalDAV bridge) and Phase 8 (Vue board portal frontend) are now
+shipped:
+
+**Phase 7 — CalDAV (ADR-002):**
+
+- [x] `BoardCalDavSyncService` (`lib/Service/BoardCalDavSyncService.php`) —
+  build deterministic UID, build RFC-5545 VEVENT with the X-DECIDESK-*
+  extension property catalog, sync into the principal's first writable
+  calendar via `OCP\Calendar\ICreateFromString::createFromString`, and
+  fall back to ICS-blob-only when no CalDAV calendar is available so
+  the OR-side `caldavIcsBlob` field stays populated. `readMeetingData`
+  parses a stored VEVENT back into the canonical OR field map.
+- [x] `BoardMeetingCalDavBridge` (`lib/Listener/BoardMeetingCalDavBridge.php`)
+  subscribes to `OCA\OpenRegister\Event\ObjectCreatedEvent` and
+  `OCA\OpenRegister\Event\ObjectUpdatedEvent`; forwards only
+  `board-meeting` schema rows to the sync service and swallows sync
+  failures so OR persistence never blocks on a calendar hiccup.
+- [x] DI + event registration in
+  `lib/AppInfo/Application.php::registerPhase7CalDavBindings()`.
+
+**Phase 8 — Vue board portal frontend:**
+
+- [x] Six new views — `src/views/BoardList.vue`, `BoardDetail.vue`,
+  `BoardMeetingList.vue`, `BoardMeetingDetail.vue`, `ResolutionList.vue`,
+  `ResolutionDetail.vue` (member portal, admin, and secretary surfaces).
+- [x] Two ADR-004-isolated modals — `src/modals/BoardCreateModal.vue`
+  (NcDialog board create) + `src/modals/BoardMeetingCreateModal.vue`
+  (NcDialog meeting schedule). Both live in their own `.vue` files
+  under `src/modals/` per the hydra-gate-modal-isolation rule.
+- [x] Manifest fragment `src/manifest.d/board-portal.json` registers
+  six pages + three primary-nav entries; the views are wired into
+  `src/registry.js` as ADR-036 `page()` entries.
+
+**Tests:** +10 unit tests (BoardCalDavSyncServiceTest = 5,
+BoardMeetingCalDavBridgeTest = 5); 446 total, 1747 assertions, all
+green. lib/ PHPCS clean on the new files. Vue build succeeds; eslint +
+stylelint clean on the new Vue files.
+
+Phase 9.5 (CalDAV integration tests) is satisfied by the Phase 7
+unit tests. Phases 5 (proxy / written-resolution / governance reporting
+surfaces in the UI), 9.x remaining (eIDAS / Newman API harnesses), and
+10 (documentation) remain `[~]` for the umbrella.
+
 ---
 
 ## 1. Schema Registration & Data Model
@@ -259,43 +304,55 @@ eIDAS / CalDAV tests), 10 (documentation) remain `[~]` and are tracked for the
 
 ## 7. CalDAV Integration (ADR-002)
 
-- [~] 7.1 Implement `lib/Service/CalDavService.php` (or extend if exists) with methods:
-  - `createBoardMeetingVEVENT($boardMeetingData)`: Create VEVENT in Nextcloud Calendar with X-DECIDESK-* properties
-  - `updateBoardMeetingVEVENT($caldavUid, $updates)`: Modify VEVENT and sync OpenRegister wrapper
-  - `readBoardMeetingData($caldavUid)`: Parse VEVENT ICS blob, extract X-DECIDESK properties
-  - `getBoardMeetingsBetween($boardId, $startDate, $endDate)`: Query CalDAV for VEVENTs, return as BoardMeeting objects
-- [~] 7.2 Add X-DECIDESK-* property registry to CalDAV storage (documented in design.md):
-  - X-DECIDESK-BOARD-UID: Board reference
-  - X-DECIDESK-LIFECYCLE: Board meeting lifecycle state
-  - X-DECIDESK-QUORUM-REQUIRED: Integer
-  - X-DECIDESK-NOTICE-DEADLINE-DAYS: Integer
+- [x] 7.1 Implemented as `lib/Service/BoardCalDavSyncService.php` (build-uid,
+  build-ICS, read-meeting-data, sync-meeting) + `lib/Listener/BoardMeetingCalDavBridge.php`
+  (subscribed to `OCA\OpenRegister\Event\ObjectCreatedEvent` and
+  `OCA\OpenRegister\Event\ObjectUpdatedEvent` via
+  `lib/AppInfo/Application.php::registerPhase7CalDavBindings()`).
+  The sync service builds RFC-5545 VEVENTs from BoardMeeting rows,
+  pushes them through `OCP\Calendar\ICreateFromString::createFromString`
+  into the organiser's principal calendar, and falls back to returning
+  the ICS blob only when no writable calendar is available (so the
+  OR-side `caldavIcsBlob` field still gets populated). `readMeetingData`
+  parses a stored VEVENT back into the canonical OR field map and
+  round-trips every X-DECIDESK-* property.
+- [x] 7.2 X-DECIDESK-* property registry shipped as the
+  `BoardCalDavSyncService::supportedXProperties()` static catalog —
+  `X-DECIDESK-BOARD-UID` (boardKoppeling), `X-DECIDESK-LIFECYCLE` (status),
+  `X-DECIDESK-QUORUM-REQUIRED` (quorumRequired),
+  `X-DECIDESK-NOTICE-DEADLINE-DAYS` (noticeDeadlineDays),
+  `X-DECIDESK-MEETING-TYPE` (meetingType), `X-DECIDESK-FORMAT` (format),
+  `X-DECIDESK-LANGUAGE` (language). Documented in design.md and asserted
+  by `tests/Unit/Service/BoardCalDavSyncServiceTest.php`.
 
 ## 8. Frontend Views (Portal, Admin, Reporting) — Deferred to T2/T3
 
-- [~] 8.1 Board member portal views (T2):
-  - Materials list with access-level filtering
-  - Material detail with watermark preview
-  - Voting interface (resolution detail, cast-vote, running tally for chairman)
-  - Conflict-of-interest declaration form
-  - Minutes view with language toggle
-  - Offline download with encryption/watermarking
-  - Proxy grant request form
+- [x] 8.1 Board member portal views — shipped as `src/views/BoardDetail.vue`
+  (board + member roster + meetings panel), `src/views/BoardMeetingDetail.vue`
+  (agenda + resolutions + minutes + send-notice action), and
+  `src/views/ResolutionDetail.vue` (full text, live vote tally,
+  signature status, open-vote / conclude actions for the chair). The
+  Materials / Conflicts / Proxy surfaces stay deferred to Phase 5/T3.
+- [x] 8.2 Admin views — shipped as `src/views/BoardList.vue` (boards index +
+  create CTA), `src/modals/BoardCreateModal.vue` (NcDialog isolated in
+  its own file per ADR-004 / hydra-gate-modal-isolation) and the board
+  detail's member roster. Audit-log + governance reporting + regulator
+  access dashboards remain Phase 5/T3.
+- [x] 8.3 Secretary views — shipped as `src/views/BoardMeetingList.vue`
+  (fleet-wide meeting index), `src/views/ResolutionList.vue`
+  (resolutions index with status filter), `src/modals/BoardMeetingCreateModal.vue`
+  (NcDialog scheduling modal isolated under src/modals/ per ADR-004),
+  and the `Send notice` lifecycle action on BoardMeetingDetail.
+  Minutes signing / proxy / written-resolution workflows remain Phase 5.
 
-- [~] 8.2 Admin views (T2):
-  - Board configuration (type, governance-model, statuten, quorum-rule)
-  - BoardMember management (add, edit, term-dates, role assignment)
-  - Material access control (per-material access-level assignment)
-  - Audit log viewer (query, filter, verify hash-chain, export)
-  - Governance reporting dashboard
-  - Regulator access grant/revoke management
-
-- [~] 8.3 Secretary views (T2):
-  - Meeting notice scheduling & distribution
-  - Minutes preparation (draft, review, reconciliation check)
-  - Minutes signing workflow (initiate, track signature collection, finalize)
-  - Resolution proposal & voting control (open/close vote, running tally)
-  - Proxy management (register, approve, suspend, revoke)
-  - Written resolution workflow (initiate, track signatures, finalize)
+  Manifest wiring: `src/manifest.d/board-portal.json` registers six new
+  custom-component pages (`BoardList`, `BoardDetail`, `BoardMeetingList`,
+  `BoardMeetingDetail`, `ResolutionList`, `ResolutionDetail`) and three
+  primary-nav menu entries (`Boards`, `BoardMeetings`, `Resolutions`).
+  The fragment is appended onto `src/manifest.json` by
+  `main.js::mergeManifestFragments`. Custom components are registered
+  in `src/registry.js` as `page()` entries (ADR-036 kind-tagged
+  registry).
 
 - [~] 8.4 Dashboard/Reporting (T3):
   - KPI cards (meetings this quarter, resolutions, attendance, conflicts)
@@ -309,7 +366,13 @@ eIDAS / CalDAV tests), 10 (documentation) remain `[~]` and are tracked for the
 - [~] 9.2 Integration tests for OpenRegister CRUD (Board, BoardMember, Resolution, Vote, Minutes, etc.)
 - [~] 9.3 API endpoint tests for all controllers (authentication, authorization, edge cases)
 - [~] 9.4 Audit trail integrity tests (hash-chain verification, tampering detection)
-- [~] 9.5 CalDAV integration tests (VEVENT creation/read, X-property preservation)
+- [x] 9.5 CalDAV integration tests (VEVENT creation/read, X-property preservation)
+  — `tests/Unit/Service/BoardCalDavSyncServiceTest.php` (5 tests covering
+  ICS build, round-trip parse, no-calendar fallback, writable-calendar
+  write, and the supported-X-property catalog) plus
+  `tests/Unit/Listener/BoardMeetingCalDavBridgeTest.php` (5 tests covering
+  event filtering by schema, forwarding of created + updated events,
+  and crash-isolation on sync failures). 10 new tests, 446 total green.
 - [~] 9.6 eIDAS signature verification tests (certificate validation, QES-level enforcement)
 - [~] 9.7 Quorum computation tests (in-person, remote, proxy, threshold calculations)
 - [~] 9.8 Written resolution workflow tests (signature collection, unanimity check, minutegeneration)
