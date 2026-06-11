@@ -140,14 +140,23 @@ class ParticipantResolver
         $objectService = $this->objectService();
         $objectService->setRegister('decidesk');
         $objectService->setSchema('participant');
-        $entities = $objectService->findAll(['filters' => ['_relations.governance-body' => $governanceBodyId]]);
+
+        // NOTE: objects created via the standard OpenRegister object API store the
+        // governance-body link as a FLAT relation keyed by the source field name —
+        // `@self.relations.governanceBody` (camelCase) — NOT under the schema-slug
+        // key `governance-body`. The `_relations.governance-body` findAll filter
+        // therefore matches nothing for OR-object-API-created participants, which
+        // previously returned an empty participant list and 403'd seeded chairs.
+        //
+        // Read the full participant set for the register/schema and filter in PHP
+        // via relationsReference(), which honours both the structured relation list
+        // and the flat field-keyed map. This mirrors how resolveGovernanceBodyId()
+        // already reads the flat relation shape.
+        $entities = $objectService->findAll([]);
 
         $participants = [];
         foreach ($entities as $entity) {
             $participant = $entity->jsonSerialize();
-            // The OR `_relations.<schema>` filter is schema-presence-only (it ignores
-            // the filter value), so re-check that this participant genuinely belongs
-            // to the requested governance body before including it.
             if ($this->relationsReference(object: $participant, schema: 'governance-body', targetId: $governanceBodyId) === false) {
                 continue;
             }

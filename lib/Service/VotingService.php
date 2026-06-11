@@ -279,31 +279,18 @@ class VotingService
             return true;
         }
 
-        // Count active participants (leftAt is null).
-        $governanceBodyId = null;
-        foreach (($meeting['relations'] ?? []) as $relation) {
-            if (($relation['schema'] ?? '') === 'governance-body') {
-                $governanceBodyId = ($relation['id'] ?? null);
-                break;
-            }
-        }
-
-        if ($governanceBodyId === null) {
-            // No governance body linked — cannot verify quorum; fail closed.
-            return false;
-        }
-
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('participant');
-        $participantEntities = $this->filterByRelation(
-            entities: $objectService->findAll(['filters' => ['_relations.governance-body' => $governanceBodyId]]),
-            schema: 'governance-body',
-            targetId: $governanceBodyId
-        );
+        // Count active participants (leftAt is null) via the shared
+        // ParticipantResolver, which resolves the meeting → governance-body link
+        // and the participant memberships from BOTH the structured relation list
+        // and the flat field-keyed relation map ('@self.relations.governanceBody')
+        // produced by the standard OpenRegister object API. The previous inline
+        // logic read '$meeting["relations"]' as a structured list and filtered on
+        // '_relations.governance-body', neither of which matches OR-object-API
+        // data, so it always counted 0 active participants and failed closed.
+        $participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
 
         $activeCount = 0;
-        foreach ($participantEntities as $participantEntity) {
-            $participant = $participantEntity->jsonSerialize();
+        foreach ($participants as $participant) {
             if (($participant['leftAt'] ?? null) === null) {
                 $activeCount++;
             }

@@ -14,6 +14,7 @@
 		{ "key": "participantId", "value": "" },
 		{ "key": "meetingId", "value": "" },
 		{ "key": "motionId", "value": "" },
+		{ "key": "openMotionId", "value": "" },
 		{ "key": "sohRoundId", "value": "" },
 		{ "key": "fabRoundId", "value": "" },
 		{ "key": "decisionId", "value": "" }
@@ -378,27 +379,48 @@
 					"request": {
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{motionId}}\",\n  \"meetingId\": \"{{meetingId}}\",\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false\n}" },
+						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{openMotionId}}\",\n  \"meetingId\": \"{{meetingId}}\",\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false\n}" },
 						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/voting-rounds", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds" ] }
 					}
 				},
 				{
-					"name": "Open round — per-meeting chair guard QUARANTINED (403, see bug 2)",
+					"name": "Open round — per-meeting chair guard + quorum (happy: 201)",
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// The open-round happy path needs a motion in 'debating' (open()",
+									"// transitions motion debating -> voting and would mutate the shared",
+									"// seed motion). Create a DEDICATED debating motion for this test so the",
+									"// later 'submitted -> debating' lifecycle test keeps its own seed motion.",
+									"const base = pm.collectionVariables.get('baseUrl');",
+									"const auth = 'Basic ' + btoa(pm.collectionVariables.get('adminUser') + ':' + pm.collectionVariables.get('adminPass'));",
+									"pm.sendRequest({",
+									"  url: base + '/index.php/apps/openregister/api/objects/decidesk/motion',",
+									"  method: 'POST',",
+									"  header: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'OCS-APIRequest': 'true', 'Authorization': auth },",
+									"  body: { mode: 'raw', raw: JSON.stringify({ title: 'Newman Open Motion', text: 'Round-open motion', motionType: 'motion', proposer: 'Newman Admin', lifecycle: 'debating', meeting: pm.collectionVariables.get('meetingId') }) }",
+									"}, function (err, res) {",
+									"  if (!err && res) { const b = res.json(); const id = (b['@self'] && b['@self'].id) || b.id; pm.collectionVariables.set('openMotionId', id); }",
+									"});"
+								]
+							}
+						},
 						{
 							"listen": "test",
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"// KNOWN BUG (2): open() does a per-meeting chair/secretary check on the",
-									"// request-body meetingId. ParticipantResolver can't resolve the seeded",
-									"// chair because OR-object-API-created relations are not indexed under the",
-									"// '_relations.governance-body' filter it uses, so admin is treated as a",
-									"// non-chair and the request is rejected 403. This asserts the CURRENT",
-									"// (buggy) status honestly; it also confirms the chair guard fails CLOSED",
-									"// (403, not 500, and never silently 201) for non-chair callers.",
-									"pm.test('Open: chair guard fails closed with 403 (quarantined — not 500/201)', () => pm.response.to.have.status(403));",
-									"pm.test('Open: chair guard returns a forbidden message', () => pm.expect(pm.response.json().message.toLowerCase()).to.include('chair'));"
+									"// FIXED (bug 2): open() does a per-meeting chair/secretary check on the",
+									"// request-body meetingId. ParticipantResolver now resolves the seeded",
+									"// chair because it reads the flat field-keyed relation map",
+									"// ('@self.relations.governanceBody') the OR object API produces, so the",
+									"// admin chair is recognised. checkQuorum() was fixed the same way, so",
+									"// quorum (quorumRequired=1, 1 active chair) is met and the round opens.",
+									"pm.test('Open: round opens for the seeded chair (201)', () => pm.response.to.have.status(201));",
+									"pm.test('Open: response carries the voting-round id', () => { const b = pm.response.json(); const id = (b['@self'] && b['@self'].id) || b.id; pm.expect(id, 'voting-round id').to.be.a('string'); });"
 								]
 							}
 						}
@@ -407,7 +429,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{motionId}}\",\n  \"meetingId\": \"{{meetingId}}\",\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false\n}" },
+						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{openMotionId}}\",\n  \"meetingId\": \"{{meetingId}}\",\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false\n}" },
 						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds" ] }
 					}
 				}
