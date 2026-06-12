@@ -288,6 +288,9 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   `IEventListener<ESignSignatureCompletedEvent>` into
   `lib/AppInfo/Application.php::registerPhase3Bindings()` and replace the
   pull-poll with an event-driven status mirror.
+  **W28 re-verification (2026-06-12)**: `grep -rn "ESignSignatureCompletedEvent\|SignatureCallback\|signature\.callback" openconnector/lib/`
+  still returns 0 hits on `origin/development`. No upstream change to
+  flip; pull-based path remains functionally complete.
 
 ## 4. Board Portal Backend: Materials & Access Control
 
@@ -531,6 +534,11 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
     (`NotAuthorizedException` on `ObjectService::createObject`). Tracked in the
     same install-time-tests programme; verified manually on every fleet
     rebuild via `occ app:disable decidesk && occ app:enable decidesk` cycle.
+  **W28 confirm (2026-06-12)**: the same install-time-tests programme
+    blocker remains across the fleet (QuorumDeclarativeTest still skips
+    on the same upstream cause). The manual `occ app:disable/enable`
+    cycle is still the canonical verification path until OR exposes a
+    test harness for the IRepair orchestrator.
 
 ## 10. Documentation & Regulatory Compliance
 
@@ -606,3 +614,8 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
     `docs/Technical/board-portal-architecture.md`). When the audit is
     commissioned the finding-letter + Decidesk's response land in
     `docs/compliance/audit-letters/`.
+  **W28 confirm (2026-06-12)**: internal-prep is still fully shipped
+    (no regression in any of the three pinned artefacts). This task
+    intentionally stays `[~]` until an audit is commissioned — there
+    is no codebase action that can flip it; the deferral is the
+    correct end state until an external engagement begins.
