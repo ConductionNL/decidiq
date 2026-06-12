@@ -1,132 +1,18 @@
 ---
-status: in-progress
-status-note: 2026-06-12 audit — 2/5 requirements built (dashboard page + 3 KPI stats-blocks via app-dashboard capability). Missing — Pending Votes + Upcoming Meetings widgets, full KPI row, empty state, OCP Dashboard IWidget. Completion in flight via changes decidesk-dashboard-v2-widgets + decidesk-dashboard-v2-layout. Update 2026-06-12 — decidesk-dashboard-v2-widgets archived (11 widget components + registry + vitest + i18n landed at the component layer); manifest/layout wiring still pending via decidesk-dashboard-v2-layout.
+delta: openspec/specs/dashboard/spec.md
 ---
 
-# Dashboard Specification
+# Spec Delta: dashboard — decidesk-dashboard-v2-widgets
 
-**OpenSpec changes:**
-- [decidesk-dashboard-v2-widgets](../../changes/archive/2026-06-12-decidesk-dashboard-v2-widgets/) _(archived 2026-06-12)_ — 11 dashboard widget components + registry + tests + i18n (kind: code)
-- [decidesk-dashboard-v2-layout](../../changes/decidesk-dashboard-v2-layout/) — manifest Dashboard-page rewire to the v2 grid, English titles (kind: config, depends_on widgets)
-
-## Purpose
-
-The Decidesk dashboard provides an at-a-glance overview of active decisions, upcoming meetings, pending votes, action items, and governance KPIs. It uses the `CnDashboardPage` component from `@conduction/nextcloud-vue` for a configurable grid layout and integrates with the Nextcloud Dashboard Widget API (`OCP\Dashboard\IWidget`) for platform-level widget exposure. The dashboard serves as the primary entry point for all Decidesk users.
-
-**Standards**: Schema.org (`Dashboard` pattern), Nextcloud Dashboard Widget API
-**Feature tier**: MVP
-
-## Requirements
+This delta extends `openspec/specs/dashboard/spec.md` with the widget component requirements introduced by this change. The existing requirements (Dashboard Layout, KPI Cards, My Pending Votes Widget, Upcoming Meetings Widget, Nextcloud Dashboard Widget Integration) are not modified here; the layout-wiring change (`decidesk-dashboard-v2-layout`) will modify the Dashboard Layout and KPI Cards requirements. This delta adds requirements for the eleven new widget components plus the cross-cutting i18n and refresh behaviour.
 
 ---
 
-### Requirement: Dashboard Layout
-
-The dashboard MUST use the `CnDashboardPage` component to render a configurable widget grid. The default layout MUST provide an immediate overview of governance activity.
-
-**Feature tier**: MVP
-
-#### Scenario: Default grid layout on first load
-
-- GIVEN the user has not customized their dashboard layout
-- WHEN the user navigates to the dashboard
-- THEN the layout MUST render with the default configuration:
-  - Row 1: Four KPI cards (3 columns each) — Active Decisions, Upcoming Meetings, Pending Votes, Overdue Actions
-  - Row 2: "My Pending Votes" widget (6 columns) and "Upcoming Meetings" widget (6 columns)
-  - Row 3: "Recent Decisions" widget spanning full width (12 columns)
-- AND each widget MUST be rendered inside a `CnDashboardPage` widget slot
-
-#### Scenario: Empty state for new installation
-
-- GIVEN a fresh Decidesk installation with no data
-- WHEN the user views the dashboard
-- THEN a welcome message MUST be displayed: "Welcome to Decidesk! Get started by setting up your first governing body in Settings."
-- AND quick action buttons MUST be shown: "Set Up Body", "Create Meeting", "Create Decision"
+## ADDED Requirements
 
 ---
 
-### Requirement: KPI Cards
-
-The dashboard MUST display KPI summary cards showing headline governance metrics using `CnStatsBlock` components.
-
-**Feature tier**: MVP
-
-#### Scenario: Display active decisions count
-
-- WHEN the user views the dashboard
-- THEN the "Active Decisions" KPI card MUST display the count of decisions with status not in (`enacted`, `archived`, `rejected`)
-- AND clicking the card MUST navigate to the Decisions view filtered by active status
-
-#### Scenario: Display pending votes count
-
-- WHEN the user views the dashboard
-- THEN the "Pending Votes" KPI card MUST display the count of decisions currently in `voting` status where the user has not yet cast their vote
-- AND if the count is greater than 0, the card MUST use `variant="warning"` (orange accent)
-- AND clicking the card MUST navigate to the user's pending votes
-
-#### Scenario: Display overdue action items count
-
-- WHEN the user views the dashboard
-- THEN the "Overdue Actions" KPI card MUST display the count of action items past their deadline
-- AND if overdue count is greater than 0, the card MUST use `variant="error"` (red accent)
-- AND clicking the card MUST navigate to the action items view filtered by overdue
-
----
-
-### Requirement: My Pending Votes Widget
-
-The dashboard MUST include a widget showing decisions awaiting the current user's vote, ordered by urgency (voting deadline).
-
-**Feature tier**: MVP
-
-#### Scenario: Show pending votes with urgency indicators
-
-- GIVEN the user has 3 decisions pending their vote
-- WHEN the dashboard loads
-- THEN the "My Pending Votes" widget MUST list each decision with title, body, and time remaining
-- AND decisions with less than 24 hours remaining MUST show a red urgency indicator
-- AND clicking a decision MUST navigate to the voting interface
-
-#### Scenario: No pending votes
-
-- GIVEN the user has no decisions pending their vote
-- WHEN the dashboard loads
-- THEN the widget MUST show "No pending votes" with a check mark icon
-
----
-
-### Requirement: Upcoming Meetings Widget
-
-The dashboard MUST include a widget showing the user's upcoming meetings across all bodies, ordered by date.
-
-**Feature tier**: MVP
-
-#### Scenario: Show upcoming meetings with context
-
-- GIVEN the user is a member of 2 bodies with upcoming meetings
-- WHEN the dashboard loads
-- THEN the widget MUST list each meeting with title, date/time, body name, and agenda item count
-- AND meetings within the next 24 hours MUST be highlighted
-- AND clicking a meeting MUST navigate to the meeting detail view
-
----
-
-### Requirement: Nextcloud Dashboard Widget Integration
-
-The system MUST register a Nextcloud Dashboard widget via `OCP\Dashboard\IWidget` so that Decidesk summary data appears on the Nextcloud main dashboard.
-
-**Feature tier**: MVP
-
-#### Scenario: View Decidesk widget on Nextcloud dashboard
-
-- GIVEN a user with Decidesk access
-- WHEN they view the Nextcloud main dashboard
-- THEN a "Decidesk" widget MUST be available showing pending votes count and next meeting
-- AND clicking the widget MUST navigate to the Decidesk dashboard
-
----
-
-### Requirement: Running Processes Widget
+### REQ-001: Running Processes Widget
 
 The dashboard MUST include a `RunningProcessesWidget` component that shows motions currently in flight, grouped by their lifecycle stage.
 
@@ -151,7 +37,7 @@ The dashboard MUST include a `RunningProcessesWidget` component that shows motio
 
 ---
 
-### Requirement: My Action Items Widget
+### REQ-002: My Action Items Widget
 
 The dashboard MUST include a `MyActionItemsWidget` component showing action items assigned to the current user that are open or in-progress, sorted by dueDate ascending.
 
@@ -175,7 +61,7 @@ The dashboard MUST include a `MyActionItemsWidget` component showing action item
 
 ---
 
-### Requirement: Recent Decisions Widget
+### REQ-003: Recent Decisions Widget
 
 The dashboard MUST include a `RecentDecisionsWidget` component showing the latest N decisions (default 10) with outcome badge and publication status badge. Badge values MUST map the real schema enums (outcome: adopted/rejected/null; isPublished: internal/public/confidential).
 
@@ -193,9 +79,9 @@ The dashboard MUST include a `RecentDecisionsWidget` component showing the lates
 
 ---
 
-### Requirement: Governance Health Widget
+### REQ-004: Governance Health Widget
 
-The dashboard MUST include a `GovernanceHealthWidget` component that renders a live two-series chart of `quorumPercentage` and `actionItemCompletionRate` from recent meetings' materialized fields. (A declarative manifest `type: "chart"` widget was ruled out: the lib's chart dataSource cannot assemble two live series — see the archived change's design.md Decision 5.)
+The dashboard MUST include a `GovernanceHealthWidget` component that renders a live two-series chart of `quorumPercentage` and `actionItemCompletionRate` from recent meetings' materialized fields. (A declarative manifest `type: "chart"` widget was ruled out: the lib's chart dataSource cannot assemble two live series — see design.md Decision 5.)
 
 **Feature tier**: MVP
 
@@ -217,7 +103,7 @@ The dashboard MUST include a `GovernanceHealthWidget` component that renders a l
 
 ---
 
-### Requirement: Dashboard Empty State Component
+### REQ-005: Dashboard Empty State
 
 The dashboard MUST include a `DashboardEmptyState` component shown when no governance body exists, guiding the user to initial setup.
 
@@ -236,7 +122,7 @@ The dashboard MUST include a `DashboardEmptyState` component shown when no gover
 
 ---
 
-### Requirement: Dashboard Refresh Behaviour
+### REQ-006: Dashboard Refresh Behaviour
 
 All dashboard widget components MUST respond to a dashboard-wide refresh signal without requiring a full page remount.
 
@@ -253,7 +139,7 @@ All dashboard widget components MUST respond to a dashboard-wide refresh signal 
 
 ---
 
-### Requirement: Widget i18n — English Source Keys
+### REQ-007: Widget i18n — English Source Keys
 
 All user-visible strings in dashboard widget components MUST use `t('decidesk', '...')` with English source strings as keys.
 
@@ -270,7 +156,7 @@ All user-visible strings in dashboard widget components MUST use `t('decidesk', 
 
 ---
 
-### Requirement: Upcoming Meetings KPI Widget
+### REQ-008: Upcoming Meetings KPI Widget
 
 The dashboard MUST include an `UpcomingMeetingsKpiWidget` component showing the count of meetings with `lifecycle=scheduled` and `scheduledDate >= now`.
 
@@ -286,7 +172,7 @@ The dashboard MUST include an `UpcomingMeetingsKpiWidget` component showing the 
 
 ---
 
-### Requirement: Pending Votes KPI Widget
+### REQ-009: Pending Votes KPI Widget
 
 The dashboard MUST include a `PendingVotesKpiWidget` component showing the count of open voting-rounds where the current user has not yet cast a vote. The widget SHALL use `variant="warning"` when count > 0.
 
@@ -316,7 +202,7 @@ The dashboard MUST include a `PendingVotesKpiWidget` component showing the count
 
 ---
 
-### Requirement: Overdue Actions KPI Widget
+### REQ-010: Overdue Actions KPI Widget
 
 The dashboard MUST include an `OverdueActionsKpiWidget` component showing the count of action items with `dueDate` in the past and `taskStatus` not in `[completed, cancelled]`. The widget SHALL use `variant="error"` when count > 0.
 
@@ -339,7 +225,7 @@ The dashboard MUST include an `OverdueActionsKpiWidget` component showing the co
 
 ---
 
-### Requirement: Upcoming Meetings List Widget
+### REQ-011: Upcoming Meetings List Widget
 
 The dashboard MUST include an `UpcomingMeetingsListWidget` component listing upcoming meetings (lifecycle=scheduled, scheduledDate >= now) sorted by scheduledDate ascending. Meetings within the next 24 hours MUST be highlighted. Clicking a meeting entry MUST navigate to the meeting detail view.
 
@@ -363,7 +249,7 @@ The dashboard MUST include an `UpcomingMeetingsListWidget` component listing upc
 
 ---
 
-### Requirement: Pending Votes List Widget
+### REQ-012: Pending Votes List Widget
 
 The dashboard MUST include a `PendingVotesListWidget` component listing decisions/voting-rounds awaiting the current user's vote, with a deadline countdown. Entries with less than 24 hours remaining MUST show a red urgency indicator. An empty state MUST be shown when no pending votes exist.
 
@@ -394,7 +280,7 @@ The dashboard MUST include a `PendingVotesListWidget` component listing decision
 
 ---
 
-### Requirement: Active Decisions KPI Widget
+### REQ-013: Active Decisions KPI Widget
 
 The dashboard MUST include an `ActiveDecisionsKpiWidget` component showing the count of decisions whose `outcome` is null (not yet adopted or rejected — the Decision schema has no lifecycle field). Clicking the card MUST navigate to the Decisions view.
 
@@ -414,20 +300,4 @@ The dashboard MUST include an `ActiveDecisionsKpiWidget` component showing the c
 - WHEN the user clicks the card
 - THEN the app SHALL navigate to the Decisions view
 
-## User Stories
-
-1. **New board member accessing knowledge base**: As a new board member, I want to access all historical decisions, current action items, financial status, and governance documents so that I can quickly become effective in my role. (Source: intelligence DB #84)
-
-2. **Institutional investor managing proxy voting across AGMs**: As an institutional investor, I want to manage proxy voting across all portfolio company AGMs from a single dashboard, so that I can efficiently exercise my voting rights at scale. (Source: intelligence DB #5)
-
-3. **Administrator publishing meeting decisions**: As administrator, I want to publish key decisions from ALV and board meetings on the member portal so that all members stay informed about association governance. (Source: intelligence DB #76)
-
-## Acceptance Criteria
-
-- Dashboard uses CnDashboardPage with 12-column grid layout
-- Four KPI cards show active decisions, upcoming meetings, pending votes, and overdue actions
-- Pending votes widget shows urgency indicators with countdown
-- Upcoming meetings widget shows meetings across all user's bodies
-- Empty state shows setup guidance for new installations
-- Nextcloud Dashboard widget registered via OCP\Dashboard\IWidget
-- Quick action buttons in header for creating meetings and decisions
+---

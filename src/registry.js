@@ -36,6 +36,22 @@ import BoardMeetingDetail from './views/BoardMeetingDetail.vue'
 import ResolutionList from './views/ResolutionList.vue'
 import ResolutionDetail from './views/ResolutionDetail.vue'
 
+// Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Eleven bespoke
+// CnDashboardPage slot components registered under kind: "widget". They are
+// NOT yet referenced from src/manifest.json — the follow-up config change
+// decidesk-dashboard-v2-layout inserts the widgets/layout/dataSources.
+import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
+import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
+import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
+import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
+import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
+import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWidget.vue'
+import RunningProcessesWidget from './views/dashboard/widgets/RunningProcessesWidget.vue'
+import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
+import RecentDecisionsWidget from './views/dashboard/widgets/RecentDecisionsWidget.vue'
+import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWidget.vue'
+import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
+
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
@@ -62,6 +78,37 @@ import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue
  */
 function page(component) {
 	return { kind: 'page', component }
+}
+
+/**
+ * Wrap a Vue component into a v2 `kind: "widget"` registry entry.
+ *
+ * CnAppRoot validates every `widget` entry at mount: an unknown `kind`
+ * throws, but a known kind with a missing metadata field only `console.warn`s
+ * (see CnAppRoot `_validateRegistry` / `REGISTRY_KIND_REQUIRED_FIELDS.widget`).
+ * The five required fields are therefore always supplied:
+ *   - `defaultSize` / `minSize` / `maxSize` — `{ w, h }` grid spans the
+ *     dashboard layout engine clamps the widget to.
+ *   - `allowedSlots` — page-slot regions the widget may be placed in.
+ *   - `propsSchema` — JSON-schema-ish description of the widget's
+ *     manifest-tunable props (empty `{}` when the widget self-fetches and
+ *     takes no manifest props).
+ *
+ * @param {object} component Vue component options.
+ * @param {object} [meta] Size / slot / props metadata overrides.
+ *
+ * @return {object} A `{ kind: "widget", component, ...meta }` registry entry.
+ */
+function widget(component, meta = {}) {
+	return {
+		kind: 'widget',
+		component,
+		defaultSize: meta.defaultSize || { w: 3, h: 2 },
+		minSize: meta.minSize || { w: 2, h: 2 },
+		maxSize: meta.maxSize || { w: 12, h: 8 },
+		allowedSlots: meta.allowedSlots || ['dashboard'],
+		propsSchema: meta.propsSchema || {},
+	}
 }
 
 export default {
@@ -112,4 +159,45 @@ export default {
 	AmendmentParentMotionTab: page(AmendmentParentMotionTab),
 	MinutesSignersTab: page(MinutesSignersTab),
 	DecisionActionItemsTab: page(DecisionActionItemsTab),
+
+	// --- Dashboard v2 widgets (decidesk-dashboard-v2-widgets). ---
+	// Eleven CnDashboardPage slot components. CnPageRenderer / CnWidgetGrid
+	// resolve these by name once decidesk-dashboard-v2-layout references them
+	// from the Dashboard page's `widgets` array. Each self-fetches its data
+	// via src/services/dashboardData.js + dashboardRefreshMixin, so propsSchema
+	// is empty. KPI cards are small (3×2); list/chart widgets and the empty
+	// state span wider.
+	PendingVotesKpiWidget: widget(PendingVotesKpiWidget, {
+		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+	}),
+	UpcomingMeetingsKpiWidget: widget(UpcomingMeetingsKpiWidget, {
+		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+	}),
+	OverdueActionsKpiWidget: widget(OverdueActionsKpiWidget, {
+		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+	}),
+	ActiveDecisionsKpiWidget: widget(ActiveDecisionsKpiWidget, {
+		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+	}),
+	UpcomingMeetingsListWidget: widget(UpcomingMeetingsListWidget, {
+		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+	}),
+	PendingVotesListWidget: widget(PendingVotesListWidget, {
+		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+	}),
+	RunningProcessesWidget: widget(RunningProcessesWidget, {
+		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+	}),
+	MyActionItemsWidget: widget(MyActionItemsWidget, {
+		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+	}),
+	RecentDecisionsWidget: widget(RecentDecisionsWidget, {
+		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+	}),
+	GovernanceHealthWidget: widget(GovernanceHealthWidget, {
+		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+	}),
+	DashboardEmptyState: widget(DashboardEmptyState, {
+		defaultSize: { w: 12, h: 5 }, minSize: { w: 6, h: 4 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard', 'full'],
+	}),
 }
