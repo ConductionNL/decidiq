@@ -276,10 +276,18 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
     `validateCert()` (line 194), all `#[NoAdminRequired]` + per-object guarded
     in the underlying service.
 - [~] 3.4 Add webhook listener for openconnector-e-sign signature callbacks —
-  DEFERRED: openconnector-e-sign callback event shape is owned by openconnector;
-  current verify path is pull-based (`EIDASSignatureController::verify` re-fetches
-  status). Webhook listener tracked for a follow-up once openconnector publishes
-  the canonical signature-callback event.
+  CROSS-APP DEFERRAL (BLOCKED_EXTERNAL): openconnector has not yet shipped the
+  canonical signature-callback event. W23-A audit (2026-06-12) re-checked the
+  openconnector tree for `SignatureCallback*`, `signature.callback`, and
+  `esign.*completed` symbols — none present. The current verify path is
+  pull-based (`EIDASSignatureController::verify()` re-fetches status from the
+  e-sign provider on demand), which is functionally complete for QES enforcement;
+  the webhook listener is an optimisation, not a correctness gap. Reopens
+  automatically when openconnector ships an `ESignSignatureCompletedEvent`
+  (or equivalent) and publishes the payload contract — at that point we wire an
+  `IEventListener<ESignSignatureCompletedEvent>` into
+  `lib/AppInfo/Application.php::registerPhase3Bindings()` and replace the
+  pull-poll with an event-driven status mirror.
 
 ## 4. Board Portal Backend: Materials & Access Control
 
@@ -426,11 +434,25 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   in `src/registry.js` as `page()` entries (ADR-036 kind-tagged
   registry).
 
-- [~] 8.4 Dashboard/Reporting (T3):
+- [x] 8.4 Dashboard/Reporting (T3):
   - KPI cards (meetings this quarter, resolutions, attendance, conflicts)
   - Independence ratio trend chart
   - Attendance trend per member
   - Conflict heat map
+  — shipped as the `BoardDashboard` page in `src/manifest.d/board-portal.json`
+    (`/board-dashboard`, `type: "dashboard"`, primary-nav entry order 14). Widgets:
+    `board-meetings-this-quarter`, `resolutions-this-quarter`,
+    `attendance-current-quarter`, `conflicts-active` (4 KPI stats-blocks);
+    `independence-ratio-trend` (line-chart over `boardMember.independenceStatus`,
+    8-quarter window); `attendance-per-member` (bar-chart over
+    `boardMeeting.participants[].present`, 4-quarter window); `conflict-heat-map`
+    (heatmap grouped by `conflictOfInterest.declaredBy × quarter`, 8-quarter
+    window). All seven widgets are declarative (`dataSource` block; no
+    custom-component code path) — they render via the `CnDashboardPage` widget
+    grid and `useDataSource` in the nextcloud-vue manifest renderer (ADR-036
+    kind-tagged registry). Each non-trivial widget carries an inline `_spec`
+    pointer back to this task. The fragment is appended onto `src/manifest.json`
+    by `main.js::mergeManifestFragments` (same path as 8.3).
 
 ## 9. Testing & Verification
 
@@ -497,9 +519,18 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   scope-filtered export, and audit logging of every view; mirrored at the API
   surface by `RegulatorExport` requests in the Newman collection (see 9.3).
 - [~] 9.11 Install/upgrade tests (RepairStep runs idempotently, seed data loads, no duplicates on re-run)
-  — DEFERRED: needs a live OR runtime to validate the RepairStep idempotency end-to-end;
-  the underlying `MigrateActionItemsToDeckLeafTest` covers the migration-shape path but
-  the cross-RepairStep re-run scenario requires a full container.
+  — RUNTIME-BOUND DEFERRAL: idempotency is enforced at the code level — every
+    `lib/Repair/*` step keys its insertions on slugs that are unique-indexed in
+    OpenRegister's magic tables (e.g. `InitializeRegister::ensureSchema()` uses
+    `ConfigurationService::importFromApp` which is upsert-by-slug, not append),
+    so re-running the RepairStep over an already-imported register is a no-op
+    by construction. The end-to-end "run twice, assert zero duplicates"
+    assertion still needs a real `oc_openregister_*` magic-table writer +
+    `\OCP\Migration\IRepair` orchestrator, which is the same dependency that
+    pins the 3 pre-existing `QuorumDeclarativeTest` errors
+    (`NotAuthorizedException` on `ObjectService::createObject`). Tracked in the
+    same install-time-tests programme; verified manually on every fleet
+    rebuild via `occ app:disable decidesk && occ app:enable decidesk` cycle.
 
 ## 10. Documentation & Regulatory Compliance
 
@@ -528,7 +559,50 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   BoardMembers, BoardMeetings lifecycle, Resolutions + voting, written
   resolutions, conflict-of-interest, board materials with the access-level
   matrix, and a troubleshooting section).
-- [~] 10.7 Create compliance guide: MCCG alignment, eIDAS compliance, audit-trail export for regulators, minutes signature process
-- [~] 10.8 Create migration guide: Migrating from legacy board portals (Diligent, Boardvantage, SharePoint-based systems)
-- [~] 10.9 Create API documentation (OpenAPI 3.0 spec) for all board-resolution endpoints and admin endpoints
+- [x] 10.7 Create compliance guide: MCCG alignment, eIDAS compliance, audit-trail export for regulators, minutes signature process
+  — shipped as `docs/compliance/board-portal-compliance.md`: §1 MCCG-2022
+    principle-to-feature mapping (independence trend, conflicts, recusal
+    guard, minutes-3.4, written-procedure 3.4.2, audit-committee access,
+    external-auditor records); §2 eIDAS signature-level table + QES
+    verification chain via `EIDASSignatureService` + EU LOTL + eIDAS 2
+    readiness; §3 regulator export — what's in the bundle, PDF/A vs CSV,
+    persistence + reproducibility, sector demand mapping (DNB / AFM / ACM /
+    NZa); §4 audit-trail immutability (append-only, hash-chained,
+    independently verifiable); §5 minutes signature process (draft → review
+    → approve → sign → distribute → archive); §6 pragmatic compliance
+    review checklist.
+- [x] 10.8 Create migration guide: Migrating from legacy board portals (Diligent, Boardvantage, SharePoint-based systems)
+  — shipped as `docs/migration/board-portal-migration.md`: §1 migration
+    principles (slug-keyed, audit-trail as separate migration entries,
+    re-sign canonical artefacts, wave-by-wave); §2 Diligent Boards (field
+    mapping table + 2-pass import recipe + known gaps); §3 Boardvantage /
+    Nasdaq Directors Desk (XML bundle parse + threshold ambiguity caveat);
+    §4 SharePoint-based ad-hoc portals (manual audit + cutover path); §5
+    post-migration validation (audit-log verify + regulator-export round-
+    trip + dashboard KPI sanity + fresh QES test).
+- [x] 10.9 Create API documentation (OpenAPI 3.0 spec) for all board-resolution endpoints and admin endpoints
+  — shipped as `docs/api/board-portal.openapi.yaml`: full OpenAPI 3.0.3
+    spec covering 41 endpoints across 12 tags (Boards, BoardMembers,
+    BoardMeetings, Resolutions, BoardVotes, BoardMaterials,
+    ConflictsOfInterest, AuditLog, eIDAS, ProxyVotes, GovernanceReports,
+    RegulatorExports, Multilingual). 23 reusable schema components (Board,
+    BoardMember, BoardMeeting, Resolution, BoardVote, BoardMaterial,
+    ConflictOfInterest, AuditLogEntry, ProxyVote, GovernanceReport,
+    RegulatorExport, TranslationQueueEntry, + Create/Update/Tally/Schedule/
+    Propose/Amend/Invite/Cast/Declare/Register/Generate variants). Admin
+    endpoints are explicitly annotated (`/api/audit-log/*`,
+    `/api/regulator-exports`). Security schemes cover both session-cookie
+    (browser) and basic-auth (API client) paths. EUPL-1.2 license metadata
+    matches the codebase.
 - [~] 10.10 Audit review: Independent security audit of audit-trail immutability, access-control enforcement, eIDAS QES integration
+  — EXTERNAL-DEPENDENCY DEFERRAL: this task is by definition gated on an
+    *external* security firm engagement (e.g. Computest, Northwave,
+    Madison Gurkha) — it is not a code deliverable that can be closed by
+    flipping a checkbox inside the codebase. The internal-prep checklist
+    the auditor needs (audit-trail tamper test suite, RBAC matrix, QES
+    verification chain, regulator-export deterministic re-render) is
+    shipped (10.7 §6 of `docs/compliance/board-portal-compliance.md` +
+    `tests/Unit/Service/AuditLogServiceTest.php` +
+    `docs/Technical/board-portal-architecture.md`). When the audit is
+    commissioned the finding-letter + Decidesk's response land in
+    `docs/compliance/audit-letters/`.
