@@ -1,5 +1,6 @@
 ---
 status: idea
+status-note: 2026-06-12 audit — 0/4 requirements built (V1-deferred). WorkflowService backend plumbing exists; no template management, state-machine editor, voting-rule configuration, or built-in templates.
 ---
 
 # Process Configuration Specification

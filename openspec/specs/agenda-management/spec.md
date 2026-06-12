@@ -1,5 +1,6 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 audit — 3.5/4 requirements built via agenda-builder/-item-crud/-live-management/-publication + meeting-agenda capabilities. Missing — statutory ALV agenda-item enforcement, hierarchical sub-items, meeting document-package assembly.
 ---
 
 # Agenda Management Specification

@@ -1,5 +1,6 @@
 ---
-status: idea
+status: done
+status-note: 2026-06-12 audit — all 3 requirements verified in code. Delivered via app-foundation + schemas-and-data-model capabilities (lib/Settings/decidesk_register.json, lib/Repair/InitializeSettings.php, useObjectStore pattern).
 ---
 
 # OpenRegister Integration Specification

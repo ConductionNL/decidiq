@@ -1,5 +1,6 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 audit — 4/5 requirements built via motion-and-voting, vote-casting, secret-ballot, preferential-ballot, proxy-voting, voting-round-management, real-time-vote-tabulation + related capabilities. Missing — qualified-majority calculation (2/3, 3/4, unanimous), configurable tie-breaking, abstention-handling configuration, remote-session verification, per-member proxy limits.
 ---
 
 # Voting System Specification
