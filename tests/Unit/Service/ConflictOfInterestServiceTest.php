@@ -178,29 +178,6 @@ class ConflictOfInterestServiceTest extends TestCase
     }//end testDeclareRejectsUnknownType()
 
 
-    /**
-     * requireDeclaration returns true once a declaration exists.
-     *
-     * @return void
-     */
-    public function testRequireDeclarationReportsExistingRows(): void
-    {
-        $rows     = [
-            [
-                'id'                   => 'd1',
-                'boardMemberKoppeling' => 'm1',
-                'agendaItemKoppeling'  => 'a1',
-                'actionTaken'          => 'recused-from-vote',
-            ],
-        ];
-        $audited  = [];
-        $service  = $this->makeService($rows, $audited);
-
-        $this->assertTrue($service->requireDeclaration('m1', 'a1'));
-        $this->assertFalse($service->requireDeclaration('m1', 'a-other'));
-
-    }//end testRequireDeclarationReportsExistingRows()
-
 
     /**
      * getActiveConflicts returns the most restrictive declaration.

@@ -28,7 +28,6 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\GovernanceReportingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
@@ -65,13 +64,10 @@ class GovernanceReportController extends Controller
     /**
      * Generate an annual report.
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
     public function generate(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -99,13 +95,10 @@ class GovernanceReportController extends Controller
     /**
      * List reports for a board.
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
     public function index(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -136,13 +129,10 @@ class GovernanceReportController extends Controller
      *
      * @param string $id UUID of the report
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
     public function show(string $id): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -176,13 +166,10 @@ class GovernanceReportController extends Controller
      * @param string $id     UUID of the report
      * @param string $format One of json|csv
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
      *
      * @return Response
      */
-    #[NoAdminRequired]
     public function export(string $id, string $format): Response
     {
         $deny = $this->requireAdmin();

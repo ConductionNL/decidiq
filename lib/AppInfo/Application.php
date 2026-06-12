@@ -42,6 +42,7 @@ use OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCA\Decidesk\Service\DecisionNotificationService;
 use OCA\Decidesk\Service\EmailReferenceExtractor;
 use OCA\Decidesk\Service\EngagementService;
@@ -141,6 +142,20 @@ class Application extends App implements IBootstrap
                 }
                 );
 
+        // Register DecisionLifecycleService for DI (guarded decision state machine).
+        // @spec openspec/specs/decision-management/spec.md.
+        $context->registerService(
+                DecisionLifecycleService::class,
+                static function ($c): DecisionLifecycleService {
+                    return new DecisionLifecycleService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    transitionGuard: new \OCA\Decidesk\Lifecycle\DecisionTransitionGuard(),
+                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    );
+                }
+                );
+
         // Register DecisionController for DI.
         // Explicit registration matches the MinutesController pattern and ensures
         // reliable resolution in all Nextcloud environments (≥28).
@@ -154,6 +169,7 @@ class Application extends App implements IBootstrap
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    lifecycleService: $c->get(DecisionLifecycleService::class),
                     );
                 }
                 );

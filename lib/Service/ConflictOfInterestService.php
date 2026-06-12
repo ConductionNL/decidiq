@@ -85,25 +85,6 @@ class ConflictOfInterestService
     }//end __construct()
 
     /**
-     * Check whether the given board member has an existing conflict declaration
-     * for the given agenda item. Returns true when at least one declaration
-     * exists regardless of severity.
-     *
-     * @param string $boardMemberId UUID of the board member
-     * @param string $agendaItemId  UUID of the agenda item under consideration
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
-     *
-     * @return bool True when at least one declaration exists, false otherwise
-     */
-    public function requireDeclaration(string $boardMemberId, string $agendaItemId): bool
-    {
-        $matches = $this->findDeclarations(boardMemberId: $boardMemberId, agendaItemId: $agendaItemId);
-        return ($matches !== []);
-
-    }//end requireDeclaration()
-
-    /**
      * Record a new declaration. Material declarations are mirrored to the
      * audit log and the resulting object is returned alongside success status.
      *

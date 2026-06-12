@@ -1307,6 +1307,36 @@
       },
       "Decision": {
         "x-openregister-notifications": {
+          "decisionProposed": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "proposed"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Besluit voorgesteld: {{title}}",
+              "en": "Decision proposed: {{title}}"
+            }
+          },
           "decisionRecorded": {
             "trigger": {
               "type": "created"
@@ -1397,6 +1427,26 @@
             "type": "string",
             "description": "Legal article or regulation",
             "example": "Gemeentewet art. 189"
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Decision state-machine lifecycle (guarded transition map: draft → proposed → deliberating → voting → decided → enacted → archived). Orthogonal to 'outcome' (the voting result, set when reaching 'decided') and 'isPublished' (citizen visibility of the record, p3-citizen-participation).",
+            "enum": [
+              "draft",
+              "proposed",
+              "deliberating",
+              "voting",
+              "decided",
+              "enacted",
+              "archived"
+            ],
+            "default": "draft",
+            "example": "deliberating"
+          },
+          "enactedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the decision entered the 'enacted' lifecycle state (set server-side by the enact transition)."
           }
         },
         "x-openregister-relations": {
@@ -1419,7 +1469,9 @@
             "outcome": "adopted",
             "isPublished": "public",
             "publishedAt": "2025-04-11T09:00:00Z",
-            "legalBasis": "Gemeentewet art. 189"
+            "legalBasis": "Gemeentewet art. 189",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-04-11T09:00:00Z"
           },
           {
             "@self": {
@@ -1432,7 +1484,9 @@
             "decisionDate": "2025-04-10T21:05:00Z",
             "outcome": "adopted",
             "isPublished": "public",
-            "publishedAt": "2025-04-11T09:00:00Z"
+            "publishedAt": "2025-04-11T09:00:00Z",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-04-11T09:00:00Z"
           },
           {
             "@self": {
@@ -1445,7 +1499,8 @@
             "decisionDate": "2025-03-27T20:45:00Z",
             "outcome": "adopted",
             "isPublished": "internal",
-            "legalBasis": "Wet ruimtelijke ordening art. 3.1"
+            "legalBasis": "Wet ruimtelijke ordening art. 3.1",
+            "lifecycle": "decided"
           },
           {
             "@self": {
@@ -1459,7 +1514,9 @@
             "outcome": "adopted",
             "isPublished": "public",
             "publishedAt": "2025-03-21T09:00:00Z",
-            "legalBasis": "Wet ruimtelijke ordening art. 3.1"
+            "legalBasis": "Wet ruimtelijke ordening art. 3.1",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-03-21T09:00:00Z"
           },
           {
             "@self": {
@@ -1473,7 +1530,9 @@
             "outcome": "adopted",
             "isPublished": "public",
             "publishedAt": "2025-03-21T09:00:00Z",
-            "legalBasis": "Gemeentewet art. 147"
+            "legalBasis": "Gemeentewet art. 147",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-03-21T09:00:00Z"
           },
           {
             "@self": {
@@ -1486,7 +1545,8 @@
             "decisionDate": "2025-04-01T14:30:00Z",
             "outcome": "adopted",
             "isPublished": "confidential",
-            "legalBasis": "Algemene wet bestuursrecht art. 7:11"
+            "legalBasis": "Algemene wet bestuursrecht art. 7:11",
+            "lifecycle": "decided"
           },
           {
             "@self": {
@@ -1498,7 +1558,8 @@
             "text": "Het amendement tot verhoging van het cultuursubsidiebudget 2026 met €75.000 wordt niet aanvaard.",
             "decisionDate": "2025-04-10T21:00:00Z",
             "outcome": "rejected",
-            "isPublished": "internal"
+            "isPublished": "internal",
+            "lifecycle": "decided"
           },
           {
             "@self": {
@@ -1511,7 +1572,9 @@
             "decisionDate": "2025-04-10T20:30:00Z",
             "outcome": "adopted",
             "isPublished": "public",
-            "publishedAt": "2025-04-11T08:30:00Z"
+            "publishedAt": "2025-04-11T08:30:00Z",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-04-11T08:30:00Z"
           }
         ]
       },
@@ -4815,7 +4878,8 @@
               "signature",
               "notice-sent",
               "proxy-created",
-              "proxy-revoked"
+              "proxy-revoked",
+              "decision-transition"
             ]
           },
           "objectUids": {

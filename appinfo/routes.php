@@ -47,6 +47,11 @@ return [
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
 
+        // Decision lifecycle state machine (guarded transition map).
+        // @spec openspec/specs/decision-management/spec.md
+        ['name' => 'decision#transition',  'url' => '/api/decisions/{decisionId}/transition',  'verb' => 'POST'],
+        ['name' => 'decision#transitions', 'url' => '/api/decisions/{decisionId}/transitions', 'verb' => 'GET'],
+
         // Meeting lifecycle transitions (CRUD is handled by OpenRegister's object API directly).
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
 
@@ -130,10 +135,10 @@ return [
         ['name' => 'auditLog#export', 'url' => '/api/audit-log/export',         'verb' => 'GET'],
 
         // Board portal Phase 4 — eIDAS QES integration (task-3.3).
-        ['name' => 'EIDASSignature#initiate',     'url' => '/api/minutes/{minutesId}/eidas/initiate',  'verb' => 'POST'],
-        ['name' => 'EIDASSignature#verify',       'url' => '/api/minutes/{minutesId}/eidas/verify',    'verb' => 'POST'],
-        ['name' => 'EIDASSignature#finalize',     'url' => '/api/minutes/{minutesId}/eidas/finalize',  'verb' => 'POST'],
-        ['name' => 'EIDASSignature#validateCert', 'url' => '/api/eidas/validate-cert',                 'verb' => 'POST'],
+        ['name' => 'eIDASSignature#initiate',   'url' => '/api/minutes/{minutesId}/eidas/initiate',  'verb' => 'POST'],
+        ['name' => 'eIDASSignature#verify',     'url' => '/api/minutes/{minutesId}/eidas/verify',    'verb' => 'POST'],
+        ['name' => 'eIDASSignature#finalize',   'url' => '/api/minutes/{minutesId}/eidas/finalize',  'verb' => 'POST'],
+        ['name' => 'eIDASSignature#certStatus', 'url' => '/api/eidas/validate-cert',                 'verb' => 'POST'],
 
         // Board portal Phase 5 — Proxy voting (task-5.1).
         ['name' => 'proxyVote#register', 'url' => '/api/proxies',               'verb' => 'POST'],

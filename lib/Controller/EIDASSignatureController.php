@@ -196,7 +196,9 @@ class EIDASSignatureController extends Controller
     }//end finalize()
 
     /**
-     * Validate a certificate chain against the EU Trusted List.
+     * Report a certificate chain's trust status against the EU Trusted List
+     * (informational pre-flight for the signing UI — the authoritative chain
+     * validation happens server-side inside finalizeMinutes()).
      *
      * @NoAdminRequired
      *
@@ -205,7 +207,7 @@ class EIDASSignatureController extends Controller
      * @return JSONResponse
      */
     #[NoAdminRequired]
-    public function validateCert(): JSONResponse
+    public function certStatus(): JSONResponse
     {
         $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
@@ -231,5 +233,5 @@ class EIDASSignatureController extends Controller
             ]
         );
 
-    }//end validateCert()
+    }//end certStatus()
 }//end class

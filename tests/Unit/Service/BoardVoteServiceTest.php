@@ -171,6 +171,82 @@ class BoardVoteServiceTest extends TestCase
 
 
     /**
+     * Proxy votes without a proxyHolder are rejected.
+     *
+     * @return void
+     */
+    public function testCastProxyRequiresProxyHolder(): void
+    {
+        $votes   = [];
+        $audited = [];
+        $service = $this->makeService($votes, $audited);
+
+        $result = $service->cast('r1', 'm1', 'in-favor', ['voteMethod' => 'proxy']);
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('proxyHolder', $result['message']);
+        $this->assertSame([], $votes);
+
+    }//end testCastProxyRequiresProxyHolder()
+
+
+    /**
+     * Proxy votes are rejected when no ACTIVE proxy record exists from the
+     * grantor to the named holder (task-2.4 fail-closed gate).
+     *
+     * @return void
+     */
+    public function testCastProxyRejectsWithoutActiveProxyRecord(): void
+    {
+        // Store contains only a revoked proxy → gate must reject.
+        $votes   = [
+            [
+                'id'               => 'p1',
+                'grantorKoppeling' => 'm1',
+                'holderKoppeling'  => 'm2',
+                'status'           => 'revoked',
+            ],
+        ];
+        $audited = [];
+        $service = $this->makeService($votes, $audited);
+
+        $result = $service->cast('r1', 'm1', 'in-favor', ['voteMethod' => 'proxy', 'proxyHolder' => 'm2']);
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('active proxy', $result['message']);
+        $this->assertSame([], $audited);
+
+    }//end testCastProxyRejectsWithoutActiveProxyRecord()
+
+
+    /**
+     * Proxy votes persist when an ACTIVE proxy from grantor to holder exists.
+     *
+     * @return void
+     */
+    public function testCastProxyPersistsWithActiveProxyRecord(): void
+    {
+        $votes   = [
+            [
+                'id'               => 'p1',
+                'grantorKoppeling' => 'm1',
+                'holderKoppeling'  => 'm2',
+                'status'           => 'active',
+            ],
+        ];
+        $audited = [];
+        $service = $this->makeService($votes, $audited);
+
+        $result = $service->cast('r1', 'm1', 'in-favor', ['voteMethod' => 'proxy', 'proxyHolder' => 'm2']);
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('m2', $result['vote']['proxyHolder']);
+        $this->assertCount(1, $audited);
+
+    }//end testCastProxyPersistsWithActiveProxyRecord()
+
+
+    /**
      * tally() counts votes per enum.
      *
      * @return void

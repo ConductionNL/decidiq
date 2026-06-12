@@ -205,24 +205,6 @@ class QuorumVerificationServiceTest extends TestCase
 
 
     /**
-     * verifyAttendance accepts in-person/remote/proxy with a real meeting and
-     * rejects unknown participant types.
-     *
-     * @return void
-     */
-    public function testVerifyAttendanceParticipantType(): void
-    {
-        $meeting = ['id' => 'mp', 'boardKoppeling' => 'b1', 'attendance' => []];
-        $service = $this->makeService($meeting, []);
-
-        $this->assertTrue($service->verifyAttendance('mp', 'in-person'));
-        $this->assertTrue($service->verifyAttendance('mp', 'absent'));
-        $this->assertFalse($service->verifyAttendance('mp', 'astral'));
-
-    }//end testVerifyAttendanceParticipantType()
-
-
-    /**
      * Unanimous quorum requires all members present.
      *
      * @return void

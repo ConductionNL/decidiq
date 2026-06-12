@@ -48,6 +48,8 @@ import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
+import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
+import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
 
 /**
  * Wrap a Vue component into the v2 registry shape required by CnAppRoot's
@@ -112,4 +114,9 @@ export default {
 	AmendmentParentMotionTab: page(AmendmentParentMotionTab),
 	MinutesSignersTab: page(MinutesSignersTab),
 	DecisionActionItemsTab: page(DecisionActionItemsTab),
+	// Decision state machine (decision-state-machine-v1): lifecycle
+	// timeline + guarded transition buttons, and the read-only
+	// decision → motion → voting-round → vote results aggregate.
+	DecisionLifecycleTab: page(DecisionLifecycleTab),
+	DecisionVotingTab: page(DecisionVotingTab),
 }
