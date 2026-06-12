@@ -2,11 +2,119 @@
 	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Board portal Phase 8 manifest fragment — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments. Tracks openspec/changes/board-meeting-resolutions/tasks.md sections 4 + 8.",
 	"menu": [
+		{ "id": "BoardDashboard", "label": "Board dashboard", "icon": "icon-category-dashboard", "route": "BoardDashboard", "order": 14 },
 		{ "id": "Boards", "label": "Boards", "icon": "icon-group", "route": "BoardList", "order": 15 },
 		{ "id": "BoardMeetings", "label": "Board meetings", "icon": "icon-calendar-dark", "route": "BoardMeetingList", "order": 16 },
 		{ "id": "Resolutions", "label": "Resolutions", "icon": "icon-checkmark", "route": "ResolutionList", "order": 17 }
 	],
 	"pages": [
+		{
+			"id": "BoardDashboard",
+			"route": "/board-dashboard",
+			"type": "dashboard",
+			"title": "Board dashboard",
+			"_spec": "openspec/changes/board-meeting-resolutions/tasks.md#8.4",
+			"config": {
+				"widgets": [
+					{
+						"id": "board-meetings-this-quarter",
+						"type": "stats-block",
+						"title": "Board meetings this quarter",
+						"iconClass": "icon-calendar-dark",
+						"props": { "countLabel": "meetings", "variant": "primary" },
+						"dataSource": {
+							"register": "decidesk",
+							"schema": "boardMeeting",
+							"filter": { "scheduledStart": { "gte": "@quarterStart" } },
+							"aggregate": "count"
+						}
+					},
+					{
+						"id": "resolutions-this-quarter",
+						"type": "stats-block",
+						"title": "Resolutions adopted this quarter",
+						"iconClass": "icon-checkmark",
+						"props": { "countLabel": "resolutions", "variant": "success" },
+						"dataSource": {
+							"register": "decidesk",
+							"schema": "resolution",
+							"filter": { "status": "adopted", "decidedAt": { "gte": "@quarterStart" } },
+							"aggregate": "count"
+						}
+					},
+					{
+						"id": "attendance-current-quarter",
+						"type": "stats-block",
+						"title": "Average attendance this quarter",
+						"iconClass": "icon-user",
+						"props": { "countLabel": "%", "variant": "primary" },
+						"dataSource": {
+							"register": "decidesk",
+							"schema": "boardMeeting",
+							"filter": { "scheduledStart": { "gte": "@quarterStart" } },
+							"aggregate": "avg",
+							"field": "attendanceRate"
+						}
+					},
+					{
+						"id": "conflicts-active",
+						"type": "stats-block",
+						"title": "Active conflicts of interest",
+						"iconClass": "icon-error",
+						"props": { "countLabel": "conflicts", "variant": "warning" },
+						"dataSource": {
+							"register": "decidesk",
+							"schema": "conflictOfInterest",
+							"filter": { "actionTaken": { "in": ["recused-from-vote", "recused-from-discussion"] } },
+							"aggregate": "count"
+						}
+					},
+					{
+						"id": "independence-ratio-trend",
+						"type": "line-chart",
+						"title": "Independence ratio trend",
+						"_spec": "openspec/changes/board-meeting-resolutions/tasks.md#8.4 — independence ratio = (independent / total) board members over the last 8 quarters; sourced from BoardMember.independenceStatus rollup",
+						"dataSource": {
+							"register": "decidesk",
+							"schema": "boardMember",
+							"groupBy": "quarter",
+							"window": "8q",
+							"aggregate": "ratio",
+							"field": "independenceStatus",
+							"numeratorMatch": "independent"
+						}
+					},
+					{
+						"id": "attendance-per-member",
+						"type": "bar-chart",
+						"title": "Attendance trend per member",
+						"_spec": "openspec/changes/board-meeting-resolutions/tasks.md#8.4 — counts attended boardMeeting.participants[].present=true per member over the last 4 quarters",
+						"dataSource": {
+							"register": "decidesk",
+							"schema": "boardMeeting",
+							"groupBy": "participants.userId",
+							"window": "4q",
+							"aggregate": "countMatching",
+							"field": "participants.present",
+							"match": true
+						}
+					},
+					{
+						"id": "conflict-heat-map",
+						"type": "heatmap",
+						"title": "Conflict heat map (member x quarter)",
+						"_spec": "openspec/changes/board-meeting-resolutions/tasks.md#8.4 — conflictOfInterest count per declaredBy member per quarter; renders dense cells when a member has repeated declarations",
+						"dataSource": {
+							"register": "decidesk",
+							"schema": "conflictOfInterest",
+							"groupBy": ["declaredBy", "quarter"],
+							"window": "8q",
+							"aggregate": "count"
+						}
+					}
+				]
+			}
+		},
 		{
 			"id": "BoardList",
 			"route": "/boards",
