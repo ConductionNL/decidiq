@@ -65,12 +65,27 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </navigation>
     </navigations>
 
+    <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
+    <activity>
+        <settings>
+            <setting>OCA\Decidesk\Activity\GovernanceSetting</setting>
+        </settings>
+        <filters>
+            <filter>OCA\Decidesk\Activity\GovernanceFilter</filter>
+        </filters>
+        <providers>
+            <provider>OCA\Decidesk\Activity\DecideskProvider</provider>
+        </providers>
+    </activity>
+
     <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
     <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
     <background-jobs>
         <job>OCA\Decidesk\BackgroundJob\OverdueActionItemsJob</job>
         <!-- @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3 -->
         <job>OCA\Decidesk\BackgroundJob\TranslationQueueJob</job>
+        <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
+        <job>OCA\Decidesk\BackgroundJob\VotingDeadlineReminderJob</job>
     </background-jobs>
 
     <repair-steps>

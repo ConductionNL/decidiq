@@ -572,7 +572,21 @@
         "No motion is linked to this decision, so there are no voting results.": "No motion is linked to this decision, so there are no voting results.",
         "No votes recorded for this decision yet.": "No votes recorded for this decision yet.",
         "Loading voting results…": "Loading voting results…",
-        "Failed to load voting results.": "Failed to load voting results."
+        "Failed to load voting results.": "Failed to load voting results.",
+        "A governance event (decision, meeting, vote or resolution) happened in Decidesk": "A governance event (decision, meeting, vote or resolution) happened in Decidesk",
+        "Decidesk governance": "Decidesk governance",
+        "Decision \"%1$s\" was published": "Decision \"%1$s\" was published",
+        "Decision \"%1$s\" was recorded": "Decision \"%1$s\" was recorded",
+        "Decision {object} was published": "Decision {object} was published",
+        "Decision {object} was recorded": "Decision {object} was recorded",
+        "Meeting \"%1$s\" moved to \"%2$s\"": "Meeting \"%1$s\" moved to \"%2$s\"",
+        "Meeting {object} moved to \"%1$s\"": "Meeting {object} moved to \"%1$s\"",
+        "Other activities": "Other activities",
+        "Resolution": "Resolution",
+        "Resolution \"%1$s\" was adopted": "Resolution \"%1$s\" was adopted",
+        "Resolution {object} was adopted": "Resolution {object} was adopted",
+        "Voting opened on \"%1$s\"": "Voting opened on \"%1$s\"",
+        "Voting opened on {object}": "Voting opened on {object}"
     },
     "plurals": ""
 }

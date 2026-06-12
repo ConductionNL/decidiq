@@ -567,7 +567,21 @@
         "No motion is linked to this decision, so there are no voting results.": "Er is geen motie aan dit besluit gekoppeld, dus er zijn geen stemresultaten.",
         "No votes recorded for this decision yet.": "Nog geen stemmen vastgelegd voor dit besluit.",
         "Loading voting results…": "Stemresultaten laden…",
-        "Failed to load voting results.": "Laden van stemresultaten mislukt."
+        "Failed to load voting results.": "Laden van stemresultaten mislukt.",
+        "A governance event (decision, meeting, vote or resolution) happened in Decidesk": "Een bestuursgebeurtenis (besluit, vergadering, stemming of resolutie) vond plaats in Decidesk",
+        "Decidesk governance": "Decidesk bestuur",
+        "Decision \"%1$s\" was published": "Besluit \"%1$s\" is gepubliceerd",
+        "Decision \"%1$s\" was recorded": "Besluit \"%1$s\" is vastgelegd",
+        "Decision {object} was published": "Besluit {object} is gepubliceerd",
+        "Decision {object} was recorded": "Besluit {object} is vastgelegd",
+        "Meeting \"%1$s\" moved to \"%2$s\"": "Vergadering \"%1$s\" is overgegaan naar \"%2$s\"",
+        "Meeting {object} moved to \"%1$s\"": "Vergadering {object} is overgegaan naar \"%1$s\"",
+        "Other activities": "Overige activiteiten",
+        "Resolution": "Resolutie",
+        "Resolution \"%1$s\" was adopted": "Resolutie \"%1$s\" is aangenomen",
+        "Resolution {object} was adopted": "Resolutie {object} is aangenomen",
+        "Voting opened on \"%1$s\"": "Stemming geopend over \"%1$s\"",
+        "Voting opened on {object}": "Stemming geopend over {object}"
     },
     "plurals": ""
 }

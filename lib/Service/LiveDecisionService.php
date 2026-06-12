@@ -124,6 +124,21 @@ class LiveDecisionService
 
             $this->logger->info("Decision recorded in live mode for meeting $meetingId: $decisionSlug");
 
+            // Activity feed (fail-soft): a decision was recorded.
+            // @spec openspec/specs/nextcloud-integration/spec.md
+            try {
+                $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+                    subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_DECISION_RECORDED,
+                    title: (string) ($decision['title'] ?? $decisionSlug),
+                    status: (string) ($decision['outcome'] ?? ''),
+                    objectType: 'decision',
+                    objectUuid: (string) ($decision['id'] ?? ($decision['@self']['id'] ?? $decisionSlug)),
+                    segment: 'decisions'
+                );
+            } catch (\Throwable $activityError) {
+                $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+            }
+
             return $decisionSlug;
         } catch (Exception $e) {
             $this->logger->error("LiveDecisionService::recordDecision failed: ".$e->getMessage());
