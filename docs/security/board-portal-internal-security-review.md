@@ -202,7 +202,7 @@ Source, not a code change. **OK.**
 | R-1 | Low | Audit-trail | Add DB-level trigger OR document continuous `verify()` monitoring | YES — auditor to evaluate trigger approach |
 | R-2 | Low | RBAC | Default-deny semantic is already safe; document the `?? 'board-only'` fallback | NO — internal-review-cleared |
 | R-3 | Info | Audit-trail perf | Consider checkpoint-anchored verification for >10-year tenancies | NO — future work |
-| R-4 | **Medium** | EIDAS controller | Add `requireBoardMember($minutesId)` guard on `initializeSigningRequest` | YES — auditor to confirm severity |
+| R-4 | ~~Medium~~ **Remediated 2026-06-12** | EIDAS controller | `MinutesAuthorizationService::canInitiateSigning` guard added at `EIDASSignatureController::initiate`; returns 403 unless caller is a chair/vice-chair/secretary on the linked GovernanceBody. Service fails closed on any lookup failure. | YES — auditor to confirm scope/fix |
 | F-A1 | Info | Hash chain | Document PHP 8.3 insertion-order guarantee | NO |
 | F-A2 | Low | Hash chain | Extend canonical payload to include payload-hash | YES — auditor to confirm |
 | F-A3 | Info | Verify | Hard-fail on NULL currentHash | NO — internal-review-cleared |
@@ -215,19 +215,30 @@ Source, not a code change. **OK.**
 | F-C3 | Info | QSP | See F-A2 | YES |
 | F-C4 | Info | QSP | Document QSP-delegation trust model | NO — cleared |
 
-**Severity totals:** 0 critical, 0 high, 1 medium (R-4), 5 low, 7 info.
+**Severity totals:** 0 critical, 0 high, ~~1 medium (R-4)~~ → 0 medium after R-4 remediation, 5 low, 7 info.
 
 ## 8. Remediation tracking
 
-R-4 (medium) is the only finding this review proposes to address
+R-4 (medium) was the only finding this review proposed to address
 in-codebase before the external audit. F-A2 (low) is recommended for
 the same reason — it materially strengthens the hash-chain
-guarantee. Both are tracked as follow-up tasks rather than blockers
-for the external engagement.
+guarantee.
 
-- [ ] R-4 — add `requireBoardMember($minutesId)` guard on
-      `EIDASSignatureController::initialize` (and equivalent on
-      `notify`, `verify`, `dispatch` if they accept a `minutesId`).
+- [x] **R-4 — Remediated 2026-06-12.** Added
+      `lib/Service/MinutesAuthorizationService::canInitiateSigning(userId, minutesId)`
+      and wired the guard into `EIDASSignatureController::initiate`.
+      Walks Minutes → Meeting → GovernanceBody → Participants and allows
+      only chair/vice-chair/secretary on the linked body. Fails closed on
+      any lookup failure (opposite of the unsafe-auth-resolver
+      anti-pattern). Coverage: 9 controller tests (incl. new 403-deny
+      test that asserts `initializeSigningRequest` is NEVER called when
+      the guard denies) + 8 service tests (chair/secretary allow,
+      different-body deny, missing-record deny, empty-args deny,
+      throw-fails-closed). External auditor still asked to confirm scope
+      of fix (`verify`, `finalize`, `validateCert` deliberately left
+      authentication-only since they operate on already-existing
+      requestIds, not on opening a new signing flow — auditor may
+      recommend extending the guard there too).
 - [ ] F-A2 — extend `AuditLogService` canonical payload to include
       `hash('sha256', json_encode($payload))` so business-payload
       tampering is detectable.
