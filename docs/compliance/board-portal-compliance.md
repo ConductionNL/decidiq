@@ -195,3 +195,11 @@ A pragmatic check the corporate secretary can walk before every board cycle:
 
 This list is the input to the independent security audit (see §10.10 of the
 board-meeting-resolutions tasks file).
+
+An **internal partial security review** of the same surfaces (audit-trail
+immutability, RBAC, eIDAS QES integration) was authored in W33 and lives
+at `docs/security/board-portal-internal-security-review.md`. The internal
+review is NOT a substitute for the external audit — it exists to document
+the security posture while the external auditor engagement is still
+pending. §10.10 stays `[~]` until the external auditor's findings letter
+lands at `docs/compliance/audit-letters/`.
