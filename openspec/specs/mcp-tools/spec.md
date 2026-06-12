@@ -10,7 +10,7 @@ spec captures the tool catalogue, the contract for each tool's input schema, out
 schema, authorisation rule, and error envelope, plus the inline-citation `sources` array
 convention.
 
-## ADDED Requirements
+## Requirements
 
 ---
 
