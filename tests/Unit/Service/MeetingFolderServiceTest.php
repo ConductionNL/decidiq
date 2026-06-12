@@ -43,6 +43,14 @@ class MeetingFolderServiceTest extends TestCase
     private \ArrayObject $created;
 
     /**
+     * Files written by the fake folder node, in call order
+     * ('create:<name>:<content>' / 'overwrite:<name>:<content>').
+     *
+     * @var \ArrayObject<int, string>
+     */
+    private \ArrayObject $written;
+
+    /**
      * Build the service with a recording fake FileService and a stub
      * ObjectService returning the given governance body.
      *
@@ -231,4 +239,240 @@ class MeetingFolderServiceTest extends TestCase
         self::assertSame(expected: [], actual: $this->created->getArrayCopy());
 
     }//end testSkipsEmptyMeeting()
+
+    /**
+     * Build the service with a FileService fake whose createFolder returns a
+     * folder node recording newFile()/putContent() writes.
+     *
+     * @param array<string, string> $existingFiles Map fileName => content of
+     *                                             files that already exist in
+     *                                             every folder node
+     *
+     * @return MeetingFolderService
+     */
+    private function makeWritableService(array $existingFiles=[]): MeetingFolderService
+    {
+        $this->created = new \ArrayObject();
+        $this->written = new \ArrayObject();
+
+        $written = $this->written;
+
+        $folderNode = new class ($existingFiles, $written) {
+
+            /**
+             * @param array<string, string>     $existingFiles Pre-existing files
+             * @param \ArrayObject<int, string> $written       Recording list
+             */
+            public function __construct(private array $existingFiles, private \ArrayObject $written)
+            {
+            }
+
+            /**
+             * Return an existing file node or throw NotFoundException.
+             *
+             * @param string $name File name
+             *
+             * @return object
+             */
+            public function get(string $name): object
+            {
+                if (array_key_exists($name, $this->existingFiles) === false) {
+                    throw new \OCP\Files\NotFoundException($name);
+                }
+
+                $written = $this->written;
+                return new class ($name, $written) {
+
+                    /**
+                     * @param string                    $name    File name
+                     * @param \ArrayObject<int, string> $written Recording list
+                     */
+                    public function __construct(private string $name, private \ArrayObject $written)
+                    {
+                    }
+
+                    /**
+                     * Record an overwrite.
+                     *
+                     * @param string $content New content
+                     *
+                     * @return void
+                     */
+                    public function putContent(string $content): void
+                    {
+                        $this->written->append('overwrite:'.$this->name.':'.$content);
+
+                    }//end putContent()
+                };
+
+            }//end get()
+
+            /**
+             * Record a new file write.
+             *
+             * @param string $name    File name
+             * @param string $content File content
+             *
+             * @return void
+             */
+            public function newFile(string $name, string $content): void
+            {
+                $this->written->append('create:'.$name.':'.$content);
+
+            }//end newFile()
+        };
+
+        $created = $this->created;
+
+        $fileService = new class ($created, $folderNode) {
+
+            /**
+             * @param \ArrayObject<int, string> $created    Recording list
+             * @param object                    $folderNode The folder node fake
+             */
+            public function __construct(private \ArrayObject $created, private object $folderNode)
+            {
+            }
+
+            /**
+             * Record a created folder and return the folder node.
+             *
+             * @param string $path Folder path
+             *
+             * @return object
+             */
+            public function createFolder(string $path): object
+            {
+                $this->created->append($path);
+                return $this->folderNode;
+
+            }//end createFolder()
+        };
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('get')->willReturnCallback(
+            static function (string $id) use ($fileService) {
+                if (str_contains($id, 'FileService') === true) {
+                    return $fileService;
+                }
+
+                throw new \RuntimeException('Unexpected service: '.$id);
+            }
+        );
+
+        return new MeetingFolderService(
+            container: $container,
+            logger: $this->createMock(LoggerInterface::class),
+        );
+
+    }//end makeWritableService()
+
+    /**
+     * writeMeetingFile creates the tree, the subfolder, and the new file.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testWriteMeetingFileCreatesFileInSubfolder(): void
+    {
+        $service = $this->makeWritableService();
+
+        $path = $service->writeMeetingFile(
+            meeting: ['id' => 'meet-10', 'title' => 'Raadsvergadering', 'scheduledDate' => '2026-06-12T19:00:00Z'],
+            subfolder: 'Minutes',
+            fileName: 'Notulen v1.md',
+            content: '# Notulen'
+        );
+
+        self::assertSame(
+            expected: 'Decidesk/2026-06-12 Raadsvergadering/Minutes/Notulen v1.md',
+            actual: $path
+        );
+        self::assertContains(
+            needle: 'Decidesk/2026-06-12 Raadsvergadering/Minutes',
+            haystack: $this->created->getArrayCopy()
+        );
+        self::assertContains(
+            needle: 'create:Notulen v1.md:# Notulen',
+            haystack: $this->written->getArrayCopy()
+        );
+
+    }//end testWriteMeetingFileCreatesFileInSubfolder()
+
+    /**
+     * writeMeetingFile overwrites an existing file in place (putContent),
+     * so re-generation updates the document instead of duplicating it.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testWriteMeetingFileOverwritesExistingFile(): void
+    {
+        $service = $this->makeWritableService(existingFiles: ['Notulen v1.md' => 'old']);
+
+        $path = $service->writeMeetingFile(
+            meeting: ['id' => 'meet-11', 'title' => 'Raadsvergadering'],
+            subfolder: 'Minutes',
+            fileName: 'Notulen v1.md',
+            content: '# Nieuw'
+        );
+
+        self::assertNotNull(actual: $path);
+        self::assertContains(
+            needle: 'overwrite:Notulen v1.md:# Nieuw',
+            haystack: $this->written->getArrayCopy()
+        );
+
+    }//end testWriteMeetingFileOverwritesExistingFile()
+
+    /**
+     * writeMeetingFile sanitises unsafe characters in subfolder + file name.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testWriteMeetingFileSanitisesNames(): void
+    {
+        $service = $this->makeWritableService();
+
+        $path = $service->writeMeetingFile(
+            meeting: ['id' => 'meet-12', 'title' => 'Sync'],
+            subfolder: 'Min<utes>',
+            fileName: 'Doc: v1?.md',
+            content: 'x'
+        );
+
+        self::assertNotNull(actual: $path);
+        self::assertStringNotContainsString(needle: '<', haystack: $path);
+        self::assertStringNotContainsString(needle: '?', haystack: $path);
+        self::assertStringNotContainsString(needle: ':', haystack: substr($path, strlen('Decidesk/')));
+
+    }//end testWriteMeetingFileSanitisesNames()
+
+    /**
+     * writeMeetingFile fails soft (null) when the meeting folder tree
+     * cannot be built — Files unavailability never fatals.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testWriteMeetingFileFailsSoftWithoutMeetingFolder(): void
+    {
+        $service = $this->makeWritableService();
+
+        $path = $service->writeMeetingFile(
+            meeting: [],
+            subfolder: 'Minutes',
+            fileName: 'Notulen.md',
+            content: 'x'
+        );
+
+        self::assertNull(actual: $path);
+        self::assertSame(expected: [], actual: $this->written->getArrayCopy());
+
+    }//end testWriteMeetingFileFailsSoftWithoutMeetingFolder()
 }//end class

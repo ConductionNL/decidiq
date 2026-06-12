@@ -43,6 +43,17 @@ return [
         // @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6
         ['name' => 'minutes#submitForApproval',          'url' => '/api/minutes/{minutesId}/submit-for-approval',               'verb' => 'POST'],
 
+        // Minutes approval workflow + document generation (minutes-ui-v1).
+        // @spec openspec/specs/resolution-minutes/spec.md
+        ['name' => 'minutes#addCorrection',     'url' => '/api/minutes/{minutesId}/corrections',                  'verb' => 'POST'],
+        ['name' => 'minutes#resolveCorrection', 'url' => '/api/minutes/{minutesId}/corrections/{correctionId}',   'verb' => 'PUT'],
+        ['name' => 'minutes#reject',            'url' => '/api/minutes/{minutesId}/reject',                       'verb' => 'POST'],
+        ['name' => 'minutes#generateDocument',  'url' => '/api/minutes/{minutesId}/generate-document',            'verb' => 'POST'],
+
+        // Notarial proof package (minutes-ui-v1) — chair/secretary gated.
+        // @spec openspec/specs/resolution-minutes/spec.md
+        ['name' => 'meeting#proofPackage', 'url' => '/api/meetings/{id}/proof-package', 'verb' => 'POST'],
+
         // Decision endpoints — server-side publish enforces governance access control.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],

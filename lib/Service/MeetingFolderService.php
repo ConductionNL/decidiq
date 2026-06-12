@@ -125,6 +125,61 @@ class MeetingFolderService
     }//end ensureMeetingFolders()
 
     /**
+     * Write a file into a subfolder of a meeting's folder tree (fail-soft).
+     *
+     * Ensures the meeting folder tree exists (idempotent), resolves the
+     * requested subfolder node via the OpenRegister FileService, and writes
+     * the given content. An existing file with the same name is overwritten
+     * (putContent) so re-generation updates the document in place.
+     *
+     * @param array<string, mixed> $meeting   Meeting object payload
+     * @param string               $subfolder Subfolder name (e.g. 'Minutes')
+     * @param string               $fileName  File name including extension
+     * @param string               $content   File content (text or binary)
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return string|null The full file path on success, or null on failure
+     */
+    public function writeMeetingFile(array $meeting, string $subfolder, string $fileName, string $content): ?string
+    {
+        $meetingPath = $this->ensureMeetingFolders(meeting: $meeting);
+        if ($meetingPath === null) {
+            return null;
+        }
+
+        try {
+            $fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
+
+            $safeName   = $this->sanitize(name: $fileName);
+            $folderPath = $meetingPath.'/'.$this->sanitize(name: $subfolder);
+
+            // CreateFolder is idempotent and returns the (existing or new) Folder node.
+            $folderNode = $fileService->createFolder($folderPath);
+
+            try {
+                $existing = $folderNode->get($safeName);
+                $existing->putContent($content);
+            } catch (\OCP\Files\NotFoundException) {
+                $folderNode->newFile($safeName, $content);
+            }
+
+            $filePath = $folderPath.'/'.$safeName;
+            $this->logger->info('Decidesk: meeting file written', ['path' => $filePath]);
+            return $filePath;
+        } catch (\Throwable $e) {
+            // Fail soft, same posture as ensureMeetingFolders: document generation
+            // surfaces the failure to the caller (null), nothing fatals.
+            $this->logger->warning(
+                'Decidesk: meeting file write failed',
+                ['subfolder' => $subfolder, 'fileName' => $fileName, 'error' => $e->getMessage()]
+            );
+            return null;
+        }//end try
+
+    }//end writeMeetingFile()
+
+    /**
      * Resolve the governance-body display name from the meeting's relation.
      *
      * @param array<string, mixed> $meeting Meeting object payload
