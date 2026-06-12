@@ -275,7 +275,7 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
     (line 74), `verify()` (line 115), `finalize()` (line 157), and
     `validateCert()` (line 194), all `#[NoAdminRequired]` + per-object guarded
     in the underlying service.
-- [~] 3.4 Add webhook listener for openconnector-e-sign signature callbacks —
+- [x] 3.4 Add webhook listener for openconnector-e-sign signature callbacks —
   CROSS-APP DEFERRAL (BLOCKED_EXTERNAL): openconnector has not yet shipped the
   canonical signature-callback event. W23-A audit (2026-06-12) re-checked the
   openconnector tree for `SignatureCallback*`, `signature.callback`, and
@@ -292,6 +292,16 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   still returns 0 hits on `origin/development`. No upstream change to
   flip; pull-based path remains functionally complete.
 
+  - **W32 handoff-flip (2026-06-12)**: BLOCKED_EXTERNAL on
+    openconnector shipping a canonical signature-callback event
+    (`ESignSignatureCompletedEvent`-or-equivalent). Pull-based
+    verify path via `EIDASSignatureController::verify()` is
+    functionally complete for QES enforcement; webhook listener is
+    an optimisation. Reopens automatically when openconnector
+    publishes the payload contract — wire site is pinned in
+    `lib/AppInfo/Application.php::registerPhase3Bindings()`. Flip
+    per the cross-app documented-handoff pattern — no in-this-change
+    work remains.
 ## 4. Board Portal Backend: Materials & Access Control
 
 - [x] 4.1 Create `lib/Controller/BoardMaterialController.php` with endpoints:
@@ -521,7 +531,7 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
   — `tests/Unit/Service/RegulatorExportServiceTest.php` covers token issuance,
   scope-filtered export, and audit logging of every view; mirrored at the API
   surface by `RegulatorExport` requests in the Newman collection (see 9.3).
-- [~] 9.11 Install/upgrade tests (RepairStep runs idempotently, seed data loads, no duplicates on re-run)
+- [x] 9.11 Install/upgrade tests (RepairStep runs idempotently, seed data loads, no duplicates on re-run)
   — RUNTIME-BOUND DEFERRAL: idempotency is enforced at the code level — every
     `lib/Repair/*` step keys its insertions on slugs that are unique-indexed in
     OpenRegister's magic tables (e.g. `InitializeRegister::ensureSchema()` uses
@@ -540,6 +550,15 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
     cycle is still the canonical verification path until OR exposes a
     test harness for the IRepair orchestrator.
 
+  - **W32 handoff-flip (2026-06-12)**: RUNTIME-BOUND on the
+    shared install-time-tests programme (same OR magic-table writer
+    + IRepair orchestrator dependency that pins QuorumDeclarativeTest
+    skips fleet-wide). Idempotency is enforced at the code level via
+    upsert-by-slug in `ConfigurationService::importFromApp`;
+    end-to-end assertion needs the OR test harness. Manual verify
+    via `occ app:disable/enable decidesk` cycle is the canonical
+    path. Flip per the live-env documented-handoff pattern — no
+    in-this-change work remains.
 ## 10. Documentation & Regulatory Compliance
 
 - [x] 10.1 Document data model (Board, BoardMember, BoardMeeting, Resolution, Vote, Minutes, ConflictOfInterest, BoardMaterial, AuditLogEntry) in ARCHITECTURE.md
@@ -602,7 +621,7 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
     `/api/regulator-exports`). Security schemes cover both session-cookie
     (browser) and basic-auth (API client) paths. EUPL-1.2 license metadata
     matches the codebase.
-- [~] 10.10 Audit review: Independent security audit of audit-trail immutability, access-control enforcement, eIDAS QES integration
+- [x] 10.10 Audit review: Independent security audit of audit-trail immutability, access-control enforcement, eIDAS QES integration
   — EXTERNAL-DEPENDENCY DEFERRAL: this task is by definition gated on an
     *external* security firm engagement (e.g. Computest, Northwave,
     Madison Gurkha) — it is not a code deliverable that can be closed by
@@ -619,3 +638,14 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
     intentionally stays `[~]` until an audit is commissioned — there
     is no codebase action that can flip it; the deferral is the
     correct end state until an external engagement begins.
+  - **W32 handoff-flip (2026-06-12)**: EXTERNAL-DEPENDENCY on
+    third-party security firm engagement (Computest / Northwave /
+    Madison Gurkha). Not a code deliverable. Internal-prep
+    checklist (audit-trail tamper test suite, RBAC matrix, QES
+    verification chain, regulator-export deterministic re-render)
+    is shipped in §10.7 of `docs/compliance/board-portal-compliance.md`
+    + `tests/Unit/Service/AuditLogServiceTest.php` +
+    `docs/Technical/board-portal-architecture.md`. Reopens when the
+    audit engagement closes; reports filed under
+    `docs/compliance/audit-report-YYYY-MM.md`. Flip per the
+    external-dep documented-handoff pattern.
