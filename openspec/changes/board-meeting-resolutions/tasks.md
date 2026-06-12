@@ -621,7 +621,7 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
     `/api/regulator-exports`). Security schemes cover both session-cookie
     (browser) and basic-auth (API client) paths. EUPL-1.2 license metadata
     matches the codebase.
-- [x] 10.10 Audit review: Independent security audit of audit-trail immutability, access-control enforcement, eIDAS QES integration
+- [~] 10.10 Audit review: Independent security audit of audit-trail immutability, access-control enforcement, eIDAS QES integration
   — EXTERNAL-DEPENDENCY DEFERRAL: this task is by definition gated on an
     *external* security firm engagement (e.g. Computest, Northwave,
     Madison Gurkha) — it is not a code deliverable that can be closed by
@@ -649,3 +649,27 @@ audit) stay tracked for the `decidesk-board-portal-v1` umbrella.
     audit engagement closes; reports filed under
     `docs/compliance/audit-report-YYYY-MM.md`. Flip per the
     external-dep documented-handoff pattern.
+  - **W33 honesty revert (2026-06-12)**: the W23 + W32 handoff-flips
+    set the checkbox to `[x]` while the body text said the task
+    "intentionally stays `[~]` until an audit is commissioned." The
+    W33 audit (project-wide phantom-handoff investigation) caught the
+    inconsistency: no external auditor has ever been engaged, no audit
+    report exists, no auditor counterparty was ever named, so the
+    handoff cannot honestly be `[x]`. Checkbox reverted to `[~]`.
+    To avoid leaving §10.10 with zero deliverable while the external
+    audit remains pending, an **internal partial security review** has
+    been authored alongside this revert and lives at
+    `docs/security/board-portal-internal-security-review.md`. The
+    internal review walks STRIDE over the three security-load-bearing
+    surfaces (audit-trail immutability, RBAC, eIDAS QES delegation),
+    enumerates 14 findings (1 medium R-4, 5 low, 7 info, 1 mandatory
+    external — F-C1 QSP qualified-status), and explicitly flags that
+    it does NOT substitute for the independent third-party audit. The
+    medium finding R-4 (no per-board-member guard on
+    `EIDASSignatureController::initialize`) and low finding F-A2
+    (audit-log canonical payload omits business `payload` hash) are
+    tracked as follow-up tasks inside the review document. §10.10 will
+    flip to `[x]` only when an external auditor's findings letter
+    lands at `docs/compliance/audit-letters/`. Until then the honest
+    state is `[~]` with the internal review as the documented partial
+    deliverable.
