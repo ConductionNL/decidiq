@@ -49,18 +49,24 @@ class ProxyVoteServiceTest extends TestCase
     /**
      * Build a service wired to in-memory rows.
      *
-     * @param array<int, array<string, mixed>> &$rows  Existing rows
-     * @param array<int, array<string, mixed>> &$saved Captured saves
+     * @param array<int, array<string, mixed>> &$rows       Existing rows
+     * @param array<int, array<string, mixed>> &$saved      Captured saves
+     * @param int                              $maxProxies  Configured max_proxies_per_holder app config value
+     * @param bool                             $findAllFail When true the ObjectService::findAll() call throws (fail-closed path)
      *
      * @return ProxyVoteService
      */
-    private function makeService(array &$rows, array &$saved): ProxyVoteService
+    private function makeService(array &$rows, array &$saved, int $maxProxies=2, bool $findAllFail=false): ProxyVoteService
     {
         $rowsRef       = &$rows;
         $savedRef      = &$saved;
         $objectService = $this->createMock(ObjectService::class);
         $objectService->method('findAll')->willReturnCallback(
-            static function (array $config) use (&$rowsRef): array {
+            static function (array $config) use (&$rowsRef, $findAllFail): array {
+                if ($findAllFail === true) {
+                    throw new \RuntimeException('OpenRegister unavailable');
+                }
+
                 $out = [];
                 foreach ($rowsRef as $row) {
                     $matches = true;
@@ -119,8 +125,27 @@ class ProxyVoteServiceTest extends TestCase
             }
         );
 
+        $appConfig = $this->createMock(\OCP\IAppConfig::class);
+        $appConfig->method('getValueInt')->willReturnCallback(
+            static function (string $app, string $key, int $default=0) use ($maxProxies): int {
+                if ($app === 'decidesk' && $key === ProxyVoteService::MAX_PROXIES_CONFIG_KEY) {
+                    return $maxProxies;
+                }
+
+                return $default;
+            }
+        );
+
         $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willReturn($objectService);
+        $container->method('get')->willReturnCallback(
+            static function (string $id) use ($objectService, $appConfig): object {
+                if ($id === \OCP\IAppConfig::class) {
+                    return $appConfig;
+                }
+
+                return $objectService;
+            }
+        );
 
         $this->auditCalls = new \ArrayObject();
         $tracker          = $this->auditCalls;
@@ -315,6 +340,117 @@ class ProxyVoteServiceTest extends TestCase
         $this->assertSame('p-1', $activeOnly['proxies'][0]['id']);
 
     }//end testForMeetingReturnsRowsAndFilters()
+
+
+    /**
+     * register rejects a holder who already holds the maximum number of ACTIVE
+     * proxies in the meeting (per-member proxy limit, default 2).
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     *
+     * @return void
+     */
+    public function testRegisterRejectsHolderAtProxyCap(): void
+    {
+        $rows = [
+            ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+            ['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+        ];
+        $saved = [];
+        $svc   = $this->makeService($rows, $saved);
+
+        $result = $svc->register('m-1', 'g-3', 'h-1');
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('Maximum number of proxies reached', $result['message']);
+        $this->assertCount(0, $saved, 'No proxy row may be written when the cap is reached');
+
+    }//end testRegisterRejectsHolderAtProxyCap()
+
+
+    /**
+     * Non-active proxies (revoked/suspended/pending) and other meetings/holders
+     * do not count toward the cap.
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     *
+     * @return void
+     */
+    public function testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder(): void
+    {
+        $rows = [
+            ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+            ['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'revoked'],
+            ['id' => 'p-3', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-3', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'suspended'],
+            ['id' => 'p-4', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-4', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'pending-approval'],
+            ['id' => 'p-5', 'meetingKoppeling' => 'm-2', 'grantorKoppeling' => 'g-5', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+            ['id' => 'p-6', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-6', 'holderKoppeling' => 'h-2', 'proxyStatus' => 'active'],
+        ];
+        $saved = [];
+        $svc   = $this->makeService($rows, $saved);
+
+        $result = $svc->register('m-1', 'g-7', 'h-1');
+
+        $this->assertTrue($result['success'], 'Only 1 ACTIVE proxy in m-1 for h-1 — under the cap of 2');
+        $this->assertSame('pending-approval', $saved[0]['proxyStatus']);
+
+    }//end testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder()
+
+
+    /**
+     * The cap is configurable via app config decidesk/max_proxies_per_holder.
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     *
+     * @return void
+     */
+    public function testRegisterCapIsConfigurable(): void
+    {
+        $rows = [
+            ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+            ['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+        ];
+        $saved = [];
+
+        // Raised cap (3): the third proxy is accepted.
+        $svc    = $this->makeService($rows, $saved, 3);
+        $result = $svc->register('m-1', 'g-3', 'h-1');
+        $this->assertTrue($result['success']);
+
+        // A cap below 1 falls back to the default of 2 (never disables the limit).
+        $rows2  = [
+            ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+            ['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+        ];
+        $saved2 = [];
+        $svc2   = $this->makeService($rows2, $saved2, 0);
+        $result = $svc2->register('m-1', 'g-3', 'h-1');
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('Maximum number of proxies reached', $result['message']);
+
+    }//end testRegisterCapIsConfigurable()
+
+
+    /**
+     * Fail closed: when existing proxies cannot be counted, registration is rejected.
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     *
+     * @return void
+     */
+    public function testRegisterFailsClosedWhenProxyCountUnavailable(): void
+    {
+        $rows  = [];
+        $saved = [];
+        $svc   = $this->makeService($rows, $saved, 2, true);
+
+        $result = $svc->register('m-1', 'g-1', 'h-1');
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('registration refused', $result['message']);
+        $this->assertCount(0, $saved, 'No proxy row may be written when the count is unavailable');
+
+    }//end testRegisterFailsClosedWhenProxyCountUnavailable()
 
 
 }//end class

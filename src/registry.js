@@ -61,6 +61,7 @@ import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
+import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
@@ -163,6 +164,7 @@ export default {
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
 	MotionVotesTab: page(MotionVotesTab),
+	MotionVotingRoundTab: page(MotionVotingRoundTab),
 	AmendmentParentMotionTab: page(AmendmentParentMotionTab),
 	MinutesSignersTab: page(MinutesSignersTab),
 	DecisionActionItemsTab: page(DecisionActionItemsTab),

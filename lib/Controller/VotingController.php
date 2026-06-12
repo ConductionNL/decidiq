@@ -137,6 +137,60 @@ class VotingController extends Controller
     }//end requireChairOrSecretary()
 
     /**
+     * Require the current user to hold the CHAIR role (not secretary) for a meeting.
+     *
+     * Used for the chair's casting vote on a tied round (voting-system spec):
+     * a casting vote is the chair's personal prerogative, so the secretary does
+     * not suffice. Per-meeting check via ParticipantResolver::hasRole(); when the
+     * meeting cannot be resolved, falls back to the existing global
+     * chair_group/admin check. Fail closed: any failure yields a 403.
+     *
+     * @param string|null $meetingId UUID of the meeting to scope the role check (optional)
+     *
+     * @return JSONResponse|null A 403/401 response on failure, null when authorized
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     */
+    private function requireChair(?string $meetingId=null): ?JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $uid = $user->getUID();
+
+        if ($meetingId !== null) {
+            $authorized = $this->participantResolver->hasRole(
+                meetingId: $meetingId,
+                nextcloudUid: $uid,
+                roles: ['chair']
+            );
+            if ($authorized === false) {
+                return new JSONResponse(['message' => 'Chair role required for a casting vote'], Http::STATUS_FORBIDDEN);
+            }
+
+            return null;
+        }
+
+        // Fallback: global chair_group or system-admin check (existing pattern).
+        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
+
+        if ($chairGroup !== '') {
+            $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
+        } else {
+            $authorized = $this->groupManager->isAdmin($uid);
+        }
+
+        if ($authorized === false) {
+            return new JSONResponse(['message' => 'Chair role required for a casting vote'], Http::STATUS_FORBIDDEN);
+        }
+
+        return null;
+
+    }//end requireChair()
+
+    /**
      * Resolve the meeting UUID linked to a voting round via motion relations.
      *
      * @param string $votingRoundId The voting round UUID
@@ -180,11 +234,14 @@ class VotingController extends Controller
      *
      * POST /api/voting-rounds
      * Body: { "motionId": "uuid", "meetingId": "uuid", "votingMethod": "for-against-abstain",
-     *         "isSecret": false, "closedAt": null, "presetParticipantIds": ["uuid1", "uuid2"] }
+     *         "isSecret": false, "closedAt": null, "presetParticipantIds": ["uuid1", "uuid2"],
+     *         "voteThreshold": "simple-majority", "abstentionHandling": "exclude",
+     *         "tieBreakRule": "rejected", "revoteOfRound": "uuid|null" }
      *
      * @NoAdminRequired
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     * @spec openspec/specs/voting-system/spec.md
      *
      * @return JSONResponse
      */
@@ -223,6 +280,29 @@ class VotingController extends Controller
             return new JSONResponse(['message' => 'motionId and meetingId are required'], Http::STATUS_BAD_REQUEST);
         }
 
+        // Configurable voting rules (voting-system spec) — validate against the
+        // service enums up front so a bad value is a clean 400, never a 500.
+        $voteThreshold      = (string) ($params['voteThreshold'] ?? 'simple-majority');
+        $abstentionHandling = (string) ($params['abstentionHandling'] ?? 'exclude');
+        $tieBreakRule       = (string) ($params['tieBreakRule'] ?? 'rejected');
+
+        if (in_array($voteThreshold, VotingService::VOTE_THRESHOLDS, true) === false) {
+            return new JSONResponse(['message' => 'voteThreshold must be one of: '.implode(', ', VotingService::VOTE_THRESHOLDS)], Http::STATUS_BAD_REQUEST);
+        }
+
+        if (in_array($abstentionHandling, VotingService::ABSTENTION_MODES, true) === false) {
+            return new JSONResponse(['message' => 'abstentionHandling must be one of: '.implode(', ', VotingService::ABSTENTION_MODES)], Http::STATUS_BAD_REQUEST);
+        }
+
+        if (in_array($tieBreakRule, VotingService::TIE_BREAK_RULES, true) === false) {
+            return new JSONResponse(['message' => 'tieBreakRule must be one of: '.implode(', ', VotingService::TIE_BREAK_RULES)], Http::STATUS_BAD_REQUEST);
+        }
+
+        $revoteOfRoundId = null;
+        if (isset($params['revoteOfRound']) === true && is_string($params['revoteOfRound']) === true && $params['revoteOfRound'] !== '') {
+            $revoteOfRoundId = $params['revoteOfRound'];
+        }
+
         try {
             $round = $this->votingService->openVotingRound(
                 motionId: $motionId,
@@ -230,9 +310,15 @@ class VotingController extends Controller
                 votingMethod: $votingMethod,
                 isSecret: $isSecret,
                 closedAt: $closedAt,
-                presetParticipantIds: $presetParticipantIds
+                presetParticipantIds: $presetParticipantIds,
+                voteThreshold: $voteThreshold,
+                abstentionHandling: $abstentionHandling,
+                tieBreakRule: $tieBreakRule,
+                revoteOfRoundId: $revoteOfRoundId
             );
             return new JSONResponse($round, Http::STATUS_CREATED);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
@@ -305,13 +391,19 @@ class VotingController extends Controller
      * Close a VotingRound, optionally anonymising votes.
      *
      * POST /api/voting-rounds/{id}/close
-     * Body: { "anonymise": true|false }
+     * Body: { "anonymise": true|false, "chairCasting": "for"|"against" (optional) }
+     *
+     * When `chairCasting` is present it is the chair's casting vote resolving a
+     * tie under tieBreakRule 'chair-decides'. It requires the per-meeting CHAIR
+     * role (secretary does not suffice) and is refused on rounds with a
+     * different tie-break rule (fail closed in the service).
      *
      * @param string $id The voting round UUID
      *
      * @NoAdminRequired
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     * @spec openspec/specs/voting-system/spec.md
      *
      * @return JSONResponse
      */
@@ -328,11 +420,31 @@ class VotingController extends Controller
         $params    = $this->request->getParams();
         $anonymise = isset($params['anonymise']) && $params['anonymise'] === true;
 
+        $chairCasting = null;
+        if (isset($params['chairCasting']) === true && $params['chairCasting'] !== '') {
+            // The casting vote is the chair's personal prerogative — require the
+            // chair role specifically (fail closed; secretary may close, not cast).
+            $chairGuard = $this->requireChair(meetingId: $meetingId);
+            if ($chairGuard !== null) {
+                return $chairGuard;
+            }
+
+            $chairCasting = (string) $params['chairCasting'];
+            if (in_array($chairCasting, ['for', 'against'], true) === false) {
+                return new JSONResponse(['message' => 'chairCasting must be for or against'], Http::STATUS_BAD_REQUEST);
+            }
+        }
+
         try {
-            $round = $this->votingService->closeVotingRound(votingRoundId: $id, anonymise: $anonymise);
+            $round = $this->votingService->closeVotingRound(votingRoundId: $id, anonymise: $anonymise, chairCasting: $chairCasting);
             return new JSONResponse($round);
         } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+            // Casting-vote refusals are client errors; a missing round is a 404.
+            if (str_contains($e->getMessage(), 'not found') === true) {
+                return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+            }
+
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         }
 
     }//end close()
