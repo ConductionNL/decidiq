@@ -264,28 +264,28 @@ class EIDASSignatureControllerTest extends TestCase
 
 
     /**
-     * validateCert rejects an empty thumbprint.
+     * certStatus rejects an empty thumbprint.
      *
      * @return void
      */
-    public function testValidateCertRejectsEmptyThumbprint(): void
+    public function testCertStatusRejectsEmptyThumbprint(): void
     {
         $service    = $this->createMock(IEIDASSignatureService::class);
         $controller = $this->makeController($service, requestParams: []);
 
-        $response = $controller->validateCert();
+        $response = $controller->certStatus();
 
         $this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
 
-    }//end testValidateCertRejectsEmptyThumbprint()
+    }//end testCertStatusRejectsEmptyThumbprint()
 
 
     /**
-     * validateCert returns the service verdict on success.
+     * certStatus returns the service verdict on success.
      *
      * @return void
      */
-    public function testValidateCertReturnsServiceVerdict(): void
+    public function testCertStatusReturnsServiceVerdict(): void
     {
         $service = $this->createMock(IEIDASSignatureService::class);
         $service->method('validateCertificateChain')->willReturn(
@@ -299,14 +299,14 @@ class EIDASSignatureControllerTest extends TestCase
 
         $controller = $this->makeController($service, requestParams: ['certificateThumbprint' => 'thumb']);
 
-        $response = $controller->validateCert();
+        $response = $controller->certStatus();
 
         $this->assertSame(Http::STATUS_OK, $response->getStatus());
         $data = $response->getData();
         $this->assertTrue($data['valid']);
         $this->assertSame('CN=Example', $data['issuer']);
 
-    }//end testValidateCertReturnsServiceVerdict()
+    }//end testCertStatusReturnsServiceVerdict()
 
 
 }//end class

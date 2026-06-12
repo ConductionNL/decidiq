@@ -29,7 +29,6 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\RegulatorExportService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
@@ -71,13 +70,10 @@ class RegulatorExportController extends Controller
      * - scope (string: resolutions|minutes|audit-log, required)
      * - format (string: pdf|csv, default pdf)
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
      *
      * @return Response
      */
-    #[NoAdminRequired]
     public function generate(): Response
     {
         $deny = $this->requireAdmin();
@@ -126,13 +122,10 @@ class RegulatorExportController extends Controller
      *
      * @param string $id UUID of the persisted export record
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
      *
      * @return Response
      */
-    #[NoAdminRequired]
     public function download(string $id): Response
     {
         $deny = $this->requireAdmin();
@@ -170,13 +163,10 @@ class RegulatorExportController extends Controller
     /**
      * List previously generated exports for a board.
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
     public function index(): JSONResponse
     {
         $deny = $this->requireAdmin();

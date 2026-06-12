@@ -63,6 +63,7 @@ class AuditLogService
         'notice-sent',
         'proxy-created',
         'proxy-revoked',
+        'decision-transition',
     ];
 
     /**

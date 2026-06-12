@@ -142,7 +142,26 @@ class BoardMaterialController extends Controller
     #[NoAdminRequired]
     public function download(string $id): JSONResponse
     {
-        return $this->show(id: $id);
+        $auth = $this->requireUserOr401(session: $this->userSession);
+        if ($auth !== null) {
+            return $auth;
+        }
+
+        $boardMemberId = (string) $this->request->getParam('boardMemberId', '');
+        if ($boardMemberId === '') {
+            return new JSONResponse(['message' => "Missing required parameter 'boardMemberId'."], Http::STATUS_UNPROCESSABLE_ENTITY);
+        }
+
+        // Per-object authorization (OWASP A01 / ADR-005): the member must hold
+        // view access on THIS material; every attempt is audited.
+        $granted = $this->authService->canViewMaterial($boardMemberId, $id);
+        $this->authService->logMaterialAccess($boardMemberId, $id, $granted);
+
+        if ($granted === false) {
+            return new JSONResponse(['message' => 'Access denied.'], Http::STATUS_FORBIDDEN);
+        }
+
+        return new JSONResponse(['materialId' => $id, 'granted' => true]);
 
     }//end download()
 }//end class

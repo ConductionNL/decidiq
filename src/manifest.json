@@ -373,6 +373,7 @@
 				"schema": "decision",
 				"columns": [
 					{ "key": "title", "label": "Title", "widget": "link" },
+					{ "key": "lifecycle", "label": "Lifecycle", "widget": "badge" },
 					{ "key": "outcome", "label": "Outcome", "widget": "badge" },
 					{ "key": "decisionDate", "label": "Decision date", "formatter": "date" },
 					{ "key": "isPublished", "label": "Publication", "widget": "badge" },
@@ -396,7 +397,9 @@
 				"schema": "decision",
 				"sidebarTabs": [
 					{ "id": "overview",    "label": "Overview",    "icon": "icon-info",      "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
+					{ "id": "lifecycle",   "label": "Lifecycle",   "icon": "icon-timezone",  "component": "DecisionLifecycleTab",                      "order": 15 },
 					{ "id": "actionItems", "label": "Action items","icon": "icon-checkmark", "component": "DecisionActionItemsTab",                    "order": 20 },
+					{ "id": "voting",      "label": "Voting results", "icon": "icon-comment", "component": "DecisionVotingTab",                        "order": 30 },
 					{ "id": "audit",       "label": "Audit trail", "icon": "icon-history",   "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				]
 			}
