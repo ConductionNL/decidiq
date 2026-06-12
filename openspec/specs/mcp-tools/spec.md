@@ -1,10 +1,23 @@
-# mcp-tools Specification
+# Spec: Decidesk MCP Tools Provider
 
 ## Purpose
 @e2e exclude Pure PHP backend spec — all scenarios are server-side DI/service-layer contracts covered by PHPUnit (tests/Unit/Mcp/DecideskToolProviderTest.php and tests/Integration/Mcp/DecideskToolProviderIntegrationTest.php). No browser UI surface exists.
 
-TBD - created by archiving change decidesk-mcp-tools. Update Purpose after archive.
-## Requirements
+Decidesk implements `OCA\OpenRegister\Mcp\IMcpToolProvider` so the AI Chat Companion's
+tool dispatcher can offer decidesk capabilities — listing action items and meetings,
+reading meeting details, starting a meeting, and adding action items — to an LLM. This
+spec captures the tool catalogue, the contract for each tool's input schema, output
+schema, authorisation rule, and error envelope, plus the inline-citation `sources` array
+convention.
+
+## ADDED Requirements
+
+---
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- Capability: mcp-tools                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
 ### Requirement: REQ-DMCP-001 — Implement IMcpToolProvider
 
 The system SHALL provide a class `OCA\Decidesk\Mcp\DecideskToolProvider` that implements
@@ -196,7 +209,7 @@ The system SHALL reject `decidesk.startMeeting` calls that target a meeting whos
 current state is not `scheduled`. The provider SHALL return
 `{isError: true, error: 'invalid_state', message: '...'}` describing the actual state.
 On success the provider SHALL transition the meeting via the existing
-`MeetingService::startMeeting()` code path (no new lifecycle code), recording the
+`MeetingService::transition()` code path (no new lifecycle code), recording the
 transition in OpenRegister's audit trail.
 
 #### Scenario: Cannot start an already in-progress meeting
@@ -293,32 +306,31 @@ NOT duplicate business logic that already lives in `MeetingService`, `AgendaServ
 | Tool | Primary service | Notes |
 |---|---|---|
 | `listOpenActionItems` | `TaskService` | Filter `completed = false`, scope by user when `scope=mine`. |
-| `listRecentMeetings` | `MeetingService` | Visibility filter applied per current user. |
-| `getMeetingDetails` | `MeetingService` + `AgendaService` + `TaskService` | Compose agenda + decisions + action items into result. |
-| `startMeeting` | `MeetingService::startMeeting()` | Existing transition code path; provider only authorises and adapts the result. |
-| `addActionItem` | `TaskService::createForMeeting()` (or equivalent existing method) | Validate fields, delegate creation. |
+| `listRecentMeetings` | `ObjectService::findAll()` | `MeetingService` has no list helper; use OR's ObjectService with per-user visibility filter, date-desc sort. |
+| `getMeetingDetails` | `MeetingService` + `ObjectService` | Compose meeting + agenda items + decisions + action items via ObjectService findAll calls. |
+| `startMeeting` | `MeetingService::transition($uuid, 'open', $userId)` | Existing transition code path; provider only authorises and adapts the result. |
+| `addActionItem` | `TaskService::saveTask([...])` | Map inputSchema fields onto the task array; delegate creation. |
 
 #### Scenario: Provider delegates startMeeting to MeetingService
 - **GIVEN** the provider is invoked with a valid `decidesk.startMeeting` call
 - **WHEN** the provider passes authorisation and validation
-- **THEN** it calls `MeetingService::startMeeting()` exactly once with the resolved meeting
+- **THEN** it calls `MeetingService::transition()` exactly once with the resolved meeting
 - **AND** it does NOT directly mutate any OpenRegister object
 
 ---
 
-### Requirement: REQ-DMCP-009 — Composer dependency on openregister
+### Requirement: REQ-DMCP-009 — Interface resolution via runtime autoloader
 
-The system SHALL declare a composer dependency on `openregister/openregister` at the
-minimum version that publishes `OCA\OpenRegister\Mcp\IMcpToolProvider`. The dependency
-SHALL appear in `composer.json` under `require` (not `require-dev`) because the
-interface is referenced from production code in `lib/Mcp/DecideskToolProvider.php`.
+The provider MUST rely on Nextcloud's runtime autoloader to resolve
+`OCA\OpenRegister\Mcp\IMcpToolProvider`, consistent with how all existing decidesk
+controllers consume OpenRegister services (no `composer require` entry for openregister).
+A minimal interface stub SHALL be maintained at `tests/Stubs/Mcp/IMcpToolProvider.php`
+for unit-test environments where the full openregister runtime is unavailable.
 
-The existing test stub at `tests/Stubs/` SHALL be retained for unit-test scenarios where
-the full openregister runtime is unavailable.
-
-#### Scenario: composer.json declares the openregister requirement
+#### Scenario: Provider resolves interface without composer entry
 - **WHEN** `composer.json` is inspected
-- **THEN** `require` contains an entry for `openregister/openregister` with a version constraint that includes the `IMcpToolProvider` release
+- **THEN** `require` does NOT need a `openregister/openregister` entry (runtime autoloader handles resolution)
+- **AND** `tests/Stubs/Mcp/IMcpToolProvider.php` exists as a fallback for CI environments
 
 ---
 
@@ -341,7 +353,8 @@ The system SHALL ship the following automated tests:
 2. **Integration test** at `tests/Integration/Mcp/DecideskToolProviderIntegrationTest.php`
    exercising one full happy-path round-trip (e.g. `decidesk.startMeeting`) through the
    real Nextcloud DI container against a real Meeting fixture, asserting the post-call
-   state mutation and the structure of the returned payload.
+   state mutation and the structure of the returned payload. The test class MUST skip
+   when `class_exists(\OCA\OpenRegister\Mcp\McpToolsService::class) === false`.
 
 3. The `composer check:strict` script SHALL exit zero after this change.
 
@@ -353,4 +366,3 @@ The system SHALL ship the following automated tests:
 - **WHEN** `composer check:strict` is run after the change is applied
 - **THEN** the script exits with status 0
 - **AND** PHPCS, PHPMD, Psalm, PHPStan, and PHPUnit all report no issues attributable to the new code
-
