@@ -10,6 +10,12 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
+        // Member import (admin-only — AuthorizedAdminSetting on every method).
+        // @spec openspec/specs/admin-settings/spec.md
+        ['name' => 'memberImport#groups',       'url' => '/api/member-import/groups',                   'verb' => 'GET'],
+        ['name' => 'memberImport#groupMembers', 'url' => '/api/member-import/groups/{groupId}/members', 'verb' => 'GET'],
+        ['name' => 'memberImport#match',        'url' => '/api/member-import/match',                    'verb' => 'POST'],
+
         // Generic per-user preferences (used by shared nextcloud-vue widgets, e.g. CnSupportDialog).
         ['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
         ['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],
