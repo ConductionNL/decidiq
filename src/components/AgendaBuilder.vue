@@ -2,14 +2,18 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1
- @spec openspec/changes/p2-agenda-management/tasks.md#task-2.2
- @spec openspec/changes/p2-agenda-management/tasks.md#task-2.3
- @spec openspec/changes/p2-agenda-management/tasks.md#task-2.4
- @spec openspec/changes/p2-agenda-management/tasks.md#task-2.5
- @spec openspec/changes/p2-agenda-management/tasks.md#task-2.6
- @spec openspec/changes/p2-agenda-management/tasks.md#task-2.7
- @spec openspec/changes/p2-agenda-management/tasks.md#task-5.2
+ Agenda builder: drag-and-drop ordering, proposals, spokespersons,
+ recurring items, statutory ALV enforcement, and hierarchical sub-items.
+
+ Sub-items (additive `parentItem` on AgendaItem) render nested under
+ their parent; reordering keeps children grouped under their parent and
+ persists the flattened parent→children order through the existing
+ reorder endpoint. For `general_assembly` meetings a warning lists the
+ missing statutory ALV items (BW 2:38).
+
+ Dialogs live in src/dialogs/ per the modal-isolation rule (ADR-004).
+
+ @spec openspec/specs/agenda-management/spec.md
 -->
 <template>
 	<div class="agenda-builder" role="region" :aria-label="t('decidesk', 'Agenda builder')">
@@ -34,6 +38,19 @@
 				</NcButton>
 			</div>
 		</div>
+
+		<!-- Statutory ALV items warning (BW 2:38) -->
+		<NcNoteCard
+			v-if="missingStatutory.length > 0"
+			type="warning"
+			data-testid="statutory-items-warning">
+			<p>{{ t('decidesk', 'This general assembly agenda is missing legally required items:') }}</p>
+			<ul class="agenda-builder__statutory-list">
+				<li v-for="required in missingStatutory" :key="required.id">
+					{{ t('decidesk', required.label) }}
+				</li>
+			</ul>
+		</NcNoteCard>
 
 		<!-- Proposal inbox (chair only) -->
 		<div v-if="isChair && proposalItems.length > 0" class="agenda-builder__proposals">
@@ -62,191 +79,215 @@
 			</ul>
 		</div>
 
-		<!-- Drag-and-drop item list -->
+		<!-- Drag-and-drop tree list: top-level items with nested sub-items -->
 		<ol
 			ref="itemList"
 			class="agenda-builder__list"
 			role="list"
 			:aria-label="t('decidesk', 'Agenda items, drag to reorder')">
 			<li
-				v-for="(item, index) in sortedItems"
-				:key="item.id"
+				v-for="(node, index) in agendaTree"
+				:key="node.item.id"
 				class="agenda-builder__item"
 				:draggable="isChair"
 				role="listitem"
-				:aria-label="t('decidesk', 'Agenda item {n}: {title}', { n: item.orderNumber, title: item.title })"
+				:aria-label="t('decidesk', 'Agenda item {n}: {title}', { n: node.item.orderNumber, title: node.item.title })"
 				@dragstart="isChair ? onDragStart($event, index) : null"
 				@dragover.prevent="isChair ? onDragOver($event, index) : null"
 				@drop="isChair ? onDrop($event, index) : null"
 				@dragend="isChair ? onDragEnd() : null"
-				@keydown.up.prevent="moveUp(index)"
-				@keydown.down.prevent="moveDown(index)">
-				<span class="agenda-builder__item-order" aria-hidden="true">
-					{{ item.orderNumber }}
-				</span>
+				@keydown.up.prevent="moveTopLevel(index, -1)"
+				@keydown.down.prevent="moveTopLevel(index, 1)">
+				<div class="agenda-builder__item-row">
+					<span class="agenda-builder__item-order" aria-hidden="true">
+						{{ node.item.orderNumber }}
+					</span>
 
-				<CnStatusBadge
-					:status="item.itemType"
-					:aria-label="t('decidesk', 'Type: {type}', { type: item.itemType })" />
+					<CnStatusBadge
+						:status="node.item.itemType"
+						:aria-label="t('decidesk', 'Type: {type}', { type: node.item.itemType })" />
 
-				<span class="agenda-builder__item-title">{{ item.title }}</span>
+					<span class="agenda-builder__item-title">{{ node.item.title }}</span>
 
-				<span v-if="item.estimatedDuration" class="agenda-builder__item-duration">
-					{{ item.estimatedDuration }} {{ t('decidesk', 'min') }}
-				</span>
+					<span v-if="node.item.estimatedDuration" class="agenda-builder__item-duration">
+						{{ node.item.estimatedDuration }} {{ t('decidesk', 'min') }}
+					</span>
 
-				<!-- Spokesperson -->
-				<span v-if="getSpokesperson(item)" class="agenda-builder__item-spokesperson">
-					<NcUserBubble :user="getSpokesperson(item)" :show-user-status="false" />
-				</span>
+					<!-- Spokesperson -->
+					<span v-if="getSpokesperson(node.item)" class="agenda-builder__item-spokesperson">
+						<NcUserBubble :user="getSpokesperson(node.item)" :show-user-status="false" />
+					</span>
 
-				<!-- Attachment count -->
-				<span
-					v-if="(item.files || []).length > 0"
-					class="agenda-builder__item-attachments"
-					:aria-label="t('decidesk', '{n} attachment(s)', { n: (item.files || []).length })">
-					📎 {{ (item.files || []).length }}
-				</span>
+					<!-- Attachment count -->
+					<span
+						v-if="(node.item.files || []).length > 0"
+						class="agenda-builder__item-attachments"
+						:aria-label="t('decidesk', '{n} attachment(s)', { n: (node.item.files || []).length })">
+						📎 {{ (node.item.files || []).length }}
+					</span>
 
-				<!-- COI badge -->
-				<span
-					v-if="coiCount(item) > 0"
-					class="agenda-builder__item-coi"
-					:aria-label="t('decidesk', '{n} conflict of interest declaration(s)', { n: coiCount(item) })">
-					{{ t('decidesk', 'COI ({n})', { n: coiCount(item) }) }}
-				</span>
+					<!-- COI badge -->
+					<span
+						v-if="coiCount(node.item) > 0"
+						class="agenda-builder__item-coi"
+						:aria-label="t('decidesk', '{n} conflict of interest declaration(s)', { n: coiCount(node.item) })">
+						{{ t('decidesk', 'COI ({n})', { n: coiCount(node.item) }) }}
+					</span>
 
-				<!-- Spokesperson assignment (chair/secretary only) -->
-				<NcButton
-					v-if="isChair"
-					size="small"
-					:aria-label="t('decidesk', 'Assign spokesperson for {title}', { title: item.title })"
-					@click="openSpokespersonDialog(item)">
-					{{ getSpokesperson(item) ? t('decidesk', 'Change spokesperson') : t('decidesk', 'Assign spokesperson') }}
-				</NcButton>
+					<!-- Spokesperson assignment (chair/secretary only) -->
+					<NcButton
+						v-if="isChair"
+						size="small"
+						:aria-label="t('decidesk', 'Assign spokesperson for {title}', { title: node.item.title })"
+						@click="openSpokespersonDialog(node.item)">
+						{{ getSpokesperson(node.item) ? t('decidesk', 'Change spokesperson') : t('decidesk', 'Assign spokesperson') }}
+					</NcButton>
 
-				<!-- Move buttons (keyboard accessible) -->
-				<NcButton
-					v-if="isChair"
-					size="small"
-					:disabled="index === 0"
-					:aria-label="t('decidesk', 'Move {title} up', { title: item.title })"
-					@click="moveUp(index)">
-					↑
-				</NcButton>
-				<NcButton
-					v-if="isChair"
-					size="small"
-					:disabled="index === sortedItems.length - 1"
-					:aria-label="t('decidesk', 'Move {title} down', { title: item.title })"
-					@click="moveDown(index)">
-					↓
-				</NcButton>
+					<!-- Add sub-item (chair/secretary only) -->
+					<NcButton
+						v-if="isChair && !node.item.parentItem"
+						size="small"
+						data-testid="agenda-add-sub-item"
+						:aria-label="t('decidesk', 'Add sub-item under {title}', { title: node.item.title })"
+						@click="openAddSubItemDialog(node.item)">
+						{{ t('decidesk', 'Add sub-item') }}
+					</NcButton>
+
+					<!-- Move buttons (keyboard accessible) -->
+					<NcButton
+						v-if="isChair"
+						size="small"
+						:disabled="index === 0"
+						:aria-label="t('decidesk', 'Move {title} up', { title: node.item.title })"
+						@click="moveTopLevel(index, -1)">
+						↑
+					</NcButton>
+					<NcButton
+						v-if="isChair"
+						size="small"
+						:disabled="index === agendaTree.length - 1"
+						:aria-label="t('decidesk', 'Move {title} down', { title: node.item.title })"
+						@click="moveTopLevel(index, 1)">
+						↓
+					</NcButton>
+				</div>
+
+				<!-- Nested sub-items -->
+				<ol
+					v-if="node.children.length > 0"
+					class="agenda-builder__sublist"
+					role="list"
+					:aria-label="t('decidesk', 'Sub-items of {title}', { title: node.item.title })">
+					<li
+						v-for="(child, childIndex) in node.children"
+						:key="child.id"
+						class="agenda-builder__subitem"
+						data-testid="agenda-sub-item"
+						role="listitem"
+						:aria-label="t('decidesk', 'Sub-item: {title}', { title: child.title })"
+						@keydown.up.prevent="moveChild(index, childIndex, -1)"
+						@keydown.down.prevent="moveChild(index, childIndex, 1)">
+						<span class="agenda-builder__subitem-marker" aria-hidden="true">↳</span>
+
+						<CnStatusBadge
+							:status="child.itemType"
+							:aria-label="t('decidesk', 'Type: {type}', { type: child.itemType })" />
+
+						<span class="agenda-builder__item-title">{{ child.title }}</span>
+
+						<span v-if="child.estimatedDuration" class="agenda-builder__item-duration">
+							{{ child.estimatedDuration }} {{ t('decidesk', 'min') }}
+						</span>
+
+						<span v-if="getSpokesperson(child)" class="agenda-builder__item-spokesperson">
+							<NcUserBubble :user="getSpokesperson(child)" :show-user-status="false" />
+						</span>
+
+						<NcButton
+							v-if="isChair"
+							size="small"
+							:aria-label="t('decidesk', 'Assign spokesperson for {title}', { title: child.title })"
+							@click="openSpokespersonDialog(child)">
+							{{ getSpokesperson(child) ? t('decidesk', 'Change spokesperson') : t('decidesk', 'Assign spokesperson') }}
+						</NcButton>
+
+						<NcButton
+							v-if="isChair"
+							size="small"
+							:disabled="childIndex === 0"
+							:aria-label="t('decidesk', 'Move {title} up', { title: child.title })"
+							@click="moveChild(index, childIndex, -1)">
+							↑
+						</NcButton>
+						<NcButton
+							v-if="isChair"
+							size="small"
+							:disabled="childIndex === node.children.length - 1"
+							:aria-label="t('decidesk', 'Move {title} down', { title: child.title })"
+							@click="moveChild(index, childIndex, 1)">
+							↓
+						</NcButton>
+					</li>
+				</ol>
 			</li>
 		</ol>
 
 		<!-- Recurring items dialog -->
-		<NcDialog
+		<RecurringItemsDialog
 			v-if="showRecurringDialog"
-			:name="t('decidesk', 'Add recurring items')"
-			@closing="showRecurringDialog = false">
-			<template #default>
-				<ul v-if="recurringItems.length > 0" class="agenda-builder__recurring-list" role="list">
-					<li v-for="rItem in recurringItems"
-						:key="rItem.id"
-						class="agenda-builder__recurring-item"
-						role="listitem">
-						<NcCheckboxRadioSwitch
-							:checked="selectedRecurring.includes(rItem.id)"
-							@update:checked="toggleRecurring(rItem.id)">
-							{{ rItem.title }}
-						</NcCheckboxRadioSwitch>
-					</li>
-				</ul>
-				<p v-else>
-					{{ t('decidesk', 'No recurring agenda items found.') }}
-				</p>
-			</template>
-			<template #actions>
-				<NcButton :disabled="selectedRecurring.length === 0" @click="addSelectedRecurring">
-					{{ t('decidesk', 'Add selected') }}
-				</NcButton>
-			</template>
-		</NcDialog>
+			:recurring-items="recurringItems"
+			@add="addSelectedRecurring"
+			@close="showRecurringDialog = false" />
 
 		<!-- Propose item dialog -->
-		<NcDialog
+		<ProposeAgendaItemDialog
 			v-if="showProposeDialog"
-			:name="t('decidesk', 'Propose agenda item')"
-			@closing="showProposeDialog = false">
-			<template #default>
-				<p>{{ t('decidesk', 'Fill in the agenda item details. The chair will approve or reject your proposal.') }}</p>
-				<NcTextField
-					v-model="proposalTitle"
-					:label="t('decidesk', 'Title')"
-					:placeholder="t('decidesk', 'Agenda item title')"
-					required />
-				<NcTextArea
-					v-model="proposalDescription"
-					:label="t('decidesk', 'Description')"
-					:placeholder="t('decidesk', 'Describe the agenda item')" />
-			</template>
-			<template #actions>
-				<NcButton :disabled="!proposalTitle" @click="submitProposal">
-					{{ t('decidesk', 'Submit proposal') }}
-				</NcButton>
-			</template>
-		</NcDialog>
+			@submit="submitProposal"
+			@close="showProposeDialog = false" />
 
 		<!-- Spokesperson selector dialog -->
-		<NcDialog
+		<SpokespersonDialog
 			v-if="spokespersonDialog.open"
-			:name="t('decidesk', 'Assign spokesperson')"
-			@closing="spokespersonDialog.open = false">
-			<template #default>
-				<ul v-if="participants.length > 0" class="agenda-builder__participant-list" role="list">
-					<li v-for="p in participants"
-						:key="p.id"
-						class="agenda-builder__participant-item"
-						role="listitem">
-						<NcButton @click="assignSpokesperson(spokespersonDialog.item, p)">
-							{{ p.displayName }}
-						</NcButton>
-					</li>
-				</ul>
-				<p v-else>
-					{{ t('decidesk', 'No participants found.') }}
-				</p>
-				<NcButton
-					v-if="getSpokesperson(spokespersonDialog.item)"
-					type="error"
-					@click="removeSpokesperson(spokespersonDialog.item)">
-					{{ t('decidesk', 'Remove spokesperson') }}
-				</NcButton>
-			</template>
-		</NcDialog>
+			:participants="participants"
+			:has-spokesperson="!!getSpokesperson(spokespersonDialog.item)"
+			@assign="assignSpokesperson(spokespersonDialog.item, $event)"
+			@remove="removeSpokesperson(spokespersonDialog.item)"
+			@close="spokespersonDialog.open = false" />
+
+		<!-- Add sub-item dialog -->
+		<AddSubItemDialog
+			v-if="addSubItemDialog.open"
+			:parent-title="addSubItemDialog.parent ? addSubItemDialog.parent.title : ''"
+			@submit="createSubItem"
+			@close="addSubItemDialog.open = false" />
 	</div>
 </template>
 
 <script>
-import { NcButton, NcDialog, NcTextField, NcTextArea, NcCheckboxRadioSwitch, NcUserBubble } from '@nextcloud/vue'
+import { NcButton, NcNoteCard, NcUserBubble } from '@nextcloud/vue'
 import { CnStatusBadge } from '@conduction/nextcloud-vue'
 import { useObjectStore } from '../store/store.js'
+import AddSubItemDialog from '../dialogs/AddSubItemDialog.vue'
+import ProposeAgendaItemDialog from '../dialogs/ProposeAgendaItemDialog.vue'
+import RecurringItemsDialog from '../dialogs/RecurringItemsDialog.vue'
+import SpokespersonDialog from '../dialogs/SpokespersonDialog.vue'
+import { buildAgendaTree, flattenTree, missingStatutoryItems } from '../services/agendaRules.js'
 
 /**
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1
+ * @spec openspec/specs/agenda-management/spec.md
  */
 export default {
 	name: 'AgendaBuilder',
 
 	components: {
-		NcButton,
-		NcDialog,
-		NcTextField,
-		NcTextArea,
-		NcCheckboxRadioSwitch,
-		NcUserBubble,
+		AddSubItemDialog,
 		CnStatusBadge,
+		NcButton,
+		NcNoteCard,
+		NcUserBubble,
+		ProposeAgendaItemDialog,
+		RecurringItemsDialog,
+		SpokespersonDialog,
 	},
 
 	props: {
@@ -256,6 +297,8 @@ export default {
 		isChair: { type: Boolean, default: false },
 		/** Meeting lifecycle (scheduled/opened/paused/etc.) */
 		lifecycle: { type: String, default: 'scheduled' },
+		/** Meeting type — `general_assembly` activates statutory ALV enforcement */
+		meetingType: { type: String, default: '' },
 		/** Agenda items for this meeting */
 		items: { type: Array, default: () => [] },
 		/** Participants for spokesperson assignment */
@@ -274,25 +317,28 @@ export default {
 		return {
 			/** Items in current sort order (mutable copy) */
 			localItems: [],
-			/** Index of item being dragged */
+			/** Index of the top-level node being dragged */
 			dragIndex: null,
 			showRecurringDialog: false,
 			showProposeDialog: false,
-			proposalTitle: '',
-			proposalDescription: '',
-			selectedRecurring: [],
 			recurringItems: [],
 			spokespersonDialog: { open: false, item: null },
+			addSubItemDialog: { open: false, parent: null },
 		}
 	},
 
 	computed: {
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
-		sortedItems() {
-			return this.localItems.slice().sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
+		/** @spec openspec/specs/agenda-management/spec.md */
+		agendaTree() {
+			return buildAgendaTree(this.localItems.filter(i => i.status !== 'voorstel'))
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.2 */
+		/** @spec openspec/specs/agenda-management/spec.md */
+		missingStatutory() {
+			return missingStatutoryItems(this.meetingType, this.localItems)
+		},
+
+		/** @spec openspec/specs/agenda-management/spec.md */
 		totalDuration() {
 			return this.localItems.reduce((sum, item) => {
 				const d = item.estimatedDuration
@@ -300,17 +346,17 @@ export default {
 			}, 0)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.5 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		proposalItems() {
 			return this.localItems.filter(i => i.status === 'voorstel')
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.4 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		canEdit() {
 			return ['scheduled', 'opened'].includes(this.lifecycle)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.3 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		canShowRecurring() {
 			return true
 		},
@@ -320,7 +366,7 @@ export default {
 		items: {
 			immediate: true,
 			deep: true,
-			/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
+			/** @spec openspec/specs/agenda-management/spec.md */
 			handler(val) {
 				this.localItems = val ? val.slice() : []
 			},
@@ -329,10 +375,10 @@ export default {
 
 	methods: {
 		// -----------------------------------------------------------------------
-		// Drag-and-drop helpers
+		// Drag-and-drop helpers (top-level nodes; children follow their parent)
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		onDragStart(event, index) {
 			this.dragIndex = index
 			if (event.dataTransfer) {
@@ -340,52 +386,61 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		onDragOver(event, index) {
 			if (this.dragIndex === null || this.dragIndex === index) return
 			event.preventDefault()
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		onDrop(event, targetIndex) {
 			if (this.dragIndex === null || this.dragIndex === targetIndex) return
-			const reordered = this.sortedItems.slice()
-			const [moved] = reordered.splice(this.dragIndex, 1)
-			reordered.splice(targetIndex, 0, moved)
-			reordered.forEach((item, i) => { item.orderNumber = i + 1 })
-			this.localItems = reordered
+			const tree = this.agendaTree.slice()
+			const [moved] = tree.splice(this.dragIndex, 1)
+			tree.splice(targetIndex, 0, moved)
 			this.dragIndex = null
-			this.persistReorder()
+			this.applyTreeOrder(tree)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		onDragEnd() {
 			this.dragIndex = null
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.7 */
-		moveUp(index) {
-			if (index === 0) return
-			const reordered = this.sortedItems.slice()
-			;[reordered[index - 1], reordered[index]] = [reordered[index], reordered[index - 1]]
-			reordered.forEach((item, i) => { item.orderNumber = i + 1 })
-			this.localItems = reordered
-			this.persistReorder()
+		/** @spec openspec/specs/agenda-management/spec.md */
+		moveTopLevel(index, delta) {
+			const target = index + delta
+			if (target < 0 || target >= this.agendaTree.length) return
+			const tree = this.agendaTree.slice()
+			;[tree[index], tree[target]] = [tree[target], tree[index]]
+			this.applyTreeOrder(tree)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.7 */
-		moveDown(index) {
-			if (index >= this.sortedItems.length - 1) return
-			const reordered = this.sortedItems.slice()
-			;[reordered[index], reordered[index + 1]] = [reordered[index + 1], reordered[index]]
-			reordered.forEach((item, i) => { item.orderNumber = i + 1 })
-			this.localItems = reordered
-			this.persistReorder()
+		/** @spec openspec/specs/agenda-management/spec.md */
+		moveChild(parentIndex, childIndex, delta) {
+			const target = childIndex + delta
+			const tree = this.agendaTree.map(node => ({ item: node.item, children: node.children.slice() }))
+			const siblings = tree[parentIndex]?.children
+			if (!siblings || target < 0 || target >= siblings.length) return
+			;[siblings[childIndex], siblings[target]] = [siblings[target], siblings[childIndex]]
+			this.applyTreeOrder(tree)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.1 */
-		async persistReorder() {
-			const ids = this.sortedItems.map(i => i.id)
+		/**
+		 * Flatten the tree parent→children, renumber globally, and persist.
+		 *
+		 * @param {Array<object>} tree Reordered agenda tree.
+		 * @spec openspec/specs/agenda-management/spec.md
+		 */
+		applyTreeOrder(tree) {
+			const flat = flattenTree(tree)
+			flat.forEach((item, i) => { item.orderNumber = i + 1 })
+			this.localItems = flat.concat(this.proposalItems)
+			this.persistReorder(flat.map(i => i.id))
+		},
+
+		/** @spec openspec/specs/agenda-management/spec.md */
+		async persistReorder(ids) {
 			try {
 				const response = await fetch(
 					OC.generateUrl(`/apps/decidesk/api/agendas/${this.meetingId}/reorder`),
@@ -406,19 +461,51 @@ export default {
 		},
 
 		// -----------------------------------------------------------------------
+		// Sub-items
+		// -----------------------------------------------------------------------
+
+		/** @spec openspec/specs/agenda-management/spec.md */
+		openAddSubItemDialog(parent) {
+			this.addSubItemDialog = { open: true, parent }
+		},
+
+		/** @spec openspec/specs/agenda-management/spec.md */
+		async createSubItem(payload) {
+			const parent = this.addSubItemDialog.parent
+			if (!parent) return
+			const maxOrder = this.localItems.reduce((max, i) => Math.max(max, i.orderNumber ?? 0), 0)
+			try {
+				await this.objectStore.saveObject('agenda-item', {
+					title: payload.title,
+					itemType: payload.itemType,
+					estimatedDuration: payload.estimatedDuration,
+					parentItem: parent.id,
+					orderNumber: maxOrder + 1,
+					relations: { meeting: [{ id: this.meetingId }] },
+				})
+				this.$emit('item-updated', null)
+			} catch (e) {
+				console.error('Failed to create sub-item:', e)
+			} finally {
+				this.addSubItemDialog = { open: false, parent: null }
+			}
+		},
+
+		// -----------------------------------------------------------------------
 		// Spokesperson
 		// -----------------------------------------------------------------------
 
+		/** @spec openspec/specs/agenda-management/spec.md */
 		getSpokesperson(item) {
 			return item?.relations?.spokesperson?.[0]?.owner ?? null
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.6 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		openSpokespersonDialog(item) {
 			this.spokespersonDialog = { open: true, item }
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.6 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		async assignSpokesperson(item, participant) {
 			try {
 				await this.objectStore.saveObject('agenda-item', {
@@ -436,7 +523,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.6 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		async removeSpokesperson(item) {
 			try {
 				const relations = { ...(item.relations ?? {}) }
@@ -454,7 +541,7 @@ export default {
 		// COI badge
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-5.2 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		coiCount(item) {
 			const notes = item?.notes ?? []
 			return notes.filter(n => (n.title ?? '').startsWith('COI:')).length
@@ -464,7 +551,7 @@ export default {
 		// Recurring items
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.3 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		async loadRecurringItems() {
 			try {
 				const all = await this.objectStore.fetchCollection('agenda-item', { isRecurring: true })
@@ -474,22 +561,11 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.3 */
-		toggleRecurring(id) {
-			const idx = this.selectedRecurring.indexOf(id)
-			if (idx === -1) {
-				this.selectedRecurring.push(id)
-			} else {
-				this.selectedRecurring.splice(idx, 1)
-			}
-		},
+		/** @spec openspec/specs/agenda-management/spec.md */
+		async addSelectedRecurring(selectedIds) {
+			let order = this.localItems.length + 1
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.3 */
-		async addSelectedRecurring() {
-			const nextOrder = this.localItems.length + 1
-			let order = nextOrder
-
-			for (const srcId of this.selectedRecurring) {
+			for (const srcId of selectedIds) {
 				const src = this.recurringItems.find(r => r.id === srcId)
 				if (!src) continue
 
@@ -509,7 +585,6 @@ export default {
 			}
 
 			this.showRecurringDialog = false
-			this.selectedRecurring = []
 			this.$emit('item-updated', null)
 		},
 
@@ -517,7 +592,7 @@ export default {
 		// Proposal inbox (chair)
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.5 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		async approveProposal(item) {
 			const nextOrder = this.localItems.filter(i => i.status !== 'voorstel').length + 1
 			try {
@@ -532,7 +607,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.5 */
+		/** @spec openspec/specs/agenda-management/spec.md */
 		async rejectProposal(item) {
 			try {
 				await this.objectStore.saveObject('agenda-item', { ...item, status: 'afgewezen' })
@@ -546,19 +621,17 @@ export default {
 		// Submit proposal (all participants)
 		// -----------------------------------------------------------------------
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-2.4 */
-		async submitProposal() {
+		/** @spec openspec/specs/agenda-management/spec.md */
+		async submitProposal(payload) {
 			try {
 				await this.objectStore.saveObject('agenda-item', {
-					title: this.proposalTitle,
-					description: this.proposalDescription,
+					title: payload.title,
+					description: payload.description,
 					status: 'voorstel',
 					itemType: 'discussion',
 					orderNumber: 999,
 					relations: { meeting: [{ id: this.meetingId }] },
 				})
-				this.proposalTitle = ''
-				this.proposalDescription = ''
 				this.showProposeDialog = false
 				this.$emit('item-updated', null)
 			} catch (e) {
@@ -605,6 +678,12 @@ export default {
 	gap: var(--default-grid-baseline);
 }
 
+.agenda-builder__statutory-list {
+	margin: 0;
+	padding-inline-start: calc(var(--default-grid-baseline) * 4);
+	list-style: disc;
+}
+
 .agenda-builder__proposals {
 	border: 1px solid var(--color-border-dark);
 	border-radius: var(--border-radius);
@@ -620,8 +699,7 @@ export default {
 
 .agenda-builder__item {
 	display: flex;
-	align-items: center;
-	gap: calc(var(--default-grid-baseline) * 2);
+	flex-direction: column;
 	padding: var(--default-grid-baseline) 0;
 	border-bottom: 1px solid var(--color-border);
 	cursor: grab;
@@ -634,6 +712,31 @@ export default {
 .agenda-builder__item:focus-within {
 	outline: 2px solid var(--color-primary-element);
 	border-radius: var(--border-radius);
+}
+
+.agenda-builder__item-row {
+	display: flex;
+	align-items: center;
+	gap: calc(var(--default-grid-baseline) * 2);
+}
+
+.agenda-builder__sublist {
+	list-style: none;
+	margin: 0;
+	padding-inline-start: calc(var(--default-grid-baseline) * 8);
+}
+
+.agenda-builder__subitem {
+	display: flex;
+	align-items: center;
+	gap: calc(var(--default-grid-baseline) * 2);
+	padding: var(--default-grid-baseline) 0;
+	border-top: 1px dashed var(--color-border);
+}
+
+.agenda-builder__subitem-marker {
+	color: var(--color-text-maxcontrast);
+	font-weight: 700;
 }
 
 .agenda-builder__item-order {
@@ -665,17 +768,13 @@ export default {
 	font-size: calc(var(--default-font-size) * 0.875);
 }
 
-.agenda-builder__proposal-list,
-.agenda-builder__recurring-list,
-.agenda-builder__participant-list {
+.agenda-builder__proposal-list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.agenda-builder__proposal-item,
-.agenda-builder__recurring-item,
-.agenda-builder__participant-item {
+.agenda-builder__proposal-item {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -684,9 +783,7 @@ export default {
 	border-bottom: 1px solid var(--color-border);
 }
 
-.agenda-builder__proposal-item:last-child,
-.agenda-builder__recurring-item:last-child,
-.agenda-builder__participant-item:last-child {
+.agenda-builder__proposal-item:last-child {
 	border-bottom: none;
 }
 

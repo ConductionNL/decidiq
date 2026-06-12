@@ -216,8 +216,8 @@ class NotificationPreferenceService
      */
     public function getPreferenceWithDefaults(string $personId): array
     {
-        $pref             = $this->findPreference(personId: $personId);
-        $merged           = array_merge(self::DEFAULTS, ($pref ?? []));
+        $pref   = $this->findPreference(personId: $personId);
+        $merged = array_merge(self::DEFAULTS, ($pref ?? []));
         $merged['person'] = $personId;
 
         return $merged;
@@ -477,7 +477,7 @@ class NotificationPreferenceService
                 ['recipientId' => $recipientId, 'error' => $e->getMessage()]
             );
             return 0;
-        }
+        }//end try
 
     }//end sendEmail()
 }//end class

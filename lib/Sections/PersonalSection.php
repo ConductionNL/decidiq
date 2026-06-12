@@ -36,7 +36,6 @@ use OCP\Settings\IIconSection;
  */
 class PersonalSection implements IIconSection
 {
-
     /**
      * Constructor for PersonalSection.
      *

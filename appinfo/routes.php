@@ -72,6 +72,11 @@ return [
         // Meeting lifecycle transitions (CRUD is handled by OpenRegister's object API directly).
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
 
+        // Recurring series generation + document package assembly
+        // (meeting-agenda-gaps-v1). @spec openspec/specs/meeting-management/spec.md
+        ['name' => 'meeting#createSeries',    'url' => '/api/meetings/{id}/series',  'verb' => 'POST'],
+        ['name' => 'meeting#assemblePackage', 'url' => '/api/meetings/{id}/package', 'verb' => 'POST'],
+
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],

@@ -53,7 +53,6 @@ use Psr\Log\LoggerInterface;
  */
 class DecisionLifecycleService
 {
-
     /**
      * Constructor for DecisionLifecycleService.
      *
@@ -82,7 +81,7 @@ class DecisionLifecycleService
      *
      * @spec openspec/specs/decision-management/spec.md
      *
-     * @return array{success: bool, lifecycle: string|null, domain: string|null, actions: array<int, array<string, mixed>>, states: string[], message: string}
+     * @return array{success: bool, lifecycle: ?string, domain: ?string, actions: array<int, array<string, mixed>>, states: string[], message: string}
      */
     public function getAvailableTransitions(string $decisionId): array
     {

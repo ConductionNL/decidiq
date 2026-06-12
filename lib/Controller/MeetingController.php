@@ -26,6 +26,8 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidesk\Service\MeetingPackageService;
+use OCA\Decidesk\Service\MeetingSeriesService;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProofPackageService;
@@ -71,18 +73,22 @@ class MeetingController extends Controller
     /**
      * Constructor for MeetingController.
      *
-     * @param IRequest            $request             The HTTP request
-     * @param MeetingService      $meetingService      The meeting service
-     * @param IUserSession        $userSession         The user session
-     * @param IGroupManager       $groupManager        Group manager for the NC-admin fallback
-     * @param ParticipantResolver $participantResolver Meeting-role resolver (chair/secretary gate)
-     * @param ProofPackageService $proofPackageService Notarial proof package assembly
+     * @param IRequest              $request               The HTTP request
+     * @param MeetingService        $meetingService        The meeting service
+     * @param MeetingSeriesService  $meetingSeriesService  Recurring-series generation service
+     * @param MeetingPackageService $meetingPackageService Document package assembly service
+     * @param IUserSession          $userSession           The user session
+     * @param IGroupManager         $groupManager          Group manager for the NC-admin fallback
+     * @param ParticipantResolver   $participantResolver   Meeting-role resolver (chair/secretary gate)
+     * @param ProofPackageService   $proofPackageService   Notarial proof package assembly
      *
      * @return void
      */
     public function __construct(
         IRequest $request,
         private readonly MeetingService $meetingService,
+        private readonly MeetingSeriesService $meetingSeriesService,
+        private readonly MeetingPackageService $meetingPackageService,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
         private readonly ParticipantResolver $participantResolver,
@@ -206,4 +212,102 @@ class MeetingController extends Controller
         }//end try
 
     }//end proofPackage()
+
+    /**
+     * Generate a recurring meeting series from a recurrence pattern.
+     *
+     * Access control: OpenRegister ObjectService RBAC (see class docblock).
+     * The caller must be authenticated; read access to the template meeting is
+     * enforced by ObjectService::find() inside MeetingSeriesService (null →
+     * "Meeting not found" → 422), and instance creation goes through
+     * ObjectService::saveObject() which enforces write access.
+     *
+     * Expects JSON body: { "pattern": { "frequency": "daily|weekly|monthly",
+     * "interval": 1, "until": "YYYY-MM-DD", "exceptions": ["YYYY-MM-DD"] } }
+     *
+     * @param string $id UUID of the template meeting
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/specs/meeting-management/spec.md
+     *
+     * @return JSONResponse HTTP 200 with the series + created instances; 422 on invalid pattern or missing meeting
+     */
+    #[NoAdminRequired]
+    public function createSeries(string $id): JSONResponse
+    {
+        // Require authentication — anonymous callers are rejected before service call.
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $pattern = $this->request->getParam('pattern', null);
+        if (is_array($pattern) === false || count($pattern) === 0) {
+            return new JSONResponse(
+                ['message' => "Missing required parameter 'pattern'."],
+                Http::STATUS_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        // Per-object guard (OWASP A01 / ADR-005): MeetingSeriesService loads the
+        // template via ObjectService::find() — OpenRegister RBAC returns null for
+        // callers without read access, which surfaces as a 422 "Meeting not found".
+        $result = $this->meetingSeriesService->generateSeries(
+            meetingId: $id,
+            pattern: $pattern,
+            actor: $user->getUID()
+        );
+
+        if ($result['success'] === false) {
+            return new JSONResponse(
+                ['message' => $result['message']],
+                Http::STATUS_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        return new JSONResponse($result);
+
+    }//end createSeries()
+
+    /**
+     * Assemble the meeting document package (vergaderstukken).
+     *
+     * Access control: OpenRegister ObjectService RBAC (see class docblock).
+     * The caller must be authenticated; read access to the meeting is enforced
+     * by ObjectService::find() inside MeetingPackageService (null → "Meeting
+     * not found" → 422).
+     *
+     * @param string $id UUID of the meeting
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/specs/agenda-management/spec.md
+     *
+     * @return JSONResponse HTTP 200 with the package path + counts; 422 when the meeting is missing or Files is unavailable
+     */
+    #[NoAdminRequired]
+    public function assemblePackage(string $id): JSONResponse
+    {
+        // Require authentication — anonymous callers are rejected before service call.
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        // Per-object guard (OWASP A01 / ADR-005): MeetingPackageService loads the
+        // meeting via ObjectService::find() — OpenRegister RBAC returns null for
+        // callers without read access, which surfaces as a 422 "Meeting not found".
+        $result = $this->meetingPackageService->assemble(meetingId: $id, userId: $user->getUID());
+
+        if ($result['success'] === false) {
+            return new JSONResponse(
+                ['message' => $result['message']],
+                Http::STATUS_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        return new JSONResponse($result);
+
+    }//end assemblePackage()
 }//end class

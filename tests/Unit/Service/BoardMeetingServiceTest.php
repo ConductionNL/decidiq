@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\BoardMeetingService;
+use OCA\Decidesk\Service\BoardMemberService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\TestCase;
@@ -44,10 +45,11 @@ class BoardMeetingServiceTest extends TestCase
      *
      * @param array<string, array<string, mixed>> &$meetings Map of meetingId => meeting row
      * @param array<int, array<string, mixed>>    &$audited  Captured audit-log calls
+     * @param array<int, array<string, mixed>>    $members   Board members returned by listForBoard
      *
      * @return BoardMeetingService
      */
-    private function makeService(array &$meetings, array &$audited): BoardMeetingService
+    private function makeService(array &$meetings, array &$audited, array $members=[]): BoardMeetingService
     {
         $logger = $this->createMock(LoggerInterface::class);
 
@@ -88,7 +90,16 @@ class BoardMeetingServiceTest extends TestCase
             }
         );
 
-        return new BoardMeetingService($container, $logger, $auditLog);
+        $boardMembers = $this->createMock(BoardMemberService::class);
+        $boardMembers->method('listForBoard')->willReturn(
+            [
+                'success' => true,
+                'members' => $members,
+                'count'   => count($members),
+            ]
+        );
+
+        return new BoardMeetingService($container, $logger, $auditLog, $boardMembers);
 
     }//end makeService()
 
@@ -205,6 +216,152 @@ class BoardMeetingServiceTest extends TestCase
         $this->assertSame(['close'], $service->getAvailableActions('adjourned'));
 
     }//end testGetAvailableActions()
+
+
+    /**
+     * sendNotice writes one delivery entry per board member and reports the
+     * recipient count in the audit payload.
+     *
+     * @return void
+     */
+    public function testSendNoticeRecordsPerRecipientDeliveries(): void
+    {
+        $meetings = [
+            'm1' => [
+                'id'             => 'm1',
+                'status'         => 'scheduled',
+                'boardKoppeling' => 'b1',
+                'meetingDate'    => '2099-06-01',
+            ],
+        ];
+        $audited  = [];
+        $members  = [
+            ['id' => 'bm-1', 'displayName' => 'Janneke de Bruin', 'role' => 'chairman'],
+            ['id' => 'bm-2', 'displayName' => 'Klaas Mulder', 'role' => 'member'],
+        ];
+        $service  = $this->makeService($meetings, $audited, $members);
+
+        $result = $service->sendNotice('m1', 'alice');
+
+        $this->assertTrue($result['success']);
+
+        $deliveries = $meetings['m1']['noticeDeliveries'];
+        $this->assertCount(2, $deliveries);
+        $this->assertSame('bm-1', $deliveries[0]['recipient']);
+        $this->assertSame('Janneke de Bruin', $deliveries[0]['displayName']);
+        $this->assertSame('chairman', $deliveries[0]['role']);
+        $this->assertSame('portal', $deliveries[0]['channel']);
+        $this->assertSame('sent', $deliveries[0]['status']);
+        $this->assertNotEmpty($deliveries[0]['sentAt']);
+        $this->assertSame('bm-2', $deliveries[1]['recipient']);
+
+        $this->assertSame($deliveries, $result['deliveries']);
+
+        // Audit entry carries the recipient count.
+        $this->assertCount(1, $audited);
+        $this->assertSame('notice-sent', $audited[0]['action']);
+        $this->assertSame(2, $audited[0]['payload']['recipients']);
+
+        // Far-future meeting: no deadline warnings.
+        $this->assertSame([], $result['warnings']);
+
+    }//end testSendNoticeRecordsPerRecipientDeliveries()
+
+
+    /**
+     * getNoticeDeadlineInfo: comfortable lead time produces no warnings.
+     *
+     * @return void
+     */
+    public function testNoticeDeadlineComfortable(): void
+    {
+        $meetings = [];
+        $audited  = [];
+        $service  = $this->makeService($meetings, $audited);
+
+        $info = $service->getNoticeDeadlineInfo(
+            ['meetingDate' => '2026-06-01', 'noticePeriodDays' => 15],
+            new \DateTimeImmutable('2026-05-10 09:00:00', new \DateTimeZone('UTC'))
+        );
+
+        $this->assertSame('2026-05-17', $info['deadline']);
+        $this->assertSame(7, $info['daysUntilDeadline']);
+        $this->assertSame([], $info['warnings']);
+
+    }//end testNoticeDeadlineComfortable()
+
+
+    /**
+     * getNoticeDeadlineInfo: sending within 3 days of the deadline warns.
+     *
+     * @return void
+     */
+    public function testNoticeDeadlineWithinThreeDaysWarns(): void
+    {
+        $meetings = [];
+        $audited  = [];
+        $service  = $this->makeService($meetings, $audited);
+
+        $info = $service->getNoticeDeadlineInfo(
+            ['meetingDate' => '2026-06-01', 'noticePeriodDays' => 15],
+            new \DateTimeImmutable('2026-05-15 09:00:00', new \DateTimeZone('UTC'))
+        );
+
+        $this->assertSame(2, $info['daysUntilDeadline']);
+        $this->assertCount(1, $info['warnings']);
+        $this->assertStringContainsString('within 3 day(s)', $info['warnings'][0]);
+
+    }//end testNoticeDeadlineWithinThreeDaysWarns()
+
+
+    /**
+     * getNoticeDeadlineInfo: sending after the deadline produces the
+     * after-deadline warning (not the within-3-days one).
+     *
+     * @return void
+     */
+    public function testNoticeDeadlinePassedWarns(): void
+    {
+        $meetings = [];
+        $audited  = [];
+        $service  = $this->makeService($meetings, $audited);
+
+        $info = $service->getNoticeDeadlineInfo(
+            ['meetingDate' => '2026-06-01', 'noticePeriodDays' => 15],
+            new \DateTimeImmutable('2026-05-20 09:00:00', new \DateTimeZone('UTC'))
+        );
+
+        $this->assertSame(-3, $info['daysUntilDeadline']);
+        $this->assertCount(1, $info['warnings']);
+        $this->assertStringContainsString('already passed', $info['warnings'][0]);
+
+    }//end testNoticeDeadlinePassedWarns()
+
+
+    /**
+     * getNoticeDeadlineInfo defaults the notice period to 15 days and
+     * degrades gracefully without a meeting date.
+     *
+     * @return void
+     */
+    public function testNoticeDeadlineDefaultsAndMissingDate(): void
+    {
+        $meetings = [];
+        $audited  = [];
+        $service  = $this->makeService($meetings, $audited);
+
+        $defaulted = $service->getNoticeDeadlineInfo(
+            ['meetingDate' => '2026-06-01'],
+            new \DateTimeImmutable('2026-05-01 09:00:00', new \DateTimeZone('UTC'))
+        );
+        $this->assertSame('2026-05-17', $defaulted['deadline']);
+
+        $missing = $service->getNoticeDeadlineInfo([], new \DateTimeImmutable('2026-05-01', new \DateTimeZone('UTC')));
+        $this->assertNull($missing['deadline']);
+        $this->assertNull($missing['daysUntilDeadline']);
+        $this->assertSame([], $missing['warnings']);
+
+    }//end testNoticeDeadlineDefaultsAndMissingDate()
 
 
 }//end class

@@ -93,7 +93,7 @@ class NotificationPreferenceController extends Controller
             return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
         }
 
-        $pref                 = $this->preferenceService->getPreferenceWithDefaults($user->getUID());
+        $pref = $this->preferenceService->getPreferenceWithDefaults($user->getUID());
         $pref['accountEmail'] = $user->getEMailAddress();
 
         return new JSONResponse($pref);
@@ -141,7 +141,7 @@ class NotificationPreferenceController extends Controller
             return new JSONResponse(['message' => $error], Http::STATUS_UNPROCESSABLE_ENTITY);
         }
 
-        $pref                 = $this->preferenceService->updatePreference($user->getUID(), $changes);
+        $pref = $this->preferenceService->updatePreference($user->getUID(), $changes);
         $pref['accountEmail'] = $user->getEMailAddress();
         return new JSONResponse($pref);
 
@@ -259,11 +259,17 @@ class NotificationPreferenceController extends Controller
         }
 
         if ($from !== null) {
-            $changes['delegationFrom'] = ((string) $from === '') ? null : (string) $from;
+            $changes['delegationFrom'] = (string) $from;
+            if ($changes['delegationFrom'] === '') {
+                $changes['delegationFrom'] = null;
+            }
         }
 
         if ($until !== null) {
-            $changes['delegationUntil'] = ((string) $until === '') ? null : (string) $until;
+            $changes['delegationUntil'] = (string) $until;
+            if ($changes['delegationUntil'] === '') {
+                $changes['delegationUntil'] = null;
+            }
         }
 
         return null;

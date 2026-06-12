@@ -37,7 +37,6 @@ use OCP\IURLGenerator;
  */
 class GovernanceFilter implements IFilter
 {
-
     /**
      * Constructor.
      *

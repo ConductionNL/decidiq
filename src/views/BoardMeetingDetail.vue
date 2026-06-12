@@ -34,6 +34,28 @@
 					<div><dt>{{ t('decidesk', 'Quorum required') }}</dt><dd>{{ meeting.quorumRequired || '—' }}</dd></div>
 				</dl>
 
+				<!-- Statutory convocation deadline warning (BW 2:225 / BW 2:38) -->
+				<NcNoteCard
+					v-if="canSendNotice && deadlineInfo.level !== 'ok' && deadlineInfo.level !== 'unknown'"
+					:type="deadlineInfo.level === 'overdue' ? 'error' : 'warning'"
+					data-testid="board-meeting-deadline-warning">
+					<template v-if="deadlineInfo.level === 'overdue'">
+						{{ t('decidesk', 'The statutory notice deadline ({deadline}) has already passed.', { deadline: deadlineInfo.deadline }) }}
+					</template>
+					<template v-else>
+						{{ t('decidesk', 'The statutory notice deadline ({deadline}) is {n} day(s) away.', { deadline: deadlineInfo.deadline, n: deadlineInfo.daysUntilDeadline }) }}
+					</template>
+				</NcNoteCard>
+
+				<!-- Server-side warnings returned by the send-notice call -->
+				<NcNoteCard
+					v-for="(warning, i) in sendWarnings"
+					:key="`warning-${i}`"
+					type="warning"
+					data-testid="board-meeting-send-warning">
+					{{ warning }}
+				</NcNoteCard>
+
 				<div class="meeting-detail__actions">
 					<NcButton
 						v-if="canSendNotice"
@@ -44,6 +66,34 @@
 						{{ t('decidesk', 'Send notice') }}
 					</NcButton>
 				</div>
+
+				<!-- Per-recipient convocation delivery tracking -->
+				<section
+					v-if="deliveries.length > 0"
+					class="meeting-detail__deliveries"
+					data-testid="board-meeting-deliveries">
+					<h3>{{ t('decidesk', 'Notice deliveries ({n})', { n: deliveries.length }) }}</h3>
+					<table class="meeting-detail__delivery-table">
+						<thead>
+							<tr>
+								<th>{{ t('decidesk', 'Recipient') }}</th>
+								<th>{{ t('decidesk', 'Role') }}</th>
+								<th>{{ t('decidesk', 'Channel') }}</th>
+								<th>{{ t('decidesk', 'Status') }}</th>
+								<th>{{ t('decidesk', 'Sent at') }}</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="delivery in deliveries" :key="delivery.recipient">
+								<td>{{ delivery.displayName || delivery.recipient }}</td>
+								<td>{{ delivery.role || '—' }}</td>
+								<td>{{ delivery.channel }}</td>
+								<td><span class="meeting-detail__badge">{{ delivery.status }}</span></td>
+								<td>{{ delivery.sentAt }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
 			</header>
 
 			<section class="meeting-detail__agenda" data-testid="board-meeting-agenda">
@@ -100,6 +150,8 @@ import { generateUrl } from '@nextcloud/router'
 import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
 import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import NcNoteCard from '@nextcloud/vue/dist/Components/NcNoteCard.js'
+import { getNoticeDeadlineInfo } from '../services/noticeRules.js'
 
 export default {
 	name: 'BoardMeetingDetail',
@@ -108,6 +160,7 @@ export default {
 		NcButton,
 		NcEmptyContent,
 		NcLoadingIcon,
+		NcNoteCard,
 	},
 
 	props: {
@@ -125,6 +178,7 @@ export default {
 			resolutions: [],
 			minutes: [],
 			actionInProgress: false,
+			sendWarnings: [],
 		}
 	},
 
@@ -137,6 +191,27 @@ export default {
 		canSendNotice() {
 			return this.meeting && this.meeting.status === 'scheduled'
 		},
+
+		/**
+		 * Pre-send statutory deadline hint (mirror of
+		 * BoardMeetingService::getNoticeDeadlineInfo — the server is authoritative).
+		 *
+		 * @spec openspec/specs/meeting-management/spec.md
+		 * @return {object} `{deadline, daysUntilDeadline, level}`.
+		 */
+		deadlineInfo() {
+			return getNoticeDeadlineInfo(this.meeting || {})
+		},
+
+		/**
+		 * Per-recipient convocation delivery entries recorded at send time.
+		 *
+		 * @spec openspec/specs/meeting-management/spec.md
+		 * @return {Array<object>} Delivery entries (possibly empty).
+		 */
+		deliveries() {
+			return Array.isArray(this.meeting?.noticeDeliveries) ? this.meeting.noticeDeliveries : []
+		},
 	},
 
 	async mounted() {
@@ -145,8 +220,10 @@ export default {
 
 	methods: {
 		/**
-		 * Fetch the meeting + agenda + resolutions + minutes in parallel.
+		 * Fetch the meeting + agenda + resolutions + minutes in parallel,
+		 * with an OR object-API fallback for the meeting itself.
 		 *
+		 * @spec openspec/specs/meeting-management/spec.md
 		 * @return {Promise<void>}
 		 */
 		async fetchAll() {
@@ -158,18 +235,46 @@ export default {
 					fetch(generateUrl(`/apps/decidesk/api/board-meetings/${this.id}/resolutions`), { headers: { Accept: 'application/json', requesttoken: OC.requestToken } }),
 					fetch(generateUrl(`/apps/decidesk/api/board-meetings/${this.id}/minutes`), { headers: { Accept: 'application/json', requesttoken: OC.requestToken } }),
 				])
-				const meetingData = await meetingResp.json()
-				this.meeting = meetingData?.meeting || meetingData?.result || null
-				const agendaData = await agendaResp.json()
+				if (meetingResp.ok) {
+					const meetingData = await meetingResp.json()
+					this.meeting = meetingData?.meeting || meetingData?.result || null
+				}
+				if (!this.meeting) {
+					// Fallback: the dedicated GET route is not registered — read
+					// the board-meeting straight from OpenRegister's object API
+					// (RBAC is enforced server-side by OpenRegister).
+					this.meeting = await this.fetchMeetingFromObjectApi()
+				}
+				const agendaData = await agendaResp.json().catch(() => null)
 				this.agendaItems = Array.isArray(agendaData?.items) ? agendaData.items : (agendaData?.results || [])
-				const resolutionsData = await resolutionsResp.json()
+				const resolutionsData = await resolutionsResp.json().catch(() => null)
 				this.resolutions = Array.isArray(resolutionsData?.resolutions) ? resolutionsData.resolutions : (resolutionsData?.results || [])
-				const minutesData = await minutesResp.json()
+				const minutesData = await minutesResp.json().catch(() => null)
 				this.minutes = Array.isArray(minutesData?.minutes) ? minutesData.minutes : (minutesData?.results || [])
 			} catch (e) {
 				console.error('[decidesk] BoardMeetingDetail fetch failed', e)
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * OpenRegister object-API fallback for the board-meeting fetch.
+		 *
+		 * @spec openspec/specs/meeting-management/spec.md
+		 * @return {Promise<object|null>} The board-meeting payload, or null.
+		 */
+		async fetchMeetingFromObjectApi() {
+			try {
+				const response = await fetch(
+					generateUrl(`/apps/openregister/api/objects/decidesk/board-meeting/${this.id}`),
+					{ headers: { Accept: 'application/json', requesttoken: OC.requestToken } },
+				)
+				if (!response.ok) return null
+				return await response.json()
+			} catch (e) {
+				console.error('[decidesk] board-meeting object-API fallback failed', e)
+				return null
 			}
 		},
 
@@ -185,14 +290,18 @@ export default {
 
 		/**
 		 * Trigger the send-notice lifecycle action via the BoardMeetingController.
+		 * Records per-recipient deliveries server-side and surfaces statutory
+		 * deadline warnings from the response.
 		 *
+		 * @spec openspec/specs/meeting-management/spec.md
 		 * @return {Promise<void>}
 		 */
 		async sendNotice() {
 			this.actionInProgress = true
+			this.sendWarnings = []
 			try {
 				const response = await fetch(
-					generateUrl(`/apps/decidesk/api/board-meetings/${this.id}/notice`),
+					generateUrl(`/apps/decidesk/api/board-meetings/${this.id}/send-notice`),
 					{
 						method: 'POST',
 						headers: { Accept: 'application/json', 'Content-Type': 'application/json', requesttoken: OC.requestToken },
@@ -201,6 +310,9 @@ export default {
 				const payload = await response.json()
 				if (payload?.success && payload?.meeting) {
 					this.meeting = payload.meeting
+				}
+				if (Array.isArray(payload?.warnings)) {
+					this.sendWarnings = payload.warnings
 				}
 			} catch (e) {
 				console.error('[decidesk] send-notice failed', e)
@@ -272,5 +384,23 @@ export default {
 	background: var(--color-primary-light, #eaf3fb);
 	color: var(--color-primary-text-dark, #1a4a72);
 	font-size: 0.85em;
+}
+
+.meeting-detail__delivery-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 8px 0 16px;
+}
+
+.meeting-detail__delivery-table th,
+.meeting-detail__delivery-table td {
+	text-align: start;
+	padding: 6px 10px;
+	border-bottom: 1px solid var(--color-border, #d0d0d0);
+}
+
+.meeting-detail__delivery-table th {
+	font-size: 0.85em;
+	color: var(--color-text-maxcontrast, #595959);
 }
 </style>

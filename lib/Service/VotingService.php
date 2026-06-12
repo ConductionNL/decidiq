@@ -461,7 +461,7 @@ class VotingService
         }
 
         // Activity feed (fail-soft): a voting round opened.
-        // @spec openspec/specs/nextcloud-integration/spec.md
+        // @spec openspec/specs/nextcloud-integration/spec.md.
         try {
             $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
                 subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_VOTE_INITIATED,
@@ -707,8 +707,14 @@ class VotingService
      * @spec openspec/specs/user-settings/spec.md
      * @spec openspec/specs/voting-system/spec.md
      */
-    public function castVote(string $votingRoundId, string $participantId, string $value, bool $isProxy, ?string $delegatorId, ?string $callerUid=null): array
-    {
+    public function castVote(
+        string $votingRoundId,
+        string $participantId,
+        string $value,
+        bool $isProxy,
+        ?string $delegatorId,
+        ?string $callerUid=null,
+    ): array {
         $objectService = $this->objectService();
 
         $roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');

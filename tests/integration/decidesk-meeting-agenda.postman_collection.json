@@ -1,0 +1,483 @@
+{
+	"info": {
+		"name": "Decidesk meeting+agenda gaps contract (series + package)",
+		"description": "Contract tests for the meeting-agenda-gaps-v1 endpoints: POST /api/meetings/{id}/series (recurring series generation) and POST /api/meetings/{id}/package (document package assembly). Self-contained: seeds its own template meeting through the OpenRegister object API and tears down the template plus every generated series instance.\n\nSPDX-License-Identifier: EUPL-1.2\nSPDX-FileCopyrightText: 2026 Conduction B.V.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "0. Setup",
+			"item": [
+				{
+					"name": "Seed template meeting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: template meeting created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'meeting id captured').to.be.a('string');",
+									"pm.collectionVariables.set('maTemplateMeetingId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Newman series template\",\n  \"meetingType\": \"regular\",\n  \"meetingMode\": \"physical\",\n  \"scheduledDate\": \"2027-04-15T14:00:00Z\",\n  \"lifecycle\": \"scheduled\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Series contract",
+			"item": [
+				{
+					"name": "POST series unauthenticated (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Series: unauthenticated rejected (401)', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/series",
+							"host": ["{{noAuthBase}}"],
+							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pattern\": { \"frequency\": \"monthly\", \"interval\": 1, \"until\": \"2027-08-31\" }\n}"
+						}
+					}
+				},
+				{
+					"name": "POST series missing pattern (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Series: missing pattern rejected (422)', () => pm.response.to.have.status(422));",
+									"pm.test('Series: validation message present', () => {",
+									"    pm.expect(pm.response.json().message).to.be.a('string');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/series",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						}
+					}
+				},
+				{
+					"name": "POST series invalid frequency (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Series: invalid frequency rejected (422)', () => pm.response.to.have.status(422));",
+									"pm.test('Series: frequency named in the message', () => {",
+									"    pm.expect(pm.response.json().message).to.include('frequency');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/series",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pattern\": { \"frequency\": \"yearly\", \"interval\": 1, \"until\": \"2030-01-01\" }\n}"
+						}
+					}
+				},
+				{
+					"name": "POST series unknown meeting (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Series: unknown meeting rejected (422)', () => pm.response.to.have.status(422));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/00000000-0000-4000-8000-000000000000/series",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidesk", "api", "meetings", "00000000-0000-4000-8000-000000000000", "series"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pattern\": { \"frequency\": \"monthly\", \"interval\": 1, \"until\": \"2027-08-31\" }\n}"
+						}
+					}
+				},
+				{
+					"name": "POST series happy path (200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Series: generation succeeds (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Series: success true with series slug', () => {",
+									"    pm.expect(b.success).to.eql(true);",
+									"    pm.expect(b.series).to.be.a('string').and.to.not.be.empty;",
+									"});",
+									"pm.test('Series: 4 monthly instances Apr→Aug (template date excluded)', () => {",
+									"    pm.expect(b.instances).to.be.an('array');",
+									"    pm.expect(b.instances.length).to.eql(4);",
+									"});",
+									"pm.test('Series: not truncated', () => pm.expect(b.truncated).to.eql(false));",
+									"pm.collectionVariables.set('maSeriesSlug', b.series);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/series",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "series"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pattern\": { \"frequency\": \"monthly\", \"interval\": 1, \"until\": \"2027-08-31\" }\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Package contract",
+			"item": [
+				{
+					"name": "POST package unauthenticated (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Package: unauthenticated rejected (401)', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/package",
+							"host": ["{{noAuthBase}}"],
+							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "package"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						}
+					}
+				},
+				{
+					"name": "POST package unknown meeting (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Package: unknown meeting rejected (422)', () => pm.response.to.have.status(422));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/00000000-0000-4000-8000-000000000000/package",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidesk", "api", "meetings", "00000000-0000-4000-8000-000000000000", "package"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						}
+					}
+				},
+				{
+					"name": "POST package happy path (200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Package: assembly succeeds (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Package: success true with folder path', () => {",
+									"    pm.expect(b.success).to.eql(true);",
+									"    pm.expect(b.path).to.be.a('string').and.to.include('Meeting package');",
+									"});",
+									"pm.test('Package: item/file counts and skipped report present', () => {",
+									"    pm.expect(b.items).to.be.a('number');",
+									"    pm.expect(b.files).to.be.a('number');",
+									"    pm.expect(b.skipped).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/decidesk/api/meetings/{{maTemplateMeetingId}}/package",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "decidesk", "api", "meetings", "{{maTemplateMeetingId}}", "package"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Teardown",
+			"item": [
+				{
+					"name": "Delete generated series instances",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: series instances listed (200)', () => pm.response.to.have.status(200));",
+									"const series = pm.collectionVariables.get('maSeriesSlug');",
+									"const templateId = pm.collectionVariables.get('maTemplateMeetingId');",
+									"if (series) {",
+									"    const body = pm.response.json();",
+									"    const rows = body.results || body.items || [];",
+									"    const authHeader = 'Basic ' + Buffer.from(pm.variables.get('adminUser') + ':' + pm.variables.get('adminPass')).toString('base64');",
+									"    rows.forEach((row) => {",
+									"        const id = (row['@self'] && row['@self'].id) || row.id;",
+									"        if (!id || id === templateId) { return; }",
+									"        pm.sendRequest({",
+									"            url: pm.variables.get('baseUrl') + '/index.php/apps/openregister/api/objects/decidesk/meeting/' + id,",
+									"            method: 'DELETE',",
+									"            header: { Authorization: authHeader, 'OCS-APIRequest': 'true', Accept: 'application/json' },",
+									"        }, () => {});",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting?series={{maSeriesSlug}}&_limit=100",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting"],
+							"query": [
+								{ "key": "series", "value": "{{maSeriesSlug}}" },
+								{ "key": "_limit", "value": "100" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete template meeting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: template meeting deleted (2xx)', () => {",
+									"    pm.expect(pm.response.code).to.be.within(200, 299);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting/{{maTemplateMeetingId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["index.php", "apps", "openregister", "api", "objects", "decidesk", "meeting", "{{maTemplateMeetingId}}"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "maTemplateMeetingId", "value": "" },
+		{ "key": "maSeriesSlug", "value": "" }
+	]
+}

@@ -55,7 +55,6 @@ class MinutesAuthorizationService
         'secretary',
     ];
 
-
     /**
      * Constructor.
      *
@@ -67,7 +66,6 @@ class MinutesAuthorizationService
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
-
 
     /**
      * Return true when the given Nextcloud user is a signatory (chair,
@@ -154,7 +152,6 @@ class MinutesAuthorizationService
 
     }//end canInitiateSigning()
 
-
     /**
      * Extract the first related entity UUID from a relations map.
      *
@@ -182,6 +179,4 @@ class MinutesAuthorizationService
         return $value;
 
     }//end extractRelation()
-
-
 }//end class

@@ -609,6 +609,7 @@ class Application extends App implements IBootstrap
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    boardMemberService: $c->get(\OCA\Decidesk\Service\BoardMemberService::class),
                 );
             }
         );
@@ -630,7 +631,6 @@ class Application extends App implements IBootstrap
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     guard: $c->get(\OCA\Decidesk\Lifecycle\ResolutionLifecycleGuard::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
                 );
             }
         );
@@ -802,6 +802,29 @@ class Application extends App implements IBootstrap
                 return new \OCA\Decidesk\Listener\MeetingFolderListener(
                     folderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        // Recurring series generation + meeting document package assembly
+        // (meeting-agenda-gaps-v1).
+        $context->registerService(
+            \OCA\Decidesk\Service\MeetingSeriesService::class,
+            static function ($c): \OCA\Decidesk\Service\MeetingSeriesService {
+                return new \OCA\Decidesk\Service\MeetingSeriesService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Service\MeetingPackageService::class,
+            static function ($c): \OCA\Decidesk\Service\MeetingPackageService {
+                return new \OCA\Decidesk\Service\MeetingPackageService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    meetingFolderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
                 );
             }
         );

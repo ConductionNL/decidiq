@@ -41,7 +41,6 @@ use OCP\Settings\ISettings;
  */
 class PersonalSettings implements ISettings
 {
-
     /**
      * Get the personal settings form template.
      *

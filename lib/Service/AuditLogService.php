@@ -64,6 +64,7 @@ class AuditLogService
         'proxy-created',
         'proxy-revoked',
         'decision-transition',
+        'series-generated',
     ];
 
     /**
