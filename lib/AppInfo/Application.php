@@ -741,8 +741,87 @@ class Application extends App implements IBootstrap
         $this->registerPhase5Bindings(context: $context);
         $this->registerPhase6Bindings(context: $context);
         $this->registerPhase7CalDavBindings(context: $context);
+        $this->registerNcPlatformIntegration(context: $context);
 
     }//end register()
+
+    /**
+     * NC platform integration bindings: Activity publisher, unified search,
+     * meeting Files folders, and the voting deadline reminder.
+     *
+     * The Activity provider/filter/setting classes are declared in
+     * appinfo/info.xml <activity> (the Activity app resolves them from
+     * there); only the publisher and the listener wiring live here.
+     *
+     * @param IRegistrationContext $context The registration context
+     *
+     * @spec openspec/specs/nextcloud-integration/spec.md
+     *
+     * @return void
+     */
+    private function registerNcPlatformIntegration(IRegistrationContext $context): void
+    {
+        // Fail-soft Activity publisher (called from the governance services).
+        $context->registerService(
+            \OCA\Decidesk\Service\ActivityPublisherService::class,
+            static function ($c): \OCA\Decidesk\Service\ActivityPublisherService {
+                return new \OCA\Decidesk\Service\ActivityPublisherService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        // Unified search over decisions / meetings / resolutions (OR RBAC scoped).
+        $context->registerService(
+            \OCA\Decidesk\Search\DecideskSearchProvider::class,
+            static function ($c): \OCA\Decidesk\Search\DecideskSearchProvider {
+                return new \OCA\Decidesk\Search\DecideskSearchProvider(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    urlGenerator: $c->get(\OCP\IURLGenerator::class),
+                    l10n: $c->get(\OCP\L10N\IFactory::class)->get(self::APP_ID),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerSearchProvider(\OCA\Decidesk\Search\DecideskSearchProvider::class);
+
+        // Meeting Files folder tree on meeting creation.
+        $context->registerService(
+            \OCA\Decidesk\Service\MeetingFolderService::class,
+            static function ($c): \OCA\Decidesk\Service\MeetingFolderService {
+                return new \OCA\Decidesk\Service\MeetingFolderService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Listener\MeetingFolderListener::class,
+            static function ($c): \OCA\Decidesk\Listener\MeetingFolderListener {
+                return new \OCA\Decidesk\Listener\MeetingFolderListener(
+                    folderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerEventListener(
+            event: ObjectCreatedEvent::class,
+            listener: \OCA\Decidesk\Listener\MeetingFolderListener::class
+        );
+
+        // Voting deadline reminder sweep (hourly job in appinfo/info.xml).
+        $context->registerService(
+            \OCA\Decidesk\Service\VotingDeadlineReminderService::class,
+            static function ($c): \OCA\Decidesk\Service\VotingDeadlineReminderService {
+                return new \OCA\Decidesk\Service\VotingDeadlineReminderService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+    }//end registerNcPlatformIntegration()
 
     /**
      * Phase 4 — eIDAS QES integration bindings.

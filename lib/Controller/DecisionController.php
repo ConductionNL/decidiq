@@ -282,6 +282,21 @@ class DecisionController extends Controller
                 ['id' => $decisionId, 'publishedBy' => $user->getUID()]
             );
 
+            // Activity feed (fail-soft): decision published.
+            // @spec openspec/specs/nextcloud-integration/spec.md
+            try {
+                $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+                    subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_DECISION_PUBLISHED,
+                    title: (string) ($updated['title'] ?? $decisionId),
+                    status: 'public',
+                    objectType: 'decision',
+                    objectUuid: $decisionId,
+                    segment: 'decisions'
+                );
+            } catch (\Throwable $activityError) {
+                $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+            }
+
             return new JSONResponse($result);
         } catch (\Throwable $e) {
             $this->logger->error(

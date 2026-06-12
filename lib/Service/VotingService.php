@@ -389,6 +389,21 @@ class VotingService
             $result['excludedPresetUuids'] = $excludedUuids;
         }
 
+        // Activity feed (fail-soft): a voting round opened.
+        // @spec openspec/specs/nextcloud-integration/spec.md
+        try {
+            $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+                subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_VOTE_INITIATED,
+                title: (string) ($result['votingMethod'] ?? 'voting round'),
+                status: 'open',
+                objectType: 'voting-round',
+                objectUuid: (string) ($result['id'] ?? ($result['uuid'] ?? '')),
+                segment: 'voting-rounds'
+            );
+        } catch (\Throwable $activityError) {
+            $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+        }
+
         return $result;
 
     }//end openVotingRound()

@@ -240,6 +240,21 @@ class MeetingService
                 ['id' => $meetingId, 'action' => $action, 'to' => $transition['to']]
             );
 
+            // Activity feed (fail-soft): meeting lifecycle transition.
+            // @spec openspec/specs/nextcloud-integration/spec.md
+            try {
+                $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+                    subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_MEETING_TRANSITION,
+                    title: (string) ($meetingData['title'] ?? $meetingId),
+                    status: $transition['to'],
+                    objectType: 'meeting',
+                    objectUuid: $meetingId,
+                    segment: 'meetings'
+                );
+            } catch (\Throwable $activityError) {
+                $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+            }
+
             return [
                 'success' => true,
                 'meeting' => $updated->jsonSerialize(),

@@ -1141,6 +1141,16 @@
             "type": "integer",
             "description": "Count of abstentions",
             "example": 2
+          },
+          "votingDeadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional deadline by which votes must be cast. Drives the 24-hour pre-deadline reminder notification (nextcloud-integration spec)."
+          },
+          "deadlineReminderSentAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Server-side marker set when the 24-hour deadline reminder has been sent (prevents duplicate reminders)."
           }
         },
         "x-openregister-relations": {
