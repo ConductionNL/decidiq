@@ -27,6 +27,7 @@ use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\MinutesDocumentService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
 use OCA\Decidesk\Service\ParticipantResolver;
@@ -127,6 +128,13 @@ class MinutesControllerTest extends TestCase
     private ParticipantResolver&MockObject $participantResolver;
 
     /**
+     * Mock MinutesDocumentService.
+     *
+     * @var MinutesDocumentService&MockObject
+     */
+    private MinutesDocumentService&MockObject $minutesDocumentService;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -145,6 +153,7 @@ class MinutesControllerTest extends TestCase
         $this->objectService            = $this->createMock(originalClassName: ObjectService::class);
         $this->user                     = $this->createMock(originalClassName: IUser::class);
         $this->participantResolver      = $this->createMock(originalClassName: ParticipantResolver::class);
+        $this->minutesDocumentService   = $this->createMock(originalClassName: MinutesDocumentService::class);
 
         $this->user->method('getUID')->willReturn('testuser');
         $this->user->method('getDisplayName')->willReturn('Test User');
@@ -160,6 +169,7 @@ class MinutesControllerTest extends TestCase
             groupManager: $this->groupManager,
             objectService: $this->objectService,
             participantResolver: $this->participantResolver,
+            minutesDocumentService: $this->minutesDocumentService,
         );
 
     }//end setUp()
@@ -335,6 +345,7 @@ class MinutesControllerTest extends TestCase
             groupManager: $this->groupManager,
             objectService: $this->objectService,
             participantResolver: $this->participantResolver,
+            minutesDocumentService: $this->minutesDocumentService,
         );
 
         // The service must NOT be called for an unauthenticated request.
@@ -500,6 +511,7 @@ class MinutesControllerTest extends TestCase
             groupManager: $this->groupManager,
             objectService: $this->objectService,
             participantResolver: $this->participantResolver,
+            minutesDocumentService: $this->minutesDocumentService,
         );
 
         $this->alvMinutesService->expects($this->never())->method('generateALVDraft');
@@ -581,6 +593,7 @@ class MinutesControllerTest extends TestCase
             groupManager: $this->groupManager,
             objectService: $this->objectService,
             participantResolver: $this->participantResolver,
+            minutesDocumentService: $this->minutesDocumentService,
         );
 
         $this->alvMinutesService->expects($this->never())->method('distribute');
@@ -786,5 +799,491 @@ class MinutesControllerTest extends TestCase
         self::assertSame(2, $result->getData()['notified']);
 
     }//end testSubmitForApprovalByAdminSucceeds()
+
+    /**
+     * addCorrection by a meeting participant succeeds with a
+     * server-attributed author (client-sent author fields are ignored).
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testAddCorrectionByParticipantSucceedsWithServerAttribution(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->participantResolver->method('isParticipant')
+            ->with(meetingId: 'meeting-uuid-1', nextcloudUid: 'testuser')
+            ->willReturn(true);
+        $this->request->method('getParam')->with('text')->willReturn('The vote count for item 5 should read 12.');
+
+        $minutesEntity = $this->makeEntity(
+            [
+                'id'        => 'minutes-uuid-001',
+                'lifecycle' => 'review',
+                'relations' => ['meeting' => ['id' => 'meeting-uuid-1']],
+            ]
+        );
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->objectService->expects($this->once())->method('saveObject');
+
+        $result = $this->controller->addCorrection('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        $corrections = $result->getData()['corrections'];
+        self::assertCount(1, $corrections);
+        self::assertSame('testuser', $corrections[0]['author']);
+        self::assertSame('Test User', $corrections[0]['authorName']);
+        self::assertSame('proposed', $corrections[0]['status']);
+
+    }//end testAddCorrectionByParticipantSucceedsWithServerAttribution()
+
+    /**
+     * addCorrection with empty text returns 400.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testAddCorrectionWithEmptyTextReturns400(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('text')->willReturn('   ');
+
+        $this->objectService->expects($this->never())->method('saveObject');
+
+        $result = $this->controller->addCorrection('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_BAD_REQUEST, $result->getStatus());
+
+    }//end testAddCorrectionWithEmptyTextReturns400()
+
+    /**
+     * addCorrection by a non-participant returns 403 (fail closed).
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testAddCorrectionByNonParticipantReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->participantResolver->method('isParticipant')->willReturn(false);
+
+        $minutesEntity = $this->makeEntity(
+            [
+                'id'        => 'minutes-uuid-001',
+                'lifecycle' => 'review',
+                'relations' => ['meeting' => ['id' => 'meeting-uuid-1']],
+            ]
+        );
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->objectService->expects($this->never())->method('saveObject');
+
+        $result = $this->controller->addCorrection('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testAddCorrectionByNonParticipantReturns403()
+
+    /**
+     * addCorrection with an unresolvable meeting returns 403 for
+     * non-admins — the guard fails closed, never open.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testAddCorrectionFailsClosedWhenMeetingUnresolvable(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+
+        // Minutes record without a meeting relation → meeting unresolvable.
+        $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'lifecycle' => 'review']);
+        $this->objectService->method('find')->willReturn($minutesEntity);
+
+        $this->participantResolver->expects($this->never())->method('isParticipant');
+        $this->objectService->expects($this->never())->method('saveObject');
+
+        $result = $this->controller->addCorrection('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testAddCorrectionFailsClosedWhenMeetingUnresolvable()
+
+    /**
+     * addCorrection on approved minutes returns 409.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testAddCorrectionOnApprovedMinutesReturns409(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('text')->willReturn('Too late.');
+
+        $minutesEntity = $this->makeEntity(
+            [
+                'id'        => 'minutes-uuid-001',
+                'lifecycle' => 'approved',
+                'relations' => ['meeting' => ['id' => 'meeting-uuid-1']],
+            ]
+        );
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->objectService->expects($this->never())->method('saveObject');
+
+        $result = $this->controller->addCorrection('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_CONFLICT, $result->getStatus());
+
+    }//end testAddCorrectionOnApprovedMinutesReturns409()
+
+    /**
+     * addCorrection on unknown minutes returns 404 (admin caller).
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testAddCorrectionUnknownMinutesReturns404(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('text')->willReturn('Fix it.');
+        $this->objectService->method('find')->willReturn(null);
+
+        $result = $this->controller->addCorrection('minutes-uuid-404');
+
+        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+
+    }//end testAddCorrectionUnknownMinutesReturns404()
+
+    /**
+     * resolveCorrection accepts a proposed correction and records the
+     * resolver server-side.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testResolveCorrectionAcceptRecordsResolver(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('status')->willReturn('accepted');
+
+        $minutesEntity = $this->makeEntity(
+            [
+                'id'          => 'minutes-uuid-001',
+                'lifecycle'   => 'review',
+                'relations'   => ['meeting' => ['id' => 'meeting-uuid-1']],
+                'corrections' => [
+                    ['id' => 'corr-1', 'text' => 'Fix item 5', 'status' => 'proposed'],
+                ],
+            ]
+        );
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->objectService->expects($this->once())->method('saveObject');
+
+        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-1');
+
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        $correction = $result->getData()['correction'];
+        self::assertSame('accepted', $correction['status']);
+        self::assertSame('testuser', $correction['resolvedBy']);
+
+    }//end testResolveCorrectionAcceptRecordsResolver()
+
+    /**
+     * resolveCorrection with an invalid status returns 400.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testResolveCorrectionInvalidStatusReturns400(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('status')->willReturn('maybe');
+
+        $this->objectService->expects($this->never())->method('saveObject');
+
+        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-1');
+
+        self::assertSame(Http::STATUS_BAD_REQUEST, $result->getStatus());
+
+    }//end testResolveCorrectionInvalidStatusReturns400()
+
+    /**
+     * resolveCorrection on an already-resolved correction returns 409.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testResolveCorrectionAlreadyResolvedReturns409(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('status')->willReturn('rejected');
+
+        $minutesEntity = $this->makeEntity(
+            [
+                'id'          => 'minutes-uuid-001',
+                'corrections' => [
+                    ['id' => 'corr-1', 'text' => 'Fix item 5', 'status' => 'accepted'],
+                ],
+            ]
+        );
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->objectService->expects($this->never())->method('saveObject');
+
+        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-1');
+
+        self::assertSame(Http::STATUS_CONFLICT, $result->getStatus());
+
+    }//end testResolveCorrectionAlreadyResolvedReturns409()
+
+    /**
+     * resolveCorrection on an unknown correction id returns 404.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testResolveCorrectionUnknownCorrectionReturns404(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('status')->willReturn('accepted');
+
+        $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'corrections' => []]);
+        $this->objectService->method('find')->willReturn($minutesEntity);
+
+        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-x');
+
+        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+
+    }//end testResolveCorrectionUnknownCorrectionReturns404()
+
+    /**
+     * resolveCorrection by a non-chair participant returns 403 — resolution
+     * stays chair/secretary-gated even though suggesting is participant-open.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testResolveCorrectionByNonChairReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->participantResolver->method('hasRole')->willReturn(false);
+
+        $minutesEntity = $this->makeEntity(
+            [
+                'id'        => 'minutes-uuid-001',
+                'relations' => ['meeting' => ['id' => 'meeting-uuid-1']],
+            ]
+        );
+        $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->objectService->expects($this->never())->method('saveObject');
+
+        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-1');
+
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testResolveCorrectionByNonChairReturns403()
+
+    /**
+     * reject delegates to MinutesGenerationService::reject and returns 200.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testRejectByAdminSucceeds(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('comment')->willReturn('Attendance list incomplete');
+
+        $this->minutesGenerationService->expects($this->once())
+            ->method('reject')
+            ->with(
+                minutesId: 'minutes-uuid-001',
+                comment: 'Attendance list incomplete',
+                userId: 'testuser',
+            )
+            ->willReturn(['id' => 'minutes-uuid-001', 'lifecycle' => 'draft']);
+
+        $result = $this->controller->reject('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertSame('draft', $result->getData()['lifecycle']);
+
+    }//end testRejectByAdminSucceeds()
+
+    /**
+     * reject without a comment maps the service's InvalidArgumentException
+     * to 422 — a rejection without a comment is refused.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testRejectWithoutCommentReturns422(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('comment')->willReturn('');
+
+        $this->minutesGenerationService->method('reject')
+            ->willThrowException(new \InvalidArgumentException('A rejection comment is required.', 422));
+
+        $result = $this->controller->reject('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $result->getStatus());
+
+    }//end testRejectWithoutCommentReturns422()
+
+    /**
+     * reject on unknown minutes returns 404.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testRejectUnknownMinutesReturns404(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('comment')->willReturn('Nope');
+
+        $this->minutesGenerationService->method('reject')
+            ->willThrowException(new MissingObjectException(message: 'Minutes "x" not found.'));
+
+        $result = $this->controller->reject('minutes-uuid-404');
+
+        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+
+    }//end testRejectUnknownMinutesReturns404()
+
+    /**
+     * reject by a non-chair participant returns 403, service never called.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testRejectByNonChairReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->participantResolver->method('hasRole')->willReturn(false);
+
+        $minutesEntity = $this->makeMinutesEntity('minutes-uuid-001', 'meeting-uuid-1');
+        $this->objectService->method('find')->willReturn($minutesEntity);
+
+        $this->minutesGenerationService->expects($this->never())->method('reject');
+
+        $result = $this->controller->reject('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testRejectByNonChairReturns403()
+
+    /**
+     * generateDocument delegates to MinutesDocumentService and returns 200
+     * with the honest docudesk availability flag.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testGenerateDocumentByAdminSucceeds(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('format', 'markdown')->willReturn('pdf');
+
+        $this->minutesDocumentService->expects($this->once())
+            ->method('generate')
+            ->with(
+                minutesId: 'minutes-uuid-001',
+                format: 'pdf',
+                displayName: 'Test User',
+            )
+            ->willReturn(
+                [
+                    'path'     => 'Decidesk/Raad/2026-06-12 Raadsvergadering/Minutes/Notulen v1.md',
+                    'format'   => 'markdown',
+                    'docudesk' => false,
+                    'note'     => 'Docudesk is not available on this instance — a markdown document was produced instead of a PDF.',
+                ]
+            );
+
+        $result = $this->controller->generateDocument('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertFalse($result->getData()['docudesk']);
+        self::assertArrayHasKey('note', $result->getData());
+
+    }//end testGenerateDocumentByAdminSucceeds()
+
+    /**
+     * generateDocument with an unsupported format returns 422.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testGenerateDocumentUnsupportedFormatReturns422(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('format', 'markdown')->willReturn('odt');
+
+        $this->minutesDocumentService->method('generate')
+            ->willThrowException(new \InvalidArgumentException('Unsupported format "odt".', 422));
+
+        $result = $this->controller->generateDocument('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $result->getStatus());
+
+    }//end testGenerateDocumentUnsupportedFormatReturns422()
+
+    /**
+     * generateDocument when the Files backend is unavailable returns 503.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testGenerateDocumentFilesUnavailableReturns503(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+        $this->request->method('getParam')->with('format', 'markdown')->willReturn('markdown');
+
+        $this->minutesDocumentService->method('generate')
+            ->willThrowException(new \RuntimeException('Files backend unavailable.', 503));
+
+        $result = $this->controller->generateDocument('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_SERVICE_UNAVAILABLE, $result->getStatus());
+
+    }//end testGenerateDocumentFilesUnavailableReturns503()
+
+    /**
+     * generateDocument by a non-chair participant returns 403.
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     *
+     * @return void
+     */
+    public function testGenerateDocumentByNonChairReturns403(): void
+    {
+        $this->groupManager->method('isAdmin')->with('testuser')->willReturn(false);
+        $this->participantResolver->method('hasRole')->willReturn(false);
+
+        $minutesEntity = $this->makeMinutesEntity('minutes-uuid-001', 'meeting-uuid-1');
+        $this->objectService->method('find')->willReturn($minutesEntity);
+
+        $this->minutesDocumentService->expects($this->never())->method('generate');
+
+        $result = $this->controller->generateDocument('minutes-uuid-001');
+
+        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+
+    }//end testGenerateDocumentByNonChairReturns403()
 
 }//end class

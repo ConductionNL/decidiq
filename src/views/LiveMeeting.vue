@@ -140,6 +140,13 @@
 				</template>
 			</section>
 
+			<!-- Real-time minute taking (minutes-ui-v1) -->
+			<MinutesPanel
+				v-if="canTakeMinutes"
+				:meeting-id="id"
+				:agenda-items="regularItems"
+				:participants="participants" />
+
 			<!-- Chair: activate item controls -->
 			<section
 				v-if="isChair"
@@ -172,6 +179,7 @@ import { CnStatusBadge, CnTimelineStages } from '@conduction/nextcloud-vue'
 import { getCurrentUser } from '@nextcloud/auth'
 import { useObjectStore } from '../store/store.js'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
+import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
 
 const BOB_STAGES = [
 	{ id: 'beeldvorming', label: 'Beeldvorming' },
@@ -194,6 +202,7 @@ export default {
 		CnStatusBadge,
 		CnTimelineStages,
 		AgendaBuilder,
+		MinutesPanel,
 	},
 
 	props: {
@@ -248,8 +257,28 @@ export default {
 		isChair() {
 			const currentUser = getCurrentUser()
 			if (!currentUser) return false
+			// nextcloudUserId is the canonical link (ParticipantResolver);
+			// owner is the legacy fallback for pre-migration records.
 			return this.participants.some(
-				p => p.owner === currentUser.uid && p.role === 'chair',
+				p => (p.nextcloudUserId === currentUser.uid || (!p.nextcloudUserId && p.owner === currentUser.uid))
+					&& p.role === 'chair',
+			)
+		},
+
+		/**
+		 * Whether the current user may take live minutes: secretary (the
+		 * spec's primary actor), chair, or NC admin — mirrors the backend
+		 * chair/secretary/admin guard on the minutes endpoints.
+		 *
+		 * @spec openspec/specs/resolution-minutes/spec.md
+		 */
+		canTakeMinutes() {
+			const currentUser = getCurrentUser()
+			if (!currentUser) return false
+			if (currentUser.isAdmin) return true
+			return this.participants.some(
+				p => (p.nextcloudUserId === currentUser.uid || (!p.nextcloudUserId && p.owner === currentUser.uid))
+					&& ['chair', 'secretary'].includes(p.role),
 			)
 		},
 

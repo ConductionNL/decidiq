@@ -360,6 +360,8 @@
 				"sidebarTabs": [
 					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "signers",  "label": "Signers",     "icon": "icon-user",    "component": "MinutesSignersTab",                         "order": 20 },
+					{ "id": "approval",  "label": "Approval",  "icon": "icon-checkmark", "component": "MinutesApprovalTab",                       "order": 30 },
+					{ "id": "documents", "label": "Documents", "icon": "icon-file",      "component": "MinutesDocumentTab",                       "order": 40 },
 					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				]
 			}

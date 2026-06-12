@@ -210,15 +210,106 @@ class MinutesGenerationService
             $updated['signedBy'] = $signers;
         }
 
-        $saved = $objectService->saveObject($updated, 'decidesk', 'minutes', $minutesId);
+        // Named arguments: the positional form ($object, 'decidesk', 'minutes', $id)
+        // silently bound the register string to ObjectService::saveObject()'s second
+        // parameter ($extend) — a latent pre-existing defect fixed here.
+        $saved = $objectService->saveObject(object: $updated, register: 'decidesk', schema: 'minutes', uuid: $minutesId);
 
         if ($saved instanceof \stdClass === true || is_array($saved) === true) {
             return (array) $saved;
         }
 
+        if (is_object($saved) === true && method_exists($saved, 'getObject') === true) {
+            return (array) $saved->getObject();
+        }
+
         return $updated;
 
     }//end transition()
+
+    /**
+     * Reject Minutes in review back to draft with a mandatory comment.
+     *
+     * The forward LIFECYCLE_TRANSITIONS map stays intact (signing/eIDAS flows
+     * depend on it); rejection is the single guarded backward step the spec's
+     * review loop requires: only `review` → `draft` is possible, the comment is
+     * mandatory, and the rejection is recorded in `reviewComments` with
+     * server-side author attribution so client-side forgery is impossible.
+     *
+     * @param string $minutesId UUID of the Minutes object
+     * @param string $comment   The mandatory rejection comment
+     * @param string $userId    Nextcloud UID of the rejecting user (from server session)
+     *
+     * @throws MissingObjectException    When the Minutes object is not found
+     * @throws \InvalidArgumentException When the comment is empty or lifecycle is not review
+     * @throws \RuntimeException         When OpenRegister is not available
+     *
+     * @return array<string,mixed> The updated Minutes object data
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     */
+    public function reject(string $minutesId, string $comment, string $userId): array
+    {
+        if (trim($comment) === '') {
+            throw new \InvalidArgumentException('A rejection comment is required.', 422);
+        }
+
+        $objectService = $this->getObjectService();
+
+        // SetRegister/setSchema first so OpenRegister's session-based ACL applies (OWASP A01).
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('minutes');
+        $minutesEntity = $objectService->find($minutesId);
+
+        if ($minutesEntity === null) {
+            throw new MissingObjectException(
+                message: sprintf('Minutes object "%s" not found.', $minutesId)
+            );
+        }
+
+        $minutes = $minutesEntity->getObject();
+
+        if (($minutes['lifecycle'] ?? 'draft') !== 'review') {
+            throw new \InvalidArgumentException(
+                'Only minutes in the "review" state can be rejected.',
+                422
+            );
+        }
+
+        if (is_array($minutes['reviewComments'] ?? null) === true) {
+            $reviewComments = $minutes['reviewComments'];
+        } else {
+            $reviewComments = [];
+        }
+
+        $reviewComments[] = [
+            'action'    => 'rejected',
+            'comment'   => trim($comment),
+            'author'    => $userId,
+            'createdAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+        ];
+
+        $updated = array_merge(
+            $minutes,
+            [
+                'lifecycle'      => 'draft',
+                'reviewComments' => $reviewComments,
+            ]
+        );
+
+        $saved = $objectService->saveObject(object: $updated, register: 'decidesk', schema: 'minutes', uuid: $minutesId);
+
+        if ($saved instanceof \stdClass === true || is_array($saved) === true) {
+            return (array) $saved;
+        }
+
+        if (is_object($saved) === true && method_exists($saved, 'getObject') === true) {
+            return (array) $saved->getObject();
+        }
+
+        return $updated;
+
+    }//end reject()
 
     /**
      * Resolve the linked Meeting from the Minutes object.
@@ -258,11 +349,13 @@ class MinutesGenerationService
         }
 
         try {
+            // Named arguments: the positional form ($id, null, 'decidesk', 'meeting')
+            // silently bound the register string to ObjectService::find()'s third
+            // parameter ($files) — a latent pre-existing defect fixed here.
             $meetingEntity = $objectService->find(
-                $meetingId,
-                null,
-                'decidesk',
-                'meeting'
+                id: $meetingId,
+                register: 'decidesk',
+                schema: 'meeting'
             );
             if ($meetingEntity === null) {
                 return null;

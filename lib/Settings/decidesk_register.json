@@ -1937,6 +1937,131 @@
             "type": "integer",
             "description": "Revision number",
             "example": 1
+          },
+          "itemNotes": {
+            "type": "array",
+            "description": "Per-agenda-item notes captured live during the meeting (minutes-ui-v1)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "agendaItem": {
+                  "type": "string",
+                  "description": "UUID of the agenda item the notes belong to"
+                },
+                "notes": {
+                  "type": "string",
+                  "description": "Discussion notes for the agenda item"
+                },
+                "decisions": {
+                  "type": "string",
+                  "description": "Decisions recorded for the agenda item"
+                }
+              }
+            }
+          },
+          "corrections": {
+            "type": "array",
+            "description": "Correction suggestions submitted by meeting participants during review (minutes-ui-v1)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Correction identifier"
+                },
+                "author": {
+                  "type": "string",
+                  "description": "Nextcloud UID of the suggesting participant (server-attributed)"
+                },
+                "authorName": {
+                  "type": "string",
+                  "description": "Display name of the suggesting participant"
+                },
+                "text": {
+                  "type": "string",
+                  "description": "The suggested correction"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "proposed",
+                    "accepted",
+                    "rejected"
+                  ],
+                  "description": "Resolution status of the suggestion"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Submission timestamp"
+                },
+                "resolvedBy": {
+                  "type": "string",
+                  "description": "Nextcloud UID of the chair/secretary who resolved the suggestion"
+                },
+                "resolvedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Resolution timestamp"
+                }
+              }
+            }
+          },
+          "reviewComments": {
+            "type": "array",
+            "description": "Review decisions with comments, e.g. reject-with-comment history (minutes-ui-v1)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "description": "Review action taken (e.g. rejected)"
+                },
+                "comment": {
+                  "type": "string",
+                  "description": "Reviewer comment"
+                },
+                "author": {
+                  "type": "string",
+                  "description": "Nextcloud UID of the reviewer (server-attributed)"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Review timestamp"
+                }
+              }
+            }
+          },
+          "generatedDocuments": {
+            "type": "array",
+            "description": "Documents generated from these minutes and persisted to the meeting folder (minutes-ui-v1)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Path of the persisted file in the OpenRegister Files storage"
+                },
+                "format": {
+                  "type": "string",
+                  "description": "Produced format (markdown or pdf)"
+                },
+                "generatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Generation timestamp"
+                },
+                "generatedBy": {
+                  "type": "string",
+                  "description": "Display name of the generating user (server-attributed)"
+                },
+                "docudesk": {
+                  "type": "boolean",
+                  "description": "Whether Docudesk rendered the document (false = markdown fallback)"
+                }
+              }
+            }
           }
         },
         "x-openregister-relations": {

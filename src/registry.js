@@ -64,6 +64,8 @@ import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
+import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
+import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
@@ -167,6 +169,12 @@ export default {
 	MotionVotingRoundTab: page(MotionVotingRoundTab),
 	AmendmentParentMotionTab: page(AmendmentParentMotionTab),
 	MinutesSignersTab: page(MinutesSignersTab),
+	// Minutes approval workflow + document generation (minutes-ui-v1):
+	// lifecycle timeline with guarded submit/approve/reject actions and
+	// participant correction suggestions; document generation into the
+	// meeting Files folder plus the notarial proof package trigger.
+	MinutesApprovalTab: page(MinutesApprovalTab),
+	MinutesDocumentTab: page(MinutesDocumentTab),
 	DecisionActionItemsTab: page(DecisionActionItemsTab),
 
 	// --- Dashboard v2 widgets (decidesk-dashboard-v2-widgets). ---

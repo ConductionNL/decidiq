@@ -1,22 +1,20 @@
 ---
-status: built
-status-note: 2026-06-12 minutes-ui-v1 — all 4 requirements built. Real-time minute-taking editor (MinutesPanel in LiveMeeting, itemNotes autosave), approval workflow UI (MinutesApprovalTab — submit/approve/reject-with-comment + participant correction suggestions), document generation persisted to the meeting Files folder via MinutesDocumentService (markdown canonical, Docudesk PDF opportunistic with honest fallback; ODT NOT implemented — no renderer in the stack), and the hash-sealed notarial proof package (ProofPackageService). Earlier backend capabilities from p2-minutes-and-decisions* + board-meeting-resolutions (ResolutionService, WrittenResolutionService, MinutesGenerationService, MinutesAuthorizationService) remain the foundation. Per-scenario @e2e annotations replaced the former whole-spec exclude.
+status: draft
 ---
 
-# Resolution and Minutes Specification
+# Spec Delta: Resolution and Minutes (minutes-ui-v1)
 
 ## Purpose
 
-Resolutions and minutes are the formal output of the decision-making process. A resolution is the legal text of an adopted decision, suitable for archival and external communication. Minutes (notulen) are the structured record of a meeting including attendance, discussions, decisions, votes, and action items. The system supports real-time minute-taking during meetings, automated generation from meeting data, review/approval workflows, and integration with Docudesk for professional document rendering.
+Closes the four gaps recorded in the seeded spec's status note: real-time
+minute-taking editor in the live meeting view, digital approval workflow UI with
+participant correction suggestions, minutes document generation persisted to the
+meeting's Files folder (optional Docudesk PDF), and the notarial proof package.
+Resolution generation from adopted decisions itself shipped earlier
+(decision-state-machine-v1) and is not duplicated here. On archive, the main spec's
+whole-spec `@e2e exclude` purpose note is replaced by per-scenario annotations.
 
-**Standards**: Akoma Ntoso (`act`, `minutes`), Schema.org (`CreativeWork`, `DigitalDocument`), OpenRaadsinformatie (`Besluit`, `Verslag`), MDTO (metadata for archival)
-**Feature tier**: V1
-**Legal reference**: BW 2:10 (minutes of board meetings), Gemeentewet 23 (council minutes), Awb 3:46-3:47 (formal decision documentation)
-
-## Data Model
-
-See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Resolution and Minutes entity definitions including property tables and standards mappings.
-## Requirements
+## MODIFIED Requirements
 
 ---
 
@@ -130,28 +128,3 @@ The system MUST support generating professional minutes documents via Docudesk. 
 - WHEN the secretary triggers "Generate Document" with the PDF format
 - THEN the system MUST persist the markdown document into the meeting's Files folder
 - AND the response MUST state that Docudesk was unavailable and a markdown fallback was produced
-
-## User Stories
-
-1. **Secretary taking digital minutes during AGM**: As a board secretary, I want to take structured minutes during the AGM using a digital template, so that all resolutions, votes, and key discussions are accurately captured. (Source: intelligence DB #11)
-
-2. **CEO approving board minutes digitally**: As a CEO, I want to review and approve board minutes digitally with tracked changes, so that minutes are finalized quickly without email ping-pong. (Source: intelligence DB #20)
-
-3. **Secretary drafting and distributing ALV minutes**: As secretary, I want to draft the ALV minutes including all decisions, voting results, and attendance and distribute them to members so that there is a formal record of the meeting. (Source: intelligence DB #75)
-
-4. **Notary receiving proof of proper adoption**: As notary, I want to receive complete proof that the statute amendment was properly decided (quorum, qualified majority, proper convocation) so that I can execute the notarial deed. (Source: intelligence DB #78)
-
-5. **Management assistant generating minutes from notes**: As a management assistant, I want to generate structured minutes from the notes and decisions captured during the meeting, so that minutes are available for review within hours instead of days. (Source: intelligence DB #93)
-
-## Acceptance Criteria
-
-- Resolutions are generated from adopted decisions with sequential numbering
-- Resolutions include decision text, voting results, legal basis, and adoption date
-- Real-time minute-taking is pre-populated from meeting metadata
-- Voting results are automatically inserted into minutes from the voting system
-- Minutes follow a review/approval workflow with tracked changes
-- Approved minutes are locked against further editing
-- Document generation is delegated to Docudesk (PDF/ODT)
-- Notarial proof packages include convocation, quorum, votes, and resolution
-- MDTO metadata is attached for archival compliance
-- OpenRaadsinformatie `Besluit`/`Verslag` mapping is available

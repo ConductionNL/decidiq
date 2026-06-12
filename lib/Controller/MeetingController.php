@@ -25,11 +25,15 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\MeetingService;
+use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ProofPackageService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -67,9 +71,12 @@ class MeetingController extends Controller
     /**
      * Constructor for MeetingController.
      *
-     * @param IRequest       $request        The HTTP request
-     * @param MeetingService $meetingService The meeting service
-     * @param IUserSession   $userSession    The user session
+     * @param IRequest            $request             The HTTP request
+     * @param MeetingService      $meetingService      The meeting service
+     * @param IUserSession        $userSession         The user session
+     * @param IGroupManager       $groupManager        Group manager for the NC-admin fallback
+     * @param ParticipantResolver $participantResolver Meeting-role resolver (chair/secretary gate)
+     * @param ProofPackageService $proofPackageService Notarial proof package assembly
      *
      * @return void
      */
@@ -77,6 +84,9 @@ class MeetingController extends Controller
         IRequest $request,
         private readonly MeetingService $meetingService,
         private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
+        private readonly ParticipantResolver $participantResolver,
+        private readonly ProofPackageService $proofPackageService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -128,4 +138,72 @@ class MeetingController extends Controller
         return new JSONResponse($result);
 
     }//end lifecycle()
+
+    /**
+     * Generate the notarial proof package for a meeting.
+     *
+     * POST /api/meetings/{id}/proof-package
+     *
+     * Assembles the decision evidence (convocation record, quorum snapshot,
+     * votes tally, adopted decision texts) into a hash-sealed JSON + markdown
+     * package stored in the meeting's Files folder.
+     *
+     * Access control: chair or secretary of the meeting (via
+     * ParticipantResolver), with NC-admin fallback. Fails CLOSED — when the
+     * roles cannot be resolved the request is denied.
+     *
+     * Returns 200 with { files, sha256, generatedAt } on success.
+     * Returns 401 when not authenticated.
+     * Returns 403 when the caller lacks the chair/secretary role.
+     * Returns 404 when the meeting is not found.
+     * Returns 503 when OpenRegister or the Files backend is unavailable.
+     *
+     * @param string $id UUID of the meeting
+     *
+     * @return JSONResponse
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     */
+    #[NoAdminRequired]
+    public function proofPackage(string $id): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $userId = $user->getUID();
+
+        if ($this->groupManager->isAdmin($userId) === false
+            && $this->participantResolver->hasRole(
+                meetingId: $id,
+                nextcloudUid: $userId,
+                roles: ['chair', 'secretary'],
+            ) === false
+        ) {
+            return new JSONResponse(
+                ['message' => 'Forbidden: chair or secretary role required to generate a proof package.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
+        try {
+            $result = $this->proofPackageService->assemble(
+                meetingId: $id,
+                generatedBy: $user->getDisplayName(),
+            );
+            return new JSONResponse($result);
+        } catch (MissingObjectException $e) {
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_NOT_FOUND
+            );
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(
+                ['message' => $e->getMessage()],
+                Http::STATUS_SERVICE_UNAVAILABLE
+            );
+        }//end try
+
+    }//end proofPackage()
 }//end class
