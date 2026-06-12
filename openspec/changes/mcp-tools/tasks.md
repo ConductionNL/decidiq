@@ -231,6 +231,10 @@ gates on push.
   Nextcloud bootstrap with auth context — the same dependency the Phase-7
   Integration suite (`QuorumDeclarativeTest`) already exhibits — and so it is
   intentionally driven from the CI e2e job rather than from the Unit suite.]
+  **W28 confirm (2026-06-12)**: same upstream blocker as
+  board-meeting-resolutions §9.11 — needs the OR magic-table writer
+  + Nextcloud bootstrap test harness. Re-checked the integration test
+  on `origin/development`: still skips cleanly. No regression.
 
 ## 7. Quality gates
 
