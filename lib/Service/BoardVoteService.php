@@ -114,6 +114,30 @@ class BoardVoteService
             }
         }
 
+        // Proxy votes must reference an ACTIVE proxy record granted by this
+        // member to the named holder (board-meeting-resolutions task-2.4;
+        // OWASP A01 — without this gate any caller could record a proxy vote
+        // with a fabricated holder).
+        if ($method === 'proxy') {
+            $proxyHolder = trim((string) ($extra['proxyHolder'] ?? ''));
+            if ($proxyHolder === '') {
+                return [
+                    'success' => false,
+                    'vote'    => null,
+                    'message' => "Proxy votes require the 'proxyHolder' parameter.",
+                ];
+            }
+
+            $proxyGate = $this->hasActiveProxy(grantorId: $boardMemberId, holderId: $proxyHolder);
+            if ($proxyGate === false) {
+                return [
+                    'success' => false,
+                    'vote'    => null,
+                    'message' => 'No active proxy from this board member to the named holder.',
+                ];
+            }
+        }
+
         $row = [
             'resolutionKoppeling'  => $resolutionId,
             'boardMemberKoppeling' => $boardMemberId,
@@ -168,6 +192,58 @@ class BoardVoteService
         ];
 
     }//end cast()
+
+    /**
+     * Check whether an ACTIVE board-proxy record exists from the grantor to
+     * the holder (any meeting — the resolution's meeting link is on the
+     * proxy record itself and proxies are registered per meeting, so a
+     * status filter plus the grantor/holder pair is the authoritative gate).
+     *
+     * @param string $grantorId UUID of the board member the vote is cast for
+     * @param string $holderId  UUID of the board member holding the proxy
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+     *
+     * @return bool True when an active proxy from grantor to holder exists
+     */
+    private function hasActiveProxy(string $grantorId, string $holderId): bool
+    {
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $rows          = $objectService->findAll(
+                [
+                    'register' => 'decidesk',
+                    'schema'   => 'board-proxy',
+                    'filters'  => ['grantorKoppeling' => $grantorId],
+                ]
+            );
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: failed to resolve proxy records for vote gate',
+                ['grantorId' => $grantorId, 'exception' => $e->getMessage()]
+            );
+            // Fail closed: an unverifiable proxy is rejected, never skipped.
+            return false;
+        }
+
+        foreach ($rows as $entity) {
+            $row = $entity;
+            if (is_object($entity) === true) {
+                $row = (array) $entity->jsonSerialize();
+            }
+
+            if (is_array($row) === true
+                && ($row['grantorKoppeling'] ?? null) === $grantorId
+                && ($row['holderKoppeling'] ?? null) === $holderId
+                && ($row['status'] ?? '') === 'active'
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }//end hasActiveProxy()
 
     /**
      * Tally the votes recorded against a resolution. Returns a count per vote

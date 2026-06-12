@@ -59,6 +59,7 @@ class DecisionNotificationService
      * @return int The count of notifications sent
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-5.1
+     * @spec openspec/specs/user-settings/spec.md
      */
     public function notifyOnPublish(string $decisionId): int
     {
@@ -118,12 +119,43 @@ class DecisionNotificationService
                     continue;
                 }
 
+                $title    = "Besluit gepubliceerd: ".($decision['title'] ?? 'Untitled');
+                $message  = "Outcome: ".($decision['outcome'] ?? 'pending');
+                $deepLink = "/decisions/$decisionId";
+
+                // Preference-aware dispatch (user-settings spec): honours the
+                // recipient's decisionPublished toggle, fans out to their
+                // active absence delegate, and selects in-app and/or email
+                // per their deliveryMethod. Falls back to the previous
+                // unconditional in-app send when the preference service is
+                // unavailable (e.g. partial container in unit tests).
+                $prefService = null;
+                try {
+                    $candidate = $this->container->get(NotificationPreferenceService::class);
+                    if ($candidate instanceof NotificationPreferenceService === true) {
+                        $prefService = $candidate;
+                    }
+                } catch (\Throwable $e) {
+                    $this->logger->debug('DecisionNotificationService: preference service unavailable', ['error' => $e->getMessage()]);
+                }
+
+                if ($prefService !== null) {
+                    $sentCount += $prefService->dispatch(
+                        personId: $ncUid,
+                        eventType: 'decisionPublished',
+                        title: $title,
+                        message: $message,
+                        deepLink: $deepLink
+                    );
+                    continue;
+                }
+
                 try {
                     $notificationService->sendNotification(
                         userId: $ncUid,
-                        title: "Besluit gepubliceerd: ".($decision['title'] ?? 'Untitled'),
-                        message: "Outcome: ".($decision['outcome'] ?? 'pending'),
-                        deepLink: "/decisions/$decisionId"
+                        title: $title,
+                        message: $message,
+                        deepLink: $deepLink
                     );
                     $sentCount++;
                 } catch (\Exception $e) {

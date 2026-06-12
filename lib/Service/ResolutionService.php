@@ -286,6 +286,21 @@ class ResolutionService
             $resolutionPayloadMerged = (array) $saved->jsonSerialize();
         }
 
+        // Activity feed (fail-soft): a resolution vote opened.
+        // @spec openspec/specs/nextcloud-integration/spec.md
+        try {
+            $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+                subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_VOTE_INITIATED,
+                title: (string) ($resolutionPayloadMerged['title'] ?? $resolutionId),
+                status: 'voting',
+                objectType: 'resolution',
+                objectUuid: $resolutionId,
+                segment: 'resolutions'
+            );
+        } catch (\Throwable $activityError) {
+            $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+        }
+
         return [
             'success'    => true,
             'resolution' => $resolutionPayloadMerged,
@@ -411,6 +426,23 @@ class ResolutionService
         $statusLabel = 'rejected';
         if ($adopted === true) {
             $statusLabel = 'adopted';
+        }
+
+        // Activity feed (fail-soft): only adopted resolutions are announced.
+        // @spec openspec/specs/nextcloud-integration/spec.md
+        if ($adopted === true) {
+            try {
+                $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+                    subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_RESOLUTION_ADOPTED,
+                    title: (string) ($resolutionPayloadMerged['title'] ?? $resolutionId),
+                    status: 'adopted',
+                    objectType: 'resolution',
+                    objectUuid: $resolutionId,
+                    segment: 'resolutions'
+                );
+            } catch (\Throwable $activityError) {
+                $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+            }
         }
 
         return [

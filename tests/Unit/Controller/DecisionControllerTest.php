@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
@@ -101,6 +102,13 @@ class DecisionControllerTest extends TestCase
     private ObjectService&MockObject $objectService;
 
     /**
+     * Mock DecisionLifecycleService.
+     *
+     * @var DecisionLifecycleService&MockObject
+     */
+    private DecisionLifecycleService&MockObject $lifecycleService;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -109,13 +117,14 @@ class DecisionControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->request       = $this->createMock(IRequest::class);
-        $this->container     = $this->createMock(ContainerInterface::class);
-        $this->userSession   = $this->createMock(IUserSession::class);
-        $this->groupManager  = $this->createMock(IGroupManager::class);
-        $this->logger        = $this->createMock(LoggerInterface::class);
-        $this->user          = $this->createMock(IUser::class);
-        $this->objectService = $this->createMock(ObjectService::class);
+        $this->request          = $this->createMock(IRequest::class);
+        $this->container        = $this->createMock(ContainerInterface::class);
+        $this->userSession      = $this->createMock(IUserSession::class);
+        $this->groupManager     = $this->createMock(IGroupManager::class);
+        $this->logger           = $this->createMock(LoggerInterface::class);
+        $this->user             = $this->createMock(IUser::class);
+        $this->objectService    = $this->createMock(ObjectService::class);
+        $this->lifecycleService = $this->createMock(DecisionLifecycleService::class);
 
         $this->user->method('getUID')->willReturn('admin');
         $this->userSession->method('getUser')->willReturn($this->user);
@@ -126,6 +135,7 @@ class DecisionControllerTest extends TestCase
             userSession: $this->userSession,
             groupManager: $this->groupManager,
             logger: $this->logger,
+            lifecycleService: $this->lifecycleService,
         );
 
     }//end setUp()
@@ -148,6 +158,7 @@ class DecisionControllerTest extends TestCase
             userSession: $unauthSession,
             groupManager: $this->groupManager,
             logger: $this->logger,
+            lifecycleService: $this->lifecycleService,
         );
 
         // Container must NOT be called for an unauthenticated request.
@@ -384,4 +395,180 @@ class DecisionControllerTest extends TestCase
         self::assertArrayHasKey('message', $result->getData());
 
     }//end testPublishWhenSaveFailsReturns503()
+
+    /**
+     * transition() for an unauthenticated request returns 401.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testTransitionUnauthenticatedReturns401(): void
+    {
+        $unauthSession = $this->createMock(IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
+        $unauthController = new DecisionController(
+            request: $this->request,
+            container: $this->container,
+            userSession: $unauthSession,
+            groupManager: $this->groupManager,
+            logger: $this->logger,
+            lifecycleService: $this->lifecycleService,
+        );
+
+        $this->lifecycleService->expects($this->never())->method('transition');
+
+        $result = $unauthController->transition('decision-uuid-001');
+
+        self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+
+    }//end testTransitionUnauthenticatedReturns401()
+
+    /**
+     * transition() without an action parameter returns 422.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testTransitionMissingActionReturns422(): void
+    {
+        $this->request->method('getParam')->willReturnMap(
+            [
+                ['action', '', ''],
+                ['comment', '', ''],
+            ]
+        );
+
+        $this->lifecycleService->expects($this->never())->method('transition');
+
+        $result = $this->controller->transition('decision-uuid-001');
+
+        self::assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $result->getStatus());
+
+    }//end testTransitionMissingActionReturns422()
+
+    /**
+     * transition() happy path returns 200 with the service result.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testTransitionHappyReturns200(): void
+    {
+        $this->request->method('getParam')->willReturnMap(
+            [
+                ['action', '', 'propose'],
+                ['comment', '', 'ready for review'],
+            ]
+        );
+
+        $this->lifecycleService->expects($this->once())
+            ->method('transition')
+            ->with(
+                self::equalTo('decision-uuid-001'),
+                self::equalTo('propose'),
+                self::equalTo('admin'),
+                self::equalTo('ready for review')
+            )
+            ->willReturn(
+                [
+                    'success'  => true,
+                    'decision' => ['id' => 'decision-uuid-001', 'lifecycle' => 'proposed'],
+                    'message'  => "Decision transitioned to 'proposed'.",
+                ]
+            );
+
+        $result = $this->controller->transition('decision-uuid-001');
+
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertSame('proposed', $result->getData()['decision']['lifecycle']);
+
+    }//end testTransitionHappyReturns200()
+
+    /**
+     * transition() surfaces guard rejections as 422.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testTransitionRejectedReturns422(): void
+    {
+        $this->request->method('getParam')->willReturnMap(
+            [
+                ['action', '', 'enact'],
+                ['comment', '', ''],
+            ]
+        );
+
+        $this->lifecycleService->method('transition')->willReturn(
+            [
+                'success'  => false,
+                'decision' => null,
+                'message'  => "Only decisions with outcome 'adopted' may be enacted.",
+            ]
+        );
+
+        $result = $this->controller->transition('decision-uuid-001');
+
+        self::assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $result->getStatus());
+        self::assertArrayHasKey('message', $result->getData());
+
+    }//end testTransitionRejectedReturns422()
+
+    /**
+     * transitions() returns the lifecycle envelope for readable decisions.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testTransitionsHappyReturns200(): void
+    {
+        $this->lifecycleService->method('getAvailableTransitions')->willReturn(
+            [
+                'success'   => true,
+                'lifecycle' => 'deliberating',
+                'domain'    => 'association',
+                'actions'   => [['action' => 'openVoting', 'to' => 'voting', 'chairOnly' => true]],
+                'states'    => ['draft', 'proposed', 'deliberating', 'voting', 'decided', 'enacted', 'archived'],
+                'message'   => 'OK',
+            ]
+        );
+
+        $result = $this->controller->transitions('decision-uuid-001');
+
+        self::assertSame(Http::STATUS_OK, $result->getStatus());
+        self::assertSame('deliberating', $result->getData()['lifecycle']);
+
+    }//end testTransitionsHappyReturns200()
+
+    /**
+     * transitions() renders unreadable / missing decisions as 404.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testTransitionsNotFoundReturns404(): void
+    {
+        $this->lifecycleService->method('getAvailableTransitions')->willReturn(
+            [
+                'success'   => false,
+                'lifecycle' => null,
+                'domain'    => null,
+                'actions'   => [],
+                'states'    => [],
+                'message'   => "Decision 'decision-uuid-404' not found.",
+            ]
+        );
+
+        $result = $this->controller->transitions('decision-uuid-404');
+
+        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+
+    }//end testTransitionsNotFoundReturns404()
 }//end class

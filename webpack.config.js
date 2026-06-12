@@ -23,6 +23,10 @@ webpackConfig.entry = {
 		import: path.join(__dirname, 'src', 'settings.js'),
 		filename: appId + '-settings.js',
 	},
+	personalSettings: {
+		import: path.join(__dirname, 'src', 'personal.js'),
+		filename: appId + '-personal.js',
+	},
 }
 
 // Use local source when available (monorepo dev), otherwise fall back to npm package.

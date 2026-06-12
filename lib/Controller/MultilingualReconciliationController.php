@@ -28,7 +28,6 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MultilingualReconciliationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -68,13 +67,10 @@ class MultilingualReconciliationController extends Controller
      * - sourceLocale (string, required)
      * - targetLocales (array<string>, required)
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
     public function queue(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -114,13 +110,10 @@ class MultilingualReconciliationController extends Controller
     /**
      * Return queue status (counts per status + listing).
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
     public function status(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -142,13 +135,10 @@ class MultilingualReconciliationController extends Controller
     /**
      * Force-process up to N queue entries (operational endpoint).
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
     public function process(): JSONResponse
     {
         $deny = $this->requireAdmin();

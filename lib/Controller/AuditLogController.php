@@ -26,7 +26,6 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\AuditLogService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
@@ -69,13 +68,10 @@ class AuditLogController extends Controller
     /**
      * Query the audit log.
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
     public function index(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -118,13 +114,10 @@ class AuditLogController extends Controller
      *
      * @param string $id UUID of the entry to stop at
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
      *
      * @return JSONResponse
      */
-    #[NoAdminRequired]
     public function verify(string $id): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -139,13 +132,10 @@ class AuditLogController extends Controller
     /**
      * Export a date-range slice of the audit log as JSON or CSV.
      *
-     * @NoAdminRequired
-     *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
      *
      * @return Response
      */
-    #[NoAdminRequired]
     public function export(): Response
     {
         $deny = $this->requireAdmin();

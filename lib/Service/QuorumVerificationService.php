@@ -98,43 +98,6 @@ class QuorumVerificationService
     }//end computeQuorum()
 
     /**
-     * Verify that a single participant is allowed to attend in the given mode.
-     * Proxies must reference an active proxy record; remote attendance is
-     * always allowed; in-person attendance does not require additional state.
-     *
-     * @param string $meetingId       UUID of the board meeting
-     * @param string $participantType One of self::PARTICIPANT_TYPES
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
-     *
-     * @return bool
-     */
-    public function verifyAttendance(string $meetingId, string $participantType): bool
-    {
-        if (in_array($participantType, self::PARTICIPANT_TYPES, true) === false) {
-            return false;
-        }
-
-        if ($participantType === 'absent') {
-            return true;
-        }
-
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $entity        = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'board-meeting');
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: failed to load board meeting for attendance verification',
-                ['exception' => $e->getMessage()]
-            );
-            return false;
-        }
-
-        return ($entity !== null);
-
-    }//end verifyAttendance()
-
-    /**
      * Build an attendance report for a meeting: list of board members with
      * their resolved attendance status plus the per-board total and threshold.
      *

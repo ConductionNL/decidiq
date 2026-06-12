@@ -1141,6 +1141,16 @@
             "type": "integer",
             "description": "Count of abstentions",
             "example": 2
+          },
+          "votingDeadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional deadline by which votes must be cast. Drives the 24-hour pre-deadline reminder notification (nextcloud-integration spec)."
+          },
+          "deadlineReminderSentAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Server-side marker set when the 24-hour deadline reminder has been sent (prevents duplicate reminders)."
           }
         },
         "x-openregister-relations": {
@@ -1307,6 +1317,36 @@
       },
       "Decision": {
         "x-openregister-notifications": {
+          "decisionProposed": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "proposed"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Besluit voorgesteld: {{title}}",
+              "en": "Decision proposed: {{title}}"
+            }
+          },
           "decisionRecorded": {
             "trigger": {
               "type": "created"
@@ -1397,6 +1437,26 @@
             "type": "string",
             "description": "Legal article or regulation",
             "example": "Gemeentewet art. 189"
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Decision state-machine lifecycle (guarded transition map: draft → proposed → deliberating → voting → decided → enacted → archived). Orthogonal to 'outcome' (the voting result, set when reaching 'decided') and 'isPublished' (citizen visibility of the record, p3-citizen-participation).",
+            "enum": [
+              "draft",
+              "proposed",
+              "deliberating",
+              "voting",
+              "decided",
+              "enacted",
+              "archived"
+            ],
+            "default": "draft",
+            "example": "deliberating"
+          },
+          "enactedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the decision entered the 'enacted' lifecycle state (set server-side by the enact transition)."
           }
         },
         "x-openregister-relations": {
@@ -1419,7 +1479,9 @@
             "outcome": "adopted",
             "isPublished": "public",
             "publishedAt": "2025-04-11T09:00:00Z",
-            "legalBasis": "Gemeentewet art. 189"
+            "legalBasis": "Gemeentewet art. 189",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-04-11T09:00:00Z"
           },
           {
             "@self": {
@@ -1432,7 +1494,9 @@
             "decisionDate": "2025-04-10T21:05:00Z",
             "outcome": "adopted",
             "isPublished": "public",
-            "publishedAt": "2025-04-11T09:00:00Z"
+            "publishedAt": "2025-04-11T09:00:00Z",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-04-11T09:00:00Z"
           },
           {
             "@self": {
@@ -1445,7 +1509,8 @@
             "decisionDate": "2025-03-27T20:45:00Z",
             "outcome": "adopted",
             "isPublished": "internal",
-            "legalBasis": "Wet ruimtelijke ordening art. 3.1"
+            "legalBasis": "Wet ruimtelijke ordening art. 3.1",
+            "lifecycle": "decided"
           },
           {
             "@self": {
@@ -1459,7 +1524,9 @@
             "outcome": "adopted",
             "isPublished": "public",
             "publishedAt": "2025-03-21T09:00:00Z",
-            "legalBasis": "Wet ruimtelijke ordening art. 3.1"
+            "legalBasis": "Wet ruimtelijke ordening art. 3.1",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-03-21T09:00:00Z"
           },
           {
             "@self": {
@@ -1473,7 +1540,9 @@
             "outcome": "adopted",
             "isPublished": "public",
             "publishedAt": "2025-03-21T09:00:00Z",
-            "legalBasis": "Gemeentewet art. 147"
+            "legalBasis": "Gemeentewet art. 147",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-03-21T09:00:00Z"
           },
           {
             "@self": {
@@ -1486,7 +1555,8 @@
             "decisionDate": "2025-04-01T14:30:00Z",
             "outcome": "adopted",
             "isPublished": "confidential",
-            "legalBasis": "Algemene wet bestuursrecht art. 7:11"
+            "legalBasis": "Algemene wet bestuursrecht art. 7:11",
+            "lifecycle": "decided"
           },
           {
             "@self": {
@@ -1498,7 +1568,8 @@
             "text": "Het amendement tot verhoging van het cultuursubsidiebudget 2026 met €75.000 wordt niet aanvaard.",
             "decisionDate": "2025-04-10T21:00:00Z",
             "outcome": "rejected",
-            "isPublished": "internal"
+            "isPublished": "internal",
+            "lifecycle": "decided"
           },
           {
             "@self": {
@@ -1511,7 +1582,9 @@
             "decisionDate": "2025-04-10T20:30:00Z",
             "outcome": "adopted",
             "isPublished": "public",
-            "publishedAt": "2025-04-11T08:30:00Z"
+            "publishedAt": "2025-04-11T08:30:00Z",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-04-11T08:30:00Z"
           }
         ]
       },
@@ -2777,6 +2850,124 @@
             "type": "string",
             "format": "date-time",
             "description": "When the citizen read the in-app notification."
+          }
+        }
+      },
+      "NotificationPreference": {
+        "slug": "notification-preference",
+        "icon": "BellCogOutline",
+        "version": "0.2.0",
+        "title": "NotificationPreference",
+        "description": "Per-user personal preferences for Decidesk (user-settings spec): notification event toggles + delivery channels, meeting-reminder timing, absence delegation (delegate + period, automatic expiry by date comparison), and governance communication preferences. One object per person; reads/writes are scoped to the session user by NotificationPreferenceController.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Intangible",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "person"
+        ],
+        "properties": {
+          "person": {
+            "type": "string",
+            "description": "Nextcloud UID (or participant UUID) of the user these preferences belong to."
+          },
+          "meetingCreated": {
+            "type": "boolean",
+            "description": "Notify when a meeting is scheduled.",
+            "default": true
+          },
+          "votingOpened": {
+            "type": "boolean",
+            "description": "Notify when a vote is pending (voting round opened).",
+            "default": true
+          },
+          "decisionPublished": {
+            "type": "boolean",
+            "description": "Notify when a decision is published.",
+            "default": true
+          },
+          "taskAssigned": {
+            "type": "boolean",
+            "description": "Notify when an action item is assigned.",
+            "default": true
+          },
+          "commentMention": {
+            "type": "boolean",
+            "description": "Notify when mentioned in a comment.",
+            "default": true
+          },
+          "meetingReminder": {
+            "type": "boolean",
+            "description": "Send Decidesk meeting reminders (calendar reminders are independent).",
+            "default": true
+          },
+          "reminderTimes": {
+            "type": "array",
+            "description": "When to send meeting reminders before the meeting starts. Default: 24 hours and 1 hour before.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "1h",
+                "4h",
+                "24h",
+                "48h",
+                "1w"
+              ]
+            },
+            "default": [
+              "24h",
+              "1h"
+            ]
+          },
+          "deliveryMethod": {
+            "type": "string",
+            "description": "Delivery channels for Decidesk notifications.",
+            "enum": [
+              "in-app",
+              "email",
+              "both"
+            ],
+            "default": "in-app",
+            "example": "both"
+          },
+          "delegate": {
+            "type": "string",
+            "description": "Nextcloud UID of the delegate who receives this user's notifications during the absence period. Delegation never grants voting rights (a formal proxy/volmacht is required for voting)."
+          },
+          "delegationFrom": {
+            "type": "string",
+            "format": "date",
+            "description": "First day (inclusive) of the absence delegation period."
+          },
+          "delegationUntil": {
+            "type": "string",
+            "format": "date",
+            "description": "Last day (inclusive) of the absence delegation period; the delegation expires automatically after this date."
+          },
+          "governanceEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "Preferred e-mail address for governance communications (convocations, minutes, reminders). Empty = Nextcloud account email."
+          },
+          "urgentPhone": {
+            "type": "string",
+            "description": "Phone number for urgent governance matters (stored for secretariat use)."
+          },
+          "communicationLanguage": {
+            "type": "string",
+            "description": "Preferred language for governance communications. Empty = Nextcloud locale.",
+            "enum": [
+              "nl",
+              "en",
+              "de",
+              "fr",
+              "es",
+              "it"
+            ]
           }
         }
       },
@@ -4815,7 +5006,8 @@
               "signature",
               "notice-sent",
               "proxy-created",
-              "proxy-revoked"
+              "proxy-revoked",
+              "decision-transition"
             ]
           },
           "objectUids": {

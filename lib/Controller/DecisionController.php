@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -46,11 +47,12 @@ class DecisionController extends Controller
     /**
      * Constructor for DecisionController.
      *
-     * @param IRequest           $request      The HTTP request
-     * @param ContainerInterface $container    DI container (lazy-loads OpenRegister services)
-     * @param IUserSession       $userSession  The current user session
-     * @param IGroupManager      $groupManager Group manager for admin checks
-     * @param LoggerInterface    $logger       The logger
+     * @param IRequest                 $request          The HTTP request
+     * @param ContainerInterface       $container        DI container (lazy-loads OpenRegister services)
+     * @param IUserSession             $userSession      The current user session
+     * @param IGroupManager            $groupManager     Group manager for admin checks
+     * @param LoggerInterface          $logger           The logger
+     * @param DecisionLifecycleService $lifecycleService Guarded decision state machine
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      */
@@ -60,9 +62,113 @@ class DecisionController extends Controller
         private IUserSession $userSession,
         private IGroupManager $groupManager,
         private LoggerInterface $logger,
+        private DecisionLifecycleService $lifecycleService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
+
+    /**
+     * Apply a lifecycle transition to a decision.
+     *
+     * POST /api/decisions/{decisionId}/transition
+     *
+     * Expects JSON body: { "action": "<propose|deliberate|openVoting|decide|enact|archive>",
+     * "comment": "<optional audit comment>" }
+     *
+     * Access control (OWASP A01 / ADR-005): per-object authorization is
+     * OpenRegister ObjectService RBAC inside DecisionLifecycleService —
+     * find() returns null without read access on THIS decision (404),
+     * saveObject() throws without write access — plus the chair-only domain
+     * gate (fail closed). Chairs/clerks are not NC admins, so no
+     * IGroupManager::isAdmin() gate here (same approved pattern as
+     * MeetingController::lifecycle).
+     *
+     * Returns 200 with the updated decision, 401 unauthenticated, 422 when
+     * the transition is invalid/forbidden or the decision is not accessible.
+     *
+     * @param string $decisionId UUID of the Decision object
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return JSONResponse
+     */
+    #[NoAdminRequired]
+    public function transition(string $decisionId): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $action = (string) $this->request->getParam('action', '');
+        if ($action === '') {
+            return new JSONResponse(
+                ['message' => "Missing required parameter 'action'."],
+                Http::STATUS_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        $comment = (string) $this->request->getParam('comment', '');
+
+        // Per-object authorization happens inside the service via ObjectService
+        // RBAC (find/saveObject) + the chair-only gate — see class docblock.
+        $result = $this->lifecycleService->transition(
+            decisionId: $decisionId,
+            action: $action,
+            currentUserId: $user->getUID(),
+            comment: $comment
+        );
+
+        if ($result['success'] === false) {
+            return new JSONResponse(
+                ['message' => $result['message']],
+                Http::STATUS_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        return new JSONResponse($result);
+
+    }//end transition()
+
+    /**
+     * Return the current lifecycle state and allowed next transitions for a
+     * decision (consumed by the detail-view Lifecycle tab).
+     *
+     * GET /api/decisions/{decisionId}/transitions
+     *
+     * Access control (OWASP A01 / ADR-005): per-object read authorization is
+     * OpenRegister ObjectService RBAC inside DecisionLifecycleService —
+     * find() returns null for objects the caller may not read, which renders
+     * as 404 here (no UUID probing).
+     *
+     * @param string $decisionId UUID of the Decision object
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return JSONResponse
+     */
+    #[NoAdminRequired]
+    public function transitions(string $decisionId): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        // Per-object read authorization happens inside the service via
+        // ObjectService RBAC (find returns null without read access).
+        $result = $this->lifecycleService->getAvailableTransitions(decisionId: $decisionId);
+
+        if ($result['success'] === false) {
+            return new JSONResponse(
+                ['message' => $result['message']],
+                Http::STATUS_NOT_FOUND
+            );
+        }
+
+        return new JSONResponse($result);
+
+    }//end transitions()
 
     /**
      * Publish a Decision server-side.
@@ -175,6 +281,21 @@ class DecisionController extends Controller
                 'Decidesk: Decision published',
                 ['id' => $decisionId, 'publishedBy' => $user->getUID()]
             );
+
+            // Activity feed (fail-soft): decision published.
+            // @spec openspec/specs/nextcloud-integration/spec.md
+            try {
+                $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+                    subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_DECISION_PUBLISHED,
+                    title: (string) ($updated['title'] ?? $decisionId),
+                    status: 'public',
+                    objectType: 'decision',
+                    objectUuid: $decisionId,
+                    segment: 'decisions'
+                );
+            } catch (\Throwable $activityError) {
+                $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+            }
 
             return new JSONResponse($result);
         } catch (\Throwable $e) {
