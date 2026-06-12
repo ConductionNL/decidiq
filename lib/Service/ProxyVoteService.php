@@ -57,6 +57,20 @@ class ProxyVoteService
     public const SCHEMA = 'board-proxy';
 
     /**
+     * App config key holding the per-holder per-meeting ACTIVE-proxy cap.
+     *
+     * @var string
+     */
+    public const MAX_PROXIES_CONFIG_KEY = 'max_proxies_per_holder';
+
+    /**
+     * NL governance default: a member may hold at most 2 proxies per meeting.
+     *
+     * @var int
+     */
+    public const MAX_PROXIES_DEFAULT = 2;
+
+    /**
      * Constructor.
      *
      * @param ContainerInterface $container       DI container
@@ -76,12 +90,18 @@ class ProxyVoteService
      * revoked. The persisted row starts in `pending-approval`; the secretary
      * must call approve() before the proxy counts toward quorum.
      *
+     * Enforces the per-holder per-meeting cap on ACTIVE proxies (app config
+     * `decidesk`/`max_proxies_per_holder`, NL governance default 2). Fail
+     * closed: when the existing proxies cannot be counted, registration is
+     * rejected rather than allowed through.
+     *
      * @param string               $meetingId UUID of the board meeting
      * @param string               $grantorId UUID of the granting board member
      * @param string               $holderId  UUID of the receiving board member
      * @param array<string, mixed> $extra     Optional fields: scope, expiresAt
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+     * @spec openspec/specs/voting-system/spec.md
      *
      * @return array{success: bool, proxy: array|null, message: string}
      */
@@ -100,6 +120,38 @@ class ProxyVoteService
                 'success' => false,
                 'proxy'   => null,
                 'message' => 'Grantor and holder must differ.',
+            ];
+        }
+
+        // Per-member proxy limit (voting-system spec): count the holder's ACTIVE
+        // proxies in this meeting and reject when the configured cap is reached.
+        // Fail closed: an unreadable proxy list rejects the registration.
+        $maxProxies = $this->maxProxiesPerHolder();
+        $existing   = $this->forMeeting(meetingId: $meetingId, status: 'active');
+        if (($existing['success'] ?? false) !== true) {
+            return [
+                'success' => false,
+                'proxy'   => null,
+                'message' => 'Failed to verify existing proxies for the holder — registration refused.',
+            ];
+        }
+
+        $heldByHolder = 0;
+        foreach ($existing['proxies'] as $proxyRow) {
+            if (($proxyRow['holderKoppeling'] ?? null) === $holderId) {
+                $heldByHolder++;
+            }
+        }
+
+        if ($heldByHolder >= $maxProxies) {
+            return [
+                'success' => false,
+                'proxy'   => null,
+                'message' => sprintf(
+                    'Maximum number of proxies reached: this member already holds %d of %d allowed proxies for this meeting.',
+                    $heldByHolder,
+                    $maxProxies
+                ),
             ];
         }
 
@@ -151,6 +203,36 @@ class ProxyVoteService
         ];
 
     }//end register()
+
+    /**
+     * Resolve the configured per-holder per-meeting ACTIVE-proxy cap.
+     *
+     * Reads app config `decidesk`/`max_proxies_per_holder`; values below 1 and
+     * resolution failures fall back to the NL governance default of 2 (a
+     * misconfigured cap never disables the limit — fail closed).
+     *
+     * @return int The maximum number of ACTIVE proxies one holder may hold per meeting
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     */
+    private function maxProxiesPerHolder(): int
+    {
+        try {
+            $appConfig = $this->container->get(\OCP\IAppConfig::class);
+            $value     = $appConfig->getValueInt('decidesk', self::MAX_PROXIES_CONFIG_KEY, self::MAX_PROXIES_DEFAULT);
+            if ($value >= 1) {
+                return $value;
+            }
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'Decidesk: max_proxies_per_holder config lookup failed — using default',
+                ['exception' => $e->getMessage()]
+            );
+        }
+
+        return self::MAX_PROXIES_DEFAULT;
+
+    }//end maxProxiesPerHolder()
 
     /**
      * Return the proxies attached to a meeting. Optionally filtered by status.

@@ -45,6 +45,37 @@ class VotingService
     private const NON_VOTING_ROLES = ['observer', 'guest'];
 
     /**
+     * Configurable majority thresholds (mirrors Resolution.voteThreshold).
+     *
+     * @var string[]
+     */
+    public const VOTE_THRESHOLDS = [
+        'simple-majority',
+        'qualified-majority-two-thirds',
+        'qualified-majority-three-quarters',
+        'unanimous',
+    ];
+
+    /**
+     * Abstention-handling modes: 'exclude' keeps abstentions out of the
+     * calculation base (default); 'count' adds them to the base, making
+     * every threshold harder to reach.
+     *
+     * @var string[]
+     */
+    public const ABSTENTION_MODES = ['exclude', 'count'];
+
+    /**
+     * Tie-break rules for a simple-majority tie: 'rejected' (default — the
+     * motion fails, preserving the status quo), 'chair-decides' (result stays
+     * 'tied' until the chair re-runs close with an explicit casting vote),
+     * 'revote' (result stays 'tied'; the round may be reopened exactly once).
+     *
+     * @var string[]
+     */
+    public const TIE_BREAK_RULES = ['rejected', 'chair-decides', 'revote'];
+
+    /**
      * Constructor for VotingService.
      *
      * @param ContainerInterface    $container             The DI container
@@ -309,12 +340,18 @@ class VotingService
      * @param bool          $isSecret             Whether the ballot is secret
      * @param string|null   $closedAt             Optional pre-defined close time
      * @param array<string> $presetParticipantIds Optional array of participant UUIDs for a voting group preset
+     * @param string        $voteThreshold        Majority rule (see VOTE_THRESHOLDS, default simple-majority)
+     * @param string        $abstentionHandling   Abstention mode (see ABSTENTION_MODES, default exclude)
+     * @param string        $tieBreakRule         Tie-break rule (see TIE_BREAK_RULES, default rejected)
+     * @param string|null   $revoteOfRoundId      UUID of a tied round this round is the single permitted revote of
      *
      * @return array<string,mixed> The created voting round object with excludedPresetUuids key if any UUIDs were excluded
      *
-     * @throws \RuntimeException When quorum is not met or lifecycle transition fails
+     * @throws \RuntimeException         When quorum is not met, the revote guard fails, or lifecycle transition fails
+     * @throws \InvalidArgumentException When a rule value is not in its enum (fail closed)
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     * @spec openspec/specs/voting-system/spec.md
      */
     public function openVotingRound(
         string $motionId,
@@ -323,28 +360,58 @@ class VotingService
         bool $isSecret,
         ?string $closedAt,
         array $presetParticipantIds=[],
+        string $voteThreshold='simple-majority',
+        string $abstentionHandling='exclude',
+        string $tieBreakRule='rejected',
+        ?string $revoteOfRoundId=null,
     ): array {
+        // Fail closed: unknown rule values are rejected, never silently defaulted.
+        if (in_array($voteThreshold, self::VOTE_THRESHOLDS, true) === false) {
+            throw new \InvalidArgumentException("Unknown voteThreshold '{$voteThreshold}'");
+        }
+
+        if (in_array($abstentionHandling, self::ABSTENTION_MODES, true) === false) {
+            throw new \InvalidArgumentException("Unknown abstentionHandling '{$abstentionHandling}'");
+        }
+
+        if (in_array($tieBreakRule, self::TIE_BREAK_RULES, true) === false) {
+            throw new \InvalidArgumentException("Unknown tieBreakRule '{$tieBreakRule}'");
+        }
+
         $quorumMet = $this->checkQuorum(meetingId: $meetingId);
         if ($quorumMet === false) {
             throw new \RuntimeException('Quorum niet bereikt');
         }
 
+        // Revote-once guard: the referenced round must be a tied revote-rule round
+        // that has not been revoted before (fail closed on every mismatch).
+        if ($revoteOfRoundId !== null) {
+            $this->assertRevoteAllowed(revoteOfRoundId: $revoteOfRoundId);
+        }
+
         $objectService = $this->objectService();
 
         $votingRound = [
-            'votingMethod' => $votingMethod,
-            'isSecret'     => $isSecret,
-            'openedAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-            'closedAt'     => $closedAt,
-            'quorumMet'    => $quorumMet,
-            'result'       => null,
-            'votesFor'     => 0,
-            'votesAgainst' => 0,
-            'votesAbstain' => 0,
-            'relations'    => [
+            'votingMethod'       => $votingMethod,
+            'isSecret'           => $isSecret,
+            'openedAt'           => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'closedAt'           => $closedAt,
+            'quorumMet'          => $quorumMet,
+            'result'             => null,
+            'votesFor'           => 0,
+            'votesAgainst'       => 0,
+            'votesAbstain'       => 0,
+            'voteThreshold'      => $voteThreshold,
+            'abstentionHandling' => $abstentionHandling,
+            'tieBreakRule'       => $tieBreakRule,
+            'relations'          => [
                 ['register' => 'decidesk', 'schema' => 'motion', 'id' => $motionId],
             ],
         ];
+
+        if ($revoteOfRoundId !== null) {
+            $votingRound['revoteOfRound'] = $revoteOfRoundId;
+        }
 
         // Validate preset UUIDs against active memberships.
         $excludedUuids = [];
@@ -368,17 +435,21 @@ class VotingService
         $created = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $votingRound);
 
         // Transition motion lifecycle to 'voting' via the guarded state machine.
-        try {
-            $this->motionService->transitionLifecycle(
-                objectId: $motionId,
-                objectType: 'motion',
-                newState: 'voting',
-                actorId: 'system',
-            );
-        } catch (\InvalidArgumentException $e) {
-            throw new \RuntimeException('Cannot open voting round: '.$e->getMessage(), 0, $e);
-        } catch (\Throwable $e) {
-            $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
+        // Skipped for revote rounds: a tied result never transitioned the motion out
+        // of 'voting', and 'voting' -> 'voting' is not a legal transition.
+        if ($revoteOfRoundId === null) {
+            try {
+                $this->motionService->transitionLifecycle(
+                    objectId: $motionId,
+                    objectType: 'motion',
+                    newState: 'voting',
+                    actorId: 'system',
+                );
+            } catch (\InvalidArgumentException $e) {
+                throw new \RuntimeException('Cannot open voting round: '.$e->getMessage(), 0, $e);
+            } catch (\Throwable $e) {
+                $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
+            }
         }
 
         // ObjectService::saveObject() returns an ObjectEntity; normalise to an array so the
@@ -415,6 +486,56 @@ class VotingService
         return $result;
 
     }//end openVotingRound()
+
+    /**
+     * Guard the single permitted revote of a tied round (fail closed).
+     *
+     * A revote is only allowed when the referenced round exists, was tallied
+     * 'tied', carries tieBreakRule 'revote', and has not already been revoted
+     * (no other round references it via revoteOfRound). Every mismatch throws.
+     *
+     * @param string $revoteOfRoundId The tied round UUID being revoted
+     *
+     * @return void
+     *
+     * @throws \RuntimeException When the revote guard fails
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     */
+    private function assertRevoteAllowed(string $revoteOfRoundId): void
+    {
+        $objectService = $this->objectService();
+
+        $originalEntity = $objectService->find(id: $revoteOfRoundId, register: 'decidesk', schema: 'voting-round');
+        $original       = null;
+        if ($originalEntity !== null) {
+            $original = $originalEntity->jsonSerialize();
+        }
+
+        if ($original === null) {
+            throw new \RuntimeException("Revote refused: round {$revoteOfRoundId} not found");
+        }
+
+        if (($original['result'] ?? null) !== 'tied') {
+            throw new \RuntimeException('Revote refused: the referenced round is not tied');
+        }
+
+        if (($original['tieBreakRule'] ?? 'rejected') !== 'revote') {
+            throw new \RuntimeException("Revote refused: the referenced round's tie-break rule is not 'revote'");
+        }
+
+        // The "once" guarantee: no other round may already reference this round.
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('voting-round');
+        $existingRevotes = $objectService->findAll(['filters' => ['revoteOfRound' => $revoteOfRoundId]]);
+        foreach ($existingRevotes as $revoteEntity) {
+            $revote = $revoteEntity->jsonSerialize();
+            if (($revote['revoteOfRound'] ?? null) === $revoteOfRoundId) {
+                throw new \RuntimeException('Revote refused: this round has already been revoted once');
+            }
+        }
+
+    }//end assertRevoteAllowed()
 
     /**
      * Dispatch "pending vote" notifications for a freshly opened voting round.
@@ -529,6 +650,39 @@ class VotingService
     }//end hasAbsenceDelegation()
 
     /**
+     * Resolve the attendance mode to stamp on a vote (remote-vote annotation).
+     *
+     * Honest recording only — reads the casting participant's participantType
+     * ('in-person' | 'remote') and returns it; 'unknown' when the participant
+     * cannot be resolved or the field is unset. No session-verification theater.
+     * Carries no identity, so it is stamped on secret-ballot votes too.
+     *
+     * @param string $participantId The casting participant UUID
+     *
+     * @return string 'in-person' | 'remote' | 'unknown'
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     */
+    private function resolveCastAs(string $participantId): string
+    {
+        try {
+            $participantEntity = $this->objectService()->find(id: $participantId, register: 'decidesk', schema: 'participant');
+            if ($participantEntity !== null) {
+                $participant = $participantEntity->jsonSerialize();
+                $type        = ($participant['participantType'] ?? null);
+                if (in_array($type, ['in-person', 'remote'], true) === true) {
+                    return $type;
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->logger->debug('Decidesk: castAs participant lookup failed', ['error' => $e->getMessage()]);
+        }
+
+        return 'unknown';
+
+    }//end resolveCastAs()
+
+    /**
      * Cast a vote in a VotingRound.
      *
      * Checks the round is open, verifies the participant is a member of the
@@ -551,6 +705,7 @@ class VotingService
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
      * @spec openspec/specs/user-settings/spec.md
+     * @spec openspec/specs/voting-system/spec.md
      */
     public function castVote(string $votingRoundId, string $participantId, string $value, bool $isProxy, ?string $delegatorId, ?string $callerUid=null): array
     {
@@ -776,6 +931,7 @@ class VotingService
             'weight'    => 1,
             'isProxy'   => $isProxy,
             'castAt'    => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'castAs'    => $this->resolveCastAs(participantId: $participantId),
             'relations' => $relations,
         ];
 
@@ -803,17 +959,75 @@ class VotingService
     }//end castVote()
 
     /**
-     * Close a VotingRound, optionally anonymising vote values.
+     * Validate and persist the chair's casting vote on a tied round (fail closed).
+     *
+     * Only permitted when the round exists, its tieBreakRule is 'chair-decides',
+     * and the value is 'for' or 'against'. Persisted as chairCastingVote so the
+     * subsequent tally resolves the tie and the audit trail shows the resolution.
      *
      * @param string $votingRoundId The voting round UUID
-     * @param bool   $anonymise     Whether to nullify individual vote values (GDPR anonymisation)
+     * @param string $chairCasting  The casting vote value ('for'|'against')
+     *
+     * @return void
+     *
+     * @throws \RuntimeException When the casting vote is not permitted
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     */
+    private function applyChairCastingVote(string $votingRoundId, string $chairCasting): void
+    {
+        if (in_array($chairCasting, ['for', 'against'], true) === false) {
+            throw new \RuntimeException("Casting vote refused: value must be 'for' or 'against'");
+        }
+
+        $objectService = $this->objectService();
+        $roundEntity   = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+        $round         = null;
+        if ($roundEntity !== null) {
+            $round = $roundEntity->jsonSerialize();
+        }
+
+        if ($round === null) {
+            throw new \RuntimeException("VotingRound {$votingRoundId} not found");
+        }
+
+        if (($round['tieBreakRule'] ?? 'rejected') !== 'chair-decides') {
+            throw new \RuntimeException("Casting vote refused: this round's tie-break rule is not 'chair-decides'");
+        }
+
+        $round['chairCastingVote'] = $chairCasting;
+        $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
+
+    }//end applyChairCastingVote()
+
+    /**
+     * Close a VotingRound, optionally anonymising vote values.
+     *
+     * When $chairCasting is provided, it is the chair's explicit casting vote
+     * resolving a tie under tieBreakRule 'chair-decides': the value is persisted
+     * as chairCastingVote on the round BEFORE the tally so computeResult() can
+     * resolve the tie, and the audit trail records how it was broken. Fail
+     * closed: a casting vote on a round whose tie-break rule is not
+     * 'chair-decides', or with a value other than for/against, is refused.
+     * Caller-side chair authorization is enforced by VotingController::close().
+     *
+     * @param string      $votingRoundId The voting round UUID
+     * @param bool        $anonymise     Whether to nullify individual vote values (GDPR anonymisation)
+     * @param string|null $chairCasting  Optional chair casting vote ('for'|'against') resolving a tie
      *
      * @return array<string,mixed> The closed voting round object
      *
+     * @throws \RuntimeException When the casting vote is not permitted (fail closed)
+     *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     * @spec openspec/specs/voting-system/spec.md
      */
-    public function closeVotingRound(string $votingRoundId, bool $anonymise=false): array
+    public function closeVotingRound(string $votingRoundId, bool $anonymise=false, ?string $chairCasting=null): array
     {
+        if ($chairCasting !== null) {
+            $this->applyChairCastingVote(votingRoundId: $votingRoundId, chairCasting: $chairCasting);
+        }
+
         $tally = $this->tallyResults(votingRoundId: $votingRoundId);
 
         $objectService = $this->objectService();
@@ -939,17 +1153,138 @@ class VotingService
     }//end closeVotingRound()
 
     /**
+     * Compute the rule-aware voting result for a set of counts.
+     *
+     * Formula (F = for, A = against, B = abstain, all weighted; see the
+     * voting-system spec delta for the legal worked examples):
+     *
+     * - base = F + A ('exclude', default) or F + A + B ('count' — abstentions
+     *   make every threshold harder).
+     * - T == 0 -> 'invalid'.
+     * - Tie (simple-majority only, F == A and F > 0) -> tieBreakRule applies:
+     *   'rejected' -> 'rejected' (motion fails, status quo); 'chair-decides' ->
+     *   'tied' until the round carries a chairCastingVote; 'revote' -> 'tied'.
+     * - base == 0 -> 'rejected' (nothing can carry; guards unanimous vacuity).
+     * - simple-majority: adopted iff 2F > base (strict "50%+1").
+     * - qualified-majority-two-thirds: adopted iff 3F >= 2*base.
+     * - qualified-majority-three-quarters: adopted iff 4F >= 3*base.
+     * - unanimous: adopted iff F == base.
+     *
+     * Integer math throughout — no float threshold comparisons.
+     *
+     * @param int                  $for     Weighted for-votes
+     * @param int                  $against Weighted against-votes
+     * @param int                  $abstain Weighted abstentions
+     * @param array<string,mixed>  $round   The voting round (rules + chairCastingVote are read from it)
+     *
+     * @return array{result: string, base: int, voteThreshold: string, abstentionHandling: string, tieBreakRule: string}
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     */
+    public function computeResult(int $for, int $against, int $abstain, array $round): array
+    {
+        $threshold = ($round['voteThreshold'] ?? 'simple-majority');
+        $abstMode  = ($round['abstentionHandling'] ?? 'exclude');
+        $tieRule   = ($round['tieBreakRule'] ?? 'rejected');
+
+        // Fail closed: unknown stored values fall back to the strictest sane default.
+        if (in_array($threshold, self::VOTE_THRESHOLDS, true) === false) {
+            $threshold = 'simple-majority';
+        }
+
+        if (in_array($abstMode, self::ABSTENTION_MODES, true) === false) {
+            $abstMode = 'exclude';
+        }
+
+        if (in_array($tieRule, self::TIE_BREAK_RULES, true) === false) {
+            $tieRule = 'rejected';
+        }
+
+        $total = ($for + $against + $abstain);
+        $base  = ($for + $against);
+        if ($abstMode === 'count') {
+            $base = $total;
+        }
+
+        $meta = [
+            'base'               => $base,
+            'voteThreshold'      => $threshold,
+            'abstentionHandling' => $abstMode,
+            'tieBreakRule'       => $tieRule,
+        ];
+
+        if ($total === 0) {
+            return (['result' => 'invalid'] + $meta);
+        }
+
+        // Classic tie deadlock — only meaningful under simple majority. A vote that
+        // merely misses half of a counted base (F != A) is plain 'rejected'.
+        if ($threshold === 'simple-majority' && $for === $against && $for > 0) {
+            if ($tieRule === 'chair-decides') {
+                $casting = ($round['chairCastingVote'] ?? null);
+                if ($casting === 'for') {
+                    return (['result' => 'adopted'] + $meta);
+                }
+
+                if ($casting === 'against') {
+                    return (['result' => 'rejected'] + $meta);
+                }
+
+                return (['result' => 'tied'] + $meta);
+            }
+
+            if ($tieRule === 'revote') {
+                return (['result' => 'tied'] + $meta);
+            }
+
+            // Default 'rejected': a tied motion fails (legal status quo).
+            return (['result' => 'rejected'] + $meta);
+        }
+
+        if ($base === 0) {
+            return (['result' => 'rejected'] + $meta);
+        }
+
+        $adopted = match ($threshold) {
+            'qualified-majority-two-thirds'     => (3 * $for) >= (2 * $base),
+            'qualified-majority-three-quarters' => (4 * $for) >= (3 * $base),
+            'unanimous'                         => $for === $base,
+            default                             => (2 * $for) > $base,
+        };
+
+        if ($adopted === true) {
+            return (['result' => 'adopted'] + $meta);
+        }
+
+        return (['result' => 'rejected'] + $meta);
+
+    }//end computeResult()
+
+    /**
      * Tally all votes in a VotingRound and update the round with counts and result.
+     *
+     * The result honours the round's configured voteThreshold, abstentionHandling
+     * and tieBreakRule (see computeResult()). The applied rules and the computed
+     * base are persisted on the round alongside the counts for auditability.
      *
      * @param string $votingRoundId The voting round UUID
      *
-     * @return array<string,mixed> Tally with votesFor, votesAgainst, votesAbstain, result
+     * @return array<string,mixed> Tally with votesFor, votesAgainst, votesAbstain, total, base, result and applied rules
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     * @spec openspec/specs/voting-system/spec.md
      */
     public function tallyResults(string $votingRoundId): array
     {
         $objectService = $this->objectService();
+
+        // Load the round first — the configured rules drive the result computation.
+        $roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
+        $round       = null;
+        if ($roundEntity !== null) {
+            $round = $roundEntity->jsonSerialize();
+        }
+
         $objectService->setRegister('decidesk');
         $objectService->setSchema('vote');
         $voteEntities = $this->filterByRelation(
@@ -975,39 +1310,33 @@ class VotingService
             }
         }
 
-        $total = ($for + $against + $abstain);
+        $total    = ($for + $against + $abstain);
+        $computed = $this->computeResult(for: $for, against: $against, abstain: $abstain, round: ($round ?? []));
+        $result   = $computed['result'];
 
-        if ($total === 0) {
-            $result = 'invalid';
-        } else if ($for > $against) {
-            $result = 'adopted';
-        } else if ($against > $for) {
-            $result = 'rejected';
-        } else {
-            $result = 'tied';
-        }
-
-        // Update VotingRound with tally.
-        $roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
-        $round       = null;
-        if ($roundEntity !== null) {
-            $round = $roundEntity->jsonSerialize();
-        }
-
+        // Update VotingRound with tally + the applied rules and base (audit trail).
         if ($round !== null) {
-            $round['votesFor']     = $for;
-            $round['votesAgainst'] = $against;
-            $round['votesAbstain'] = $abstain;
-            $round['result']       = $result;
+            $round['votesFor']           = $for;
+            $round['votesAgainst']       = $against;
+            $round['votesAbstain']       = $abstain;
+            $round['result']             = $result;
+            $round['voteBase']           = $computed['base'];
+            $round['voteThreshold']      = $computed['voteThreshold'];
+            $round['abstentionHandling'] = $computed['abstentionHandling'];
+            $round['tieBreakRule']       = $computed['tieBreakRule'];
             $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
         }
 
         return [
-            'votesFor'     => $for,
-            'votesAgainst' => $against,
-            'votesAbstain' => $abstain,
-            'total'        => $total,
-            'result'       => $result,
+            'votesFor'           => $for,
+            'votesAgainst'       => $against,
+            'votesAbstain'       => $abstain,
+            'total'              => $total,
+            'base'               => $computed['base'],
+            'voteThreshold'      => $computed['voteThreshold'],
+            'abstentionHandling' => $computed['abstentionHandling'],
+            'tieBreakRule'       => $computed['tieBreakRule'],
+            'result'             => $result,
         ];
 
     }//end tallyResults()
@@ -1028,6 +1357,7 @@ class VotingService
      * @throws \RuntimeException When the round is not found or is not a show-of-hands round
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     * @spec openspec/specs/voting-system/spec.md
      */
     public function saveShowOfHandsTally(string $votingRoundId, int $votesFor, int $votesAgainst, int $votesAbstain): array
     {
@@ -1087,18 +1417,23 @@ class VotingService
             }
         }//end if
 
-        $total  = ($votesFor + $votesAgainst + $votesAbstain);
-        $result = match (true) {
-            $total === 0      => 'invalid',
-            $votesFor > $votesAgainst  => 'adopted',
-            $votesAgainst > $votesFor  => 'rejected',
-            default           => 'tied',
-        };
+        // Rule-aware result: show-of-hands rounds honour the same configured
+        // threshold / abstention / tie-break rules as ballot rounds.
+        $computed = $this->computeResult(
+            for: $votesFor,
+            against: $votesAgainst,
+            abstain: $votesAbstain,
+            round: $round
+        );
 
-        $round['votesFor']     = $votesFor;
-        $round['votesAgainst'] = $votesAgainst;
-        $round['votesAbstain'] = $votesAbstain;
-        $round['result']       = $result;
+        $round['votesFor']           = $votesFor;
+        $round['votesAgainst']       = $votesAgainst;
+        $round['votesAbstain']       = $votesAbstain;
+        $round['result']             = $computed['result'];
+        $round['voteBase']           = $computed['base'];
+        $round['voteThreshold']      = $computed['voteThreshold'];
+        $round['abstentionHandling'] = $computed['abstentionHandling'];
+        $round['tieBreakRule']       = $computed['tieBreakRule'];
 
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
 

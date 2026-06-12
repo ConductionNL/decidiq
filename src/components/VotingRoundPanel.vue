@@ -50,6 +50,29 @@
 					<input v-model="newRound.isSecret" type="checkbox">
 					{{ t('decidesk', 'Geheime stemming') }}
 				</label>
+				<!-- Configurable voting rules (voting-system spec) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<label for="voteThreshold">{{ t('decidesk', 'Vote threshold') }}</label>
+				<select id="voteThreshold" v-model="newRound.voteThreshold" data-testid="vote-threshold-select">
+					<option v-for="value in voteThresholdOptions" :key="value" :value="value">
+						{{ labels.voteThreshold[value] }}
+					</option>
+				</select>
+				<label for="abstentionHandling">{{ t('decidesk', 'Abstention handling') }}</label>
+				<select id="abstentionHandling" v-model="newRound.abstentionHandling" data-testid="abstention-handling-select">
+					<option v-for="value in abstentionModeOptions" :key="value" :value="value">
+						{{ labels.abstentionHandling[value] }}
+					</option>
+				</select>
+				<label for="tieBreakRule">{{ t('decidesk', 'Tie-break rule') }}</label>
+				<select id="tieBreakRule" v-model="newRound.tieBreakRule" data-testid="tie-break-rule-select">
+					<option v-for="value in tieBreakRuleOptions" :key="value" :value="value">
+						{{ labels.tieBreakRule[value] }}
+					</option>
+				</select>
+				<p v-if="revoteOfRoundId" class="decidesk-revote-notice">
+					{{ t('decidesk', 'This round is the single permitted revote of the tied round.') }}
+				</p>
 				<label for="closedAt">{{ t('decidesk', 'Sluitingstijd (optioneel)') }}</label>
 				<input id="closedAt" v-model="newRound.closedAt" type="datetime-local">
 				<p v-if="openRoundError" class="decidesk-error" role="alert">
@@ -146,6 +169,11 @@
 						}) }}
 					</p>
 				</template>
+				<!-- Active voting rules + computed base (voting-system spec) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<p class="decidesk-rules" data-testid="active-voting-rules">
+					{{ activeRulesSummary }}
+				</p>
 			</div>
 
 			<!-- Proxy management — proxy grant/revoke is enforced by the backend -->
@@ -208,6 +236,43 @@
 						abstain: currentRound.votesAbstain || 0,
 					}) }}
 				</p>
+				<!-- Active rules + computed base shown with the result (voting-system spec) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<p class="decidesk-rules" data-testid="result-voting-rules">
+					{{ activeRulesSummary }}
+				</p>
+				<p v-if="currentRound.chairCastingVote" class="decidesk-rules" data-testid="chair-casting-recorded">
+					{{ t('decidesk', 'Tie resolved by the chair\'s casting vote: {value}', { value: currentRound.chairCastingVote }) }}
+				</p>
+
+				<!-- Tied round: chair casting vote (tieBreakRule = chair-decides) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<div v-if="currentRound.result === 'tied' && activeRules.tieBreakRule === 'chair-decides' && isChairOrSecretary"
+					class="decidesk-chair-casting"
+					data-testid="chair-casting-controls">
+					<p>{{ t('decidesk', 'The vote is tied. As chair you must resolve it with a casting vote.') }}</p>
+					<NcButton type="primary" @click="castChairVote('for')">
+						{{ t('decidesk', 'Casting vote: for') }}
+					</NcButton>
+					<NcButton type="error" @click="castChairVote('against')">
+						{{ t('decidesk', 'Casting vote: against') }}
+					</NcButton>
+					<p v-if="chairCastingError" class="decidesk-error" role="alert">
+						{{ chairCastingError }}
+					</p>
+				</div>
+
+				<!-- Tied round: single permitted revote (tieBreakRule = revote) -->
+				<!-- @spec openspec/specs/voting-system/spec.md -->
+				<div v-if="currentRound.result === 'tied' && activeRules.tieBreakRule === 'revote' && isChairOrSecretary"
+					class="decidesk-revote"
+					data-testid="revote-controls">
+					<p>{{ t('decidesk', 'The vote is tied. The round may be reopened once for a revote.') }}</p>
+					<NcButton type="primary" @click="startRevote">
+						{{ t('decidesk', 'Reopen round (revote)') }}
+					</NcButton>
+				</div>
+
 				<NcButton
 					v-if="isChairOrSecretary"
 					type="secondary"
@@ -218,6 +283,26 @@
 					{{ oriStatusLabel }}
 				</p>
 			</div>
+
+			<!-- Revote open dialog (reuses the rule selectors with the tied round's rules prefilled) -->
+			<div v-if="showOpenRoundDialog && revoteOfRoundId"
+				class="decidesk-dialog"
+				role="dialog"
+				:aria-label="t('decidesk', 'Reopen round (revote)')">
+				<h3>{{ t('decidesk', 'Reopen round (revote)') }}</h3>
+				<p>{{ t('decidesk', 'This round is the single permitted revote of the tied round.') }}</p>
+				<p v-if="openRoundError" class="decidesk-error" role="alert">
+					{{ openRoundError }}
+				</p>
+				<div class="decidesk-dialog-actions">
+					<NcButton type="primary" :disabled="openingRound" @click="openRound">
+						{{ t('decidesk', 'Openen') }}
+					</NcButton>
+					<NcButton @click="cancelRevote">
+						{{ t('decidesk', 'Annuleren') }}
+					</NcButton>
+				</div>
+			</div>
 		</template>
 	</CnDetailCard>
 </template>
@@ -226,6 +311,14 @@
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import { useObjectStore, useSettingsStore } from '../store/store.js'
+import {
+	ABSTENTION_MODES,
+	TIE_BREAK_RULES,
+	VOTE_THRESHOLDS,
+	computeBase,
+	effectiveRules,
+	ruleLabels,
+} from '../utils/votingRules.js'
 
 export default {
 	name: 'VotingRoundPanel',
@@ -260,7 +353,12 @@ export default {
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
 				closedAt: '',
+				voteThreshold: 'simple-majority',
+				abstentionHandling: 'exclude',
+				tieBreakRule: 'rejected',
 			},
+			revoteOfRoundId: null,
+			chairCastingError: null,
 			pollInterval: null,
 			participantCount: 0,
 		}
@@ -286,6 +384,40 @@ export default {
 		},
 		isChairOrSecretary() {
 			return this.settingsStore.isAdmin === true
+		},
+		/** Rule enum option lists for the open-round dialog. @spec openspec/specs/voting-system/spec.md */
+		voteThresholdOptions() {
+			return VOTE_THRESHOLDS
+		},
+		/** @spec openspec/specs/voting-system/spec.md */
+		abstentionModeOptions() {
+			return ABSTENTION_MODES
+		},
+		/** @spec openspec/specs/voting-system/spec.md */
+		tieBreakRuleOptions() {
+			return TIE_BREAK_RULES
+		},
+		/** Translated labels per rule enum value. @spec openspec/specs/voting-system/spec.md */
+		labels() {
+			return ruleLabels((text) => this.t('decidesk', text))
+		},
+		/** Effective rules of the displayed round (defaults applied). @spec openspec/specs/voting-system/spec.md */
+		activeRules() {
+			return effectiveRules(this.currentRound || {})
+		},
+		/** Computed calculation base of the displayed round. @spec openspec/specs/voting-system/spec.md */
+		computedBase() {
+			return computeBase(this.currentRound || {})
+		},
+		/** One-line summary of active rules + computed base. @spec openspec/specs/voting-system/spec.md */
+		activeRulesSummary() {
+			const rules = this.activeRules
+			return this.t('decidesk', 'Rules: {threshold} · {abstentions} · {tieBreak} — base: {base}', {
+				threshold: this.labels.voteThreshold[rules.voteThreshold],
+				abstentions: this.labels.abstentionHandling[rules.abstentionHandling],
+				tieBreak: this.labels.tieBreakRule[rules.tieBreakRule],
+				base: this.computedBase,
+			})
 		},
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
 		oriStatusLabel() {
@@ -382,11 +514,17 @@ export default {
 							votingMethod: this.newRound.votingMethod,
 							isSecret: this.newRound.isSecret,
 							closedAt: this.newRound.closedAt || null,
+							voteThreshold: this.newRound.voteThreshold,
+							abstentionHandling: this.newRound.abstentionHandling,
+							tieBreakRule: this.newRound.tieBreakRule,
+							revoteOfRound: this.revoteOfRoundId || null,
 						}),
 					},
 				)
 				if (resp.ok) {
 					this.showOpenRoundDialog = false
+					this.revoteOfRoundId = null
+					this.voteCast = false
 					await this.fetchCurrentRound()
 				} else {
 					const data = await resp.json()
@@ -415,6 +553,59 @@ export default {
 			} catch (e) {
 				// ignore
 			}
+		},
+		/**
+		 * Chair's casting vote resolving a tie under tieBreakRule chair-decides:
+		 * re-runs close with the explicit chairCasting value (chair-only, backend-guarded).
+		 *
+		 * @spec openspec/specs/voting-system/spec.md
+		 * @param {string} value 'for' or 'against'
+		 */
+		async castChairVote(value) {
+			this.chairCastingError = null
+			try {
+				const resp = await fetch(
+					OC.generateUrl(`/apps/decidesk/api/voting-rounds/${this.roundId}/close`),
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						body: JSON.stringify({ chairCasting: value }),
+					},
+				)
+				if (resp.ok) {
+					await this.fetchCurrentRound()
+				} else {
+					const data = await resp.json()
+					this.chairCastingError = data.message || this.t('decidesk', 'Casting vote failed')
+				}
+			} catch (e) {
+				this.chairCastingError = this.t('decidesk', 'Casting vote failed')
+			}
+		},
+		/**
+		 * Start the single permitted revote of a tied round: prefill the open
+		 * dialog with the tied round's rules and link the new round via revoteOfRound.
+		 *
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		startRevote() {
+			const rules = this.activeRules
+			this.newRound = {
+				votingMethod: this.currentRound?.votingMethod || 'for-against-abstain',
+				isSecret: this.currentRound?.isSecret === true,
+				closedAt: '',
+				voteThreshold: rules.voteThreshold,
+				abstentionHandling: rules.abstentionHandling,
+				tieBreakRule: rules.tieBreakRule,
+			}
+			this.revoteOfRoundId = this.roundId
+			this.openRoundError = null
+			this.showOpenRoundDialog = true
+		},
+		/** @spec openspec/specs/voting-system/spec.md */
+		cancelRevote() {
+			this.showOpenRoundDialog = false
+			this.revoteOfRoundId = null
 		},
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 */
 		async saveShowOfHands() {
@@ -598,5 +789,27 @@ export default {
 .decidesk-show-of-hands input {
 	width: 80px;
 	margin-bottom: var(--default-grid-baseline);
+}
+
+.decidesk-rules {
+	color: var(--color-text-maxcontrast);
+	font-size: 0.9em;
+	margin: calc(var(--default-grid-baseline) / 2) 0 0;
+}
+
+.decidesk-chair-casting,
+.decidesk-revote {
+	border-top: 1px solid var(--color-border);
+	margin-top: var(--default-grid-baseline);
+	padding-top: var(--default-grid-baseline);
+	display: flex;
+	gap: var(--default-grid-baseline);
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.decidesk-revote-notice {
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
 }
 </style>

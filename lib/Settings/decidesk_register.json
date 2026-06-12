@@ -592,6 +592,15 @@
               "excused"
             ],
             "example": "present"
+          },
+          "participantType": {
+            "type": "string",
+            "description": "Attendance mode for the current or most recent meeting — stamped on votes as castAs (remote-vote session annotation, voting-system spec).",
+            "enum": [
+              "in-person",
+              "remote"
+            ],
+            "example": "in-person"
           }
         },
         "x-openregister-relations": {
@@ -1151,6 +1160,53 @@
             "type": "string",
             "format": "date-time",
             "description": "Server-side marker set when the 24-hour deadline reminder has been sent (prevents duplicate reminders)."
+          },
+          "voteThreshold": {
+            "type": "string",
+            "description": "Majority rule applied when tallying this round (mirrors Resolution.voteThreshold). Default simple-majority.",
+            "enum": [
+              "simple-majority",
+              "qualified-majority-two-thirds",
+              "qualified-majority-three-quarters",
+              "unanimous"
+            ],
+            "example": "simple-majority"
+          },
+          "abstentionHandling": {
+            "type": "string",
+            "description": "Whether abstentions are excluded from the calculation base (default) or counted toward it, making thresholds harder.",
+            "enum": [
+              "exclude",
+              "count"
+            ],
+            "example": "exclude"
+          },
+          "tieBreakRule": {
+            "type": "string",
+            "description": "Configured tie-breaking rule for a simple-majority tie: rejected (default, motion fails), chair-decides (chair resolves via casting vote), or revote (round may be reopened once).",
+            "enum": [
+              "rejected",
+              "chair-decides",
+              "revote"
+            ],
+            "example": "rejected"
+          },
+          "chairCastingVote": {
+            "type": "string",
+            "description": "The chair's explicit casting vote resolving a tie under tieBreakRule=chair-decides (audit trail).",
+            "enum": [
+              "for",
+              "against"
+            ]
+          },
+          "revoteOfRound": {
+            "type": "string",
+            "description": "UUID of the tied round this round is the single permitted revote of (tieBreakRule=revote)."
+          },
+          "voteBase": {
+            "type": "integer",
+            "description": "Computed calculation base the threshold was evaluated against at tally time (for+against, plus abstentions under abstentionHandling=count).",
+            "example": 19
           }
         },
         "x-openregister-relations": {
@@ -1254,6 +1310,16 @@
             "type": "string",
             "format": "date-time",
             "description": "When the vote was cast"
+          },
+          "castAs": {
+            "type": "string",
+            "description": "Honest recording of the caster's attendance mode at cast time (from Participant.participantType; unknown when unresolvable). No session verification is performed.",
+            "enum": [
+              "in-person",
+              "remote",
+              "unknown"
+            ],
+            "example": "in-person"
           }
         },
         "x-openregister-relations": {

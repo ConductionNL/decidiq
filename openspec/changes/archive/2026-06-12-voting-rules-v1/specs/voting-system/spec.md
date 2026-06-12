@@ -1,79 +1,18 @@
 ---
-status: done
-status-note: 2026-06-12 voting-rules-v1 — closed the five audit gaps. qualified-majority thresholds (simple/2-3/3-4/unanimous via additive voteThreshold), abstention handling (exclude|count), configurable tie-breaking (rejected|chair-decides with chair-only casting vote|revote-once via revoteOfRound), per-member proxy limits (decidesk/max_proxies_per_holder app config, default 2, fail closed) and castAs attendance-mode stamping (replacing remote-session verification theater with honest recording, per the modified Remote Voting requirement). All 5 requirements built; covered by PHPUnit (tally matrix, proxy cap, castAs), vitest (votingRules.js), Playwright (rule selectors + active-rules display) and Newman (decidesk-voting-rules collection — authored against this branch; runs green once the branch is the deployed instance).
+status: draft
 ---
 
-# Voting System Specification
+# Spec Delta: Voting System (voting-rules-v1)
 
 ## Purpose
-@e2e exclude All voting scenarios require a live meeting in-progress with active voting rounds, quorum calculations, and multi-user ballot state that cannot be deterministically set up via pure UI interactions. The VotingRoundPanel component exists but its scenarios are integration-level (vote casting, real-time tallying, secret ballot, proxy enforcement) requiring backend state that must be tested at the PHP/WebSocket layer.
 
-The voting system is Decidesk's most critical feature. It supports multiple voting methods (open vote, secret ballot, roll call, weighted voting), real-time ballot casting and result calculation, quorum-aware majority thresholds, proxy vote handling, and configurable voting rules per governing body. The system ensures legally compliant voting for associations (ALV), corporate boards (BV/NV), and government councils.
+Closes the five audit gaps in the seeded voting-system spec: qualified-majority
+calculation, abstention-handling configuration, configurable tie-breaking,
+per-member proxy limits, and remote-vote session annotation. Requirement texts
+below replace their counterparts in the main spec; all other requirements are
+untouched.
 
-**Standards**: Schema.org (`VoteAction`, `ChooseAction`), Akoma Ntoso (`voting`, `count`), OpenRaadsinformatie (`Stemming`, `Stem`)
-**Feature tier**: MVP
-**Legal reference**: BW 2:38 (ALV voting), BW 2:230 (BV shareholder voting), Gemeentewet 27-32 (council voting), WBTR (documentation requirements)
-
-## Data Model
-
-See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Vote and VotingRound entity definitions including property tables, Schema.org mappings, and OpenRaadsinformatie alignment.
-## Requirements
-
----
-
-### Requirement: Open Vote (For/Against/Abstain)
-
-The system MUST support open (public) voting where each participant casts a for, against, or abstain vote. Results MUST be displayed in real-time. The vote of each participant MUST be recorded and visible in the minutes.
-
-**Feature tier**: MVP
-
-#### Scenario: Conduct an open vote on an agenda item
-
-- GIVEN a meeting with quorum met and an active agenda item of type "decision"
-- WHEN the chair initiates an open vote
-- THEN each eligible member MUST see a voting panel with "For", "Against", and "Abstain" buttons
-- AND the system MUST display the running tally in real-time
-- AND once all members have voted (or the chair closes voting), the result MUST be calculated
-- AND the result (adopted/rejected) MUST be announced based on the configured majority rule
-
-#### Scenario: View individual votes after an open vote
-
-- GIVEN an open vote has been completed
-- WHEN a user views the voting results
-- THEN the system MUST display how each member voted (for/against/abstain)
-- AND the results MUST be recorded in the decision audit trail
-
-#### Scenario: Reject a vote when quorum is lost mid-meeting
-
-- GIVEN a meeting where quorum was initially met but members have since left
-- WHEN the chair attempts to start a new vote
-- THEN the system MUST recalculate quorum from current attendance
-- AND if quorum is no longer met, voting MUST be blocked with a quorum warning
-
----
-
-### Requirement: Secret Ballot
-
-The system MUST support secret (anonymous) voting where individual votes are not linked to voters in the results. Secret ballots MUST be used for board elections and other votes where the chair or statutes require anonymity.
-
-**Feature tier**: MVP
-**Legal reference**: BW 2:38 (election by secret ballot), Gemeentewet 31 (secret ballot requirements)
-
-#### Scenario: Conduct a secret ballot for board election
-
-- GIVEN a meeting with an agenda item "Board Election — Treasurer"
-- WHEN the chair initiates a secret ballot
-- THEN each eligible member MUST see a voting panel with candidate options
-- AND individual votes MUST NOT be linked to voters in the stored results
-- AND only aggregate totals (votes per candidate) MUST be recorded
-- AND the system MUST verify that the total vote count matches the number of eligible voters
-
-#### Scenario: Verify vote count integrity for secret ballot
-
-- GIVEN a secret ballot has been completed with 12 eligible voters
-- WHEN the results are tallied
-- THEN the total number of votes MUST equal exactly 12
-- AND if a discrepancy is detected, the system MUST flag it for the chair
+## MODIFIED Requirements
 
 ---
 
@@ -230,27 +169,3 @@ resolved). No session-verification theater is performed.
 - THEN the remote member MUST see the same voting panel as in-person attendees
 - AND their vote MUST be counted with equal weight
 - AND their attendance mode (remote) MUST be recorded alongside their vote as `castAs: remote`
-
-## User Stories
-
-1. **Chair conducting open vote**: As chair, I want to conduct an open vote (for/against/abstain) on an agenda item and see results in real-time so that I can announce the outcome immediately. (Source: intelligence DB #57)
-
-2. **Chair conducting secret ballot**: As chair, I want to conduct a secret ballot for board elections so that members can vote freely without social pressure. (Source: intelligence DB #60)
-
-3. **Secretary verifying qualified majority**: As secretary, I want to verify that a statute amendment vote meets the required quorum and qualified majority so that the notary can confirm proper adoption. (Source: intelligence DB #59)
-
-4. **Member casting remote vote**: As a member attending remotely, I want to cast my vote securely during the ALV so that my participation is equal to physical attendees. (Source: intelligence DB #58)
-
-5. **Member granting digital proxy**: As a member who cannot attend the ALV, I want to grant a proxy (volmacht) to another member digitally so that my vote is represented without paper forms. (Source: intelligence DB #63)
-
-## Acceptance Criteria
-
-- Open vote records individual votes per participant (for/against/abstain)
-- Secret ballot stores only aggregate totals with vote count integrity verification
-- Configurable majority rules: simple, qualified (2/3, 3/4), unanimous, weighted
-- Proxy votes are verifiable, count toward quorum, and respect per-member limits
-- Remote votes have equal weight with session verification
-- Quorum is rechecked before each vote
-- Tie-breaking rules are configurable per body
-- All voting results mapped to OpenRaadsinformatie `Stemming`/`Stem`
-- Real-time result display during voting

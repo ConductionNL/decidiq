@@ -1,0 +1,3439 @@
+{
+ "info": {
+  "name": "Decidesk Voting Rules Contract Suite",
+  "description": "Newman contract tests for voting-rules-v1 (qualified-majority thresholds, abstention handling, tie-breaking, per-member proxy limits, castAs stamping): POST /api/voting-rounds (rule validation + revote-once guard), POST /api/voting-rounds/{id}/tally (threshold-aware result + recorded base), POST /api/voting-rounds/{id}/close (chair casting vote, fail closed), POST /api/proxies (per-holder ACTIVE-proxy cap, decidesk/max_proxies_per_holder default 2) and POST /api/voting-rounds/{id}/cast (castAs attendance-mode stamping). Self-contained: seeds + tears down its own OpenRegister objects.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/specs/voting-system/spec.md",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "auth": {
+  "type": "noauth"
+ },
+ "variable": [
+  {
+   "key": "baseUrl",
+   "value": "http://localhost:8080"
+  },
+  {
+   "key": "noAuthBase",
+   "value": "http://127.0.0.1:8080"
+  },
+  {
+   "key": "adminUser",
+   "value": "admin"
+  },
+  {
+   "key": "adminPass",
+   "value": "admin"
+  },
+  {
+   "key": "vrGovBodyId",
+   "value": ""
+  },
+  {
+   "key": "vrParticipantId",
+   "value": ""
+  },
+  {
+   "key": "vrMeetingId",
+   "value": ""
+  },
+  {
+   "key": "vrRulesMotionId",
+   "value": ""
+  },
+  {
+   "key": "vrTallyMotionId",
+   "value": ""
+  },
+  {
+   "key": "vrChairMotionId",
+   "value": ""
+  },
+  {
+   "key": "vrTwoThirdsRoundId",
+   "value": ""
+  },
+  {
+   "key": "vrCountRoundId",
+   "value": ""
+  },
+  {
+   "key": "vrGuardRoundId",
+   "value": ""
+  },
+  {
+   "key": "vrTiedRevoteRoundId",
+   "value": ""
+  },
+  {
+   "key": "vrChairRoundId",
+   "value": ""
+  },
+  {
+   "key": "vrCastRoundId",
+   "value": ""
+  },
+  {
+   "key": "vrVoteForId",
+   "value": ""
+  },
+  {
+   "key": "vrVoteAgainstId",
+   "value": ""
+  },
+  {
+   "key": "vrOpenedRoundId",
+   "value": ""
+  },
+  {
+   "key": "vrRevoteRoundId",
+   "value": ""
+  },
+  {
+   "key": "vrCastVoteId",
+   "value": ""
+  },
+  {
+   "key": "vrProxy1Id",
+   "value": ""
+  },
+  {
+   "key": "vrProxy2Id",
+   "value": ""
+  },
+  {
+   "key": "vrProxyOkId",
+   "value": ""
+  }
+ ],
+ "item": [
+  {
+   "name": "0. Setup",
+   "item": [
+    {
+     "name": "Seed governance body",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: governance body created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'governance body id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrGovBodyId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "governance-body"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Newman VR GB\",\n  \"bodyType\": \"legislative\",\n  \"domain\": \"newman-voting-rules\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed chair participant (admin, remote)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: chair participant created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'chair participant id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrParticipantId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "participant"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"displayName\": \"Newman VR Chair\",\n  \"name\": \"Newman VR Chair\",\n  \"nextcloudUserId\": \"{{adminUser}}\",\n  \"role\": \"chair\",\n  \"participantType\": \"remote\",\n  \"governanceBody\": \"{{vrGovBodyId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed meeting (opened, quorumRequired=1)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: meeting created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'meeting id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrMeetingId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "meeting"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"Newman VR Meeting\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-06-20T10:00:00+00:00\",\n  \"meetingMode\": \"hybrid\",\n  \"lifecycle\": \"opened\",\n  \"quorumRequired\": 1,\n  \"governanceBody\": \"{{vrGovBodyId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed rules motion (debating, meeting-linked)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: rules motion created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'rules motion id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrRulesMotionId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "motion"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"Newman VR Rules Motion\",\n  \"text\": \"That configurable rules be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{vrMeetingId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed tally motion (voting, standalone)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: tally motion created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'tally motion id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrTallyMotionId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "motion"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"Newman VR Tally Motion\",\n  \"text\": \"Tally-math host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed chair motion (voting, standalone)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: chair motion created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'chair motion id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrChairMotionId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "motion"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"Newman VR Chair Motion\",\n  \"text\": \"Chair casting-vote host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed two-thirds/exclude show-of-hands round",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: two-thirds exclude round created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'two-thirds exclude round id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrTwoThirdsRoundId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed two-thirds/count show-of-hands round",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: two-thirds count round created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'two-thirds count round id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrCountRoundId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votingMethod\": \"show-of-hands\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"count\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed default-rules round (tieBreakRule=rejected)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: default-rules round created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'default-rules round id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrGuardRoundId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed tied round (tieBreakRule=revote, result=tied)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: tied revote-rule round created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'tied revote-rule round id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrTiedRevoteRoundId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"result\": \"tied\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"revote\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrTallyMotionId}}\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed chair-decides round",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: chair-decides round created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'chair-decides round id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrChairRoundId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"chair-decides\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed FOR vote on chair-decides round",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: for vote created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'for vote id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrVoteForId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "vote"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"value\": \"for\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:06:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed AGAINST vote on chair-decides round",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: against vote created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'against vote id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrVoteAgainstId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "vote"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"value\": \"against\",\n  \"weight\": 1,\n  \"isProxy\": false,\n  \"castAt\": \"2026-06-20T10:07:00+00:00\",\n  \"castAs\": \"in-person\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"voting-round\",\n      \"id\": \"{{vrChairRoundId}}\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed open cast round (for castAs stamping)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: cast round created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'cast round id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrCastRoundId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidesk\",\n      \"schema\": \"motion\",\n      \"id\": \"{{vrChairMotionId}}\"\n    }\n  ]\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "1. Open round with configurable rules",
+   "item": [
+    {
+     "name": "Open round with qualified-majority rules (happy: 201, rules echoed)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Open: round with configured rules created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "pm.test('Open: configured rules are persisted on the round', () => {",
+         "  pm.expect(b.voteThreshold).to.eql('qualified-majority-two-thirds');",
+         "  pm.expect(b.abstentionHandling).to.eql('count');",
+         "  pm.expect(b.tieBreakRule).to.eql('revote');",
+         "});",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "if (id) { pm.collectionVariables.set('vrOpenedRoundId', id); }"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"motionId\": \"{{vrRulesMotionId}}\",\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"voteThreshold\": \"qualified-majority-two-thirds\",\n  \"abstentionHandling\": \"count\",\n  \"tieBreakRule\": \"revote\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Open round rejects unknown voteThreshold (error: 400)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Open: unknown voteThreshold rejected (400)', () => pm.response.to.have.status(400));",
+         "pm.test('Open: rejection names voteThreshold', () => pm.expect(pm.response.json().message).to.include('voteThreshold'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"motionId\": \"{{vrRulesMotionId}}\",\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"voteThreshold\": \"plurality\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Open round rejects unknown abstentionHandling (error: 400)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Open: unknown abstentionHandling rejected (400)', () => pm.response.to.have.status(400));",
+         "pm.test('Open: rejection names abstentionHandling', () => pm.expect(pm.response.json().message).to.include('abstentionHandling'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"motionId\": \"{{vrRulesMotionId}}\",\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"abstentionHandling\": \"ignore\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Open round rejects unknown tieBreakRule (error: 400)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Open: unknown tieBreakRule rejected (400)', () => pm.response.to.have.status(400));",
+         "pm.test('Open: rejection names tieBreakRule', () => pm.expect(pm.response.json().message).to.include('tieBreakRule'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"motionId\": \"{{vrRulesMotionId}}\",\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"tieBreakRule\": \"coin-flip\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Open round requires auth (authz: 401)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Open: unauthenticated rejected (401)', () => pm.response.to.have.status(401));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "noauth"
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/voting-rounds",
+       "host": [
+        "{{noAuthBase}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"motionId\": \"{{vrRulesMotionId}}\",\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"voteThreshold\": \"qualified-majority-two-thirds\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "2. Qualified-majority tally",
+   "item": [
+    {
+     "name": "Two-thirds tally, abstentions excluded (spec worked example: adopted, base 19)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Tally: two-thirds tally accepted (200)', () => pm.response.to.have.status(200));",
+         "const b = pm.response.json();",
+         "pm.test('Tally: 14/5/1 under two-thirds (exclude) is adopted on base 19', () => {",
+         "  pm.expect(b.result).to.eql('adopted');",
+         "  pm.expect(b.voteBase).to.eql(19);",
+         "});",
+         "pm.test('Tally: the applied threshold is recorded alongside the result', () => {",
+         "  pm.expect(b.voteThreshold).to.eql('qualified-majority-two-thirds');",
+         "  pm.expect(b.abstentionHandling).to.eql('exclude');",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrTwoThirdsRoundId}}/tally",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds",
+        "{{vrTwoThirdsRoundId}}",
+        "tally"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votesFor\": 14,\n  \"votesAgainst\": 5,\n  \"votesAbstain\": 1\n}"
+      }
+     }
+    },
+    {
+     "name": "Two-thirds tally, abstentions counted (rejected, base 20)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Tally: count-mode tally accepted (200)', () => pm.response.to.have.status(200));",
+         "const b = pm.response.json();",
+         "pm.test('Tally: 13/4/3 under two-thirds (count) is rejected on base 20', () => {",
+         "  pm.expect(b.result).to.eql('rejected');",
+         "  pm.expect(b.voteBase).to.eql(20);",
+         "  pm.expect(b.abstentionHandling).to.eql('count');",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrCountRoundId}}/tally",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds",
+        "{{vrCountRoundId}}",
+        "tally"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votesFor\": 13,\n  \"votesAgainst\": 4,\n  \"votesAbstain\": 3\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "3. Chair casting vote",
+   "item": [
+    {
+     "name": "Casting vote refused when tie-break rule is not chair-decides (fail closed: 400)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Casting: refused on a rejected-rule round (400)', () => pm.response.to.have.status(400));",
+         "pm.test('Casting: refusal names the chair-decides requirement', () => pm.expect(pm.response.json().message).to.include('chair-decides'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrGuardRoundId}}/close",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds",
+        "{{vrGuardRoundId}}",
+        "close"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"chairCasting\": \"for\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Casting vote refused for a non-for/against value (error: 400)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Casting: invalid value rejected (400)', () => pm.response.to.have.status(400));",
+         "pm.test('Casting: rejection names the allowed values', () => pm.expect(pm.response.json().message).to.include('for or against'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrGuardRoundId}}/close",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds",
+        "{{vrGuardRoundId}}",
+        "close"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"chairCasting\": \"maybe\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Close tied chair-decides round without casting vote (result stays tied)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Casting: close without casting vote succeeds (200)', () => pm.response.to.have.status(200));",
+         "pm.test('Casting: 1-for/1-against under chair-decides stays tied', () => pm.expect(pm.response.json().result).to.eql('tied'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrChairRoundId}}/close",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds",
+        "{{vrChairRoundId}}",
+        "close"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"anonymise\": false\n}"
+      }
+     }
+    },
+    {
+     "name": "Chair casting vote resolves the tie (for -> adopted)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Casting: chair casting vote accepted (200)', () => pm.response.to.have.status(200));",
+         "const b = pm.response.json();",
+         "pm.test('Casting: tie resolved to adopted and recorded as chairCastingVote', () => {",
+         "  pm.expect(b.result).to.eql('adopted');",
+         "  pm.expect(b.chairCastingVote).to.eql('for');",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrChairRoundId}}/close",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds",
+        "{{vrChairRoundId}}",
+        "close"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"chairCasting\": \"for\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "4. Revote once",
+   "item": [
+    {
+     "name": "Revote of a non-tied round refused (fail closed: 400)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Revote: non-tied source refused (400)', () => pm.response.to.have.status(400));",
+         "pm.test('Revote: refusal says the round is not tied', () => pm.expect(pm.response.json().message).to.include('not tied'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"motionId\": \"{{vrTallyMotionId}}\",\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"revoteOfRound\": \"{{vrGuardRoundId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Revote of a tied revote-rule round permitted once (happy: 201)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Revote: first revote of the tied round created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "pm.test('Revote: new round links the tied round via revoteOfRound', () => pm.expect(b.revoteOfRound).to.eql(pm.collectionVariables.get('vrTiedRevoteRoundId')));",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "if (id) { pm.collectionVariables.set('vrRevoteRoundId', id); }"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"motionId\": \"{{vrTallyMotionId}}\",\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"revoteOfRound\": \"{{vrTiedRevoteRoundId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Second revote of the same tied round refused (once-guard: 400)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Revote: second revote refused (400)', () => pm.response.to.have.status(400));",
+         "pm.test('Revote: refusal cites the single-revote guarantee', () => pm.expect(pm.response.json().message).to.include('already been revoted'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"motionId\": \"{{vrTallyMotionId}}\",\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"revoteOfRound\": \"{{vrTiedRevoteRoundId}}\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "5. Proxy cap",
+   "item": [
+    {
+     "name": "Seed ACTIVE proxy 1 for the holder",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: active proxy 1 created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'active proxy 1 id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrProxy1Id', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "board-proxy"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"meetingKoppeling\": \"{{vrMeetingId}}\",\n  \"grantorKoppeling\": \"newman-vr-grantor-1\",\n  \"holderKoppeling\": \"{{vrParticipantId}}\",\n  \"scope\": \"all-resolutions\",\n  \"proxyStatus\": \"active\",\n  \"registeredAt\": \"2026-06-19T09:00:00Z\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed ACTIVE proxy 2 for the holder",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: active proxy 2 created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'active proxy 2 id captured').to.be.a('string');",
+         "pm.collectionVariables.set('vrProxy2Id', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "board-proxy"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"meetingKoppeling\": \"{{vrMeetingId}}\",\n  \"grantorKoppeling\": \"newman-vr-grantor-2\",\n  \"holderKoppeling\": \"{{vrParticipantId}}\",\n  \"scope\": \"all-resolutions\",\n  \"proxyStatus\": \"active\",\n  \"registeredAt\": \"2026-06-19T09:05:00Z\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Third proxy for the same holder rejected at the default cap of 2 (error: 422)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Proxy cap: third proxy for the holder rejected (422)', () => pm.response.to.have.status(422));",
+         "pm.test('Proxy cap: rejection says the maximum is reached', () => pm.expect(pm.response.json().message).to.include('Maximum number of proxies reached'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "proxies"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"newman-vr-grantor-3\",\n  \"holderId\": \"{{vrParticipantId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Proxy for a different holder still registers under the cap (happy: 201)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Proxy cap: under-cap holder registers (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "pm.test('Proxy cap: fresh proxy starts pending-approval', () => pm.expect(b.proxyStatus).to.eql('pending-approval'));",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "if (id) { pm.collectionVariables.set('vrProxyOkId', id); }"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/proxies",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "proxies"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"newman-vr-grantor-4\",\n  \"holderId\": \"newman-vr-holder-alt\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Proxy registration requires auth (authz: 401)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Proxy cap: unauthenticated rejected (401)', () => pm.response.to.have.status(401));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "noauth"
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/proxies",
+       "host": [
+        "{{noAuthBase}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "proxies"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"meetingId\": \"{{vrMeetingId}}\",\n  \"grantorId\": \"newman-vr-grantor-5\",\n  \"holderId\": \"{{vrParticipantId}}\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "6. castAs stamping",
+   "item": [
+    {
+     "name": "Cast vote stamps castAs from the participant attendance mode (remote)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('castAs: vote cast (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "pm.test('castAs: remote participantType is stamped on the vote', () => pm.expect(b.castAs).to.eql('remote'));",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "if (id) { pm.collectionVariables.set('vrCastVoteId', id); }"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds/{{vrCastRoundId}}/cast",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidesk",
+        "api",
+        "voting-rounds",
+        "{{vrCastRoundId}}",
+        "cast"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"value\": \"for\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "9. Teardown",
+   "item": [
+    {
+     "name": "Delete cast vote",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote/{{vrCastVoteId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "vote",
+        "{{vrCastVoteId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete FOR vote",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote/{{vrVoteForId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "vote",
+        "{{vrVoteForId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete AGAINST vote",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/vote/{{vrVoteAgainstId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "vote",
+        "{{vrVoteAgainstId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete opened rules round",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrOpenedRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round",
+        "{{vrOpenedRoundId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete revote round",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrRevoteRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round",
+        "{{vrRevoteRoundId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete two-thirds exclude round",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrTwoThirdsRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round",
+        "{{vrTwoThirdsRoundId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete two-thirds count round",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrCountRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round",
+        "{{vrCountRoundId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete default-rules round",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrGuardRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round",
+        "{{vrGuardRoundId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete tied revote-rule round",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrTiedRevoteRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round",
+        "{{vrTiedRevoteRoundId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete chair-decides round",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrChairRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round",
+        "{{vrChairRoundId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete cast round",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/voting-round/{{vrCastRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "voting-round",
+        "{{vrCastRoundId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete active proxy 1",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy/{{vrProxy1Id}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "board-proxy",
+        "{{vrProxy1Id}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete active proxy 2",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy/{{vrProxy2Id}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "board-proxy",
+        "{{vrProxy2Id}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete under-cap proxy",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/board-proxy/{{vrProxyOkId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "board-proxy",
+        "{{vrProxyOkId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete rules motion",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{vrRulesMotionId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "motion",
+        "{{vrRulesMotionId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete tally motion",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{vrTallyMotionId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "motion",
+        "{{vrTallyMotionId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete chair motion",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{vrChairMotionId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "motion",
+        "{{vrChairMotionId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete meeting",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting/{{vrMeetingId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "meeting",
+        "{{vrMeetingId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete chair participant",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/participant/{{vrParticipantId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "participant",
+        "{{vrParticipantId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete governance body",
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/governance-body/{{vrGovBodyId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidesk",
+        "governance-body",
+        "{{vrGovBodyId}}"
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
