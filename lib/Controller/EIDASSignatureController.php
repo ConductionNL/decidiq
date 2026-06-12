@@ -28,6 +28,7 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\IEIDASSignatureService;
+use OCA\Decidesk\Service\MinutesAuthorizationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -47,14 +48,16 @@ class EIDASSignatureController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest               $request          HTTP request
-     * @param IEIDASSignatureService $signatureService eIDAS adapter
-     * @param IUserSession           $userSession      User session
+     * @param IRequest                    $request          HTTP request
+     * @param IEIDASSignatureService      $signatureService eIDAS adapter
+     * @param IUserSession                $userSession      User session
+     * @param MinutesAuthorizationService $authService      Per-board-member guard for the QES signing flow (R-4)
      */
     public function __construct(
         IRequest $request,
         private readonly IEIDASSignatureService $signatureService,
         private readonly IUserSession $userSession,
+        private readonly MinutesAuthorizationService $authService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -76,6 +79,17 @@ class EIDASSignatureController extends Controller
         $auth = $this->requireUserOr401(session: $this->userSession);
         if ($auth !== null) {
             return $auth;
+        }
+
+        // R-4 guard: only chair, vice-chair, or secretary on the linked
+        // GovernanceBody may initiate a QES signing request. Without this,
+        // any authed user can spam any Minutes UUID with a signing flow.
+        $userId = (string) $this->userSession->getUser()->getUID();
+        if ($this->authService->canInitiateSigning(userId: $userId, minutesId: $minutesId) === false) {
+            return new JSONResponse(
+                ['message' => 'You are not authorised to initiate a signing request for these minutes.'],
+                Http::STATUS_FORBIDDEN
+            );
         }
 
         $signatories = (array) $this->request->getParam('signatories', []);

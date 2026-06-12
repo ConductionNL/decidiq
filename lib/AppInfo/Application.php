@@ -803,12 +803,23 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
+            \OCA\Decidesk\Service\MinutesAuthorizationService::class,
+            static function ($c): \OCA\Decidesk\Service\MinutesAuthorizationService {
+                return new \OCA\Decidesk\Service\MinutesAuthorizationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
             \OCA\Decidesk\Controller\EIDASSignatureController::class,
             static function ($c): \OCA\Decidesk\Controller\EIDASSignatureController {
                 return new \OCA\Decidesk\Controller\EIDASSignatureController(
                     request: $c->get(\OCP\IRequest::class),
                     signatureService: $c->get(\OCA\Decidesk\Service\IEIDASSignatureService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
+                    authService: $c->get(\OCA\Decidesk\Service\MinutesAuthorizationService::class),
                 );
             }
         );
