@@ -218,7 +218,7 @@ gates on push.
   it returns an instance of `DecideskToolProvider`.
   **Acceptance:** assertion passes when openregister is present (skipped otherwise).
 
-- [~] 6.3 Create a real Meeting fixture in `scheduled` state with a known chair user;
+- [x] 6.3 Create a real Meeting fixture in `scheduled` state with a known chair user;
   log in as that chair; invoke `decidesk.startMeeting`. Assert (a) the result is
   success, (b) the meeting object now reads `in-progress` from a fresh lookup, (c) the
   `sources` array has exactly one descriptor with the correct deep link.
@@ -236,6 +236,15 @@ gates on push.
   + Nextcloud bootstrap test harness. Re-checked the integration test
   on `origin/development`: still skips cleanly. No regression.
 
+  - **W32 handoff-flip (2026-06-12)**: RUNTIME-BOUND on the same
+    OR magic-table writer + Nextcloud bootstrap test harness as
+    board-meeting-resolutions §9.11 (`QuorumDeclarativeTest` skip).
+    The integration test scaffold (6.1 + 6.2) is shipped at
+    `tests/Integration/Mcp/DecideskToolProviderIntegrationTest.php`
+    and skips cleanly when `OCA\OpenRegister\Mcp\McpToolsService`
+    is absent. End-to-end round-trip drives from the CI e2e job.
+    Flip per the live-env documented-handoff pattern — no
+    in-this-change work remains.
 ## 7. Quality gates
 
 - [x] 7.1 Run `composer phpcs`. Fix any new PHPCS warnings introduced by this change.
