@@ -51,6 +51,11 @@ import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
 
+// User settings (user-settings-v1): in-app mount of the personal settings
+// sections (notification / display / delegation / communication). The
+// canonical mount is the Nextcloud personal settings panel (ISettings).
+import UserSettingsPage from './views/settings/UserSettingsPage.vue'
+
 /**
  * Wrap a Vue component into the v2 registry shape required by CnAppRoot's
  * `registry` prop (`kind: "page"` is the discriminator CnPageRenderer keys
@@ -119,4 +124,8 @@ export default {
 	// decision → motion → voting-round → vote results aggregate.
 	DecisionLifecycleTab: page(DecisionLifecycleTab),
 	DecisionVotingTab: page(DecisionVotingTab),
+
+	// --- User settings (user-settings-v1). ---
+	// Four personal-preference sections; per-user REST endpoints only.
+	UserSettingsPage: page(UserSettingsPage),
 }

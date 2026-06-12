@@ -142,6 +142,37 @@ const router = new VueRouter({
 	routes: routesFromManifest(mergedManifest),
 })
 
+/**
+ * User-settings spec — "Set default landing page": when the user lands on the
+ * app root (`/`) and has configured a non-dashboard default view, replace the
+ * route with their preference. Deep links are never overridden (only the `/`
+ * entry is rewritten), and any failure leaves the dashboard untouched.
+ * Fire-and-forget with a short timeout so boot never blocks on it.
+ *
+ * @spec openspec/specs/user-settings/spec.md
+ */
+function applyDefaultViewPreference() {
+	if (router.currentRoute.path !== '/') {
+		return
+	}
+	const routesByPreference = { meetings: '/meetings', decisions: '/decisions' }
+	const controller = new AbortController()
+	const timer = setTimeout(() => controller.abort(), 3000)
+	fetch(generateUrl('/apps/decidesk/api/preferences/default-view'), {
+		headers: { Accept: 'application/json' },
+		signal: controller.signal,
+	})
+		.then((response) => (response.ok ? response.json() : null))
+		.then((data) => {
+			const target = routesByPreference[data?.value]
+			if (target && router.currentRoute.path === '/') {
+				router.replace(target).catch(() => {})
+			}
+		})
+		.catch(() => {})
+		.finally(() => clearTimeout(timer))
+}
+
 tryLoadTranslations()
 
 // Pass shallow copies of the registry maps to CnAppRoot. The lib exports
@@ -210,4 +241,7 @@ setActivePinia(pinia)
 			},
 		}),
 	}).$mount('#content')
+
+	// Honour the user's default-view display preference (user-settings spec).
+	applyDefaultViewPreference()
 })()
