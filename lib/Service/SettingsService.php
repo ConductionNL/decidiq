@@ -57,6 +57,29 @@ class SettingsService
         'minutesSchema',
         'decisionSchema',
         'actionItemSchema',
+        // Organization-level defaults per openspec/specs/admin-settings/spec.md
+        // (Organization Configuration requirement).
+        'organisation_name',
+        'organisation_logo',
+        'organisation_timezone',
+        'organisation_locale',
+        'organisation_currency',
+        'organisation_retention_days',
+    ];
+
+    /**
+     * Write-only configuration keys: accepted by updateSettings() but never
+     * echoed back by getSettings(). The settings#index route is reachable by
+     * any authenticated user (#[NoAdminRequired]) and previously leaked the
+     * ORI bearer secret to non-admins; consumers (OriPublicationService) read
+     * the secret directly from IAppConfig.
+     *
+     * @var array<string>
+     *
+     * @spec openspec/specs/admin-settings/spec.md
+     */
+    private const SECRET_KEYS = [
+        'ori_bearer_secret',
     ];
 
     /**
@@ -122,6 +145,11 @@ class SettingsService
 
         $settings = [];
         foreach (self::CONFIG_KEYS as $key) {
+            if (in_array($key, self::SECRET_KEYS, true) === true) {
+                // Write-only: never echo secrets to the (any-user) index route.
+                continue;
+            }
+
             $value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
             if ($value !== '') {
                 $settings[$key] = $value;

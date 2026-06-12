@@ -52,8 +52,12 @@ export const useSettingsStore = defineStore('settings', {
 				})
 				if (response.ok) {
 					const data = await response.json()
-					this.settings = data
-					return data
+					// settings#create wraps the settings in a {success, config}
+					// envelope — unwrap so this.settings stays the flat map the
+					// rest of the app (useRelationStore, Settings.vue) reads.
+					const saved = data?.config ?? data
+					this.settings = saved
+					return saved
 				}
 			} catch (error) {
 				console.error('Failed to save settings:', error)

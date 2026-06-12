@@ -1,16 +1,18 @@
 ---
-status: partial
-status-note: 2026-06-12 admin-settings-v1 — all 4 requirements now have working surfaces. Members tab root cause fixed (governanceBody materialised as a real Participant property via the ADR-037 register fragment — it previously lived only in x-openregister-relations, which OpenRegister never turns into a queryable property, so the tab always rendered empty) plus role-assignment UI; member import from Nextcloud groups and CSV (validation preview, duplicate handling, email-to-account matching, 500-row cap client and server); organization configuration UI (name, logo URL, timezone, locale, currency, retention days via IAppConfig); per-body default + specialized process-template assignment from the built-in catalogue. Honest residue — Nextcloud Contacts import not built (requirement satisfiable via Groups/CSV); template chooser on decision-create not built (decision-management surface); org name/logo not yet consumed by generated resolutions/minutes (document-generation pipeline); template management itself is process-configuration (V1, separate spec).
+status: draft
 ---
 
-# Admin Settings Specification
+# Spec Delta: Admin Settings (admin-settings-v1)
 
 ## Purpose
-Admin settings enable organization administrators to configure Decidesk for their specific governance context. This includes setting up governing bodies (bodies), assigning members with roles, selecting process templates, configuring voting rules, and managing the OpenRegister schema setup. The admin interface is the first thing configured after installation and determines how the entire system behaves.
 
-**Standards**: Nextcloud Settings API (`OCP\Settings\ISettings`), Schema.org (`Organization`, `Role`)
-**Feature tier**: MVP
-## Requirements
+Closes the three unbuilt admin-settings requirements (process-template assignment,
+organization configuration, member import) and the broken role-assignment surface of
+the first (the members tab rendered empty because `governanceBody` was never a real
+`Participant` property). Requirement texts match the seeded spec; this delta adds the
+implemented behaviour and real @e2e traceability where excludes previously stood.
+
+## MODIFIED Requirements
 
 ---
 
@@ -111,21 +113,3 @@ The system MUST support importing members from Nextcloud Groups, Nextcloud Conta
 - THEN the system MUST create member entries for each row
 - AND members with matching Nextcloud accounts (by email) MUST be automatically linked
 - AND unmatched members MUST be flagged for manual linking or invitation
-
-## User Stories
-
-1. **Board secretary managing conflict of interest register**: As a board secretary, I want to maintain a digital conflict of interest register for all board and supervisory board members, so that potential conflicts are proactively identified before meetings. (Source: intelligence DB #23)
-
-2. **Supervisory board chair managing director appointment**: As a supervisory board chair, I want to manage the full director appointment process from vacancy to formal appointment, so that governance procedures are properly followed. (Source: intelligence DB #28)
-
-3. **Board secretary organizing document archive**: As a board secretary, I want to maintain a structured, searchable governance document archive with access controls, so that governance documents are secure, findable, and properly retained. (Source: intelligence DB #43)
-
-## Acceptance Criteria
-
-- Governing bodies are stored as OpenRegister objects with member lists and roles
-- Body roles (chair, secretary, treasurer, member) map to specific permissions
-- Process templates are assignable to bodies with default and specialized options
-- Organization-level settings (name, logo, language, timezone) are configurable
-- Member import from Nextcloud Groups, Contacts, and CSV is supported
-- Quorum rules are configurable per body
-- Admin settings use Nextcloud Settings API (OCP\Settings\ISettings)

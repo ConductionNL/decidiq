@@ -4,11 +4,17 @@
 <!--
  Sidebar tab: members of a Governance Body.
 
- Posture: add-existing / remove. Members are participant records that
- reference this governance body via their `governanceBody` field.
- Adding a member rewrites the participant record's `governanceBody`
- pointer; removal clears it. We don't author participants from this
- tab — the standalone /participants index owns that workflow.
+ Members are participant records that reference this governance body via
+ their `governanceBody` field (a real Participant schema property since
+ admin-settings-v1 — it used to live only in x-openregister-relations,
+ which OpenRegister never materialises, so this tab rendered permanently
+ empty). Adding a member rewrites the participant's `governanceBody`
+ pointer; removal clears it; the role action assigns a role enum value.
+ New members can be imported from a Nextcloud group or a CSV file.
+
+ All dialogs live in src/modals/ (ADR-004 modal isolation).
+
+ @spec openspec/specs/admin-settings/spec.md
 -->
 <template>
 	<div class="decidesk-tab decidesk-tab--members" data-testid="body-members-tab">
@@ -17,16 +23,41 @@
 				{{ t('decidesk', 'Members') }}
 				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
 			</h3>
-			<NcButton
-				type="primary"
-				data-testid="body-members-add"
-				:aria-label="t('decidesk', 'Add member')"
-				@click="addDialogOpen = true">
-				<template #icon>
-					<Plus :size="20" />
-				</template>
-				{{ t('decidesk', 'Add member') }}
-			</NcButton>
+			<div class="decidesk-tab__actions">
+				<NcActions :aria-label="t('decidesk', 'Import members')">
+					<template #icon>
+						<AccountMultiplePlus :size="20" />
+					</template>
+					<NcActionButton
+						data-testid="body-members-import-group"
+						close-after-click
+						@click="groupImportOpen = true">
+						<template #icon>
+							<AccountGroup :size="20" />
+						</template>
+						{{ t('decidesk', 'Import from Nextcloud group') }}
+					</NcActionButton>
+					<NcActionButton
+						data-testid="body-members-import-csv"
+						close-after-click
+						@click="csvImportOpen = true">
+						<template #icon>
+							<FileDelimited :size="20" />
+						</template>
+						{{ t('decidesk', 'Import from CSV') }}
+					</NcActionButton>
+				</NcActions>
+				<NcButton
+					type="primary"
+					data-testid="body-members-add"
+					:aria-label="t('decidesk', 'Add member')"
+					@click="addDialogOpen = true">
+					<template #icon>
+						<Plus :size="20" />
+					</template>
+					{{ t('decidesk', 'Add member') }}
+				</NcButton>
+			</div>
 		</div>
 
 		<CnNoteCard
@@ -50,27 +81,31 @@
 			</template>
 		</CnDataTable>
 
-		<NcDialog
+		<MemberAddDialog
 			v-if="addDialogOpen"
-			:name="t('decidesk', 'Add member')"
-			@closing="addDialogOpen = false">
-			<template #default>
-				<p>{{ t('decidesk', 'Pick a participant to link to this governance body.') }}</p>
-				<div v-if="loadingCandidates" class="decidesk-tab__loading">
-					{{ t('decidesk', 'Loading participants…') }}
-				</div>
-				<ul v-else-if="candidates.length" class="decidesk-tab__list">
-					<li v-for="cand in candidates" :key="cand.id">
-						<NcButton @click="linkParticipant(cand)">
-							{{ candidateLabel(cand) }}
-						</NcButton>
-					</li>
-				</ul>
-				<p v-else class="decidesk-tab__empty">
-					{{ t('decidesk', 'No unassigned participants available.') }}
-				</p>
-			</template>
-		</NcDialog>
+			:body-id="objectId"
+			@linked="refresh"
+			@close="addDialogOpen = false" />
+
+		<MemberRoleDialog
+			v-if="roleTarget"
+			:member="roleTarget"
+			@saved="refresh"
+			@close="roleTarget = null" />
+
+		<MemberGroupImportDialog
+			v-if="groupImportOpen"
+			:body-id="objectId"
+			:existing-members="rows"
+			@imported="refresh"
+			@close="groupImportOpen = false" />
+
+		<MemberCsvImportDialog
+			v-if="csvImportOpen"
+			:body-id="objectId"
+			:existing-members="rows"
+			@imported="refresh"
+			@close="csvImportOpen = false" />
 
 		<CnDeleteDialog
 			v-if="removeTarget"
@@ -85,14 +120,38 @@
 
 <script>
 import { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions } from '@conduction/nextcloud-vue'
-import { NcButton, NcDialog } from '@nextcloud/vue'
+import { NcActionButton, NcActions, NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
+import AccountEdit from 'vue-material-design-icons/AccountEdit.vue'
+import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
+import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus.vue'
+import FileDelimited from 'vue-material-design-icons/FileDelimited.vue'
+import MemberAddDialog from '../../modals/MemberAddDialog.vue'
+import MemberCsvImportDialog from '../../modals/MemberCsvImportDialog.vue'
+import MemberGroupImportDialog from '../../modals/MemberGroupImportDialog.vue'
+import MemberRoleDialog from '../../modals/MemberRoleDialog.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'GovernanceBodyMembersTab',
-	components: { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions, NcButton, NcDialog, Plus },
+	components: {
+		AccountGroup,
+		AccountMultiplePlus,
+		CnDataTable,
+		CnDeleteDialog,
+		CnNoteCard,
+		CnRowActions,
+		FileDelimited,
+		MemberAddDialog,
+		MemberCsvImportDialog,
+		MemberGroupImportDialog,
+		MemberRoleDialog,
+		NcActionButton,
+		NcActions,
+		NcButton,
+		Plus,
+	},
 	props: {
 		objectId: { type: [String, Number], default: '' },
 		objectType: { type: String, default: '' },
@@ -105,13 +164,14 @@ export default {
 			error: '',
 			rows: [],
 			addDialogOpen: false,
-			loadingCandidates: false,
-			candidates: [],
+			groupImportOpen: false,
+			csvImportOpen: false,
+			roleTarget: null,
 			removeTarget: null,
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/admin-settings/spec.md */
 		columns() {
 			return [
 				{ key: 'displayName', label: this.t('decidesk', 'Name') },
@@ -119,9 +179,14 @@ export default {
 				{ key: 'party', label: this.t('decidesk', 'Party') },
 			]
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
+		/** @spec openspec/specs/admin-settings/spec.md */
 		rowActions() {
 			return [
+				{
+					label: this.t('decidesk', 'Change role'),
+					icon: AccountEdit,
+					handler: (row) => { this.roleTarget = { ...row } },
+				},
 				{
 					label: this.t('decidesk', 'Remove from body'),
 					icon: LinkOff,
@@ -134,16 +199,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
+			/** @spec openspec/specs/admin-settings/spec.md */
 			handler() { this.refresh() },
-		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
-		addDialogOpen(open) {
-			if (open) this.loadCandidates()
 		},
 	},
 	methods: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -161,34 +222,7 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
-		candidateLabel(p) {
-			return p.displayName || p.name || p.id
-		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
-		async loadCandidates() {
-			this.loadingCandidates = true
-			try {
-				const store = ensureRelationType('participant')
-				// Fetch participants without a body assignment OR with a different one;
-				// the OpenRegister API doesn't support negation filters here, so we
-				// fetch a page of all participants and filter client-side.
-				const items = await store.fetchCollection('participant', { _limit: 100 })
-				this.candidates = (items || []).filter(p => p.governanceBody !== this.objectId)
-			} catch {
-				this.candidates = []
-			} finally {
-				this.loadingCandidates = false
-			}
-		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
-		async linkParticipant(participant) {
-			const store = ensureRelationType('participant')
-			await store.saveObject('participant', { ...participant, governanceBody: this.objectId })
-			this.addDialogOpen = false
-			this.refresh()
-		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-3 */
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async confirmRemove() {
 			const store = ensureRelationType('participant')
 			const target = this.removeTarget
@@ -217,6 +251,11 @@ export default {
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+.decidesk-tab__actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
@@ -226,18 +265,5 @@ export default {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
-}
-.decidesk-tab__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
-.decidesk-tab__empty,
-.decidesk-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
 }
 </style>

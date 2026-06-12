@@ -30,7 +30,10 @@
 		</p>
 
 		<div v-if="rounds.length" class="decidesk-tab__rounds">
-			<div v-for="round in rounds" :key="round.id" class="decidesk-tab__round" data-testid="decision-voting-round">
+			<div v-for="round in rounds"
+				:key="round.id"
+				class="decidesk-tab__round"
+				data-testid="decision-voting-round">
 				<header class="decidesk-tab__round-header">
 					<strong>{{ round.votingMethod || t('decidesk', 'Voting round') }}</strong>
 					<CnStatusBadge
