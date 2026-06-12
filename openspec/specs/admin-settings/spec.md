@@ -1,5 +1,6 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 audit — 1/4 requirements built (governing-body management via governance-bodies + governance-body-crud capabilities). Missing — process-template assignment UI, organization configuration UI, member import (Groups/CSV), role assignment UI.
 ---
 
 # Admin Settings Specification

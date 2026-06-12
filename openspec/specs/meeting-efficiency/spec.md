@@ -1,5 +1,6 @@
 ---
 status: idea
+status-note: 2026-06-12 audit — 0/4 requirements built (V1-deferred). EngagementService tracks speakingDuration at data layer only; no timer UI, speaker queue, cost calculator, or analytics dashboard.
 ---
 
 # Meeting Efficiency Specification

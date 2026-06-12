@@ -1,5 +1,6 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 audit — 4/5 requirements built via meeting-core/-crud/-workflow/-series/-attendees/-quorum/-list-view/-detail-view + digital-meetings-and-recurrence capabilities. Missing — recurring-meeting generation UI, per-recipient convocation delivery tracking, Schema.org eventAttendanceMode mapping.
 ---
 
 # Meeting Management Specification

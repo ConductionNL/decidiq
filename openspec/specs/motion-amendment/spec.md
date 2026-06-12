@@ -1,5 +1,6 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 audit — 2/4 requirements built via motion-management, motion-status-management, amendment-workflow, amendment-diff (conflict detection) capabilities. Missing — visual amendment diff view, chair-controlled amendment voting order, co-signer threshold validation, submission deadline enforcement.
 ---
 
 # Motion and Amendment Specification

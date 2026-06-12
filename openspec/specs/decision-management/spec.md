@@ -1,5 +1,6 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 audit — 3/4 requirements built via decision-evolution-and-cascade + p2-minutes-and-decisions capabilities (LiveDecisionService, AuditLogService hash-chained trail, list/search). Missing — full 7-state machine (currently simplified internal/public), domain-configurable transitions, state visualization, voting results on detail view.
 ---
 
 # Decision Management Specification

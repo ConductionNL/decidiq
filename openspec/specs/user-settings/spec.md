@@ -1,5 +1,6 @@
 ---
 status: idea
+status-note: 2026-06-12 audit — 0/4 requirements built. UserSettings.vue shows empty state; only backend NotificationPreferenceService/-Controller exist (decidesk-notifications capability). No UI for notification, display, delegation, or communication preferences.
 ---
 
 # User Settings Specification

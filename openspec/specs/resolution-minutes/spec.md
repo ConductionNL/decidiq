@@ -1,5 +1,6 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 audit — 2/4 requirements built backend-only via p2-minutes-and-decisions* + board-meeting-resolutions capabilities (ResolutionService, WrittenResolutionService, MinutesGenerationService, MinutesAuthorizationService). Missing — real-time minute-taking editor, digital approval workflow UI, Docudesk PDF generation, notarial proof package.
 ---
 
 # Resolution and Minutes Specification

@@ -1,5 +1,6 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 audit — ~3/6 requirements built via discussion-via-talk-leaf, action-item-board-via-deck-leaf, email-linking-via-email-leaf, p4-integration capabilities + BoardCalDavSyncService (calendar) and notification senders. Missing — Activity feed (OCP\Activity\IManager), universal search provider (OCP\Search\IProvider), meeting Files folder structure with ACLs, voting-deadline reminder notifications.
 ---
 
 # Nextcloud Integration Specification

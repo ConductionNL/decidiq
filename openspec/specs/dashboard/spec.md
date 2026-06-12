@@ -1,5 +1,6 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 audit — 2/5 requirements built (dashboard page + 3 KPI stats-blocks via app-dashboard capability). Missing — Pending Votes + Upcoming Meetings widgets, full KPI row, empty state, OCP Dashboard IWidget. Completion in flight via changes decidesk-dashboard-v2-widgets + decidesk-dashboard-v2-layout.
 ---
 
 # Dashboard Specification
