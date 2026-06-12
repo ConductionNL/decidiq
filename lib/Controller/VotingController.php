@@ -250,6 +250,7 @@ class VotingController extends Controller
      * @NoAdminRequired
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     * @spec openspec/specs/user-settings/spec.md
      *
      * @return JSONResponse
      */
@@ -290,7 +291,8 @@ class VotingController extends Controller
                 participantId: $participantId,
                 value: $value,
                 isProxy: $isProxy,
-                delegatorId: $delegatorId
+                delegatorId: $delegatorId,
+                callerUid: $nextcloudUid
             );
             return new JSONResponse($vote, Http::STATUS_CREATED);
         } catch (\RuntimeException $e) {

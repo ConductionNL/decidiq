@@ -12,3 +12,7 @@ export function generateUrl(url) {
 export function generateRemoteUrl(service) {
 	return `http://localhost/remote.php/${service}`
 }
+
+export function generateOcsUrl(url) {
+	return `/ocs/v2.php/${url.startsWith('/') ? url.slice(1) : url}`
+}

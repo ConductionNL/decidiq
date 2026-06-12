@@ -2853,6 +2853,124 @@
           }
         }
       },
+      "NotificationPreference": {
+        "slug": "notification-preference",
+        "icon": "BellCogOutline",
+        "version": "0.2.0",
+        "title": "NotificationPreference",
+        "description": "Per-user personal preferences for Decidesk (user-settings spec): notification event toggles + delivery channels, meeting-reminder timing, absence delegation (delegate + period, automatic expiry by date comparison), and governance communication preferences. One object per person; reads/writes are scoped to the session user by NotificationPreferenceController.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Intangible",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "person"
+        ],
+        "properties": {
+          "person": {
+            "type": "string",
+            "description": "Nextcloud UID (or participant UUID) of the user these preferences belong to."
+          },
+          "meetingCreated": {
+            "type": "boolean",
+            "description": "Notify when a meeting is scheduled.",
+            "default": true
+          },
+          "votingOpened": {
+            "type": "boolean",
+            "description": "Notify when a vote is pending (voting round opened).",
+            "default": true
+          },
+          "decisionPublished": {
+            "type": "boolean",
+            "description": "Notify when a decision is published.",
+            "default": true
+          },
+          "taskAssigned": {
+            "type": "boolean",
+            "description": "Notify when an action item is assigned.",
+            "default": true
+          },
+          "commentMention": {
+            "type": "boolean",
+            "description": "Notify when mentioned in a comment.",
+            "default": true
+          },
+          "meetingReminder": {
+            "type": "boolean",
+            "description": "Send Decidesk meeting reminders (calendar reminders are independent).",
+            "default": true
+          },
+          "reminderTimes": {
+            "type": "array",
+            "description": "When to send meeting reminders before the meeting starts. Default: 24 hours and 1 hour before.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "1h",
+                "4h",
+                "24h",
+                "48h",
+                "1w"
+              ]
+            },
+            "default": [
+              "24h",
+              "1h"
+            ]
+          },
+          "deliveryMethod": {
+            "type": "string",
+            "description": "Delivery channels for Decidesk notifications.",
+            "enum": [
+              "in-app",
+              "email",
+              "both"
+            ],
+            "default": "in-app",
+            "example": "both"
+          },
+          "delegate": {
+            "type": "string",
+            "description": "Nextcloud UID of the delegate who receives this user's notifications during the absence period. Delegation never grants voting rights (a formal proxy/volmacht is required for voting)."
+          },
+          "delegationFrom": {
+            "type": "string",
+            "format": "date",
+            "description": "First day (inclusive) of the absence delegation period."
+          },
+          "delegationUntil": {
+            "type": "string",
+            "format": "date",
+            "description": "Last day (inclusive) of the absence delegation period; the delegation expires automatically after this date."
+          },
+          "governanceEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "Preferred e-mail address for governance communications (convocations, minutes, reminders). Empty = Nextcloud account email."
+          },
+          "urgentPhone": {
+            "type": "string",
+            "description": "Phone number for urgent governance matters (stored for secretariat use)."
+          },
+          "communicationLanguage": {
+            "type": "string",
+            "description": "Preferred language for governance communications. Empty = Nextcloud locale.",
+            "enum": [
+              "nl",
+              "en",
+              "de",
+              "fr",
+              "es",
+              "it"
+            ]
+          }
+        }
+      },
       "EngagementRecord": {
         "slug": "engagement-record",
         "icon": "CommentAccountOutline",

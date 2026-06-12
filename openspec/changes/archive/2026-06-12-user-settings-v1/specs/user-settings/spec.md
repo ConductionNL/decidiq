@@ -1,17 +1,17 @@
 ---
-status: done
-status-note: completed 2026-06-12 via user-settings-v1 — all 4 requirements built (personal settings panel + SPA page + dialog, preference-aware notification dispatch, absence delegation with proxy-voting gate, communication preferences).
+status: draft
 ---
 
-# User Settings Specification
+# Spec Delta: User Settings (user-settings-v1)
 
 ## Purpose
 
-User settings allow individual Decidesk users to configure their personal preferences for notifications, display, and participation. These settings control how and when users receive alerts about meetings, votes, and decisions, as well as display preferences for the dashboard and meeting interface.
+Implements the four seeded user-settings requirements (notification, display,
+delegation/absence, communication preferences). The requirement texts match the
+seeded spec; this delta adds e2e traceability annotations and the implemented
+behaviour. On archive, the main spec flips to `status: done`.
 
-**Standards**: Nextcloud Settings API (`OCP\Settings\ISettings`), Nextcloud Notification API
-**Feature tier**: MVP
-## Requirements
+## MODIFIED Requirements
 
 ---
 
@@ -81,7 +81,7 @@ The system MUST allow users to configure a delegate who receives their notificat
 
 #### Scenario: Delegate cannot vote without explicit proxy
 
-@e2e exclude server-side voting guard inside VotingService::castVote; requires a seeded two-member voting round with an active absence delegation, which has no deterministic UI fixture — verified by PHPUnit (VotingServiceDelegationGateTest) and the Newman cast-vote negative request in decidesk-user-settings.postman_collection.json
+@e2e exclude server-side voting guard inside VotingService::castVote; requires a seeded two-member voting round with an active absence delegation, which has no deterministic UI fixture — verified by PHPUnit (VotingServiceTest delegation-message cases) and the Newman cast-vote negative request
 
 - GIVEN member B is a delegate for member A during absence
 - WHEN member B attempts to cast a vote on member A's behalf
@@ -102,21 +102,3 @@ The system MUST allow users to set their preferred communication channel for gov
 - WHEN they set their governance communication email to their work address
 - THEN all Decidesk-related emails (convocations, minutes, reminders) MUST be sent to the work address
 - AND the default MUST be the Nextcloud account email
-
-## User Stories
-
-1. **Member accessing documents and decision history**: As a member, I want to access meeting minutes, financial reports, and decision history through a self-service portal so that I can stay informed about association governance. (Source: intelligence DB #80)
-
-2. **Supervisory board member accessing secure workspace**: As a supervisory board member, I want a secure digital workspace where I can access management reports, governance documents, and communicate with fellow board members between meetings. (Source: intelligence DB #27)
-
-3. **Board member accessing board pack on mobile**: As a supervisory board member, I want to access the board pack on my tablet or smartphone with offline capability, so that I can prepare for meetings while traveling. (Source: intelligence DB #18)
-
-## Acceptance Criteria
-
-- Notification preferences are configurable per event type (vote, meeting, decision, action item)
-- Delivery channels (Nextcloud notification, email) are independently toggleable
-- Meeting reminder timing is configurable (default: 24h + 1h before)
-- Display preferences support default view, items per page, and date format
-- Absence delegation notifies the delegate but does not grant voting rights
-- Communication preferences allow separate governance email
-- Settings use Nextcloud personal settings section via OCP\Settings\ISettings

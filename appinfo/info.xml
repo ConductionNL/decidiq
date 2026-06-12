@@ -103,5 +103,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <settings>
         <admin>OCA\Decidesk\Settings\AdminSettings</admin>
         <admin-section>OCA\Decidesk\Sections\SettingsSection</admin-section>
+        <!-- @spec openspec/specs/user-settings/spec.md -->
+        <personal>OCA\Decidesk\Settings\PersonalSettings</personal>
+        <personal-section>OCA\Decidesk\Sections\PersonalSection</personal-section>
     </settings>
 </info>

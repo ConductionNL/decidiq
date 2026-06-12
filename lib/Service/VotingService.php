@@ -404,9 +404,129 @@ class VotingService
             $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
         }
 
+        // Preference-aware "pending vote" notifications (user-settings spec):
+        // every meeting participant whose votingOpened toggle is on receives a
+        // notification with the motion title, governance body and deadline,
+        // via their chosen channels, fanned out to their active absence
+        // delegate. Best-effort: failures are logged and never break the
+        // round opening.
+        $this->notifyVotingOpened(motionId: $motionId, meetingId: $meetingId, closedAt: $closedAt);
+
         return $result;
 
     }//end openVotingRound()
+
+    /**
+     * Dispatch "pending vote" notifications for a freshly opened voting round.
+     *
+     * Resolves the meeting participants, maps them to Nextcloud UIDs and
+     * routes each notification through the preference-aware dispatcher
+     * (NotificationPreferenceService::dispatch), which honours the per-event
+     * toggle, the delivery channels and the absence delegation fan-out. The
+     * notification includes the motion (decision) title, the meeting/body
+     * context and the voting deadline per the spec scenario. Entirely
+     * fail-soft.
+     *
+     * @param string      $motionId  The motion UUID the round belongs to
+     * @param string      $meetingId The meeting UUID
+     * @param string|null $closedAt  The voting deadline (ATOM), when preset
+     *
+     * @return void
+     *
+     * @spec openspec/specs/user-settings/spec.md
+     */
+    private function notifyVotingOpened(string $motionId, string $meetingId, ?string $closedAt): void
+    {
+        try {
+            $prefService = $this->container->get(NotificationPreferenceService::class);
+            if ($prefService instanceof NotificationPreferenceService === false) {
+                return;
+            }
+
+            $motionTitle = 'Motion';
+            try {
+                $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: 'motion');
+                if ($motionEntity !== null) {
+                    $motion      = $motionEntity->jsonSerialize();
+                    $motionTitle = (string) ($motion['title'] ?? 'Motion');
+                }
+            } catch (\Throwable $e) {
+                $this->logger->debug('Decidesk: motion lookup for vote notification failed', ['error' => $e->getMessage()]);
+            }
+
+            $deadline = 'no deadline set';
+            if ($closedAt !== null && $closedAt !== '') {
+                $deadline = $closedAt;
+            }
+
+            $message = sprintf('A new vote is open in your body (meeting %s). Voting deadline: %s.', $meetingId, $deadline);
+
+            $participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
+            foreach ($participants as $participant) {
+                if (($participant['leftAt'] ?? null) !== null) {
+                    continue;
+                }
+
+                $ncUid = (string) ($participant['nextcloudUserId'] ?? '');
+                if ($ncUid === '') {
+                    continue;
+                }
+
+                $prefService->dispatch(
+                    personId: $ncUid,
+                    eventType: 'votingOpened',
+                    title: 'Pending vote: '.$motionTitle,
+                    message: $message,
+                    deepLink: '/motions/'.$motionId
+                );
+            }
+        } catch (\Throwable $e) {
+            $this->logger->warning('Decidesk: votingOpened notification dispatch failed', ['error' => $e->getMessage()]);
+        }//end try
+
+    }//end notifyVotingOpened()
+
+    /**
+     * Check whether the casting participant is the configured absence delegate
+     * of the claimed delegator (user-settings spec).
+     *
+     * Matches the stored delegate identifier against both the caster's
+     * participant UUID and their Nextcloud UID (the settings UI stores NC
+     * UIDs). Fail-closed for the gate's purpose: when the preference service
+     * is unavailable the method returns false and the caller falls back to
+     * the generic no-proxy rejection — the vote is denied either way.
+     *
+     * @param string      $delegatorId   The claimed delegator (participant UUID or NC UID)
+     * @param string      $participantId The casting participant UUID
+     * @param string|null $callerUid     The casting user's Nextcloud UID, when known
+     *
+     * @return bool
+     *
+     * @spec openspec/specs/user-settings/spec.md
+     */
+    private function hasAbsenceDelegation(string $delegatorId, string $participantId, ?string $callerUid): bool
+    {
+        try {
+            $prefService = $this->container->get(NotificationPreferenceService::class);
+            if ($prefService instanceof NotificationPreferenceService === false) {
+                return false;
+            }
+
+            if ($prefService->hasActiveDelegationTo(delegatorId: $delegatorId, delegateId: $participantId) === true) {
+                return true;
+            }
+
+            if ($callerUid !== null && $callerUid !== '') {
+                return $prefService->hasActiveDelegationTo(delegatorId: $delegatorId, delegateId: $callerUid);
+            }
+        } catch (\Throwable $e) {
+            // Both outcomes deny the vote; this only selects the error text.
+            $this->logger->debug('Decidesk: delegation consult failed', ['error' => $e->getMessage()]);
+        }
+
+        return false;
+
+    }//end hasAbsenceDelegation()
 
     /**
      * Cast a vote in a VotingRound.
@@ -420,6 +540,9 @@ class VotingService
      * @param string      $value         for | against | abstain
      * @param bool        $isProxy       True when the participant is voting as proxy for another
      * @param string|null $delegatorId   The participant UUID being delegated (required when isProxy=true)
+     * @param string|null $callerUid     The authenticated Nextcloud UID of the casting user (used only
+     *                                   to detect an absence delegation when no formal proxy exists —
+     *                                   delegations are configured by NC UID in the user settings)
      *
      * @return array<string,mixed> The created/updated Vote object
      *
@@ -427,8 +550,9 @@ class VotingService
      *                           or proxy rules are violated
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+     * @spec openspec/specs/user-settings/spec.md
      */
-    public function castVote(string $votingRoundId, string $participantId, string $value, bool $isProxy, ?string $delegatorId): array
+    public function castVote(string $votingRoundId, string $participantId, string $value, bool $isProxy, ?string $delegatorId, ?string $callerUid=null): array
     {
         $objectService = $this->objectService();
 
@@ -500,6 +624,21 @@ class VotingService
             }
 
             if ($proxyGrantFound === false) {
+                // User-settings spec — "Delegate cannot vote without explicit
+                // proxy": an absence delegation (configured in personal
+                // settings) covers notifications and read access only. When
+                // the caster IS the configured absence delegate of the claimed
+                // delegator, reject with the spec-mandated message plus a
+                // pointer to the formal proxy (volmacht) granting process.
+                // The existing proxy-grant check above stays authoritative;
+                // this only improves the rejection for the delegation case.
+                if ($this->hasAbsenceDelegation(delegatorId: $delegatorId, participantId: $participantId, callerUid: $callerUid) === true) {
+                    throw new \RuntimeException(
+                        'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting. '
+                        .'Grant one via the voting round proxy process (POST /apps/decidesk/api/voting-rounds/{id}/proxy).'
+                    );
+                }
+
                 throw new \RuntimeException('Geen geldige volmacht gevonden: de deelnemer heeft geen volmacht ontvangen van deze volmachtgever');
             }
 

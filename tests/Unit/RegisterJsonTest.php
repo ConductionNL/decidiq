@@ -88,13 +88,15 @@ class RegisterJsonTest extends TestCase
      * (BudgetProposal, CitizenPanel, CitizenVote, Deliberation, Notification,
      * ParticipatoryBudget, PublicConsultation), bringing the total to 24.
      * migrate-engagement-analytics-to-analytics-leaf adds EngagementRecord (1),
-     * bringing the total to 25.
+     * bringing the total to 25. user-settings-v1 adds NotificationPreference (1)
+     * — registering the schema NotificationPreferenceService already consumed.
      *
      * @return void
      *
      * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
      * @spec openspec/changes/p3-citizen-participation/tasks.md
      * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-2.2
+     * @spec openspec/specs/user-settings/spec.md
      */
     public function testAllSeventeenSchemasExist(): void
     {
@@ -137,12 +139,14 @@ class RegisterJsonTest extends TestCase
             'ConflictOfInterest',
             'BoardMaterial',
             'BoardAuditLogEntry',
+            // User settings schema (1 — user-settings-v1).
+            'NotificationPreference',
         ];
 
         self::assertCount(
-            expectedCount: 34,
+            expectedCount: 35,
             haystack: $this->schemas,
-            message: 'Register must contain exactly 34 schemas (17 p1 core + 7 p3 citizen participation + 1 EngagementRecord + 9 board-portal)'
+            message: 'Register must contain exactly 35 schemas (17 p1 core + 7 p3 citizen participation + 1 EngagementRecord + 9 board-portal + 1 NotificationPreference)'
         );
 
         foreach ($expected as $name) {

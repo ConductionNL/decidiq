@@ -47,7 +47,12 @@ phpqa_output.log
 **/ALL *
 **/endpoints *
 **/*Analysis*
-**/*references*
+# Junk note files named "references ..." — anchored to the filename START so
+# legitimate sources containing "…Preferences…" (which embeds the substring
+# "references") are not silently ignored. Observed 2026-06-12: the old
+# `**/*references*` pattern swallowed src/components/userSettings/
+# userPreferences.js + *PreferencesSection.vue (user-settings-v1).
+**/references*
 **/*encoding*
 **/ter
 **/clearCache*
