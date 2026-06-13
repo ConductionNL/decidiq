@@ -35,12 +35,27 @@ All notable changes to Decidesk are documented in this file.
   `t('decidesk', ...)`; nl/de/fr/es/it translations added (de/fr/es/it
   l10n files newly created).
 
-### Notes
+### Changed
 
-- Widgets are component-only in this change: manifest/layout wiring
-  (and the corresponding browser-rendered e2e coverage plus the
-  DashboardEmptyState mount test) is deferred to the follow-up change
-  `decidesk-dashboard-v2-layout`.
+- **Dashboard v2 layout** (`decidesk-dashboard-v2-layout`): rewired the
+  `Dashboard` page in `src/manifest.json` to the five-row, 11-widget v2
+  grid with English widget titles.
+  - **Row 1** — four KPI cards (Active Decisions, Upcoming meetings,
+    Pending votes, Overdue actions) as custom slot widgets, each 3
+    columns wide.
+  - **Row 2** — Upcoming meetings list + Pending votes list (6 cols
+    each).
+  - **Row 3** — Running processes + My action items (6 cols each).
+  - **Row 4** — Recent decisions spanning the full 12 columns.
+  - **Row 5** — "Minutes awaiting approval" stats-block + Governance
+    health chart (6 cols each).
+  - `DashboardEmptyState` is declared in the manifest's `widgets[]` +
+    `slots` map (excluded from `layout[]`) for the fresh-install empty
+    state; the removed `published-decisions` and `open-action-items`
+    placeholders are gone.
+  - Full-dashboard Playwright e2e coverage added
+    (`tests/e2e/spec-coverage/dashboard-layout.spec.ts`); host
+    browser-verified 2026-06-13 — all 11 widgets render with live data.
 
 ### Added
 

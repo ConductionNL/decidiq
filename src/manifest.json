@@ -1,19 +1,90 @@
 {
 	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
 	"version": "2.0.0",
-	"dependencies": ["openregister"],
+	"dependencies": [
+		"openregister"
+	],
 	"menu": [
-		{ "id": "Dashboard", "label": "Dashboard", "icon": "icon-category-dashboard", "route": "Dashboard", "order": 10 },
-		{ "id": "Minutes", "label": "Minutes", "icon": "icon-file", "route": "Minutes", "order": 20 },
-		{ "id": "Decisions", "label": "Decisions", "icon": "icon-checkmark", "route": "Decisions", "order": 30 },
-		{ "id": "ActionItems", "label": "Action items", "icon": "icon-checkmark", "route": "ActionItems", "order": 40 },
-		{ "id": "Motions", "label": "Motions", "icon": "icon-comment", "route": "Motions", "order": 50 },
-		{ "id": "Meetings", "label": "Meetings", "icon": "icon-group", "route": "Meetings", "order": 60 },
-		{ "id": "Workspaces", "label": "Workspaces", "icon": "icon-group", "route": "Workspaces", "order": 70 },
-		{ "id": "Engagement", "label": "Engagement", "icon": "icon-quota", "route": "Engagement", "order": 85 },
-		{ "id": "Documentation", "label": "Documentation", "icon": "icon-info", "href": "https://conduction.nl", "section": "footer", "order": 90 },
-		{ "id": "SettingsMenu", "label": "Settings", "icon": "icon-settings", "route": "Settings", "section": "settings", "order": 99 },
-		{ "id": "FeaturesRoadmapMenu", "label": "Features & roadmap", "icon": "icon-toggle", "route": "FeaturesRoadmap", "section": "footer", "order": 100 }
+		{
+			"id": "Dashboard",
+			"label": "Dashboard",
+			"icon": "icon-category-dashboard",
+			"route": "Dashboard",
+			"order": 10
+		},
+		{
+			"id": "Minutes",
+			"label": "Minutes",
+			"icon": "icon-file",
+			"route": "Minutes",
+			"order": 20
+		},
+		{
+			"id": "Decisions",
+			"label": "Decisions",
+			"icon": "icon-checkmark",
+			"route": "Decisions",
+			"order": 30
+		},
+		{
+			"id": "ActionItems",
+			"label": "Action items",
+			"icon": "icon-checkmark",
+			"route": "ActionItems",
+			"order": 40
+		},
+		{
+			"id": "Motions",
+			"label": "Motions",
+			"icon": "icon-comment",
+			"route": "Motions",
+			"order": 50
+		},
+		{
+			"id": "Meetings",
+			"label": "Meetings",
+			"icon": "icon-group",
+			"route": "Meetings",
+			"order": 60
+		},
+		{
+			"id": "Workspaces",
+			"label": "Workspaces",
+			"icon": "icon-group",
+			"route": "Workspaces",
+			"order": 70
+		},
+		{
+			"id": "Engagement",
+			"label": "Engagement",
+			"icon": "icon-quota",
+			"route": "Engagement",
+			"order": 85
+		},
+		{
+			"id": "Documentation",
+			"label": "Documentation",
+			"icon": "icon-info",
+			"href": "https://decidesk.conduction.nl",
+			"section": "footer",
+			"order": 90
+		},
+		{
+			"id": "SettingsMenu",
+			"label": "Settings",
+			"icon": "icon-settings",
+			"route": "Settings",
+			"section": "settings",
+			"order": 99
+		},
+		{
+			"id": "FeaturesRoadmapMenu",
+			"label": "Features & roadmap",
+			"icon": "icon-toggle",
+			"route": "FeaturesRoadmap",
+			"section": "footer",
+			"order": 100
+		}
 	],
 	"pages": [
 		{
@@ -24,59 +95,193 @@
 			"config": {
 				"widgets": [
 					{
+						"id": "active-decisions",
+						"type": "custom",
+						"title": "Active decisions"
+					},
+					{
+						"id": "upcoming-meetings-kpi",
+						"type": "custom",
+						"title": "Upcoming meetings"
+					},
+					{
+						"id": "pending-votes-kpi",
+						"type": "custom",
+						"title": "Pending votes"
+					},
+					{
+						"id": "overdue-actions-kpi",
+						"type": "custom",
+						"title": "Overdue actions"
+					},
+					{
+						"id": "upcoming-meetings-list",
+						"type": "custom",
+						"title": "Upcoming meetings"
+					},
+					{
+						"id": "pending-votes-list",
+						"type": "custom",
+						"title": "Pending votes"
+					},
+					{
+						"id": "running-processes",
+						"type": "custom",
+						"title": "Running processes"
+					},
+					{
+						"id": "my-action-items",
+						"type": "custom",
+						"title": "My action items"
+					},
+					{
+						"id": "recent-decisions",
+						"type": "custom",
+						"title": "Recent decisions"
+					},
+					{
 						"id": "minutes-in-review",
 						"type": "stats-block",
-						"title": "Notulen ter goedkeuring",
+						"title": "Minutes awaiting approval",
 						"iconClass": "icon-file",
 						"props": {
-							"countLabel": "notulen",
+							"countLabel": "minutes",
 							"variant": "warning"
 						},
 						"dataSource": {
 							"register": "decidesk",
 							"schema": "minutes",
-							"filter": { "lifecycle": "review" },
+							"filter": {
+								"lifecycle": "review"
+							},
 							"aggregate": "count"
 						}
 					},
 					{
-						"id": "published-decisions",
-						"type": "stats-block",
-						"title": "Gepubliceerde besluiten",
-						"iconClass": "icon-checkmark",
-						"props": {
-							"countLabel": "besluiten",
-							"variant": "success"
-						},
-						"dataSource": {
-							"register": "decidesk",
-							"schema": "decision",
-							"filter": { "isPublished": "public" },
-							"aggregate": "count"
-						}
+						"id": "governance-health",
+						"type": "custom",
+						"title": "Governance health"
 					},
 					{
-						"id": "open-action-items",
-						"type": "stats-block",
-						"title": "Open actiepunten",
-						"iconClass": "icon-checkmark",
-						"props": {
-							"countLabel": "actiepunten",
-							"variant": "primary"
-						},
-						"dataSource": {
-							"register": "decidesk",
-							"schema": "action-item",
-							"filter": { "taskStatus": ["open", "in-progress"] },
-							"aggregate": "count"
-						}
+						"id": "dashboard-empty-state",
+						"type": "custom",
+						"title": "Welcome"
 					}
 				],
 				"layout": [
-					{ "id": "minutes-in-review",   "widgetId": "minutes-in-review",   "gridX": 0, "gridY": 0, "gridWidth": 4, "gridHeight": 2, "showTitle": true },
-					{ "id": "published-decisions", "widgetId": "published-decisions", "gridX": 4, "gridY": 0, "gridWidth": 4, "gridHeight": 2, "showTitle": true },
-					{ "id": "open-action-items",   "widgetId": "open-action-items",   "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2, "showTitle": true }
+					{
+						"id": "1",
+						"widgetId": "active-decisions",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "2",
+						"widgetId": "upcoming-meetings-kpi",
+						"gridX": 3,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "3",
+						"widgetId": "pending-votes-kpi",
+						"gridX": 6,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "4",
+						"widgetId": "overdue-actions-kpi",
+						"gridX": 9,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "5",
+						"widgetId": "upcoming-meetings-list",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "6",
+						"widgetId": "pending-votes-list",
+						"gridX": 6,
+						"gridY": 2,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "7",
+						"widgetId": "running-processes",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "8",
+						"widgetId": "my-action-items",
+						"gridX": 6,
+						"gridY": 6,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "9",
+						"widgetId": "recent-decisions",
+						"gridX": 0,
+						"gridY": 10,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "10",
+						"widgetId": "minutes-in-review",
+						"gridX": 0,
+						"gridY": 14,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "11",
+						"widgetId": "governance-health",
+						"gridX": 6,
+						"gridY": 14,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					}
 				]
+			},
+			"slots": {
+				"widget-active-decisions": "ActiveDecisionsKpiWidget",
+				"widget-upcoming-meetings-kpi": "UpcomingMeetingsKpiWidget",
+				"widget-pending-votes-kpi": "PendingVotesKpiWidget",
+				"widget-overdue-actions-kpi": "OverdueActionsKpiWidget",
+				"widget-upcoming-meetings-list": "UpcomingMeetingsListWidget",
+				"widget-pending-votes-list": "PendingVotesListWidget",
+				"widget-running-processes": "RunningProcessesWidget",
+				"widget-my-action-items": "MyActionItemsWidget",
+				"widget-recent-decisions": "RecentDecisionsWidget",
+				"widget-governance-health": "GovernanceHealthWidget",
+				"widget-dashboard-empty-state": "DashboardEmptyState"
 			}
 		},
 		{
@@ -87,8 +292,16 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "governance-body",
-				"columns": ["name", "bodyType", "domain", "termEnd"],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"columns": [
+					"name",
+					"bodyType",
+					"domain",
+					"termEnd"
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
 			}
 		},
 		{
@@ -100,9 +313,38 @@
 				"register": "decidesk",
 				"schema": "governance-body",
 				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview", "icon": "icon-info",         "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "members",  "label": "Members",  "icon": "icon-group",        "component": "GovernanceBodyMembersTab",                  "order": 20 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history",   "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "members",
+						"label": "Members",
+						"icon": "icon-group",
+						"component": "GovernanceBodyMembersTab",
+						"order": 20
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				],
 				"sidebar": {
 					"enabled": true,
@@ -120,8 +362,21 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "meeting",
-				"columns": ["title", "meetingType", "scheduledDate", { "key": "meetingMode", "label": "Mode", "widget": "badge" }, "lifecycle"],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"columns": [
+					"title",
+					"meetingType",
+					"scheduledDate",
+					{
+						"key": "meetingMode",
+						"label": "Mode",
+						"widget": "badge"
+					},
+					"lifecycle"
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
 			}
 		},
 		{
@@ -133,13 +388,66 @@
 				"register": "decidesk",
 				"schema": "meeting",
 				"sidebarTabs": [
-					{ "id": "overview",     "label": "Overview",     "icon": "icon-info",     "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "agenda",       "label": "Agenda",       "icon": "icon-files",    "component": "MeetingAgendaTab",                          "order": 20 },
-					{ "id": "participants", "label": "Participants", "icon": "icon-group",    "component": "MeetingParticipantsTab",                    "order": 30 },
-					{ "id": "minutes",      "label": "Minutes",      "icon": "icon-file",     "component": "MeetingMinutesTab",                         "order": 40 },
-					{ "id": "decisions",    "label": "Decisions",    "icon": "icon-checkmark", "component": "MeetingDecisionsTab",                      "order": 50 },
-					{ "id": "votes",        "label": "Votes",        "icon": "icon-checkmark", "component": "MeetingVotesTab",                          "order": 60 },
-					{ "id": "audit",        "label": "Audit trail",  "icon": "icon-history",  "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "agenda",
+						"label": "Agenda",
+						"icon": "icon-files",
+						"component": "MeetingAgendaTab",
+						"order": 20
+					},
+					{
+						"id": "participants",
+						"label": "Participants",
+						"icon": "icon-group",
+						"component": "MeetingParticipantsTab",
+						"order": 30
+					},
+					{
+						"id": "minutes",
+						"label": "Minutes",
+						"icon": "icon-file",
+						"component": "MeetingMinutesTab",
+						"order": 40
+					},
+					{
+						"id": "decisions",
+						"label": "Decisions",
+						"icon": "icon-checkmark",
+						"component": "MeetingDecisionsTab",
+						"order": 50
+					},
+					{
+						"id": "votes",
+						"label": "Votes",
+						"icon": "icon-checkmark",
+						"component": "MeetingVotesTab",
+						"order": 60
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				]
 			}
 		},
@@ -215,8 +523,16 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "participant",
-				"columns": ["displayName", "role", "party", "email"],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"columns": [
+					"displayName",
+					"role",
+					"party",
+					"email"
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
 			}
 		},
 		{
@@ -228,8 +544,31 @@
 				"register": "decidesk",
 				"schema": "participant",
 				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				],
 				"sidebar": {
 					"enabled": true,
@@ -247,12 +586,34 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "agenda-item",
-				"columns": ["orderNumber", "title", "itemType", "estimatedDuration", "isRecurring"],
-				"actions": [
-					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "AgendaItemDetail", "primary": true },
-					{ "id": "integrations", "label": "Integrations", "icon": "icon-mail", "handler": "navigate", "route": "AgendaItemIntegrations" }
+				"columns": [
+					"orderNumber",
+					"title",
+					"itemType",
+					"estimatedDuration",
+					"isRecurring"
 				],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"actions": [
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "icon-toggle",
+						"handler": "navigate",
+						"route": "AgendaItemDetail",
+						"primary": true
+					},
+					{
+						"id": "integrations",
+						"label": "Integrations",
+						"icon": "icon-mail",
+						"handler": "navigate",
+						"route": "AgendaItemIntegrations"
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
 			}
 		},
 		{
@@ -264,9 +625,38 @@
 				"register": "decidesk",
 				"schema": "agenda-item",
 				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "motions",  "label": "Motions",     "icon": "icon-comment", "component": "AgendaMotionsTab",                          "order": 20 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "motions",
+						"label": "Motions",
+						"icon": "icon-comment",
+						"component": "AgendaMotionsTab",
+						"order": 20
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				]
 			}
 		},
@@ -278,12 +668,34 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "motion",
-				"columns": ["title", "motionType", "proposer", "lifecycle", "submittedAt"],
-				"actions": [
-					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "MotionDetail", "primary": true },
-					{ "id": "integrations", "label": "Discussion", "icon": "icon-comment", "handler": "navigate", "route": "MotionIntegrations" }
+				"columns": [
+					"title",
+					"motionType",
+					"proposer",
+					"lifecycle",
+					"submittedAt"
 				],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"actions": [
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "icon-toggle",
+						"handler": "navigate",
+						"route": "MotionDetail",
+						"primary": true
+					},
+					{
+						"id": "integrations",
+						"label": "Discussion",
+						"icon": "icon-comment",
+						"handler": "navigate",
+						"route": "MotionIntegrations"
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
 			}
 		},
 		{
@@ -295,10 +707,45 @@
 				"register": "decidesk",
 				"schema": "motion",
 				"sidebarTabs": [
-					{ "id": "overview",   "label": "Overview",     "icon": "icon-info",       "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "amendments", "label": "Amendments",   "icon": "icon-files",      "component": "MotionAmendmentsTab",                       "order": 20 },
-					{ "id": "votes",      "label": "Votes",        "icon": "icon-checkmark",  "component": "MotionVotesTab",                            "order": 30 },
-					{ "id": "audit",      "label": "Audit trail",  "icon": "icon-history",    "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "amendments",
+						"label": "Amendments",
+						"icon": "icon-files",
+						"component": "MotionAmendmentsTab",
+						"order": 20
+					},
+					{
+						"id": "votes",
+						"label": "Votes",
+						"icon": "icon-checkmark",
+						"component": "MotionVotesTab",
+						"order": 30
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				]
 			}
 		},
@@ -330,9 +777,38 @@
 				"register": "decidesk",
 				"schema": "amendment",
 				"sidebarTabs": [
-					{ "id": "overview",     "label": "Overview",     "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "parentMotion", "label": "Parent motion","icon": "icon-comment", "component": "AmendmentParentMotionTab",                  "order": 20 },
-					{ "id": "audit",        "label": "Audit trail",  "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "parentMotion",
+						"label": "Parent motion",
+						"icon": "icon-comment",
+						"component": "AmendmentParentMotionTab",
+						"order": 20
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				]
 			}
 		},
@@ -344,8 +820,16 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "minutes",
-				"columns": ["title", "lifecycle", "version", "approvedAt"],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"columns": [
+					"title",
+					"lifecycle",
+					"version",
+					"approvedAt"
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
 			}
 		},
 		{
@@ -357,9 +841,38 @@
 				"register": "decidesk",
 				"schema": "minutes",
 				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "signers",  "label": "Signers",     "icon": "icon-user",    "component": "MinutesSignersTab",                         "order": 20 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "signers",
+						"label": "Signers",
+						"icon": "icon-user",
+						"component": "MinutesSignersTab",
+						"order": 20
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				]
 			}
 		},
@@ -372,19 +885,66 @@
 				"register": "decidesk",
 				"schema": "decision",
 				"columns": [
-					{ "key": "title", "label": "Title", "widget": "link" },
-					{ "key": "lifecycle", "label": "Lifecycle", "widget": "badge" },
-					{ "key": "outcome", "label": "Outcome", "widget": "badge" },
-					{ "key": "decisionDate", "label": "Decision date", "formatter": "date" },
-					{ "key": "isPublished", "label": "Publication", "widget": "badge" },
-					{ "key": "legalBasis", "label": "Legal basis", "hidden": true }
+					{
+						"key": "title",
+						"label": "Title",
+						"widget": "link"
+					},
+					{
+						"key": "lifecycle",
+						"label": "Lifecycle",
+						"widget": "badge"
+					},
+					{
+						"key": "outcome",
+						"label": "Outcome",
+						"widget": "badge"
+					},
+					{
+						"key": "decisionDate",
+						"label": "Decision date",
+						"formatter": "date"
+					},
+					{
+						"key": "isPublished",
+						"label": "Publication",
+						"widget": "badge"
+					},
+					{
+						"key": "legalBasis",
+						"label": "Legal basis",
+						"hidden": true
+					}
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "DecisionDetail", "primary": true },
-					{ "id": "integrations", "label": "Integrations", "icon": "icon-mail", "handler": "navigate", "route": "DecisionIntegrations" },
-					{ "id": "publish", "label": "Publish", "icon": "icon-upload", "handler": "emit", "permission": "decidesk.decision.publish", "confirm": true }
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "icon-toggle",
+						"handler": "navigate",
+						"route": "DecisionDetail",
+						"primary": true
+					},
+					{
+						"id": "integrations",
+						"label": "Integrations",
+						"icon": "icon-mail",
+						"handler": "navigate",
+						"route": "DecisionIntegrations"
+					},
+					{
+						"id": "publish",
+						"label": "Publish",
+						"icon": "icon-upload",
+						"handler": "emit",
+						"permission": "decidesk.decision.publish",
+						"confirm": true
+					}
 				],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
 			}
 		},
 		{
@@ -396,11 +956,52 @@
 				"register": "decidesk",
 				"schema": "decision",
 				"sidebarTabs": [
-					{ "id": "overview",    "label": "Overview",    "icon": "icon-info",      "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "lifecycle",   "label": "Lifecycle",   "icon": "icon-timezone",  "component": "DecisionLifecycleTab",                      "order": 15 },
-					{ "id": "actionItems", "label": "Action items","icon": "icon-checkmark", "component": "DecisionActionItemsTab",                    "order": 20 },
-					{ "id": "voting",      "label": "Voting results", "icon": "icon-comment", "component": "DecisionVotingTab",                        "order": 30 },
-					{ "id": "audit",       "label": "Audit trail", "icon": "icon-history",   "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "lifecycle",
+						"label": "Lifecycle",
+						"icon": "icon-timezone",
+						"component": "DecisionLifecycleTab",
+						"order": 15
+					},
+					{
+						"id": "actionItems",
+						"label": "Action items",
+						"icon": "icon-checkmark",
+						"component": "DecisionActionItemsTab",
+						"order": 20
+					},
+					{
+						"id": "voting",
+						"label": "Voting results",
+						"icon": "icon-comment",
+						"component": "DecisionVotingTab",
+						"order": 30
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				]
 			}
 		},
@@ -412,8 +1013,20 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "action-item",
-				"columns": ["title", "assignee", "dueDate", { "key": "taskStatus", "label": "Status", "widget": "badge" }],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"columns": [
+					"title",
+					"assignee",
+					"dueDate",
+					{
+						"key": "taskStatus",
+						"label": "Status",
+						"widget": "badge"
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
 			}
 		},
 		{
@@ -425,8 +1038,31 @@
 				"register": "decidesk",
 				"schema": "action-item",
 				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				]
 			}
 		},
@@ -438,8 +1074,20 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "collaboration-workspace",
-				"columns": ["name", "type", { "key": "accessLevel", "label": "Access", "widget": "badge" }, "createdAt"],
-				"sidebar": { "enabled": true, "showMetadata": true }
+				"columns": [
+					"name",
+					"type",
+					{
+						"key": "accessLevel",
+						"label": "Access",
+						"widget": "badge"
+					},
+					"createdAt"
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
 			}
 		},
 		{
@@ -451,8 +1099,31 @@
 				"register": "decidesk",
 				"schema": "collaboration-workspace",
 				"sidebarTabs": [
-					{ "id": "overview", "label": "Overview",    "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
-					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
 				]
 			}
 		},
@@ -464,7 +1135,12 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "engagement-record",
-				"columns": ["meeting", "participant", "speakingDuration", "engagementScore"],
+				"columns": [
+					"meeting",
+					"participant",
+					"speakingDuration",
+					"engagementScore"
+				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
@@ -510,29 +1186,98 @@
 										{
 											"name": "Decidesk",
 											"types": [
-												{ "slug": "governance-body", "label": "Governance Bodies" },
-												{ "slug": "meeting", "label": "Meetings" },
-												{ "slug": "participant", "label": "Participants" },
-												{ "slug": "agenda-item", "label": "Agenda Items" },
-												{ "slug": "motion", "label": "Motions" },
-												{ "slug": "amendment", "label": "Amendments" },
-												{ "slug": "voting-round", "label": "Voting Rounds" },
-												{ "slug": "vote", "label": "Votes" },
-												{ "slug": "decision", "label": "Decisions" },
-												{ "slug": "action-item", "label": "Action Items" },
-												{ "slug": "minutes", "label": "Minutes" },
-												{ "slug": "digital-document", "label": "Digital Documents" },
-												{ "slug": "monetary-amount", "label": "Monetary Amounts" },
-												{ "slug": "offer", "label": "Offers" },
-												{ "slug": "order", "label": "Orders" },
-												{ "slug": "product", "label": "Products" },
-												{ "slug": "report", "label": "Reports" },
-												{ "slug": "task", "label": "Tasks (archived — read-only)" },
-												{ "slug": "delegation", "label": "Delegations (archived — read-only)" },
-												{ "slug": "comment", "label": "Comments (archived — read-only)" },
-												{ "slug": "notification-preference", "label": "Notification Preferences" },
-												{ "slug": "engagement-record", "label": "Engagement Records" },
-												{ "slug": "collaboration-workspace", "label": "Collaboration Workspaces" }
+												{
+													"slug": "governance-body",
+													"label": "Governance Bodies"
+												},
+												{
+													"slug": "meeting",
+													"label": "Meetings"
+												},
+												{
+													"slug": "participant",
+													"label": "Participants"
+												},
+												{
+													"slug": "agenda-item",
+													"label": "Agenda Items"
+												},
+												{
+													"slug": "motion",
+													"label": "Motions"
+												},
+												{
+													"slug": "amendment",
+													"label": "Amendments"
+												},
+												{
+													"slug": "voting-round",
+													"label": "Voting Rounds"
+												},
+												{
+													"slug": "vote",
+													"label": "Votes"
+												},
+												{
+													"slug": "decision",
+													"label": "Decisions"
+												},
+												{
+													"slug": "action-item",
+													"label": "Action Items"
+												},
+												{
+													"slug": "minutes",
+													"label": "Minutes"
+												},
+												{
+													"slug": "digital-document",
+													"label": "Digital Documents"
+												},
+												{
+													"slug": "monetary-amount",
+													"label": "Monetary Amounts"
+												},
+												{
+													"slug": "offer",
+													"label": "Offers"
+												},
+												{
+													"slug": "order",
+													"label": "Orders"
+												},
+												{
+													"slug": "product",
+													"label": "Products"
+												},
+												{
+													"slug": "report",
+													"label": "Reports"
+												},
+												{
+													"slug": "task",
+													"label": "Tasks (archived — read-only)"
+												},
+												{
+													"slug": "delegation",
+													"label": "Delegations (archived — read-only)"
+												},
+												{
+													"slug": "comment",
+													"label": "Comments (archived — read-only)"
+												},
+												{
+													"slug": "notification-preference",
+													"label": "Notification Preferences"
+												},
+												{
+													"slug": "engagement-record",
+													"label": "Engagement Records"
+												},
+												{
+													"slug": "collaboration-workspace",
+													"label": "Collaboration Workspaces"
+												}
 											]
 										}
 									]
@@ -560,6 +1305,14 @@
 				]
 			}
 		},
-		{ "id": "FeaturesRoadmap", "route": "/features-roadmap", "type": "roadmap", "title": "Features & roadmap", "config": { "documentationUrl": "https://decidesk.conduction.nl" } }
+		{
+			"id": "FeaturesRoadmap",
+			"route": "/features-roadmap",
+			"type": "roadmap",
+			"title": "Features & roadmap",
+			"config": {
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		}
 	]
 }

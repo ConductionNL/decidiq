@@ -1,13 +1,13 @@
 ---
-status: in-progress
-status-note: 2026-06-12 audit — 2/5 requirements built (dashboard page + 3 KPI stats-blocks via app-dashboard capability). Missing — Pending Votes + Upcoming Meetings widgets, full KPI row, empty state, OCP Dashboard IWidget. Completion in flight via changes decidesk-dashboard-v2-widgets + decidesk-dashboard-v2-layout. Update 2026-06-12 — decidesk-dashboard-v2-widgets archived (11 widget components + registry + vitest + i18n landed at the component layer); manifest/layout wiring still pending via decidesk-dashboard-v2-layout.
+status: partial
+status-note: 2026-06-13 — both v2 chain changes archived. decidesk-dashboard-v2-widgets delivered the 11 widget components + registry + vitest + i18n; decidesk-dashboard-v2-layout rewired the manifest Dashboard page to the 11-widget v2 grid with English titles (host browser-verified 2026-06-13 — all widgets render with live data). One requirement remains unbuilt and is out of scope for both changes: "Nextcloud Dashboard Widget Integration" (OCP\Dashboard\IWidget — exposing a Decidesk widget on the Nextcloud main dashboard), explicitly deferred to a future change. All in-app dashboard requirements are built.
 ---
 
 # Dashboard Specification
 
 **OpenSpec changes:**
 - [decidesk-dashboard-v2-widgets](../../changes/archive/2026-06-12-decidesk-dashboard-v2-widgets/) _(archived 2026-06-12)_ — 11 dashboard widget components + registry + tests + i18n (kind: code)
-- [decidesk-dashboard-v2-layout](../../changes/decidesk-dashboard-v2-layout/) — manifest Dashboard-page rewire to the v2 grid, English titles (kind: config, depends_on widgets)
+- [decidesk-dashboard-v2-layout](../../changes/archive/2026-06-13-decidesk-dashboard-v2-layout/) _(archived 2026-06-13)_ — manifest Dashboard-page rewire to the v2 grid, English titles (kind: config, depends_on widgets)
 
 ## Purpose
 
@@ -22,54 +22,71 @@ The Decidesk dashboard provides an at-a-glance overview of active decisions, upc
 
 ### Requirement: Dashboard Layout
 
-The dashboard MUST use the `CnDashboardPage` component to render a configurable widget grid. The default layout MUST provide an immediate overview of governance activity.
+The dashboard MUST use the `CnDashboardPage` component to render a configurable widget grid. The default layout MUST provide an immediate overview of governance activity using the five-row v2 grid.
 
 **Feature tier**: MVP
 
 #### Scenario: Default grid layout on first load
 
+@e2e annotate REQ-dashboard-layout-default-grid
+
 - GIVEN the user has not customized their dashboard layout
-- WHEN the user navigates to the dashboard
-- THEN the layout MUST render with the default configuration:
-  - Row 1: Four KPI cards (3 columns each) — Active Decisions, Upcoming Meetings, Pending Votes, Overdue Actions
-  - Row 2: "My Pending Votes" widget (6 columns) and "Upcoming Meetings" widget (6 columns)
-  - Row 3: "Recent Decisions" widget spanning full width (12 columns)
-- AND each widget MUST be rendered inside a `CnDashboardPage` widget slot
+- WHEN the user navigates to `/apps/decidesk/`
+- THEN the layout MUST render with the default v2 configuration:
+  - Row 1 (gridY=0, gridHeight=2): four KPI cards each 3 columns wide — `active-decisions` (custom, slot: `ActiveDecisionsKpiWidget`), `upcoming-meetings-kpi` (custom, slot: `UpcomingMeetingsKpiWidget`), `pending-votes-kpi` (custom, slot: `PendingVotesKpiWidget`), `overdue-actions-kpi` (custom, slot: `OverdueActionsKpiWidget`)
+  - Row 2 (gridY=2, gridHeight=4): `upcoming-meetings-list` (6 cols) and `pending-votes-list` (6 cols)
+  - Row 3 (gridY=6, gridHeight=4): `running-processes` (6 cols) and `my-action-items` (6 cols)
+  - Row 4 (gridY=10, gridHeight=4): `recent-decisions` spanning full 12 columns
+  - Row 5 (gridY=14, gridHeight=4): `minutes-in-review` (6 cols, stats-block, the only stats-block in the layout) and `governance-health` (6 cols, custom, slot: `GovernanceHealthWidget`)
+- AND each custom widget MUST be rendered via the `slots` mapping in the manifest
 
 #### Scenario: Empty state for new installation
 
-- GIVEN a fresh Decidesk installation with no data
+@e2e annotate REQ-dashboard-layout-empty-state
+
+- GIVEN a fresh Decidesk installation with no widgets in the dashboard layout (empty `layout` array)
 - WHEN the user views the dashboard
-- THEN a welcome message MUST be displayed: "Welcome to Decidesk! Get started by setting up your first governing body in Settings."
+- THEN `CnDashboardPage` SHALL render the `#empty` slot content
+- AND `DashboardEmptyState` SHALL be displayed via the manifest's `emptyComponent` configuration
+- AND the message "Welcome to Decidesk! Get started by setting up your first governing body in Settings." MUST be visible
 - AND quick action buttons MUST be shown: "Set Up Body", "Create Meeting", "Create Decision"
 
 ---
 
 ### Requirement: KPI Cards
 
-The dashboard MUST display KPI summary cards showing headline governance metrics using `CnStatsBlock` components.
+The dashboard MUST display four KPI summary cards in Row 1 (gridY=0, each gridWidth=3, gridHeight=2). Three are custom slot components; one (`active-decisions`) is also a custom slot component counting `outcome == null` client-side.
 
 **Feature tier**: MVP
 
 #### Scenario: Display active decisions count
 
-- WHEN the user views the dashboard
-- THEN the "Active Decisions" KPI card MUST display the count of decisions with status not in (`enacted`, `archived`, `rejected`)
-- AND clicking the card MUST navigate to the Decisions view filtered by active status
-
-#### Scenario: Display pending votes count
+@e2e annotate REQ-kpi-active-decisions
 
 - WHEN the user views the dashboard
-- THEN the "Pending Votes" KPI card MUST display the count of decisions currently in `voting` status where the user has not yet cast their vote
-- AND if the count is greater than 0, the card MUST use `variant="warning"` (orange accent)
-- AND clicking the card MUST navigate to the user's pending votes
+- THEN the "Active Decisions" KPI card (id: `active-decisions`, type: `custom`, slot: `ActiveDecisionsKpiWidget`) MUST be rendered in the grid at gridX=0, gridY=0, gridWidth=3, gridHeight=2
+- AND the widget SHALL display the count of decisions whose `outcome` is null (not yet adopted or rejected — see REQ-013 in the widgets change for the component specification)
 
-#### Scenario: Display overdue action items count
+#### Scenario: Display upcoming meetings KPI
+
+@e2e annotate REQ-kpi-upcoming-meetings
 
 - WHEN the user views the dashboard
-- THEN the "Overdue Actions" KPI card MUST display the count of action items past their deadline
-- AND if overdue count is greater than 0, the card MUST use `variant="error"` (red accent)
-- AND clicking the card MUST navigate to the action items view filtered by overdue
+- THEN the "Upcoming meetings" KPI card (id: `upcoming-meetings-kpi`, type: `custom`, slot: `UpcomingMeetingsKpiWidget`) MUST be rendered in the grid at gridX=3, gridY=0, gridWidth=3, gridHeight=2
+
+#### Scenario: Display pending votes KPI
+
+@e2e annotate REQ-kpi-pending-votes
+
+- WHEN the user views the dashboard
+- THEN the "Pending votes" KPI card (id: `pending-votes-kpi`, type: `custom`, slot: `PendingVotesKpiWidget`) MUST be rendered in the grid at gridX=6, gridY=0, gridWidth=3, gridHeight=2
+
+#### Scenario: Display overdue actions KPI
+
+@e2e annotate REQ-kpi-overdue-actions
+
+- WHEN the user views the dashboard
+- THEN the "Overdue actions" KPI card (id: `overdue-actions-kpi`, type: `custom`, slot: `OverdueActionsKpiWidget`) MUST be rendered in the grid at gridX=9, gridY=0, gridWidth=3, gridHeight=2
 
 ---
 
