@@ -49,7 +49,10 @@
 					</span>
 				</p>
 				<ul class="efficiency-bars" role="list">
-					<li v-for="p in duration.points" :key="p.id" class="efficiency-bars__row" role="listitem">
+					<li v-for="p in duration.points"
+						:key="p.id"
+						class="efficiency-bars__row"
+						role="listitem">
 						<span class="efficiency-bars__label">{{ p.title || t('decidesk', 'Meeting') }}</span>
 						<span class="efficiency-bars__track">
 							<span
@@ -78,7 +81,10 @@
 			<section v-if="speaking.rows.length" class="efficiency-section" data-testid="body-efficiency-speaking">
 				<h4>{{ t('decidesk', 'Speaking-time distribution') }}</h4>
 				<ul class="efficiency-bars" role="list">
-					<li v-for="row in speaking.rows" :key="row.participantId" class="efficiency-bars__row" role="listitem">
+					<li v-for="row in speaking.rows"
+						:key="row.participantId"
+						class="efficiency-bars__row"
+						role="listitem">
 						<span class="efficiency-bars__label">{{ row.displayName }}</span>
 						<span class="efficiency-bars__track">
 							<span class="efficiency-bars__fill" :style="{ width: percentWidth(row.share) }" />
@@ -98,7 +104,10 @@
 					}) }}
 				</p>
 				<ul class="efficiency-bars" role="list">
-					<li v-for="p in cost.points" :key="p.id" class="efficiency-bars__row" role="listitem">
+					<li v-for="p in cost.points"
+						:key="p.id"
+						class="efficiency-bars__row"
+						role="listitem">
 						<span class="efficiency-bars__label">{{ p.title || t('decidesk', 'Meeting') }}</span>
 						<span class="efficiency-bars__track">
 							<span class="efficiency-bars__fill" :style="{ width: barWidth(p.cost, maxCost) }" />
@@ -115,7 +124,10 @@
 					{{ t('decidesk', 'Latest meeting: {title}', { title: latestCostMeetingTitle }) }}
 				</p>
 				<ul class="efficiency-bars" role="list">
-					<li v-for="row in itemCostBreakdown" :key="row.id" class="efficiency-bars__row" role="listitem">
+					<li v-for="row in itemCostBreakdown"
+						:key="row.id"
+						class="efficiency-bars__row"
+						role="listitem">
 						<span class="efficiency-bars__label" :class="{ 'efficiency-bars__label--flag': row.mostExpensive }">
 							{{ row.title || t('decidesk', 'Item') }}
 						</span>
@@ -134,7 +146,10 @@
 			<section v-if="accuracy.length" class="efficiency-section" data-testid="body-efficiency-accuracy">
 				<h4>{{ t('decidesk', 'Time allocation accuracy') }}</h4>
 				<ul class="efficiency-accuracy" role="list">
-					<li v-for="row in accuracy" :key="row.itemType" class="efficiency-accuracy__row" role="listitem">
+					<li v-for="row in accuracy"
+						:key="row.itemType"
+						class="efficiency-accuracy__row"
+						role="listitem">
 						<strong>{{ row.itemType }}</strong>:
 						{{ t('decidesk', 'avg {actual} min actual vs {estimated} min allocated', {
 							actual: row.avgActual,
@@ -346,16 +361,26 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/specs/meeting-efficiency/spec.md */
+		/**
+		 * @param value
+		 * @param max
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
 		barWidth(value, max) {
 			if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) return '0%'
 			return `${Math.round((value / max) * 100)}%`
 		},
-		/** @spec openspec/specs/meeting-efficiency/spec.md */
+		/**
+		 * @param share
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
 		percentWidth(share) {
 			return `${Math.round((Number.isFinite(share) ? share : 0) * 100)}%`
 		},
-		/** @spec openspec/specs/meeting-efficiency/spec.md */
+		/**
+		 * @param minutes
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
 		formatMinutes(minutes) {
 			return Number.isFinite(minutes) ? this.t('decidesk', '{m} min', { m: minutes }) : '—'
 		},

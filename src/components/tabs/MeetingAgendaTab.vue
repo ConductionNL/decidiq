@@ -279,6 +279,7 @@ export default {
 			const store = ensureRelationType('agenda-item')
 			if (!this.agendaSchema) this.agendaSchema = await store.fetchSchema('agenda-item')
 			// Strip the presentation-only nesting indicator before editing.
+			// eslint-disable-next-line no-unused-vars
 			const { titleDisplay, ...item } = row
 			this.editTarget = item
 			this.formOpen = true
