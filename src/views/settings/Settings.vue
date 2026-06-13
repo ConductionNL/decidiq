@@ -129,6 +129,10 @@
 			</form>
 		</CnSettingsSection>
 
+		<!-- Process template management -->
+		<!-- @spec openspec/specs/process-configuration/spec.md -->
+		<ProcessTemplates />
+
 		<!-- Email voting toggle -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
 		<CnSettingsSection
@@ -151,6 +155,7 @@
 import { NcButton, NcSelect } from '@nextcloud/vue'
 import { CnSettingsSection } from '@conduction/nextcloud-vue'
 import { useSettingsStore } from '../../store/modules/settings.js'
+import ProcessTemplates from '../../components/processTemplates/ProcessTemplates.vue'
 
 export default {
 	name: 'Settings',
@@ -158,6 +163,7 @@ export default {
 		NcButton,
 		NcSelect,
 		CnSettingsSection,
+		ProcessTemplates,
 	},
 	data() {
 		return {

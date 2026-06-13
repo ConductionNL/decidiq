@@ -141,6 +141,7 @@ class VotingServiceDelegationGateTest extends TestCase
             oriPublicationService: $this->createMock(OriPublicationService::class),
             motionService: $this->createMock(MotionService::class),
             participantResolver: $this->createMock(ParticipantResolver::class),
+            templateService: $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class),
         );
 
     }//end buildService()
@@ -357,6 +358,7 @@ class VotingServiceDelegationGateTest extends TestCase
             oriPublicationService: $this->createMock(OriPublicationService::class),
             motionService: $this->createMock(MotionService::class),
             participantResolver: $this->createMock(ParticipantResolver::class),
+            templateService: $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class),
         );
 
         $vote = $service->castVote(

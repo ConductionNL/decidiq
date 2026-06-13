@@ -25,6 +25,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\DecisionLifecycleService;
+use OCA\Decidesk\Service\ProcessTemplateService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -86,11 +87,18 @@ class DecisionLifecycleServiceTest extends TestCase
             ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($this->objectService);
 
+        // Default: no body template assigned -> resolvePolicyForBody returns null,
+        // so the guard falls back to the built-in hardcoded domain policy and every
+        // pre-process-config test keeps its original behaviour.
+        $templateService = $this->createMock(ProcessTemplateService::class);
+        $templateService->method('resolvePolicyForBody')->willReturn(null);
+
         $this->service = new DecisionLifecycleService(
             container: $this->container,
             logger: $this->createMock(LoggerInterface::class),
             transitionGuard: new DecisionTransitionGuard(),
             auditLogService: $this->auditLogService,
+            templateService: $templateService,
         );
 
     }//end setUp()

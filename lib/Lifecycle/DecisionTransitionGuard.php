@@ -138,14 +138,26 @@ class DecisionTransitionGuard
      *
      * Unknown domains fall back to the restrictive default-deny policy.
      *
-     * @param string $domain The governance domain (legislative|association|corporate|operations|citizen)
+     * When a non-null $policyOverride is supplied (process-configuration: a
+     * governance body's assigned process template, translated by
+     * ProcessTemplatePolicyResolver) it REPLACES the domain-keyed lookup. A null
+     * override is byte-identical to the pre-process-config behaviour, so bodies
+     * without a template keep the built-in hardcoded default-deny policy.
+     *
+     * @param string                    $domain         The governance domain (legislative|association|corporate|operations|citizen)
+     * @param array<string, mixed>|null $policyOverride Optional template-derived policy that replaces the domain lookup
      *
      * @spec openspec/specs/decision-management/spec.md
+     * @spec openspec/specs/process-configuration/spec.md
      *
-     * @return array<string, mixed> The domain's decision workflow policy
+     * @return array<string, mixed> The decision workflow policy
      */
-    public function getDomainPolicy(string $domain): array
+    public function getDomainPolicy(string $domain, ?array $policyOverride=null): array
     {
+        if ($policyOverride !== null) {
+            return $policyOverride;
+        }
+
         return self::DOMAIN_POLICIES[$domain] ?? self::RESTRICTED_POLICY;
 
     }//end getDomainPolicy()
@@ -184,14 +196,16 @@ class DecisionTransitionGuard
      * state"). The deliberating → decided edge is filtered out unless the
      * domain allows deciding without a formal vote.
      *
-     * @param string $currentLifecycle The decision's current lifecycle state
-     * @param string $domain           The governance domain
+     * @param string                    $currentLifecycle The decision's current lifecycle state
+     * @param string                    $domain           The governance domain
+     * @param array<string, mixed>|null $policyOverride   Optional template-derived policy (process-configuration)
      *
      * @spec openspec/specs/decision-management/spec.md
+     * @spec openspec/specs/process-configuration/spec.md
      *
      * @return string[] Action names the caller may attempt from this state
      */
-    public function getAvailableActions(string $currentLifecycle, string $domain='operations'): array
+    public function getAvailableActions(string $currentLifecycle, string $domain='operations', ?array $policyOverride=null): array
     {
         $available = [];
         foreach (self::TRANSITIONS as $action => $transition) {
@@ -199,7 +213,7 @@ class DecisionTransitionGuard
                 continue;
             }
 
-            if ($this->isTransitionAllowed(domain: $domain, fromState: $currentLifecycle, toState: $transition['to']) === false) {
+            if ($this->isTransitionAllowed(domain: $domain, fromState: $currentLifecycle, toState: $transition['to'], policyOverride: $policyOverride) === false) {
                 continue;
             }
 
@@ -219,17 +233,19 @@ class DecisionTransitionGuard
      * must separately enforce chair authorization via
      * requiresChairAuthorization().
      *
-     * @param string $domain    The governance domain
-     * @param string $fromState The current lifecycle state
-     * @param string $toState   The target lifecycle state
+     * @param string                    $domain         The governance domain
+     * @param string                    $fromState      The current lifecycle state
+     * @param string                    $toState        The target lifecycle state
+     * @param array<string, mixed>|null $policyOverride Optional template-derived policy (process-configuration)
      *
      * @spec openspec/specs/decision-management/spec.md
+     * @spec openspec/specs/process-configuration/spec.md
      *
      * @return bool True when the edge is permitted by domain policy
      */
-    public function isTransitionAllowed(string $domain, string $fromState, string $toState): bool
+    public function isTransitionAllowed(string $domain, string $fromState, string $toState, ?array $policyOverride=null): bool
     {
-        $policy = $this->getDomainPolicy(domain: $domain);
+        $policy = $this->getDomainPolicy(domain: $domain, policyOverride: $policyOverride);
 
         // The deliberating → decided shortcut skips the formal voting round and
         // is only available in domains that explicitly allow it.
@@ -247,17 +263,19 @@ class DecisionTransitionGuard
      * Check whether a transition is restricted to the meeting chair in the
      * given domain.
      *
-     * @param string $domain The governance domain
-     * @param string $from   The current lifecycle state
-     * @param string $to     The target lifecycle state
+     * @param string                    $domain         The governance domain
+     * @param string                    $from           The current lifecycle state
+     * @param string                    $to             The target lifecycle state
+     * @param array<string, mixed>|null $policyOverride Optional template-derived policy (process-configuration)
      *
      * @spec openspec/specs/decision-management/spec.md
+     * @spec openspec/specs/process-configuration/spec.md
      *
      * @return bool True when only the chair may perform this transition
      */
-    public function requiresChairAuthorization(string $domain, string $from, string $to): bool
+    public function requiresChairAuthorization(string $domain, string $from, string $to, ?array $policyOverride=null): bool
     {
-        $policy = $this->getDomainPolicy(domain: $domain);
+        $policy = $this->getDomainPolicy(domain: $domain, policyOverride: $policyOverride);
         return in_array(needle: "$from:$to", haystack: ($policy['chairOnlyTransitions'] ?? []), strict: true);
 
     }//end requiresChairAuthorization()
@@ -266,15 +284,17 @@ class DecisionTransitionGuard
      * Check whether the domain enforces meeting quorum before a decision may
      * enter the `voting` state.
      *
-     * @param string $domain The governance domain
+     * @param string                    $domain         The governance domain
+     * @param array<string, mixed>|null $policyOverride Optional template-derived policy (process-configuration)
      *
      * @spec openspec/specs/decision-management/spec.md
+     * @spec openspec/specs/process-configuration/spec.md
      *
      * @return bool True when quorum must be met before openVoting
      */
-    public function isQuorumRequired(string $domain): bool
+    public function isQuorumRequired(string $domain, ?array $policyOverride=null): bool
     {
-        $policy = $this->getDomainPolicy(domain: $domain);
+        $policy = $this->getDomainPolicy(domain: $domain, policyOverride: $policyOverride);
         return ($policy['quorumEnforced'] ?? true) === true;
 
     }//end isQuorumRequired()

@@ -1,0 +1,198 @@
+{
+	"info": {
+		"name": "Decidesk Process Configuration (process-config-v1)",
+		"description": "Contract + authorization tests for the admin process-template management API (process-config-v1). Admin requests expect 200/201; the non-admin probe and unauthenticated requests expect 403/401. Mirrors the decidesk-lifecycle / decidesk-admin-settings auth model.\n\n@spec openspec/specs/process-configuration/spec.md",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": { "type": "noauth" },
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080" },
+		{ "key": "noAuthBase", "value": "http://127.0.0.1:8080" },
+		{ "key": "adminUser", "value": "admin" },
+		{ "key": "adminPass", "value": "admin" },
+		{ "key": "nonAdminUser", "value": "decidesk-proccfg-nonadmin" },
+		{ "key": "nonAdminPass", "value": "Decidesk-ProcCfg!42x" }
+	],
+	"item": [
+		{
+			"name": "0. Setup",
+			"item": [
+				{
+					"name": "Create non-admin probe user",
+					"request": {
+						"method": "POST",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"header": [ { "key": "OCS-APIRequest", "value": "true" }, { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
+						"body": { "mode": "urlencoded", "urlencoded": [ { "key": "userid", "value": "{{nonAdminUser}}" }, { "key": "password", "value": "{{nonAdminPass}}" } ] },
+						"url": { "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json", "host": [ "{{baseUrl}}" ], "path": [ "ocs", "v2.php", "cloud", "users" ], "query": [ { "key": "format", "value": "json" } ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('Setup: non-admin probe user available', () => {",
+						"    if (pm.response.code === 200) { return; }",
+						"    const sc = pm.response.json()?.ocs?.meta?.statuscode;",
+						"    pm.expect(sc, 'user already exists is acceptable').to.eql(102);",
+						"});"
+					] } } ]
+				}
+			]
+		},
+		{
+			"name": "1. Template listing (admin)",
+			"item": [
+				{
+					"name": "GET process-templates as admin returns the built-in catalogue",
+					"request": {
+						"method": "GET",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('admin can list templates (200)', () => pm.response.to.have.status(200));",
+						"const body = pm.response.json();",
+						"pm.test('response has a results array', () => pm.expect(body.results).to.be.an('array'));",
+						"const slugs = (body.results || []).map(t => t.slug || (t['@self'] && t['@self'].slug));",
+						"pm.test('built-in ALV template is present', () => pm.expect(slugs).to.include('association-alv'));"
+					] } } ]
+				}
+			]
+		},
+		{
+			"name": "2. Validation + create (admin)",
+			"item": [
+				{
+					"name": "POST validate rejects a dangling transition (400-ish payload)",
+					"request": {
+						"method": "POST",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"}],\"transitions\":[{\"from\":\"draft\",\"to\":\"ghost\"}]}}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates/validate", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates", "validate" ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('validate endpoint responds 200 with a verdict', () => pm.response.to.have.status(200));",
+						"const body = pm.response.json();",
+						"pm.test('dangling graph is invalid', () => pm.expect(body.valid).to.eql(false));",
+						"pm.test('error mentions the dangling state', () => pm.expect(JSON.stringify(body.errors)).to.include('ghost'));"
+					] } } ]
+				},
+				{
+					"name": "POST create rejects an invalid graph (400)",
+					"request": {
+						"method": "POST",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\"name\":\"Newman Invalid\",\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"},{\"name\":\"orphan\"}],\"transitions\":[]}}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('invalid graph create is rejected (400)', () => pm.response.to.have.status(400));"
+					] } } ]
+				},
+				{
+					"name": "POST create a valid template (201) and store its id",
+					"request": {
+						"method": "POST",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\"name\":\"Newman Process Template\",\"context\":\"association\",\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"},{\"name\":\"proposed\"},{\"name\":\"decided\"}],\"transitions\":[{\"from\":\"draft\",\"to\":\"proposed\"},{\"from\":\"proposed\",\"to\":\"decided\"}]},\"votingRule\":{\"voteThreshold\":\"simple-majority\",\"abstentionHandling\":\"exclude\",\"tieBreakRule\":\"rejected\"},\"quorumRequired\":true}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('valid template created (201)', () => pm.response.to.have.status(201));",
+						"const body = pm.response.json();",
+						"pm.test('created template is not built-in', () => pm.expect(body.builtIn).to.not.eql(true));",
+						"const id = body.id || (body['@self'] && body['@self'].id);",
+						"if (id) { pm.collectionVariables.set('createdTemplateId', id); }"
+					] } } ]
+				},
+				{
+					"name": "DELETE the created template (cleanup, 200)",
+					"request": {
+						"method": "DELETE",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates/{{createdTemplateId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates", "{{createdTemplateId}}" ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('created template deletable when an id was captured', () => {",
+						"    if (!pm.collectionVariables.get('createdTemplateId')) { pm.skip(); return; }",
+						"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+						"});"
+					] } } ]
+				}
+			]
+		},
+		{
+			"name": "3. Authorization posture",
+			"item": [
+				{
+					"name": "GET process-templates unauthenticated (401)",
+					"request": {
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('unauthenticated list is rejected (401)', () => pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+					] } } ]
+				},
+				{
+					"name": "GET process-templates as non-admin (403)",
+					"request": {
+						"method": "GET",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{nonAdminUser}}", "type": "string" }, { "key": "password", "value": "{{nonAdminPass}}", "type": "string" } ] },
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('non-admin list is forbidden (403)', () => pm.response.to.have.status(403));"
+					] } } ]
+				},
+				{
+					"name": "POST create as non-admin (403)",
+					"request": {
+						"method": "POST",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{nonAdminUser}}", "type": "string" }, { "key": "password", "value": "{{nonAdminPass}}", "type": "string" } ] },
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\"name\":\"hacker\",\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"}],\"transitions\":[]}}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates" ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('non-admin create is forbidden (403)', () => pm.response.to.have.status(403));"
+					] } } ]
+				},
+				{
+					"name": "POST validate as non-admin (403)",
+					"request": {
+						"method": "POST",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{nonAdminUser}}", "type": "string" }, { "key": "password", "value": "{{nonAdminPass}}", "type": "string" } ] },
+						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"body": { "mode": "raw", "raw": "{\"initialState\":\"draft\",\"stateMachine\":{\"states\":[{\"name\":\"draft\"}],\"transitions\":[]}}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/process-templates/validate", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "process-templates", "validate" ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('non-admin validate is forbidden (403)', () => pm.response.to.have.status(403));"
+					] } } ]
+				}
+			]
+		},
+		{
+			"name": "9. Teardown",
+			"item": [
+				{
+					"name": "Delete non-admin probe user",
+					"request": {
+						"method": "DELETE",
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"header": [ { "key": "OCS-APIRequest", "value": "true" }, { "key": "Accept", "value": "application/json" } ],
+						"url": { "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{nonAdminUser}}?format=json", "host": [ "{{baseUrl}}" ], "path": [ "ocs", "v2.php", "cloud", "users", "{{nonAdminUser}}" ], "query": [ { "key": "format", "value": "json" } ] }
+					},
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+						"pm.test('Teardown: probe user removed (or already gone)', () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));"
+					] } } ]
+				}
+			]
+		}
+	]
+}

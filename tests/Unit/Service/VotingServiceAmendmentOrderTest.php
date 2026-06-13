@@ -261,6 +261,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             oriPublicationService: $this->createMock(OriPublicationService::class),
             motionService: $this->motionService,
             participantResolver: $participantResolver,
+            templateService: $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class),
         );
 
     }//end buildService()

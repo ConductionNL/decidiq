@@ -1,44 +1,22 @@
 ---
-status: done
-status-note: |
-  2026-06-13 process-config-v1 — 4/4 requirements built. Process templates are
-  OpenRegister `processTemplate` objects (ADR-037 fragment) with a structured
-  JSON state machine and default voting rule; a `ProcessTemplateService` does
-  CRUD + duplicate + server-side transition-graph validation (rejects
-  dangling/unreachable states + unknown guard tokens, fail closed). Five
-  built-in templates ship via x-openregister-seeds (association-alv,
-  association-board, corporate-board, municipal-council, operational-team) and
-  are read-only-but-duplicable. An admin-gated section (Settings.vue ->
-  ProcessTemplates.vue + ProcessTemplateEditModal.vue + StateMachineEditor.vue)
-  manages them. The assigned template drives the DecisionTransitionGuard /
-  WorkflowService policy ADDITIVELY: a `ProcessTemplatePolicyResolver`
-  translates the template to the guard policy shape and the guard methods take
-  an optional `?array $policyOverride` (null -> the hardcoded default-deny
-  domain constants, unchanged); a malformed template reverts to default-deny
-  (never fail-open). Voting-round open applies the template's voteThreshold /
-  abstentionHandling / tieBreakRule defaults unless the caller overrides them.
-  RESIDUE (additive, non-breaking): (1) the state machine is stored as
-  structured JSON, not literal Symfony Workflow YAML — a YAML import/export is
-  deferred; (2) the editor renders a textual graph summary, not an SVG/visual
-  diagram; (3) weighted voting is configurable on the template but the weighted
-  TALLY engine is owned by the voting-system spec, not this change; (4) the
-  guard override is wired through the meeting->governanceBody link — a decision
-  with no meeting and no body field falls back to the domain constants.
+status: draft
 ---
 
-# Process Configuration Specification
+# Spec Delta: Process Configuration (process-config-v1)
 
 ## Purpose
 
-Process configuration enables administrators to define and customize decision-making workflows for different governance contexts. A process template defines the state machine, voting rules, quorum requirements, and procedural rules for a specific type of decision or meeting. The system stores state machines as structured JSON (1:1 convertible to Symfony Workflow YAML) and voting rules as a DMN-inspired rule object. This allows Decidesk to serve municipal councils, corporate boards, associations, and operational teams with their own procedural rules.
+Builds the four V1-deferred requirements of the seeded process-configuration
+spec. The requirement texts below replace their seeded counterparts to reflect
+the implementation: process templates are OpenRegister objects carrying a
+**structured JSON** state machine (1:1 convertible to Symfony Workflow YAML — a
+YAML import/export remains future work) and per-template default voting rules. A
+body's assigned template drives the existing `DecisionTransitionGuard` /
+`WorkflowService` policy **additively**, falling back to the built-in hardcoded
+default-deny policy when no template is assigned. All other requirements are
+untouched.
 
-**Standards**: Symfony Workflow Component (YAML config), DMN (Decision Model and Notation) for voting rules, Schema.org (`HowTo`, `HowToStep`)
-**Feature tier**: V1
-
-## Data Model
-
-See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full ProcessTemplate entity definition.
-## Requirements
+## MODIFIED Requirements
 
 ---
 
@@ -156,22 +134,3 @@ default voting rule for its context.
 - WHEN the administrator selects the built-in "Association ALV" template for a body
 - THEN the template MUST be immediately usable with its seeded states and voting
   rule, without further configuration
-
-## User Stories
-
-1. **Legal counsel tracking governance code compliance**: As legal counsel, I want to track compliance with each provision of the Corporate Governance Code, so that I can prepare the comply-or-explain statement for the annual report. (Source: intelligence DB #39)
-
-2. **Supervisory board chair managing approval workflow**: As a supervisory board chair, I want a digital workflow for approving major management decisions, so that approvals can be obtained efficiently even outside scheduled meetings. (Source: intelligence DB #25)
-
-3. **Secretary verifying voting requirements**: As secretary, I want to verify that a statute amendment vote meets the required quorum and qualified majority so that the notary can confirm proper adoption. (Source: intelligence DB #59)
-
-## Acceptance Criteria
-
-- Process templates are stored as OpenRegister objects with YAML state machine definitions
-- State machines use Symfony Workflow Component YAML format
-- Voting rules support simple, qualified, unanimous, and weighted majority
-- Abstention handling is configurable (counted or excluded)
-- Tie-breaking methods are configurable per template
-- Built-in templates ship for ALV, board, council, and operational contexts
-- Templates are duplicable for customization
-- State machine visualization is available in the admin UI
