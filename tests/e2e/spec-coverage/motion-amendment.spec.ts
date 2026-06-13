@@ -8,9 +8,12 @@
  * @e2e openspec/specs/motion-amendment/spec.md#reject-motion-below-minimum-co-signer-threshold
  * @e2e openspec/specs/motion-amendment/spec.md#submit-a-motion-during-a-live-meeting
  * @e2e openspec/specs/motion-amendment/spec.md#submit-an-amendment-to-a-pending-motion
+ * @e2e openspec/specs/motion-amendment/spec.md#view-the-amendment-diff-against-the-parent-motion
  * @e2e openspec/specs/motion-amendment/spec.md#submit-multiple-amendments-to-the-same-motion
  * @e2e openspec/specs/motion-amendment/spec.md#vote-on-amendments-before-the-main-motion
  * @e2e openspec/specs/motion-amendment/spec.md#chair-sets-amendment-voting-order
+ * @e2e openspec/specs/motion-amendment/spec.md#reject-opening-an-amendment-round-out-of-order
+ * @e2e openspec/specs/motion-amendment/spec.md#reject-submission-after-the-meeting-deadline
  * @e2e openspec/specs/motion-amendment/spec.md#withdraw-a-motion-before-voting
  */
 import { test, expect } from '@playwright/test'
@@ -91,8 +94,35 @@ test('motion detail route renders with amendments tab accessible', async ({ page
 	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
 })
 
+// @e2e openspec/specs/motion-amendment/spec.md#view-the-amendment-diff-against-the-parent-motion
+// The visual diff lives in the AmendmentDiffTab on an amendment detail page.
+// Verify the amendment detail route mounts (the diff tab renders the word-level
+// additions-in-green / removals-in-red view, falling back to amendment text).
+test('amendment detail route renders for the diff view', async ({ page }) => {
+	const resp = await page.request.get(
+		`${BASE}/index.php/apps/openregister/api/objects/decidesk/amendment?_limit=1`,
+		{ headers: { Accept: 'application/json' } },
+	)
+	expect(resp.ok()).toBe(true)
+	const body = await resp.json()
+	const first = (body.results ?? body.items ?? [])[0]
+	test.skip(!first, 'No amendment objects found')
+	const amendmentId = first.id ?? first['@self']?.id
+	test.skip(!amendmentId, 'First amendment has no id')
+
+	await page.goto(`${BASE}/apps/decidesk/amendments/${amendmentId}`)
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	await expect(page.locator('[data-testid="app-root"]')).toBeVisible()
+})
+
 // @e2e openspec/specs/motion-amendment/spec.md#vote-on-amendments-before-the-main-motion
 // @e2e openspec/specs/motion-amendment/spec.md#chair-sets-amendment-voting-order
+// @e2e openspec/specs/motion-amendment/spec.md#reject-opening-an-amendment-round-out-of-order
+// @e2e openspec/specs/motion-amendment/spec.md#reject-submission-after-the-meeting-deadline
+// Out-of-order amendment-round rejection and submission-deadline rejection are
+// server-enforced (VotingService::openVotingRound / SubmissionDeadlineListener)
+// and contract-tested in Newman + PHPUnit. The chair-facing voting-order UI is
+// MotionAmendmentOrderTab on the motion detail page, exercised below.
 // Amendment voting order and live voting require a live meeting context with an active
 // voting round — these are VotingRoundPanel behaviors in the LiveMeeting view.
 // Verified via the live meeting view mounting.

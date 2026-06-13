@@ -94,6 +94,9 @@ return [
         // Amendment lifecycle routes (specific before wildcard).
         ['name' => 'motion#amendmentTransition', 'url' => '/api/amendments/{id}/transition', 'verb' => 'POST'],
 
+        // Chair-set amendment voting order — @spec openspec/specs/motion-amendment/spec.md.
+        ['name' => 'motion#amendmentOrder', 'url' => '/api/motions/{id}/amendment-order', 'verb' => 'POST'],
+
         // Voting round routes (specific before wildcard).
         ['name' => 'voting#open',        'url' => '/api/voting-rounds',             'verb' => 'POST'],
         ['name' => 'voting#cast',        'url' => '/api/voting-rounds/{id}/cast',   'verb' => 'POST'],

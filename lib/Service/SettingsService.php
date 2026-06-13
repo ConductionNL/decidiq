@@ -43,11 +43,15 @@ class SettingsService
      *
      * Includes the main register slug plus schema slugs for Minutes, Decision,
      * and ActionItem so the frontend initializeStores() can register object stores.
+     * motion_min_cosigners (motion-amendment spec) is the configurable minimum
+     * co-signer count enforced on the motion submitted→debating transition
+     * (0 = disabled).
      *
      * @var array<string>
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
+     * @spec openspec/specs/motion-amendment/spec.md
      */
     private const CONFIG_KEYS = [
         'register',
@@ -57,6 +61,8 @@ class SettingsService
         'minutesSchema',
         'decisionSchema',
         'actionItemSchema',
+        // Co-signer minimum threshold per openspec/specs/motion-amendment/spec.md.
+        'motion_min_cosigners',
         // Organization-level defaults per openspec/specs/admin-settings/spec.md
         // (Organization Configuration requirement).
         'organisation_name',

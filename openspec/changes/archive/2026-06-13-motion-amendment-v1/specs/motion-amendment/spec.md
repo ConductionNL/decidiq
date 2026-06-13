@@ -1,22 +1,18 @@
 ---
-status: done
-status-note: 2026-06-13 motion-amendment-v1 closed all four audit gaps — visual word-level amendment diff view (src/utils/textDiff.js + AmendmentDiffView/AmendmentDiffTab), chair-controlled amendment voting order with server-side fail-closed enforcement (VotingService::openVotingRound + MotionService::setAmendmentVotingOrder + MotionAmendmentOrderTab), configurable co-signer minimum threshold (motion_min_cosigners), and submission deadline enforcement (SubmissionDeadlineListener).
+status: draft
 ---
 
-# Motion and Amendment Specification
+# Spec Delta: Motion and Amendment (motion-amendment-v1)
 
 ## Purpose
 
-Motions and amendments are the formal mechanisms for proposing decisions and modifying proposals before a vote. A motion is a formal proposal submitted by a member for consideration by the governing body. An amendment is a proposed modification to a pending motion. The system supports motion submission, amendment drafting, amendment voting order (amendments voted before the main motion), and the parliamentary procedure for handling competing amendments.
+Closes the four audit gaps in the seeded motion-amendment spec: visual amendment diff
+view, chair-controlled amendment voting order with server-side enforcement, the
+configurable co-signer minimum threshold, and submission deadline enforcement.
+Requirement texts below replace their counterparts in the main spec; all other
+requirements are untouched.
 
-**Standards**: Akoma Ntoso (`bill`, `amendment`, `motion`), Schema.org (`Action`, `ReplaceAction`), OpenRaadsinformatie (`Motie`, `Amendement`)
-**Feature tier**: V1
-**Legal reference**: Gemeentewet 147a (right to submit motions), Reglement van Orde (rules of procedure)
-
-## Data Model
-
-See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Motion and Amendment entity definitions including property tables, Akoma Ntoso alignment, and OpenRaadsinformatie mapping.
-## Requirements
+## MODIFIED Requirements
 
 ---
 
@@ -137,35 +133,3 @@ out of the configured order MUST be rejected server-side.
 - WHEN a voting round is opened on amendment B
 - THEN the system MUST reject the request because amendment A must be voted first
 - AND opening a round on amendment A MUST succeed
-
-### Requirement: Motion Withdrawal and Status
-
-The system MUST support motion withdrawal by the proposer before voting. Motions MUST follow a status lifecycle: `draft`, `submitted`, `under_consideration`, `voting`, `adopted`, `rejected`, `withdrawn`.
-
-**Feature tier**: V1
-
-#### Scenario: Withdraw a motion before voting
-
-- GIVEN a motion in `submitted` or `under_consideration` status
-- WHEN the proposer requests to withdraw the motion
-- THEN the status MUST change to `withdrawn`
-- AND the withdrawal MUST be recorded in the audit trail
-- AND the motion MUST remain visible in the meeting record but marked as withdrawn
-
-## User Stories
-
-1. **Member submitting a motion**: As a member, I want to submit a motion or proposal for the ALV agenda with supporting arguments so that my topic is formally discussed and voted on. (Source: intelligence DB #54)
-
-2. **Secretary recording board decisions with votes**: As secretary, I want to record each board decision with the vote distribution per board member so that we comply with WBTR documentation requirements. (Source: intelligence DB #66)
-
-3. **Secretary preparing structured approval request**: As a board secretary, I want to prepare structured approval requests with all required information, so that the supervisory board can make informed decisions efficiently. (Source: intelligence DB #26)
-
-## Acceptance Criteria
-
-- Motions are stored as OpenRegister objects with proposer, co-signers, and rationale
-- Amendments show a diff view of proposed text changes
-- Amendment voting precedes main motion voting (parliamentary rule)
-- Chair can set amendment voting order
-- Motion lifecycle follows defined status transitions
-- Motion withdrawal is supported and recorded
-- OpenRaadsinformatie `Motie`/`Amendement` mapping is available

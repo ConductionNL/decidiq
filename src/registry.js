@@ -62,9 +62,11 @@ import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
+import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
+import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
 import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
@@ -171,9 +173,13 @@ export default {
 	MeetingVotesTab: page(MeetingVotesTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
+	// Chair-controlled amendment voting order (motion-amendment spec).
+	MotionAmendmentOrderTab: page(MotionAmendmentOrderTab),
 	MotionVotesTab: page(MotionVotesTab),
 	MotionVotingRoundTab: page(MotionVotingRoundTab),
 	AmendmentParentMotionTab: page(AmendmentParentMotionTab),
+	// Visual diff against the parent motion text (motion-amendment spec).
+	AmendmentDiffTab: page(AmendmentDiffTab),
 	MinutesSignersTab: page(MinutesSignersTab),
 	// Minutes approval workflow + document generation (minutes-ui-v1):
 	// lifecycle timeline with guarded submit/approve/reject actions and

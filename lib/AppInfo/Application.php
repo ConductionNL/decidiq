@@ -58,6 +58,7 @@ use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
+use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\App;
@@ -831,6 +832,24 @@ class Application extends App implements IBootstrap
         $context->registerEventListener(
             event: ObjectCreatedEvent::class,
             listener: \OCA\Decidesk\Listener\MeetingFolderListener::class
+        );
+
+        // Submission deadline gate (motion-amendment spec): pre-save hook that
+        // rejects motion/amendment creations after the linked meeting's
+        // submissionDeadline (OpenRegister converts the stopped event into
+        // HTTP 422 at the object API).
+        $context->registerService(
+            \OCA\Decidesk\Listener\SubmissionDeadlineListener::class,
+            static function ($c): \OCA\Decidesk\Listener\SubmissionDeadlineListener {
+                return new \OCA\Decidesk\Listener\SubmissionDeadlineListener(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerEventListener(
+            event: ObjectCreatingEvent::class,
+            listener: \OCA\Decidesk\Listener\SubmissionDeadlineListener::class
         );
 
         // Voting deadline reminder sweep (hourly job in appinfo/info.xml).

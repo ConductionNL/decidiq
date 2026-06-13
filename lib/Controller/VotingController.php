@@ -193,7 +193,13 @@ class VotingController extends Controller
     /**
      * Resolve the meeting UUID linked to a voting round via motion relations.
      *
+     * Handles motion rounds (round → motion → meeting) and amendment rounds
+     * (round → amendment → parent motion → meeting), honouring both the flat
+     * `meeting` property and structured relation entries on the motion.
+     *
      * @param string $votingRoundId The voting round UUID
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
      *
      * @return string|null The meeting UUID or null if not found
      */
@@ -207,16 +213,63 @@ class VotingController extends Controller
             }
 
             $round = $roundEntity->jsonSerialize();
+
+            $motionId = null;
             foreach (($round['relations'] ?? []) as $relation) {
-                if (($relation['schema'] ?? '') === 'motion') {
-                    $motionId     = ($relation['id'] ?? null);
-                    $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
-                    if ($motionEntity !== null) {
-                        $motion = $motionEntity->jsonSerialize();
-                        foreach (($motion['relations'] ?? []) as $motionRel) {
-                            if (($motionRel['schema'] ?? '') === 'meeting') {
-                                return ($motionRel['id'] ?? null);
+                $relSchema = ($relation['schema'] ?? '');
+                if ($relSchema === 'motion') {
+                    $motionId = ($relation['id'] ?? null);
+                    break;
+                }
+
+                // Amendment rounds (motion-amendment spec): resolve the parent
+                // motion so the per-meeting chair guard still applies.
+                if ($relSchema === 'amendment') {
+                    $amendmentId = ($relation['id'] ?? null);
+                    if ($amendmentId !== null) {
+                        $amendmentEntity = $objectService->find(id: $amendmentId, register: 'decidesk', schema: 'amendment');
+                        if ($amendmentEntity !== null) {
+                            $amendment = $amendmentEntity->jsonSerialize();
+                            $parentRef = ($amendment['parentMotion'] ?? null);
+                            if (is_string($parentRef) === true && $parentRef !== '') {
+                                $motionId = $parentRef;
+                            } else if (is_array($parentRef) === true) {
+                                $motionId = ($parentRef['id'] ?? $parentRef['uuid'] ?? null);
                             }
+
+                            if ($motionId === null) {
+                                foreach (($amendment['relations'] ?? []) as $amendmentRel) {
+                                    if (($amendmentRel['schema'] ?? '') === 'motion') {
+                                        $motionId = ($amendmentRel['id'] ?? null);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    break;
+                }
+            }//end foreach
+
+            if ($motionId !== null) {
+                $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+                if ($motionEntity !== null) {
+                    $motion = $motionEntity->jsonSerialize();
+
+                    // Flat meeting property (canonical UI shape).
+                    $meetingRef = ($motion['meeting'] ?? null);
+                    if (is_string($meetingRef) === true && $meetingRef !== '') {
+                        return $meetingRef;
+                    }
+
+                    if (is_array($meetingRef) === true && (($meetingRef['id'] ?? $meetingRef['uuid'] ?? '') !== '')) {
+                        return ($meetingRef['id'] ?? $meetingRef['uuid']);
+                    }
+
+                    foreach (($motion['relations'] ?? []) as $motionRel) {
+                        if (($motionRel['schema'] ?? '') === 'meeting') {
+                            return ($motionRel['id'] ?? null);
                         }
                     }
                 }
@@ -236,12 +289,18 @@ class VotingController extends Controller
      * Body: { "motionId": "uuid", "meetingId": "uuid", "votingMethod": "for-against-abstain",
      *         "isSecret": false, "closedAt": null, "presetParticipantIds": ["uuid1", "uuid2"],
      *         "voteThreshold": "simple-majority", "abstentionHandling": "exclude",
-     *         "tieBreakRule": "rejected", "revoteOfRound": "uuid|null" }
+     *         "tieBreakRule": "rejected", "revoteOfRound": "uuid|null",
+     *         "subjectType": "motion|amendment" }
+     *
+     * For subjectType=amendment, motionId carries the AMENDMENT UUID; the
+     * parliamentary ordering rules (amendments before the motion, chair-set
+     * order) are enforced server-side by VotingService (fail closed).
      *
      * @NoAdminRequired
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      * @spec openspec/specs/voting-system/spec.md
+     * @spec openspec/specs/motion-amendment/spec.md
      *
      * @return JSONResponse
      */
@@ -303,6 +362,13 @@ class VotingController extends Controller
             $revoteOfRoundId = $params['revoteOfRound'];
         }
 
+        // Subject type (motion-amendment spec): validate up front so a bad value
+        // is a clean 400, never a 500.
+        $subjectType = (string) ($params['subjectType'] ?? 'motion');
+        if (in_array($subjectType, ['motion', 'amendment'], true) === false) {
+            return new JSONResponse(['message' => 'subjectType must be one of: motion, amendment'], Http::STATUS_BAD_REQUEST);
+        }
+
         try {
             $round = $this->votingService->openVotingRound(
                 motionId: $motionId,
@@ -314,7 +380,8 @@ class VotingController extends Controller
                 voteThreshold: $voteThreshold,
                 abstentionHandling: $abstentionHandling,
                 tieBreakRule: $tieBreakRule,
-                revoteOfRoundId: $revoteOfRoundId
+                revoteOfRoundId: $revoteOfRoundId,
+                subjectType: $subjectType
             );
             return new JSONResponse($round, Http::STATUS_CREATED);
         } catch (\InvalidArgumentException $e) {

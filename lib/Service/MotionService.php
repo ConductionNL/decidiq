@@ -116,10 +116,11 @@ class MotionService
      * @param string $newState   Target lifecycle state
      * @param string $actorId    Nextcloud user UID performing the transition, or 'system' for internal calls
      *
-     * @throws \InvalidArgumentException When the transition is not allowed or actorId is empty
+     * @throws \InvalidArgumentException When the transition is not allowed, the co-signer minimum is not met, or actorId is empty
      * @throws \RuntimeException         When the object cannot be found or saved
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+     * @spec openspec/specs/motion-amendment/spec.md
      *
      * @return void
      */
@@ -153,6 +154,28 @@ class MotionService
             throw new \InvalidArgumentException(
                 "Transition from '$currentState' to '$newState' is not allowed for $objectType"
             );
+        }
+
+        // Co-signer minimum threshold (motion-amendment spec): a motion may only
+        // leave 'submitted' for 'debating' when it carries at least the configured
+        // number of co-signers (app config motion_min_cosigners, default 0 = disabled).
+        // The rejection message names the requirement and the shortfall so the
+        // proposer knows how many more co-signers to gather before resubmitting.
+        if ($objectType !== 'amendment' && $currentState === 'submitted' && $newState === 'debating') {
+            $appConfig     = $this->container->get(\OCP\IAppConfig::class);
+            $minCoSigners  = (int) $appConfig->getValueString('decidesk', 'motion_min_cosigners', '0');
+            $coSignerCount = count($objectArray['coSigners'] ?? []);
+            if ($minCoSigners > 0 && $coSignerCount < $minCoSigners) {
+                $shortfall = ($minCoSigners - $coSignerCount);
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        'Motion requires at least %d co-signers before it can proceed to debate; it currently has %d (%d more needed)',
+                        $minCoSigners,
+                        $coSignerCount,
+                        $shortfall
+                    )
+                );
+            }
         }
 
         $objectService->saveObject(
@@ -403,16 +426,227 @@ class MotionService
     }//end saveBudgetImpact()
 
     /**
+     * Fetch all amendments linked to a motion, honouring BOTH link shapes.
+     *
+     * Amendments reference their motion either through the flat `parentMotion`
+     * property (what the UI's relation tabs write) or through a structured
+     * `relations` entry with schema 'motion' (what some backend paths write).
+     * This resolver queries both shapes and dedups by id so callers (voting-order
+     * enforcement, conflict detection, the chair ordering endpoint) see every
+     * amendment regardless of how it was created.
+     *
+     * @param string $motionId UUID of the parent Motion
+     *
+     * @return array<int, array<string, mixed>> Serialized amendment objects
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    public function getAmendmentsForMotion(string $motionId): array
+    {
+        $objectService = $this->getObjectService();
+
+        $found = [];
+
+        // Shape 1: flat parentMotion property (canonical UI shape).
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('amendment');
+        $byProperty = $objectService->findAll(['filters' => ['parentMotion' => $motionId]]);
+        foreach ($byProperty as $entity) {
+            $amendment = $this->serializeAmendment($entity);
+            if ($amendment !== null && $this->amendmentReferencesMotion($amendment, $motionId) === true) {
+                $key         = (string) ($amendment['id'] ?? $amendment['uuid'] ?? '');
+                $found[$key] = $amendment;
+            }
+        }
+
+        // Shape 2: structured relations entry. The _relations filter is
+        // schema-presence-only in OpenRegister, so each hit is re-checked for an
+        // exact motion-id reference before it counts.
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('amendment');
+        $byRelation = $objectService->findAll(['filters' => ['_relations.motion' => $motionId]]);
+        foreach ($byRelation as $entity) {
+            $amendment = $this->serializeAmendment($entity);
+            if ($amendment === null) {
+                continue;
+            }
+
+            $key = (string) ($amendment['id'] ?? $amendment['uuid'] ?? '');
+            if (isset($found[$key]) === true) {
+                continue;
+            }
+
+            if ($this->amendmentReferencesMotion($amendment, $motionId) === true) {
+                $found[$key] = $amendment;
+            }
+        }
+
+        return array_values($found);
+
+    }//end getAmendmentsForMotion()
+
+    /**
+     * Serialize an ObjectService result item (entity or array) to an array.
+     *
+     * @param mixed $entity ObjectEntity or already-serialized array
+     *
+     * @return array<string, mixed>|null Serialized object, or null when unusable
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    private function serializeAmendment(mixed $entity): ?array
+    {
+        if (is_array($entity) === true) {
+            return $entity;
+        }
+
+        if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
+            $serialized = $entity->jsonSerialize();
+            if (is_array($serialized) === true) {
+                return $serialized;
+            }
+        }
+
+        return null;
+
+    }//end serializeAmendment()
+
+    /**
+     * Determine whether a serialized amendment references the given motion.
+     *
+     * Checks the flat `parentMotion` property (string or {id} object) and the
+     * structured `relations` list.
+     *
+     * @param array<string, mixed> $amendment Serialized amendment object
+     * @param string               $motionId  UUID of the motion
+     *
+     * @return bool True when the amendment belongs to the motion
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    private function amendmentReferencesMotion(array $amendment, string $motionId): bool
+    {
+        $parentRef = ($amendment['parentMotion'] ?? null);
+        if (is_string($parentRef) === true && $parentRef === $motionId) {
+            return true;
+        }
+
+        if (is_array($parentRef) === true && (($parentRef['id'] ?? $parentRef['uuid'] ?? '') === $motionId)) {
+            return true;
+        }
+
+        foreach (($amendment['relations'] ?? []) as $relation) {
+            if (is_array($relation) === true) {
+                $relId     = ($relation['id'] ?? $relation['uuid'] ?? '');
+                $relSchema = ($relation['schema'] ?? null);
+                if ($relId === $motionId && ($relSchema === null || $relSchema === 'motion')) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if (is_string($relation) === true && $relation === $motionId) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }//end amendmentReferencesMotion()
+
+    /**
+     * Persist the chair-chosen amendment voting order on a motion.
+     *
+     * Validates that every supplied amendment id belongs to the motion, then
+     * stamps `votingOrder` 1..N in the supplied order. Caller-side chair
+     * authorization is enforced by MotionController::amendmentOrder() (fail
+     * closed); the actorId is still required here so bare DI-path callers
+     * cannot reorder without an authenticated actor (the #317 pattern).
+     *
+     * @param string        $motionId            UUID of the parent Motion
+     * @param array<string> $orderedAmendmentIds Amendment UUIDs in the desired voting order (index 0 = voted first)
+     * @param string        $actorId             Nextcloud user UID performing the reorder
+     *
+     * @return array<int, array<string, mixed>> The amendments with their new votingOrder values
+     *
+     * @throws \InvalidArgumentException When an id does not belong to the motion, ids repeat, or actorId is empty
+     * @throws \RuntimeException         When the motion has no amendments to order
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    public function setAmendmentVotingOrder(string $motionId, array $orderedAmendmentIds, string $actorId): array
+    {
+        if ($actorId === '') {
+            throw new \InvalidArgumentException('actorId must be a non-empty Nextcloud user UID');
+        }
+
+        if ($orderedAmendmentIds === []) {
+            throw new \InvalidArgumentException('orderedAmendmentIds must not be empty');
+        }
+
+        if (count($orderedAmendmentIds) !== count(array_unique($orderedAmendmentIds))) {
+            throw new \InvalidArgumentException('orderedAmendmentIds must not contain duplicates');
+        }
+
+        $amendments = $this->getAmendmentsForMotion(motionId: $motionId);
+        if ($amendments === []) {
+            throw new \RuntimeException("Motion $motionId has no amendments to order");
+        }
+
+        $byId = [];
+        foreach ($amendments as $amendment) {
+            $byId[(string) ($amendment['id'] ?? $amendment['uuid'] ?? '')] = $amendment;
+        }
+
+        foreach ($orderedAmendmentIds as $amendmentId) {
+            if (isset($byId[$amendmentId]) === false) {
+                throw new \InvalidArgumentException(
+                    "Amendment $amendmentId does not belong to motion $motionId"
+                );
+            }
+        }
+
+        $objectService = $this->getObjectService();
+        $updated       = [];
+        foreach (array_values($orderedAmendmentIds) as $position => $amendmentId) {
+            $amendment                = $byId[$amendmentId];
+            $amendment['votingOrder'] = ($position + 1);
+
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('amendment');
+            $objectService->saveObject(
+                object: $amendment,
+                register: 'decidesk',
+                schema: 'amendment',
+                uuid: $amendmentId,
+            );
+            $updated[] = $amendment;
+        }
+
+        $this->logger->info(
+            "Decidesk: amendment voting order set on motion $motionId by $actorId",
+            ['order' => array_values($orderedAmendmentIds)]
+        );
+
+        return $updated;
+
+    }//end setAmendmentVotingOrder()
+
+    /**
      * Detect text overlap between a new amendment and existing amendments on a motion.
      *
-     * Fetches all submitted/debating amendments for the motion and performs a
-     * naive word-overlap check. If overlap is detected, notifies secretary-role
-     * users via NotificationService.
+     * Fetches all submitted/debating amendments for the motion (via the
+     * canonical getAmendmentsForMotion() resolver, so amendments linked through
+     * the flat `parentMotion` property are no longer invisible to conflict
+     * detection) and performs a naive word-overlap check. If overlap is
+     * detected, notifies secretary-role users via NotificationService.
      *
      * @param string $motionId       UUID of the parent Motion
      * @param string $newAmendmentId UUID of the newly submitted Amendment
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+     * @spec openspec/specs/motion-amendment/spec.md
      *
      * @return void
      */
@@ -431,25 +665,11 @@ class MotionService
         $newData = $newAmendment->getObject();
         $newText = strtolower($newData['text'] ?? '');
 
-        // Fetch existing amendments for this motion only (push filter to store query).
-        $existing = $objectService->findAll(
-                [
-                    'filters' => [
-                        'register'          => 'decidesk',
-                        'schema'            => 'amendment',
-                        '_relations.motion' => $motionId,
-                    ],
-                ]
-                );
+        // Fetch existing amendments for this motion (both link shapes).
+        $existing = $this->getAmendmentsForMotion(motionId: $motionId);
 
         $conflictFound = false;
-        foreach ($existing as $amendment) {
-            if (is_array($amendment) === true) {
-                $amendmentData = $amendment;
-            } else {
-                $amendmentData = $amendment->getObject();
-            }
-
+        foreach ($existing as $amendmentData) {
             $amendmentId = $amendmentData['id'] ?? $amendmentData['uuid'] ?? '';
 
             if ($amendmentId === $newAmendmentId) {
@@ -458,26 +678,6 @@ class MotionService
 
             $lifecycle = $amendmentData['lifecycle'] ?? '';
             if (in_array($lifecycle, ['submitted', 'debating'], true) === false) {
-                continue;
-            }
-
-            // Check if this amendment is for the same motion.
-            $relations = $amendmentData['relations'] ?? [];
-            $motionRef = false;
-            foreach ($relations as $rel) {
-                if (is_array($rel) === true) {
-                    $relId = $rel['id'] ?? $rel['uuid'] ?? '';
-                } else {
-                    $relId = $rel;
-                }
-
-                if ($relId === $motionId) {
-                    $motionRef = true;
-                    break;
-                }
-            }
-
-            if ($motionRef === false) {
                 continue;
             }
 

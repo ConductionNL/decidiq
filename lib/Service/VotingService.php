@@ -334,7 +334,15 @@ class VotingService
     /**
      * Open a VotingRound, optionally with preset participant UUIDs.
      *
-     * @param string        $motionId             The motion UUID
+     * Parliamentary ordering (motion-amendment spec, fail closed):
+     * - subjectType 'motion': rejected while any amendment of the motion is
+     *   still in lifecycle submitted/debating/voting — amendments are voted
+     *   before the main motion.
+     * - subjectType 'amendment': $motionId is the AMENDMENT UUID; rejected
+     *   when a sibling amendment earlier in the configured order (votingOrder
+     *   ascending, unordered last by submittedAt) is still undecided.
+     *
+     * @param string        $motionId             The motion UUID (the amendment UUID when subjectType is 'amendment')
      * @param string        $meetingId            The meeting UUID
      * @param string        $votingMethod         The voting method (for-against-abstain, show-of-hands, etc.)
      * @param bool          $isSecret             Whether the ballot is secret
@@ -344,14 +352,16 @@ class VotingService
      * @param string        $abstentionHandling   Abstention mode (see ABSTENTION_MODES, default exclude)
      * @param string        $tieBreakRule         Tie-break rule (see TIE_BREAK_RULES, default rejected)
      * @param string|null   $revoteOfRoundId      UUID of a tied round this round is the single permitted revote of
+     * @param string        $subjectType          What is being voted: 'motion' (default) or 'amendment' (fail closed)
      *
      * @return array<string,mixed> The created voting round object with excludedPresetUuids key if any UUIDs were excluded
      *
-     * @throws \RuntimeException         When quorum is not met, the revote guard fails, or lifecycle transition fails
-     * @throws \InvalidArgumentException When a rule value is not in its enum (fail closed)
+     * @throws \RuntimeException         When quorum is not met, the revote guard fails, the amendment ordering rule is violated, or lifecycle transition fails
+     * @throws \InvalidArgumentException When a rule or subjectType value is not in its enum (fail closed)
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      * @spec openspec/specs/voting-system/spec.md
+     * @spec openspec/specs/motion-amendment/spec.md
      */
     public function openVotingRound(
         string $motionId,
@@ -364,6 +374,7 @@ class VotingService
         string $abstentionHandling='exclude',
         string $tieBreakRule='rejected',
         ?string $revoteOfRoundId=null,
+        string $subjectType='motion',
     ): array {
         // Fail closed: unknown rule values are rejected, never silently defaulted.
         if (in_array($voteThreshold, self::VOTE_THRESHOLDS, true) === false) {
@@ -378,6 +389,10 @@ class VotingService
             throw new \InvalidArgumentException("Unknown tieBreakRule '{$tieBreakRule}'");
         }
 
+        if (in_array($subjectType, ['motion', 'amendment'], true) === false) {
+            throw new \InvalidArgumentException("Unknown subjectType '{$subjectType}'");
+        }
+
         $quorumMet = $this->checkQuorum(meetingId: $meetingId);
         if ($quorumMet === false) {
             throw new \RuntimeException('Quorum niet bereikt');
@@ -387,6 +402,13 @@ class VotingService
         // that has not been revoted before (fail closed on every mismatch).
         if ($revoteOfRoundId !== null) {
             $this->assertRevoteAllowed(revoteOfRoundId: $revoteOfRoundId);
+        }
+
+        // Parliamentary ordering guards (motion-amendment spec). Revote rounds
+        // re-open a question that was already legitimately in order, so the
+        // ordering guard applies to fresh rounds only.
+        if ($revoteOfRoundId === null) {
+            $this->assertAmendmentOrdering(subjectId: $motionId, subjectType: $subjectType);
         }
 
         $objectService = $this->objectService();
@@ -405,7 +427,7 @@ class VotingService
             'abstentionHandling' => $abstentionHandling,
             'tieBreakRule'       => $tieBreakRule,
             'relations'          => [
-                ['register' => 'decidesk', 'schema' => 'motion', 'id' => $motionId],
+                ['register' => 'decidesk', 'schema' => $subjectType, 'id' => $motionId],
             ],
         ];
 
@@ -434,14 +456,14 @@ class VotingService
 
         $created = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $votingRound);
 
-        // Transition motion lifecycle to 'voting' via the guarded state machine.
-        // Skipped for revote rounds: a tied result never transitioned the motion out
+        // Transition the subject lifecycle to 'voting' via the guarded state machine.
+        // Skipped for revote rounds: a tied result never transitioned the subject out
         // of 'voting', and 'voting' -> 'voting' is not a legal transition.
         if ($revoteOfRoundId === null) {
             try {
                 $this->motionService->transitionLifecycle(
                     objectId: $motionId,
-                    objectType: 'motion',
+                    objectType: $subjectType,
                     newState: 'voting',
                     actorId: 'system',
                 );
@@ -481,11 +503,252 @@ class VotingService
         // via their chosen channels, fanned out to their active absence
         // delegate. Best-effort: failures are logged and never break the
         // round opening.
-        $this->notifyVotingOpened(motionId: $motionId, meetingId: $meetingId, closedAt: $closedAt);
+        $this->notifyVotingOpened(motionId: $motionId, meetingId: $meetingId, closedAt: $closedAt, subjectType: $subjectType);
 
         return $result;
 
     }//end openVotingRound()
+
+    /**
+     * Enforce the parliamentary amendment-before-motion ordering (fail closed).
+     *
+     * For a MOTION round: every amendment of the motion must already be decided
+     * (lifecycle adopted/rejected) — amendments are voted before the main motion.
+     *
+     * For an AMENDMENT round: the requested amendment must be the next one in
+     * the configured order. Amendments sort by votingOrder ascending (set by
+     * the chair via MotionService::setAmendmentVotingOrder), with unordered
+     * amendments after ordered ones, oldest submittedAt first, id as the final
+     * deterministic tiebreaker. The first undecided amendment in that order is
+     * the only one a round may be opened on.
+     *
+     * @param string $subjectId   The motion UUID, or the amendment UUID for amendment rounds
+     * @param string $subjectType 'motion' or 'amendment' (validated by the caller)
+     *
+     * @return void
+     *
+     * @throws \RuntimeException When the ordering rule is violated or the amendment cannot be resolved
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    private function assertAmendmentOrdering(string $subjectId, string $subjectType): void
+    {
+        if ($subjectType === 'motion') {
+            $amendments = $this->motionService->getAmendmentsForMotion(motionId: $subjectId);
+            $pending    = [];
+            foreach ($amendments as $amendment) {
+                $lifecycle = ($amendment['lifecycle'] ?? '');
+                if (in_array($lifecycle, ['submitted', 'debating', 'voting'], true) === true) {
+                    $pending[] = (string) ($amendment['title'] ?? $amendment['id'] ?? 'amendment');
+                }
+            }
+
+            if ($pending !== []) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'Cannot open a voting round on the motion: %d amendment(s) must be decided first (amendments are voted before the main motion): %s',
+                        count($pending),
+                        implode(', ', $pending)
+                    )
+                );
+            }
+
+            return;
+        }
+
+        // Amendment round: resolve the amendment and its parent motion.
+        $amendmentEntity = $this->objectService()->find(id: $subjectId, register: 'decidesk', schema: 'amendment');
+        if ($amendmentEntity === null) {
+            throw new \RuntimeException("Amendment {$subjectId} not found");
+        }
+
+        $amendment      = $amendmentEntity->jsonSerialize();
+        $parentMotionId = $this->resolveParentMotionId(amendment: $amendment);
+        if ($parentMotionId === null) {
+            // No parent motion — nothing to order against; a standalone amendment
+            // (data-migration artifact) may be voted directly.
+            return;
+        }
+
+        $siblings = $this->motionService->getAmendmentsForMotion(motionId: $parentMotionId);
+
+        // Ensure the requested amendment itself is part of the comparison set even
+        // when its link shape is unusual.
+        $present = false;
+        foreach ($siblings as $sibling) {
+            if ((string) ($sibling['id'] ?? $sibling['uuid'] ?? '') === $subjectId) {
+                $present = true;
+                break;
+            }
+        }
+
+        if ($present === false) {
+            $amendment['id'] = ($amendment['id'] ?? $amendment['uuid'] ?? $subjectId);
+            $siblings[]      = $amendment;
+        }
+
+        usort(
+            $siblings,
+            static function (array $a, array $b): int {
+                $orderA = $a['votingOrder'] ?? null;
+                $orderB = $b['votingOrder'] ?? null;
+                $rankA  = (is_numeric($orderA) === true) ? (int) $orderA : PHP_INT_MAX;
+                $rankB  = (is_numeric($orderB) === true) ? (int) $orderB : PHP_INT_MAX;
+                if ($rankA !== $rankB) {
+                    return ($rankA <=> $rankB);
+                }
+
+                $submittedA = (string) ($a['submittedAt'] ?? '');
+                $submittedB = (string) ($b['submittedAt'] ?? '');
+                if ($submittedA !== $submittedB) {
+                    return ($submittedA <=> $submittedB);
+                }
+
+                return ((string) ($a['id'] ?? '') <=> (string) ($b['id'] ?? ''));
+            }
+        );
+
+        foreach ($siblings as $sibling) {
+            $lifecycle = ($sibling['lifecycle'] ?? '');
+            if (in_array($lifecycle, ['adopted', 'rejected'], true) === true) {
+                continue;
+            }
+
+            $nextId = (string) ($sibling['id'] ?? $sibling['uuid'] ?? '');
+            if ($nextId === $subjectId) {
+                return;
+            }
+
+            throw new \RuntimeException(
+                sprintf(
+                    "Amendment voting order violated: '%s' must be voted first (the chair-configured order is enforced, most far-reaching first)",
+                    (string) ($sibling['title'] ?? $nextId)
+                )
+            );
+        }
+
+        // All siblings decided yet this one undecided was not encountered —
+        // only possible when the requested amendment is itself already decided.
+        throw new \RuntimeException("Amendment {$subjectId} has already been decided");
+
+    }//end assertAmendmentOrdering()
+
+    /**
+     * Resolve the parent motion UUID from a serialized amendment.
+     *
+     * Honours the flat `parentMotion` property (string or {id} object) and the
+     * structured `relations` list with schema 'motion'.
+     *
+     * @param array<string,mixed> $amendment Serialized amendment object
+     *
+     * @return string|null The parent motion UUID, or null when unlinked
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    private function resolveParentMotionId(array $amendment): ?string
+    {
+        $parentRef = ($amendment['parentMotion'] ?? null);
+        if (is_string($parentRef) === true && $parentRef !== '') {
+            return $parentRef;
+        }
+
+        if (is_array($parentRef) === true) {
+            $refId = ($parentRef['id'] ?? $parentRef['uuid'] ?? '');
+            if ($refId !== '') {
+                return (string) $refId;
+            }
+        }
+
+        foreach (($amendment['relations'] ?? []) as $relation) {
+            if (is_array($relation) === true && ($relation['schema'] ?? '') === 'motion') {
+                $relId = ($relation['id'] ?? $relation['uuid'] ?? '');
+                if ($relId !== '') {
+                    return (string) $relId;
+                }
+            }
+        }
+
+        return null;
+
+    }//end resolveParentMotionId()
+
+    /**
+     * Resolve the meeting UUID that owns a voting round.
+     *
+     * Walks round → motion → meeting for motion rounds, and
+     * round → amendment → parent motion → meeting for amendment rounds, so the
+     * membership (#300) and count-validation (#302) guards apply to both round
+     * types. Honours the flat `meeting` property on motions as well as the
+     * structured relation entry.
+     *
+     * @param array<string,mixed> $round Serialized voting round
+     *
+     * @return string|null The meeting UUID, or null when unresolvable
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    private function resolveMeetingIdForRound(array $round): ?string
+    {
+        $objectService = $this->objectService();
+
+        $motionId = null;
+        foreach (($round['relations'] ?? []) as $roundRel) {
+            $relSchema = ($roundRel['schema'] ?? '');
+            if ($relSchema === 'motion') {
+                $motionId = ($roundRel['id'] ?? null);
+                break;
+            }
+
+            if ($relSchema === 'amendment') {
+                $amendmentId = ($roundRel['id'] ?? null);
+                if ($amendmentId !== null) {
+                    $amendmentEntity = $objectService->find(id: $amendmentId, register: 'decidesk', schema: 'amendment');
+                    if ($amendmentEntity !== null) {
+                        $motionId = $this->resolveParentMotionId(amendment: $amendmentEntity->jsonSerialize());
+                    }
+                }
+
+                break;
+            }
+        }
+
+        if ($motionId === null) {
+            return null;
+        }
+
+        $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+        if ($motionEntity === null) {
+            return null;
+        }
+
+        $motionData = $motionEntity->jsonSerialize();
+
+        // Flat meeting property (canonical UI shape).
+        $meetingRef = ($motionData['meeting'] ?? null);
+        if (is_string($meetingRef) === true && $meetingRef !== '') {
+            return $meetingRef;
+        }
+
+        if (is_array($meetingRef) === true) {
+            $refId = ($meetingRef['id'] ?? $meetingRef['uuid'] ?? '');
+            if ($refId !== '') {
+                return (string) $refId;
+            }
+        }
+
+        // Structured relation entry.
+        foreach (($motionData['relations'] ?? []) as $motionRel) {
+            if (($motionRel['schema'] ?? '') === 'meeting') {
+                $relId = ($motionRel['id'] ?? null);
+                if ($relId !== null && $relId !== '') {
+                    return (string) $relId;
+                }
+            }
+        }
+
+        return null;
+
+    }//end resolveMeetingIdForRound()
 
     /**
      * Guard the single permitted revote of a tied round (fail closed).
@@ -548,15 +811,17 @@ class VotingService
      * context and the voting deadline per the spec scenario. Entirely
      * fail-soft.
      *
-     * @param string      $motionId  The motion UUID the round belongs to
-     * @param string      $meetingId The meeting UUID
-     * @param string|null $closedAt  The voting deadline (ATOM), when preset
+     * @param string      $motionId    The motion UUID the round belongs to (amendment UUID for amendment rounds)
+     * @param string      $meetingId   The meeting UUID
+     * @param string|null $closedAt    The voting deadline (ATOM), when preset
+     * @param string      $subjectType 'motion' or 'amendment' — selects the title-lookup schema
      *
      * @return void
      *
      * @spec openspec/specs/user-settings/spec.md
+     * @spec openspec/specs/motion-amendment/spec.md
      */
-    private function notifyVotingOpened(string $motionId, string $meetingId, ?string $closedAt): void
+    private function notifyVotingOpened(string $motionId, string $meetingId, ?string $closedAt, string $subjectType='motion'): void
     {
         try {
             $prefService = $this->container->get(NotificationPreferenceService::class);
@@ -564,12 +829,18 @@ class VotingService
                 return;
             }
 
-            $motionTitle = 'Motion';
+            $lookupSchema = 'motion';
+            $motionTitle  = 'Motion';
+            if ($subjectType === 'amendment') {
+                $lookupSchema = 'amendment';
+                $motionTitle  = 'Amendment';
+            }
+
             try {
-                $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: 'motion');
+                $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: $lookupSchema);
                 if ($motionEntity !== null) {
                     $motion      = $motionEntity->jsonSerialize();
-                    $motionTitle = (string) ($motion['title'] ?? 'Motion');
+                    $motionTitle = (string) ($motion['title'] ?? $motionTitle);
                 }
             } catch (\Throwable $e) {
                 $this->logger->debug('Decidesk: motion lookup for vote notification failed', ['error' => $e->getMessage()]);
@@ -706,6 +977,7 @@ class VotingService
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
      * @spec openspec/specs/user-settings/spec.md
      * @spec openspec/specs/voting-system/spec.md
+     * @spec openspec/specs/motion-amendment/spec.md
      */
     public function castVote(
         string $votingRoundId,
@@ -736,27 +1008,9 @@ class VotingService
         }
 
         // #300: Verify the participant is actually a member of the meeting that owns this round.
-        // The round is linked to a Motion; the Motion is linked to a Meeting via its relations.
-        $meetingId = null;
-        foreach (($round['relations'] ?? []) as $roundRel) {
-            if (($roundRel['schema'] ?? '') === 'motion') {
-                $motionId = ($roundRel['id'] ?? null);
-                if ($motionId !== null) {
-                    $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
-                    if ($motionEntity !== null) {
-                        $motionData = $motionEntity->jsonSerialize();
-                        foreach (($motionData['relations'] ?? []) as $motionRel) {
-                            if (($motionRel['schema'] ?? '') === 'meeting') {
-                                $meetingId = ($motionRel['id'] ?? null);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                break;
-            }
-        }
+        // The round is linked to a Motion (or an Amendment, which resolves through its
+        // parent motion); the Motion is linked to a Meeting via its relations.
+        $meetingId = $this->resolveMeetingIdForRound(round: $round);
 
         if ($meetingId !== null) {
             // Verify the participant belongs to the meeting's governance body.
@@ -1027,6 +1281,7 @@ class VotingService
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      * @spec openspec/specs/voting-system/spec.md
+     * @spec openspec/specs/motion-amendment/spec.md
      */
     public function closeVotingRound(string $votingRoundId, bool $anonymise=false, ?string $chairCasting=null): array
     {
@@ -1050,66 +1305,78 @@ class VotingService
 
         $result = ($tally['result'] ?? 'invalid');
 
-        // Transition motion lifecycle based on result.
+        // Transition subject (motion or amendment) lifecycle based on result.
         // #318: Re-throw \InvalidArgumentException (bad state-machine transition) so the
-        // caller learns the round was closed but motion lifecycle could not be updated.
+        // caller learns the round was closed but the subject lifecycle could not be updated.
         // Transient/infrastructure errors are still logged-and-continued so a network hiccup
         // does not leave the round un-closed; however they are logged at ERROR level so they
         // surface in monitoring rather than silently disappearing.
         if ($round !== null) {
+            $subjectType = null;
+            $subjectId   = null;
             foreach (($round['relations'] ?? []) as $rel) {
-                if (($rel['schema'] ?? '') === 'motion') {
-                    $motionId = ($rel['id'] ?? null);
-                    if ($motionId !== null) {
-                        // Only transition to defined terminal states via the guarded state machine.
-                        $motionLifecycle = match ($result) {
-                            'adopted'  => 'adopted',
-                            'rejected' => 'rejected',
-                            default    => null,
-                        };
-
-                        if ($motionLifecycle !== null) {
-                            try {
-                                $this->motionService->transitionLifecycle(
-                                    objectId: $motionId,
-                                    objectType: 'motion',
-                                    newState: $motionLifecycle,
-                                    actorId: 'system',
-                                );
-
-                                // Create dossier folder if adopted.
-                                if ($motionLifecycle === 'adopted') {
-                                    $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
-                                    $motion       = null;
-                                    if ($motionEntity !== null) {
-                                        $motion = $motionEntity->jsonSerialize();
-                                    }
-
-                                    $motionTitle = (string) ($motion['title'] ?? $motionId);
-                                    $this->createDossierFolder(motionId: $motionId, motionTitle: $motionTitle);
-                                }
-                            } catch (\InvalidArgumentException $e) {
-                                // State-machine violation: re-throw so the caller can surface it.
-                                // #318: Previously swallowed silently.
-                                throw new \RuntimeException(
-                                    'Stemronde gesloten maar motie kon niet worden bijgewerkt: '.$e->getMessage(),
-                                    0,
-                                    $e
-                                );
-                            } catch (\Throwable $e) {
-                                // Transient infrastructure failure: log at ERROR level and continue.
-                                // #318: Previously logged at WARNING and lost in monitoring noise.
-                                $this->logger->error(
-                                    'Decidesk: lifecycle transition after close failed — round is closed but motion state may be stale',
-                                    ['votingRoundId' => $votingRoundId, 'motionId' => $motionId, 'error' => $e->getMessage()]
-                                );
-                            }//end try
-                        }//end if
-                    }//end if
-
+                $relSchema = ($rel['schema'] ?? '');
+                if ($relSchema === 'motion' || $relSchema === 'amendment') {
+                    $subjectType = $relSchema;
+                    $subjectId   = ($rel['id'] ?? null);
                     break;
+                }
+            }
+
+            if ($subjectType !== null && $subjectId !== null) {
+                // Only transition to defined terminal states via the guarded state machine.
+                $subjectLifecycle = match ($result) {
+                    'adopted'  => 'adopted',
+                    'rejected' => 'rejected',
+                    default    => null,
+                };
+
+                if ($subjectLifecycle !== null) {
+                    try {
+                        $this->motionService->transitionLifecycle(
+                            objectId: $subjectId,
+                            objectType: $subjectType,
+                            newState: $subjectLifecycle,
+                            actorId: 'system',
+                        );
+
+                        // Create dossier folder if an adopted MOTION.
+                        if ($subjectType === 'motion' && $subjectLifecycle === 'adopted') {
+                            $motionEntity = $objectService->find(id: $subjectId, register: 'decidesk', schema: 'motion');
+                            $motion       = null;
+                            if ($motionEntity !== null) {
+                                $motion = $motionEntity->jsonSerialize();
+                            }
+
+                            $motionTitle = (string) ($motion['title'] ?? $subjectId);
+                            $this->createDossierFolder(motionId: $subjectId, motionTitle: $motionTitle);
+                        }
+
+                        // Adopted AMENDMENT: incorporate it into the parent motion text
+                        // (motion-amendment spec — "the final motion text MUST incorporate
+                        // all adopted amendments"). Fail-soft: a text-merge failure must
+                        // not undo the recorded vote result.
+                        if ($subjectType === 'amendment' && $subjectLifecycle === 'adopted') {
+                            $this->incorporateAdoptedAmendment(amendmentId: $subjectId);
+                        }
+                    } catch (\InvalidArgumentException $e) {
+                        // State-machine violation: re-throw so the caller can surface it.
+                        // #318: Previously swallowed silently.
+                        throw new \RuntimeException(
+                            'Stemronde gesloten maar motie kon niet worden bijgewerkt: '.$e->getMessage(),
+                            0,
+                            $e
+                        );
+                    } catch (\Throwable $e) {
+                        // Transient infrastructure failure: log at ERROR level and continue.
+                        // #318: Previously logged at WARNING and lost in monitoring noise.
+                        $this->logger->error(
+                            'Decidesk: lifecycle transition after close failed — round is closed but motion state may be stale',
+                            ['votingRoundId' => $votingRoundId, 'motionId' => $subjectId, 'error' => $e->getMessage()]
+                        );
+                    }//end try
                 }//end if
-            }//end foreach
+            }//end if
         }//end if
 
         // Trigger ORI publication.
@@ -1364,6 +1631,7 @@ class VotingService
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
      * @spec openspec/specs/voting-system/spec.md
+     * @spec openspec/specs/motion-amendment/spec.md
      */
     public function saveShowOfHandsTally(string $votingRoundId, int $votesFor, int $votesAgainst, int $votesAbstain): array
     {
@@ -1383,27 +1651,9 @@ class VotingService
         }
 
         // #302: Validate submitted counts against the actual participant count for the meeting.
-        // The round relates to a motion, which relates to a meeting; count active participants.
-        $meetingId = null;
-        foreach (($round['relations'] ?? []) as $roundRel) {
-            if (($roundRel['schema'] ?? '') === 'motion') {
-                $motionId = ($roundRel['id'] ?? null);
-                if ($motionId !== null) {
-                    $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
-                    if ($motionEntity !== null) {
-                        $motionData = $motionEntity->jsonSerialize();
-                        foreach (($motionData['relations'] ?? []) as $motionRel) {
-                            if (($motionRel['schema'] ?? '') === 'meeting') {
-                                $meetingId = ($motionRel['id'] ?? null);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                break;
-            }
-        }
+        // The round relates to a motion (or an amendment, resolved through its parent
+        // motion), which relates to a meeting; count active participants.
+        $meetingId = $this->resolveMeetingIdForRound(round: $round);
 
         if ($meetingId !== null) {
             // Count only active participants (leftAt is null) via canonical resolver.
@@ -1619,6 +1869,44 @@ class VotingService
         }
 
     }//end createDossierFolder()
+
+    /**
+     * Incorporate an adopted amendment into its parent motion text (fail-soft).
+     *
+     * Resolves the amendment's parent motion (flat parentMotion property or
+     * structured relation) and delegates to MotionService::applyAmendment(),
+     * which appends the amendment as an annotated section of the motion text.
+     * Failures are logged and never undo the recorded vote result.
+     *
+     * @param string $amendmentId The adopted amendment UUID
+     *
+     * @return void
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    private function incorporateAdoptedAmendment(string $amendmentId): void
+    {
+        try {
+            $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'amendment');
+            if ($amendmentEntity === null) {
+                return;
+            }
+
+            $amendment      = $amendmentEntity->jsonSerialize();
+            $parentMotionId = $this->resolveParentMotionId(amendment: $amendment);
+            if ($parentMotionId === null) {
+                return;
+            }
+
+            $this->motionService->applyAmendment(motionId: $parentMotionId, amendmentId: $amendmentId);
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: failed to incorporate adopted amendment into the parent motion text',
+                ['amendmentId' => $amendmentId, 'error' => $e->getMessage()]
+            );
+        }
+
+    }//end incorporateAdoptedAmendment()
 
     /**
      * Get public-state for a VotingRound for projection display.
