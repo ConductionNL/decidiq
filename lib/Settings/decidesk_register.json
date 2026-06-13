@@ -371,6 +371,11 @@
             "description": "Whether this meeting is visible to citizens in the public transparency portal (p3-citizen-participation). When true, the agenda (if published), recordings, and approved minutes become visible to unauthenticated users.",
             "default": false,
             "example": false
+          },
+          "submissionDeadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Deadline for submitting motions and amendments for this meeting (motion-amendment spec). Empty = no deadline. Motion/amendment creations after this moment are rejected server-side by the SubmissionDeadlineListener."
           }
         },
         "x-openregister-relations": {
@@ -1090,6 +1095,14 @@
             "type": "string",
             "format": "date-time",
             "description": "Submission timestamp"
+          },
+          "proposedText": {
+            "type": "string",
+            "description": "Full proposed replacement text for the affected motion passage. Diffed against the parent motion text in the amendment diff view; the amendment `text` is used as fallback when unset."
+          },
+          "votingOrder": {
+            "type": "integer",
+            "description": "Chair-assigned voting position among the motion's amendments (1 = voted first, most far-reaching). Amendments without a votingOrder are voted after ordered ones, oldest first."
           }
         },
         "x-openregister-relations": {

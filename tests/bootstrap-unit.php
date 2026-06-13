@@ -54,6 +54,10 @@ if (class_exists(\OCA\OpenRegister\Event\ObjectCreatedEvent::class) === false) {
     require_once __DIR__.'/Stubs/Event/ObjectCreatedEvent.php';
 }
 
+if (class_exists(\OCA\OpenRegister\Event\ObjectCreatingEvent::class) === false) {
+    require_once __DIR__.'/Stubs/Event/ObjectCreatingEvent.php';
+}
+
 if (class_exists(\OCA\OpenRegister\Event\ObjectUpdatedEvent::class) === false) {
     require_once __DIR__.'/Stubs/Event/ObjectUpdatedEvent.php';
 }

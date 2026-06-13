@@ -433,6 +433,7 @@
 				"sidebarTabs": [
 					{ "id": "overview",   "label": "Overview",     "icon": "icon-info",       "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "amendments", "label": "Amendments",   "icon": "icon-files",      "component": "MotionAmendmentsTab",                       "order": 20 },
+					{ "id": "amendmentOrder", "label": "Voting order", "icon": "icon-quota",  "component": "MotionAmendmentOrderTab",                   "order": 25 },
 					{ "id": "votes",      "label": "Votes",        "icon": "icon-checkmark",  "component": "MotionVotesTab",                            "order": 30 },
 					{ "id": "votingRound", "label": "Voting round", "icon": "icon-checkmark", "component": "MotionVotingRoundTab",                      "order": 40 },
 					{ "id": "audit",      "label": "Audit trail",  "icon": "icon-history",    "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
@@ -468,6 +469,7 @@
 				"schema": "amendment",
 				"sidebarTabs": [
 					{ "id": "overview",     "label": "Overview",     "icon": "icon-info",    "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
+					{ "id": "diff",         "label": "Text changes", "icon": "icon-rename",  "component": "AmendmentDiffTab",                          "order": 15 },
 					{ "id": "parentMotion", "label": "Parent motion","icon": "icon-comment", "component": "AmendmentParentMotionTab",                  "order": 20 },
 					{ "id": "audit",        "label": "Audit trail",  "icon": "icon-history", "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				]

@@ -136,9 +136,73 @@ class MotionController extends Controller
     }//end requireChairOrSecretary()
 
     /**
-     * Resolve the meeting UUID linked to a motion via its relations.
+     * Require the current user to hold the CHAIR role (not secretary) on THIS motion's meeting.
+     *
+     * Setting the amendment voting order is the chair's prerogative
+     * (motion-amendment spec), so the secretary does not suffice. Per-meeting
+     * check via ParticipantResolver::hasRole(); when the meeting cannot be
+     * resolved, falls back to the global chair_group/admin check. Fail closed:
+     * any failure yields a 401/403.
+     *
+     * @param string|null $motionId UUID of the motion to scope the role check (optional)
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return JSONResponse|null A 403/401 response on failure, null when authorized
+     */
+    private function requireChair(?string $motionId=null): ?JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $uid = $user->getUID();
+
+        if ($motionId !== null) {
+            $meetingId = $this->resolveMeetingIdFromMotion(motionId: $motionId);
+            if ($meetingId !== null) {
+                $authorized = $this->participantResolver->hasRole(
+                    meetingId: $meetingId,
+                    nextcloudUid: $uid,
+                    roles: ['chair']
+                );
+                if ($authorized === false) {
+                    return new JSONResponse(['message' => 'Chair role required for this meeting'], Http::STATUS_FORBIDDEN);
+                }
+
+                return null;
+            }
+        }
+
+        // Fallback: global chair_group or system-admin check (existing pattern).
+        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
+
+        if ($chairGroup !== '') {
+            $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
+        } else {
+            $authorized = $this->groupManager->isAdmin($uid);
+        }
+
+        if ($authorized === false) {
+            return new JSONResponse(['message' => 'Chair role required'], Http::STATUS_FORBIDDEN);
+        }
+
+        return null;
+
+    }//end requireChair()
+
+    /**
+     * Resolve the meeting UUID linked to a motion.
+     *
+     * Honours BOTH link shapes: the flat `meeting` property (what the UI and
+     * the Newman fixtures write) and the structured `relations` entry.
+     * Previously only relations were read, so property-linked motions always
+     * fell back to the global chair guard instead of the per-meeting check.
      *
      * @param string $motionId The motion UUID
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
      *
      * @return string|null The meeting UUID or null if not found
      */
@@ -152,6 +216,17 @@ class MotionController extends Controller
             }
 
             $motion = $motionEntity->jsonSerialize();
+
+            // Flat meeting property (canonical UI shape).
+            $meetingRef = ($motion['meeting'] ?? null);
+            if (is_string($meetingRef) === true && $meetingRef !== '') {
+                return $meetingRef;
+            }
+
+            if (is_array($meetingRef) === true && (($meetingRef['id'] ?? $meetingRef['uuid'] ?? '') !== '')) {
+                return ($meetingRef['id'] ?? $meetingRef['uuid']);
+            }
+
             foreach (($motion['relations'] ?? []) as $relation) {
                 if (($relation['schema'] ?? '') === 'meeting') {
                     return ($relation['id'] ?? null);
@@ -416,4 +491,56 @@ class MotionController extends Controller
         }
 
     }//end forward()
+
+    /**
+     * Set the amendment voting order on a motion (chair only).
+     *
+     * POST /api/motions/{id}/amendment-order
+     * Body: { "orderedAmendmentIds": ["uuid-first-voted", "uuid-second", ...] }
+     *
+     * Persists votingOrder 1..N on the motion's amendments in the supplied
+     * order (motion-amendment spec — the chair sets the order, most
+     * far-reaching first; VotingService enforces it when rounds are opened).
+     * Guard: per-meeting CHAIR role, fail closed.
+     *
+     * @param string $id The motion UUID
+     *
+     * @NoAdminRequired
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return JSONResponse
+     */
+    #[NoAdminRequired]
+    public function amendmentOrder(string $id): JSONResponse
+    {
+        $guard = $this->requireChair(motionId: $id);
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        $params              = $this->request->getParams();
+        $orderedAmendmentIds = ($params['orderedAmendmentIds'] ?? []);
+
+        if (is_array($orderedAmendmentIds) === false || $orderedAmendmentIds === []) {
+            return new JSONResponse(['message' => 'orderedAmendmentIds (non-empty array) is required'], Http::STATUS_BAD_REQUEST);
+        }
+
+        $orderedAmendmentIds = array_values(array_map('strval', $orderedAmendmentIds));
+        $actorId             = ($this->userSession->getUser()?->getUID() ?? '');
+
+        try {
+            $updated = $this->motionService->setAmendmentVotingOrder(
+                motionId: $id,
+                orderedAmendmentIds: $orderedAmendmentIds,
+                actorId: $actorId
+            );
+            return new JSONResponse(['success' => true, 'amendments' => $updated]);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+        } catch (\RuntimeException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+        }
+
+    }//end amendmentOrder()
 }//end class
