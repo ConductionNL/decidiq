@@ -1,5 +1,5 @@
 ---
-status: complete
+status: done
 status-note: 2026-06-12 — the three audit gaps (statutory ALV agenda-item enforcement, hierarchical sub-items, meeting document-package assembly) closed by meeting-agenda-gaps-v1 (agendaRules statutory warning in AgendaBuilder + MeetingAgendaTab, additive AgendaItem.parentItem with nested rendering + grouped reorder, MeetingPackageService + "Assemble meeting package" action). Earlier requirements built via agenda-builder/-item-crud/-live-management/-publication + meeting-agenda capabilities. Known soft spot — the "agenda exceeds scheduled meeting length" warning shows total duration only, no exceed-comparison.
 ---
 
