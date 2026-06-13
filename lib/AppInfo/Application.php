@@ -480,6 +480,7 @@ class Application extends App implements IBootstrap
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
                 );
             }
         );

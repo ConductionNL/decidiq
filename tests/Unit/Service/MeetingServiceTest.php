@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
+use OCA\Decidesk\Service\MeetingCostService;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\WorkflowService;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -86,6 +87,13 @@ class MeetingServiceTest extends TestCase
     private MeetingTransitionGuard&MockObject $transitionGuard;
 
     /**
+     * Mock MeetingCostService (meeting-efficiency cost stamping on close).
+     *
+     * @var MeetingCostService&MockObject
+     */
+    private MeetingCostService&MockObject $meetingCostService;
+
+    /**
      * Set up test fixtures.
      *
      * Default workflow mocks permit all transitions (operations domain semantics)
@@ -101,7 +109,8 @@ class MeetingServiceTest extends TestCase
         $this->container       = $this->createMock(originalClassName: ContainerInterface::class);
         $this->logger          = $this->createMock(originalClassName: LoggerInterface::class);
         $this->workflowService = $this->createMock(originalClassName: WorkflowService::class);
-        $this->transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+        $this->transitionGuard    = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+        $this->meetingCostService = $this->createMock(originalClassName: MeetingCostService::class);
 
         $this->container->method('get')
             ->with('OCA\OpenRegister\Service\ObjectService')
@@ -112,6 +121,7 @@ class MeetingServiceTest extends TestCase
             logger: $this->logger,
             workflowService: $this->workflowService,
             transitionGuard: $this->transitionGuard,
+            meetingCostService: $this->meetingCostService,
         );
 
     }//end setUp()
@@ -348,6 +358,7 @@ class MeetingServiceTest extends TestCase
             logger: $this->logger,
             workflowService: $workflowService,
             transitionGuard: $transitionGuard,
+            meetingCostService: $this->meetingCostService,
         );
 
         $result = $service->transition(meetingId: $uuid, action: 'pause');
@@ -395,6 +406,7 @@ class MeetingServiceTest extends TestCase
             logger: $this->logger,
             workflowService: $workflowService,
             transitionGuard: $transitionGuard,
+            meetingCostService: $this->meetingCostService,
         );
 
         // Caller is NOT the chair.
@@ -435,6 +447,7 @@ class MeetingServiceTest extends TestCase
             logger: $this->logger,
             workflowService: $workflowService,
             transitionGuard: $transitionGuard,
+            meetingCostService: $this->meetingCostService,
         );
 
         // Caller IS the chair.
@@ -475,6 +488,7 @@ class MeetingServiceTest extends TestCase
             logger: $this->logger,
             workflowService: $workflowService,
             transitionGuard: $transitionGuard,
+            meetingCostService: $this->meetingCostService,
         );
 
         $result = $service->transition(meetingId: $uuid, action: 'open');
@@ -484,4 +498,109 @@ class MeetingServiceTest extends TestCase
         self::assertStringContainsString(needle: 'Quorum', haystack: $result['message']);
 
     }//end testOpenBlockedWhenQuorumNotMet()
+
+    /**
+     * Opening a meeting stamps openedAt (first open) into the saved object.
+     *
+     * @spec openspec/specs/meeting-efficiency/spec.md
+     *
+     * @return void
+     */
+    public function testOpenStampsOpenedAt(): void
+    {
+        $uuid   = 'aaaaaaaa-0000-0000-0000-0000000000ee';
+        $entity = $this->buildMockEntity(lifecycle: 'scheduled');
+
+        $this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+        $this->workflowService->method('isTransitionAllowed')->willReturn(true);
+        $this->workflowService->method('requiresChairAuthorization')->willReturn(false);
+        $this->workflowService->method('isQuorumRequired')->willReturn(false);
+
+        $captured = null;
+        $this->objectService->method('saveObject')->willReturnCallback(
+            function (array $object) use (&$captured, $entity) {
+                $captured = $object;
+                return $entity;
+            }
+        );
+
+        $result = $this->service->transition(meetingId: $uuid, action: 'open');
+
+        self::assertTrue(condition: $result['success']);
+        self::assertIsArray(actual: $captured);
+        self::assertArrayHasKey('openedAt', $captured);
+        self::assertNotEmpty(actual: $captured['openedAt']);
+        self::assertArrayNotHasKey('closedAt', $captured);
+
+    }//end testOpenStampsOpenedAt()
+
+    /**
+     * Closing a meeting stamps closedAt and the fail-soft meetingCost.
+     *
+     * @spec openspec/specs/meeting-efficiency/spec.md
+     *
+     * @return void
+     */
+    public function testCloseStampsClosedAtAndCost(): void
+    {
+        $uuid   = 'aaaaaaaa-0000-0000-0000-0000000000ef';
+        $entity = $this->buildMockEntity(lifecycle: 'opened');
+
+        $this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+        $this->workflowService->method('isTransitionAllowed')->willReturn(true);
+        $this->workflowService->method('requiresChairAuthorization')->willReturn(false);
+
+        // Cost service resolves a final figure.
+        $this->meetingCostService->method('calculateForMeeting')->willReturn(675.0);
+
+        $captured = null;
+        $this->objectService->method('saveObject')->willReturnCallback(
+            function (array $object) use (&$captured, $entity) {
+                $captured = $object;
+                return $entity;
+            }
+        );
+
+        $result = $this->service->transition(meetingId: $uuid, action: 'close');
+
+        self::assertTrue(condition: $result['success']);
+        self::assertArrayHasKey('closedAt', $captured);
+        self::assertSame(expected: 675.0, actual: $captured['meetingCost']);
+
+    }//end testCloseStampsClosedAtAndCost()
+
+    /**
+     * A meetingCost computation failure does not block closing (fail-soft).
+     *
+     * @spec openspec/specs/meeting-efficiency/spec.md
+     *
+     * @return void
+     */
+    public function testCloseIsFailSoftWhenCostThrows(): void
+    {
+        $uuid   = 'aaaaaaaa-0000-0000-0000-0000000000f0';
+        $entity = $this->buildMockEntity(lifecycle: 'opened');
+
+        $this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+        $this->workflowService->method('isTransitionAllowed')->willReturn(true);
+        $this->workflowService->method('requiresChairAuthorization')->willReturn(false);
+
+        $this->meetingCostService->method('calculateForMeeting')
+            ->willThrowException(new \RuntimeException('cost failed'));
+
+        $captured = null;
+        $this->objectService->method('saveObject')->willReturnCallback(
+            function (array $object) use (&$captured, $entity) {
+                $captured = $object;
+                return $entity;
+            }
+        );
+
+        $result = $this->service->transition(meetingId: $uuid, action: 'close');
+
+        self::assertTrue(condition: $result['success']);
+        self::assertArrayHasKey('closedAt', $captured);
+        self::assertArrayNotHasKey('meetingCost', $captured);
+
+    }//end testCloseIsFailSoftWhenCostThrows()
 }//end class

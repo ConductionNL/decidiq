@@ -237,6 +237,7 @@
 					{ "id": "overview", "label": "Overview", "icon": "icon-info",         "widgets": [{ "type": "data" }, { "type": "metadata" }], "order": 10 },
 					{ "id": "members",  "label": "Members",  "icon": "icon-group",        "component": "GovernanceBodyMembersTab",                  "order": 20 },
 					{ "id": "template", "label": "Process template", "icon": "icon-category-workflow", "component": "GovernanceBodyTemplateTab",      "order": 30 },
+					{ "id": "efficiency", "label": "Efficiency", "icon": "icon-category-monitoring", "component": "GovernanceBodyEfficiencyTab",       "order": 35 },
 					{ "id": "audit",    "label": "Audit trail", "icon": "icon-history",   "widgets": [{ "type": "audit-trail" }],                   "order": 90 }
 				],
 				"sidebar": {

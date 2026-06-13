@@ -1,20 +1,6 @@
----
-status: done
-status-note: 2026-06-13 meeting-efficiency-v1 — all 4 requirements built. Agenda-item countdown timer (AgendaItemTimer.vue + meetingTimer.js), speaker queue with per-speaker timer recording speeches via EngagementService (SpeakerQueuePanel.vue + speakerQueue.js), live + server-stamped meeting cost (MeetingCostPanel.vue + meetingCost.js + MeetingCostService.php), and the per-body Efficiency analytics tab (GovernanceBodyEfficiencyTab.vue + meetingAnalytics.js). Pure logic exhaustively vitest-covered; wall-clock expiry scenarios @e2e-excluded (vitest-covered). Additive schema: governance-body.hourlyRate, meeting.openedAt/closedAt/meetingCost, agenda-item.pausedDuration.
----
+# Meeting Efficiency — Delta
 
-# Meeting Efficiency Specification
-
-## Purpose
-
-Meeting efficiency features help governance bodies run productive meetings. This includes real-time timers for agenda items and speaking time, a meeting cost calculator (based on participant hourly rates), analytics on meeting duration and decision throughput, and tools to keep discussions focused. These features transform Decidesk from a compliance tool into a productivity platform that actively improves organizational decision-making.
-
-**Standards**: Schema.org (`Duration`, `MonetaryAmount`)
-**Feature tier**: V1
-
-## Requirements
-
----
+## MODIFIED Requirements
 
 ### Requirement: Agenda Item Timer
 
@@ -47,8 +33,6 @@ The system MUST provide a visible countdown timer for each agenda item during me
 - THEN no timer MUST be displayed
 - AND the elapsed time MUST still be tracked in the background for analytics
 
----
-
 ### Requirement: Speaking Time Management
 
 The system MUST track speaking time per participant during discussions. The chair MUST be able to set speaking time limits. The system MUST maintain a speaker queue for managing turn-taking.
@@ -72,8 +56,6 @@ The system MUST track speaking time per participant during discussions. The chai
 - AND the chair MUST be able to reorder the queue
 - AND the current speaker MUST be highlighted
 
----
-
 ### Requirement: Meeting Cost Calculator
 
 The system MUST calculate and display the running cost of a meeting based on participant count and configurable hourly rates. The cost MUST be displayed in real-time during the meeting and in meeting analytics afterward.
@@ -93,8 +75,6 @@ The system MUST calculate and display the running cost of a meeting based on par
 - WHEN the user views meeting analytics
 - THEN the cost MUST be broken down per agenda item based on actual time spent
 - AND the most expensive agenda items MUST be highlighted
-
----
 
 ### Requirement: Meeting Analytics Dashboard
 
@@ -116,21 +96,3 @@ The system MUST provide analytics on meeting efficiency including: average meeti
 - WHEN the user views the "Time Allocation Accuracy" report
 - THEN the system MUST show average allocated vs. actual time grouped by item type (informational, discussion, decision)
 - AND recommendations MUST be shown (e.g., "Decision items average 25 min actual vs. 15 min allocated — consider increasing default allocation")
-
-## User Stories
-
-1. **Secretary tracking action items**: As a board secretary, I want to assign, track, and report on board action items with due dates and owners, so that nothing falls through the cracks between meetings. (Source: intelligence DB #19)
-
-2. **Secretary preparing meeting package**: As secretary, I want to prepare a digital meeting package with agenda, previous minutes, action items, and new documents so that all board members arrive prepared. (Source: intelligence DB #65)
-
-3. **Chair tracking decision implementation**: As chair, I want to track the implementation status of ALV decisions with responsible persons and deadlines so that I can report progress at the next ALV. (Source: intelligence DB #77)
-
-## Acceptance Criteria
-
-- Agenda item timers display countdown with visual alerts on expiry
-- Chair can extend, pause, or skip timers
-- Speaking time is tracked per participant with configurable limits
-- Speaker queue supports request-to-speak and chair reordering
-- Meeting cost calculator shows running cost based on participant rates
-- Analytics dashboard shows duration trends, decision throughput, and cost breakdowns
-- All timing data is recorded for post-meeting analytics

@@ -26,6 +26,7 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\EngagementService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -44,13 +45,15 @@ class EngagementController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest           $request           HTTP request
-     * @param EngagementService  $engagementService Engagement service
-     * @param IUserSession       $userSession       Current user session
-     * @param IGroupManager      $groupManager      Group manager for admin checks
-     * @param ContainerInterface $container         DI container for ObjectService access
+     * @param IRequest            $request             HTTP request
+     * @param EngagementService   $engagementService   Engagement service
+     * @param IUserSession        $userSession         Current user session
+     * @param IGroupManager       $groupManager        Group manager for admin checks
+     * @param ContainerInterface  $container           DI container for ObjectService access
+     * @param ParticipantResolver $participantResolver Resolves meeting chair/secretary roles (meeting-efficiency)
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+     * @spec openspec/specs/meeting-efficiency/spec.md
      */
     public function __construct(
         IRequest $request,
@@ -58,6 +61,7 @@ class EngagementController extends Controller
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
         private readonly ContainerInterface $container,
+        private readonly ParticipantResolver $participantResolver,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -100,7 +104,11 @@ class EngagementController extends Controller
      *
      * The `participant` field is cross-checked against the authenticated session:
      * non-admin callers may only record engagement for their own participant UUID.
-     * NC admins (chairs/secretaries operating the panel) may supply any UUID.
+     * The exceptions that may record engagement for ANY participant in the meeting
+     * (so the SpeakerQueuePanel operator can log every speech) are:
+     *   - NC admins (the original p4 fallback); and
+     *   - the meeting's chair or secretary (meeting-efficiency widening) — real
+     *     Dutch chairs are never NC admins, so the panel was unusable for them.
      * This prevents accountability record spoofing (OWASP A01:2021 — Broken Access Control).
      *
      * @return JSONResponse
@@ -108,6 +116,7 @@ class EngagementController extends Controller
      * @NoAdminRequired
      *
      * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+     * @spec openspec/specs/meeting-efficiency/spec.md
      */
     public function capture(): JSONResponse
     {
@@ -128,9 +137,16 @@ class EngagementController extends Controller
         }
 
         // OWASP A01 — verify participant identity matches the authenticated session.
-        // Chairs/admins are allowed to record engagement for any participant.
+        // Admins, and the meeting's chair/secretary, may record engagement for any
+        // participant; everyone else may only record for their own participant record.
         $callerUid = $user->getUID();
-        if ($this->groupManager->isAdmin($callerUid) === false) {
+        $isPrivileged = ($this->groupManager->isAdmin($callerUid) === true)
+            || ($this->participantResolver->hasRole(
+                meetingId: $meeting,
+                nextcloudUid: $callerUid,
+                roles: ['chair', 'secretary']
+            ) === true);
+        if ($isPrivileged === false) {
             $callerParticipantId = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
             if ($callerParticipantId === null || $callerParticipantId !== $participant) {
                 return new JSONResponse(
