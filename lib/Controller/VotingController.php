@@ -301,6 +301,7 @@ class VotingController extends Controller
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      * @spec openspec/specs/voting-system/spec.md
      * @spec openspec/specs/motion-amendment/spec.md
+     * @spec openspec/specs/process-configuration/spec.md
      *
      * @return JSONResponse
      */
@@ -341,19 +342,22 @@ class VotingController extends Controller
 
         // Configurable voting rules (voting-system spec) — validate against the
         // service enums up front so a bad value is a clean 400, never a 500.
-        $voteThreshold      = (string) ($params['voteThreshold'] ?? 'simple-majority');
-        $abstentionHandling = (string) ($params['abstentionHandling'] ?? 'exclude');
-        $tieBreakRule       = (string) ($params['tieBreakRule'] ?? 'rejected');
+        // process-configuration: an OMITTED rule param is passed as null so the
+        // opening body's process-template default applies; an explicit param wins.
+        $voteThreshold      = (isset($params['voteThreshold']) === true && $params['voteThreshold'] !== '') ? (string) $params['voteThreshold'] : null;
+        $abstentionHandling = (isset($params['abstentionHandling']) === true && $params['abstentionHandling'] !== '') ? (string) $params['abstentionHandling'] : null;
+        $tieBreakRule       = (isset($params['tieBreakRule']) === true && $params['tieBreakRule'] !== '') ? (string) $params['tieBreakRule'] : null;
+        $governanceBodyId   = (isset($params['governanceBody']) === true && is_string($params['governanceBody']) === true && $params['governanceBody'] !== '') ? $params['governanceBody'] : null;
 
-        if (in_array($voteThreshold, VotingService::VOTE_THRESHOLDS, true) === false) {
+        if ($voteThreshold !== null && in_array($voteThreshold, VotingService::VOTE_THRESHOLDS, true) === false) {
             return new JSONResponse(['message' => 'voteThreshold must be one of: '.implode(', ', VotingService::VOTE_THRESHOLDS)], Http::STATUS_BAD_REQUEST);
         }
 
-        if (in_array($abstentionHandling, VotingService::ABSTENTION_MODES, true) === false) {
+        if ($abstentionHandling !== null && in_array($abstentionHandling, VotingService::ABSTENTION_MODES, true) === false) {
             return new JSONResponse(['message' => 'abstentionHandling must be one of: '.implode(', ', VotingService::ABSTENTION_MODES)], Http::STATUS_BAD_REQUEST);
         }
 
-        if (in_array($tieBreakRule, VotingService::TIE_BREAK_RULES, true) === false) {
+        if ($tieBreakRule !== null && in_array($tieBreakRule, VotingService::TIE_BREAK_RULES, true) === false) {
             return new JSONResponse(['message' => 'tieBreakRule must be one of: '.implode(', ', VotingService::TIE_BREAK_RULES)], Http::STATUS_BAD_REQUEST);
         }
 
@@ -381,7 +385,8 @@ class VotingController extends Controller
                 abstentionHandling: $abstentionHandling,
                 tieBreakRule: $tieBreakRule,
                 revoteOfRoundId: $revoteOfRoundId,
-                subjectType: $subjectType
+                subjectType: $subjectType,
+                governanceBodyId: $governanceBodyId
             );
             return new JSONResponse($round, Http::STATUS_CREATED);
         } catch (\InvalidArgumentException $e) {

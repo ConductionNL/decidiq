@@ -10,6 +10,16 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
+        // Process template management (admin-only — AuthorizedAdminSetting on every method).
+        // @spec openspec/specs/process-configuration/spec.md
+        ['name' => 'processTemplate#index',     'url' => '/api/process-templates',                  'verb' => 'GET'],
+        ['name' => 'processTemplate#validate',  'url' => '/api/process-templates/validate',         'verb' => 'POST'],
+        ['name' => 'processTemplate#create',    'url' => '/api/process-templates',                  'verb' => 'POST'],
+        ['name' => 'processTemplate#show',      'url' => '/api/process-templates/{id}',             'verb' => 'GET'],
+        ['name' => 'processTemplate#update',    'url' => '/api/process-templates/{id}',             'verb' => 'PUT'],
+        ['name' => 'processTemplate#duplicate', 'url' => '/api/process-templates/{id}/duplicate',   'verb' => 'POST'],
+        ['name' => 'processTemplate#destroy',   'url' => '/api/process-templates/{id}',             'verb' => 'DELETE'],
+
         // Member import (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/admin-settings/spec.md
         ['name' => 'memberImport#groups',       'url' => '/api/member-import/groups',                   'verb' => 'GET'],

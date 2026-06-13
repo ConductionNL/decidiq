@@ -73,6 +73,7 @@ COLLECTIONS=(
   "${INTEGRATION_DIR}/decidesk-user-settings.postman_collection.json"
   "${INTEGRATION_DIR}/decidesk-voting-rules.postman_collection.json"
   "${INTEGRATION_DIR}/decidesk-admin-settings.postman_collection.json"
+  "${INTEGRATION_DIR}/decidesk-process-config.postman_collection.json"
   "${INTEGRATION_DIR}/decidesk-motion-amendment.postman_collection.json"
   "${INTEGRATION_DIR}/board-portal.postman_collection.json"
 )

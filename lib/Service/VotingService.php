@@ -82,7 +82,8 @@ class VotingService
      * @param LoggerInterface       $logger                The logger
      * @param OriPublicationService $oriPublicationService The ORI publication service
      * @param MotionService         $motionService         The motion service for lifecycle transitions
-     * @param ParticipantResolver   $participantResolver   Participant resolver for meeting-based membership checks
+     * @param ParticipantResolver    $participantResolver   Participant resolver for meeting-based membership checks
+     * @param ProcessTemplateService $templateService       Resolves a body's template voting-rule defaults (process-configuration)
      *
      * @return void
      *
@@ -94,6 +95,7 @@ class VotingService
         private readonly OriPublicationService $oriPublicationService,
         private readonly MotionService $motionService,
         private readonly ParticipantResolver $participantResolver,
+        private readonly ProcessTemplateService $templateService,
     ) {
     }//end __construct()
 
@@ -348,11 +350,12 @@ class VotingService
      * @param bool          $isSecret             Whether the ballot is secret
      * @param string|null   $closedAt             Optional pre-defined close time
      * @param array<string> $presetParticipantIds Optional array of participant UUIDs for a voting group preset
-     * @param string        $voteThreshold        Majority rule (see VOTE_THRESHOLDS, default simple-majority)
-     * @param string        $abstentionHandling   Abstention mode (see ABSTENTION_MODES, default exclude)
-     * @param string        $tieBreakRule         Tie-break rule (see TIE_BREAK_RULES, default rejected)
+     * @param string|null   $voteThreshold        Majority rule (see VOTE_THRESHOLDS); null = use the body template default, then simple-majority
+     * @param string|null   $abstentionHandling   Abstention mode (see ABSTENTION_MODES); null = body template default, then exclude
+     * @param string|null   $tieBreakRule         Tie-break rule (see TIE_BREAK_RULES); null = body template default, then rejected
      * @param string|null   $revoteOfRoundId      UUID of a tied round this round is the single permitted revote of
      * @param string        $subjectType          What is being voted: 'motion' (default) or 'amendment' (fail closed)
+     * @param string|null   $governanceBodyId     Body opening the round; when set, its process template supplies rule defaults (process-configuration)
      *
      * @return array<string,mixed> The created voting round object with excludedPresetUuids key if any UUIDs were excluded
      *
@@ -362,6 +365,7 @@ class VotingService
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      * @spec openspec/specs/voting-system/spec.md
      * @spec openspec/specs/motion-amendment/spec.md
+     * @spec openspec/specs/process-configuration/spec.md
      */
     public function openVotingRound(
         string $motionId,
@@ -370,12 +374,21 @@ class VotingService
         bool $isSecret,
         ?string $closedAt,
         array $presetParticipantIds=[],
-        string $voteThreshold='simple-majority',
-        string $abstentionHandling='exclude',
-        string $tieBreakRule='rejected',
+        ?string $voteThreshold=null,
+        ?string $abstentionHandling=null,
+        ?string $tieBreakRule=null,
         ?string $revoteOfRoundId=null,
         string $subjectType='motion',
+        ?string $governanceBodyId=null,
     ): array {
+        // process-configuration: resolution order per rule is caller value (non-null) ->
+        // body template default -> built-in default. The caller (controller) always passes
+        // explicit values, so it always wins; the template only fills nulls.
+        $templateRule       = $this->templateService->resolveVotingRuleForBody(governanceBodyId: $governanceBodyId);
+        $voteThreshold      = ($voteThreshold ?? ($templateRule['voteThreshold'] ?? 'simple-majority'));
+        $abstentionHandling = ($abstentionHandling ?? ($templateRule['abstentionHandling'] ?? 'exclude'));
+        $tieBreakRule       = ($tieBreakRule ?? ($templateRule['tieBreakRule'] ?? 'rejected'));
+
         // Fail closed: unknown rule values are rejected, never silently defaulted.
         if (in_array($voteThreshold, self::VOTE_THRESHOLDS, true) === false) {
             throw new \InvalidArgumentException("Unknown voteThreshold '{$voteThreshold}'");

@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidesk\Service\ProcessTemplateService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -60,12 +61,14 @@ class DecisionLifecycleService
      * @param LoggerInterface         $logger          The logger
      * @param DecisionTransitionGuard $transitionGuard Pure transition map + per-domain policy guard
      * @param AuditLogService         $auditLogService Hash-chained append-only audit log
+     * @param ProcessTemplateService  $templateService Resolves a body's process-template policy override (process-configuration)
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly DecisionTransitionGuard $transitionGuard,
         private readonly AuditLogService $auditLogService,
+        private readonly ProcessTemplateService $templateService,
     ) {
     }//end __construct()
 
@@ -104,8 +107,13 @@ class DecisionLifecycleService
             $meeting   = $this->resolveLinkedMeeting(objectService: $objectService, decision: $decision);
             $domain    = $this->resolveDomain(decision: $decision, meeting: $meeting);
 
+            // process-configuration: when the decision's body has an assigned
+            // process template, its policy drives the guard; null otherwise so
+            // the built-in hardcoded domain policy applies unchanged.
+            $policyOverride = $this->resolvePolicyOverride(decision: $decision, meeting: $meeting);
+
             $actions = [];
-            foreach ($this->transitionGuard->getAvailableActions(currentLifecycle: $lifecycle, domain: $domain) as $action) {
+            foreach ($this->transitionGuard->getAvailableActions(currentLifecycle: $lifecycle, domain: $domain, policyOverride: $policyOverride) as $action) {
                 $transition = $this->transitionGuard->resolveTransition(action: $action);
                 $actions[]  = [
                     'action'    => $action,
@@ -113,7 +121,8 @@ class DecisionLifecycleService
                     'chairOnly' => $this->transitionGuard->requiresChairAuthorization(
                         domain: $domain,
                         from: $lifecycle,
-                        to: ($transition['to'] ?? '')
+                        to: ($transition['to'] ?? ''),
+                        policyOverride: $policyOverride
                     ),
                 ];
             }
@@ -199,8 +208,12 @@ class DecisionLifecycleService
             $meeting = $this->resolveLinkedMeeting(objectService: $objectService, decision: $decision);
             $domain  = $this->resolveDomain(decision: $decision, meeting: $meeting);
 
+            // process-configuration: a body's assigned process template drives the
+            // guard policy when present; null falls back to the hardcoded domain policy.
+            $policyOverride = $this->resolvePolicyOverride(decision: $decision, meeting: $meeting);
+
             // Domain-level transition validation (default-deny for unknown domains).
-            if ($this->transitionGuard->isTransitionAllowed(domain: $domain, fromState: $currentLifecycle, toState: $transition['to']) === false) {
+            if ($this->transitionGuard->isTransitionAllowed(domain: $domain, fromState: $currentLifecycle, toState: $transition['to'], policyOverride: $policyOverride) === false) {
                 return [
                     'success'  => false,
                     'decision' => null,
@@ -210,7 +223,7 @@ class DecisionLifecycleService
 
             // Chair-only enforcement (OWASP A01:2021 — broken access control). FAIL CLOSED:
             // a chair-only transition with no resolvable chair is rejected, never skipped.
-            if ($this->transitionGuard->requiresChairAuthorization(domain: $domain, from: $currentLifecycle, to: $transition['to']) === true) {
+            if ($this->transitionGuard->requiresChairAuthorization(domain: $domain, from: $currentLifecycle, to: $transition['to'], policyOverride: $policyOverride) === true) {
                 $chairNcUserId = $this->resolveChairUserId(objectService: $objectService, meeting: $meeting);
                 if ($chairNcUserId === null || $currentUserId === null || $currentUserId !== $chairNcUserId) {
                     return [
@@ -225,7 +238,7 @@ class DecisionLifecycleService
             // domain enforces quorum AND a meeting is linked; standalone decisions
             // (written-resolution path, BW 2:40) carry quorum on their voting round.
             if ($transition['to'] === 'voting'
-                && $this->transitionGuard->isQuorumRequired(domain: $domain) === true
+                && $this->transitionGuard->isQuorumRequired(domain: $domain, policyOverride: $policyOverride) === true
                 && $meeting !== null
                 && $this->transitionGuard->isVotingOpenAllowed(meeting: $meeting) === false
             ) {
@@ -471,6 +484,37 @@ class DecisionLifecycleService
         return 'operations';
 
     }//end resolveDomain()
+
+    /**
+     * Resolve the process-template policy override for a decision (process-configuration).
+     *
+     * Reads the governance body from the decision (or its linked meeting), looks
+     * up that body's assigned process template, and translates it to the guard
+     * policy shape. Returns null when no body is resolvable, no template is
+     * assigned, or the template is malformed — in every such case the caller
+     * falls back to the built-in hardcoded domain policy (fail-safe).
+     *
+     * @param array<string, mixed>      $decision Decision object array
+     * @param array<string, mixed>|null $meeting  Linked meeting object array, when any
+     *
+     * @spec openspec/specs/process-configuration/spec.md
+     *
+     * @return array<string, mixed>|null The guard policy override, or null to fall back
+     */
+    private function resolvePolicyOverride(array $decision, ?array $meeting): ?array
+    {
+        $bodyId = ($decision['governanceBody'] ?? null);
+        if ((is_string($bodyId) === false || $bodyId === '') && $meeting !== null) {
+            $bodyId = ($meeting['governanceBody'] ?? null);
+        }
+
+        if (is_string($bodyId) === false || $bodyId === '') {
+            return null;
+        }
+
+        return $this->templateService->resolvePolicyForBody(governanceBodyId: $bodyId);
+
+    }//end resolvePolicyOverride()
 
     /**
      * Resolve the Nextcloud UID of the chair of the linked meeting.

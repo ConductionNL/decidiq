@@ -80,4 +80,18 @@ abstract class ObjectService
      */
     abstract public function saveObject(array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): mixed;
 
+    /**
+     * Delete (soft-archive) an object by UUID.
+     *
+     * Matches the real ObjectService::deleteObject() named-parameter API so
+     * tests can mock the process-template delete path.
+     *
+     * @param string|int|null $uuid     Object UUID
+     * @param string|int|null $register Register slug or ID
+     * @param string|int|null $schema   Schema slug or ID
+     *
+     * @return mixed
+     */
+    abstract public function deleteObject(string|int|null $uuid=null, string|int|null $register=null, string|int|null $schema=null): mixed;
+
 }//end class

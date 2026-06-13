@@ -153,6 +153,7 @@ class Application extends App implements IBootstrap
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     transitionGuard: new \OCA\Decidesk\Lifecycle\DecisionTransitionGuard(),
                     auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    templateService: $c->get(\OCA\Decidesk\Service\ProcessTemplateService::class),
                     );
                 }
                 );
@@ -262,6 +263,21 @@ class Application extends App implements IBootstrap
                     oriPublicationService: $c->get(OriPublicationService::class),
                     motionService: $c->get(MotionService::class),
                     participantResolver: $c->get(ParticipantResolver::class),
+                    templateService: $c->get(\OCA\Decidesk\Service\ProcessTemplateService::class),
+                    );
+                }
+                );
+
+        // Register ProcessTemplateService for DI (process-config-v1): template
+        // CRUD + state-machine validation + body-template policy resolution.
+        // @spec openspec/specs/process-configuration/spec.md.
+        $context->registerService(
+                \OCA\Decidesk\Service\ProcessTemplateService::class,
+                static function ($c): \OCA\Decidesk\Service\ProcessTemplateService {
+                    return new \OCA\Decidesk\Service\ProcessTemplateService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    resolver: new \OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver(),
                     );
                 }
                 );

@@ -237,4 +237,69 @@ class DecisionTransitionGuardTest extends TestCase
         );
 
     }//end testStatesOrder()
+
+    /**
+     * process-configuration: a non-null policyOverride REPLACES the domain lookup.
+     * The 'operations' domain normally allows decide-without-vote; an override
+     * that forbids it must make the deliberating -> decided edge disallowed even
+     * under 'operations'.
+     *
+     * @spec openspec/specs/process-configuration/spec.md
+     *
+     * @return void
+     */
+    public function testPolicyOverrideReplacesDomainLookup(): void
+    {
+        $override = [
+            'quorumEnforced'         => true,
+            'chairOnlyTransitions'   => ['deliberating:voting'],
+            'allowDecideWithoutVote' => false,
+        ];
+
+        // Without the override, operations allows the shortcut.
+        self::assertTrue(
+            condition: $this->guard->isTransitionAllowed(domain: 'operations', fromState: 'deliberating', toState: 'decided')
+        );
+
+        // With the override, the shortcut is forbidden.
+        self::assertFalse(
+            condition: $this->guard->isTransitionAllowed(domain: 'operations', fromState: 'deliberating', toState: 'decided', policyOverride: $override)
+        );
+
+        // The override's chair-only set is consulted, not the domain's empty one.
+        self::assertTrue(
+            condition: $this->guard->requiresChairAuthorization(domain: 'operations', from: 'deliberating', to: 'voting', policyOverride: $override)
+        );
+        self::assertFalse(
+            condition: $this->guard->requiresChairAuthorization(domain: 'operations', from: 'deliberating', to: 'voting')
+        );
+
+        // Quorum follows the override.
+        self::assertTrue(condition: $this->guard->isQuorumRequired(domain: 'operations', policyOverride: $override));
+        self::assertFalse(condition: $this->guard->isQuorumRequired(domain: 'operations'));
+
+    }//end testPolicyOverrideReplacesDomainLookup()
+
+    /**
+     * process-configuration: a null policyOverride is byte-identical to the
+     * pre-process-config behaviour (the hardcoded domain constants apply).
+     *
+     * @spec openspec/specs/process-configuration/spec.md
+     *
+     * @return void
+     */
+    public function testNullPolicyOverrideFallsBackToHardcodedDomain(): void
+    {
+        // legislative is the strictest hardcoded domain: chair-only on both
+        // sensitive edges, quorum enforced.
+        self::assertTrue(condition: $this->guard->isQuorumRequired(domain: 'legislative', policyOverride: null));
+        self::assertTrue(
+            condition: $this->guard->requiresChairAuthorization(domain: 'legislative', from: 'voting', to: 'decided', policyOverride: null)
+        );
+        // Unknown domain still default-denies the decide-without-vote shortcut.
+        self::assertFalse(
+            condition: $this->guard->isTransitionAllowed(domain: 'totally-unknown', fromState: 'deliberating', toState: 'decided', policyOverride: null)
+        );
+
+    }//end testNullPolicyOverrideFallsBackToHardcodedDomain()
 }//end class

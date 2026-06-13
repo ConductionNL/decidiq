@@ -110,11 +110,19 @@ class VotingServiceTest extends TestCase
             ->method('get')
             ->willReturn($this->objectService);
 
+        $participantResolver = $this->createMock(\OCA\Decidesk\Service\ParticipantResolver::class);
+        $participantResolver->method('resolveMeetingParticipants')->willReturn([]);
+
+        $templateService = $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class);
+        $templateService->method('resolveVotingRuleForBody')->willReturn(null);
+
         $this->service = new VotingService(
             container: $this->container,
             oriPublicationService: $this->oriService,
             logger: $this->logger,
             motionService: $this->motionService,
+            participantResolver: $participantResolver,
+            templateService: $templateService,
         );
 
     }//end setUp()

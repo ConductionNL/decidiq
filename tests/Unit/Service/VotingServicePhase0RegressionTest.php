@@ -107,12 +107,16 @@ class VotingServicePhase0RegressionTest extends TestCase
         $this->objectService->method('setSchema')->willReturnSelf();
         $this->container->method('get')->willReturn($this->objectService);
 
+        $templateService = $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class);
+        $templateService->method('resolveVotingRuleForBody')->willReturn(null);
+
         $this->service = new VotingService(
             $this->container,
             $this->logger,
             $this->oriService,
             $this->motionService,
             $this->participantResolver,
+            $templateService,
         );
 
     }//end setUp()
