@@ -84,6 +84,9 @@ export async function initializeStores() {
 		['voting-round', settings.votingRoundSchema || 'voting-round'],
 		['governance-body', settings.governanceBodySchema || 'governance-body'],
 		['vote', settings.voteSchema || 'vote'],
+		// meeting-efficiency: engagement records back the speaking-time
+		// distribution on the GovernanceBodyEfficiencyTab analytics surface.
+		['engagement-record', settings.engagementRecordSchema || 'engagement-record'],
 	]
 
 	for (const [type, schema] of types) {

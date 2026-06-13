@@ -54,6 +54,7 @@ import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.v
 
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
+import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
 import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
@@ -160,6 +161,10 @@ export default {
 	// renderer, per the manifest-abstract-sidebar contract.
 	GovernanceBodyMembersTab: page(GovernanceBodyMembersTab),
 	GovernanceBodyTemplateTab: page(GovernanceBodyTemplateTab),
+	// Meeting-efficiency analytics tab (meeting-efficiency): per-body duration
+	// trend, agenda completion, speaking distribution, cost trend and time
+	// allocation accuracy, all computed client-side from OR objects.
+	GovernanceBodyEfficiencyTab: page(GovernanceBodyEfficiencyTab),
 	MeetingAgendaTab: page(MeetingAgendaTab),
 	MeetingParticipantsTab: page(MeetingParticipantsTab),
 	// Recurring-series generation (meeting-agenda-gaps-v1): pattern form,

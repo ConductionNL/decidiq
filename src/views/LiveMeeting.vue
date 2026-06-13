@@ -31,6 +31,12 @@
 				</NcButton>
 			</div>
 
+			<!-- Meeting cost panel (meeting-efficiency) -->
+			<MeetingCostPanel
+				:meeting="meeting"
+				:participants="participants"
+				:hourly-rate="hourlyRate" />
+
 			<!-- Hamerstukken section -->
 			<section
 				v-if="hamerstukken.length > 0"
@@ -115,6 +121,14 @@
 				:aria-label="t('decidesk', 'Active agenda item')">
 				<h3>{{ t('decidesk', 'Active: {title}', { title: activeItem.title }) }}</h3>
 
+				<!-- Agenda-item countdown timer (meeting-efficiency) -->
+				<AgendaItemTimer
+					:key="activeItem.id"
+					:item="activeItem"
+					:is-chair="isChair"
+					:object-store="objectStore"
+					@closed="refreshItems" />
+
 				<!-- BOB phase (discussion/decision only) -->
 				<template v-if="['discussion', 'decision'].includes(activeItem.itemType)">
 					<CnTimelineStages
@@ -130,6 +144,13 @@
 					</NcButton>
 				</template>
 			</section>
+
+			<!-- Speaker queue (meeting-efficiency) -->
+			<SpeakerQueuePanel
+				v-if="activeItem"
+				:meeting-id="id"
+				:participants="participants"
+				:is-chair="isChair" />
 
 			<!-- Real-time minute taking (minutes-ui-v1) -->
 			<MinutesPanel
@@ -172,6 +193,9 @@ import { useObjectStore } from '../store/store.js'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
 import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
 import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
+import AgendaItemTimer from '../components/liveMeeting/AgendaItemTimer.vue'
+import SpeakerQueuePanel from '../components/liveMeeting/SpeakerQueuePanel.vue'
+import MeetingCostPanel from '../components/liveMeeting/MeetingCostPanel.vue'
 
 const BOB_STAGES = [
 	{ id: 'beeldvorming', label: 'Beeldvorming' },
@@ -195,6 +219,9 @@ export default {
 		AgendaBuilder,
 		MinutesPanel,
 		AdoptConsentAgendaDialog,
+		AgendaItemTimer,
+		SpeakerQueuePanel,
+		MeetingCostPanel,
 	},
 
 	props: {
@@ -243,6 +270,21 @@ export default {
 		participants() {
 			const collection = this.objectStore.collections?.participant ?? []
 			return collection.filter(p => p?.['@self']?.relations?.meeting === this.id || p?.relations?.meeting === this.id)
+		},
+
+		/**
+		 * The linked governance body's hourly rate (EUR per attendee), used by
+		 * the live cost panel. 0 when no body / no rate is configured.
+		 *
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
+		hourlyRate() {
+			const bodyId = this.meeting?.governanceBody
+				?? this.meeting?.['@self']?.relations?.governanceBody
+			if (!bodyId) return 0
+			const body = this.objectStore.objects?.['governance-body']?.[bodyId]
+			const rate = Number(body?.hourlyRate)
+			return Number.isFinite(rate) && rate > 0 ? rate : 0
 		},
 
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
@@ -391,10 +433,31 @@ export default {
 						'@self.relations.meeting': this.id,
 					}),
 				])
+				// Meeting-efficiency: lazily fetch the linked governance body so
+				// the live cost panel can read its hourlyRate. Best-effort — the
+				// panel renders a no-rate hint when the body / rate is absent.
+				await this.fetchGovernanceBody()
 			} catch (e) {
 				console.error('Error fetching live meeting data:', e)
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * Fetch the meeting's linked governance body (for the cost panel's
+		 * hourlyRate). Best-effort; failures are non-fatal.
+		 *
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
+		async fetchGovernanceBody() {
+			const bodyId = this.meeting?.governanceBody
+				?? this.meeting?.['@self']?.relations?.governanceBody
+			if (!bodyId) return
+			try {
+				await this.objectStore.fetchObject('governance-body', bodyId)
+			} catch (e) {
+				console.error('Error fetching governance body:', e)
 			}
 		},
 

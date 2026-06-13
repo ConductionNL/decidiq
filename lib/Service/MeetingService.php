@@ -63,19 +63,22 @@ class MeetingService
     /**
      * Constructor for MeetingService.
      *
-     * @param ContainerInterface     $container       The DI container (used to retrieve ObjectService)
-     * @param LoggerInterface        $logger          The logger
-     * @param WorkflowService        $workflowService Domain-specific transition rules and chair-only gates
-     * @param MeetingTransitionGuard $transitionGuard Reads quorumMet field for the open transition
+     * @param ContainerInterface     $container          The DI container (used to retrieve ObjectService)
+     * @param LoggerInterface        $logger             The logger
+     * @param WorkflowService        $workflowService    Domain-specific transition rules and chair-only gates
+     * @param MeetingTransitionGuard $transitionGuard    Reads quorumMet field for the open transition
+     * @param MeetingCostService     $meetingCostService Computes the final meetingCost stamped on close (meeting-efficiency)
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
      * @spec openspec/changes/spec/tasks.md#task-1
+     * @spec openspec/specs/meeting-efficiency/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly WorkflowService $workflowService,
         private readonly MeetingTransitionGuard $transitionGuard,
+        private readonly MeetingCostService $meetingCostService,
     ) {
     }//end __construct()
 
@@ -223,13 +226,23 @@ class MeetingService
                 }
             }
 
+            // Meeting-efficiency timing/cost stamping (additive, server-side):
+            //   - first 'open' stamps openedAt (idempotent across pause/resume/
+            //     adjourn-resume so the cost window starts at the real start);
+            //   - 'close' stamps closedAt and the fail-soft final meetingCost.
+            $efficiencyPatch = $this->buildEfficiencyPatch(
+                action: $action,
+                meetingId: $meetingId,
+                meetingData: $meetingData
+            );
+
             // Object-level write ACL: ObjectService::saveObject() checks that the
             // current Nextcloud session user has write access to this specific object
             // before applying the patch. If the caller lacks write access an exception
             // is thrown and caught by the \Throwable handler below, returning a generic
             // error response without leaking object details.
             $updated = $objectService->saveObject(
-                object: array_merge($meetingData, ['lifecycle' => $transition['to']]),
+                object: array_merge($meetingData, ['lifecycle' => $transition['to']], $efficiencyPatch),
                 register: 'decidesk',
                 schema: 'meeting',
                 uuid: $meetingId,
@@ -279,4 +292,55 @@ class MeetingService
         }//end try
 
     }//end transition()
+
+    /**
+     * Build the additive meeting-efficiency patch for a lifecycle transition.
+     *
+     * On the first 'open' (no openedAt yet) stamps `openedAt` so the cost /
+     * duration window starts at the real meeting start and is not reset by a
+     * later pause/resume or adjourn/resume. On 'close' stamps `closedAt` and,
+     * fail-soft, the final `meetingCost` resolved server-side from stored data
+     * (a cost error never blocks closing a meeting).
+     *
+     * @param string               $action      Transition action
+     * @param string               $meetingId   Meeting UUID
+     * @param array<string, mixed> $meetingData Current meeting object
+     *
+     * @return array<string, mixed> The fields to merge into the saved object (may be empty)
+     *
+     * @spec openspec/specs/meeting-efficiency/spec.md
+     */
+    private function buildEfficiencyPatch(string $action, string $meetingId, array $meetingData): array
+    {
+        $patch = [];
+
+        if ($action === 'open' && empty($meetingData['openedAt']) === true) {
+            $patch['openedAt'] = (new \DateTimeImmutable('now'))->format(\DateTimeInterface::ATOM);
+        }
+
+        if ($action === 'close') {
+            $closedAt           = (new \DateTimeImmutable('now'))->format(\DateTimeInterface::ATOM);
+            $patch['closedAt']  = $closedAt;
+
+            try {
+                // Pass the closedAt forward so the elapsed window is closed.
+                $cost = $this->meetingCostService->calculateForMeeting(
+                    meetingId: $meetingId,
+                    meeting: array_merge($meetingData, ['closedAt' => $closedAt])
+                );
+                if ($cost !== null) {
+                    $patch['meetingCost'] = $cost;
+                }
+            } catch (\Throwable $e) {
+                // Fail-soft: cost errors must never block closing a meeting.
+                $this->logger->debug(
+                    'Decidesk: meetingCost computation skipped on close',
+                    ['meetingId' => $meetingId, 'error' => $e->getMessage()]
+                );
+            }
+        }//end if
+
+        return $patch;
+
+    }//end buildEfficiencyPatch()
 }//end class

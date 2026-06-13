@@ -42,7 +42,7 @@
       "GovernanceBody": {
         "slug": "governance-body",
         "icon": "AccountGroupOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "GovernanceBody",
         "description": "A governance body (council, board, committee, assembly)",
         "type": "object",
@@ -104,6 +104,11 @@
             "type": "string",
             "format": "date-time",
             "description": "Current term end"
+          },
+          "hourlyRate": {
+            "type": "number",
+            "description": "Average hourly rate in EUR per attendee, used by the meeting cost calculator (meeting-efficiency). Schema.org MonetaryAmount value; currency is EUR.",
+            "example": 75
           }
         },
         "x-openregister-seeds": [
@@ -376,6 +381,20 @@
             "type": "string",
             "format": "date-time",
             "description": "Deadline for submitting motions and amendments for this meeting (motion-amendment spec). Empty = no deadline. Motion/amendment creations after this moment are rejected server-side by the SubmissionDeadlineListener."
+          },
+          "openedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the first 'open' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency). Basis for the live cost calculator and duration analytics."
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the 'close' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency)."
+          },
+          "meetingCost": {
+            "type": "number",
+            "description": "Total meeting cost in EUR, computed server-side on close from elapsed time x attendee count x the governance body's hourlyRate (meeting-efficiency). Schema.org MonetaryAmount value."
           }
         },
         "x-openregister-relations": {
@@ -783,6 +802,10 @@
           "actualDuration": {
             "type": "integer",
             "description": "Actual minutes spent"
+          },
+          "pausedDuration": {
+            "type": "integer",
+            "description": "Minutes the agenda-item timer was paused for procedural interruptions, recorded separately from actualDuration (meeting-efficiency)"
           },
           "description": {
             "type": "string",

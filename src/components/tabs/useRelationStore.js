@@ -36,6 +36,7 @@ const TYPE_TO_SETTINGS_KEY = {
 	decision: 'decisionSchema',
 	'action-item': 'actionItemSchema',
 	minutes: 'minutesSchema',
+	'engagement-record': 'engagementRecordSchema',
 }
 
 /**
