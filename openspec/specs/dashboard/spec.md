@@ -1,6 +1,6 @@
 ---
-status: partial
-status-note: 2026-06-13 — both v2 chain changes archived. decidesk-dashboard-v2-widgets delivered the 11 widget components + registry + vitest + i18n; decidesk-dashboard-v2-layout rewired the manifest Dashboard page to the 11-widget v2 grid with English titles (host browser-verified 2026-06-13 — all widgets render with live data). One requirement remains unbuilt and is out of scope for both changes: "Nextcloud Dashboard Widget Integration" (OCP\Dashboard\IWidget — exposing a Decidesk widget on the Nextcloud main dashboard), explicitly deferred to a future change. All in-app dashboard requirements are built.
+status: done
+status-note: 2026-06-13 — ALL dashboard requirements built. The in-app CnDashboardPage dashboard was delivered by decidesk-dashboard-v2-widgets (11 widget components + registry + vitest + i18n) and decidesk-dashboard-v2-layout (manifest Dashboard-page rewire to the 11-widget v2 grid, English titles; host browser-verified — all widgets render with live data). The final requirement, "Nextcloud Dashboard Widget Integration", is now built by dashboard-iwidget-v1: an OCP\Dashboard\IWidget (IIconWidget + IButtonWidget + IAPIWidgetV2) that surfaces the current user's pending votes count + next meeting on the Nextcloud main dashboard and deep-links into the app, OR-scoped (per-user, no IDOR) and fail-soft, covered by PHPUnit. Browser coverage for that requirement is an honest @e2e exclude (NC-chrome — the Hub is platform-owned, the widget is server-rendered PHP with no Decidesk Vue surface).
 ---
 
 # Dashboard Specification
@@ -8,6 +8,7 @@ status-note: 2026-06-13 — both v2 chain changes archived. decidesk-dashboard-v
 **OpenSpec changes:**
 - [decidesk-dashboard-v2-widgets](../../changes/archive/2026-06-12-decidesk-dashboard-v2-widgets/) _(archived 2026-06-12)_ — 11 dashboard widget components + registry + tests + i18n (kind: code)
 - [decidesk-dashboard-v2-layout](../../changes/archive/2026-06-13-decidesk-dashboard-v2-layout/) _(archived 2026-06-13)_ — manifest Dashboard-page rewire to the v2 grid, English titles (kind: config, depends_on widgets)
+- [dashboard-iwidget-v1](../../changes/archive/2026-06-13-dashboard-iwidget-v1/) _(archived 2026-06-13)_ — Nextcloud main-dashboard widget via OCP\Dashboard\IWidget (pending votes + next meeting, deep-link, fail-soft) (kind: code)
 
 ## Purpose
 
@@ -15,7 +16,6 @@ The Decidesk dashboard provides an at-a-glance overview of active decisions, upc
 
 **Standards**: Schema.org (`Dashboard` pattern), Nextcloud Dashboard Widget API
 **Feature tier**: MVP
-
 ## Requirements
 
 ---
@@ -130,18 +130,35 @@ The dashboard MUST include a widget showing the user's upcoming meetings across 
 
 ### Requirement: Nextcloud Dashboard Widget Integration
 
-The system MUST register a Nextcloud Dashboard widget via `OCP\Dashboard\IWidget` so that Decidesk summary data appears on the Nextcloud main dashboard.
+The system MUST register a Nextcloud Dashboard widget via `OCP\Dashboard\IWidget`
+(implementing `IIconWidget`, `IButtonWidget`, and the NC32 pure-backend
+`IAPIWidgetV2` data path) so that Decidesk summary data appears on the Nextcloud
+main dashboard. The widget MUST resolve the **current user's** data
+(session-scoped, per-user — never an arbitrary object id) via the OpenRegister
+`ObjectService`, and MUST fail soft: a broken or absent register MUST NOT crash
+the Nextcloud dashboard.
 
 **Feature tier**: MVP
 
 #### Scenario: View Decidesk widget on Nextcloud dashboard
 
+@e2e exclude nc-chrome — the Nextcloud main dashboard is platform chrome owned by the `dashboard` app and the Decidesk widget is server-rendered PHP (`OCP\Dashboard\IWidget`, no Decidesk-owned Vue surface); the widget logic (identity, per-user pending-votes + next-meeting resolution, fail-soft) is covered by PHPUnit in tests/Unit/Dashboard and tests/Unit/Service.
+
 - GIVEN a user with Decidesk access
 - WHEN they view the Nextcloud main dashboard
-- THEN a "Decidesk" widget MUST be available showing pending votes count and next meeting
-- AND clicking the widget MUST navigate to the Decidesk dashboard
+- THEN a "Decidesk" widget MUST be available showing the user's pending votes count and their next upcoming meeting
+- AND the pending votes count MUST be the number of open voting-rounds the current user has not yet voted in (a user with no participant record sees 0)
+- AND the next meeting MUST be the soonest future `lifecycle=scheduled` meeting the current user participates in (or an empty state when none)
+- AND clicking the widget (its url or its "Open Decidesk" button) MUST navigate to the Decidesk app at `/apps/decidesk/`
 
----
+#### Scenario: Widget fails soft when the register is unavailable
+
+@e2e exclude nc-chrome — backend fail-soft path; covered by tests/Unit/Service/DashboardWidgetServiceTest and tests/Unit/Dashboard/DecideskDashboardWidgetTest.
+
+- GIVEN the OpenRegister `decidesk` register is absent or a schema read throws
+- WHEN the Nextcloud dashboard requests the widget items for the current user
+- THEN the widget MUST return an empty item set with an empty-content message
+- AND it MUST NOT raise an exception to the Nextcloud dashboard
 
 ### Requirement: Running Processes Widget
 

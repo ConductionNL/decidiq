@@ -880,6 +880,32 @@ class Application extends App implements IBootstrap
             }
         );
 
+        // Nextcloud main-dashboard widget (dashboard-iwidget-v1): a per-user
+        // "Decidesk" widget showing pending votes count + next meeting on the
+        // Nextcloud Hub, deep-linking into the app. Fail-soft, OR-scoped.
+        // @spec openspec/specs/dashboard/spec.md.
+        $context->registerService(
+            \OCA\Decidesk\Service\DashboardWidgetService::class,
+            static function ($c): \OCA\Decidesk\Service\DashboardWidgetService {
+                return new \OCA\Decidesk\Service\DashboardWidgetService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Dashboard\DecideskDashboardWidget::class,
+            static function ($c): \OCA\Decidesk\Dashboard\DecideskDashboardWidget {
+                return new \OCA\Decidesk\Dashboard\DecideskDashboardWidget(
+                    l10n: $c->get(\OCP\L10N\IFactory::class)->get(self::APP_ID),
+                    urlGenerator: $c->get(\OCP\IURLGenerator::class),
+                    timeFactory: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    widgetService: $c->get(\OCA\Decidesk\Service\DashboardWidgetService::class),
+                );
+            }
+        );
+        $context->registerDashboardWidget(\OCA\Decidesk\Dashboard\DecideskDashboardWidget::class);
+
     }//end registerNcPlatformIntegration()
 
     /**
