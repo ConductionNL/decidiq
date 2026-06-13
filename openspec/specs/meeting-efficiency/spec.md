@@ -11,7 +11,6 @@ Meeting efficiency features help governance bodies run productive meetings. This
 
 **Standards**: Schema.org (`Duration`, `MonetaryAmount`)
 **Feature tier**: V1
-
 ## Requirements
 
 ---
@@ -47,8 +46,6 @@ The system MUST provide a visible countdown timer for each agenda item during me
 - THEN no timer MUST be displayed
 - AND the elapsed time MUST still be tracked in the background for analytics
 
----
-
 ### Requirement: Speaking Time Management
 
 The system MUST track speaking time per participant during discussions. The chair MUST be able to set speaking time limits. The system MUST maintain a speaker queue for managing turn-taking.
@@ -72,8 +69,6 @@ The system MUST track speaking time per participant during discussions. The chai
 - AND the chair MUST be able to reorder the queue
 - AND the current speaker MUST be highlighted
 
----
-
 ### Requirement: Meeting Cost Calculator
 
 The system MUST calculate and display the running cost of a meeting based on participant count and configurable hourly rates. The cost MUST be displayed in real-time during the meeting and in meeting analytics afterward.
@@ -93,8 +88,6 @@ The system MUST calculate and display the running cost of a meeting based on par
 - WHEN the user views meeting analytics
 - THEN the cost MUST be broken down per agenda item based on actual time spent
 - AND the most expensive agenda items MUST be highlighted
-
----
 
 ### Requirement: Meeting Analytics Dashboard
 
