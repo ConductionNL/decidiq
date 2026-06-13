@@ -14,6 +14,8 @@
  * @e2e openspec/specs/meeting-management/spec.md#track-proxy-votes-toward-quorum
  * @e2e openspec/specs/meeting-management/spec.md#view-upcoming-meetings-in-calendar-format
  * @e2e openspec/specs/meeting-management/spec.md#join-meeting-remotely-with-full-participation-rights
+ * @e2e openspec/specs/meeting-management/spec.md#generate-a-meeting-series-from-a-recurrence-pattern
+ * @e2e openspec/specs/meeting-management/spec.md#convocation-records-per-recipient-delivery-status
  */
 import { test, expect } from '@playwright/test'
 
@@ -83,8 +85,9 @@ test('meetings list page loads without errors', async ({ page }) => {
 	// Page title is correct
 	await expect(page).toHaveTitle(/Decidesk/i)
 
-	// App is mounted and navigation is functional
-	await expect(page.getByRole('link', { name: 'Meetings' })).toBeVisible()
+	// App is mounted and navigation is functional ("Meetings" exactly —
+	// non-exact role name also matches the "Board meetings" entry).
+	await expect(page.getByRole('link', { name: 'Meetings', exact: true })).toBeVisible()
 })
 
 // @e2e openspec/specs/meeting-management/spec.md#send-alv-convocation-within-statutory-deadline
@@ -128,4 +131,76 @@ test('live meeting view mounts for an existing meeting', async ({ page }) => {
 	await page.waitForSelector('[data-testid="meeting-live"]', { timeout: 15_000 })
 	// The live meeting view renders (meeting-live testid)
 	await expect(page.locator('[data-testid="meeting-live"]')).toBeVisible()
+})
+
+// @e2e openspec/specs/meeting-management/spec.md#generate-a-meeting-series-from-a-recurrence-pattern
+// @e2e openspec/specs/meeting-management/spec.md#schedule-a-recurring-monthly-meeting
+// Series tab UI (meeting-agenda-gaps-v1): recurrence pattern form, live
+// preview count, and generate action on the meeting detail sidebar.
+test('meeting detail Series tab shows pattern form, preview and generate action', async ({ page }) => {
+	const resp = await page.request.get(
+		`${BASE}/index.php/apps/openregister/api/objects/decidesk/meeting?_limit=1`,
+		{ headers: { Accept: 'application/json' } },
+	)
+	expect(resp.ok(), 'Meeting API should be reachable').toBe(true)
+	const body = await resp.json()
+	const first = (body.results ?? body.items ?? [])[0]
+	test.skip(!first, 'No meeting objects found — seed at least one')
+	const meetingId = first.id ?? first['@self']?.id
+	test.skip(!meetingId, 'First meeting has no id')
+
+	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+
+	// Activate the Series sidebar tab (defensive: older deployments lack it).
+	const seriesTab = page.getByRole('tab', { name: 'Series' })
+	const hasTab = await seriesTab.isVisible({ timeout: 10_000 }).catch(() => false)
+	test.skip(!hasTab, 'Series tab not present (deployed build predates meeting-agenda-gaps-v1)')
+	await seriesTab.click()
+
+	// Pattern form with frequency / interval / until fields renders.
+	await expect(page.getByTestId('series-pattern-form')).toBeVisible({ timeout: 10_000 })
+	await expect(page.getByText('Frequency', { exact: false }).first()).toBeVisible()
+	await expect(page.getByTestId('series-generate')).toBeVisible()
+
+	// Filling an until date produces a live preview count.
+	const untilField = page.getByTestId('series-pattern-form').locator('input[type="date"]')
+	if (await untilField.isVisible().catch(() => false)) {
+		await untilField.fill('2027-12-31')
+		await expect(page.getByTestId('series-preview')).toBeVisible({ timeout: 5_000 })
+	}
+})
+
+// @e2e openspec/specs/meeting-management/spec.md#convocation-records-per-recipient-delivery-status
+// @e2e openspec/specs/meeting-management/spec.md#send-alv-convocation-within-statutory-deadline
+// Board-meeting detail (meeting-agenda-gaps-v1): send-notice action and the
+// per-recipient delivery table written by BoardMeetingService::sendNotice.
+test('board meeting detail renders send-notice surface and delivery table when sent', async ({ page }) => {
+	const resp = await page.request.get(
+		`${BASE}/index.php/apps/openregister/api/objects/decidesk/board-meeting?_limit=10`,
+		{ headers: { Accept: 'application/json' } },
+	)
+	test.skip(!resp.ok(), 'board-meeting schema not available on this instance')
+	const body = await resp.json()
+	const meetings = body.results ?? body.items ?? []
+	test.skip(meetings.length === 0, 'No board-meeting objects found — seed at least one')
+
+	const withDeliveries = meetings.find((m: any) => Array.isArray(m.noticeDeliveries) && m.noticeDeliveries.length > 0)
+	const target = withDeliveries ?? meetings[0]
+	const meetingId = target.id ?? target['@self']?.id
+	test.skip(!meetingId, 'Board meeting has no id')
+
+	await page.goto(`${BASE}/apps/decidesk/board-meetings/${meetingId}`)
+	await page.waitForSelector('[data-testid="board-meeting-detail"]', { timeout: 15_000 })
+	await expect(page.locator('[data-testid="board-meeting-detail"]')).toBeVisible()
+
+	if (withDeliveries) {
+		// Delivery table lists one row per recipient with status + timestamp.
+		await expect(page.getByTestId('board-meeting-deliveries')).toBeVisible({ timeout: 10_000 })
+		await expect(page.getByTestId('board-meeting-deliveries').locator('tbody tr'))
+			.toHaveCount(withDeliveries.noticeDeliveries.length)
+	} else if (target.status === 'scheduled') {
+		// Pre-send: the send-notice action is offered for scheduled meetings.
+		await expect(page.getByTestId('board-meeting-send-notice')).toBeVisible({ timeout: 10_000 })
+	}
 })

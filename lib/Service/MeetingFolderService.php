@@ -96,14 +96,23 @@ class MeetingFolderService
                 $segments[] = $this->sanitize(name: $bodyName);
             }
 
-            $leaf = trim($date.' '.$this->sanitize(name: ($title !== '' ? $title : $uuid)));
-            $segments[] = $leaf;
+            $leafName = $uuid;
+            if ($title !== '') {
+                $leafName = $title;
+            }
+
+            $segments[] = trim($date.' '.$this->sanitize(name: $leafName));
 
             $fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
 
             $path = '';
             foreach ($segments as $segment) {
-                $path = ($path === '') ? $segment : $path.'/'.$segment;
+                if ($path === '') {
+                    $path = $segment;
+                } else {
+                    $path = $path.'/'.$segment;
+                }
+
                 $fileService->createFolder($path);
             }
 
@@ -253,7 +262,11 @@ class MeetingFolderService
         $clean = preg_replace('/[\/\\\\:*?"<>|]+/', '-', $name) ?? '';
         $clean = preg_replace('/[[:cntrl:]]+/', '', $clean) ?? '';
         $clean = trim($clean, " .-");
-        return ($clean !== '') ? $clean : 'meeting';
+        if ($clean === '') {
+            return 'meeting';
+        }
+
+        return $clean;
 
     }//end sanitize()
 }//end class

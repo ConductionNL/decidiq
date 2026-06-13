@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Lifecycle\ResolutionLifecycleGuard;
-use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\ResolutionService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
@@ -99,9 +98,7 @@ class ResolutionServiceTest extends TestCase
             ]
         );
 
-        $audit = $this->createMock(AuditLogService::class);
-
-        return new ResolutionService($container, $logger, $guard, $audit);
+        return new ResolutionService($container, $logger, $guard);
 
     }//end makeService()
 

@@ -56,6 +56,7 @@ import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
+import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
@@ -159,6 +160,9 @@ export default {
 	GovernanceBodyTemplateTab: page(GovernanceBodyTemplateTab),
 	MeetingAgendaTab: page(MeetingAgendaTab),
 	MeetingParticipantsTab: page(MeetingParticipantsTab),
+	// Recurring-series generation (meeting-agenda-gaps-v1): pattern form,
+	// preview count, generate action, and the series instance list.
+	MeetingSeriesTab: page(MeetingSeriesTab),
 	// Per-meeting authoring/overview tabs (refactor-decidesk-ia-alignment):
 	// Minutes + Decisions are create+browse (split with the top-level
 	// register index pages); Votes is the read-only post-meeting aggregate.

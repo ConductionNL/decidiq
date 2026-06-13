@@ -70,16 +70,14 @@ class ResolutionService
     /**
      * Constructor for ResolutionService.
      *
-     * @param ContainerInterface       $container       The DI container
-     * @param LoggerInterface          $logger          The logger
-     * @param ResolutionLifecycleGuard $guard           Quorum + conflict guard
-     * @param AuditLogService          $auditLogService Audit log dependency
+     * @param ContainerInterface       $container The DI container
+     * @param LoggerInterface          $logger    The logger
+     * @param ResolutionLifecycleGuard $guard     Quorum + conflict guard
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly ResolutionLifecycleGuard $guard,
-        private readonly AuditLogService $auditLogService,
     ) {
     }//end __construct()
 
@@ -287,7 +285,7 @@ class ResolutionService
         }
 
         // Activity feed (fail-soft): a resolution vote opened.
-        // @spec openspec/specs/nextcloud-integration/spec.md
+        // @spec openspec/specs/nextcloud-integration/spec.md.
         try {
             $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
                 subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_VOTE_INITIATED,
@@ -429,7 +427,7 @@ class ResolutionService
         }
 
         // Activity feed (fail-soft): only adopted resolutions are announced.
-        // @spec openspec/specs/nextcloud-integration/spec.md
+        // @spec openspec/specs/nextcloud-integration/spec.md.
         if ($adopted === true) {
             try {
                 $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(

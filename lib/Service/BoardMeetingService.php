@@ -73,18 +73,107 @@ class BoardMeetingService
     public const FORMATS = ['in-person', 'remote', 'hybrid'];
 
     /**
+     * Default statutory notice period in days before the meeting date
+     * (BW 2:225 BV / typical ALV statutes). Overridable per meeting via
+     * the additive `noticePeriodDays` schema property.
+     *
+     * @var int
+     */
+    public const DEFAULT_NOTICE_PERIOD_DAYS = 15;
+
+    /**
+     * Warn when the convocation is sent within this many days of the deadline.
+     *
+     * @var int
+     */
+    public const DEADLINE_WARNING_DAYS = 3;
+
+    /**
      * Constructor for BoardMeetingService.
      *
-     * @param ContainerInterface $container       The DI container
-     * @param LoggerInterface    $logger          The logger
-     * @param AuditLogService    $auditLogService Audit log dependency for notice + transition events
+     * @param ContainerInterface $container          The DI container
+     * @param LoggerInterface    $logger             The logger
+     * @param AuditLogService    $auditLogService    Audit log dependency for notice + transition events
+     * @param BoardMemberService $boardMemberService Resolves the board's members for per-recipient delivery tracking
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly AuditLogService $auditLogService,
+        private readonly BoardMemberService $boardMemberService,
     ) {
     }//end __construct()
+
+    /**
+     * Compute the statutory notice deadline for a meeting and the warnings
+     * that apply when sending the convocation *now*.
+     *
+     * Pure (clock injectable) so PHPUnit can pin `$now`: the deadline is
+     * `meetingDate - noticePeriodDays` (default 15 — BW 2:225 / BW 2:38);
+     * sending after the deadline or within DEADLINE_WARNING_DAYS of it
+     * produces a warning per the meeting-management convocation scenarios.
+     *
+     * @param array<string, mixed>    $meeting Board-meeting payload (meetingDate, noticePeriodDays)
+     * @param \DateTimeImmutable|null $now     Send moment; defaults to the current UTC time
+     *
+     * @spec openspec/specs/meeting-management/spec.md
+     *
+     * @return array{deadline: string|null, daysUntilDeadline: int|null, warnings: string[]}
+     */
+    public function getNoticeDeadlineInfo(array $meeting, ?\DateTimeImmutable $now=null): array
+    {
+        $meetingDateRaw = (string) ($meeting['meetingDate'] ?? ($meeting['meetingStart'] ?? ''));
+        if ($meetingDateRaw === '') {
+            return [
+                'deadline'          => null,
+                'daysUntilDeadline' => null,
+                'warnings'          => [],
+            ];
+        }
+
+        try {
+            $meetingDate = new \DateTimeImmutable(substr($meetingDateRaw, 0, 10).' 00:00:00', new \DateTimeZone('UTC'));
+        } catch (\Throwable) {
+            return [
+                'deadline'          => null,
+                'daysUntilDeadline' => null,
+                'warnings'          => [],
+            ];
+        }
+
+        $periodDays = (int) ($meeting['noticePeriodDays'] ?? self::DEFAULT_NOTICE_PERIOD_DAYS);
+        if ($periodDays < 0) {
+            $periodDays = self::DEFAULT_NOTICE_PERIOD_DAYS;
+        }
+
+        $deadline = $meetingDate->sub(new \DateInterval('P'.$periodDays.'D'));
+        $now      = ($now ?? new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
+        $today    = new \DateTimeImmutable($now->format('Y-m-d').' 00:00:00', new \DateTimeZone('UTC'));
+
+        $daysUntilDeadline = (int) $today->diff($deadline)->format('%r%a');
+
+        $warnings = [];
+        if ($daysUntilDeadline < 0) {
+            $warnings[] = sprintf(
+                'The statutory notice deadline (%s, %d days before the meeting) has already passed.',
+                $deadline->format('Y-m-d'),
+                $periodDays
+            );
+        } else if ($daysUntilDeadline <= self::DEADLINE_WARNING_DAYS) {
+            $warnings[] = sprintf(
+                'The convocation is sent within %d day(s) of the statutory notice deadline (%s).',
+                self::DEADLINE_WARNING_DAYS,
+                $deadline->format('Y-m-d')
+            );
+        }
+
+        return [
+            'deadline'          => $deadline->format('Y-m-d'),
+            'daysUntilDeadline' => $daysUntilDeadline,
+            'warnings'          => $warnings,
+        ];
+
+    }//end getNoticeDeadlineInfo()
 
     /**
      * Schedule a new board meeting in the `scheduled` lifecycle state.
@@ -174,15 +263,17 @@ class BoardMeetingService
 
     /**
      * Send the formal meeting notice. Transitions the meeting from scheduled
-     * to notice-sent, stamps `noticeSentDate`, and writes a notice-sent entry
-     * to the audit log.
+     * to notice-sent, stamps `noticeSentDate`, records one per-recipient
+     * delivery entry per board member (`noticeDeliveries` — BW 2:225 / BW 2:38
+     * proof of notice), computes statutory-deadline warnings, and writes a
+     * notice-sent entry (with recipient count) to the audit log.
      *
      * @param string $meetingId UUID of the board meeting
      * @param string $actor     Acting user UID (for the audit log)
      *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-phase2-board-meeting-service
+     * @spec openspec/specs/meeting-management/spec.md
      *
-     * @return array{success: bool, meeting: array|null, message: string}
+     * @return array{success: bool, meeting: array|null, message: string, warnings?: string[], deliveries?: array<int, array<string, mixed>>}
      */
     public function sendNotice(string $meetingId, string $actor): array
     {
@@ -190,6 +281,9 @@ class BoardMeetingService
         if ($result['success'] === false) {
             return $result;
         }
+
+        $warnings   = [];
+        $deliveries = [];
 
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
@@ -200,7 +294,19 @@ class BoardMeetingService
                     $current = $entity->getObject();
                 }
 
-                $patched = array_merge($current, ['noticeSentDate' => gmdate('Y-m-d\TH:i:s\Z')]);
+                $deadlineInfo = $this->getNoticeDeadlineInfo(meeting: $current);
+                $warnings     = $deadlineInfo['warnings'];
+
+                $sentAt     = gmdate('Y-m-d\TH:i:s\Z');
+                $deliveries = $this->buildNoticeDeliveries(meeting: $current, sentAt: $sentAt);
+
+                $patched = array_merge(
+                    $current,
+                    [
+                        'noticeSentDate'   => $sentAt,
+                        'noticeDeliveries' => $deliveries,
+                    ]
+                );
 
                 $saved = $objectService->saveObject(
                     object: $patched,
@@ -212,7 +318,7 @@ class BoardMeetingService
                 if (is_object($saved) === true) {
                     $result['meeting'] = (array) $saved->jsonSerialize();
                 }
-            }
+            }//end if
         } catch (\Throwable $e) {
             $this->logger->warning(
                 'Decidesk: failed to stamp noticeSentDate; transition retained',
@@ -223,12 +329,64 @@ class BoardMeetingService
         $this->auditLogService->append(
             actor: $actor,
             action: 'notice-sent',
-            objectUids: [$meetingId]
+            objectUids: [$meetingId],
+            payload: ['recipients' => count($deliveries)]
         );
+
+        $result['warnings']   = $warnings;
+        $result['deliveries'] = $deliveries;
 
         return $result;
 
     }//end sendNotice()
+
+    /**
+     * Build the per-recipient delivery entries for a notice send.
+     *
+     * Resolves the board's members through BoardMemberService and records
+     * one `{recipient, displayName, role, channel, status, sentAt}` entry
+     * each. Members whose term has ended before the meeting date are still
+     * included when their `termEndDate` is in the future or unset.
+     *
+     * @param array<string, mixed> $meeting Board-meeting payload (board / boardKoppeling)
+     * @param string               $sentAt  Send timestamp (ISO-8601 UTC)
+     *
+     * @spec openspec/specs/meeting-management/spec.md
+     *
+     * @return array<int, array<string, mixed>> Delivery entries (empty when the board cannot be resolved)
+     */
+    private function buildNoticeDeliveries(array $meeting, string $sentAt): array
+    {
+        $boardId = (string) ($meeting['boardKoppeling'] ?? ($meeting['board'] ?? ''));
+        if ($boardId === '') {
+            return [];
+        }
+
+        $listing = $this->boardMemberService->listForBoard(boardId: $boardId);
+        if ($listing['success'] === false) {
+            return [];
+        }
+
+        $deliveries = [];
+        foreach ($listing['members'] as $member) {
+            $memberId = (string) ($member['id'] ?? ($member['@self']['id'] ?? ''));
+            if ($memberId === '') {
+                continue;
+            }
+
+            $deliveries[] = [
+                'recipient'   => $memberId,
+                'displayName' => (string) ($member['displayName'] ?? ($member['person'] ?? ($member['persoonKoppeling'] ?? ''))),
+                'role'        => (string) ($member['role'] ?? ($member['rol'] ?? '')),
+                'channel'     => 'portal',
+                'status'      => 'sent',
+                'sentAt'      => $sentAt,
+            ];
+        }
+
+        return $deliveries;
+
+    }//end buildNoticeDeliveries()
 
     /**
      * Run a single BoardMeeting lifecycle transition.
@@ -302,7 +460,7 @@ class BoardMeetingService
         }
 
         // Activity feed (fail-soft): board meeting lifecycle transition.
-        // @spec openspec/specs/nextcloud-integration/spec.md
+        // @spec openspec/specs/nextcloud-integration/spec.md.
         try {
             $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
                 subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_MEETING_TRANSITION,

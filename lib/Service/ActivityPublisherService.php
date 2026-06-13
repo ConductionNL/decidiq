@@ -40,7 +40,6 @@ use Psr\Log\LoggerInterface;
  */
 class ActivityPublisherService
 {
-
     /**
      * Constructor.
      *
@@ -132,7 +131,7 @@ class ActivityPublisherService
                         'Decidesk: failed to publish activity entry for user',
                         ['uid' => $uid, 'subject' => $subject, 'error' => $e->getMessage()]
                     );
-                }
+                }//end try
             }//end foreach
 
             return $published;

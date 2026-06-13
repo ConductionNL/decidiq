@@ -181,7 +181,7 @@ class DecideskSearchProvider implements IProvider
                         $entries[] = $entry;
                     }
                 }
-            }
+            }//end foreach
         } catch (\Throwable $e) {
             // Fail soft: a broken register must not take down unified search.
             $this->logger->error(

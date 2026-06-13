@@ -233,6 +233,63 @@ class RegisterJsonTest extends TestCase
     }//end testMeetingLifecycleEnum()
 
     /**
+     * Test the meeting-agenda-gaps-v1 additive schema properties: Schema.org
+     * eventAttendanceMode / virtualLocation annotations on Meeting, the
+     * general_assembly meetingType, the seriesPattern object, AgendaItem
+     * parentItem, and BoardMeeting noticePeriodDays / noticeDeliveries.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/meeting-management/spec.md
+     */
+    public function testMeetingAgendaGapsAdditiveProperties(): void
+    {
+        $meeting = $this->schemas['Meeting']['properties'];
+
+        $attendance = $meeting['eventAttendanceMode'];
+        self::assertSame(
+            expected: [
+                'schema:OfflineEventAttendanceMode',
+                'schema:OnlineEventAttendanceMode',
+                'schema:MixedEventAttendanceMode',
+            ],
+            actual: $attendance['enum']
+        );
+        self::assertSame(
+            expected: 'schema:eventAttendanceMode',
+            actual: ($attendance['x-openregister']['schemaType'] ?? null)
+        );
+
+        $virtualLocation = $meeting['virtualLocation'];
+        self::assertSame(expected: 'uri', actual: $virtualLocation['format']);
+        self::assertSame(
+            expected: 'schema:VirtualLocation',
+            actual: ($virtualLocation['x-openregister']['schemaType'] ?? null)
+        );
+
+        self::assertContains(needle: 'general_assembly', haystack: $meeting['meetingType']['enum']);
+        self::assertSame(expected: 'object', actual: $meeting['seriesPattern']['type']);
+        self::assertSame(
+            expected: ['daily', 'weekly', 'monthly'],
+            actual: $meeting['seriesPattern']['properties']['frequency']['enum']
+        );
+
+        self::assertSame(
+            expected: 'string',
+            actual: $this->schemas['AgendaItem']['properties']['parentItem']['type']
+        );
+
+        $boardMeeting = $this->schemas['BoardMeeting']['properties'];
+        self::assertSame(expected: 15, actual: $boardMeeting['noticePeriodDays']['default']);
+        self::assertSame(expected: 'array', actual: $boardMeeting['noticeDeliveries']['type']);
+        self::assertSame(
+            expected: ['sent', 'delivered', 'failed'],
+            actual: $boardMeeting['noticeDeliveries']['items']['properties']['status']['enum']
+        );
+
+    }//end testMeetingAgendaGapsAdditiveProperties()
+
+    /**
      * Test Motion schema has correct required fields and lifecycle enum.
      *
      * @return void

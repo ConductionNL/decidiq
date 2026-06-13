@@ -26,6 +26,8 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\MeetingController;
 use OCA\Decidesk\Exception\MissingObjectException;
+use OCA\Decidesk\Service\MeetingPackageService;
+use OCA\Decidesk\Service\MeetingSeriesService;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProofPackageService;
@@ -99,6 +101,20 @@ class MeetingControllerTest extends TestCase
     private ProofPackageService&MockObject $proofPackageService;
 
     /**
+     * Mock MeetingSeriesService.
+     *
+     * @var MeetingSeriesService&MockObject
+     */
+    private MeetingSeriesService&MockObject $seriesService;
+
+    /**
+     * Mock MeetingPackageService.
+     *
+     * @var MeetingPackageService&MockObject
+     */
+    private MeetingPackageService&MockObject $packageService;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -109,6 +125,8 @@ class MeetingControllerTest extends TestCase
 
         $this->request             = $this->createMock(originalClassName: IRequest::class);
         $this->meetingService      = $this->createMock(originalClassName: MeetingService::class);
+        $this->seriesService       = $this->createMock(originalClassName: MeetingSeriesService::class);
+        $this->packageService      = $this->createMock(originalClassName: MeetingPackageService::class);
         $this->userSession         = $this->createMock(originalClassName: IUserSession::class);
         $this->groupManager        = $this->createMock(originalClassName: IGroupManager::class);
         $this->participantResolver = $this->createMock(originalClassName: ParticipantResolver::class);
@@ -123,6 +141,8 @@ class MeetingControllerTest extends TestCase
         $this->controller = new MeetingController(
             request: $this->request,
             meetingService: $this->meetingService,
+            meetingSeriesService: $this->seriesService,
+            meetingPackageService: $this->packageService,
             userSession: $this->userSession,
             groupManager: $this->groupManager,
             participantResolver: $this->participantResolver,
@@ -255,6 +275,8 @@ class MeetingControllerTest extends TestCase
         $controller = new MeetingController(
             request: $this->request,
             meetingService: $this->meetingService,
+            meetingSeriesService: $this->seriesService,
+            meetingPackageService: $this->packageService,
             userSession: $unauthSession,
             groupManager: $this->groupManager,
             participantResolver: $this->participantResolver,
@@ -368,6 +390,8 @@ class MeetingControllerTest extends TestCase
         $controller = new MeetingController(
             request: $this->request,
             meetingService: $this->meetingService,
+            meetingSeriesService: $this->seriesService,
+            meetingPackageService: $this->packageService,
             userSession: $unauthSession,
             groupManager: $this->groupManager,
             participantResolver: $this->participantResolver,
@@ -421,5 +445,198 @@ class MeetingControllerTest extends TestCase
         self::assertSame(expected: Http::STATUS_SERVICE_UNAVAILABLE, actual: $result->getStatus());
 
     }//end testProofPackageReturnsServiceUnavailableOnRuntimeError()
+
+    /**
+     * Test that createSeries returns HTTP 200 with the generation result.
+     *
+     * @return void
+     */
+    public function testCreateSeriesReturnsOkOnSuccess(): void
+    {
+        $uuid    = 'aaaaaaaa-0000-0000-0000-000000000010';
+        $pattern = ['frequency' => 'monthly', 'interval' => 1, 'until' => '2026-12-31'];
+
+        $this->request->method('getParam')
+            ->with('pattern', null)
+            ->willReturn($pattern);
+
+        $this->seriesService->expects($this->once())
+            ->method('generateSeries')
+            ->with(meetingId: $uuid, pattern: $pattern, actor: 'testuser')
+            ->willReturn([
+                'success'   => true,
+                'series'    => 'board-meeting-2026',
+                'instances' => [['id' => 'i1'], ['id' => 'i2']],
+                'truncated' => false,
+                'message'   => 'Generated 2 meeting instance(s) in series board-meeting-2026.',
+            ]);
+
+        $result = $this->controller->createSeries(id: $uuid);
+
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertSame(expected: Http::STATUS_OK, actual: $result->getStatus());
+        self::assertSame(expected: 'board-meeting-2026', actual: $result->getData()['series']);
+
+    }//end testCreateSeriesReturnsOkOnSuccess()
+
+    /**
+     * Test that createSeries rejects a missing pattern with HTTP 422.
+     *
+     * @return void
+     */
+    public function testCreateSeriesRejectsMissingPattern(): void
+    {
+        $this->request->method('getParam')
+            ->with('pattern', null)
+            ->willReturn(null);
+
+        $this->seriesService->expects($this->never())
+            ->method('generateSeries');
+
+        $result = $this->controller->createSeries(id: 'some-uuid');
+
+        self::assertSame(expected: Http::STATUS_UNPROCESSABLE_ENTITY, actual: $result->getStatus());
+
+    }//end testCreateSeriesRejectsMissingPattern()
+
+    /**
+     * Test that createSeries returns HTTP 401 for anonymous callers.
+     *
+     * @return void
+     */
+    public function testCreateSeriesReturnsUnauthorizedWhenNotAuthenticated(): void
+    {
+        $unauthSession = $this->createMock(originalClassName: IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
+        $controller = new MeetingController(
+            request: $this->request,
+            meetingService: $this->meetingService,
+            meetingSeriesService: $this->seriesService,
+            meetingPackageService: $this->packageService,
+            userSession: $unauthSession,
+            groupManager: $this->groupManager,
+            participantResolver: $this->participantResolver,
+            proofPackageService: $this->proofPackageService,
+        );
+
+        $this->seriesService->expects($this->never())
+            ->method('generateSeries');
+
+        $result = $controller->createSeries(id: 'some-uuid');
+
+        self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $result->getStatus());
+
+    }//end testCreateSeriesReturnsUnauthorizedWhenNotAuthenticated()
+
+    /**
+     * Test that createSeries maps a service failure to HTTP 422.
+     *
+     * @return void
+     */
+    public function testCreateSeriesReturnsUnprocessableOnServiceFailure(): void
+    {
+        $this->request->method('getParam')
+            ->with('pattern', null)
+            ->willReturn(['frequency' => 'yearly']);
+
+        $this->seriesService->expects($this->once())
+            ->method('generateSeries')
+            ->willReturn([
+                'success'   => false,
+                'series'    => null,
+                'instances' => [],
+                'truncated' => false,
+                'message'   => 'frequency must be one of: daily, weekly, monthly.',
+            ]);
+
+        $result = $this->controller->createSeries(id: 'some-uuid');
+
+        self::assertSame(expected: Http::STATUS_UNPROCESSABLE_ENTITY, actual: $result->getStatus());
+        self::assertStringContainsString(needle: 'frequency', haystack: $result->getData()['message']);
+
+    }//end testCreateSeriesReturnsUnprocessableOnServiceFailure()
+
+    /**
+     * Test that assemblePackage returns HTTP 200 with the package result.
+     *
+     * @return void
+     */
+    public function testAssemblePackageReturnsOkOnSuccess(): void
+    {
+        $uuid = 'aaaaaaaa-0000-0000-0000-000000000020';
+
+        $this->packageService->expects($this->once())
+            ->method('assemble')
+            ->with(meetingId: $uuid, userId: 'testuser')
+            ->willReturn([
+                'success' => true,
+                'path'    => 'Decidesk/2026-06-12 Board meeting/Meeting package',
+                'items'   => 3,
+                'files'   => 2,
+                'skipped' => [],
+                'message' => 'Meeting package assembled: 3 agenda item(s), 2 document(s).',
+            ]);
+
+        $result = $this->controller->assemblePackage(id: $uuid);
+
+        self::assertSame(expected: Http::STATUS_OK, actual: $result->getStatus());
+        self::assertSame(expected: 3, actual: $result->getData()['items']);
+
+    }//end testAssemblePackageReturnsOkOnSuccess()
+
+    /**
+     * Test that assemblePackage maps meeting-not-found to HTTP 422.
+     *
+     * @return void
+     */
+    public function testAssemblePackageReturnsUnprocessableWhenMeetingNotFound(): void
+    {
+        $this->packageService->expects($this->once())
+            ->method('assemble')
+            ->willReturn([
+                'success' => false,
+                'path'    => null,
+                'items'   => 0,
+                'files'   => 0,
+                'skipped' => [],
+                'message' => 'Meeting not found.',
+            ]);
+
+        $result = $this->controller->assemblePackage(id: 'unknown-uuid');
+
+        self::assertSame(expected: Http::STATUS_UNPROCESSABLE_ENTITY, actual: $result->getStatus());
+
+    }//end testAssemblePackageReturnsUnprocessableWhenMeetingNotFound()
+
+    /**
+     * Test that assemblePackage returns HTTP 401 for anonymous callers.
+     *
+     * @return void
+     */
+    public function testAssemblePackageReturnsUnauthorizedWhenNotAuthenticated(): void
+    {
+        $unauthSession = $this->createMock(originalClassName: IUserSession::class);
+        $unauthSession->method('getUser')->willReturn(null);
+
+        $controller = new MeetingController(
+            request: $this->request,
+            meetingService: $this->meetingService,
+            meetingSeriesService: $this->seriesService,
+            meetingPackageService: $this->packageService,
+            userSession: $unauthSession,
+            groupManager: $this->groupManager,
+            participantResolver: $this->participantResolver,
+            proofPackageService: $this->proofPackageService,
+        );
+
+        $this->packageService->expects($this->never())
+            ->method('assemble');
+
+        $result = $controller->assemblePackage(id: 'some-uuid');
+
+        self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $result->getStatus());
+
+    }//end testAssemblePackageReturnsUnauthorizedWhenNotAuthenticated()
 
 }//end class

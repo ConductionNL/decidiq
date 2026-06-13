@@ -283,7 +283,7 @@ class DecisionController extends Controller
             );
 
             // Activity feed (fail-soft): decision published.
-            // @spec openspec/specs/nextcloud-integration/spec.md
+            // @spec openspec/specs/nextcloud-integration/spec.md.
             try {
                 $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
                     subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_DECISION_PUBLISHED,

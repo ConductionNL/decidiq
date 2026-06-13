@@ -127,9 +127,9 @@ class VotingDeadlineReminderService
                 continue;
             }
 
-            $isOpen       = (($row['closedAt'] ?? '') === '' || ($row['closedAt'] ?? null) === null);
-            $alreadySent  = (($row['deadlineReminderSentAt'] ?? '') !== '' && ($row['deadlineReminderSentAt'] ?? null) !== null);
-            $deadline     = (string) ($row['votingDeadline'] ?? '');
+            $isOpen      = (($row['closedAt'] ?? '') === '' || ($row['closedAt'] ?? null) === null);
+            $alreadySent = (($row['deadlineReminderSentAt'] ?? '') !== '' && ($row['deadlineReminderSentAt'] ?? null) !== null);
+            $deadline    = (string) ($row['votingDeadline'] ?? '');
 
             if ($isOpen === true && $alreadySent === false
                 && $this->isWithinReminderWindow(deadline: $deadline, now: $now) === true
@@ -282,7 +282,7 @@ class VotingDeadlineReminderService
                     $uids[] = $uid;
                 }
             }
-        }
+        }//end foreach
 
         return array_values(array_unique($uids));
 
@@ -387,7 +387,11 @@ class VotingDeadlineReminderService
 
         $row = (array) $entity->jsonSerialize();
         $uid = ($row['nextcloudUserId'] ?? ($row['owner'] ?? null));
-        return (is_string($uid) === true && $uid !== '') ? $uid : null;
+        if (is_string($uid) === true && $uid !== '') {
+            return $uid;
+        }
+
+        return null;
 
     }//end participantUserId()
 }//end class

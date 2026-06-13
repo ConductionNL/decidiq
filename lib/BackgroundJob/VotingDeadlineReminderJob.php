@@ -59,7 +59,7 @@ class VotingDeadlineReminderJob extends TimedJob
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(time: $time);
-        $this->setInterval(self::INTERVAL_SECONDS);
+        $this->setInterval(seconds: self::INTERVAL_SECONDS);
 
     }//end __construct()
 

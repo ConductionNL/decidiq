@@ -62,23 +62,13 @@
 					{{ t('decidesk', 'Adopt consent agenda') }}
 				</NcButton>
 
-				<!-- Confirmation dialog -->
-				<NcDialog
+				<!-- Confirmation dialog (own file per modal-isolation, ADR-004) -->
+				<AdoptConsentAgendaDialog
 					v-if="confirmHamerstukken"
-					:name="t('decidesk', 'Confirm adoption')"
-					@closing="confirmHamerstukken = false">
-					<template #default>
-						<p>{{ t('decidesk', 'This will set all {n} consent agenda items to "Adopted" (afgerond). Continue?', { n: hamerstukken.length }) }}</p>
-					</template>
-					<template #actions>
-						<NcButton type="primary" :loading="processingHamerstukken" @click="processHamerstukken">
-							{{ t('decidesk', 'Confirm') }}
-						</NcButton>
-						<NcButton @click="confirmHamerstukken = false">
-							{{ t('decidesk', 'Cancel') }}
-						</NcButton>
-					</template>
-				</NcDialog>
+					:count="hamerstukken.length"
+					:processing="processingHamerstukken"
+					@confirm="processHamerstukken"
+					@close="confirmHamerstukken = false" />
 			</section>
 
 			<!-- Regular agenda items -->
@@ -91,6 +81,7 @@
 						:meeting-id="id"
 						:is-chair="true"
 						:lifecycle="meeting.lifecycle || 'opened'"
+						:meeting-type="meeting.meetingType || ''"
 						:items="regularItems"
 						:participants="participants"
 						@reordered="refreshItems"
@@ -174,12 +165,13 @@
 </template>
 
 <script>
-import { NcButton, NcDialog, NcLoadingIcon } from '@nextcloud/vue'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { CnStatusBadge, CnTimelineStages } from '@conduction/nextcloud-vue'
 import { getCurrentUser } from '@nextcloud/auth'
 import { useObjectStore } from '../store/store.js'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
 import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
+import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
 
 const BOB_STAGES = [
 	{ id: 'beeldvorming', label: 'Beeldvorming' },
@@ -197,12 +189,12 @@ export default {
 
 	components: {
 		NcButton,
-		NcDialog,
 		NcLoadingIcon,
 		CnStatusBadge,
 		CnTimelineStages,
 		AgendaBuilder,
 		MinutesPanel,
+		AdoptConsentAgendaDialog,
 	},
 
 	props: {

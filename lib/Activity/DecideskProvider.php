@@ -143,7 +143,7 @@ class DecideskProvider implements IProvider
             default => throw new UnknownActivityException(
                 'Unknown Decidesk activity subject: '.$event->getSubject()
             ),
-        };
+        };//end match
 
         $link = $this->buildDeepLink(params: $params);
 

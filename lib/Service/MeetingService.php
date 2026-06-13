@@ -241,7 +241,7 @@ class MeetingService
             );
 
             // Activity feed (fail-soft): meeting lifecycle transition.
-            // @spec openspec/specs/nextcloud-integration/spec.md
+            // @spec openspec/specs/nextcloud-integration/spec.md.
             try {
                 $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
                     subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_MEETING_TRANSITION,

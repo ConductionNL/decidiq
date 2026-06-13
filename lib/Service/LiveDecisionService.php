@@ -125,7 +125,7 @@ class LiveDecisionService
             $this->logger->info("Decision recorded in live mode for meeting $meetingId: $decisionSlug");
 
             // Activity feed (fail-soft): a decision was recorded.
-            // @spec openspec/specs/nextcloud-integration/spec.md
+            // @spec openspec/specs/nextcloud-integration/spec.md.
             try {
                 $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
                     subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_DECISION_RECORDED,

@@ -223,7 +223,7 @@
         },
         "slug": "meeting",
         "icon": "CalendarClock",
-        "version": "0.4.0",
+        "version": "0.5.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -254,7 +254,8 @@
               "regular",
               "extraordinary",
               "committee",
-              "public hearing"
+              "public hearing",
+              "general_assembly"
             ],
             "example": "regular"
           },
@@ -304,6 +305,61 @@
           "series": {
             "type": "string",
             "description": "Meeting series identifier"
+          },
+          "seriesPattern": {
+            "type": "object",
+            "description": "Recurrence pattern stored on the series template meeting (meeting-series REQ-MSR-001). Expanded into individual meeting instances by MeetingSeriesService.",
+            "properties": {
+              "frequency": {
+                "type": "string",
+                "enum": [
+                  "daily",
+                  "weekly",
+                  "monthly"
+                ],
+                "description": "Recurrence frequency"
+              },
+              "interval": {
+                "type": "integer",
+                "description": "Step between occurrences in frequency units (>= 1)",
+                "example": 1
+              },
+              "until": {
+                "type": "string",
+                "format": "date",
+                "description": "Inclusive end date of the series"
+              },
+              "exceptions": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "description": "Dates (Y-m-d) on which no instance is generated"
+              }
+            }
+          },
+          "eventAttendanceMode": {
+            "type": "string",
+            "description": "Schema.org attendance mode of the event (offline / online / mixed)",
+            "enum": [
+              "schema:OfflineEventAttendanceMode",
+              "schema:OnlineEventAttendanceMode",
+              "schema:MixedEventAttendanceMode"
+            ],
+            "example": "schema:OfflineEventAttendanceMode",
+            "x-openregister": {
+              "schemaType": "schema:eventAttendanceMode"
+            }
+          },
+          "virtualLocation": {
+            "type": "string",
+            "format": "uri",
+            "description": "Video conference / virtual participation URL for online and hybrid meetings",
+            "example": "https://meet.example.org/alv-2026",
+            "x-openregister": {
+              "schemaType": "schema:VirtualLocation"
+            }
           },
           "chair": {
             "type": "string",
@@ -677,7 +733,7 @@
       "AgendaItem": {
         "slug": "agenda-item",
         "icon": "FormatListNumbered",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "AgendaItem",
         "description": "An item on a meeting agenda with type, time, and ordering",
         "type": "object",
@@ -731,6 +787,11 @@
             "type": "boolean",
             "description": "Appears on every meeting",
             "example": false
+          },
+          "parentItem": {
+            "type": "string",
+            "description": "UUID of the parent AgendaItem when this item is a nested sub-item (e.g. committee reports grouped under one heading). Null/absent for top-level items.",
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
           }
         },
         "x-openregister-relations": {
@@ -3731,7 +3792,7 @@
       "BoardMeeting": {
         "slug": "board-meeting",
         "icon": "CalendarAccount",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "BoardMeeting",
         "description": "A scheduled meeting of a governance board with CalDAV wrapper, quorum + notice metadata",
         "type": "object",
@@ -3852,6 +3913,55 @@
           "noticeSentDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "noticePeriodDays": {
+            "type": "integer",
+            "description": "Statutory notice period in days before meetingDate (BW 2:225 / BW 2:38). The convocation deadline is meetingDate minus this period.",
+            "default": 15,
+            "example": 15
+          },
+          "noticeDeliveries": {
+            "type": "array",
+            "description": "Per-recipient convocation delivery records written by BoardMeetingService::sendNotice — proof of notice per board member (BW 2:225 / BW 2:38).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "recipient": {
+                  "type": "string",
+                  "description": "UUID of the BoardMember the notice was sent to"
+                },
+                "displayName": {
+                  "type": "string",
+                  "description": "Display name of the recipient at send time"
+                },
+                "role": {
+                  "type": "string",
+                  "description": "Board role of the recipient at send time"
+                },
+                "channel": {
+                  "type": "string",
+                  "enum": [
+                    "portal",
+                    "email"
+                  ],
+                  "description": "Delivery channel"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "sent",
+                    "delivered",
+                    "failed"
+                  ],
+                  "description": "Delivery status"
+                },
+                "sentAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Send timestamp"
+                }
+              }
+            }
           },
           "materialsDeadline": {
             "type": "string",
@@ -5198,7 +5308,8 @@
               "notice-sent",
               "proxy-created",
               "proxy-revoked",
-              "decision-transition"
+              "decision-transition",
+              "series-generated"
             ]
           },
           "objectUids": {
