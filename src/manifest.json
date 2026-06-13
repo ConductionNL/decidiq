@@ -24,59 +24,193 @@
 			"config": {
 				"widgets": [
 					{
+						"id": "active-decisions",
+						"type": "custom",
+						"title": "Active decisions"
+					},
+					{
+						"id": "upcoming-meetings-kpi",
+						"type": "custom",
+						"title": "Upcoming meetings"
+					},
+					{
+						"id": "pending-votes-kpi",
+						"type": "custom",
+						"title": "Pending votes"
+					},
+					{
+						"id": "overdue-actions-kpi",
+						"type": "custom",
+						"title": "Overdue actions"
+					},
+					{
+						"id": "upcoming-meetings-list",
+						"type": "custom",
+						"title": "Upcoming meetings"
+					},
+					{
+						"id": "pending-votes-list",
+						"type": "custom",
+						"title": "Pending votes"
+					},
+					{
+						"id": "running-processes",
+						"type": "custom",
+						"title": "Running processes"
+					},
+					{
+						"id": "my-action-items",
+						"type": "custom",
+						"title": "My action items"
+					},
+					{
+						"id": "recent-decisions",
+						"type": "custom",
+						"title": "Recent decisions"
+					},
+					{
 						"id": "minutes-in-review",
 						"type": "stats-block",
-						"title": "Notulen ter goedkeuring",
+						"title": "Minutes awaiting approval",
 						"iconClass": "icon-file",
 						"props": {
-							"countLabel": "notulen",
+							"countLabel": "minutes",
 							"variant": "warning"
 						},
 						"dataSource": {
 							"register": "decidesk",
 							"schema": "minutes",
-							"filter": { "lifecycle": "review" },
+							"filter": {
+								"lifecycle": "review"
+							},
 							"aggregate": "count"
 						}
 					},
 					{
-						"id": "published-decisions",
-						"type": "stats-block",
-						"title": "Gepubliceerde besluiten",
-						"iconClass": "icon-checkmark",
-						"props": {
-							"countLabel": "besluiten",
-							"variant": "success"
-						},
-						"dataSource": {
-							"register": "decidesk",
-							"schema": "decision",
-							"filter": { "isPublished": "public" },
-							"aggregate": "count"
-						}
+						"id": "governance-health",
+						"type": "custom",
+						"title": "Governance health"
 					},
 					{
-						"id": "open-action-items",
-						"type": "stats-block",
-						"title": "Open actiepunten",
-						"iconClass": "icon-checkmark",
-						"props": {
-							"countLabel": "actiepunten",
-							"variant": "primary"
-						},
-						"dataSource": {
-							"register": "decidesk",
-							"schema": "action-item",
-							"filter": { "taskStatus": ["open", "in-progress"] },
-							"aggregate": "count"
-						}
+						"id": "dashboard-empty-state",
+						"type": "custom",
+						"title": "Welcome"
 					}
 				],
 				"layout": [
-					{ "id": "minutes-in-review",   "widgetId": "minutes-in-review",   "gridX": 0, "gridY": 0, "gridWidth": 4, "gridHeight": 2, "showTitle": true },
-					{ "id": "published-decisions", "widgetId": "published-decisions", "gridX": 4, "gridY": 0, "gridWidth": 4, "gridHeight": 2, "showTitle": true },
-					{ "id": "open-action-items",   "widgetId": "open-action-items",   "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2, "showTitle": true }
+					{
+						"id": "1",
+						"widgetId": "active-decisions",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "2",
+						"widgetId": "upcoming-meetings-kpi",
+						"gridX": 3,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "3",
+						"widgetId": "pending-votes-kpi",
+						"gridX": 6,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "4",
+						"widgetId": "overdue-actions-kpi",
+						"gridX": 9,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "5",
+						"widgetId": "upcoming-meetings-list",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "6",
+						"widgetId": "pending-votes-list",
+						"gridX": 6,
+						"gridY": 2,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "7",
+						"widgetId": "running-processes",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "8",
+						"widgetId": "my-action-items",
+						"gridX": 6,
+						"gridY": 6,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "9",
+						"widgetId": "recent-decisions",
+						"gridX": 0,
+						"gridY": 10,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": false
+					},
+					{
+						"id": "10",
+						"widgetId": "minutes-in-review",
+						"gridX": 0,
+						"gridY": 14,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "11",
+						"widgetId": "governance-health",
+						"gridX": 6,
+						"gridY": 14,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": false
+					}
 				]
+			},
+			"slots": {
+				"widget-active-decisions": "ActiveDecisionsKpiWidget",
+				"widget-upcoming-meetings-kpi": "UpcomingMeetingsKpiWidget",
+				"widget-pending-votes-kpi": "PendingVotesKpiWidget",
+				"widget-overdue-actions-kpi": "OverdueActionsKpiWidget",
+				"widget-upcoming-meetings-list": "UpcomingMeetingsListWidget",
+				"widget-pending-votes-list": "PendingVotesListWidget",
+				"widget-running-processes": "RunningProcessesWidget",
+				"widget-my-action-items": "MyActionItemsWidget",
+				"widget-recent-decisions": "RecentDecisionsWidget",
+				"widget-governance-health": "GovernanceHealthWidget",
+				"widget-dashboard-empty-state": "DashboardEmptyState"
 			}
 		},
 		{
