@@ -38,10 +38,10 @@ MUST remain unchanged.
 - AND `items` contains the seeded Memberships
 - AND no `Participant` objects are returned
 
-#### Scenario: Person email not leaked on public ORI serialization
-- GIVEN a Person carries a convenience `email`
+#### Scenario: Person email is exposed on public ORI serialization
+- GIVEN a Person carries an `email`
 - WHEN GET `/api/ori/v1/persons` is called anonymously
-- THEN the serialized Person does NOT expose `email` (email is gated to Organization-typed resources)
+- THEN the serialized Person exposes `email` (open-government transparency for officeholders; the `serializeOri` email gate allows Person in addition to Organization)
 
 #### Scenario: Endpoint paths and envelope unchanged
 - GIVEN an external ORI consumer

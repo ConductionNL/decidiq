@@ -95,14 +95,24 @@ without duplicating identity.
 
 ### Decision 2: Retain `Participant` as a deprecated shim
 
-`Participant` is read by the `Meeting` quorum aggregation (`totalParticipantCount`,
-`presentParticipantCount`), `VotingService::resolveParticipantUuid()`, and the
-`participant-crud`/`meeting-attendees`/`voting-system` specs. Deleting it now exceeds
-the config-first scope and would break quorum/vote-casting. Decision: annotate its
-`description` as deprecated, point new seeds at Person + Membership, and defer removal.
+**Popolo perspective (owner-confirmed framing):** Popolo has no "Participant" class — it
+deliberately separates `Person` (identity) from `Membership` (the org-relationship/role).
+The flat `Participant` (merging identity + role + attendance) is precisely the anti-pattern
+ADR-001 §2 names. So the Popolo-correct end state is that `Participant` ceases to exist,
+decomposed into Person + Membership (+ per-meeting attendance, which is a CalDAV PARTSTAT
+concern, not a membership concern).
 
-_Alternative considered:_ delete `Participant` now and migrate every reference. Rejected
-as out-of-scope ripple (see Open Questions); tracked as a deferred question.
+The only blocker to deleting it *in C2* is that `Participant` is read by the `Meeting`
+quorum aggregation (`totalParticipantCount`, `presentParticipantCount`),
+`VotingService::resolveParticipantUuid()`, and the
+`participant-crud`/`meeting-attendees`/`voting-system` specs. Deleting it now would break
+quorum/vote-casting. Decision: annotate its `description` as **deprecated**, point new
+seeds at Person + Membership, and schedule removal as a tracked follow-up
+(`retire-participant-shim`) once quorum aggregation and the vote-casting resolver are
+re-pointed at Membership. This honours Popolo (target = removal) while keeping C2 scoped.
+
+_Alternative considered:_ delete `Participant` now and migrate every reference in C2.
+Rejected as out-of-scope ripple into quorum/voting; split into the follow-up instead.
 
 ### Decision 3: Re-express BoardMember data, defer schema deletion to C3
 
@@ -112,6 +122,15 @@ corp vocabulary, e.g. "Voorzitter RvC", `role` maps to the Popolo enum). The
 `BoardMember` schema itself is deleted by `retire-board-portal` (C3), which runs after
 C2 so the data already lives as Person + Membership when the schema is removed.
 
+**Corporate-governance disclosure fields are PRESERVED as beyond-Popolo extensions**
+(decision confirmed with the owner): `independenceStatus` and `otherPositions`
+(nevenfuncties) go on `Membership`; `nationality` goes on `Person`. These have no Popolo
+class but are required for MCCG compliance and the board dashboard's independence-ratio /
+conflict analytics, so they are modelled as documented extension fields (the same
+"extension beyond Popolo" pattern ADR-001 already uses for AgendaItem/Amendment/Minutes).
+Each is annotated in the schema with a `description` noting it is a corporate-governance
+extension, surfaced only in mode=corp.
+
 ### Decision 4: Retarget ORI resource map, contract-preserving
 
 Change `OriController::RESOURCE_MAP['persons']` from `participant` to `person` and
@@ -119,8 +138,11 @@ Change `OriController::RESOURCE_MAP['persons']` from `participant` to `person` a
 `Person`/`Membership`. The list path uses the C1-fixed pattern
 `findAll(['limit' => 100, 'filters' => ['register' => 'decidesk', 'schema' => $schema, ...]])`
 where register/schema live **inside** `filters`. No new code paths; `serializeOri()`
-maps `name` and gates `email` to Organization types, so Person/Membership serialize
-cleanly. Endpoint paths and JSON-LD envelope are unchanged.
+maps `name` for Person/Membership. **Person `email` IS exposed in the public ORI
+`/persons` output** (decision confirmed with the owner): elected/officeholder contact is
+open-government transparency data, consistent with ORI/Popolo Person serialization. The
+`serializeOri()` email gate is extended to allow Person (not only Organization). Endpoint
+paths and JSON-LD envelope are otherwise unchanged.
 
 ## Declarative-vs-imperative (ADR-031)
 
