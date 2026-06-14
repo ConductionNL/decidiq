@@ -39,6 +39,534 @@
   "paths": {},
   "components": {
     "schemas": {
+      "Person": {
+        "slug": "person",
+        "icon": "AccountOutline",
+        "version": "0.1.0",
+        "title": "Person",
+        "description": "An individual person who participates in governance. Popolo: Person. Identity only — organisational role/relationship lives on Membership (ADR-001 §2). Replaces the flat Participant.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "foaf:Person",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name (Popolo: name)",
+            "example": "Femke Halsema"
+          },
+          "familyName": {
+            "type": "string",
+            "description": "Family name (Popolo: family_name)",
+            "example": "Halsema"
+          },
+          "givenName": {
+            "type": "string",
+            "description": "Given name (Popolo: given_name)",
+            "example": "Femke"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender (Popolo: gender)",
+            "example": "female"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of birth (Popolo: birth_date)"
+          },
+          "image": {
+            "type": "string",
+            "description": "URL to photo (Popolo: image)"
+          },
+          "biography": {
+            "type": "string",
+            "description": "Short bio (Popolo: biography)"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Primary email (convenience field, full contacts via ContactDetail)"
+          },
+          "nationality": {
+            "type": "string",
+            "description": "Corporate-governance extension (beyond Popolo): officeholder nationality, surfaced in mode=corp",
+            "example": "NL"
+          }
+        },
+        "x-openregister-relations": {
+          "memberships": {
+            "register": "decidesk",
+            "schema": "Membership",
+            "cardinality": "one-to-many"
+          },
+          "contactDetails": {
+            "register": "decidesk",
+            "schema": "ContactDetail",
+            "cardinality": "one-to-many"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Person",
+              "slug": "femke-halsema"
+            },
+            "name": "Femke Halsema",
+            "givenName": "Femke",
+            "familyName": "Halsema",
+            "gender": "female",
+            "email": "f.halsema@amsterdam.nl",
+            "biography": "Burgemeester van Amsterdam, voorzitter van de gemeenteraad."
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Person",
+              "slug": "marie-janssen"
+            },
+            "name": "Marie Janssen",
+            "givenName": "Marie",
+            "familyName": "Janssen",
+            "gender": "female",
+            "email": "m.janssen@amsterdam.nl",
+            "biography": "Raadslid en lid van de VNG-ledenraad."
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Person",
+              "slug": "jan-de-vries"
+            },
+            "name": "Jan de Vries",
+            "givenName": "Jan",
+            "familyName": "de Vries",
+            "gender": "male",
+            "email": "j.devries@waterschap.nl",
+            "biography": "Secretaris / griffier."
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Person",
+              "slug": "janneke-de-bruin"
+            },
+            "name": "Janneke de Bruin",
+            "givenName": "Janneke",
+            "familyName": "de Bruin",
+            "gender": "female",
+            "email": "j.debruin@acme.example",
+            "biography": "Voorzitter Raad van Commissarissen.",
+            "nationality": "NL"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Person",
+              "slug": "mark-van-den-berg"
+            },
+            "name": "Mark van den Berg",
+            "givenName": "Mark",
+            "familyName": "van den Berg",
+            "gender": "male",
+            "email": "m.vandenberg@acme.example",
+            "biography": "Lid Raad van Bestuur.",
+            "nationality": "NL"
+          }
+        ]
+      },
+      "Post": {
+        "slug": "post",
+        "icon": "BriefcaseOutline",
+        "version": "0.1.0",
+        "title": "Post",
+        "description": "A formal position within a governance body that can be filled by a person via Membership. Popolo: Post. Examples: Chair, Secretary, Treasurer.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "org:Post",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "label"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Position title (Popolo: label)",
+            "example": "Voorzitter gemeenteraad"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role type (Popolo: role)",
+            "enum": [
+              "chair",
+              "vice-chair",
+              "secretary",
+              "treasurer",
+              "member"
+            ],
+            "example": "chair"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the post was created"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the post was abolished"
+          }
+        },
+        "x-openregister-relations": {
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Post",
+              "slug": "post-voorzitter-amsterdam"
+            },
+            "label": "Voorzitter gemeenteraad",
+            "role": "chair",
+            "startDate": "2018-05-30T00:00:00Z",
+            "governanceBody": "gemeenteraad-amsterdam"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Post",
+              "slug": "post-griffier-amsterdam"
+            },
+            "label": "Raadsgriffier",
+            "role": "secretary",
+            "startDate": "2021-01-15T00:00:00Z",
+            "governanceBody": "gemeenteraad-amsterdam"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Post",
+              "slug": "post-voorzitter-rvc"
+            },
+            "label": "Voorzitter RvC",
+            "role": "chair",
+            "startDate": "2022-04-01T00:00:00Z",
+            "governanceBody": "rvc-waterschap-amstel"
+          }
+        ]
+      },
+      "Membership": {
+        "slug": "membership",
+        "icon": "AccountTieOutline",
+        "version": "0.1.0",
+        "title": "Membership",
+        "description": "Relationship between a person and an organization, including role and time bounds. Popolo: Membership. Replaces the role field on Participant — a person can have multiple memberships in different governance bodies.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "org:Membership",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "role"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role in the organization (Popolo: role)",
+            "enum": [
+              "chair",
+              "vice-chair",
+              "secretary",
+              "treasurer",
+              "member",
+              "observer",
+              "guest"
+            ],
+            "example": "member"
+          },
+          "label": {
+            "type": "string",
+            "description": "Descriptive label for the membership (carries corporate-governance wording in mode=corp, e.g. 'Voorzitter RvC')",
+            "example": "Voorzitter raad"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the membership started (Popolo: start_date)"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the membership ended, null if active (Popolo: end_date)"
+          },
+          "votingWeight": {
+            "type": "number",
+            "description": "Vote weight for this membership, default 1",
+            "default": 1,
+            "example": 1
+          },
+          "party": {
+            "type": "string",
+            "description": "Political party or faction (Popolo: on_behalf_of)",
+            "example": "GroenLinks"
+          },
+          "independenceStatus": {
+            "type": "string",
+            "description": "Corporate-governance extension (beyond Popolo, MCCG): board-member independence, mode=corp",
+            "enum": [
+              "independent",
+              "non-independent",
+              "unknown"
+            ],
+            "example": "independent"
+          },
+          "otherPositions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Corporate-governance extension (beyond Popolo): nevenfuncties / other positions, mode=corp"
+          }
+        },
+        "x-openregister-relations": {
+          "person": {
+            "register": "decidesk",
+            "schema": "Person",
+            "cardinality": "many-to-one"
+          },
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          },
+          "post": {
+            "register": "decidesk",
+            "schema": "Post",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Membership",
+              "slug": "m-femke-amsterdam"
+            },
+            "role": "chair",
+            "label": "Voorzitter raad",
+            "party": "GroenLinks",
+            "votingWeight": 1,
+            "startDate": "2018-05-30T00:00:00Z",
+            "person": "femke-halsema",
+            "governanceBody": "gemeenteraad-amsterdam",
+            "post": "post-voorzitter-amsterdam"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Membership",
+              "slug": "m-marie-amsterdam"
+            },
+            "role": "member",
+            "label": "Raadslid",
+            "party": "D66",
+            "votingWeight": 1,
+            "startDate": "2022-03-16T00:00:00Z",
+            "person": "marie-janssen",
+            "governanceBody": "gemeenteraad-amsterdam"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Membership",
+              "slug": "m-jan-amstel"
+            },
+            "role": "secretary",
+            "label": "Raadsgriffier",
+            "votingWeight": 0,
+            "startDate": "2021-01-15T00:00:00Z",
+            "person": "jan-de-vries",
+            "governanceBody": "rvc-waterschap-amstel",
+            "post": "post-griffier-amsterdam"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Membership",
+              "slug": "m-janneke-rvc"
+            },
+            "role": "chair",
+            "label": "Voorzitter RvC",
+            "votingWeight": 1,
+            "startDate": "2022-04-01T00:00:00Z",
+            "endDate": "2026-04-01T00:00:00Z",
+            "independenceStatus": "independent",
+            "otherPositions": [
+              "RvC Stedin (vice-voorzitter)",
+              "Bestuur Stichting Concertgebouw"
+            ],
+            "person": "janneke-de-bruin",
+            "governanceBody": "rvc-waterschap-amstel",
+            "post": "post-voorzitter-rvc"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Membership",
+              "slug": "m-mark-rvb"
+            },
+            "role": "member",
+            "label": "Lid RvB",
+            "votingWeight": 1,
+            "startDate": "2020-01-01T00:00:00Z",
+            "endDate": "2025-12-31T00:00:00Z",
+            "independenceStatus": "non-independent",
+            "otherPositions": [
+              "Bestuur Branchevereniging Tech NL"
+            ],
+            "person": "mark-van-den-berg",
+            "governanceBody": "rvc-waterschap-amstel"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Membership",
+              "slug": "m-marie-vng"
+            },
+            "role": "member",
+            "label": "Lid ledenraad",
+            "votingWeight": 1,
+            "startDate": "2024-01-01T00:00:00Z",
+            "person": "marie-janssen",
+            "governanceBody": "ledenraad-vng"
+          }
+        ]
+      },
+      "ContactDetail": {
+        "slug": "contact-detail",
+        "icon": "CardAccountDetailsOutline",
+        "version": "0.1.0",
+        "title": "ContactDetail",
+        "description": "A means of contacting a person or organization. Popolo: ContactDetail. Replaces the single email field on Participant with typed, multi-value contacts.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "popolo:ContactDetail",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "type",
+          "value"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Channel type (Popolo: type)",
+            "enum": [
+              "email",
+              "phone",
+              "fax",
+              "cell",
+              "address",
+              "url"
+            ],
+            "example": "email"
+          },
+          "value": {
+            "type": "string",
+            "description": "Contact value e.g. email address (Popolo: value)",
+            "example": "f.halsema@amsterdam.nl"
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable label (Popolo: label)",
+            "example": "Werk"
+          },
+          "note": {
+            "type": "string",
+            "description": "Usage note (Popolo: note)"
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of validity (Popolo: valid_from)"
+          },
+          "validUntil": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End of validity (Popolo: valid_until)"
+          }
+        },
+        "x-openregister-relations": {
+          "person": {
+            "register": "decidesk",
+            "schema": "Person",
+            "cardinality": "many-to-one"
+          },
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ContactDetail",
+              "slug": "cd-femke-email"
+            },
+            "type": "email",
+            "value": "f.halsema@amsterdam.nl",
+            "label": "Werk",
+            "person": "femke-halsema"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ContactDetail",
+              "slug": "cd-femke-phone"
+            },
+            "type": "phone",
+            "value": "+31 20 624 1111",
+            "label": "Bestuurssecretariaat",
+            "person": "femke-halsema"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "ContactDetail",
+              "slug": "cd-amsterdam-address"
+            },
+            "type": "address",
+            "value": "Amstel 1, Amsterdam",
+            "label": "Stadhuis",
+            "governanceBody": "gemeenteraad-amsterdam"
+          }
+        ]
+      },
       "GovernanceBody": {
         "slug": "governance-body",
         "icon": "AccountGroupOutline",
@@ -600,7 +1128,7 @@
         "icon": "AccountOutline",
         "version": "0.2.0",
         "title": "Participant",
-        "description": "A member or attendee of a governance body",
+        "description": "DEPRECATED: superseded by Person + Membership (ADR-001 §2); retained as a shim for quorum aggregation + vote-casting resolver until the retire-participant-shim follow-up. A member or attendee of a governance body.",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:Person",

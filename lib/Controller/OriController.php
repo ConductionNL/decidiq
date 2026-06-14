@@ -58,8 +58,8 @@ class OriController extends Controller
      */
     private const RESOURCE_MAP = [
         'organizations' => 'governance-body',
-        'persons'       => 'participant',
-        'memberships'   => 'participant',
+        'persons'       => 'person',
+        'memberships'   => 'membership',
         'events'        => 'meeting',
         'agendaitems'   => 'agenda-item',
         'motions'       => 'decision',
@@ -79,6 +79,20 @@ class OriController extends Controller
     private const DECISION_TYPE_MAP = [
         'motions'    => 'motion',
         'amendments' => 'amendment',
+    ];
+
+    /**
+     * ORI resource slugs that must NOT be filtered by lifecycle.
+     *
+     * Person and Membership are public reference data (Popolo identity and
+     * org-relationship) and carry no lifecycle field. Adding a lifecycle=published
+     * filter would return zero objects.
+     *
+     * @var list<string>
+     */
+    private const NO_LIFECYCLE_GATE = [
+        'persons',
+        'memberships',
     ];
 
     /**
@@ -164,7 +178,9 @@ class OriController extends Controller
                 // `isPublished=public` and discriminated by `decisionType`.
                 $filters['isPublished']  = 'public';
                 $filters['decisionType'] = $decisionType;
-            } else {
+            } else if (in_array(needle: $resource, haystack: self::NO_LIFECYCLE_GATE, strict: true) === false) {
+                // Person/Membership are public reference data without a lifecycle field;
+                // all other resources require the published lifecycle gate (#316).
                 $filters['lifecycle'] = 'published';
             }
 
@@ -368,7 +384,10 @@ class OriController extends Controller
 
         // C5: only expose email for Organisation-typed resources to prevent
         // accidental leakage of private contact details from other types.
-        if ($type === 'Organization' && isset($object['email']) === true) {
+        // popolo-decision-makers (owner-confirmed): Person email IS exposed on the
+        // public ORI /persons output — elected/officeholder contact is open-government
+        // transparency data, consistent with ORI/Popolo Person serialization.
+        if (($type === 'Organization' || $type === 'Person') && isset($object['email']) === true) {
             $payload['email'] = $object['email'];
         }
 
