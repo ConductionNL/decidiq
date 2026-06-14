@@ -29,8 +29,12 @@ const TYPE_TO_SETTINGS_KEY = {
 	meeting: 'meetingSchema',
 	participant: 'participantSchema',
 	'agenda-item': 'agendaItemSchema',
-	motion: 'motionSchema',
-	amendment: 'amendmentSchema',
+	// ADR-005: motion and amendment are folded into the unified Decision
+	// supertype (decisionType discriminator). The logical relation types are
+	// kept so existing tab components keep working, but both now resolve to
+	// the `decision` schema; callers add a `decisionType` filter to narrow.
+	motion: 'decisionSchema',
+	amendment: 'decisionSchema',
 	'voting-round': 'votingRoundSchema',
 	vote: 'voteSchema',
 	decision: 'decisionSchema',

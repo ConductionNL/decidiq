@@ -21,10 +21,7 @@
 		</div>
 
 		<h4>{{ t('decidesk', 'States') }}</h4>
-		<div v-for="(state, i) in value.stateMachine.states"
-			:key="'state-' + i"
-			class="row"
-			data-testid="state-row">
+		<div v-for="(state, i) in value.stateMachine.states" :key="'state-' + i" class="row" data-testid="state-row">
 			<input
 				v-model="state.name"
 				type="text"
@@ -40,10 +37,7 @@
 		</NcButton>
 
 		<h4>{{ t('decidesk', 'Transitions') }}</h4>
-		<div v-for="(tr, i) in value.stateMachine.transitions"
-			:key="'tr-' + i"
-			class="row"
-			data-testid="transition-row">
+		<div v-for="(tr, i) in value.stateMachine.transitions" :key="'tr-' + i" class="row" data-testid="transition-row">
 			<NcSelect
 				v-model="tr.from"
 				:input-label="t('decidesk', 'From')"
@@ -94,10 +88,7 @@ export default {
 			get() {
 				return this.value.initialState
 			},
-			/**
-			 * @param v
-			 * @spec openspec/specs/process-configuration/spec.md
-			 */
+			/** @spec openspec/specs/process-configuration/spec.md */
 			set(v) {
 				this.$emit('input', { ...this.value, initialState: v })
 			},
@@ -116,44 +107,25 @@ export default {
 		emit() {
 			this.$emit('input', { ...this.value })
 		},
-		/**
-		 * @param stateMachine
-		 * @spec openspec/specs/process-configuration/spec.md
-		 */
-		emitStateMachine(stateMachine) {
-			this.$emit('input', {
-				...this.value,
-				stateMachine: {
-					...this.value.stateMachine,
-					...stateMachine,
-				},
-			})
-		},
 		/** @spec openspec/specs/process-configuration/spec.md */
 		addState() {
-			const states = [...(this.value.stateMachine.states || []), { name: '' }]
-			this.emitStateMachine({ states })
+			this.value.stateMachine.states.push({ name: '' })
+			this.emit()
 		},
-		/**
-		 * @param i
-		 * @spec openspec/specs/process-configuration/spec.md
-		 */
+		/** @spec openspec/specs/process-configuration/spec.md */
 		removeState(i) {
-			const states = (this.value.stateMachine.states || []).filter((_, idx) => idx !== i)
-			this.emitStateMachine({ states })
+			this.value.stateMachine.states.splice(i, 1)
+			this.emit()
 		},
 		/** @spec openspec/specs/process-configuration/spec.md */
 		addTransition() {
-			const transitions = [...(this.value.stateMachine.transitions || []), { from: '', to: '', chairOnly: false }]
-			this.emitStateMachine({ transitions })
+			this.value.stateMachine.transitions.push({ from: '', to: '', chairOnly: false })
+			this.emit()
 		},
-		/**
-		 * @param i
-		 * @spec openspec/specs/process-configuration/spec.md
-		 */
+		/** @spec openspec/specs/process-configuration/spec.md */
 		removeTransition(i) {
-			const transitions = (this.value.stateMachine.transitions || []).filter((_, idx) => idx !== i)
-			this.emitStateMachine({ transitions })
+			this.value.stateMachine.transitions.splice(i, 1)
+			this.emit()
 		},
 	},
 }

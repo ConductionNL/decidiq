@@ -891,289 +891,6 @@
           }
         ]
       },
-      "Motion": {
-        "x-openregister-notifications": {
-          "motionSubmitted": {
-            "trigger": {
-              "type": "created"
-            },
-            "enabled": true,
-            "channels": [
-              "nc-notification"
-            ],
-            "recipients": [
-              {
-                "kind": "object-acl",
-                "permission": "read"
-              },
-              {
-                "kind": "groups",
-                "groups": [
-                  "decidesk-members"
-                ]
-              }
-            ],
-            "subject": {
-              "nl": "Nieuwe motie ingediend: {{title}}",
-              "en": "New motion submitted: {{title}}"
-            }
-          }
-        },
-        "slug": "motion",
-        "icon": "TextBoxOutline",
-        "version": "0.2.0",
-        "title": "Motion",
-        "description": "A formal proposal submitted for debate and voting",
-        "type": "object",
-        "x-openregister": {
-          "schemaType": "custom:Motion",
-          "active": true,
-          "hardDelete": false,
-          "searchable": true,
-          "mailEnabled": false
-        },
-        "required": [
-          "title",
-          "text",
-          "motionType",
-          "proposer",
-          "lifecycle",
-          "submittedAt"
-        ],
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "Motion title",
-            "example": "Motie Duurzaamheid"
-          },
-          "text": {
-            "type": "string",
-            "description": "Full motion text"
-          },
-          "motionType": {
-            "type": "string",
-            "description": "Type of motion",
-            "enum": [
-              "motion",
-              "amendment",
-              "order",
-              "procedural"
-            ],
-            "example": "motion"
-          },
-          "proposer": {
-            "type": "string",
-            "description": "Name of proposer",
-            "example": "Roos de Vries"
-          },
-          "coSigners": {
-            "type": "array",
-            "description": "List of co-signers",
-            "items": {
-              "type": "string"
-            },
-            "example": [
-              "Jan Smit",
-              "Lisa de Jong"
-            ]
-          },
-          "lifecycle": {
-            "type": "string",
-            "description": "Motion lifecycle state",
-            "enum": [
-              "submitted",
-              "debating",
-              "voting",
-              "adopted",
-              "rejected",
-              "withdrawn"
-            ],
-            "example": "submitted"
-          },
-          "submittedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Submission timestamp"
-          },
-          "citizenVotingAllowed": {
-            "type": "boolean",
-            "description": "Whether citizens can participate in voting on this motion (p3-citizen-participation). When true, the citizen voting endpoints accept votes from authenticated citizens and the public results endpoint exposes staff/citizen/combined tallies.",
-            "default": false,
-            "example": false
-          },
-          "citizenVotingMethod": {
-            "type": "string",
-            "description": "Voting method to render in the citizen voting UI (p3-citizen-participation). Only meaningful when citizenVotingAllowed is true. 'simple' shows Voor/Tegen/Onthoud radio buttons; 'weighted' allows numeric weight allocation; 'ranked' presents a draggable ordered preference list.",
-            "enum": [
-              "simple",
-              "weighted",
-              "ranked"
-            ],
-            "default": "simple",
-            "example": "simple"
-          }
-        },
-        "x-openregister-relations": {
-          "agendaItem": {
-            "register": "decidesk",
-            "schema": "AgendaItem",
-            "cardinality": "many-to-one"
-          }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Motion",
-              "slug": "motie-duurzaamheid-2025"
-            },
-            "title": "Motie Duurzaamheid: versnelling zonnepanelen gemeentelijke gebouwen",
-            "text": "De raad verzoekt het college om voor 1 januari 2026 een plan van aanpak te presenteren voor het plaatsen van zonnepanelen op alle gemeentelijke gebouwen.",
-            "motionType": "motion",
-            "proposer": "Roos de Vries",
-            "coSigners": [
-              "Jan Smit",
-              "Lisa de Jong"
-            ],
-            "lifecycle": "adopted",
-            "submittedAt": "2025-04-10T20:15:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Motion",
-              "slug": "voorstel-begroting-2026"
-            },
-            "title": "Raadsvoorstel Programmabegroting 2026",
-            "text": "De raad stelt de programmabegroting 2026 vast conform bijgaand begrotingsboek.",
-            "motionType": "motion",
-            "proposer": "College van B&W",
-            "lifecycle": "voting",
-            "submittedAt": "2025-04-08T09:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Motion",
-              "slug": "amendement-begroting-post-a"
-            },
-            "title": "Amendement A: Extra budget cultuursubsidie",
-            "text": "De raad besluit in de begroting 2026 een aanvullend budget van €50.000 op te nemen voor cultuursubsidies.",
-            "motionType": "amendment",
-            "proposer": "Fatima El-Amrani",
-            "lifecycle": "rejected",
-            "submittedAt": "2025-04-10T19:45:00Z"
-          }
-        ]
-      },
-      "Amendment": {
-        "slug": "amendment",
-        "icon": "FileDocumentEditOutline",
-        "version": "0.1.0",
-        "title": "Amendment",
-        "description": "A proposed change to an existing motion",
-        "type": "object",
-        "x-openregister": {
-          "schemaType": "custom:Amendment",
-          "active": true,
-          "hardDelete": false,
-          "searchable": true,
-          "mailEnabled": false
-        },
-        "required": [
-          "title",
-          "text",
-          "proposer",
-          "lifecycle",
-          "submittedAt"
-        ],
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "Amendment title",
-            "example": "Amendement A: Extra cultuursubsidie"
-          },
-          "text": {
-            "type": "string",
-            "description": "Amendment text (change description)"
-          },
-          "proposer": {
-            "type": "string",
-            "description": "Name of proposer",
-            "example": "Fatima El-Amrani"
-          },
-          "lifecycle": {
-            "type": "string",
-            "description": "Amendment lifecycle state",
-            "enum": [
-              "submitted",
-              "debating",
-              "voting",
-              "adopted",
-              "rejected"
-            ],
-            "example": "submitted"
-          },
-          "submittedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Submission timestamp"
-          },
-          "proposedText": {
-            "type": "string",
-            "description": "Full proposed replacement text for the affected motion passage. Diffed against the parent motion text in the amendment diff view; the amendment `text` is used as fallback when unset."
-          },
-          "votingOrder": {
-            "type": "integer",
-            "description": "Chair-assigned voting position among the motion's amendments (1 = voted first, most far-reaching). Amendments without a votingOrder are voted after ordered ones, oldest first."
-          }
-        },
-        "x-openregister-relations": {
-          "motion": {
-            "register": "decidesk",
-            "schema": "Motion",
-            "cardinality": "many-to-one"
-          }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Amendment",
-              "slug": "amendement-cultuursubsidie"
-            },
-            "title": "Amendement A: Extra cultuursubsidie €50.000",
-            "text": "Voeg in de begroting 2026 een post van €50.000 toe voor cultuursubsidies.",
-            "proposer": "Fatima El-Amrani",
-            "lifecycle": "rejected",
-            "submittedAt": "2025-04-10T19:45:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Amendment",
-              "slug": "amendement-groentarieven"
-            },
-            "title": "Amendement B: Verlaging groentarieven 5%",
-            "text": "De groentarieven worden met 5% verlaagd ten opzichte van het college-voorstel.",
-            "proposer": "Jan Smit",
-            "lifecycle": "debating",
-            "submittedAt": "2025-04-10T20:30:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Amendment",
-              "slug": "amendement-participatiebudget"
-            },
-            "title": "Amendement C: Participatiebudget dorpskernen",
-            "text": "Stel €25.000 beschikbaar als participatiebudget voor dorpskernenoverleg.",
-            "proposer": "Roos de Vries",
-            "lifecycle": "adopted",
-            "submittedAt": "2025-04-09T14:00:00Z"
-          }
-        ]
-      },
       "VotingRound": {
         "slug": "voting-round",
         "icon": "VoteOutline",
@@ -1538,9 +1255,9 @@
         },
         "slug": "decision",
         "icon": "GavelOutline",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "title": "Decision",
-        "description": "A formal decision resulting from a vote",
+        "description": "The universal governance-decision supertype (ADR-005). A single schema for every decision outcome — motion, amendment, resolution, contract, appointment, management point, policy and generic meeting outcome — distinguished by the required decisionType discriminator. Type-specific fields are folded in and revealed via progressive disclosure keyed on decisionType (ADR-006).",
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:Decision",
@@ -1554,9 +1271,26 @@
           "title",
           "text",
           "decisionDate",
-          "outcome"
+          "outcome",
+          "decisionType"
         ],
         "properties": {
+          "decisionType": {
+            "type": "string",
+            "description": "Discriminator selecting the kind of governance decision (ADR-005). Drives progressive disclosure of the type-specific field groups in the form. Per-type required fields (e.g. proposer for motion; resolutionNumber + voteThreshold for resolution; the amends relation for amendment) are enforced in the form/spec, not in this JSON-schema required[].",
+            "enum": [
+              "motion",
+              "amendment",
+              "resolution",
+              "contract",
+              "appointment",
+              "management-point",
+              "policy",
+              "meeting-outcome"
+            ],
+            "default": "meeting-outcome",
+            "example": "motion"
+          },
           "title": {
             "type": "string",
             "description": "Decision title",
@@ -1603,7 +1337,7 @@
           },
           "lifecycle": {
             "type": "string",
-            "description": "Decision state-machine lifecycle (guarded transition map: draft → proposed → deliberating → voting → decided → enacted → archived). Orthogonal to 'outcome' (the voting result, set when reaching 'decided') and 'isPublished' (citizen visibility of the record, p3-citizen-participation).",
+            "description": "Decision state-machine lifecycle (guarded transition map: draft → proposed → deliberating → voting → decided → enacted → archived, plus a terminal 'withdrawn' reachable from any non-terminal state before 'enacted'). The declarative transition map lives in x-openregister-lifecycle. Orthogonal to 'outcome' (the voting result, set when reaching 'decided') and 'isPublished' (citizen visibility of the record, p3-citizen-participation).",
             "enum": [
               "draft",
               "proposed",
@@ -1611,7 +1345,8 @@
               "voting",
               "decided",
               "enacted",
-              "archived"
+              "archived",
+              "withdrawn"
             ],
             "default": "draft",
             "example": "deliberating"
@@ -1620,13 +1355,211 @@
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the decision entered the 'enacted' lifecycle state (set server-side by the enact transition)."
+          },
+          "motionType": {
+            "type": "string",
+            "description": "Revealed when decisionType=motion. Type of motion (folded from the retired Motion schema).",
+            "enum": [
+              "motion",
+              "amendment",
+              "order",
+              "procedural"
+            ],
+            "example": "motion"
+          },
+          "proposer": {
+            "type": "string",
+            "description": "Revealed when decisionType is motion, amendment or resolution. Name of the proposer (folded from Motion/Amendment/Resolution). Required for a motion decision (enforced in the form).",
+            "example": "Roos de Vries"
+          },
+          "coSigners": {
+            "type": "array",
+            "description": "Revealed when decisionType=motion. List of co-signers (folded from the retired Motion schema).",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Jan Smit",
+              "Lisa de Jong"
+            ]
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Revealed when decisionType is motion or amendment. Submission timestamp (folded from Motion/Amendment)."
+          },
+          "citizenVotingAllowed": {
+            "type": "boolean",
+            "description": "Revealed when decisionType=motion. Whether citizens can participate in voting on this decision (p3-citizen-participation, folded from the retired Motion schema).",
+            "default": false,
+            "example": false
+          },
+          "citizenVotingMethod": {
+            "type": "string",
+            "description": "Revealed when decisionType=motion. Voting method rendered in the citizen voting UI (folded from the retired Motion schema). Only meaningful when citizenVotingAllowed is true.",
+            "enum": [
+              "simple",
+              "weighted",
+              "ranked"
+            ],
+            "default": "simple",
+            "example": "simple"
+          },
+          "proposedText": {
+            "type": "string",
+            "description": "Revealed when decisionType=amendment. Full proposed replacement text for the affected passage, diffed against the parent decision text in the amendment diff view (folded from the retired Amendment schema)."
+          },
+          "votingOrder": {
+            "type": "integer",
+            "description": "Revealed when decisionType=amendment. Chair-assigned voting position among a motion's amendments (1 = voted first, most far-reaching). Folded from the retired Amendment schema."
+          },
+          "resolutionNumber": {
+            "type": "string",
+            "description": "Revealed when decisionType=resolution. Resolution number, format R-{year}-{seq} (folded from the retired Resolution schema). Required for a resolution decision (enforced in the form)."
+          },
+          "resolutionType": {
+            "type": "string",
+            "description": "Revealed when decisionType=resolution. Resolution classification (renamed from Resolution.type to avoid collision with decisionType; folded from the retired Resolution schema).",
+            "enum": [
+              "approval",
+              "appointment",
+              "dismissal",
+              "financial",
+              "strategic",
+              "policy",
+              "delegation-of-authority",
+              "acknowledgement",
+              "written-resolution"
+            ]
+          },
+          "voteType": {
+            "type": "string",
+            "description": "Revealed when decisionType=resolution. How the vote was conducted (folded from the retired Resolution schema).",
+            "enum": [
+              "named",
+              "anonymous",
+              "unanimous-consent",
+              "acclamation"
+            ]
+          },
+          "voteThreshold": {
+            "type": "string",
+            "description": "Revealed when decisionType=resolution. Majority rule applied when tallying (folded from the retired Resolution schema). Required for a resolution decision (enforced in the form).",
+            "enum": [
+              "simple-majority",
+              "qualified-majority-two-thirds",
+              "qualified-majority-three-quarters",
+              "unanimous"
+            ]
+          },
+          "fullText": {
+            "type": "string",
+            "description": "Revealed when decisionType=resolution. Full resolution text (rich-text / HTML; folded from the retired Resolution schema)."
+          },
+          "background": {
+            "type": "string",
+            "description": "Revealed when decisionType=resolution. Background / motivation (rich-text; folded from the retired Resolution schema)."
+          },
+          "adoptionDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Revealed when decisionType=resolution. Date the resolution was adopted (folded from the retired Resolution schema)."
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Revealed when decisionType=resolution. Date the resolution takes effect (folded from the retired Resolution schema)."
           }
         },
+        "x-openregister-lifecycle": {
+          "field": "lifecycle",
+          "initial": "draft",
+          "states": [
+            "draft",
+            "proposed",
+            "deliberating",
+            "voting",
+            "decided",
+            "enacted",
+            "archived",
+            "withdrawn"
+          ],
+          "terminal": [
+            "archived",
+            "withdrawn"
+          ],
+          "transitions": [
+            {
+              "from": "draft",
+              "to": "proposed"
+            },
+            {
+              "from": "draft",
+              "to": "withdrawn"
+            },
+            {
+              "from": "proposed",
+              "to": "deliberating"
+            },
+            {
+              "from": "proposed",
+              "to": "withdrawn"
+            },
+            {
+              "from": "deliberating",
+              "to": "voting"
+            },
+            {
+              "from": "deliberating",
+              "to": "withdrawn"
+            },
+            {
+              "from": "voting",
+              "to": "decided"
+            },
+            {
+              "from": "voting",
+              "to": "withdrawn"
+            },
+            {
+              "from": "decided",
+              "to": "enacted"
+            },
+            {
+              "from": "decided",
+              "to": "withdrawn"
+            },
+            {
+              "from": "enacted",
+              "to": "archived"
+            }
+          ],
+          "_note": "Declarative guarded transition map (ADR-031). The proven 7-state flow draft → proposed → deliberating → voting → decided → enacted → archived is retained from decision-state-machine-v1; a terminal 'withdrawn' state is added, reachable from any non-terminal state before 'enacted' (design D2 + resolved deferred question). lifecycle is orthogonal to 'outcome' (voting result) and 'isPublished' (citizen visibility)."
+        },
         "x-openregister-relations": {
-          "motion": {
+          "amends": {
             "register": "decidesk",
-            "schema": "Motion",
-            "cardinality": "many-to-one"
+            "schema": "Decision",
+            "cardinality": "many-to-one",
+            "description": "Used by decisionType=amendment to point at its parent motion decision (replaces the retired Amendment → Motion relation)."
+          },
+          "offer": {
+            "register": "decidesk",
+            "schema": "Offer",
+            "cardinality": "one-to-many",
+            "description": "Contract attachment: offers/quotes related to a decisionType=contract decision (ADR-005)."
+          },
+          "order": {
+            "register": "decidesk",
+            "schema": "Order",
+            "cardinality": "one-to-many",
+            "description": "Contract attachment: purchase orders related to a decisionType=contract decision (ADR-005)."
+          },
+          "product": {
+            "register": "decidesk",
+            "schema": "Product",
+            "cardinality": "one-to-many",
+            "description": "Contract attachment: products/services related to a decisionType=contract decision (ADR-005)."
           }
         },
         "x-openregister-seeds": [
@@ -1636,6 +1569,7 @@
               "schema": "Decision",
               "slug": "besluit-begroting-2026"
             },
+            "decisionType": "meeting-outcome",
             "title": "Vaststelling Programmabegroting 2026",
             "text": "De gemeenteraad van Westerkwartier stelt de programmabegroting 2026 vast.",
             "decisionDate": "2025-04-10T21:38:00Z",
@@ -1652,6 +1586,7 @@
               "schema": "Decision",
               "slug": "besluit-duurzaamheid-2025"
             },
+            "decisionType": "meeting-outcome",
             "title": "Motie Duurzaamheid aangenomen",
             "text": "De raad verzoekt het college een plan van aanpak zonnepanelen te presenteren voor 1 januari 2026.",
             "decisionDate": "2025-04-10T21:05:00Z",
@@ -1667,6 +1602,7 @@
               "schema": "Decision",
               "slug": "besluit-bestemmingsplan-groningen-noord"
             },
+            "decisionType": "meeting-outcome",
             "title": "Vaststelling bestemmingsplan Groningen-Noord",
             "text": "De raad stelt het bestemmingsplan Groningen-Noord ongewijzigd vast.",
             "decisionDate": "2025-03-27T20:45:00Z",
@@ -1681,6 +1617,7 @@
               "schema": "Decision",
               "slug": "besluit-woningbouwplan-oost"
             },
+            "decisionType": "meeting-outcome",
             "title": "Vaststelling Woningbouwplan Oost 2025-2030",
             "text": "De gemeenteraad van Westerkwartier stelt het Woningbouwplan Oost 2025-2030 vast en machtigt het college tot uitvoering conform bijgaande planning en budgettering.",
             "decisionDate": "2025-03-20T21:15:00Z",
@@ -1697,6 +1634,7 @@
               "schema": "Decision",
               "slug": "besluit-duurzaamheidsagenda-2026"
             },
+            "decisionType": "meeting-outcome",
             "title": "Vaststelling Duurzaamheidsagenda 2026",
             "text": "De raad stelt de Duurzaamheidsagenda Westerkwartier 2026 vast en stelt €200.000 beschikbaar voor uitvoering van de daarin opgenomen maatregelen.",
             "decisionDate": "2025-03-20T20:45:00Z",
@@ -1713,6 +1651,7 @@
               "schema": "Decision",
               "slug": "besluit-bezwaar-kapvergunning"
             },
+            "decisionType": "meeting-outcome",
             "title": "Besluit op bezwaar kapvergunning Dorpsstraat 12",
             "text": "De gemeenteraad verklaart het bezwaar van de bewonersvereniging gegrond en herroept de verleende kapvergunning voor de eik aan Dorpsstraat 12.",
             "decisionDate": "2025-04-01T14:30:00Z",
@@ -1727,6 +1666,7 @@
               "schema": "Decision",
               "slug": "besluit-amendement-cultuursubsidie-afgewezen"
             },
+            "decisionType": "meeting-outcome",
             "title": "Amendement verhoging cultuursubsidie — niet aanvaard",
             "text": "Het amendement tot verhoging van het cultuursubsidiebudget 2026 met €75.000 wordt niet aanvaard.",
             "decisionDate": "2025-04-10T21:00:00Z",
@@ -1740,6 +1680,7 @@
               "schema": "Decision",
               "slug": "besluit-fusie-dorpsraden"
             },
+            "decisionType": "meeting-outcome",
             "title": "Instemming fusie dorpsraden Noord en Oost per 1 januari 2026",
             "text": "De raad stemt in met de samenvoeging van dorpsraad Noord en dorpsraad Oost tot één dorpsraad Noord-Oost, ingaande 1 januari 2026.",
             "decisionDate": "2025-04-10T20:30:00Z",
@@ -1748,6 +1689,134 @@
             "publishedAt": "2025-04-11T08:30:00Z",
             "lifecycle": "enacted",
             "enactedAt": "2025-04-11T08:30:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "motie-duurzaamheid-2025"
+            },
+            "decisionType": "motion",
+            "title": "Motie Duurzaamheid: zonnepanelen op gemeentelijke daken",
+            "text": "De raad verzoekt het college om voor 1 januari 2026 een concreet plan van aanpak op te stellen voor de plaatsing van zonnepanelen op alle gemeentelijke daken, inclusief een kostenraming en tijdlijn.",
+            "motionType": "motie",
+            "proposer": "Roos de Vries",
+            "lifecycle": "decided",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "submittedAt": "2025-04-10T19:00:00Z",
+            "decisionDate": "2025-04-10T21:10:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "motie-woonlasten-2025"
+            },
+            "decisionType": "motion",
+            "title": "Motie Woonlasten verlagen",
+            "motionType": "motie",
+            "proposer": "Jan de Boer",
+            "lifecycle": "voting",
+            "outcome": "pending",
+            "isPublished": "public"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "amendement-cultuursubsidie"
+            },
+            "decisionType": "amendment",
+            "title": "Amendement Cultuursubsidie verhogen",
+            "proposer": "Fatima El-Amrani",
+            "proposedText": "Verhoog post 6.1 met €50.000",
+            "lifecycle": "decided",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "amends": "motie-duurzaamheid-2025"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "r-2025-001-goedkeuring-jaarrekening"
+            },
+            "decisionType": "resolution",
+            "title": "Goedkeuring jaarrekening 2024",
+            "text": "De RvC verleent goedkeuring aan de jaarrekening 2024.",
+            "resolutionNumber": "R-2025-001",
+            "voteType": "open",
+            "voteThreshold": "simple-majority",
+            "legalBasis": "art. 2:101 BW",
+            "lifecycle": "enacted",
+            "outcome": "adopted",
+            "isPublished": "internal"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "r-2025-002-benoeming-cfo"
+            },
+            "decisionType": "resolution",
+            "title": "Benoeming CFO",
+            "resolutionNumber": "R-2025-002",
+            "voteType": "secret",
+            "voteThreshold": "simple-majority",
+            "lifecycle": "enacted",
+            "outcome": "adopted",
+            "isPublished": "confidential"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "contract-schoonmaak-2026"
+            },
+            "decisionType": "contract",
+            "title": "Gunning schoonmaakcontract 2026",
+            "text": "Het MT gunt het schoonmaakcontract aan Leverancier X.",
+            "legalBasis": "Aanbestedingswet 2012",
+            "lifecycle": "decided",
+            "outcome": "adopted",
+            "isPublished": "confidential"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-benoeming-penningmeester"
+            },
+            "decisionType": "appointment",
+            "title": "Benoeming penningmeester",
+            "lifecycle": "enacted",
+            "outcome": "adopted",
+            "isPublished": "internal"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "mt-go-nogo-zonnepark"
+            },
+            "decisionType": "management-point",
+            "title": "Go/No-go zonnepark fase 2",
+            "lifecycle": "decided",
+            "outcome": "adopted",
+            "isPublished": "internal"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "beleid-thuiswerkregeling"
+            },
+            "decisionType": "policy",
+            "title": "Vaststelling thuiswerkregeling",
+            "lifecycle": "enacted",
+            "outcome": "adopted",
+            "isPublished": "public"
           }
         ]
       },
@@ -4133,287 +4202,6 @@
             "quorumAchieved": 2,
             "recordingAllowed": false,
             "caldavUid": "rvb-acme-closed-2025-11@decidesk.local"
-          }
-        ]
-      },
-      "Resolution": {
-        "slug": "resolution",
-        "icon": "Gavel",
-        "version": "0.1.0",
-        "title": "Resolution",
-        "description": "A formal board resolution with vote-type, threshold, and adoption metadata",
-        "type": "object",
-        "x-openregister": {
-          "schemaType": "schema:LegislationObject",
-          "active": true,
-          "hardDelete": false,
-          "searchable": true
-        },
-        "required": [
-          "meeting",
-          "title",
-          "type",
-          "voteType",
-          "voteThreshold",
-          "status"
-        ],
-        "properties": {
-          "meeting": {
-            "type": "string",
-            "description": "UUID of the BoardMeeting"
-          },
-          "resolutionNumber": {
-            "type": "string",
-            "description": "Resolution number, format R-{year}-{seq}"
-          },
-          "title": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "approval",
-              "appointment",
-              "dismissal",
-              "financial",
-              "strategic",
-              "policy",
-              "delegation-of-authority",
-              "acknowledgement",
-              "written-resolution"
-            ]
-          },
-          "proposingMember": {
-            "type": "string",
-            "description": "BoardMember UUID who proposed"
-          },
-          "fullText": {
-            "type": "string",
-            "description": "Full resolution text (rich-text / HTML)"
-          },
-          "background": {
-            "type": "string",
-            "description": "Background / motivation (rich-text)"
-          },
-          "legalBasis": {
-            "type": "string"
-          },
-          "voteType": {
-            "type": "string",
-            "enum": [
-              "named",
-              "anonymous",
-              "unanimous-consent",
-              "acclamation"
-            ]
-          },
-          "voteThreshold": {
-            "type": "string",
-            "enum": [
-              "simple-majority",
-              "qualified-majority-two-thirds",
-              "qualified-majority-three-quarters",
-              "unanimous"
-            ]
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "proposed",
-              "under-discussion",
-              "adopted",
-              "rejected",
-              "withdrawn",
-              "tabled"
-            ]
-          },
-          "adoptionDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "effectiveDate": {
-            "type": "string",
-            "format": "date"
-          }
-        },
-        "x-openregister-relations": {
-          "meeting": {
-            "register": "decidesk",
-            "schema": "BoardMeeting",
-            "cardinality": "many-to-one"
-          },
-          "proposingMember": {
-            "register": "decidesk",
-            "schema": "BoardMember",
-            "cardinality": "many-to-one"
-          }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-001-approval-jaarrekening"
-            },
-            "meeting": "rvc-acme-q1-2025",
-            "resolutionNumber": "R-2025-001",
-            "title": "Goedkeuring jaarrekening 2024",
-            "type": "approval",
-            "proposingMember": "mark-van-den-berg-rvb-acme",
-            "fullText": "<p>De RvC verleent goedkeuring aan de jaarrekening 2024 zoals voorgelegd door het bestuur.</p>",
-            "background": "<p>Conform art. 2:101 BW besluit de RvC tot goedkeuring na bestudering van het accountantsverslag.</p>",
-            "legalBasis": "art. 2:101 BW; Statuten art. 18",
-            "voteType": "named",
-            "voteThreshold": "simple-majority",
-            "status": "adopted",
-            "adoptionDate": "2025-03-12T16:45:00Z",
-            "effectiveDate": "2025-03-12"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-002-appointment-cfo"
-            },
-            "meeting": "rvc-acme-q1-2025",
-            "resolutionNumber": "R-2025-002",
-            "title": "Benoeming CFO Sandra Yilmaz tot 2028-12-31",
-            "type": "appointment",
-            "proposingMember": "janneke-de-bruin-rvc-acme",
-            "fullText": "<p>De RvC herbenoemt mevrouw S. Yilmaz tot CFO van Acme Holding voor de termijn 2025-01-01 tot 2028-12-31.</p>",
-            "legalBasis": "art. 2:132 BW; Statuten art. 11",
-            "voteType": "named",
-            "voteThreshold": "qualified-majority-two-thirds",
-            "status": "adopted",
-            "adoptionDate": "2025-03-12T17:00:00Z",
-            "effectiveDate": "2025-04-01"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-003-financial-acquisition"
-            },
-            "meeting": "rvb-acme-extra-2025-04",
-            "resolutionNumber": "R-2025-003",
-            "title": "Goedkeuring acquisitie BV Werknemers B.V. — EUR 12,5 mln",
-            "type": "financial",
-            "proposingMember": "mark-van-den-berg-rvb-acme",
-            "fullText": "<p>Het bestuur besluit tot acquisitie van BV Werknemers B.V. voor EUR 12,5 mln onder voorbehoud van due diligence.</p>",
-            "legalBasis": "Statuten art. 15 lid 2",
-            "voteType": "named",
-            "voteThreshold": "unanimous",
-            "status": "adopted",
-            "adoptionDate": "2025-04-22T17:50:00Z",
-            "effectiveDate": "2025-05-01"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-004-strategic-esg"
-            },
-            "meeting": "rvb-acme-extra-2025-04",
-            "resolutionNumber": "R-2025-004",
-            "title": "Vaststelling ESG-strategie 2025-2030",
-            "type": "strategic",
-            "proposingMember": "sandra-yilmaz-rvb-acme",
-            "fullText": "<p>De RvB stelt de ESG-strategie 2025-2030 vast als kaderdocument voor verdere uitwerking.</p>",
-            "voteType": "unanimous-consent",
-            "voteThreshold": "simple-majority",
-            "status": "adopted",
-            "adoptionDate": "2025-04-22T17:55:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-005-policy-procurement"
-            },
-            "meeting": "rvc-acme-q1-2025",
-            "resolutionNumber": "R-2025-005",
-            "title": "Wijziging inkoopbeleid — drempel goedkeuring RvC EUR 5 mln",
-            "type": "policy",
-            "proposingMember": "klaas-mulder-rvc-acme",
-            "voteType": "named",
-            "voteThreshold": "simple-majority",
-            "status": "adopted",
-            "adoptionDate": "2025-03-12T17:15:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-006-tabled-rebrand"
-            },
-            "meeting": "rvc-acme-q1-2025",
-            "resolutionNumber": "R-2025-006",
-            "title": "Goedkeuring rebrand-budget EUR 3,2 mln",
-            "type": "financial",
-            "proposingMember": "petra-jansen-rvc-acme",
-            "voteType": "named",
-            "voteThreshold": "simple-majority",
-            "status": "tabled",
-            "background": "<p>Doorgeschoven naar de volgende vergadering wegens behoefte aan aanvullende informatie.</p>"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-007-written-conflict-policy"
-            },
-            "meeting": "rvb-acme-closed-2025-11",
-            "resolutionNumber": "R-2025-007",
-            "title": "Vaststelling COI-policy v2",
-            "type": "written-resolution",
-            "proposingMember": "mark-van-den-berg-rvb-acme",
-            "voteType": "named",
-            "voteThreshold": "unanimous",
-            "status": "proposed"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-008-audit-charter"
-            },
-            "meeting": "audit-noord-2025-06",
-            "resolutionNumber": "R-2025-008",
-            "title": "Goedkeuring audit-charter 2025",
-            "type": "policy",
-            "proposingMember": "david-cohen-audit-noord",
-            "voteType": "named",
-            "voteThreshold": "simple-majority",
-            "status": "proposed"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-009-dismissal-cco"
-            },
-            "meeting": "rvc-acme-strategy-2025",
-            "resolutionNumber": "R-2025-009",
-            "title": "Ontslag CCO per 1 januari 2026 — formele kennisgeving",
-            "type": "dismissal",
-            "proposingMember": "janneke-de-bruin-rvc-acme",
-            "voteType": "named",
-            "voteThreshold": "qualified-majority-three-quarters",
-            "status": "proposed"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Resolution",
-              "slug": "r-2025-010-acknowledgement-q3"
-            },
-            "meeting": "rvc-acme-strategy-2025",
-            "resolutionNumber": "R-2025-010",
-            "title": "Kennisneming Q3-rapportage 2025",
-            "type": "acknowledgement",
-            "voteType": "acclamation",
-            "voteThreshold": "simple-majority",
-            "status": "proposed"
           }
         ]
       },

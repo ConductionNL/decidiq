@@ -53,10 +53,7 @@
 			</NcButton>
 		</div>
 
-		<ol v-if="queue.length"
-			class="speaker-queue__list"
-			role="list"
-			data-testid="speaker-queue-list">
+		<ol v-if="queue.length" class="speaker-queue__list" role="list" data-testid="speaker-queue-list">
 			<li
 				v-for="(entry, idx) in queue"
 				:key="entry.participantId"
@@ -202,25 +199,15 @@ export default {
 			)
 			this.selectedParticipant = null
 		},
-		/**
-		 * @param participantId
-		 * @spec openspec/specs/meeting-efficiency/spec.md
-		 */
+		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		remove(participantId) {
 			this.queue = removeSpeaker(this.queue, participantId)
 		},
-		/**
-		 * @param participantId
-		 * @param direction
-		 * @spec openspec/specs/meeting-efficiency/spec.md
-		 */
+		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		move(participantId, direction) {
 			this.queue = moveSpeaker(this.queue, participantId, direction)
 		},
-		/**
-		 * @param participantId
-		 * @spec openspec/specs/meeting-efficiency/spec.md
-		 */
+		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		giveFloor(participantId) {
 			const { queue, stopped } = startSpeaker(this.queue, participantId, Date.now())
 			this.queue = queue
@@ -232,17 +219,11 @@ export default {
 			this.queue = queue
 			if (stopped) this.recordSpeech(stopped)
 		},
-		/**
-		 * @param entry
-		 * @spec openspec/specs/meeting-efficiency/spec.md
-		 */
+		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		elapsedText(entry) {
 			return formatClock(speakerElapsedSeconds(entry, this.now))
 		},
-		/**
-		 * @param entry
-		 * @spec openspec/specs/meeting-efficiency/spec.md
-		 */
+		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		overLimit(entry) {
 			return isOverLimit(entry, this.limitSeconds, this.now)
 		},

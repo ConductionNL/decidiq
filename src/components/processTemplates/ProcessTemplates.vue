@@ -28,10 +28,7 @@
 			</p>
 
 			<ul v-if="!store.loading" class="template-list" data-testid="process-template-list">
-				<li v-for="tpl in store.templates"
-					:key="tpl.id || tpl.slug"
-					class="template-row"
-					data-testid="process-template-item">
+				<li v-for="tpl in store.templates" :key="tpl.id || tpl.slug" class="template-row" data-testid="process-template-item">
 					<div class="template-meta">
 						<strong>{{ tpl.name }}</strong>
 						<span v-if="tpl.builtIn" class="builtin-badge" data-testid="process-template-builtin">{{ t('decidesk', 'Built-in') }}</span>
@@ -98,25 +95,16 @@ export default {
 			this.editing = null
 			this.showModal = true
 		},
-		/**
-		 * @param tpl
-		 * @spec openspec/specs/process-configuration/spec.md
-		 */
+		/** @spec openspec/specs/process-configuration/spec.md */
 		openEdit(tpl) {
 			this.editing = tpl
 			this.showModal = true
 		},
-		/**
-		 * @param tpl
-		 * @spec openspec/specs/process-configuration/spec.md
-		 */
+		/** @spec openspec/specs/process-configuration/spec.md */
 		async duplicate(tpl) {
 			await this.store.duplicateTemplate(tpl.id || tpl.slug, (tpl.name || 'Template') + ' (copy)')
 		},
-		/**
-		 * @param tpl
-		 * @spec openspec/specs/process-configuration/spec.md
-		 */
+		/** @spec openspec/specs/process-configuration/spec.md */
 		async remove(tpl) {
 			await this.store.deleteTemplate(tpl.id || tpl.slug)
 		},

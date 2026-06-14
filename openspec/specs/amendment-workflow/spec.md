@@ -1,3 +1,10 @@
+---
+status: in-progress
+status-note: In progress 2026-06-14 via unify-decision-supertype (capability retired — amendments become decisionType=amendment decisions owned by decision-management per ADR-005/ADR-006).
+openspec-changes:
+  - unify-decision-supertype
+---
+
 # amendment-workflow Specification
 
 ## Purpose

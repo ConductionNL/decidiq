@@ -1,3 +1,10 @@
+---
+status: in-progress
+status-note: In progress 2026-06-14 via popolo-decision-makers (ContactDetail Popolo schema added; Person + Membership become the governance-body decision-maker model per ADR-001/ADR-006).
+openspec-changes:
+  - popolo-decision-makers
+---
+
 # governance-bodies Specification
 
 ## Purpose
