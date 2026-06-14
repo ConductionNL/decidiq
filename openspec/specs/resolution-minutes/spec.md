@@ -1,6 +1,8 @@
 ---
 status: done
-status-note: 2026-06-12 minutes-ui-v1 — all 4 requirements built. Real-time minute-taking editor (MinutesPanel in LiveMeeting, itemNotes autosave), approval workflow UI (MinutesApprovalTab — submit/approve/reject-with-comment + participant correction suggestions), document generation persisted to the meeting Files folder via MinutesDocumentService (markdown canonical, Docudesk PDF opportunistic with honest fallback; ODT NOT implemented — no renderer in the stack), and the hash-sealed notarial proof package (ProofPackageService). Earlier backend capabilities from p2-minutes-and-decisions* + board-meeting-resolutions (ResolutionService, WrittenResolutionService, MinutesGenerationService, MinutesAuthorizationService) remain the foundation. Per-scenario @e2e annotations replaced the former whole-spec exclude.
+status-note: 2026-06-12 minutes-ui-v1 — all 4 requirements built. Real-time minute-taking editor (MinutesPanel in LiveMeeting, itemNotes autosave), approval workflow UI (MinutesApprovalTab — submit/approve/reject-with-comment + participant correction suggestions), document generation persisted to the meeting Files folder via MinutesDocumentService (markdown canonical, Docudesk PDF opportunistic with honest fallback; ODT NOT implemented — no renderer in the stack), and the hash-sealed notarial proof package (ProofPackageService). Earlier backend capabilities from p2-minutes-and-decisions* + board-meeting-resolutions (ResolutionService, WrittenResolutionService, MinutesGenerationService, MinutesAuthorizationService) remain the foundation. Per-scenario @e2e annotations replaced the former whole-spec exclude. In progress 2026-06-14 via unify-decision-supertype (resolutions stored as decisionType=resolution decisions per ADR-005).
+openspec-changes:
+  - unify-decision-supertype
 ---
 
 # Resolution and Minutes Specification

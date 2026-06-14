@@ -1,3 +1,10 @@
+---
+status: in-progress
+status-note: In progress 2026-06-14 via unify-decision-supertype (capability retired — motions become decisionType=motion decisions owned by decision-management per ADR-005/ADR-006).
+openspec-changes:
+  - unify-decision-supertype
+---
+
 # motion-management Specification
 
 ## Purpose

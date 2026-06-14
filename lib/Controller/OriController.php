@@ -62,11 +62,23 @@ class OriController extends Controller
         'memberships'   => 'participant',
         'events'        => 'meeting',
         'agendaitems'   => 'agenda-item',
-        'motions'       => 'motion',
-        'amendments'    => 'amendment',
+        'motions'       => 'decision',
+        'amendments'    => 'decision',
         'voteevents'    => 'voting-round',
         'votes'         => 'vote',
         'reports'       => 'minutes',
+    ];
+
+    /**
+     * ORI resource slugs that are now sourced from the unified `decision`
+     * schema (ADR-005). Maps the resource slug to the `decisionType`
+     * discriminator used to filter decisions down to that ORI resource.
+     *
+     * @var array<string, string>
+     */
+    private const DECISION_TYPE_MAP = [
+        'motions'    => 'motion',
+        'amendments' => 'amendment',
     ];
 
     /**
@@ -134,14 +146,29 @@ class OriController extends Controller
             $objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
             // #316: Only return published objects on public ORI endpoints — draft/closed/unpublished
             // objects must not be visible to anonymous callers.
-            $objects = $objectService->findAll(
-                register: 'decidesk',
-                schema: $schema,
-                params: [
-                    'limit'   => 100,
-                    'filters' => ['lifecycle' => 'published'],
-                ]
-            );
+            // ADR-005: motions/amendments are now `decision` objects discriminated by
+            // `decisionType`; decisions gate public visibility via `isPublished=public`
+            // (not the meeting `lifecycle=published` state used by other resources).
+            // OpenRegister resolves the register/schema context from INSIDE the
+            // `filters` array (ObjectService::prepareFindAllConfig) and takes a
+            // single config array — not named register:/schema:/params: arguments
+            // (the latter raised "Unknown named parameter $register").
+            $filters = [
+                'register' => 'decidesk',
+                'schema'   => $schema,
+            ];
+
+            $decisionType = self::DECISION_TYPE_MAP[$resource] ?? null;
+            if ($decisionType !== null) {
+                // ADR-005: motion/amendment ORI resources are decisions gated by
+                // `isPublished=public` and discriminated by `decisionType`.
+                $filters['isPublished']  = 'public';
+                $filters['decisionType'] = $decisionType;
+            } else {
+                $filters['lifecycle'] = 'published';
+            }
+
+            $objects = $objectService->findAll(['limit' => 100, 'filters' => $filters]);
         } catch (Throwable $e) {
             $this->logger->error(message: 'OriController index failed', context: ['resource' => $resource, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -150,7 +177,17 @@ class OriController extends Controller
         $type  = self::ORI_TYPE_MAP[$resource];
         $items = [];
         foreach (($objects ?? []) as $object) {
-            $items[] = $this->serializeOri(type: $type, object: (array) $object);
+            // findAll() yields ObjectEntity instances; jsonSerialize() gives the
+            // flat property map (title, lifecycle, motionType, …). A raw (array)
+            // cast mangles the entity's protected props, leaving the serializer
+            // with only @self/id — so normalise to the serialised array first.
+            if (is_object($object) === true && method_exists($object, 'jsonSerialize') === true) {
+                $objectArray = $object->jsonSerialize();
+            } else {
+                $objectArray = (array) $object;
+            }
+
+            $items[] = $this->serializeOri(type: $type, object: $objectArray);
         }
 
         $payload = [

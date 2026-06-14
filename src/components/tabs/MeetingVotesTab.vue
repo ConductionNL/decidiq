@@ -130,6 +130,7 @@ export default {
 					const itemId = item?.id || item?.uuid
 					if (!itemId) continue
 					const motions = await motionStore.fetchCollection('motion', {
+						decisionType: 'motion',
 						agendaItem: itemId,
 						_limit: 100,
 					})

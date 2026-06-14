@@ -1,3 +1,10 @@
+---
+status: in-progress
+status-note: In progress 2026-06-14 via popolo-decision-makers (Participant deprecated in favour of Popolo Person + Membership; retained as a compatibility shim per ADR-001 §2).
+openspec-changes:
+  - popolo-decision-makers
+---
+
 # participant-crud Specification
 
 ## Purpose

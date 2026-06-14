@@ -147,7 +147,8 @@ export default {
 				const store = ensureRelationType('amendment')
 				if (!this.amendmentSchema) this.amendmentSchema = await store.fetchSchema('amendment')
 				const items = await store.fetchCollection('amendment', {
-					parentMotion: this.objectId,
+					decisionType: 'amendment',
+					amends: this.objectId,
 					_limit: 100,
 				})
 				this.rows = items || []
@@ -175,7 +176,7 @@ export default {
 		async onConfirm(formData) {
 			const store = ensureRelationType('amendment')
 			try {
-				await store.saveObject('amendment', { ...formData, parentMotion: this.objectId })
+				await store.saveObject('amendment', { ...formData, decisionType: 'amendment', amends: this.objectId })
 				this.$refs.formDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {

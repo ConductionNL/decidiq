@@ -74,8 +74,11 @@ export default {
 	computed: {
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		parentMotionId() {
-			const ref = this.amendment?.parentMotion
-				?? (this.amendment?.relations || []).find((r) => (r?.schema || '') === 'motion')
+			// ADR-005: amendment-decisions link their parent motion-decision via
+			// the folded `amends` field (was `parentMotion` / a motion relation).
+			const ref = this.amendment?.amends
+				?? this.amendment?.parentMotion
+				?? (this.amendment?.relations || []).find((r) => (r?.schema || '') === 'decision')
 			if (!ref) return ''
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref

@@ -1,6 +1,8 @@
 ---
-status: done
-status-note: Completed 2026-06-12 via decision-state-machine-v1 (guarded 7-state transition map + per-domain policy, lifecycle/voting detail tabs) on top of decision-evolution-and-cascade + p2-minutes-and-decisions.
+status: in-progress
+status-note: Completed 2026-06-12 via decision-state-machine-v1 (guarded 7-state transition map + per-domain policy, lifecycle/voting detail tabs) on top of decision-evolution-and-cascade + p2-minutes-and-decisions. In progress 2026-06-14 via unify-decision-supertype (Decision becomes the universal supertype: decisionType discriminator, folded motion/amendment/resolution fields, declarative lifecycle, contract attachments).
+openspec-changes:
+  - unify-decision-supertype
 ---
 
 # Decision Management Specification

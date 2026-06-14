@@ -147,6 +147,7 @@ export default {
 				const store = ensureRelationType('motion')
 				if (!this.motionSchema) this.motionSchema = await store.fetchSchema('motion')
 				const items = await store.fetchCollection('motion', {
+					decisionType: 'motion',
 					agendaItem: this.objectId,
 					_limit: 100,
 				})

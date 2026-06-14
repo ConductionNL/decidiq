@@ -83,7 +83,8 @@ export default {
 	computed: {
 		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
 		parentMotionId() {
-			const ref = this.amendment?.parentMotion
+			// ADR-005: parent motion is referenced via the folded `amends` field.
+			const ref = this.amendment?.amends ?? this.amendment?.parentMotion
 			if (!ref) return ''
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref

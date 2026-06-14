@@ -1,3 +1,10 @@
+---
+status: in-progress
+status-note: In progress 2026-06-14 via popolo-decision-makers (Person/Membership/Post Popolo schemas implemented in the register per ADR-001).
+openspec-changes:
+  - popolo-decision-makers
+---
+
 # person-and-membership Specification
 
 ## Purpose

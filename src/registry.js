@@ -40,6 +40,8 @@ import ResolutionDetail from './views/ResolutionDetail.vue'
 // CnDashboardPage slot components registered under kind: "widget". They are
 // NOT yet referenced from src/manifest.json — the follow-up config change
 // decidesk-dashboard-v2-layout inserts the widgets/layout/dataSources.
+import CreateMeetingAction from './views/dashboard/widgets/CreateMeetingAction.vue'
+import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
 import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
 import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
@@ -49,7 +51,6 @@ import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWi
 import RunningProcessesWidget from './views/dashboard/widgets/RunningProcessesWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
 import RecentDecisionsWidget from './views/dashboard/widgets/RecentDecisionsWidget.vue'
-import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWidget.vue'
 import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
 
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
@@ -228,11 +229,14 @@ export default {
 	RecentDecisionsWidget: widget(RecentDecisionsWidget, {
 		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
 	}),
-	GovernanceHealthWidget: widget(GovernanceHealthWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
-	}),
 	DashboardEmptyState: widget(DashboardEmptyState, {
 		defaultSize: { w: 12, h: 5 }, minSize: { w: 6, h: 4 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard', 'full'],
+	}),
+	CreateMeetingAction: widget(CreateMeetingAction, {
+		defaultSize: { w: 1, h: 1 }, minSize: { w: 1, h: 1 }, maxSize: { w: 2, h: 1 }, allowedSlots: ['dashboard'],
+	}),
+	StartProcessAction: widget(StartProcessAction, {
+		defaultSize: { w: 1, h: 1 }, minSize: { w: 1, h: 1 }, maxSize: { w: 2, h: 1 }, allowedSlots: ['dashboard'],
 	}),
 
 	// Decision state machine (decision-state-machine-v1): lifecycle

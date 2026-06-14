@@ -202,7 +202,8 @@ export default {
 
 				const amendmentStore = ensureRelationType('amendment')
 				const items = await amendmentStore.fetchCollection('amendment', {
-					parentMotion: this.objectId,
+					decisionType: 'amendment',
+					amends: this.objectId,
 					_limit: 100,
 				})
 				this.rows = this.sortByVotingOrder(items || [])

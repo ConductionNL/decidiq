@@ -1,3 +1,11 @@
+---
+status: in-progress
+status-note: In progress 2026-06-14 via unify-decision-supertype (ORI Motion serialization sourced from decisionType=motion decisions per ADR-003/ADR-005; endpoint path and response shape unchanged).
+openspec-changes:
+  - unify-decision-supertype
+  - popolo-decision-makers
+---
+
 # ori-api Specification
 
 ## Purpose
