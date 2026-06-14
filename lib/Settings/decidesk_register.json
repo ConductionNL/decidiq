@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "x-openregister": {
     "type": "application",
@@ -715,6 +715,30 @@
             "votingDefault": "for-against-abstain",
             "termStart": "2024-01-01T00:00:00Z",
             "termEnd": "2027-12-31T00:00:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "GovernanceBody",
+              "slug": "managementteam-acme-bv"
+            },
+            "name": "Managementteam ACME B.V.",
+            "bodyType": "operational",
+            "domain": "corporate",
+            "votingDefault": "show-of-hands"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "GovernanceBody",
+              "slug": "raad-van-bestuur-acme-bv"
+            },
+            "name": "Raad van Bestuur ACME B.V.",
+            "bodyType": "executive-board",
+            "domain": "corporate",
+            "votingDefault": "for-against-abstain",
+            "termStart": "2024-01-01T00:00:00Z",
+            "termEnd": "2028-12-31T00:00:00Z"
           }
         ]
       },
@@ -1812,7 +1836,7 @@
         },
         "slug": "decision",
         "icon": "GavelOutline",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "title": "Decision",
         "description": "The universal governance-decision supertype (ADR-005). A single schema for every decision outcome — motion, amendment, resolution, contract, appointment, management point, policy and generic meeting outcome — distinguished by the required decisionType discriminator. Type-specific fields are folded in and revealed via progressive disclosure keyed on decisionType (ADR-006).",
         "type": "object",
@@ -2117,6 +2141,95 @@
             "schema": "Product",
             "cardinality": "one-to-many",
             "description": "Contract attachment: products/services related to a decisionType=contract decision (ADR-005)."
+          },
+          "route": {
+            "register": "decidesk",
+            "schema": "DecisionStage",
+            "cardinality": "one-to-many",
+            "description": "The ordered route of DecisionStage objects that this Decision travels. Empty when no staged route is configured; a stageless Decision is valid. The inverse relation (DecisionStage → Decision) is stored on DecisionStage.decision."
+          }
+        },
+        "x-openregister-aggregations": {
+          "stageCount": {
+            "metric": "count",
+            "schema": "DecisionStage",
+            "filter": {
+              "decision": "@self.id"
+            }
+          },
+          "decidedStageCount": {
+            "metric": "count",
+            "schema": "DecisionStage",
+            "filter": {
+              "decision": "@self.id",
+              "status": "decided"
+            }
+          },
+          "skippedStageCount": {
+            "metric": "count",
+            "schema": "DecisionStage",
+            "filter": {
+              "decision": "@self.id",
+              "status": "skipped"
+            }
+          }
+        },
+        "x-openregister-calculations": {
+          "routeComplete": {
+            "type": "boolean",
+            "materialise": true,
+            "description": "True when all stages are decided or skipped (route fully resolved). False when stageCount is 0 (no route configured). Declarative per ADR-031 (D4).",
+            "expression": {
+              "and": [
+                {
+                  "gt": [
+                    {
+                      "prop": "stageCount"
+                    },
+                    0
+                  ]
+                },
+                {
+                  "gte": [
+                    {
+                      "add": [
+                        {
+                          "prop": "decidedStageCount"
+                        },
+                        {
+                          "prop": "skippedStageCount"
+                        }
+                      ]
+                    },
+                    {
+                      "prop": "stageCount"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "currentStage": {
+            "type": "string",
+            "materialise": true,
+            "description": "UUID of the first DecisionStage whose status is not 'decided' or 'skipped', ordered by sequence. Null when all stages are decided/skipped (route complete) or when no route is configured. Declarative per ADR-031 (D4).",
+            "expression": {
+              "firstRelated": {
+                "schema": "DecisionStage",
+                "filter": {
+                  "decision": "@self.id",
+                  "status": {
+                    "notIn": [
+                      "decided",
+                      "skipped"
+                    ]
+                  }
+                },
+                "orderBy": "sequence",
+                "orderDir": "asc",
+                "returnField": "id"
+              }
+            }
           }
         },
         "x-openregister-seeds": [
@@ -2374,6 +2487,313 @@
             "lifecycle": "enacted",
             "outcome": "adopted",
             "isPublished": "public"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-begroting-2027"
+            },
+            "decisionType": "meeting-outcome",
+            "title": "Vaststelling Programmabegroting 2027",
+            "text": "De gemeenteraad stelt de programmabegroting 2027 vast conform het raadsvoorstel van het college.",
+            "decisionDate": "2026-04-15T19:30:00Z",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "legalBasis": "Gemeentewet art. 189",
+            "lifecycle": "deliberating",
+            "route": [
+              "stage-begroting-2027-1-prep",
+              "stage-begroting-2027-2-adv",
+              "stage-begroting-2027-3-dec"
+            ]
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Decision",
+              "slug": "besluit-investering-acme"
+            },
+            "decisionType": "management-point",
+            "title": "Investeringsbesluit Datacenteruitbreiding ACME B.V.",
+            "text": "Het MT besluit tot investering in uitbreiding van het datacentercapaciteit met €2,4M conform de goedgekeurde businesscase.",
+            "decisionDate": "2026-05-01T10:00:00Z",
+            "outcome": "adopted",
+            "isPublished": "confidential",
+            "lifecycle": "decided",
+            "route": [
+              "stage-investering-acme-1-prep",
+              "stage-investering-acme-2-dec",
+              "stage-investering-acme-3-rat"
+            ]
+          }
+        ]
+      },
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "icon": "TransitConnectionVariant",
+        "version": "0.1.0",
+        "title": "DecisionStage",
+        "description": "One step in a Decision's route — an ordered stage owned by a named decision-maker (Person or GovernanceBody) with its own status lifecycle, outcome, and method. Implements the ambtelijk → politiek bridge described in ADR-005/ADR-006/ADR-031 (design D1). C5 (decision-methods) expands the method enum; C6 builds the route UI.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:DecisionStage",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "sequence",
+          "stageType",
+          "status",
+          "decisionMakerType",
+          "label"
+        ],
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "description": "1-based ordinal position of this stage in the decision route. Stages are processed in ascending sequence order.",
+            "minimum": 1,
+            "example": 1
+          },
+          "stageType": {
+            "type": "string",
+            "description": "Functional type of this stage — determines the role it plays in the route.",
+            "enum": [
+              "preparatory",
+              "advisory",
+              "decisive",
+              "ratifying"
+            ],
+            "example": "decisive"
+          },
+          "status": {
+            "type": "string",
+            "description": "Lifecycle state of the stage. Carries x-openregister-lifecycle transitions (ADR-031): pending → active → decided; pending → skipped; active → skipped. 'decided' and 'skipped' are terminal.",
+            "enum": [
+              "pending",
+              "active",
+              "decided",
+              "skipped"
+            ],
+            "default": "pending",
+            "example": "pending"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Decision outcome recorded when status=decided. Null when status is pending/active/skipped.",
+            "enum": [
+              "for",
+              "against",
+              "adopted",
+              "rejected",
+              "advised",
+              "deferred"
+            ],
+            "nullable": true,
+            "example": "adopted"
+          },
+          "decidedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the stage reached status=decided. Null when status is not decided.",
+            "nullable": true,
+            "example": "2026-03-20T14:00:00Z"
+          },
+          "method": {
+            "type": "string",
+            "description": "Method by which the stage is resolved. Placeholder enum — C5 (decision-methods) expands this. Defaults to manual.",
+            "enum": [
+              "manual",
+              "vote",
+              "sign",
+              "chair-register",
+              "advice"
+            ],
+            "default": "manual",
+            "example": "vote"
+          },
+          "decisionMakerType": {
+            "type": "string",
+            "description": "Discriminator indicating whether the assignee is an individual person (person) or a governance body (body). Must be consistent with exactly one of assignedPerson or assignedBody being populated.",
+            "enum": [
+              "person",
+              "body"
+            ],
+            "example": "body"
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable label for the stage, displayed in the route timeline.",
+            "example": "Advies raadscommissie"
+          },
+          "note": {
+            "type": "string",
+            "description": "Free text recorded by the stage owner at decision time — e.g. reasoning, conditions, or dissenting remarks.",
+            "nullable": true,
+            "example": "Unaniem advies uitgebracht na bespreking in commissie."
+          }
+        },
+        "x-openregister-lifecycle": {
+          "field": "status",
+          "initial": "pending",
+          "states": [
+            "pending",
+            "active",
+            "decided",
+            "skipped"
+          ],
+          "terminal": [
+            "decided",
+            "skipped"
+          ],
+          "transitions": [
+            {
+              "from": "pending",
+              "to": "active"
+            },
+            {
+              "from": "active",
+              "to": "decided"
+            },
+            {
+              "from": "pending",
+              "to": "skipped"
+            },
+            {
+              "from": "active",
+              "to": "skipped"
+            }
+          ],
+          "_note": "Declarative guarded transition map (ADR-031 / design D4). Terminal states 'decided' and 'skipped' mirror the route-progress aggregation on Decision: a stage is resolved when it reaches either terminal state. The 'active' state marks the currentStage (derived declaratively on Decision via x-openregister-calculations)."
+        },
+        "x-openregister-relations": {
+          "decision": {
+            "register": "decidesk",
+            "schema": "Decision",
+            "cardinality": "many-to-one",
+            "description": "The parent Decision this stage belongs to. Required: every stage must be owned by exactly one Decision."
+          },
+          "assignedPerson": {
+            "register": "decidesk",
+            "schema": "Person",
+            "cardinality": "many-to-one",
+            "description": "Individual decision-maker for this stage. Populate when decisionMakerType=person; leave null when decisionMakerType=body. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
+          },
+          "assignedBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one",
+            "description": "Group decision-maker for this stage. Populate when decisionMakerType=body; leave null when decisionMakerType=person. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "DecisionStage",
+              "slug": "stage-begroting-2027-1-prep"
+            },
+            "sequence": 1,
+            "stageType": "preparatory",
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-03-02T14:00:00Z",
+            "method": "manual",
+            "decisionMakerType": "body",
+            "label": "Voorbereiding & vaststelling concept",
+            "note": "Concept vastgesteld door het directieteam. Doorgestuurd naar de commissie.",
+            "decision": "besluit-begroting-2027",
+            "assignedBody": "directieteam-gemeente-utrecht"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "DecisionStage",
+              "slug": "stage-begroting-2027-2-adv"
+            },
+            "sequence": 2,
+            "stageType": "advisory",
+            "status": "decided",
+            "outcome": "advised",
+            "decidedAt": "2026-03-20T17:30:00Z",
+            "method": "manual",
+            "decisionMakerType": "person",
+            "label": "Advies aan de raad",
+            "note": "Commissie adviseert de raad de begroting ongewijzigd vast te stellen.",
+            "decision": "besluit-begroting-2027",
+            "assignedPerson": "femke-halsema"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "DecisionStage",
+              "slug": "stage-begroting-2027-3-dec"
+            },
+            "sequence": 3,
+            "stageType": "decisive",
+            "status": "active",
+            "outcome": null,
+            "decidedAt": null,
+            "method": "vote",
+            "decisionMakerType": "body",
+            "label": "Besluit gemeenteraad",
+            "decision": "besluit-begroting-2027",
+            "assignedBody": "gemeenteraad-amsterdam"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "DecisionStage",
+              "slug": "stage-investering-acme-1-prep"
+            },
+            "sequence": 1,
+            "stageType": "preparatory",
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-04-05T11:00:00Z",
+            "method": "manual",
+            "decisionMakerType": "body",
+            "label": "MT-voorbereiding investering",
+            "note": "Businesscase goedgekeurd door MT.",
+            "decision": "besluit-investering-acme",
+            "assignedBody": "managementteam-acme-bv"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "DecisionStage",
+              "slug": "stage-investering-acme-2-dec"
+            },
+            "sequence": 2,
+            "stageType": "decisive",
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-04-18T15:30:00Z",
+            "method": "vote",
+            "decisionMakerType": "body",
+            "label": "Besluit Raad van Bestuur",
+            "note": "Investeringsbesluit aangenomen met unanime stemmen.",
+            "decision": "besluit-investering-acme",
+            "assignedBody": "raad-van-bestuur-acme-bv"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "DecisionStage",
+              "slug": "stage-investering-acme-3-rat"
+            },
+            "sequence": 3,
+            "stageType": "ratifying",
+            "status": "active",
+            "outcome": null,
+            "decidedAt": null,
+            "method": "sign",
+            "decisionMakerType": "body",
+            "label": "Goedkeuring Raad van Commissarissen",
+            "decision": "besluit-investering-acme",
+            "assignedBody": "raad-van-commissarissen-acme-bv"
           }
         ]
       },
