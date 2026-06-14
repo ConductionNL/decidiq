@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared helpers for the board-portal controllers.
+ * Shared helpers for the governance controllers.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -11,7 +11,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-phase3-controllers
+ * @spec openspec/specs/meeting-management/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -25,12 +25,13 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IUserSession;
 
 /**
- * Shared authentication + request body helpers reused across the eight
- * board-portal controllers introduced by board-meeting-resolutions Phase 3.
+ * Shared authentication + request body helpers reused across the retained
+ * governance controllers (audit-log, conflict-of-interest, eIDAS-signature,
+ * proxy-vote, governance-report, regulator-export, multilingual-reconciliation).
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-phase3-controllers
+ * @spec openspec/specs/meeting-management/spec.md
  */
-trait BoardPortalControllerTrait
+trait GovernanceControllerTrait
 {
     /**
      * Return a JSONResponse with 401 when the session lacks a user; null when

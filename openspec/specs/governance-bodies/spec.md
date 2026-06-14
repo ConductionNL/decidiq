@@ -1,8 +1,9 @@
 ---
 status: in-progress
-status-note: In progress 2026-06-14 via popolo-decision-makers (ContactDetail Popolo schema added; Person + Membership become the governance-body decision-maker model per ADR-001/ADR-006).
+status-note: In progress 2026-06-14 via popolo-decision-makers (ContactDetail Popolo schema added; Person + Membership become the governance-body decision-maker model per ADR-001/ADR-006). In progress 2026-06-14 via retire-board-portal (parallel Board schema + Board views retired per ADR-006; corporate boards become governance-body objects with bodyType=corporate-board and mode=corp labels).
 openspec-changes:
   - popolo-decision-makers
+  - retire-board-portal
 ---
 
 # governance-bodies Specification

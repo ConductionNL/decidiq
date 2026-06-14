@@ -2,14 +2,14 @@
 /**
  * Decidesk Proxy Vote Service
  *
- * Phase 5 service governing proxy votes on board meetings. Proxies are
- * registered by the grantor (a board member) and approved by the secretary;
- * they are automatically suspended when the grantor joins the meeting
- * remotely, and revoked either at meeting close or by secretary action.
+ * Service governing proxy votes on meetings. Proxies are registered by the
+ * grantor (a member) and approved by the secretary; they are automatically
+ * suspended when the grantor joins the meeting remotely, and revoked either
+ * at meeting close or by secretary action.
  *
- * Proxy rows are persisted on a separate `board-proxy` slot of the
- * BoardVote schema (`voteMethod=proxy`, `proxyHolder` set, additional
- * `proxyStatus` field) so the audit log always shows the cast trail.
+ * Proxy rows are persisted on the unified `vote` schema
+ * (`voteMethod=proxy`, `proxyHolder` set, additional `proxyStatus` field)
+ * so the audit log always shows the cast trail (ADR-006).
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -54,7 +54,7 @@ class ProxyVoteService
      *
      * @var string
      */
-    public const SCHEMA = 'board-proxy';
+    public const SCHEMA = 'vote';
 
     /**
      * App config key holding the per-holder per-meeting ACTIVE-proxy cap.

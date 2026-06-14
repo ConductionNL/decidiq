@@ -2,7 +2,7 @@
 /**
  * Decidesk Minutes Authorization Service
  *
- * Per-board-member guard used by the QES-signing flow. Walks
+ * Per-member guard used by the QES-signing flow. Walks
  * Minutes → Meeting → GovernanceBody → Participants and verifies the
  * requesting Nextcloud user is a chair, vice-chair, or secretary on that
  * body — the canonical signatory roles per the Dutch supervisory-board
@@ -33,7 +33,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Per-board-member guard for the eIDAS signing flow.
+ * Per-member guard for the eIDAS signing flow.
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
  */

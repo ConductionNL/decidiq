@@ -39,7 +39,7 @@ use OCP\IUserSession;
  */
 class ProxyVoteController extends Controller
 {
-    use BoardPortalControllerTrait;
+    use GovernanceControllerTrait;
 
     /**
      * Constructor.

@@ -374,7 +374,7 @@ class DecisionLifecycleService
             $objectService->saveObject(
                 object: $resolution,
                 register: 'decidesk',
-                schema: 'resolution'
+                schema: 'decision'
             );
         } catch (\Throwable $e) {
             $this->logger->error(

@@ -60,7 +60,6 @@ class DecideskSearchProvider implements IProvider
     private const SCHEMAS = [
         'decision'   => 'decisions',
         'meeting'    => 'meetings',
-        'resolution' => 'resolutions',
     ];
 
     /**
@@ -244,7 +243,6 @@ class DecideskSearchProvider implements IProvider
         return match ($schema) {
             'decision'   => $this->l10n->t('Decision'),
             'meeting'    => $this->l10n->t('Meeting'),
-            'resolution' => $this->l10n->t('Resolution'),
             default      => $schema,
         };
 

@@ -42,7 +42,7 @@ use OCP\IUserSession;
  */
 class GovernanceReportController extends Controller
 {
-    use BoardPortalControllerTrait;
+    use GovernanceControllerTrait;
 
     /**
      * Constructor.

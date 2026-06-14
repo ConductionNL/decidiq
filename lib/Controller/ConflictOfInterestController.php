@@ -38,7 +38,7 @@ use OCP\IUserSession;
  */
 class ConflictOfInterestController extends Controller
 {
-    use BoardPortalControllerTrait;
+    use GovernanceControllerTrait;
 
     /**
      * Constructor for ConflictOfInterestController.

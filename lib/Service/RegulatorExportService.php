@@ -326,7 +326,7 @@ class RegulatorExportService
             rows: $objectService->findAll(
                 [
                     'register' => 'decidesk',
-                    'schema'   => 'board-meeting',
+                    'schema'   => 'meeting',
                     'filters'  => ['boardKoppeling' => $boardId],
                     'limit'    => 5000,
                 ]
@@ -339,7 +339,7 @@ class RegulatorExportService
                 rows: $objectService->findAll(
                     [
                         'register' => 'decidesk',
-                        'schema'   => 'resolution',
+                        'schema'   => 'decision',
                         'limit'    => 5000,
                     ]
                 )
@@ -357,7 +357,7 @@ class RegulatorExportService
                 rows: $objectService->findAll(
                     [
                         'register' => 'decidesk',
-                        'schema'   => 'board-minutes',
+                        'schema'   => 'minutes',
                         'limit'    => 5000,
                     ]
                 )
@@ -371,12 +371,14 @@ class RegulatorExportService
         }
 
         // Audit-log scope — return all entries (no per-board filter; objectUids
-        // contains board references so the regulator gets a full trail).
+        // contains governance references so the regulator gets a full trail).
+        // Retargeted to the unified audit-trail store (ADR-006); the OR built-in
+        // auditTrail integration is finalised in Cycle 2. // TODO Cycle 2
         return $this->normalize(
             rows: $objectService->findAll(
                 [
                     'register' => 'decidesk',
-                    'schema'   => 'board-audit-log-entry',
+                    'schema'   => 'audit-trail',
                     'limit'    => 5000,
                 ]
             )

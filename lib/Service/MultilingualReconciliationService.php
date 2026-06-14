@@ -2,7 +2,7 @@
 /**
  * Decidesk Multilingual Reconciliation Service
  *
- * Phase 6 — queues board-minutes for translation, persists queue entries
+ * Queues minutes for translation, persists queue entries
  * via OpenRegister, and processes them through a pluggable
  * ITranslationAdapter (default LogTranslationAdapter). Designed to be
  * driven by the TranslationQueueJob on a recurring schedule.
@@ -94,12 +94,12 @@ class MultilingualReconciliationService
     }//end setAdapter()
 
     /**
-     * Queue a board-minutes record for translation into one or more targets.
+     * Queue a minutes record for translation into one or more targets.
      *
      * The persisted queue entry references the source minutes record and
      * one target locale; an array of targets fan-out to multiple entries.
      *
-     * @param string   $minutesId     UUID of the source board-minutes record
+     * @param string   $minutesId     UUID of the source minutes record
      * @param string   $sourceLocale  ISO 639-1 of the source content
      * @param string[] $targetLocales ISO 639-1 list of locales to translate into
      *
@@ -266,7 +266,7 @@ class MultilingualReconciliationService
     /**
      * Process up to $maxEntries queued items through the translation adapter.
      *
-     * Each successful translation creates a linked board-minutes record in
+     * Each successful translation creates a linked minutes record in
      * the target language and flips the queue entry to `completed`.
      *
      * @param int $maxEntries Maximum entries processed per call
@@ -476,7 +476,7 @@ class MultilingualReconciliationService
     }//end resolveAdapter()
 
     /**
-     * Load a board-minutes row, returning a plain array or null.
+     * Load a minutes row, returning a plain array or null.
      *
      * @param object $objectService Lazy ObjectService
      * @param string $minutesId     UUID of the minutes record
@@ -489,7 +489,7 @@ class MultilingualReconciliationService
             $entity = $objectService->find(
                 id: $minutesId,
                 register: 'decidesk',
-                schema: 'board-minutes'
+                schema: 'minutes'
             );
             if ($entity === null) {
                 return null;
@@ -513,7 +513,7 @@ class MultilingualReconciliationService
     }//end loadMinutes()
 
     /**
-     * Write a translated board-minutes record (status=draft) and return its id.
+     * Write a translated minutes record (status=draft) and return its id.
      *
      * @param object               $objectService  Lazy ObjectService
      * @param array<string, mixed> $sourceMinutes  Source minutes row
@@ -545,7 +545,7 @@ class MultilingualReconciliationService
             $saved = $objectService->saveObject(
                 object: $candidate,
                 register: 'decidesk',
-                schema: 'board-minutes'
+                schema: 'minutes'
             );
 
             if (is_object($saved) === true) {

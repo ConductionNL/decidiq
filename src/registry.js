@@ -27,15 +27,6 @@ import LiveMeetingView from './views/LiveMeeting.vue'
 import DecisionIntegrations from './views/DecisionIntegrations.vue'
 import AgendaItemIntegrations from './views/AgendaItemIntegrations.vue'
 
-// Board portal Phase 8 — boards / board meetings / resolutions
-// (openspec/changes/board-meeting-resolutions/tasks.md sections 4 + 8).
-import BoardList from './views/BoardList.vue'
-import BoardDetail from './views/BoardDetail.vue'
-import BoardMeetingList from './views/BoardMeetingList.vue'
-import BoardMeetingDetail from './views/BoardMeetingDetail.vue'
-import ResolutionList from './views/ResolutionList.vue'
-import ResolutionDetail from './views/ResolutionDetail.vue'
-
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Eleven bespoke
 // CnDashboardPage slot components registered under kind: "widget". They are
 // NOT yet referenced from src/manifest.json — the follow-up config change
@@ -142,18 +133,6 @@ export default {
 	// linking is now held by the registry, not an {app}_email_links store.
 	DecisionIntegrations: page(DecisionIntegrations),
 	AgendaItemIntegrations: page(AgendaItemIntegrations),
-
-	// --- Board portal pages (board-meeting-resolutions / Phase 8). ---
-	// Boards index + detail, board-meeting index + detail, resolution
-	// index + detail. ADR-004 modal isolation: BoardCreateModal and
-	// BoardMeetingCreateModal live in src/modals/ and are imported by
-	// BoardList.vue / BoardDetail.vue respectively.
-	BoardList: page(BoardList),
-	BoardDetail: page(BoardDetail),
-	BoardMeetingList: page(BoardMeetingList),
-	BoardMeetingDetail: page(BoardMeetingDetail),
-	ResolutionList: page(ResolutionList),
-	ResolutionDetail: page(ResolutionDetail),
 
 	// --- Detail-tab components (one per cross-schema relation). ---
 	// Each lives in /components/tabs/. Full-CRUD (or read-only where

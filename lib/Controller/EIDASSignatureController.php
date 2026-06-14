@@ -43,7 +43,7 @@ use OCP\IUserSession;
  */
 class EIDASSignatureController extends Controller
 {
-    use BoardPortalControllerTrait;
+    use GovernanceControllerTrait;
 
     /**
      * Constructor.
@@ -51,7 +51,7 @@ class EIDASSignatureController extends Controller
      * @param IRequest                    $request          HTTP request
      * @param IEIDASSignatureService      $signatureService eIDAS adapter
      * @param IUserSession                $userSession      User session
-     * @param MinutesAuthorizationService $authService      Per-board-member guard for the QES signing flow (R-4)
+     * @param MinutesAuthorizationService $authService      Per-member guard for the QES signing flow (R-4)
      */
     public function __construct(
         IRequest $request,

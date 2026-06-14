@@ -40,7 +40,7 @@ use OCP\IUserSession;
  */
 class MultilingualReconciliationController extends Controller
 {
-    use BoardPortalControllerTrait;
+    use GovernanceControllerTrait;
 
     /**
      * Constructor.
@@ -60,7 +60,7 @@ class MultilingualReconciliationController extends Controller
     }//end __construct()
 
     /**
-     * Enqueue a board-minutes record for translation.
+     * Enqueue a minutes record for translation.
      *
      * Body params:
      * - minutesId (string, required)

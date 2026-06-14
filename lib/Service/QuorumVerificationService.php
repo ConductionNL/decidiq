@@ -2,8 +2,8 @@
 /**
  * Decidesk Quorum Verification Service
  *
- * Computes meeting quorum from BoardMeeting attendance + active proxies and
- * exposes a structured report per board member (in-person, remote, proxy,
+ * Computes meeting quorum from meeting attendance + active proxies and
+ * exposes a structured report per member (in-person, remote, proxy,
  * absent).
  *
  * @category Service
@@ -30,8 +30,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Stateless service that walks a BoardMeeting's attendance map and the active
- * proxies to compute whether quorum is met. Threshold defaults to the board's
+ * Stateless service that walks a meeting's attendance map and the active
+ * proxies to compute whether quorum is met. Threshold defaults to the body's
  * `quorumRule` (e.g. "simple-majority" = ceil(n/2)).
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
@@ -117,7 +117,7 @@ class QuorumVerificationService
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-            $meeting = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'board-meeting');
+            $meeting = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
             if ($meeting === null) {
                 return [];
             }
@@ -128,7 +128,7 @@ class QuorumVerificationService
             $allMembers = $objectService->findAll(
                 [
                     'register' => 'decidesk',
-                    'schema'   => 'board-member',
+                    'schema'   => 'membership',
                     'filters'  => ['boardKoppeling' => $boardId],
                     'limit'    => 1000,
                 ]

@@ -35,7 +35,6 @@ use OCA\Decidesk\Controller\NotificationPreferenceController;
 use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
-use OCA\Decidesk\Listener\BoardMeetingCalDavBridge;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf;
 use OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf;
@@ -580,154 +579,11 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Service\BoardMaterialAuthorizationService::class,
-            static function ($c): \OCA\Decidesk\Service\BoardMaterialAuthorizationService {
-                return new \OCA\Decidesk\Service\BoardMaterialAuthorizationService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
-                );
-            }
-        );
-
-        $context->registerService(
             \OCA\Decidesk\Service\QuorumVerificationService::class,
             static function ($c): \OCA\Decidesk\Service\QuorumVerificationService {
                 return new \OCA\Decidesk\Service\QuorumVerificationService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Service\BoardService::class,
-            static function ($c): \OCA\Decidesk\Service\BoardService {
-                return new \OCA\Decidesk\Service\BoardService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Service\BoardMemberService::class,
-            static function ($c): \OCA\Decidesk\Service\BoardMemberService {
-                return new \OCA\Decidesk\Service\BoardMemberService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Service\BoardMeetingService::class,
-            static function ($c): \OCA\Decidesk\Service\BoardMeetingService {
-                return new \OCA\Decidesk\Service\BoardMeetingService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
-                    boardMemberService: $c->get(\OCA\Decidesk\Service\BoardMemberService::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Lifecycle\ResolutionLifecycleGuard::class,
-            static function ($c): \OCA\Decidesk\Lifecycle\ResolutionLifecycleGuard {
-                return new \OCA\Decidesk\Lifecycle\ResolutionLifecycleGuard(
-                    quorumService: $c->get(\OCA\Decidesk\Service\QuorumVerificationService::class),
-                    conflictService: $c->get(\OCA\Decidesk\Service\ConflictOfInterestService::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Service\ResolutionService::class,
-            static function ($c): \OCA\Decidesk\Service\ResolutionService {
-                return new \OCA\Decidesk\Service\ResolutionService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    guard: $c->get(\OCA\Decidesk\Lifecycle\ResolutionLifecycleGuard::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Service\BoardVoteService::class,
-            static function ($c): \OCA\Decidesk\Service\BoardVoteService {
-                return new \OCA\Decidesk\Service\BoardVoteService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    guard: $c->get(\OCA\Decidesk\Lifecycle\ResolutionLifecycleGuard::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
-                );
-            }
-        );
-
-        // Board portal Phase 3 controllers.
-        $context->registerService(
-            \OCA\Decidesk\Controller\BoardController::class,
-            static function ($c): \OCA\Decidesk\Controller\BoardController {
-                return new \OCA\Decidesk\Controller\BoardController(
-                    request: $c->get(\OCP\IRequest::class),
-                    boardService: $c->get(\OCA\Decidesk\Service\BoardService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Controller\BoardMemberController::class,
-            static function ($c): \OCA\Decidesk\Controller\BoardMemberController {
-                return new \OCA\Decidesk\Controller\BoardMemberController(
-                    request: $c->get(\OCP\IRequest::class),
-                    memberService: $c->get(\OCA\Decidesk\Service\BoardMemberService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Controller\BoardMeetingController::class,
-            static function ($c): \OCA\Decidesk\Controller\BoardMeetingController {
-                return new \OCA\Decidesk\Controller\BoardMeetingController(
-                    request: $c->get(\OCP\IRequest::class),
-                    meetingService: $c->get(\OCA\Decidesk\Service\BoardMeetingService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Controller\ResolutionController::class,
-            static function ($c): \OCA\Decidesk\Controller\ResolutionController {
-                return new \OCA\Decidesk\Controller\ResolutionController(
-                    request: $c->get(\OCP\IRequest::class),
-                    resolutionService: $c->get(\OCA\Decidesk\Service\ResolutionService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Controller\BoardVoteController::class,
-            static function ($c): \OCA\Decidesk\Controller\BoardVoteController {
-                return new \OCA\Decidesk\Controller\BoardVoteController(
-                    request: $c->get(\OCP\IRequest::class),
-                    voteService: $c->get(\OCA\Decidesk\Service\BoardVoteService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            \OCA\Decidesk\Controller\BoardMaterialController::class,
-            static function ($c): \OCA\Decidesk\Controller\BoardMaterialController {
-                return new \OCA\Decidesk\Controller\BoardMaterialController(
-                    request: $c->get(\OCP\IRequest::class),
-                    authService: $c->get(\OCA\Decidesk\Service\BoardMaterialAuthorizationService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
                 );
             }
         );
@@ -758,7 +614,6 @@ class Application extends App implements IBootstrap
         $this->registerPhase4EidasBindings(context: $context);
         $this->registerPhase5Bindings(context: $context);
         $this->registerPhase6Bindings(context: $context);
-        $this->registerPhase7CalDavBindings(context: $context);
         $this->registerNcPlatformIntegration(context: $context);
 
     }//end register()
@@ -1043,18 +898,6 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Service\WrittenResolutionService::class,
-            static function ($c): \OCA\Decidesk\Service\WrittenResolutionService {
-                return new \OCA\Decidesk\Service\WrittenResolutionService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    signatureService: $c->get(\OCA\Decidesk\Service\IEIDASSignatureService::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
-                );
-            }
-        );
-
-        $context->registerService(
             \OCA\Decidesk\Service\GovernanceReportingService::class,
             static function ($c): \OCA\Decidesk\Service\GovernanceReportingService {
                 return new \OCA\Decidesk\Service\GovernanceReportingService(
@@ -1159,56 +1002,6 @@ class Application extends App implements IBootstrap
         );
 
     }//end registerPhase6Bindings()
-
-    /**
-     * Phase 7 — CalDAV bridge bindings + listener.
-     *
-     * Wires the {@see \OCA\Decidesk\Service\BoardCalDavSyncService} and the
-     * {@see \OCA\Decidesk\Listener\BoardMeetingCalDavBridge} listener that
-     * mirrors BoardMeeting lifecycle events to the Nextcloud CalDAV backend
-     * (ADR-002).
-     *
-     * @param IRegistrationContext $context Registration context
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-7.1
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-7.2
-     *
-     * @return void
-     */
-    private function registerPhase7CalDavBindings(IRegistrationContext $context): void
-    {
-        $context->registerService(
-            \OCA\Decidesk\Service\BoardCalDavSyncService::class,
-            static function ($c): \OCA\Decidesk\Service\BoardCalDavSyncService {
-                return new \OCA\Decidesk\Service\BoardCalDavSyncService(
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
-            }
-        );
-
-        $context->registerService(
-            BoardMeetingCalDavBridge::class,
-            static function ($c): BoardMeetingCalDavBridge {
-                return new BoardMeetingCalDavBridge(
-                    syncService: $c->get(\OCA\Decidesk\Service\BoardCalDavSyncService::class),
-                    userSession: $c->get(\OCP\IUserSession::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
-            }
-        );
-
-        // Subscribe to BoardMeeting OR lifecycle events.
-        $context->registerEventListener(
-            event: ObjectCreatedEvent::class,
-            listener: BoardMeetingCalDavBridge::class
-        );
-        $context->registerEventListener(
-            event: ObjectUpdatedEvent::class,
-            listener: BoardMeetingCalDavBridge::class
-        );
-
-    }//end registerPhase7CalDavBindings()
 
     /**
      * Boot the application.

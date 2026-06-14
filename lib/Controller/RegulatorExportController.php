@@ -43,7 +43,7 @@ use OCP\IUserSession;
  */
 class RegulatorExportController extends Controller
 {
-    use BoardPortalControllerTrait;
+    use GovernanceControllerTrait;
 
     /**
      * Constructor.

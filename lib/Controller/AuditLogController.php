@@ -46,7 +46,7 @@ use OCP\IUserSession;
  */
 class AuditLogController extends Controller
 {
-    use BoardPortalControllerTrait;
+    use GovernanceControllerTrait;
 
     /**
      * Constructor for AuditLogController.
@@ -159,7 +159,7 @@ class AuditLogController extends Controller
             $extension   = 'csv';
         }
 
-        $filename = 'board-audit-log-'.gmdate('Ymd-His').'.'.$extension;
+        $filename = 'audit-log-'.gmdate('Ymd-His').'.'.$extension;
 
         $response = new DataDisplayResponse($result['body'], Http::STATUS_OK, ['Content-Type' => $contentType]);
         $response->addHeader('Content-Disposition', 'attachment; filename="'.$filename.'"');

@@ -2,11 +2,13 @@
 /**
  * Decidesk Audit Log Service
  *
- * Append-only hash-chained audit log for the board portal. Every board action
+ * Append-only hash-chained audit log for governance actions. Every action
  * (vote, conflict declaration, material access, signature, notice send, proxy
- * grant or revocation) creates a `board-audit-log-entry` whose `currentHash`
+ * grant or revocation) creates an `audit-trail` entry whose `currentHash`
  * is SHA-256 over the canonical payload plus the previous entry's hash. Any
  * later tampering of a row breaks the chain and is caught by `verify()`.
+ * (Retargeted to the unified audit-trail store per ADR-006; the OR built-in
+ * auditTrail integration is finalised in Cycle 2. // TODO Cycle 2)
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -161,7 +163,7 @@ class AuditLogService
             $saved = $objectService->saveObject(
                 object: $entry,
                 register: 'decidesk',
-                schema: 'board-audit-log-entry'
+                schema: 'audit-trail'
             );
 
             $this->logger->info(
@@ -478,7 +480,7 @@ class AuditLogService
         $rows = $objectService->findAll(
             [
                 'register' => 'decidesk',
-                'schema'   => 'board-audit-log-entry',
+                'schema'   => 'audit-trail',
                 'order'    => ['timestamp' => 'ASC'],
                 'limit'    => 10000,
             ]

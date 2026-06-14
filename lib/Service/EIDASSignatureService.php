@@ -12,6 +12,11 @@
  * the Application wires the dormant {@see LogEIDASSignatureService} fallback
  * instead — the controller / guard never see a hard 500.
  *
+ * Retargeted onto the unified `minutes` / `decision` entities (ADR-006). The
+ * proper "signature" decision method (a way a decision is reached, available
+ * to any decision regardless of mode) lands in Cycle 2 `decision-methods`;
+ * here the service only repoints its slugs and keeps working. // TODO Cycle 2
+ *
  * @category Service
  * @package  OCA\Decidesk\Service
  *
@@ -68,7 +73,7 @@ class EIDASSignatureService implements IEIDASSignatureService
      * {@inheritDoc}
      *
      * @param string        $minutesId   UUID of the BoardMinutes record
-     * @param array<string> $signatories Ordered list of board-member UUIDs
+     * @param array<string> $signatories Ordered list of member (Person) UUIDs
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
      *
@@ -428,7 +433,7 @@ class EIDASSignatureService implements IEIDASSignatureService
             $entity        = $objectService->find(
                 id: $minutesId,
                 register: 'decidesk',
-                schema: 'board-minutes'
+                schema: 'minutes'
             );
             if ($entity === null) {
                 return;
@@ -442,7 +447,7 @@ class EIDASSignatureService implements IEIDASSignatureService
             $objectService->saveObject(
                 object: array_merge($current, $patch),
                 register: 'decidesk',
-                schema: 'board-minutes',
+                schema: 'minutes',
                 uuid: $minutesId
             );
         } catch (\Throwable $e) {

@@ -1,30 +1,28 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 //
-// noticeRules — pure frontend mirror of
-// BoardMeetingService::getNoticeDeadlineInfo(): statutory convocation
-// deadline arithmetic (BW 2:225 / BW 2:38) used by BoardMeetingDetail to
-// warn BEFORE the secretary sends a notice. The server computation is
-// authoritative; this mirror only drives the pre-send UI hint.
+// noticeRules — pure frontend mirror of the meeting notice-deadline
+// computation: statutory convocation deadline arithmetic (BW 2:225 / BW 2:38)
+// used by the meeting detail view to warn BEFORE the secretary sends a notice.
+// The server computation is authoritative; this mirror only drives the
+// pre-send UI hint.
 //
 // @spec openspec/specs/meeting-management/spec.md
 
 /**
- * Default statutory notice period in days (mirror of
- * BoardMeetingService::DEFAULT_NOTICE_PERIOD_DAYS).
+ * Default statutory notice period in days (meeting convocation notice).
  */
 export const DEFAULT_NOTICE_PERIOD_DAYS = 15
 
 /**
- * Warn when sending within this many days of the deadline (mirror of
- * BoardMeetingService::DEADLINE_WARNING_DAYS).
+ * Warn when sending within this many days of the deadline.
  */
 export const DEADLINE_WARNING_DAYS = 3
 
 /**
- * Compute the statutory notice deadline + warning level for a board meeting.
+ * Compute the statutory notice deadline + warning level for a meeting.
  *
- * @param {object} meeting Board-meeting payload (`meetingDate`, optional `noticePeriodDays`).
+ * @param {object} meeting Meeting payload (`meetingDate`, optional `noticePeriodDays`).
  * @param {Date} [now] Clock injection for tests; defaults to the current time.
  *
  * @return {{deadline: string|null, daysUntilDeadline: number|null, level: string}}

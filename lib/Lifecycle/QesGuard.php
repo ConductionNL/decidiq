@@ -45,7 +45,7 @@ use Psr\Log\LoggerInterface;
  * Soft-block semantics: if the configured adapter is the dormant
  * LogEIDASSignatureService, every chain validation returns `valid:false` with
  * the well-known "eIDAS QES integration is not configured." reason. Callers
- * (ResolutionService::conclude) treat the soft-block as an
+ * (the decision conclude flow) treat the soft-block as an
  * `HTTP 422 Unprocessable` rather than a 500.
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
@@ -72,7 +72,7 @@ class QesGuard
      * can map success/failure to HTTP status without throwing.
      *
      * @param string             $resolutionId    UUID of the resolution
-     * @param array<int, string> $requiredSigners List of required board-member UUIDs
+     * @param array<int, string> $requiredSigners List of required member (Person) UUIDs
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
      *
@@ -162,7 +162,7 @@ class QesGuard
         $resolution = $objectService->find(
             id: $resolutionId,
             register: 'decidesk',
-            schema: 'resolution'
+            schema: 'decision'
         );
         if ($resolution === null) {
             return [];
@@ -181,7 +181,7 @@ class QesGuard
         $minutesRows = $objectService->findAll(
             [
                 'register' => 'decidesk',
-                'schema'   => 'board-minutes',
+                'schema'   => 'minutes',
                 'filters'  => ['meetingKoppeling' => $meetingId],
                 'limit'    => 50,
             ]
@@ -208,8 +208,8 @@ class QesGuard
     /**
      * Build the soft-block reason string for the response tuple.
      *
-     * @param array<int, string> $missing List of board-member UUIDs without a QES
-     * @param array<int, string> $invalid List of board-member UUIDs whose chain failed
+     * @param array<int, string> $missing List of member (Person) UUIDs without a QES
+     * @param array<int, string> $invalid List of member (Person) UUIDs whose chain failed
      *
      * @return string
      */

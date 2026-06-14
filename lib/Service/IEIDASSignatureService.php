@@ -43,8 +43,8 @@ interface IEIDASSignatureService
     /**
      * Request initialization for a QES flow against the configured QSP.
      *
-     * @param string        $minutesId   UUID of the BoardMinutes record
-     * @param array<string> $signatories Ordered list of board-member UUIDs
+     * @param string        $minutesId   UUID of the Minutes record
+     * @param array<string> $signatories Ordered list of member (Person) UUIDs
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
      *

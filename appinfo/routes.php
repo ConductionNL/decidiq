@@ -125,43 +125,11 @@ return [
         // Motion forwarding routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
         ['name' => 'motion#forward', 'url' => '/api/motions/{id}/forward', 'verb' => 'POST'],
 
-        // Board portal — @spec openspec/changes/board-meeting-resolutions/tasks.md
-        // Board CRUD.
-        ['name' => 'board#index',  'url' => '/api/boards',      'verb' => 'GET'],
-        ['name' => 'board#create', 'url' => '/api/boards',      'verb' => 'POST'],
-        ['name' => 'board#show',   'url' => '/api/boards/{id}', 'verb' => 'GET'],
-        ['name' => 'board#update', 'url' => '/api/boards/{id}', 'verb' => 'PUT'],
-
-        // Board member management.
-        ['name' => 'boardMember#index',     'url' => '/api/boards/{boardId}/members',                'verb' => 'GET'],
-        ['name' => 'boardMember#invite',    'url' => '/api/boards/{boardId}/members',                'verb' => 'POST'],
-        ['name' => 'boardMember#remove',    'url' => '/api/board-members/{id}',                      'verb' => 'DELETE'],
-        ['name' => 'boardMember#changeRole', 'url' => '/api/board-members/{id}/role',                'verb' => 'PUT'],
-
-        // Board meeting lifecycle.
-        ['name' => 'boardMeeting#schedule',  'url' => '/api/boards/{boardId}/meetings',            'verb' => 'POST'],
-        ['name' => 'boardMeeting#sendNotice', 'url' => '/api/board-meetings/{id}/send-notice',     'verb' => 'POST'],
-        ['name' => 'boardMeeting#transition', 'url' => '/api/board-meetings/{id}/lifecycle',       'verb' => 'POST'],
-
-        // Resolutions.
-        ['name' => 'resolution#propose',  'url' => '/api/board-meetings/{meetingId}/resolutions', 'verb' => 'POST'],
-        ['name' => 'resolution#amend',    'url' => '/api/resolutions/{id}',                       'verb' => 'PUT'],
-        ['name' => 'resolution#openVote', 'url' => '/api/resolutions/{id}/open-vote',             'verb' => 'POST'],
-        ['name' => 'resolution#conclude', 'url' => '/api/resolutions/{id}/conclude',              'verb' => 'POST'],
-
-        // Board votes.
-        ['name' => 'boardVote#cast',  'url' => '/api/resolutions/{resolutionId}/votes', 'verb' => 'POST'],
-        ['name' => 'boardVote#tally', 'url' => '/api/resolutions/{resolutionId}/tally', 'verb' => 'GET'],
-        ['name' => 'boardVote#audit', 'url' => '/api/resolutions/{resolutionId}/audit', 'verb' => 'GET'],
-
-        // Board materials.
-        ['name' => 'boardMaterial#index',    'url' => '/api/boards/{boardId}/materials', 'verb' => 'GET'],
-        ['name' => 'boardMaterial#show',     'url' => '/api/board-materials/{id}',       'verb' => 'GET'],
-        ['name' => 'boardMaterial#download', 'url' => '/api/board-materials/{id}/download', 'verb' => 'POST'],
-
+        // Governance services (retained from the retired board portal,
+        // retargeted onto the unified entities per ADR-006).
         // Conflict-of-interest declarations.
         ['name' => 'conflictOfInterest#declare',     'url' => '/api/conflicts',                  'verb' => 'POST'],
-        ['name' => 'conflictOfInterest#forMember',   'url' => '/api/board-members/{id}/conflicts', 'verb' => 'GET'],
+        ['name' => 'conflictOfInterest#forMember',   'url' => '/api/members/{id}/conflicts',     'verb' => 'GET'],
         ['name' => 'conflictOfInterest#recordAction', 'url' => '/api/conflicts/{id}/action',     'verb' => 'PUT'],
 
         // Audit log (secretary/admin only — enforced inside controller).
@@ -169,30 +137,30 @@ return [
         ['name' => 'auditLog#verify', 'url' => '/api/audit-log/{id}/verify',    'verb' => 'GET'],
         ['name' => 'auditLog#export', 'url' => '/api/audit-log/export',         'verb' => 'GET'],
 
-        // Board portal Phase 4 — eIDAS QES integration (task-3.3).
+        // eIDAS QES integration on minutes (task-3.3).
         ['name' => 'eIDASSignature#initiate',   'url' => '/api/minutes/{minutesId}/eidas/initiate',  'verb' => 'POST'],
         ['name' => 'eIDASSignature#verify',     'url' => '/api/minutes/{minutesId}/eidas/verify',    'verb' => 'POST'],
         ['name' => 'eIDASSignature#finalize',   'url' => '/api/minutes/{minutesId}/eidas/finalize',  'verb' => 'POST'],
         ['name' => 'eIDASSignature#certStatus', 'url' => '/api/eidas/validate-cert',                 'verb' => 'POST'],
 
-        // Board portal Phase 5 — Proxy voting (task-5.1).
+        // Proxy voting (task-5.1).
         ['name' => 'proxyVote#register', 'url' => '/api/proxies',               'verb' => 'POST'],
         ['name' => 'proxyVote#index',    'url' => '/api/proxies',               'verb' => 'GET'],
         ['name' => 'proxyVote#suspend',  'url' => '/api/proxies/{id}/suspend',  'verb' => 'PUT'],
         ['name' => 'proxyVote#revoke',   'url' => '/api/proxies/{id}',          'verb' => 'DELETE'],
 
-        // Board portal Phase 5 — Governance reporting (task-5.4).
+        // Governance reporting (task-5.4).
         ['name' => 'governanceReport#generate', 'url' => '/api/governance-reports',                       'verb' => 'POST'],
         ['name' => 'governanceReport#index',    'url' => '/api/governance-reports',                       'verb' => 'GET'],
         ['name' => 'governanceReport#show',     'url' => '/api/governance-reports/{id}',                  'verb' => 'GET'],
         ['name' => 'governanceReport#export',   'url' => '/api/governance-reports/{id}/export/{format}',  'verb' => 'GET'],
 
-        // Board portal Phase 6 — Regulator export (task-6.1).
+        // Regulator export (task-6.1).
         ['name' => 'regulatorExport#generate', 'url' => '/api/regulator-exports',         'verb' => 'POST'],
         ['name' => 'regulatorExport#index',    'url' => '/api/regulator-exports',         'verb' => 'GET'],
         ['name' => 'regulatorExport#download', 'url' => '/api/regulator-exports/{id}',    'verb' => 'GET'],
 
-        // Board portal Phase 6 — Multilingual reconciliation (task-6.3).
+        // Multilingual reconciliation (task-6.3).
         ['name' => 'multilingualReconciliation#queue',    'url' => '/api/multilingual/queue',          'verb' => 'POST'],
         ['name' => 'multilingualReconciliation#status',   'url' => '/api/multilingual/queue',          'verb' => 'GET'],
         ['name' => 'multilingualReconciliation#process',  'url' => '/api/multilingual/queue/process',  'verb' => 'POST'],

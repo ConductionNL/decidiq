@@ -34,7 +34,7 @@ use Psr\Log\LoggerInterface;
  *
  * Every public method catches \Throwable internally: Activity is an
  * observability surface and must never abort the underlying governance
- * transition (same posture as the BoardMeetingCalDavBridge).
+ * transition (the fail-soft observability posture).
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */

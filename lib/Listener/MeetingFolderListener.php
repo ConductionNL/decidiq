@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Forwards meeting OR creation events to MeetingFolderService
- * (the BoardMeetingCalDavBridge listener pattern, fail-soft).
+ * (the fail-soft OR-event listener pattern).
  *
  * @implements IEventListener<Event>
  *
@@ -112,7 +112,7 @@ class MeetingFolderListener implements IEventListener
 
     /**
      * Resolve the schema slug from the canonical OR entity surface
-     * (same candidates as BoardMeetingCalDavBridge).
+     * (the canonical meeting entity candidates).
      *
      * @param object               $entity OR object entity
      * @param array<string, mixed> $row    Serialized payload

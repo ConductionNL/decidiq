@@ -87,7 +87,7 @@ class GovernanceReportingService
                 rows: $objectService->findAll(
                     [
                         'register' => 'decidesk',
-                        'schema'   => 'board-meeting',
+                        'schema'   => 'meeting',
                         'filters'  => ['boardKoppeling' => $boardId],
                         'limit'    => 5000,
                     ]
@@ -97,7 +97,7 @@ class GovernanceReportingService
                 rows: $objectService->findAll(
                     [
                         'register' => 'decidesk',
-                        'schema'   => 'resolution',
+                        'schema'   => 'decision',
                         'limit'    => 5000,
                     ]
                 )
@@ -106,7 +106,7 @@ class GovernanceReportingService
                 rows: $objectService->findAll(
                     [
                         'register' => 'decidesk',
-                        'schema'   => 'board-vote',
+                        'schema'   => 'vote',
                         'limit'    => 50000,
                     ]
                 )
@@ -115,7 +115,7 @@ class GovernanceReportingService
                 rows: $objectService->findAll(
                     [
                         'register' => 'decidesk',
-                        'schema'   => 'board-member',
+                        'schema'   => 'membership',
                         'filters'  => ['boardKoppeling' => $boardId],
                         'limit'    => 1000,
                     ]

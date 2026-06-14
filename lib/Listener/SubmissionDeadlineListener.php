@@ -142,7 +142,7 @@ class SubmissionDeadlineListener implements IEventListener
 
     /**
      * Resolve the schema slug from the canonical OR entity surface
-     * (same candidates as MeetingFolderListener / BoardMeetingCalDavBridge).
+     * (same candidates as MeetingFolderListener).
      *
      * @param object               $entity OR object entity
      * @param array<string, mixed> $row    Serialized payload
