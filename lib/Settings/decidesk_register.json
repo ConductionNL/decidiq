@@ -4124,6 +4124,10 @@
             "description": "Whether final allocation results are visible to citizens.",
             "default": false,
             "example": false
+          },
+          "resultsSummary": {
+            "type": "string",
+            "description": "JSON-encoded, PII-free result summary (ranked proposals + greedy allocation + participation count) attached when results are published; the @self.published predicate is set alongside it. Carries aggregate vote counts only, never voter identities."
           }
         },
         "x-openregister-relations": {
@@ -4349,6 +4353,10 @@
             "description": "Number of APPROVED reaction submissions received (derived; incremented on moderation approval).",
             "default": 0,
             "example": 0
+          },
+          "resultsSummary": {
+            "type": "string",
+            "description": "JSON-encoded, PII-free result summary (approved-reaction digest + staff response) attached when results are published; the @self.published predicate is set alongside it."
           }
         },
         "x-openregister-relations": {
