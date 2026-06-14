@@ -36,60 +36,60 @@ Document what already exists so this change EXTENDS the hub rather than rebuildi
 
 ## Phase 1: Schema delta — subject reference, provenance, callback (ADR-031, ADR-037)
 
-- [ ] Add additive, nullable fields to the `Decision` schema in the decidesk register fragment:
+- [x] Add additive, nullable fields to the `Decision` schema in the decidesk register fragment:
   `sourceApp`, `subjectRegister`, `subjectSchema`, `subjectId`, `subjectLabel`, `outcomeCallbackUrl`,
   `externalReference` (REQ-DCDH-001).
-- [ ] Add `decisionType` enum values `contract-renewal`, `report-adoption` (additive; `contract`
+- [x] Add `decisionType` enum values `contract-renewal`, `report-adoption` (additive; `contract`
   already present) (REQ-DCDH-001).
-- [ ] Bump the `Decision` schema `version` (additive change, no migration) and confirm existing
+- [x] Bump the `Decision` schema `version` (additive change, no migration) and confirm existing
   decisions still validate (no required field added).
-- [ ] Declare the provenance block render rule (read-only "raised by" block on the detail relations
+- [x] Declare the provenance block render rule (read-only "raised by" block on the detail relations
   tab, progressive disclosure ADR-004 Rule 2) — schema metadata, no PHP.
 
 ## Phase 2: Integration surface — create / query / subscribe (ADR-019, ADR-022)
 
-- [ ] Add `lib/Controller/IntegrationController.php` with `POST /api/v1/decisions`
+- [x] Add `lib/Controller/IntegrationController.php` with `POST /api/v1/decisions`
   (create-decision-with-subject, idempotent on the provenance tuple + `externalReference`) (REQ-DCDH-002).
-- [ ] Add `GET /api/v1/decisions/{id}/outcome` returning the outcome envelope (REQ-DCDH-003).
-- [ ] Add `POST /api/v1/decisions/{id}/subscriptions` to register an outcome callback against a
+- [x] Add `GET /api/v1/decisions/{id}/outcome` returning the outcome envelope (REQ-DCDH-003).
+- [x] Add `POST /api/v1/decisions/{id}/subscriptions` to register an outcome callback against a
   registry-known consumer (REQ-DCDH-004).
-- [ ] Register routes in `appinfo/routes.php`; each method declares its auth attribute
+- [x] Register routes in `appinfo/routes.php`; each method declares its auth attribute
   (`#[NoAdminRequired]` etc.) and a per-object/admin guard (route-auth + no-admin-IDOR gates).
-- [ ] Add `lib/Service/DecisionIntegrationService.php` — assembles the outcome envelope from existing
+- [x] Add `lib/Service/DecisionIntegrationService.php` — assembles the outcome envelope from existing
   `Decision`/`DecisionStage`/`Minutes`/signer data and derives `status`/`signed`/`signers`
   declaratively; dispatches the registry callback. NO ObjectService CRUD wrapper (ADR-022).
-- [ ] Validate the callback URL against the registry consumer entry (anti-SSRF); reject arbitrary URLs.
+- [x] Validate the callback URL against the registry consumer entry (anti-SSRF); reject arbitrary URLs.
 
 ## Phase 3: Signature method delegates to docudesk (contract #2, ADR-019)
 
-- [ ] In `lib/Service/EIDASSignatureService.php`, add the docudesk path: compose a docudesk
+- [x] In `lib/Service/EIDASSignatureService.php`, add the docudesk path: compose a docudesk
   `signingRequest` from the `method=signature` stage's `signedDocument` + resolved signatories, via
   the ADR-019 registry; store the returned signing reference on the stage (REQ-DCDH-005).
-- [ ] On docudesk completion, resolve the signature stage via the existing `resolveSignatureStage()`
+- [x] On docudesk completion, resolve the signature stage via the existing `resolveSignatureStage()`
   seam (`outcome=adopted` + `decidedAt` + link signed document) — unchanged behaviour, new transport.
-- [ ] Keep openconnector's `e-sign` Source as the fallback when docudesk is absent; select the
+- [x] Keep openconnector's `e-sign` Source as the fallback when docudesk is absent; select the
   provider via the registry. Fail CLOSED if neither is available (no silent "signed") (REQ-DCDH-005).
-- [ ] Surface `signingReference` / `signedAt` / `signers` in the outcome envelope (REQ-DCDH-003).
+- [x] Surface `signingReference` / `signedAt` / `signers` in the outcome envelope (REQ-DCDH-003).
 
 ## Phase 4: Positioning + boundary
 
-- [ ] Document the decidesk-Decision vs OR-ApprovalChain choice in the decision-hub spec
+- [x] Document the decidesk-Decision vs OR-ApprovalChain choice in the decision-hub spec
   (REQ-DCDH-006); add no code to OR.
-- [ ] Confirm the boundary in the spec: decidesk emits the outcome and stops; consumers
+- [x] Confirm the boundary in the spec: decidesk emits the outcome and stops; consumers
   (shillinq GL post, procest ZGW advance) own the side effects (REQ-DCDH-007).
 
 ## Phase 5: Notifications & docs
 
-- [ ] Declare the outcome notification + registry callback dispatch via `x-openregister-notifications`
+- [x] Declare the outcome notification + registry callback dispatch via `x-openregister-notifications`
   (ADR-031), avoiding imperative leaf dispatch.
-- [ ] Update the decidesk integration/API docs to list decidesk as the fleet contract-decision +
+- [x] Update the decidesk integration/API docs to list decidesk as the fleet contract-decision +
   sign-off hub and document the three endpoints + outcome envelope for consumer apps.
 
 ## Phase 6: Tests
 
-- [ ] PHPUnit: `DecisionIntegrationService` outcome-envelope derivation (approved/rejected/withdrawn,
+- [x] PHPUnit: `DecisionIntegrationService` outcome-envelope derivation (approved/rejected/withdrawn,
   signed/unsigned, signers from `Minutes.signedBy`).
-- [ ] PHPUnit/Newman: create-decision idempotency on the provenance tuple; callback dispatched only to
+- [x] PHPUnit/Newman: create-decision idempotency on the provenance tuple; callback dispatched only to
   registry consumers; signature method fails closed when no signing provider is available.
-- [ ] Newman: `/api/v1/decisions` create + `/api/v1/decisions/{id}/outcome` query against a live register.
-- [ ] e2e: the "raised by" provenance block renders on the Decision detail relations tab.
+- [x] Newman: `/api/v1/decisions` create + `/api/v1/decisions/{id}/outcome` query against a live register.
+- [x] e2e: the "raised by" provenance block renders on the Decision detail relations tab.
