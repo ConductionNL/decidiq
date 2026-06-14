@@ -933,11 +933,18 @@
 						"widget": "badge"
 					},
 					{
+						"key": "effectiveStatus",
+						"label": "Effective status",
+						"widget": "badge",
+						"computed": true
+					},
+					{
 						"key": "legalBasis",
 						"label": "Legal basis",
 						"hidden": true
 					}
 				],
+				"_inForceFilterNote": "DESIGN D3 — the in-force filter operates over the derived effectiveStatus, which (per design D2) is NOT a stored/queryable field: OpenRegister cannot express the inbound supersedes/repeals lookup as a materialised calculation, so effectiveStatus is computed client-side. A static manifest `filter` (the proven Motions decisionType pattern) and `quickFilters` both merge a filter map into the OpenRegister fetch and therefore only work over STORED fields — neither can server-filter on a client-derived value. The in-force / superseded / repealed state is instead surfaced per-decision via the effectiveStatus badge column (computed client-side) plus the banner and incoming-relation groups in RelatedDecisionsTab. A server-side in-force filter becomes available only if/when effectiveStatus is materialised by an OpenRegister inverse-relation calculation operator (D2 follow-up).",
 				"actions": [
 					{
 						"id": "view",
@@ -1001,6 +1008,13 @@
 						"order": 15
 					},
 					{
+						"id": "route",
+						"label": "Route",
+						"icon": "icon-projects",
+						"component": "DecisionRouteTab",
+						"order": 12
+					},
+					{
 						"id": "actionItems",
 						"label": "Action items",
 						"icon": "icon-checkmark",
@@ -1013,6 +1027,13 @@
 						"icon": "icon-comment",
 						"component": "DecisionVotingTab",
 						"order": 30
+					},
+					{
+						"id": "related",
+						"label": "Related decisions",
+						"icon": "icon-link",
+						"component": "RelatedDecisionsTab",
+						"order": 35
 					},
 					{
 						"id": "audit",

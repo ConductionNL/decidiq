@@ -1899,11 +1899,69 @@
               "nl": "Besluit vastgelegd: {{title}}",
               "en": "Decision recorded: {{title}}"
             }
+          },
+          "decisionSuperseded": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "supersedes",
+                "operator": "isNotEmpty"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Besluit vervangt eerder besluit: {{title}}",
+              "en": "Decision supersedes an earlier decision: {{title}}"
+            }
+          },
+          "decisionRepealed": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "repeals",
+                "operator": "isNotEmpty"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Besluit trekt eerder besluit in: {{title}}",
+              "en": "Decision repeals an earlier decision: {{title}}"
+            }
           }
         },
         "slug": "decision",
         "icon": "GavelOutline",
-        "version": "0.4.0",
+        "version": "0.5.0",
         "title": "Decision",
         "description": "The universal governance-decision supertype (ADR-005). A single schema for every decision outcome — motion, amendment, resolution, contract, appointment, management point, policy and generic meeting outcome — distinguished by the required decisionType discriminator. Type-specific fields are folded in and revealed via progressive disclosure keyed on decisionType (ADR-006).",
         "type": "object",
@@ -2189,7 +2247,7 @@
             "register": "decidesk",
             "schema": "Decision",
             "cardinality": "many-to-one",
-            "description": "Used by decisionType=amendment to point at its parent motion decision (replaces the retired Amendment → Motion relation)."
+            "description": "This decision modifies that decision. Used by decisionType=amendment to point at its parent motion decision (replaces the retired Amendment → Motion relation); more generally the legislative 'amends another decision' modification (Akoma Ntoso eId akn:amendment / ORI 'wijzigt'). Informational for effective-status purposes — an amended decision remains in force, just modified (design D1)."
           },
           "offer": {
             "register": "decidesk",
@@ -2214,6 +2272,30 @@
             "schema": "DecisionStage",
             "cardinality": "one-to-many",
             "description": "The ordered route of DecisionStage objects that this Decision travels. Empty when no staged route is configured; a stageless Decision is valid. The inverse relation (DecisionStage → Decision) is stored on DecisionStage.decision."
+          },
+          "supersedes": {
+            "register": "decidesk",
+            "schema": "Decision",
+            "cardinality": "one-to-many",
+            "description": "Decisions that this decision supersedes (replaces in their entirety) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted supersedes becomes effectiveStatus=superseded (design D1/D2). Maps to Akoma Ntoso akn:replacement / ORI 'vervangt' / schema.org supersededBy (inverse)."
+          },
+          "repeals": {
+            "register": "decidesk",
+            "schema": "Decision",
+            "cardinality": "one-to-many",
+            "description": "Decisions that this decision repeals (revokes / nullifies) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted repeals becomes effectiveStatus=repealed (precedence over superseded; design D1/D2). Maps to Akoma Ntoso akn:repeal / ORI 'trekt in'."
+          },
+          "implements": {
+            "register": "decidesk",
+            "schema": "Decision",
+            "cardinality": "one-to-many",
+            "description": "Decisions that this decision implements / gives effect to (e.g. an executive decision implementing a council framework) — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:implementation / ORI 'geeft uitvoering aan'."
+          },
+          "refersTo": {
+            "register": "decidesk",
+            "schema": "Decision",
+            "cardinality": "one-to-many",
+            "description": "Decisions this decision merely references / relates to without modifying — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:cites / ORI 'verwijst naar' / schema.org isRelatedTo."
           }
         },
         "x-openregister-aggregations": {
@@ -2299,6 +2381,7 @@
             }
           }
         },
+        "x-decidesk-effectiveStatus-note": "DESIGN D2 — effectiveStatus is NOT a declarative calculation. OpenRegister's CalculationEvaluator (openregister/lib/Service/Calculation/CalculationEvaluator.php) supports only scalar/arithmetic/date operators (prop, and, or, eq/ne/lt/lte/gt/gte, +, -, *, /, %, concat, if, now, diffDays, formatDate, dateDiff) — it has NO inverse/reverse-relation operator. The inbound 'which decided/enacted decision supersedes/repeals this one' lookup cannot be expressed as a materialised calculation. Per design D2 fallback, effectiveStatus is derived CLIENT-SIDE in RelatedDecisionsTab.vue + DecisionRouteTab.vue: query decisions whose supersedes/repeals array contains this id, filter to lifecycle in {decided, enacted}, precedence repealed > superseded > lifecycle.",
         "x-openregister-seeds": [
           {
             "@self": {
@@ -2568,7 +2651,11 @@
             "outcome": "adopted",
             "isPublished": "public",
             "legalBasis": "Gemeentewet art. 189",
-            "lifecycle": "deliberating",
+            "lifecycle": "enacted",
+            "enactedAt": "2026-04-16T09:00:00Z",
+            "supersedes": [
+              "besluit-begroting-2026"
+            ],
             "route": [
               "stage-begroting-2027-1-prep",
               "stage-begroting-2027-2-adv",

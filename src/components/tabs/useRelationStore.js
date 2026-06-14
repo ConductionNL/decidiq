@@ -41,6 +41,15 @@ const TYPE_TO_SETTINGS_KEY = {
 	'action-item': 'actionItemSchema',
 	minutes: 'minutesSchema',
 	'engagement-record': 'engagementRecordSchema',
+	// C6 decision-detail-fullpicture: the route tab reads a Decision's `route`
+	// relation, which resolves to DecisionStage objects (slug `decision-stage`),
+	// and resolves each stage's decision-maker name from a Person or
+	// GovernanceBody. These settings keys are not in SettingsService::CONFIG_KEYS,
+	// so ensureRelationType falls back to the literal logical-type slug — which
+	// matches the schema slug in decidesk_register.json (decision-stage / person /
+	// governance-body). The mappings are kept explicit for documentation.
+	'decision-stage': 'decisionStageSchema',
+	person: 'personSchema',
 }
 
 /**

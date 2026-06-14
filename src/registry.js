@@ -65,7 +65,9 @@ import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
 import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
+import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
+import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 
 // User settings (user-settings-v1): in-app mount of the personal settings
 // sections (notification / display / delegation / communication). The
@@ -222,7 +224,9 @@ export default {
 	// timeline + guarded transition buttons, and the read-only
 	// decision → motion → voting-round → vote results aggregate.
 	DecisionLifecycleTab: page(DecisionLifecycleTab),
+	DecisionRouteTab: page(DecisionRouteTab),
 	DecisionVotingTab: page(DecisionVotingTab),
+	RelatedDecisionsTab: page(RelatedDecisionsTab),
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.
