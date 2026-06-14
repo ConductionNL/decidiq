@@ -12,10 +12,12 @@
  * the Application wires the dormant {@see LogEIDASSignatureService} fallback
  * instead — the controller / guard never see a hard 500.
  *
- * Retargeted onto the unified `minutes` / `decision` entities (ADR-006). The
- * proper "signature" decision method (a way a decision is reached, available
- * to any decision regardless of mode) lands in Cycle 2 `decision-methods`;
- * here the service only repoints its slugs and keeps working. // TODO Cycle 2
+ * Retargeted onto the unified `minutes` / `decision` entities (ADR-006).
+ * C5 (decision-methods) wires the "signature" decision method: when eIDAS
+ * signing completes via {@see self::finalizeMinutes()}, the service locates
+ * the related DecisionStage of method=signature and resolves it (sets
+ * outcome=adopted + decidedAt + links the signedDocument). See
+ * {@see self::resolveSignatureStage()} for the stage-resolution seam (C5 D5).
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -44,6 +46,7 @@ use Psr\Log\LoggerInterface;
  * Concrete eIDAS QES service that delegates to openconnector's e-sign source.
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/decision-methods/tasks.md#4-eidas-signature-method-wiring-code
  */
 class EIDASSignatureService implements IEIDASSignatureService
 {
@@ -254,7 +257,7 @@ class EIDASSignatureService implements IEIDASSignatureService
         $archiveReference = (string) ($response['pdfArchiveReference'] ?? '');
         $hash = (string) ($response['hashSha256'] ?? '');
 
-        // Persist the archive reference + hash + signed payload on the BoardMinutes row.
+        // Persist the archive reference + hash + signed payload on the Minutes row.
         $this->updateMinutesRow(
             minutesId: $minutesId,
             patch: [
@@ -266,6 +269,10 @@ class EIDASSignatureService implements IEIDASSignatureService
                 'signedBy'              => array_values($signatureList),
             ]
         );
+
+        // C5 (decision-methods D5): resolve the method=signature DecisionStage
+        // that is linked to these minutes, if one exists.
+        $this->resolveSignatureStage(minutesId: $minutesId);
 
         $this->auditLogService->append(
             actor: 'system',
@@ -418,7 +425,96 @@ class EIDASSignatureService implements IEIDASSignatureService
     }//end invokeOpenconnector()
 
     /**
-     * Persist a partial update on a BoardMinutes row. Wrapped in a try/catch so
+     * Resolve the DecisionStage of method=signature that is linked (via the
+     * Minutes → Meeting → Decision chain or directly via signedDocument) to the
+     * finalised minutes. When found, links the DigitalDocument (signedDocument),
+     * sets outcome=adopted, and stamps decidedAt (C5 D5 / design decision-methods
+     * #4).
+     *
+     * The lookup strategy: search for a DecisionStage whose signedDocument UUID
+     * matches the minutesId being finalised (treating the Minutes record itself as
+     * the DigitalDocument proxy here, since signedDocument is the sealed artefact).
+     * If openconnector is absent or the stage is not found, the method degrades
+     * silently (warning log) — the signing artefact is still persisted.
+     *
+     * @param string $minutesId UUID of the finalised Minutes record
+     *
+     * @spec openspec/changes/decision-methods/tasks.md#4-eidas-signature-method-wiring-code
+     *
+     * @return void
+     */
+    private function resolveSignatureStage(string $minutesId): void
+    {
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+            // Find any DecisionStage with method=signature whose signedDocument
+            // points at this minutes record. Seeds and UI will wire the correct
+            // DigitalDocument UUID; the service resolves the stage it finds.
+            $results = $objectService->findAll(
+                register: 'decidesk',
+                schema: 'decision-stage',
+                filters: [
+                    'method'         => 'signature',
+                    'signedDocument' => $minutesId,
+                ]
+            );
+
+            if (empty($results) === true) {
+                return;
+            }
+
+            $decidedAt = gmdate('Y-m-d\TH:i:s\Z');
+
+            foreach ($results as $stage) {
+                $current = [];
+                if (method_exists($stage, 'getObject') === true) {
+                    $current = $stage->getObject();
+                } else {
+                    $current = (array) $stage->jsonSerialize();
+                }
+
+                $stageId = (string) ($current['id'] ?? ($current['uuid'] ?? ''));
+                if ($stageId === '') {
+                    continue;
+                }
+
+                $objectService->saveObject(
+                    object: array_merge(
+                        $current,
+                        [
+                            'outcome'   => 'adopted',
+                            'decidedAt' => $decidedAt,
+                            'status'    => 'decided',
+                        ]
+                    ),
+                    register: 'decidesk',
+                    schema: 'decision-stage',
+                    uuid: $stageId
+                );
+
+                $this->auditLogService->append(
+                    actor: 'system',
+                    action: 'signature',
+                    objectUids: [$minutesId, $stageId],
+                    payload: [
+                        'phase'     => 'resolve-signature-stage',
+                        'stageId'   => $stageId,
+                        'decidedAt' => $decidedAt,
+                    ]
+                );
+            }//end foreach
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'Decidesk: failed to resolve method=signature DecisionStage after finalizeMinutes',
+                ['minutesId' => $minutesId, 'exception' => $e->getMessage()]
+            );
+        }//end try
+
+    }//end resolveSignatureStage()
+
+    /**
+     * Persist a partial update on a Minutes row. Wrapped in a try/catch so
      * a failed write degrades the response to a warning without leaking a 500.
      *
      * @param string               $minutesId Minutes UUID

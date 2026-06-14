@@ -1,3 +1,8 @@
+---
+openspec-changes:
+  - decision-methods
+---
+
 # vote-casting Specification
 
 ## Purpose

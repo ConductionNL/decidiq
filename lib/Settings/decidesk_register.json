@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "x-openregister": {
     "type": "application",
@@ -1475,7 +1475,7 @@
       "VotingRound": {
         "slug": "voting-round",
         "icon": "VoteOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "VotingRound",
         "description": "A voting session on a motion or amendment",
         "type": "object",
@@ -1605,10 +1605,11 @@
           }
         },
         "x-openregister-relations": {
-          "motion": {
+          "decisionStage": {
             "register": "decidesk",
-            "schema": "Motion",
-            "cardinality": "many-to-one"
+            "schema": "DecisionStage",
+            "cardinality": "many-to-one",
+            "description": "The DecisionStage of method=vote that this VotingRound resolves. Retargeted from the retired motion schema (C5 decision-methods D1). The stage's outcome is derived declaratively from this round's result."
           }
         },
         "x-openregister-seeds": [
@@ -1659,6 +1660,44 @@
             "votesFor": 11,
             "votesAgainst": 20,
             "votesAbstain": 2
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "VotingRound",
+              "slug": "stemming-begroting-2027-gemeenteraad"
+            },
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "2026-04-15T21:00:00Z",
+            "closedAt": "2026-04-15T21:15:00Z",
+            "quorumMet": true,
+            "result": "adopted",
+            "votesFor": 28,
+            "votesAgainst": 3,
+            "votesAbstain": 2,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "decisionStage": "stage-begroting-2027-3-dec"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "VotingRound",
+              "slug": "stemming-investering-acme-rvb-geheim"
+            },
+            "votingMethod": "for-against-abstain",
+            "isSecret": true,
+            "openedAt": "2026-04-18T15:00:00Z",
+            "closedAt": "2026-04-18T15:20:00Z",
+            "quorumMet": true,
+            "result": "adopted",
+            "votesFor": 3,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "decisionStage": "stage-investering-acme-2-dec"
           }
         ]
       },
@@ -1773,6 +1812,34 @@
             "weight": 1,
             "isProxy": true,
             "castAt": "2025-04-10T21:32:00Z"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Vote",
+              "slug": "stem-femke-begroting-2027"
+            },
+            "value": "for",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2026-04-15T21:05:00Z",
+            "castAs": "in-person",
+            "votingRound": "stemming-begroting-2027-gemeenteraad",
+            "participant": "femke-halsema"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "Vote",
+              "slug": "stem-marie-begroting-2027"
+            },
+            "value": "for",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2026-04-15T21:06:00Z",
+            "castAs": "in-person",
+            "votingRound": "stemming-begroting-2027-gemeenteraad",
+            "participant": "marie-janssen"
           }
         ]
       },
@@ -2532,7 +2599,7 @@
       "DecisionStage": {
         "slug": "decision-stage",
         "icon": "TransitConnectionVariant",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "DecisionStage",
         "description": "One step in a Decision's route — an ordered stage owned by a named decision-maker (Person or GovernanceBody) with its own status lifecycle, outcome, and method. Implements the ambtelijk → politiek bridge described in ADR-005/ADR-006/ADR-031 (design D1). C5 (decision-methods) expands the method enum; C6 builds the route UI.",
         "type": "object",
@@ -2603,11 +2670,11 @@
           },
           "method": {
             "type": "string",
-            "description": "Method by which the stage is resolved. Placeholder enum — C5 (decision-methods) expands this. Defaults to manual.",
+            "description": "Method by which the stage is resolved. Coarse enum — the vote sub-variants (secret/personal/general) are configured on the linked VotingRound, not via additional method values (C5 decision-methods D1). The mechanism relation required by the active method MUST be populated: vote⇒votingRound, chair-register⇒registeredBy, signature⇒signedDocument; advice and manual require no mechanism relation (C5 D2 validation note). Defaults to manual.",
             "enum": [
               "manual",
               "vote",
-              "sign",
+              "signature",
               "chair-register",
               "advice"
             ],
@@ -2686,6 +2753,68 @@
             "schema": "GovernanceBody",
             "cardinality": "many-to-one",
             "description": "Group decision-maker for this stage. Populate when decisionMakerType=body; leave null when decisionMakerType=person. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
+          },
+          "votingRound": {
+            "register": "decidesk",
+            "schema": "VotingRound",
+            "cardinality": "many-to-one",
+            "description": "The VotingRound that resolves this stage. Required when method=vote; the stage outcome is derived declaratively from VotingRound.result (C5 D2/D4). Leave null for method≠vote. Vote sub-variants (secret/personal/general) are configured on the VotingRound (isSecret, votingMethod) rather than by expanding the method enum (C5 D1)."
+          },
+          "registeredBy": {
+            "register": "decidesk",
+            "schema": "Person",
+            "cardinality": "many-to-one",
+            "description": "The chair who recorded the outcome directly for this stage. Required when method=chair-register; leave null for other methods. The chair sets outcome + decidedAt directly; registeredBy records who (C5 D2)."
+          },
+          "signedDocument": {
+            "register": "decidesk",
+            "schema": "DigitalDocument",
+            "cardinality": "many-to-one",
+            "description": "The signed DigitalDocument produced for this stage. Required when method=signature; leave null for other methods. Signatories are read from the related Minutes.signedBy. EIDASSignatureService resolves this stage (sets outcome=adopted + decidedAt) when eIDAS signing completes (C5 D2/D3/D5)."
+          }
+        },
+        "x-openregister-calculations": {
+          "outcome": {
+            "type": "string",
+            "materialise": false,
+            "description": "For method=vote: derives stage outcome from the linked VotingRound.result (adopted→adopted, rejected→rejected, tied→rejected, invalid→no outcome). Declarative per ADR-031 (C5 D4). For method=chair-register, advice, manual, and signature the outcome is set directly by the actor or EIDASSignatureService — no derivation.",
+            "expression": {
+              "if": [
+                {
+                  "eq": [
+                    {
+                      "prop": "method"
+                    },
+                    "vote"
+                  ]
+                },
+                {
+                  "switch": [
+                    {
+                      "prop": "votingRound.result"
+                    },
+                    [
+                      {
+                        "case": "adopted",
+                        "value": "adopted"
+                      },
+                      {
+                        "case": "rejected",
+                        "value": "rejected"
+                      },
+                      {
+                        "case": "tied",
+                        "value": "rejected"
+                      }
+                    ],
+                    null
+                  ]
+                },
+                {
+                  "prop": "outcome"
+                }
+              ]
+            }
           }
         },
         "x-openregister-seeds": [
@@ -2718,9 +2847,9 @@
             "status": "decided",
             "outcome": "advised",
             "decidedAt": "2026-03-20T17:30:00Z",
-            "method": "manual",
+            "method": "advice",
             "decisionMakerType": "person",
-            "label": "Advies aan de raad",
+            "label": "Advies raadscommissie",
             "note": "Commissie adviseert de raad de begroting ongewijzigd vast te stellen.",
             "decision": "besluit-begroting-2027",
             "assignedPerson": "femke-halsema"
@@ -2733,14 +2862,15 @@
             },
             "sequence": 3,
             "stageType": "decisive",
-            "status": "active",
-            "outcome": null,
-            "decidedAt": null,
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-04-15T21:30:00Z",
             "method": "vote",
             "decisionMakerType": "body",
             "label": "Besluit gemeenteraad",
             "decision": "besluit-begroting-2027",
-            "assignedBody": "gemeenteraad-amsterdam"
+            "assignedBody": "gemeenteraad-amsterdam",
+            "votingRound": "stemming-begroting-2027-gemeenteraad"
           },
           {
             "@self": {
@@ -2753,12 +2883,13 @@
             "status": "decided",
             "outcome": "adopted",
             "decidedAt": "2026-04-05T11:00:00Z",
-            "method": "manual",
+            "method": "chair-register",
             "decisionMakerType": "body",
             "label": "MT-voorbereiding investering",
-            "note": "Businesscase goedgekeurd door MT.",
+            "note": "Businesscase goedgekeurd door MT-voorzitter.",
             "decision": "besluit-investering-acme",
-            "assignedBody": "managementteam-acme-bv"
+            "assignedBody": "managementteam-acme-bv",
+            "registeredBy": "mark-van-den-berg"
           },
           {
             "@self": {
@@ -2774,9 +2905,10 @@
             "method": "vote",
             "decisionMakerType": "body",
             "label": "Besluit Raad van Bestuur",
-            "note": "Investeringsbesluit aangenomen met unanime stemmen.",
+            "note": "Investeringsbesluit aangenomen — geheime stemming, unanime uitkomst.",
             "decision": "besluit-investering-acme",
-            "assignedBody": "raad-van-bestuur-acme-bv"
+            "assignedBody": "raad-van-bestuur-acme-bv",
+            "votingRound": "stemming-investering-acme-rvb-geheim"
           },
           {
             "@self": {
@@ -2786,14 +2918,16 @@
             },
             "sequence": 3,
             "stageType": "ratifying",
-            "status": "active",
-            "outcome": null,
-            "decidedAt": null,
-            "method": "sign",
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-05-01T09:15:00Z",
+            "method": "signature",
             "decisionMakerType": "body",
-            "label": "Goedkeuring Raad van Commissarissen",
+            "label": "Goedkeuring Raad van Commissarissen — eIDAS ondertekening",
+            "note": "RvC-besluit bekrachtigd via QES-handtekeningen. Notulen ondertekend door voorzitter en secretaris.",
             "decision": "besluit-investering-acme",
-            "assignedBody": "raad-van-commissarissen-acme-bv"
+            "assignedBody": "raad-van-commissarissen-acme-bv",
+            "signedDocument": "notulen-rvc-investering-acme-signed"
           }
         ]
       },
@@ -3369,7 +3503,21 @@
             "description": "File size",
             "example": "2.4 MB"
           }
-        }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "DigitalDocument",
+              "slug": "notulen-rvc-investering-acme-signed"
+            },
+            "name": "Ondertekende notulen RvC — Investeringsbesluit Datacenteruitbreiding ACME B.V.",
+            "documentType": "signed-minutes",
+            "description": "QES-ondertekende notulen van de RvC-vergadering betreffende het investeringsbesluit datacenteruitbreiding. Ondertekend door voorzitter en secretaris via eIDAS-gekwalificeerde elektronische handtekening.",
+            "encodingFormat": "application/pdf",
+            "contentSize": "1.2 MB"
+          }
+        ]
       },
       "MonetaryAmount": {
         "slug": "monetary-amount",

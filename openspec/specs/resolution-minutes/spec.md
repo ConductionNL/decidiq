@@ -4,6 +4,7 @@ status-note: 2026-06-12 minutes-ui-v1 — all 4 requirements built. Real-time mi
 openspec-changes:
   - unify-decision-supertype
   - retire-board-portal
+  - decision-methods
 ---
 
 # Resolution and Minutes Specification
