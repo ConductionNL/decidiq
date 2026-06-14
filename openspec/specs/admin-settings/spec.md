@@ -10,6 +10,9 @@ Admin settings enable organization administrators to configure Decidesk for thei
 
 **Standards**: Nextcloud Settings API (`OCP\Settings\ISettings`), Schema.org (`Organization`, `Role`)
 **Feature tier**: MVP
+
+**OpenSpec changes**:
+- ia-six-item-nav (active) — adds the `organisatie-modus` tenant-mode setting (ADR-004 Rule 1 / ADR-006 label adaptation)
 ## Requirements
 
 ---

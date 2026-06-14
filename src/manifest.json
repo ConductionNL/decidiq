@@ -13,10 +13,10 @@
 			"order": 10
 		},
 		{
-			"id": "Minutes",
-			"label": "Minutes",
-			"icon": "icon-file",
-			"route": "Minutes",
+			"id": "Meetings",
+			"label": "Meetings",
+			"icon": "icon-group",
+			"route": "Meetings",
 			"order": 20
 		},
 		{
@@ -41,25 +41,11 @@
 			"order": 50
 		},
 		{
-			"id": "Meetings",
-			"label": "Meetings",
+			"id": "GovernanceBodies",
+			"label": "Bodies",
 			"icon": "icon-group",
-			"route": "Meetings",
+			"route": "GovernanceBodies",
 			"order": 60
-		},
-		{
-			"id": "Workspaces",
-			"label": "Workspaces",
-			"icon": "icon-group",
-			"route": "Workspaces",
-			"order": 70
-		},
-		{
-			"id": "Engagement",
-			"label": "Engagement",
-			"icon": "icon-quota",
-			"route": "Engagement",
-			"order": 85
 		},
 		{
 			"id": "Documentation",
@@ -1331,6 +1317,19 @@
 					{
 						"title": "Advanced",
 						"fields": [
+							{
+								"key": "organisatie_modus",
+								"type": "select",
+								"label": "Organisation mode",
+								"help": "Controls mode-specific labels across the app (e.g. Bodies label). Default: gov.",
+								"options": [
+									{ "value": "gov",     "label": "Government (gov)" },
+									{ "value": "corp",    "label": "Corporate (corp)" },
+									{ "value": "assoc",   "label": "Association (assoc)" },
+									{ "value": "ops",     "label": "Operations (ops)" },
+									{ "value": "citizen", "label": "Citizen portal (citizen)" }
+								]
+							},
 							{
 								"key": "ori_endpoint",
 								"type": "string",

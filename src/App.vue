@@ -42,7 +42,8 @@
 import Vue from 'vue'
 import { translate as ncT } from '@nextcloud/l10n'
 import { CnAppRoot, CnObjectSidebar } from '@conduction/nextcloud-vue'
-import { initializeStores } from './store/store.js'
+import { initializeStores, useSettingsStore } from './store/store.js'
+import { MODE_LABELS, DEFAULT_MODE } from './config/modeLabels.js'
 
 export default {
 	name: 'App',
@@ -122,6 +123,18 @@ export default {
 		permissions() {
 			return window.OC?.currentUser?.permissions ?? []
 		},
+
+		/**
+		 * Active organisatie_modus from the settings store.
+		 * Defaults to DEFAULT_MODE ('gov') when not yet configured.
+		 *
+		 * @spec openspec/changes/ia-six-item-nav/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
+		 * @return {string}
+		 */
+		organisatieModus() {
+			const settingsStore = useSettingsStore()
+			return (settingsStore.getSettings?.organisatie_modus) || DEFAULT_MODE
+		},
 	},
 
 	/** @spec exclude lifecycle hook; only boots Pinia stores via initializeStores(), framework setup */
@@ -138,12 +151,20 @@ export default {
 		 * CnPageRenderer. Closes over the Nextcloud `translate` import so
 		 * the lib never has to know our app id.
 		 *
-		 * @spec exclude pure i18n passthrough wrapping @nextcloud/l10n translate for the decidesk app id
-		 * @param {string} key Translation key.
+		 * Mode-aware label resolution: consults MODE_LABELS for the active
+		 * organisatie_modus to redirect a canonical label to its mode-specific
+		 * i18n key before calling t(). Falls back to the canonical key when
+		 * no mode-specific mapping exists (pass-through to standard l10n).
+		 *
+		 * @spec openspec/changes/ia-six-item-nav/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
+		 * @param {string} key Canonical translation key.
 		 * @return {string} Translated string (or the key on miss).
 		 */
 		translateForApp(key) {
-			return ncT('decidesk', key)
+			const mode = this.organisatieModus
+			const modeMap = MODE_LABELS[mode] || {}
+			const resolved = modeMap[key] || key
+			return ncT('decidesk', resolved)
 		},
 	},
 }

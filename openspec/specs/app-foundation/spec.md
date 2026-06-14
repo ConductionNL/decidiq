@@ -1,5 +1,10 @@
 # app-foundation Specification
 
+**Status**: in-progress
+**Scope**: decidesk
+**OpenSpec changes**:
+- ia-six-item-nav (active) — updates the MainMenu requirement to ADR-004's six-item IA
+
 ## Purpose
 TBD - created by archiving change 2026-05-11-p1-crud-operations. Update Purpose after archive.
 
