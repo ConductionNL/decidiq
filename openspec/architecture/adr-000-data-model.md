@@ -1,5 +1,8 @@
 # Data Model — Decidesk
 
+> **Updated by ADR-005 (Decision as universal supertype) and ADR-006 (mode adaptation over parallel entities) — Cycle-1 refactor 2026-06-14.**
+> Key changes: Decision now carries a required `decisionType` discriminator; Motion/Amendment/Resolution retired as separate schemas and folded into Decision. Person/Membership/Post/ContactDetail are now the implemented decision-maker model; Participant is deprecated. Board-* schemas (Board, BoardMember, BoardMeeting, BoardVote, BoardMinutes, BoardMaterial, BoardAuditLogEntry) were retired; corporate governance is served by mode-adaptation of the universal entities (see ADR-006).
+
 **App:** Decidesk — Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings
 **Platform:** OpenRegister (register/schema/object pattern)
 **Entities:** 23
@@ -49,16 +52,8 @@ pagination, audit trails, file attachments, relation management, locking.
 
 ## Amendment
 **Schema.org type:** `meeting:Amendment`
-**Purpose:** A proposed change to an existing motion
-**Primary spec:** p2-motion-and-voting
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| title | string | Yes | Amendment title |
-| text | string | Yes | Amendment text (change description) |
-| proposer | string | Yes | Name of proposer |
-| lifecycle | string | Yes | Amendment lifecycle state |
-| submittedAt | string | Yes | Submission timestamp |
+**Purpose:** ~~RETIRED — folded into Decision with `decisionType=amendment` (ADR-005, Cycle-1 refactor 2026-06-14). This schema entry is kept as a historical reference only; do not create new objects against this schema.~~
+**Primary spec:** p2-motion-and-voting (superseded by ADR-005)
 
 ---
 
@@ -100,18 +95,21 @@ pagination, audit trails, file attachments, relation management, locking.
 
 ## Decision
 **Schema.org type:** `custom:Decision`
-**Purpose:** A formal decision resulting from a vote
+**Purpose:** Universal supertype for all formal decisions. `decisionType` is a required discriminator that replaces the retired Motion, Amendment, and Resolution schemas. See ADR-005.
 **Primary spec:** p2-minutes-and-decisions
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | title | string | Yes | Decision title |
 | text | string | Yes | Decision text |
+| decisionType | string | Yes | Discriminator: motion, amendment, resolution, contract, appointment, management-point, policy, meeting-outcome |
 | decisionDate | string | Yes | When the decision was made |
 | outcome | string | Yes | Decision outcome |
 | isPublished | boolean | No | Published via ORI API |
 | publishedAt | string | No | Publication timestamp |
 | legalBasis | string | No | Legal article or regulation |
+
+> **Note:** The separate Motion, Amendment, and Resolution schemas were retired in Cycle-1 (ADR-005). ORI/Popolo output is preserved at the serialization boundary: `/api/ori/v1/motions` sources `decisionType=motion` decisions.
 
 ---
 
@@ -225,18 +223,8 @@ pagination, audit trails, file attachments, relation management, locking.
 
 ## Motion
 **Schema.org type:** `opengov:Motion`
-**Purpose:** A formal proposal submitted for debate and voting
-**Primary spec:** p2-motion-and-voting
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| title | string | Yes | Motion title |
-| text | string | Yes | Full motion text |
-| motionType | string | Yes | Type of motion |
-| proposer | string | Yes | Name of proposer |
-| coSigners | array | No | List of co-signers |
-| lifecycle | string | Yes | Motion lifecycle state |
-| submittedAt | string | Yes | Submission timestamp |
+**Purpose:** ~~RETIRED — folded into Decision with `decisionType=motion` (ADR-005, Cycle-1 refactor 2026-06-14). This schema entry is kept as a historical reference only; do not create new objects against this schema.~~
+**Primary spec:** p2-motion-and-voting (superseded by ADR-005)
 
 ---
 
@@ -273,18 +261,8 @@ pagination, audit trails, file attachments, relation management, locking.
 
 ## Participant
 **Schema.org type:** `foaf:Person`
-**Purpose:** A member or attendee of a governance body
-**Primary spec:** p3-governance-bodies
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| displayName | string | Yes | Display name |
-| role | string | Yes | Role within the governance body |
-| party | string | No | Political party or faction |
-| email | string | No | Contact email |
-| joinedAt | string | No | When they joined the body |
-| leftAt | string | No | When they left (null = active) |
-| votingWeight | number | No | Vote weight (default 1) |
+**Purpose:** ~~DEPRECATED — replaced by the Popolo model: Person (identity) + Membership (org-relationship) + Post (formal position) + ContactDetail. A compatibility shim is retained for quorum/voting during the transition period; removal is tracked as the `retire-participant-shim` change. Do not use Participant for new work.~~
+**Primary spec:** p3-governance-bodies (superseded by C2 popolo-decision-makers, Cycle-1 refactor 2026-06-14)
 
 ---
 

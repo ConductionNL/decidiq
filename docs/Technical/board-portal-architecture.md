@@ -1,196 +1,191 @@
-# Board portal — architecture overview
+# Corporate governance — architecture overview
 
-> Audience: developers / integrators extending the Decidesk board portal.
+> **Retirement notice (ADR-006, change `retire-board-portal`, Cycle-1 refactor 2026-06-14):**
+> The standalone board portal with `Board*`-prefixed schemas has been **retired**. The seven
+> schemas (Board, BoardMember, BoardMeeting, BoardVote, BoardMinutes, BoardMaterial,
+> BoardAuditLogEntry), the `board-portal.json` manifest fragment, six Board/Resolution Vue views,
+> and the dedicated board CRUD controllers/services no longer exist in the codebase.
 >
-> Source spec: `openspec/changes/board-meeting-resolutions/`. Implementation
-> shipped in PRs feature/decidesk-w2..w13 across Phases 1-10.
+> Corporate governance is now served by **mode-adaptation** (`organisatie_modus=corp`) of the
+> universal Decidesk entities. See `docs/ARCHITECTURE.md` section 3.3b for the entity mapping table.
+> This document is retained as the technical reference for the **corporate governance experience**
+> delivered through the universal architecture.
 >
-> This document supplements `docs/ARCHITECTURE.md`; that file describes
-> the council/local-government surface (meeting / motion / voting-round /
-> decision). The board-portal surface coexists with it under the same
-> register (`decidesk`); naming uses the `Board*` prefix on schemas that
-> would otherwise collide (`Vote` → `BoardVote`, `Minutes` → `BoardMinutes`,
-> `Meeting` → `BoardMeeting`).
+> Audience: developers / integrators working on the corporate governance mode of Decidesk.
+>
+> Source spec: `openspec/changes/board-meeting-resolutions/` (archived), superseded by
+> ADR-005 (Decision supertype) and ADR-006 (mode adaptation).
 
-## 1. Layered architecture
+## 1. Layered architecture (post-ADR-006, unified)
+
+Corporate governance uses the same layered architecture as all other Decidesk
+domains. There are no `Board*`-prefixed layers. The mode-specific behaviour is
+injected at render time via `organisatie_modus=corp`.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│ Vue 3 / CnAppRoot manifest shell (Phase 8)                       │
-│   src/views/Board*.vue, ResolutionList.vue, ResolutionDetail.vue │
-│   src/modals/BoardCreate*.vue, BoardMeetingCreate*.vue           │
-│   src/manifest.d/board-portal.json + src/registry.js (ADR-036)   │
+│ Vue 3 / CnAppRoot manifest shell                                 │
+│   6-item mode-aware nav (ADR-004 IA + C7 ia-six-item-nav)        │
+│   src/config/modeLabels.js — "Bodies" → "Board", etc.           │
+│   Universal views: DecisionList, DecisionDetail, BodyDetail, ... │
 └──────────────────────────────────────────────────────────────────┘
                             │ JSON over HTTP
                             ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│ Controllers — appinfo/routes.php (Phase 3)                       │
-│  BoardController          Resolution / BoardVoteController        │
-│  BoardMemberController    BoardMaterialController                 │
-│  BoardMeetingController   ConflictOfInterestController            │
-│  AuditLogController       EIDASSignatureController                │
-│  ProxyVoteController      GovernanceReportController              │
-│  RegulatorExportController                                        │
-│  MultilingualReconciliationController                             │
+│ Universal controllers — appinfo/routes.php                       │
+│  Retained for corporate features (retargeted to universal ents): │
+│  ConflictOfInterestController  EIDASSignatureController          │
+│  ProxyVoteController           GovernanceReportController        │
+│  RegulatorExportController     MultilingualReconciliationController│
+│  AuditLogController                                              │
 └──────────────────────────────────────────────────────────────────┘
                             │
                             ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│ Services — lib/Service/ (Phase 2, 5, 6)                          │
-│  BoardService             ResolutionService                       │
-│  BoardMemberService       BoardVoteService                        │
-│  BoardMeetingService      ResolutionLifecycleGuard                │
-│  QuorumVerificationService ConflictOfInterestService              │
-│  BoardMaterialAuthorizationService                                │
-│  AuditLogService (hash-chained, append-only)                      │
-│  EIDASSignatureService    ProxyVoteService                        │
-│  GovernanceReportService  RegulatorExportService                  │
-│  MultilingualReconciliationService + ITranslationAdapter          │
-│  BoardCalDavSyncService (Phase 7)                                 │
+│ Services — lib/Service/ (retargeted to universal entities)       │
+│  ConflictOfInterestService    EIDASSignatureService              │
+│  ProxyVoteService             GovernanceReportService            │
+│  RegulatorExportService       MultilingualReconciliationService  │
+│  ITranslationAdapter          CalDavSyncService                  │
+│  QuorumVerificationService                                       │
 └──────────────────────────────────────────────────────────────────┘
                             │
                             ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│ OpenRegister object API (ADR-022)                                │
-│  oc_openregister_table_decidesk_board                            │
-│  oc_openregister_table_decidesk_board_member                     │
-│  oc_openregister_table_decidesk_board_meeting                    │
-│  oc_openregister_table_decidesk_resolution                       │
-│  oc_openregister_table_decidesk_board_vote                       │
-│  oc_openregister_table_decidesk_board_minutes                    │
-│  oc_openregister_table_decidesk_conflict_of_interest             │
-│  oc_openregister_table_decidesk_board_material                   │
-│  oc_openregister_table_decidesk_board_audit_log_entry            │
+│ OpenRegister object API (ADR-022) — universal schemas            │
+│  oc_openregister_table_decidesk_governance_body                  │
+│  oc_openregister_table_decidesk_person                           │
+│  oc_openregister_table_decidesk_membership                       │
+│  oc_openregister_table_decidesk_post                             │
+│  oc_openregister_table_decidesk_meeting                          │
+│  oc_openregister_table_decidesk_decision  (incl. type=resolution)│
+│  oc_openregister_table_decidesk_vote                             │
+│  oc_openregister_table_decidesk_minutes                          │
+│  oc_openregister_table_decidesk_digital_document                 │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-## 2. Data model — nine schemas
+## 2. Corporate entity mapping (post-ADR-006)
 
-Phase 1 of the spec registers these schemas atomically via
-`lib/Settings/decidesk_register.json` + `lib/Repair/InitializeSettings.php`.
+The former board-* schemas are now expressed as universal entities with
+mode-specific field values. All schemas are registered in
+`lib/Settings/decidesk_register.json`.
 
-| Schema | Purpose | Key fields |
+| Corporate concept | Universal entity | Key distinguishing fields |
 |---|---|---|
-| `board` | Bestuur (RvC, RvB, committees) | name, type, governanceModel, quorumRule, quorumThreshold, minimumNoticeHours |
-| `board-member` | Lidmaatschap | personKoppeling, rol, appointmentDate, termEndDate, independenceStatus |
-| `board-meeting` | Vergadering | boardKoppeling, meetingDate, meetingType, format, language, status, noticeSentDate, caldavIcsBlob |
-| `resolution` | Besluit | meetingKoppeling, title, type, voteThreshold, voteType, status |
-| `board-vote` | Individuele stem | resolutionKoppeling, boardMemberKoppeling, vote, voteMethod, voteTimestamp, anonymized, proxyHolder |
-| `board-minutes` | Notulen | meetingKoppeling, language, sourceMinutesKoppeling, signedAt, qesAttestation |
-| `conflict-of-interest` | Belangenconflict | boardMemberKoppeling, type, status, scope, declaredAt, resolvedAt |
-| `board-material` | Bestuursdocument | boardKoppeling, accessLevel, contentRef, watermarkRequired |
-| `board-audit-log-entry` | Auditlog | actor, action, objectUids[], payload, prevHash, hash, recordedAt |
+| Board (RvC) | `GovernanceBody` | `bodyType=supervisory-board` |
+| Board (RvB) | `GovernanceBody` | `bodyType=executive-board` |
+| Board committee | `GovernanceBody` | `bodyType=committee` + parent GovernanceBody ref |
+| Board member | `Person` + `Membership` | `Membership.role` + `independenceStatus` extension |
+| Board meeting | `Meeting` | linked GovernanceBody with corp bodyType |
+| Resolution | `Decision` | `decisionType=resolution` |
+| Board vote | `Vote` | linked to Decision with decisionType=resolution |
+| Board minutes | `Minutes` | linked to corp Meeting |
+| Board material | `DigitalDocument` | access-level via OpenRegister RBAC |
+| Conflict of interest | Standalone entity (retained) | linked to Membership |
+| Audit log | OR built-in `auditTrail` | per-object, no separate schema needed |
 
-OpenRegister generates the underlying tables on schema activation
-(`oc_openregister_table_decidesk_<schema>`); the controllers and
-services never touch SQL directly.
+## 3. HTTP surface (corporate governance features)
 
-## 3. HTTP surface (Phase 3)
+The `Board*`-prefixed routes (`/api/boards`, `/api/board-meetings`, etc.) were
+removed in C3 retire-board-portal. Corporate governance entities are now
+accessed via the standard OpenRegister object API
+(`/api/objects/decidesk/{schema}/{id}`).
 
-Routes live in `appinfo/routes.php` under
-`board-meeting-resolutions` spec markers. Every route is wired to a
-controller method via NC's standard `IRouteRegister` syntax.
+The following **corporate-specific** feature controllers are retained, their
+routes updated to reference universal entity IDs:
 
 | Family | Route | Method | Auth |
 |---|---|---|---|
-| Board | `/api/boards` | GET/POST | user |
-| Board | `/api/boards/{id}` | GET/PUT | user |
-| BoardMember | `/api/boards/{boardId}/members` | GET/POST | user |
-| BoardMember | `/api/board-members/{id}` | DELETE | user |
-| BoardMember | `/api/board-members/{id}/role` | PUT | user |
-| BoardMeeting | `/api/boards/{boardId}/meetings` | POST | user |
-| BoardMeeting | `/api/board-meetings/{id}/send-notice` | POST | user |
-| BoardMeeting | `/api/board-meetings/{id}/lifecycle` | POST | user |
-| Resolution | `/api/board-meetings/{meetingId}/resolutions` | POST | user |
-| Resolution | `/api/resolutions/{id}` | PUT | user |
-| Resolution | `/api/resolutions/{id}/open-vote` | POST | user |
-| Resolution | `/api/resolutions/{id}/conclude` | POST | user |
-| BoardVote | `/api/resolutions/{resolutionId}/votes` | POST | user |
-| BoardVote | `/api/resolutions/{resolutionId}/tally` | GET | user |
-| BoardVote | `/api/resolutions/{resolutionId}/audit` | GET | user |
-| BoardMaterial | `/api/boards/{boardId}/materials` | GET | user |
-| BoardMaterial | `/api/board-materials/{id}[/download]` | GET/POST | user |
-| Conflict | `/api/conflicts` + `/api/conflicts/{id}/action` | POST/PUT | user |
-| AuditLog | `/api/audit-log[/{id}/verify\|/export]` | GET | admin |
-| eIDAS | `/api/minutes/{minutesId}/eidas/*` | POST | user (signer cert) |
-| ProxyVote | `/api/proxies[/{id}/suspend\|/{id}]` | POST/GET/PUT/DELETE | user |
-| GovernanceReport | `/api/governance-reports[/{id}[/export/{fmt}]]` | POST/GET | user |
-| RegulatorExport | `/api/regulator-exports[/{id}]` | POST/GET | admin |
+| Conflict of interest | `/api/conflicts` + `/api/conflicts/{id}/action` | POST/PUT | user |
+| eIDAS signatures | `/api/minutes/{minutesId}/eidas/*` | POST | user (signer cert) |
+| Proxy vote | `/api/proxies[/{id}/suspend\|/{id}]` | POST/GET/PUT/DELETE | user |
+| Governance report | `/api/governance-reports[/{id}[/export/{fmt}]]` | POST/GET | user |
+| Regulator export | `/api/regulator-exports[/{id}]` | POST/GET | admin |
 | Multilingual | `/api/multilingual/queue[/process]` | POST/GET | admin |
+| Audit log verify | `/api/audit-log[/{id}/verify\|/export]` | GET | admin |
 
-Auth model: every controller method carries `#[NoAdminRequired]` (NC's
-`SecurityMiddleware` would otherwise reject the request as admin-only by
-default). The admin gate is enforced **inside** the
-`requireAdmin()` helper in `RegulatorExportController` /
-`MultilingualReconciliationController` / `AuditLogController` so
-anonymous callers get `401`, non-admin callers get `403`. Per-object
+Auth model: every controller method carries `#[NoAdminRequired]`; the admin
+gate is enforced inside `requireAdmin()` helpers in `RegulatorExportController` /
+`MultilingualReconciliationController` / `AuditLogController`. Per-object
 read/write authority is delegated to `ObjectService` (ADR-022).
 
-## 4. Lifecycle state machines
+## 4. Lifecycle state machines (corporate mode)
 
-### 4.1 BoardMeeting
+Corporate governance uses the same universal Symfony Workflow state machines
+configured in `ProcessTemplate` objects. Corporate bodies typically configure
+a governance-specific template.
+
+### 4.1 Meeting lifecycle (corp — board meeting)
 
 ```
-scheduled
-   │ send-notice
+draft
+   │ convene (send-notice)
    ▼
-notice-sent
+convened
    │ distribute-materials
    ▼
-materials-distributed
+convened (materials distributed — tracked via boolean field)
    │ open
    ▼
-in-session
-   │ adjourn      close (skip adjourn)
+in_progress
+   │ adjourn      complete (skip adjourn)
    ▼              │
 adjourned ────────┤
                   ▼
-              closed
-                  │ sign-minutes
+              completed
+                  │ approve-minutes
                   ▼
-            minutes-signed
+            minutes_approved
 ```
 
-Transitions are encoded in `BoardMeetingService::TRANSITIONS`. An
-illegal action returns `422` with a static
-"lifecycle transition not allowed from {status}" message; never `500`.
+This maps to the universal Meeting lifecycle (see `docs/ARCHITECTURE.md` §3.2).
+An illegal transition returns a lifecycle guard error.
 
-### 4.2 Resolution
+### 4.2 Decision lifecycle (resolution — decisionType=resolution)
 
 ```
-proposed ──amend──► proposed
-   │ openVote (quorum-guarded)
+draft ──amend──► draft
+   │ submit
    ▼
-under-discussion
-   │ conclude (threshold-evaluated)
+submitted
+   │ agenda (quorum pre-check available)
    ▼
-adopted   rejected
+agenda
+   │ debate
+   ▼
+debated
+   │ vote (quorum-guarded + ConflictOfInterestService)
+   ▼
+voted
+   │ conclude (threshold against requiredMajority)
+   ▼
+approved   rejected
 ```
 
-`ResolutionLifecycleGuard` composes `QuorumVerificationService` +
-`ConflictOfInterestService` — both must clear for `openVote`. The
-conclude step counts every linked `board-vote` row, applies the
-`voteThreshold`, and persists the outcome plus a tally on the
-resolution.
+`QuorumVerificationService` and `ConflictOfInterestService` both run as
+guards before the `vote` transition. The conclude step counts all linked
+`Vote` objects, evaluates against `requiredMajority`, and persists the
+outcome as `result` on the Decision.
 
-## 5. Audit trail — hash chain
+## 5. Audit trail
 
-`AuditLogService::append()` writes one `board-audit-log-entry` row per
-mutating action:
+Corporate governance audit logging uses the **OpenRegister built-in `auditTrail`**
+field, available on every object. The former standalone `board-audit-log-entry`
+schema (hash-chained, append-only) was retired with C3 retire-board-portal.
+
+For regulatory export requirements that need an independent, verifiable hash
+chain, `AuditLogService` (retained) can produce a tamper-evident export from
+the OR audit trail using the same `sha256(prevHash || payload)` mechanic:
 
 ```
 payload     = JSON.canonical({ actor, action, objectUids, payload, recordedAt })
-prevHash    = (SELECT hash FROM board_audit_log_entry ORDER BY recordedAt DESC LIMIT 1) ?? ""
+prevHash    = hash of previous export row
 hash        = sha256(prevHash || payload)
 ```
 
-Verification (`AuditLogController::verify`) recomputes the hash for the
-target row and compares to the stored value. Any tampering with row N
-invalidates every subsequent row, because their `prevHash` chains back
-to N.
-
-This is the same mechanic used by openconnector's call log; the
-implementation here is in pure PHP (no external libs).
+`AuditLogController::verify` recomputes hashes over the exported set.
+Any tampering with row N invalidates every subsequent row.
 
 ## 6. eIDAS qualified signatures
 
@@ -266,41 +261,49 @@ libs). When `decidesk:export_format_provider` is set to `docudesk` the
 service hands off to docudesk for a richer (watermarked, headered)
 layout.
 
-## 10. Frontend (Phase 8 — Vue + manifest shell)
+## 10. Frontend (post-ADR-006)
 
-- Six views under `src/views/`: `BoardList`, `BoardDetail`,
-  `BoardMeetingList`, `BoardMeetingDetail`, `ResolutionList`,
-  `ResolutionDetail`.
-- Two ADR-004-isolated modals under `src/modals/`:
-  `BoardCreateModal.vue` (NcDialog) and `BoardMeetingCreateModal.vue`
-  (NcDialog).
-- Manifest fragment `src/manifest.d/board-portal.json` adds six pages
-  + three primary-nav entries (Boards / Board Meetings / Resolutions);
-  the fragment is merged into `src/manifest.json` by
-  `main.js::mergeManifestFragments`.
-- Custom components are registered in `src/registry.js` as ADR-036
-  `page()` entries (kind-tagged registry).
+The six `Board*.vue` views, two `BoardCreate*.vue` modals, and the
+`src/manifest.d/board-portal.json` fragment were removed in C3 retire-board-portal.
 
-## 11. Testing matrix
+Corporate governance is rendered by the **universal views** with mode-driven
+label adaptation:
 
-| Layer | Suite | Spec coverage |
+- `BodyList.vue` / `BodyDetail.vue` — renders as "Board" in corp mode.
+- `DecisionList.vue` / `DecisionDetail.vue` — renders as "Resolutions" in corp mode;
+  filtered by `decisionType=resolution` by default.
+- `MeetingList.vue` / `MeetingDetail.vue` — universal; filtered to corp bodies.
+- `modeLabels.js` (`src/config/`) — maps `organisatie_modus` to display strings for
+  nav entries, column headers, and action labels.
+- `src/manifest.json` — 6-item ADR-004 IA (C7 ia-six-item-nav); no board-portal fragment.
+- Custom components are registered in `src/registry.js` as ADR-036 `page()` entries.
+
+## 11. Testing matrix (post-ADR-006)
+
+The `board-portal.postman_collection.json` collection and `BoardMeeting*`
+unit tests were removed with the retired schemas. Corporate governance
+scenarios are covered by the universal test suites:
+
+| Layer | Suite | Coverage |
 |---|---|---|
-| Unit | `tests/Unit/Service/*` PHPUnit | 9.1, 9.6, 9.7, 9.8, 9.9, 9.10 |
-| Unit | `tests/Unit/Listener/BoardMeetingCalDavBridgeTest.php` | 9.5 |
-| Unit | `tests/Unit/Service/BoardCalDavSyncServiceTest.php` | 9.5 |
-| Vitest | `tests/vitest/**` | UI behaviour |
-| Newman API | `tests/integration/board-portal.postman_collection.json` | 9.3 |
-| Newman aggregate | `tests/newman/run-all.sh` | runs both decidesk + board-portal collections |
-| Playwright e2e | `tests/e2e/**` | UI happy paths |
+| Unit | `tests/Unit/Service/ConflictOfInterestServiceTest.php` | conflict gate |
+| Unit | `tests/Unit/Service/EIDASSignatureServiceTest.php` | eIDAS flow |
+| Unit | `tests/Unit/Service/ProxyVoteServiceTest.php` | proxy delegation |
+| Unit | `tests/Unit/Service/GovernanceReportServiceTest.php` | corp reporting |
+| Unit | `tests/Unit/Service/RegulatorExportServiceTest.php` | regulator export |
+| Unit | `tests/Unit/Service/CalDavSyncServiceTest.php` | CalDAV bridge |
+| Vitest | `tests/vitest/**` | UI behaviour incl. corp mode labels |
+| Newman API | `tests/integration/decidesk.postman_collection.json` | universal + corp scenarios |
+| Playwright e2e | `tests/e2e/**` | UI happy paths incl. resolution flow |
 
-`composer test:unit:strict` + `tests/newman/run-all.sh` together cover
-the contract; CI gates on both.
+`composer test:unit:strict` + `tests/newman/run-all.sh` cover the contract; CI gates on both.
 
 ## 12. References
 
-- Spec: `openspec/changes/board-meeting-resolutions/proposal.md` and
-  `openspec/changes/board-meeting-resolutions/tasks.md`.
-- Hydra ADRs: ADR-022 (apps consume OR), ADR-031 (notification dialect),
-  ADR-034 (MCP tool surface), ADR-036 (kind-tagged registry).
-- User guide: [Board portal feature](../Features/board-portal.md).
+- ADR-005: `openspec/architecture/adr-005-decision-as-universal-supertype.md` — Decision supertype + decisionType discriminator.
+- ADR-006: `openspec/architecture/adr-006-mode-adaptation-over-parallel-entities.md` — mode adaptation as the replacement for parallel entities.
+- Retired spec (archived): `openspec/changes/board-meeting-resolutions/`.
+- Hydra ADRs: ADR-022 (apps consume OR), ADR-031 (notification dialect), ADR-034 (MCP tool surface), ADR-036 (kind-tagged registry).
+- User guide: [Corporate governance feature](../Features/board-portal.md).
+- Architecture overview: [docs/ARCHITECTURE.md §3.3b](../ARCHITECTURE.md) — entity mapping table.
 - Admin runbook: [Board portal admin](../admin/board-portal-admin.md).

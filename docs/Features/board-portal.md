@@ -1,63 +1,82 @@
-# Board portal — gebruikershandleiding
+# Corporate governance — gebruikershandleiding
 
+> **Let op — architectuurwijziging (ADR-006, change `retire-board-portal`, Cycle-1 refactor 2026-06-14):**
+> Het afzonderlijke "board portal" met eigen `Board*`-schema's is **buiten gebruik gesteld**. Corporate
+> governance (RvC, RvB, audit- en remuneratiecommissies) wordt nu bediend via de **universele entiteiten**
+> van Decidesk in `organisatie_modus=corp`. Een bestuur is een `GovernanceBody` met `bodyType=supervisory-board`
+> of `bodyType=executive-board`; een bestuursvergadering is een gewone `Meeting`; een resolutie is een
+> `Decision` met `decisionType=resolution`; bestuursleden zijn `Person`-objecten verbonden via `Membership`.
+> De gekoppelde bestuursfeatures (eIDAS-ondertekening, belangenconflicten, volmachtstemmen, governance-rapportage,
+> toezichthouder-export, meertalige reconciliatie) zijn hergericht op de universele entiteiten.
+>
 > Doelgroep: bestuursleden (RvC, RvB, audit-, remuneratie- en
 > benoemingscommissies) en bestuurssecretarissen.
 >
-> Status: shipped Phase 1-8 (registratie, services, controllers, eIDAS,
-> proxy/written/governance reporting, CalDAV-koppeling, Vue-frontend).
-> Phase 9 dekt de API-contracttests; Phase 10 is dit document.
-> Spec: `openspec/changes/board-meeting-resolutions/`.
+> Voormalige spec: `openspec/changes/board-meeting-resolutions/` (gearchiveerd).
 
-## 1. Waar vind ik het board portal?
+## 1. Waar vind ik de corporate governance-functies?
 
-Na installatie van Decidesk verschijnen drie nieuwe top-level navigatie-items
-in de zijbalk van de app:
+Na installatie van Decidesk en het instellen van `organisatie_modus=corp` in
+de beheerinstellingen past de zijbalk zich automatisch aan:
 
-- **Boards** — overzicht van alle besturen waar je lid van bent.
-- **Board Meetings** — vergaderingen, gefilterd op je actieve besturen.
-- **Resolutions** — besluiten en stemmingen.
+- **Dashboard** — overzicht van aankomende vergaderingen, openstaande resoluties en actiepunten.
+- **Meetings** — bestuursvergaderingen, gefilterd op jouw besturen.
+- **Decisions** (weergegeven als **Resolutions** in `corp`-modus) — besluiten en stemmingen.
+- **Action items** — actiepunten uit vergaderingen.
+- **Motions** — moties of agendaverzoeken.
+- **Bodies** (weergegeven als **Board** in `corp`-modus) — overzicht van besturen.
 
 Toegang wordt op objectniveau bewaakt door OpenRegister (ADR-022): je ziet
-alleen de besturen, vergaderingen en resoluties waarvoor je expliciet bent
-geregistreerd als `BoardMember`. Beheerders en de bestuurssecretaris zien
+alleen de besturen, vergaderingen en resoluties waarvoor je expliciet een
+actief `Membership`-object hebt. Beheerders en de bestuurssecretaris zien
 alles binnen hun eigen organisatie.
 
-## 2. Boards (besturen)
+## 2. Bodies — besturen aanmaken en beheren
+
+In corporate-modus (`organisatie_modus=corp`) zijn besturen **GovernanceBody**-objecten
+met `bodyType=supervisory-board` (RvC) of `bodyType=executive-board` (RvB).
 
 ### 2.1 Een bestuur aanmaken
 
-1. Klik in `Boards` op **Nieuw bestuur**.
+1. Ga naar **Bodies** (in corp-modus weergegeven als **Board**) en klik op **Nieuw bestuur**.
 2. Vul ten minste een **naam** in.
-3. Kies optioneel een **type** (Raad van Commissarissen, Raad van Bestuur,
-   audit-, remuneratie-, benoemings- of risk-commissie, of een one-tier
-   board) en een **governance-model** (`two-tier` of `one-tier`).
+3. Stel **bodyType** in op `supervisory-board` (Raad van Commissarissen) of
+   `executive-board` (Raad van Bestuur). Commissies (audit, remuneratie,
+   benoeming, risk) worden als aparte GovernanceBody aangemaakt met
+   `bodyType=committee` en een verwijzing naar het bovenliggende bestuur.
 4. Bevestig — het bestuur wordt aangemaakt en je komt op de detailpagina.
 
 ### 2.2 Leden toevoegen, rol wijzigen, verwijderen
 
-Op de bestuursdetailpagina staat de ledenlijst.
+Bestuursleden zijn **Person**-objecten die via een **Membership** aan het
+bestuur zijn verbonden. Op de bestuursdetailpagina staat de ledenlijst.
 
-- **Lid uitnodigen** — voer naam en Nextcloud-gebruikers-id in en kies een
-  rol uit: `chairman`, `vice-chairman`, `member`, `executive-member`,
-  `non-executive-member`, `independent-member`, of
-  `employee-representative`. Markeer optioneel de **onafhankelijkheids-status**
-  (`independent` / `non-independent`) — dit telt mee voor de
-  onafhankelijkheidsratio op het bestuursdashboard.
-- **Rol wijzigen** — gebruik de rol-knop achter een lid. Een wijziging
-  schrijft een entry naar het hash-chained auditlog.
-- **Lid verwijderen** — zet `termEndDate` op vandaag. De rij wordt niet
-  fysiek verwijderd zodat historische resoluties geldig blijven verwijzen.
+- **Lid uitnodigen** — zoek de persoon op (of maak een nieuw Person aan) en
+  maak een Membership aan met de gewenste rol: `chairman`, `vice-chairman`,
+  `member`, `executive-member`, `non-executive-member`, `independent-member`,
+  of `employee-representative`. Stel optioneel `independenceStatus`
+  (`independent` / `non-independent`) in op het Membership-object — dit telt
+  mee voor de onafhankelijkheidsratio op het bestuursdashboard.
+- **Rol wijzigen** — pas het Membership-object aan. De wijziging wordt
+  automatisch vastgelegd in het auditlog van OpenRegister.
+- **Lid verwijderen** — stel `endDate` op het Membership-object in op vandaag.
+  Het Person-object blijft bestaan zodat historische resoluties geldig
+  blijven verwijzen.
 
-## 3. Board meetings (bestuursvergaderingen)
+## 3. Meetings — bestuursvergaderingen
+
+Bestuursvergaderingen zijn universele **Meeting**-objecten. Het onderscheid
+met raadsvergaderingen ligt in de gekoppelde GovernanceBody (`bodyType=supervisory-board`
+of `bodyType=executive-board`), niet in een apart schema.
 
 ### 3.1 Plannen
 
-1. Open een bestuur en klik **Vergadering plannen**.
+1. Open een bestuur en klik **Vergadering plannen** (of ga naar **Meetings** en kies het bestuur als organiserend orgaan).
 2. Vul de **vergaderdatum** in (verplicht), kies een **type** (`regular`,
    `extraordinary`, `strategy-day`, `closed-session`, `executive-session`),
    een **format** (`in-person`, `remote`, `hybrid`) en de **taal** van de
    vergadering (`nl`, `en`, ...).
-3. De vergadering komt in status `scheduled`.
+3. De vergadering komt in status `draft` en kan via de lifecycle naar `convened` worden gezet.
 
 ### 3.2 Lifecycle
 
@@ -78,31 +97,33 @@ transitie wordt vastgelegd in het auditlog en — als CalDAV beschikbaar is —
 gesynchroniseerd naar de bestuurskalender via `X-DECIDESK-*` properties
 (zie [Architecture](../Technical/board-portal-architecture.md#caldav)).
 
-## 4. Resolutions (resoluties en stemmingen)
+## 4. Decisions / Resolutions (resoluties en stemmingen)
+
+In corp-modus worden Decisions weergegeven als **Resolutions**. Een resolutie
+is een `Decision`-object met `decisionType=resolution` (ADR-005).
 
 ### 4.1 Resolutie voorstellen
 
-Op de detailpagina van een vergadering klik je **Resolutie voorstellen**:
+Op de detailpagina van een vergadering klik je **Resolutie voorstellen** (of **+ New Decision** in de Decisions-lijst):
 
 1. Voer een **titel** in (verplicht).
-2. Kies optioneel het **type** (`approval`, `appointment`, `dismissal`,
+2. Het veld **decisionType** is vooringesteld op `resolution` in corp-modus.
+   Kies optioneel een subtype via de **category**: `approval`, `appointment`, `dismissal`,
    `financial`, `strategic`, `policy`, `delegation-of-authority`,
-   `acknowledgement`, `written-resolution`).
-3. Kies de **stemdrempel** (`voteThreshold`): `simple-majority`,
-   `qualified-majority-two-thirds`, `qualified-majority-three-quarters`,
-   `unanimous`. Standaard staat op `simple-majority`.
-4. Kies optioneel de **stemvorm** (`voteType`: `named` of `anonymous`).
+   `acknowledgement`, `written-resolution`.
+3. Kies de **stemdrempel** (`requiredMajority`): `simple`, `qualified` (2/3),
+   `qualified-three-quarters`, `unanimous`. Standaard staat op `simple`.
+4. Kies optioneel de **stemvorm** via het ProcessTemplate (named / anonymous).
 
-De resolutie krijgt status `proposed`.
+De resolutie krijgt status `draft` en doorloopt de geconfigureerde workflow.
 
 ### 4.2 Stemming openen
 
-De voorzitter klikt **Stemming openen** op de resolutiedetailpagina. Dit
-roept de quorum-guard aan
-(`ResolutionLifecycleGuard::canOpenVote`): de bijbehorende vergadering
-moet `in-session` zijn en het aantal aanwezige leden moet voldoen aan de
-quorumregel van het bestuur. Pas dan gaat de resolutie naar
-`under-discussion`.
+De voorzitter klikt **Stemming openen** op de resolutiedetailpagina. De
+quorum-guard controleert of de bijbehorende vergadering `in_progress` is en
+of het aantal aanwezige leden (via Membership-aggregatie) voldoet aan de
+quorumregel van het bestuur. Pas dan gaat de resolutie naar de volgende
+workflowstatus (`debated` of `voted`, afhankelijk van het ProcessTemplate).
 
 ### 4.3 Stem uitbrengen
 
@@ -120,26 +141,27 @@ actief belangenconflict is voor jou op het bijbehorende agenda-item.
 
 ### 4.4 Live tally + conclusie
 
-Tijdens de stemming toont het portal een live **tally** (telling per
+Tijdens de stemming toont het scherm een live **tally** (telling per
 optie + totaal uitgebracht). Wanneer de voorzitter op **Stemming sluiten**
 klikt:
 
-- Worden alle `board-vote` rijen voor de resolutie ingelezen.
-- Berekent `ResolutionService::conclude` de uitkomst tegen de
-  `voteThreshold`.
-- Krijgt de resolutie status `adopted` of `rejected`.
+- Worden alle gekoppelde `Vote`-objecten voor de resolutie ingelezen.
+- Wordt de uitkomst berekend op basis van de `requiredMajority` van de Decision.
+- Krijgt de resolutie status `approved` of `rejected`.
 
-De uitkomst en raw votes zijn altijd via **Audit** opvraagbaar.
+De uitkomst en alle individuele stemmen zijn altijd via het OpenRegister
+auditlog opvraagbaar.
 
 ## 5. Schriftelijke besluiten (written resolutions)
 
 Een resolutie kan ook buiten een vergadering om vastgesteld worden:
 
-1. Maak in `Resolutions` een resolutie aan met type `written-resolution`.
+1. Maak in **Decisions** (corp-modus: Resolutions) een Decision aan met `decisionType=resolution`
+   en category `written-resolution`.
 2. Stuur de digitale handtekenverzoeken naar alle leden via de **eIDAS
-   QES** flow (zie [Architecture — eIDAS](../Technical/board-portal-architecture.md#eidas-qualified-signatures)).
+   QES** flow (zie [Architecture — corporate governance](../Technical/board-portal-architecture.md#eidas-qualified-signatures)).
 3. Zodra alle vereiste handtekeningen binnen zijn, wordt de resolutie
-   automatisch als `adopted` gemarkeerd.
+   automatisch als `approved` gemarkeerd.
 
 ## 6. Belangenconflicten
 
@@ -158,26 +180,25 @@ auditlog.
 
 ## 7. Bestuursdocumenten (board materials)
 
-Op de bestuursdetailpagina staat een tabel met alle **board materials**
-(agenda's, financiële stukken, juridische memo's). Toegang per document
-volgt de access-level matrix:
+Bestuursdocumenten zijn **DigitalDocument**-objecten (schema:DigitalDocument) verbonden
+aan het bestuur of de vergadering. Ze worden beheerd via het OpenRegister-bestandsbeheer
+(gekoppeld aan Nextcloud Files via `IRootFolder`). Toegang per document volgt de
+Membership-gebaseerde RBAC van OpenRegister (ADR-022):
 
 - `public` — iedereen met portal-toegang.
-- `members-only` — alleen leden van dit bestuur.
+- `members-only` — alleen leden van dit bestuur (actief Membership).
 - `committee-only` — alleen leden van de betreffende commissie.
-- `executive-only` — alleen executive members.
-- `chair-only` — alleen voorzitter + vice-voorzitter.
+- `executive-only` — alleen executive members (role=executive-member).
+- `chair-only` — alleen voorzitter + vice-voorzitter (role=chairman / vice-chairman).
 
-De **Download**-knop logt iedere download in het auditlog. Documenten
+Iedere download wordt vastgelegd in het OpenRegister auditlog. Documenten
 boven access-level `members-only` worden door docudesk gewatermerkt
 geleverd (zie Architecture).
 
 ## 8. Hulp en troubleshooting
 
-- Een transitie wordt geweigerd met "lifecycle transition not allowed
-  from {status}" — controleer de huidige status van de vergadering.
-- "Resolution not found" of "Board not found" — de OpenRegister object-API
-  filtert op leesrechten; je bent waarschijnlijk geen lid van dit bestuur.
-- "Quorum not met" — onvoldoende leden ingecheckt voor de vergadering.
-- Voor verdere ondersteuning, zie de
-  [admin runbook](../admin/board-portal-admin.md).
+- Een transitie wordt geweigerd — controleer de huidige lifecycle-status van de vergadering of de Decision.
+- "Decision not found" of "GovernanceBody not found" — de OpenRegister object-API
+  filtert op leesrechten; je hebt waarschijnlijk geen actief Membership voor dit bestuur.
+- "Quorum not met" — onvoldoende leden aanwezig (quorumMet=false op de Meeting).
+- Voor verdere ondersteuning, zie de [admin runbook](../admin/board-portal-admin.md).

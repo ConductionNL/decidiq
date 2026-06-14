@@ -6,7 +6,7 @@ description: Get started with Decidesk, meeting and decision management on Nextc
 # Decidesk
 
 Universal decision-making platform for Nextcloud — meetings, agendas, motions,
-amendments, voting, minutes, and decision tracking, with configurable workflows
+resolutions, voting, minutes, and decision tracking, with configurable workflows
 per organisation type. No separate governance database, no second login.
 
 ## What is Decidesk?
@@ -22,6 +22,13 @@ organisation type across five governance domains:
 - **Corporate governance** — boards of directors, supervisory boards
 - **Corporate operations** — management teams, operational meetings
 - **Citizen participation** — participatory budgeting, advisory panels
+
+All formal decisions — motions, resolutions, contracts, appointments,
+management points — share a single universal `Decision` model distinguished
+by type. Corporate governance uses the same entities in mode=corp: board
+meetings are meetings, board members are persons with memberships, resolutions
+are decisions with `decisionType=resolution`. There is no separate board portal
+schema set; the experience adapts to the organisation mode automatically.
 
 All data lives as typed OpenRegister objects with a per-record audit trail. A
 built-in AI chat companion exposes meeting and action-item tools over MCP so the

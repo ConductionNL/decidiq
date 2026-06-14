@@ -6,6 +6,8 @@ There is **no universal decision-making platform** that covers the full governan
 
 **Key insight**: Decision-making is fundamentally about agendas, motions, voting, minutes, and action tracking — processes that are structurally identical across domains but served by incompatible tools. A Nextcloud-native platform can unify these workflows while leveraging built-in collaboration (Talk, Calendar, Files, Mail) that competitors must build or integrate separately.
 
+**Unified decision model (Cycle-1, ADR-005/006):** All formal decisions — motions, resolutions, contracts, appointments, management points — are instances of the universal `Decision` entity, distinguished by the `decisionType` discriminator. There are no separate schemas for motions, amendments, or resolutions. Corporate governance (board portal) is served by `organisatie_modus=corp` mode-adaptation of the same universal entities, not a parallel feature set.
+
 **Market opportunity**: The board portal market alone is projected at $5-7B by 2030 (11-20% CAGR). $541B is wasted on meetings globally. AI meeting tool adoption grew 17x in 2024. Half of Dutch municipal RIS systems have broken search. Diligent costs $48-155K/year, creating a massive price gap. Otter.ai and Fireflies.ai face lawsuits over consent and biometric data — a self-hosted, privacy-first alternative does not exist.
 
 ## 1. Competitive Landscape
@@ -126,12 +128,14 @@ There is **no universal decision-making platform** that covers the full governan
 
 ### 2.5 Motion & Amendment Management
 
+> **Unified decision model (ADR-005):** Motions and amendments are Decision objects with `decisionType=motion` or `decisionType=amendment`. There is no separate schema; the features below apply to these decision subtypes and are surfaced via the dedicated Motions nav entry (mode-aware label).
+
 | # | Feature | Tier | Justification |
 |---|---------|------|---------------|
-| 51 | Motion CRUD (submit, second, discuss, vote, resolve) | **MVP** | Core legislative workflow — motions drive council decisions |
+| 51 | Motion CRUD via unified Decision (decisionType=motion): submit, second, discuss, vote, resolve | **MVP** | Core legislative workflow — motions drive council decisions |
 | 52 | Motion lifecycle (draft/submitted/seconded/debated/voted/carried/defeated) | **MVP** | Formal process tracking — know the status of every motion |
-| 53 | Motion-to-decision linking (approved motion becomes decision) | **MVP** | Workflow completion — close the loop from proposal to decision |
-| 54 | Amendment CRUD with diff view (show what changes vs. original) | **V1** | Legislative essential — amendments are the core of council debate |
+| 53 | Motion ↔ parent Decision linking (a motion decision references its parent) | **MVP** | Workflow completion — close the loop from proposal to decision |
+| 54 | Amendment diff view (show what changes vs. original text) | **V1** | Legislative essential — amendments are the core of council debate |
 | 55 | Amendment voting order (sub-amendments first, then amendments, then main) | **V1** | Parliamentary procedure — voting order is legally prescribed |
 | 56 | Motion co-sponsorship (multiple parties support a motion) | **V1** | Political coalition building — visible support before formal vote |
 | 57 | Motion withdrawal and replacement | **V1** | Process — authors can withdraw motions before vote |
@@ -139,7 +143,9 @@ There is **no universal decision-making platform** that covers the full governan
 | 59 | Motion template library (standard formats per governance body) | **Enterprise** | Standardization — ensure motions follow required format |
 | 60 | Amendment conflict detection (two amendments that contradict each other) | **Enterprise** | Process integrity — flag when amendments cannot both pass |
 
-### 2.6 Resolution & Minutes
+### 2.6 Decisions, Resolutions & Minutes
+
+> **Unified decision model (ADR-005):** Resolutions are Decision objects with `decisionType=resolution`. The Decisions nav entry (relabeled "Resolutions" in mode=corp) surfaces all `decisionType` values. The resolution register (#65) is a filtered view of approved decisions.
 
 | # | Feature | Tier | Justification |
 |---|---------|------|---------------|
@@ -147,7 +153,7 @@ There is **no universal decision-making platform** that covers the full governan
 | 62 | Minutes template with configurable sections | **MVP** | Structure — minutes follow a standard format per meeting type |
 | 63 | Action item extraction from minutes (who, what, when) | **MVP** | Accountability — 44% of action items are never completed (HBR) |
 | 64 | Minutes approval workflow (draft/review/approved) | **V1** | Legal process — minutes must be formally approved at next meeting |
-| 65 | Resolution register (searchable archive of all passed resolutions) | **V1** | Compliance — organizations must maintain a decision register |
+| 65 | Decision/resolution register (searchable archive of approved decisions, filterable by decisionType) | **V1** | Compliance — organizations must maintain a decision register |
 | 66 | Minutes PDF export with digital signatures | **V1** | Legal validity — formal minutes require signatures of chair and secretary |
 | 67 | AI-assisted minutes drafting (summarize discussion, extract decisions) | **Enterprise** | AI meeting tools grew 17x in 2024 — self-hosted alternative to Otter.ai/Fireflies |
 | 68 | AI transcription integration (speech-to-text for recorded meetings) | **Enterprise** | Privacy-first transcription — Otter.ai faces lawsuits over consent; self-hosted solves this |
@@ -371,7 +377,7 @@ Additional gaps across the market:
 
 ### 5.1 Positioning Statement
 
-**Decidesk is the decision-making platform that works everywhere decisions happen.** From municipal council chambers to corporate boardrooms, from association assemblies to management team meetings — one tool for the entire governance spectrum. Built natively into Nextcloud, it turns your collaboration platform into a universal decision engine with voting, minutes, motions, and analytics already connected to your files, calendar, and chat.
+**Decidesk is the decision-making platform that works everywhere decisions happen.** From municipal council chambers to corporate boardrooms, from association assemblies to management team meetings — one tool for the entire governance spectrum. Built natively into Nextcloud, it turns your collaboration platform into a universal decision engine with voting, minutes, motions, and analytics already connected to your files, calendar, and chat. Corporate governance (supervisory boards, executive boards, AGM) is served by the same unified Decision + Membership model, mode-adapted for the corporate context — not a separate feature set.
 
 ### 5.2 Differentiation Strategy
 
