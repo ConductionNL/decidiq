@@ -7,9 +7,7 @@ openspec-changes:
 
 ## Purpose
 TBD - created by archiving change 2026-05-11-p2-motion-and-voting. Update Purpose after archive.
-
 ## Requirements
-
 ### Requirement: REQ-VCT-001 Participant casts a vote in an open VotingRound
 The app SHALL allow any active Participant to cast a vote (for, against, or abstain) in an open VotingRound. Each Participant may cast exactly one vote per VotingRound. Duplicate submissions overwrite the previous vote.
 
@@ -87,3 +85,14 @@ The vote casting interface SHALL meet WCAG 2.1 AA: all vote buttons are keyboard
 - **GIVEN** a vote casting panel showing Voor / Tegen / Onthouding buttons
 - **WHEN** the user has selected "Tegen"
 - **THEN** the selected state is indicated by both colour AND a visible text marker (e.g., "✓ geselecteerd") so colour alone is not the only indicator
+
+### Requirement: Votes cast in a stage-linked round feed the stage outcome
+
+When a `VotingRound` resolves a `DecisionStage` of `method=vote`, the `Vote` objects cast in that round SHALL tally into `VotingRound.result` exactly as for any round, and that result SHALL be the single source from which the stage `outcome` is derived. Casting, tallying, and ballot configuration are unchanged by the `decision-methods` capability; only the round's linkage to a stage is added.
+
+#### Scenario: Casting votes resolves the linked stage
+
+- **GIVEN** a `method=vote` DecisionStage linked to an open VotingRound
+- **WHEN** participants cast their votes and the round closes with `result=adopted`
+- **THEN** the stage outcome derives to `adopted` from the round with no separate per-stage tally
+

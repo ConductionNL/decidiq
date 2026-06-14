@@ -175,6 +175,29 @@ The system MUST support fully digital meetings with identity verification, live 
 - AND their attendance MUST be recorded as "remote"
 - AND they MUST count toward quorum
 
+### Requirement: REQ-MM-CORP — Corporate board meeting is the universal meeting (mode=corp)
+A corporate board meeting MUST be the universal `meeting` (CalDAV VEVENT per
+ADR-002) with mode=corp labels — never a separate schema. Accordingly the
+parallel `BoardMeeting` schema (slug `board-meeting`), the
+`BoardMeetingList` / `BoardMeetingDetail` Vue views, the
+`BoardMeetingCreateModal`, the board-meeting routes (`boardMeeting#*`,
+`board#*`, `boardMember#*`, `boardVote#*`, `boardMaterial#*`,
+`resolution#*`), the board-meeting controller/service, and the
+`BoardMeetingCalDavBridge` listener are REMOVED. A corporate board meeting is a
+universal `meeting`; its CalDAV sync uses the universal `meeting` path
+(ADR-002).
+
+#### Scenario: No parallel board-meeting schema or routes
+- GIVEN the register is imported and the app boots
+- WHEN the schemas and routes are inspected
+- THEN no `board-meeting` schema and no `boardMeeting#*` / `board#*` route exist
+- AND the app boots without a fatal (no DI registration references a deleted board class)
+
+#### Scenario: Board meeting CalDAV sync via the universal meeting path
+- GIVEN a corporate `meeting` is created
+- WHEN it is persisted
+- THEN CalDAV sync occurs via the universal `meeting` listener (no `BoardMeetingCalDavBridge`)
+
 ## User Stories
 
 1. **Secretary sending ALV convocation**: As secretary, I want to send the ALV convocation to all voting members via their preferred channel so that I can prove all members were properly notified within the statutory deadline. (Source: intelligence DB #46)

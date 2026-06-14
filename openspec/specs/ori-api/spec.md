@@ -10,9 +10,7 @@ openspec-changes:
 
 ## Purpose
 TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
-
 ## Requirements
-
 ### Requirement: REQ-ORI-001 — ORI Meeting endpoint
 
 The system SHALL expose meetings via the ORI-compatible API endpoint `GET /api/ori/v1/events`. The endpoint SHALL serialize Meeting data from CalDAV VEVENTs into ORI Event/Meeting format with Popolo field names.
@@ -106,3 +104,66 @@ The ORI event endpoint SHALL be publicly accessible (no authentication required)
 - **GIVEN** an external client sends OPTIONS `/api/ori/v1/events`
 - **WHEN** the request is processed
 - **THEN** the system returns appropriate CORS headers allowing cross-origin access
+
+### Requirement: REQ-ORI-006 — ORI Motion endpoint sourced from typed decisions
+
+The system SHALL expose motions via the ORI-compatible endpoint `GET /api/ori/v1/motions`, serializing `decision` objects where `decisionType = motion` into Popolo/ORI Motion format. The folded decision fields SHALL map to Popolo Motion fields (`title → name`, `text → text`, `proposer → creator`, `coSigners → cosignatories`, `outcome → result`, `legalBasis → legislativeReference`). Storage SHALL be the unified `decision` schema; the Popolo mapping SHALL remain a boundary projection (ADR-001 §Consequences). The endpoint SHALL be publicly accessible (`#[PublicPage]`, `#[NoCSRFRequired]`) and SHALL only serialize decisions whose `isPublished = public`. The response shape SHALL be byte-compatible with the pre-fold ORI Motion output so existing ORI consumers (e.g. Dutch municipalities) require no change.
+
+#### Scenario: REQ-ORI-006-S1 — Motion decisions serialized as ORI Motions
+
+@e2e exclude open-data API contract — covered by Newman, not a UI flow
+
+- **GIVEN** decisions exist with `decisionType = motion` and `isPublished = public`
+- **WHEN** GET `/api/ori/v1/motions` is called
+- **THEN** each published motion decision is returned as a Popolo/ORI Motion with `name`, `text`, `creator`, and `result` mapped from the folded decision fields
+
+#### Scenario: REQ-ORI-006-S2 — Non-motion and non-public decisions are excluded
+
+@e2e exclude open-data API contract — covered by Newman, not a UI flow
+
+- **GIVEN** decisions exist with `decisionType = resolution` and decisions with `decisionType = motion` but `isPublished = internal`
+- **WHEN** GET `/api/ori/v1/motions` is called
+- **THEN** neither resolution decisions nor non-public motion decisions appear in the response
+
+#### Scenario: REQ-ORI-006-S3 — Response shape unchanged for consumers
+
+@e2e exclude open-data API contract — covered by Newman contract test asserting shape parity
+
+- **GIVEN** the ORI Motion response shape recorded before the supertype fold
+- **WHEN** GET `/api/ori/v1/motions` is called after the fold
+- **THEN** the response shape (fields, JSON-LD `@context`, Popolo namespaces) is identical, now sourced from `decision` objects
+
+### Requirement: REQ-ORI-006 — ORI persons and memberships sourced from Popolo schemas
+The system MUST source the ORI `/api/ori/v1/persons` resource from the `person` schema
+and the `/api/ori/v1/memberships` resource from the `membership` schema (not from
+`participant`). The `OriController::RESOURCE_MAP` MUST map `persons` → `person` and
+`memberships` → `membership`. The list path MUST use the OpenRegister config-array
+pattern where `register`/`schema` live inside `filters`
+(`findAll(['limit' => N, 'filters' => ['register' => 'decidesk', 'schema' => $schema, ...]])`).
+The ORI `@type` labels (`Person`, `Membership`), endpoint paths, and JSON-LD envelope
+MUST remain unchanged.
+
+#### Scenario: Persons endpoint serializes real Popolo Persons
+- GIVEN seeded `Person` records exist
+- WHEN GET `/api/ori/v1/persons` is called
+- THEN the response is JSON-LD with `@type: Person`
+- AND `items` contains the seeded Persons serialized with `name` from the Person `name` field
+- AND no `Participant` objects are returned
+
+#### Scenario: Memberships endpoint serializes real Popolo Memberships
+- GIVEN seeded `Membership` records exist
+- WHEN GET `/api/ori/v1/memberships` is called
+- THEN the response is JSON-LD with `@type: Membership`
+- AND `items` contains the seeded Memberships
+- AND no `Participant` objects are returned
+
+#### Scenario: Person email is exposed on public ORI serialization
+- GIVEN a Person carries an `email`
+- WHEN GET `/api/ori/v1/persons` is called anonymously
+- THEN the serialized Person exposes `email` (open-government transparency for officeholders; the `serializeOri` email gate allows Person in addition to Organization)
+
+#### Scenario: Endpoint paths and envelope unchanged
+- GIVEN an external ORI consumer
+- WHEN it requests `/api/ori/v1/persons` or `/api/ori/v1/memberships`
+- THEN the path and the `@context`/`@type`/`count`/`items` envelope are identical to before this change
+

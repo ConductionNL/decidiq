@@ -176,6 +176,224 @@ The system MUST provide a detail view for each decision using the `CnDetailPage`
 - AND the decision's current state MUST be visually highlighted
 - AND the allowed next transitions MUST be presented as actions
 
+### Requirement: Decision type discriminator
+
+The `decision` schema SHALL carry a required `decisionType` enum discriminator with values `motion`, `amendment`, `resolution`, `contract`, `appointment`, `management-point`, `policy`, and `meeting-outcome`. `Decision` SHALL be the single universal supertype for every governance outcome; motion, amendment, resolution, contract, appointment, management point, policy and generic meeting outcome SHALL NOT be modelled as separate schemas but as values of `decisionType` (ADR-005, ADR-006). The decision register list, search and detail page SHALL be one surface filtered by `decisionType`; a typed nav entry such as "Moties" SHALL be the decision register pre-filtered to `decisionType=motion`, never a separate store.
+
+#### Scenario: Create a decision with a required type
+
+- **GIVEN** a user with decision-making access creating a decision
+- **WHEN** they submit a decision without selecting a `decisionType`
+- **THEN** the system MUST reject the create with a validation error naming `decisionType` as required
+
+#### Scenario: A typed nav filter is the same store
+
+- **GIVEN** decisions exist with `decisionType` values `motion` and `resolution`
+- **WHEN** the user opens the "Moties" nav entry
+- **THEN** the decision register list is shown pre-filtered to `decisionType=motion`, sourced from the same `decision` store as all other decisions
+
+---
+
+### Requirement: Folded type-specific fields with progressive disclosure
+
+The `decision` schema SHALL absorb the type-specific fields formerly carried by the retired `motion`, `amendment`, and `resolution` schemas: motion fields (`motionType`, `proposer`, `coSigners`, `text`), amendment fields (`proposedText` and an `amends` relation to the parent decision), and resolution fields (`resolutionNumber`, resolution `type`, `voteType`, `voteThreshold`, `fullText`, `background`, `adoptionDate`, `effectiveDate`). These fields SHALL render only when the matching `decisionType` is selected (progressive disclosure, ADR-004 Rule 2). Required-field enforcement SHALL be keyed on `decisionType`: a `motion` decision SHALL require `proposer`; a `resolution` decision SHALL require `resolutionNumber` and `voteThreshold`; an `amendment` decision SHALL require the `amends` relation to a parent decision.
+
+#### Scenario: Motion fields appear only for a motion decision
+
+- **GIVEN** a user creating a decision
+- **WHEN** they select `decisionType = motion`
+- **THEN** the form reveals the `proposer`, `coSigners`, and `motionType` fields, and these fields are hidden when `decisionType` is `meeting-outcome`
+
+#### Scenario: Type-specific required field is enforced
+
+- **GIVEN** a user creating a decision with `decisionType = resolution`
+- **WHEN** they submit without `resolutionNumber` or `voteThreshold`
+- **THEN** the create is rejected with a validation error naming the missing resolution fields
+
+#### Scenario: Amendment links to its parent decision
+
+- **GIVEN** an existing `decisionType = motion` decision
+- **WHEN** a user creates a `decisionType = amendment` decision and sets its `amends` relation to that motion decision
+- **THEN** the amendment decision is stored with an OpenRegister relation to the parent motion decision
+
+---
+
+### Requirement: Declarative decision lifecycle
+
+The decision lifecycle SHALL be declared as an `x-openregister-lifecycle` block on the `decision` schema in `lib/Settings/decidesk_register.json` (ADR-031 — declarative, NOT a Service-class state machine). The lifecycle SHALL retain the existing guarded states `draft → proposed → deliberating → voting → decided → enacted → archived` and SHALL add a terminal `withdrawn` state reachable from any non-terminal state before `enacted`. Lifecycle status SHALL be orthogonal to `outcome` (the voting result) and `isPublished` (citizen visibility). Transitions SHALL be guarded by the declared transition map; no imperative `DecisionService` transition method SHALL be introduced by this change.
+
+#### Scenario: Lifecycle is declared in the register
+
+- **GIVEN** the decidesk register definition
+- **WHEN** the `decision` schema is inspected
+- **THEN** it contains an `x-openregister-lifecycle` block declaring the guarded transition map including the `withdrawn` terminal state
+
+#### Scenario: A decision can be withdrawn before enactment
+
+- **GIVEN** a decision in lifecycle `deliberating`
+- **WHEN** an authorised user withdraws it
+- **THEN** the decision transitions to `withdrawn` and no further forward transition is permitted
+
+#### Scenario: A guarded transition is rejected
+
+- **GIVEN** a decision in lifecycle `draft`
+- **WHEN** a transition directly to `enacted` is attempted
+- **THEN** the transition is rejected by the declared lifecycle guard and the status remains `draft`
+
+---
+
+### Requirement: Contract decisions carry offer/order/product attachments
+
+A `decisionType = contract` decision SHALL be able to carry `offer`, `order`, and `product` objects as attachments via `x-openregister-relations` on the `decision` schema (ADR-005). The `offer`, `order`, and `product` schema.org schemas SHALL NOT exist as orphaned standalone entities in the nav; they SHALL be reachable as attachments of a contract decision. Non-contract decision types SHALL NOT require these attachments.
+
+#### Scenario: Attach an offer to a contract decision
+
+- **GIVEN** a `decisionType = contract` decision
+- **WHEN** an `offer` object is related to it
+- **THEN** the offer is stored as an OpenRegister relation on the contract decision and appears in the decision's attachments
+
+#### Scenario: Procurement schemas are not orphaned nav items
+
+- **GIVEN** the decidesk navigation
+- **WHEN** the nav is rendered
+- **THEN** `offer`, `order`, and `product` do not appear as standalone top-level stores; they are reached through contract decisions
+
+---
+
+### Requirement: Re-seeded typed decision demo data
+
+The shipped demo data SHALL include at least one `decision` seed object per `decisionType` value so every type is demonstrable on install (ADR-016). The former `motion`, `amendment`, and `resolution` seed objects SHALL be re-seeded as `decision` objects with the matching `decisionType`, preserving their slugs where reasonable and re-pointing their relations (amendment→motion becomes an `amends` relation between decisions). Seed data SHALL use general organisation domains (municipality, corporate board, consultancy, travel agency).
+
+#### Scenario: Every decision type has a seed
+
+- **GIVEN** a freshly installed decidesk register
+- **WHEN** the decision register is listed
+- **THEN** at least one decision exists for each `decisionType` value (`motion`, `amendment`, `resolution`, `contract`, `appointment`, `management-point`, `policy`, `meeting-outcome`)
+
+#### Scenario: Migrated amendment seed links to its motion
+
+- **GIVEN** the re-seeded demo data
+- **WHEN** a `decisionType = amendment` seed (e.g. `amendement-cultuursubsidie`) is inspected
+- **THEN** it carries an `amends` relation to a `decisionType = motion` decision
+
+### Requirement: Decision route relation
+
+The `Decision` schema SHALL support a `route` relation to `DecisionStage` objects (one Decision → many DecisionStage), representing the ordered path the decision travels across decision-makers. The route SHALL be optional: a Decision with an empty route SHALL remain valid and behave as a single-body decision, preserving all behaviour of decisions created before this change. Adding or removing stages SHALL NOT change the Decision's own `lifecycle` field; the route is orthogonal to (and complements) the decision-to-decision relations owned by the `decision-relations` change.
+
+#### Scenario: A decision exposes its route
+
+- **GIVEN** a Decision with three related DecisionStage objects
+- **WHEN** the decision is loaded
+- **THEN** its `route` resolves to the stages in `sequence` order without altering the decision's `lifecycle`
+
+#### Scenario: Existing single-body decisions are unaffected
+
+- **GIVEN** a Decision created before this change with no stages
+- **WHEN** it is loaded
+- **THEN** its `route` is empty and every existing field and lifecycle transition behaves exactly as before
+
+### Requirement: Declarative route-progress fields on Decision
+
+The `Decision` schema SHALL expose declarative route-progress fields (ADR-031), computed from its related DecisionStage objects with no imperative Service code: `currentStage` (the first stage whose `status` is neither `decided` nor `skipped`, by `sequence`; null when the route is complete), `stageCount`, `decidedStageCount`, `skippedStageCount`, and `routeComplete`. These fields SHALL be derived/materialised by OpenRegister calculations and aggregations, mirroring the existing declarative pattern already used on the Meeting schema. They SHALL NOT introduce a new Service or modify the Decision lifecycle transition map.
+
+#### Scenario: Route progress is materialised on the decision
+
+@e2e exclude declarative-derivation contract — covered by register/Newman, not a UI flow
+
+- **GIVEN** a Decision with a route of three stages, two `decided` and one `active`
+- **WHEN** the decision is loaded
+- **THEN** `currentStage` points at the active stage, `stageCount` is 3, `decidedStageCount` is 2, and `routeComplete` is false — all derived declaratively
+
+### Requirement: Typed decision-to-decision modification relations
+
+The `Decision` schema SHALL support typed modification relations to other decisions, stored as OpenRegister object relations on the source decision: `supersedes` and `repeals` (effect-bearing) and `implements` and `refersTo` (informational). The existing `amends` relation (decisionType=amendment → its parent motion) SHALL retain its current meaning and SHALL be widened in description to cover "this decision modifies that decision"; a second `amends` relation SHALL NOT be introduced. Inverse views (superseded-by, repealed-by, implemented-by, referenced-by) SHALL be derived from OpenRegister relation queries and SHALL NOT be stored separately. Creating or removing an effect-bearing relation SHALL require the same governance-body authority as decision state transitions; informational relations SHALL require decision write access. Every relation addition and removal SHALL be recorded in the immutable audit trail of both the source and the target decision. The relation types SHALL map to the cited standards: Akoma Ntoso active/passive modifications, OpenRaadsinformatie `Besluit` relations, and schema.org `replacer`/`replacee` for supersession.
+
+#### Scenario: Declare that a decision supersedes another
+
+- **GIVEN** a staff member with governance-body authority editing decision "Programmabegroting 2027"
+- **WHEN** they add a `supersedes` relation to the enacted decision "Programmabegroting 2026"
+- **THEN** the relation is stored on "Programmabegroting 2027", and both decisions' audit trails record the relation with actor and timestamp
+
+#### Scenario: Inverse relation is derived
+
+@e2e exclude derived-query contract — covered by PHPUnit/Newman on the relation query; the UI scenario lives in the relations tab
+- **GIVEN** decision A with a stored `supersedes` relation to decision B
+- **WHEN** decision B's incoming relations are queried
+- **THEN** B reports "superseded by A" derived from the OpenRegister relation query, and no inverse relation is stored on B
+
+#### Scenario: Effect-bearing relation requires authority
+
+@e2e exclude API authorization contract — covered by Newman, not a UI flow
+- **WHEN** an authenticated user without governance-body authority attempts to add a `repeals` relation
+- **THEN** the request is rejected with HTTP 403 and no relation or audit entry is created
+
+---
+
+### Requirement: Relation integrity validation
+
+The system SHALL validate relations at write time: self-references SHALL be rejected for all relation types; cycles in the effect-bearing subgraph (`supersedes`/`repeals`) SHALL be rejected via a bounded graph walk with a clear error naming the conflicting decision; relation targets MUST be decisions in the same decidesk register. Effect-bearing relations MAY be declared at any source status but SHALL exert effect only while the source decision is in status `decided` or `enacted`. Validation SHALL be expressed declaratively where OpenRegister supports it (relation constraints), otherwise via a thin server-side validation seam — relation CRUD itself SHALL remain on the OpenRegister object API (no pass-through controller, per ADR-022).
+
+#### Scenario: Self-reference rejected
+
+- **WHEN** a user attempts to add any relation from a decision to itself
+- **THEN** the relation is rejected with a validation error and nothing is stored
+
+#### Scenario: Cycle rejected
+
+@e2e exclude graph-validation contract — covered by PHPUnit on the relation validation
+- **GIVEN** decision A supersedes decision B
+- **WHEN** a user attempts to add a `supersedes` relation from B to A
+- **THEN** the relation is rejected with an error naming the existing A→B relation and nothing is stored
+
+#### Scenario: Draft relation exerts no effect yet
+
+- **GIVEN** a decision in status `draft` carrying a `repeals` relation to an enacted decision
+- **WHEN** the target decision is displayed
+- **THEN** the target still presents as in force, and only when the source reaches `decided`/`enacted` does the target's effective status become `repealed`
+
+---
+
+### Requirement: Derived effective status
+
+The system SHALL compute an `effectiveStatus` for every decision, derived at read time from inbound effect-bearing relations and never stored as a lifecycle state: `repealed` when a decided/enacted decision `repeals` it, else `superseded` when a decided/enacted decision `supersedes` it, else the decision's lifecycle status. The lifecycle status and its audit trail SHALL remain unchanged by relations. The derivation SHALL be expressed declaratively as an OpenRegister calculation where the inverse-relation lookup is expressible; otherwise the detail view SHALL compute it client-side from the same incoming-relation query the relations tab uses. The precedence (`repealed` > `superseded` > lifecycle) SHALL hold regardless of mechanism. A declarative ADR-031 notification rule SHALL notify the governance body when a decision becomes superseded or repealed.
+
+#### Scenario: Enacted supersession flips effective status
+
+- **GIVEN** enacted decision "Programmabegroting 2026" and decision "Programmabegroting 2027" carrying `supersedes` → "Programmabegroting 2026"
+- **WHEN** "Programmabegroting 2027" is enacted
+- **THEN** "Programmabegroting 2026" presents effectiveStatus `superseded` while its lifecycle status remains `enacted` and its audit trail is unchanged
+
+#### Scenario: Repeal outranks supersession
+
+@e2e exclude precedence rule — covered by PHPUnit on the derivation
+- **GIVEN** a decision targeted by both an enacted `supersedes` and an enacted `repeals` relation
+- **WHEN** its effectiveStatus is computed
+- **THEN** the result is `repealed`
+
+#### Scenario: Body notified on repeal
+
+@e2e exclude declarative notification dialect — verified by the notification-dialect gate plus PHPUnit on the rule import
+- **WHEN** a decision's effectiveStatus becomes `repealed`
+- **THEN** recipients defined in the ADR-031 rule receive an NC notification naming the repealing decision
+
+---
+
+### Requirement: In-force visibility in list and detail views
+
+The decision list SHALL offer an in-force filter exposing the values `in force`, `superseded`, and `repealed`, computed from the derived `effectiveStatus`. The decision detail view SHALL display a prominent banner when `effectiveStatus` differs from the lifecycle status, naming the effecting decision with navigation to it. The lifecycle status badge SHALL always remain visible alongside the effective status.
+
+#### Scenario: Filter the register to decisions in force
+
+- **GIVEN** a register containing enacted, superseded, and repealed decisions
+- **WHEN** the user filters the decision list by `in force`
+- **THEN** superseded and repealed decisions are excluded from the results and the result count reflects only decisions in force
+
+#### Scenario: Superseded banner with chain navigation
+
+- **GIVEN** a decision whose effectiveStatus is `superseded` by "Programmabegroting 2027"
+- **WHEN** the user opens its detail view
+- **THEN** a banner states it is superseded by "Programmabegroting 2027" with its date, activating the banner navigates to "Programmabegroting 2027", and the original lifecycle badge remains visible
+
 ## User Stories
 
 1. **Board secretary creating a structured decision**: As a board secretary, I want to create a structured decision proposal with options analysis, risk assessment, and financial impact, so that the board can make well-informed strategic decisions. (Source: intelligence DB #15)

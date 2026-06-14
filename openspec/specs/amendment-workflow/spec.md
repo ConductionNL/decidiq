@@ -9,24 +9,7 @@ openspec-changes:
 
 ## Purpose
 TBD - created by archiving change 2026-05-11-p2-motion-and-voting. Update Purpose after archive.
-
 ## Requirements
-
-### Requirement: REQ-AMD-001 Amendment is submitted against an existing Motion
-The app SHALL allow a Participant with role `member`, `chair`, or `secretary` to submit an Amendment object against a Motion that is in lifecycle `submitted` or `debating`. The Amendment SHALL receive lifecycle `submitted` on creation.
-
-#### Scenario: Raadslid submits an amendment
-- **GIVEN** a Motion with `lifecycle: "debating"`
-- **WHEN** the raadslid clicks "Amendement indienen" and fills in `title`, `text`, and `proposer`
-- **THEN** an Amendment is saved with `lifecycle: "submitted"`, `submittedAt` set to now, and linked to the Motion via OpenRegister relation
-
-#### Scenario: Amendment cannot be submitted on an adopted motion
-- **GIVEN** a Motion with `lifecycle: "adopted"`
-- **WHEN** a user tries to submit an amendment
-- **THEN** the "Amendement indienen" action is disabled with tooltip "Moties die zijn aangenomen of verworpen kunnen niet meer worden geamendeerd"
-
----
-
 ### Requirement: REQ-AMD-002 Amendment lifecycle mirrors motion lifecycle transitions
 The app SHALL allow the chair to advance an Amendment's lifecycle from `submitted` → `debating` → `voting` → `adopted` / `rejected`. Amendment lifecycle transitions are controlled by `MotionService::transitionLifecycle()` with the Amendment object as input.
 
@@ -85,3 +68,4 @@ The app SHALL allow the chair to open a VotingRound for an Amendment (not only f
 - **GIVEN** an Amendment VotingRound that closes with `result: "rejected"`
 - **WHEN** the round closes
 - **THEN** the Amendment `lifecycle` is set to `rejected` AND the parent Motion `text` remains unchanged AND the parent Motion `lifecycle` is unaffected
+

@@ -13,15 +13,16 @@ with `bodyType` set to `supervisory-board` / `executive-board` and mode=corp
 labels — never a separate schema. The corporate scenario is re-seeded on the
 universal `governance-body`.
 
-## REMOVED Requirements
+## ADDED Requirements
 
-### Requirement: Parallel corporate Board entity
-The parallel `Board` schema (slug `board`) and the `BoardMember` schema
-(slug `board-member`), together with the `BoardList` / `BoardDetail` Vue views,
-the `BoardCreateModal`, and the board-CRUD controller/service, are REMOVED. A
-corporate board is expressed as a `governance-body` with
-`bodyType=supervisory-board` / `executive-board` (ADR-006); board members are
-`Person` + `Membership` (ADR-001, done in `popolo-decision-makers`).
+### Requirement: REQ-GBD-012 — Corporate board is the universal governance-body (mode=corp)
+A corporate board MUST be expressed as a `governance-body` with
+`bodyType=supervisory-board` / `executive-board` (ADR-006) and mode=corp labels —
+never a separate schema. The parallel `Board` / `BoardMember` schemas, the
+`BoardList` / `BoardDetail` views, the `BoardCreateModal`, and the board-CRUD
+controller/service are removed; board members are `Person` + `Membership`
+(ADR-001, `popolo-decision-makers`). The corporate scenario is re-seeded on the
+universal `governance-body`.
 
 #### Scenario: Corporate board uses the universal governance-body
 - GIVEN the register is imported on a clean instance

@@ -115,6 +115,44 @@ The system MUST support importing members from Nextcloud Groups, Nextcloud Conta
 - AND members with matching Nextcloud accounts (by email) MUST be automatically linked
 - AND unmatched members MUST be flagged for manual linking or invitation
 
+### Requirement: REQ-ADM-MODE-001 Organisatie-modus tenant setting
+The system MUST expose an `organisatie_modus` setting whose value is one of
+`gov`, `corp`, `assoc`, `ops`, or `citizen`, defaulting to `gov`. The setting MUST
+be persisted via `IAppConfig` through `SettingsService` (added to
+`SettingsService::CONFIG_KEYS`), returned by `getSettings()` with the `gov`
+default when unset, and writable via `updateSettings()`. The setting MUST be
+selectable in the Decidesk admin settings UI. The value MUST drive the
+navigation label map (per the app-navigation capability) and MUST NOT alter the
+entity/schema set or the navigation structure (ADR-006: mode adaptation, never
+parallel entities).
+
+#### Scenario: Default mode is gov
+
+@e2e openspec/specs/admin-settings/spec.md#default-mode-is-gov
+
+- GIVEN a fresh install where `organisatie_modus` has never been set
+- WHEN `getSettings()` is called
+- THEN it returns `organisatie_modus = "gov"`
+
+#### Scenario: Admin selects a tenant mode
+
+@e2e openspec/specs/admin-settings/spec.md#admin-selects-a-tenant-mode
+
+- GIVEN an administrator in the Decidesk admin settings
+- WHEN they set the organisation mode to "corp"
+- THEN `updateSettings()` persists `organisatie_modus = "corp"` via `IAppConfig`
+- AND `getSettings()` subsequently returns `"corp"`
+- AND the navigation Bodies item relabels to "Board" on next render
+
+#### Scenario: Mode does not create parallel entities
+
+@e2e openspec/specs/admin-settings/spec.md#mode-does-not-create-parallel-entities
+
+- GIVEN any `organisatie_modus` value
+- WHEN the app boots with that mode
+- THEN the register schema set is unchanged and the navigation structure stays the six-item IA
+- AND only displayed labels differ
+
 ## User Stories
 
 1. **Board secretary managing conflict of interest register**: As a board secretary, I want to maintain a digital conflict of interest register for all board and supervisory board members, so that potential conflicts are proactively identified before meetings. (Source: intelligence DB #23)

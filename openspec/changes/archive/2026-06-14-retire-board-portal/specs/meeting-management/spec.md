@@ -12,10 +12,12 @@ CalDAV bridge) from the meeting-management capability. Per ADR-006 a corporate
 board meeting is the universal `meeting` (CalDAV VEVENT per ADR-002) with
 mode=corp labels — never a separate schema.
 
-## REMOVED Requirements
+## ADDED Requirements
 
-### Requirement: Parallel corporate board meeting entity
-The parallel `BoardMeeting` schema (slug `board-meeting`), the
+### Requirement: REQ-MM-CORP — Corporate board meeting is the universal meeting (mode=corp)
+A corporate board meeting MUST be the universal `meeting` (CalDAV VEVENT per
+ADR-002) with mode=corp labels — never a separate schema. Accordingly the
+parallel `BoardMeeting` schema (slug `board-meeting`), the
 `BoardMeetingList` / `BoardMeetingDetail` Vue views, the
 `BoardMeetingCreateModal`, the board-meeting routes (`boardMeeting#*`,
 `board#*`, `boardMember#*`, `boardVote#*`, `boardMaterial#*`,

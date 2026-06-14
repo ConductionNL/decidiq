@@ -7,9 +7,7 @@
 
 ## Purpose
 TBD - created by archiving change 2026-05-11-p1-crud-operations. Update Purpose after archive.
-
 ## Requirements
-
 ### Requirement: Register import on install
 The app SHALL import the Decidesk OpenRegister register and all entity schemas from `lib/Settings/decidesk_register.json` during installation and upgrades via an `IRepairStep`.
 
@@ -59,15 +57,23 @@ The app SHALL detect whether OpenRegister is installed and configured, and displ
 - **THEN** the main app content renders with navigation and routing
 
 ### Requirement: App navigation via MainMenu
-The app SHALL provide a left-side navigation menu with items for Dashboard, Governance Bodies, Meetings, Participants, and Agenda Items.
+The app SHALL provide a left-side navigation menu following ADR-004's six-item
+information architecture: a Dashboard landing item plus the six canonical working
+items — Meetings, Decisions, Action items, Motions, Bodies (the GovernanceBodies
+surface), and Beheer (the settings/admin door). The menu SHALL NOT include
+Minutes, Workspaces, or Engagement as top-level items; those surfaces are demoted
+(Minutes lives as a tab in MeetingDetail, Workspaces under Bodies, Engagement
+under Beheer) while their routes remain reachable.
 
-#### Scenario: Navigation renders all routes
-- **WHEN** the app is fully loaded
-- **THEN** the MainMenu shows links to: Dashboard (`/`), Governance Bodies (`/governance-bodies`), Meetings (`/meetings`), Participants (`/participants`), Agenda Items (`/agenda-items`), and a settings link in the footer
+#### Scenario: Navigation renders the six-item IA
+- WHEN the app is fully loaded
+- THEN the MainMenu shows Dashboard (`/`), Meetings (`/meetings`), Decisions (`/decisions`), Action items (`/action-items`), Motions (`/motions`), and Bodies (`/governance-bodies`)
+- AND Beheer (Settings) appears in the settings section
+- AND Minutes, Workspaces, and Engagement are NOT shown as top-level menu items
 
 #### Scenario: Active route is highlighted
-- **WHEN** the user is on the Meetings list page
-- **THEN** the Meetings `NcAppNavigationItem` is styled as active
+- WHEN the user is on the Meetings list page
+- THEN the Meetings navigation item is styled as active
 
 ### Requirement: Dashboard with KPI metrics
 The app SHALL display a dashboard page with KPI stats blocks and a meeting lifecycle distribution chart.
@@ -83,3 +89,4 @@ The app SHALL display a dashboard page with KPI stats blocks and a meeting lifec
 #### Scenario: Dashboard data loads in parallel
 - **WHEN** the Dashboard component is created
 - **THEN** all entity count requests are issued in parallel via `Promise.all` and the page does not load sequentially
+

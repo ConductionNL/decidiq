@@ -26,18 +26,18 @@ See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Resolution and Mi
 
 ### Requirement: Resolution Generation
 
-The system MUST support generating formal resolution texts from adopted decisions. Resolutions MUST include the decision text, voting results, legal basis, date of adoption, and governing body. Resolutions MUST be stored as OpenRegister objects and optionally rendered as documents via Docudesk.
+The system MUST support generating formal resolution texts from adopted decisions. Resolutions MUST include the decision text, voting results, legal basis, date of adoption, and governing body. A generated resolution MUST be stored as a `decision` OpenRegister object with `decisionType = resolution` (the retired standalone `resolution` schema is replaced per ADR-005), carrying the folded resolution fields (`resolutionNumber`, resolution `type`, `voteType`, `voteThreshold`, `fullText`, `background`, `adoptionDate`, `effectiveDate`). Resolutions MAY be rendered as documents via Docudesk.
 
 **Feature tier**: V1
 
-#### Scenario: Generate a resolution from an adopted decision
+#### Scenario: Generate a resolution as a typed decision
 
 @e2e exclude resolution records are generated server-side by the decision enact transition (decision-state-machine-v1); the triggering UI is the DecisionLifecycleTab covered by the decision-management spec's e2e suite — no separate minutes-side surface exists by design
 
 - GIVEN a decision that has been adopted with voting results (14 for, 5 against, 1 abstain)
 - WHEN the secretary triggers "Generate Resolution"
-- THEN the system MUST create a resolution object with the decision text, voting results, adoption date, and governing body
-- AND the resolution MUST have a unique sequential number per body (e.g., "2026-BES-042")
+- THEN the system MUST create a `decision` object with `decisionType = resolution` carrying the decision text, voting results, adoption date, and governing body
+- AND the resolution decision MUST have a unique sequential `resolutionNumber` per body (e.g., "2026-BES-042")
 - AND the resolution MUST be available for export as PDF via Docudesk
 
 #### Scenario: Generate a resolution with legal basis references
@@ -46,7 +46,7 @@ The system MUST support generating formal resolution texts from adopted decision
 
 - GIVEN an adopted decision referencing Gemeentewet article 160
 - WHEN the resolution is generated
-- THEN the resolution MUST include the legal basis ("Gelet op artikel 160 van de Gemeentewet")
+- THEN the resolution decision MUST include the legal basis ("Gelet op artikel 160 van de Gemeentewet")
 - AND the resolution text MUST follow Akoma Ntoso structure (preface, body, conclusions)
 
 #### Scenario: Provide proof of proper adoption for notarial deed
@@ -55,8 +55,6 @@ The system MUST support generating formal resolution texts from adopted decision
 - WHEN the notary requests proof of proper adoption
 - THEN the system MUST generate a complete package including: convocation proof, quorum verification, voting results, and the resolution text
 - AND the package MUST be verifiable and tamper-evident
-
----
 
 ### Requirement: Real-Time Minute Taking
 
@@ -134,6 +132,57 @@ The system MUST support generating professional minutes documents via Docudesk. 
 - WHEN the secretary triggers "Generate Document" with the PDF format
 - THEN the system MUST persist the markdown document into the meeting's Files folder
 - AND the response MUST state that Docudesk was unavailable and a markdown fallback was produced
+
+### Requirement: REQ-RM-CORP-RES — Resolution is a typed decision (mode=corp)
+A resolution MUST be a universal `decision` with `decisionType=resolution`
+(ADR-005), never a separate schema. Accordingly the parallel `Resolution` schema
+(slug `resolution`), the `ResolutionList` /
+`ResolutionDetail` Vue views, the resolution routes, the resolution
+controller/service, and the `ResolutionLifecycleGuard` are REMOVED. A resolution
+is a universal `decision` with `decisionType=resolution` (ADR-005, done in
+`unify-decision-supertype`). The `resolution` entry is removed from the unified
+search provider; decisions remain searchable.
+
+#### Scenario: Resolution is a decision, not a separate schema
+- GIVEN the register is imported on a clean instance
+- WHEN the schemas are listed
+- THEN no `resolution` schema exists
+- AND resolutions are represented as `decision` objects with `decisionType=resolution`
+
+#### Scenario: Decisions remain searchable after resolution removal
+- GIVEN the unified search provider
+- WHEN its searched schemas are inspected
+- THEN `resolution` is not listed
+- AND `decision` and `meeting` are still searched
+
+### Requirement: REQ-RM-CORP-SUB — Board vote/minutes/material/audit fold into universal entities (mode=corp)
+Corporate board votes MUST be `vote`/`voting-round`, board minutes MUST be
+`minutes`, board materials MUST be DigitalDocument attachments, and the board
+audit log MUST use the OR built-in `auditTrail` — never separate schemas.
+Accordingly the parallel `BoardVote` (slug `board-vote`), `BoardMinutes`
+(slug `board-minutes`), `BoardMaterial` (slug `board-material`), and
+`BoardAuditLogEntry` (slug `board-audit-log-entry`) schemas are REMOVED. Board
+votes are `vote`/`voting-round`; board minutes are `minutes`; board materials are
+generic DigitalDocument attachments; the board audit log uses the OR built-in
+audit trail. The retained governance services (eIDAS, regulator-export,
+governance-report, multilingual-reconciliation, proxy-vote, audit-log) are
+retargeted onto these unified entities, keeping their auth guards.
+
+#### Scenario: Board sub-entities removed and services retargeted
+- GIVEN the register is imported and the app boots
+- WHEN the schemas are listed and the governance services run
+- THEN no `board-vote` / `board-minutes` / `board-material` / `board-audit-log-entry` schema exists
+- AND the retained governance services query `vote` / `minutes` / `decision` / `audit-trail` instead
+
+### Requirement: Minutes signing resolves a signature-method stage
+
+When a `DecisionStage` has `method=signature`, the eIDAS signing of its `signedDocument` SHALL reuse the existing minutes signing flow — signatories are read from `Minutes.signedBy` and the QES workflow is driven by `EIDASSignatureService`. On signing completion, the service SHALL resolve the related signature stage (link `signedDocument`, set `outcome=adopted` + `decidedAt`). No separate Signature schema SHALL be introduced; the signed artefact remains a `DigitalDocument` and the signatories remain `Minutes.signedBy`, consistent with ADR-006's retirement of parallel board-* entities.
+
+#### Scenario: Signed minutes resolve the ratifying signature stage
+
+- **GIVEN** a `method=signature` DecisionStage whose `signedDocument` is the meeting minutes and whose signatories are listed in `Minutes.signedBy`
+- **WHEN** the chair and secretary complete eIDAS signing
+- **THEN** `EIDASSignatureService` resolves the stage to `outcome=adopted` with `decidedAt` stamped, reusing the minutes signing flow rather than a new signature entity
 
 ## User Stories
 

@@ -14,10 +14,12 @@ capability. Per ADR-006/ADR-005 a resolution is a universal `decision` with
 are `minutes`; board materials are generic DigitalDocument attachments; the board
 audit log folds into the OR built-in `auditTrail`.
 
-## REMOVED Requirements
+## ADDED Requirements
 
-### Requirement: Parallel corporate Resolution entity
-The parallel `Resolution` schema (slug `resolution`), the `ResolutionList` /
+### Requirement: REQ-RM-CORP-RES — Resolution is a typed decision (mode=corp)
+A resolution MUST be a universal `decision` with `decisionType=resolution`
+(ADR-005), never a separate schema. Accordingly the parallel `Resolution` schema
+(slug `resolution`), the `ResolutionList` /
 `ResolutionDetail` Vue views, the resolution routes, the resolution
 controller/service, and the `ResolutionLifecycleGuard` are REMOVED. A resolution
 is a universal `decision` with `decisionType=resolution` (ADR-005, done in
@@ -36,8 +38,11 @@ search provider; decisions remain searchable.
 - THEN `resolution` is not listed
 - AND `decision` and `meeting` are still searched
 
-### Requirement: Parallel corporate board minutes / vote / material / audit entities
-The parallel `BoardVote` (slug `board-vote`), `BoardMinutes`
+### Requirement: REQ-RM-CORP-SUB — Board vote/minutes/material/audit fold into universal entities (mode=corp)
+Corporate board votes MUST be `vote`/`voting-round`, board minutes MUST be
+`minutes`, board materials MUST be DigitalDocument attachments, and the board
+audit log MUST use the OR built-in `auditTrail` — never separate schemas.
+Accordingly the parallel `BoardVote` (slug `board-vote`), `BoardMinutes`
 (slug `board-minutes`), `BoardMaterial` (slug `board-material`), and
 `BoardAuditLogEntry` (slug `board-audit-log-entry`) schemas are REMOVED. Board
 votes are `vote`/`voting-round`; board minutes are `minutes`; board materials are

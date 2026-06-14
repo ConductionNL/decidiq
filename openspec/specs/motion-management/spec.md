@@ -9,24 +9,7 @@ openspec-changes:
 
 ## Purpose
 TBD - created by archiving change 2026-05-11-p2-motion-and-voting. Update Purpose after archive.
-
 ## Requirements
-
-### Requirement: REQ-MOT-001 Motion can be submitted against a decision-type AgendaItem
-The app SHALL allow a Participant with role `member`, `chair`, or `secretary` to create a Motion object linked to an AgendaItem of type `decision`. The Motion SHALL be given lifecycle `submitted` on creation.
-
-#### Scenario: Raadslid submits a motion
-- **GIVEN** a Meeting in lifecycle `opened` with a `decision`-type AgendaItem
-- **WHEN** the raadslid clicks "Motie indienen" and fills in `title`, `text`, and `motionType`
-- **THEN** a Motion is saved with `lifecycle: "submitted"`, `proposer` set to the user's display name, `submittedAt` set to the current timestamp, and linked to the AgendaItem via OpenRegister relation
-
-#### Scenario: Observer cannot submit a motion
-- **GIVEN** a user with role `observer`
-- **WHEN** the user opens an AgendaItem detail page
-- **THEN** the "Motie indienen" action is not visible
-
----
-
 ### Requirement: REQ-MOT-002 Motion lifecycle transitions are controlled by role
 The app SHALL enforce that only the chair or secretary can advance a Motion's lifecycle from `submitted` → `debating` → `voting` → `adopted` / `rejected`. A proposer may withdraw their own Motion (transition to `withdrawn`) at any time before lifecycle reaches `voting`.
 
@@ -109,3 +92,4 @@ The app SHALL provide a Motion index view accessible from MeetingDetail, showing
 - **GIVEN** a Motion index with motions in different lifecycle states
 - **WHEN** the user opens the index
 - **THEN** each Motion row shows a `CnStatusBadge` with the current lifecycle value
+
