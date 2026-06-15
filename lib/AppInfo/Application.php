@@ -37,12 +37,15 @@ use OCA\Decidesk\Controller\ParticipationController;
 use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
+use OCA\Decidesk\Event\DecisionRequestedEvent;
 use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
+use OCA\Decidesk\Listener\DecisionRequestedListener;
 use OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf;
 use OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\DecisionIntegrationService;
 use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCA\Decidesk\Service\DecisionNotificationService;
 use OCA\Decidesk\Service\EmailReferenceExtractor;
@@ -159,9 +162,45 @@ class Application extends App implements IBootstrap
                     transitionGuard: new \OCA\Decidesk\Lifecycle\DecisionTransitionGuard(),
                     auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
                     templateService: $c->get(\OCA\Decidesk\Service\ProcessTemplateService::class),
+                    integrationService: $c->get(DecisionIntegrationService::class),
+                    eventDispatcher: $c->get(\OCP\EventDispatcher\IEventDispatcher::class),
                     );
                 }
                 );
+
+        // Register DecisionIntegrationService for DI (cross-app decision hub):
+        // assembles the outcome envelope and the idempotent create-decision
+        // logic reused by the event contract and the HTTP integration surface.
+        // @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md.
+        $context->registerService(
+                DecisionIntegrationService::class,
+                static function ($c): DecisionIntegrationService {
+                    return new DecisionIntegrationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    auditLog: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    );
+                }
+                );
+
+        // Register the event contract for delegated decisions: consumer apps
+        // dispatch DecisionRequestedEvent (handled here -> createDecision) and
+        // listen for DecisionConcludedEvent (emitted from DecisionLifecycleService).
+        // In-process replacement for the broken IntegrationService::getLeaf path.
+        // @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md.
+        $context->registerService(
+                DecisionRequestedListener::class,
+                static function ($c): DecisionRequestedListener {
+                    return new DecisionRequestedListener(
+                    integrationService: $c->get(DecisionIntegrationService::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+        $context->registerEventListener(
+            event: DecisionRequestedEvent::class,
+            listener: DecisionRequestedListener::class
+        );
 
         // Register DecisionController for DI.
         // Explicit registration matches the MinutesController pattern and ensures
