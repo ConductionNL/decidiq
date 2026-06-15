@@ -31,9 +31,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Tests the PII-free reaction digest, the @self.published attempt, and the
- * OpenCatalogi-absent graceful degradation (with the honest
- * anonVisibilityVerified=false flag).
+ * Tests the PII-free reaction digest, setting the RBAC published predicate
+ * (publicatiedatum), and the OpenCatalogi-absent graceful degradation.
  *
  * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
  */
@@ -141,9 +140,9 @@ class ParticipationPublicationServiceTest extends TestCase
     }//end testReactionDigestIsPiiFree()
 
     /**
-     * Publishing consultation results sets the published predicate, reports
-     * anonVisibilityVerified=false (honest OR gap), and degrades with a warning
-     * when OpenCatalogi is absent.
+     * Publishing consultation results sets publicatiedatum (the RBAC published
+     * predicate), reports anonVisibilityVerified=true, and degrades with a
+     * warning when OpenCatalogi is absent.
      *
      * @return void
      *
@@ -163,13 +162,22 @@ class ParticipationPublicationServiceTest extends TestCase
 
         $result = $this->makeService(openCatalogi: false)->publishConsultationResults(consultationId: 'c1', staffResponse: 'Thanks');
         self::assertTrue($result['publishedPredicateSet']);
-        self::assertFalse($result['anonVisibilityVerified']);
+        // RBAC model: publicatiedatum <= $now makes the object anon-readable.
+        self::assertTrue($result['anonVisibilityVerified']);
         self::assertFalse($result['openCatalogiInstalled']);
         self::assertFalse($result['openCatalogiRouted']);
         self::assertNotNull($result['warning']);
-        // The published predicate was written onto the source object.
-        self::assertArrayHasKey('@self', $captured);
-        self::assertArrayHasKey('published', $captured['@self']);
+        // The RBAC published predicate (publicatiedatum) was set on the source
+        // object as a normal field, in the past so the public-group rule matches.
+        self::assertArrayHasKey('publicatiedatum', $captured);
+        self::assertLessThanOrEqual(
+            (new \DateTimeImmutable())->getTimestamp(),
+            (new \DateTimeImmutable((string) $captured['publicatiedatum']))->getTimestamp()
+        );
+        self::assertArrayHasKey('depublicatiedatum', $captured);
+        self::assertNull($captured['depublicatiedatum']);
+        // No legacy @self.published predicate is written anymore.
+        self::assertArrayNotHasKey('@self', $captured);
         // The summary stored on the object is PII-free (no submitter ids).
         self::assertStringNotContainsString('submitterId', (string) ($captured['resultsSummary'] ?? ''));
 

@@ -5,7 +5,7 @@
 Three facts shape this design:
 
 1. **The fields already exist but mean nothing.** `Decision.isPublished`/`publishedAt` and `Meeting.isPublic` shipped with the schemas but no spec, no writer, and no reader. This change gives them owners instead of inventing parallel state.
-2. **The public route is already decided.** The `citizen-participation` change (same re-evaluation cycle) established decidesk's publication posture: derived summary objects get `@self.published` via OpenRegister and are routed into a configured OpenCatalogi catalog; the app serves **no** anonymous pages or read endpoints. This change reuses that posture verbatim — one public story, not two.
+2. **The public route is already decided.** The `citizen-participation` change (same re-evaluation cycle) established decidesk's publication posture: derived summary objects are made anonymously readable via the OpenRegister RBAC published-predicate (public-group `authorization.read` matching `publicatiedatum <= $now`) and are routed into a configured OpenCatalogi catalog; the app serves **no** anonymous pages or read endpoints. This change reuses that posture verbatim — one public story, not two.
 3. **Confidentiality has a stronger owner.** The in-flight `board-meeting-resolutions` change builds an entire confidentiality model (access-level enums, regulator scoping, watermarking). Publication must be structurally unable to leak that material.
 
 ## Goals / Non-goals
@@ -21,7 +21,7 @@ Three facts shape this design:
 
 ### D1 — Publish derived payloads, never the live objects
 
-Publication NEVER sets `@self.published` on the live `Decision`/`Meeting`/`Minutes` objects. A `PublicationPayloadService` builds a **derived publication object** per publish action:
+Publication NEVER sets the publication predicate on the live `Decision`/`Meeting`/`Minutes` objects. A `PublicationPayloadService` builds a **derived publication object** per publish action, and only that derived object receives `publicatiedatum`:
 
 - **Decision**: title, decision text, outcome, decisionDate, legalBasis, body name, vote **totals** (for/against/abstain) — never individual votes or voter identities.
 - **Agenda**: meeting title/date/location/body plus the ordered agenda items — with items marked confidential (and their document references) stripped.
@@ -50,12 +50,12 @@ Every spec already cites OpenRaadsinformatie mappings (`Besluit`, `Vergadering`,
 
 ### D5 — Withdraw and rectify, never silent edit
 
-- **Withdraw**: staff action with a mandatory reason; clears `@self.published` on the payload, retracts/depublishes the OpenCatalogi publication, flips `isPublished` back, records actor+reason+timestamp on the `PublicationRecord` and in the decision audit trail. The payload object is soft-retained (audit), not hard-deleted.
+- **Withdraw**: staff action with a mandatory reason; sets `depublicatiedatum` on the payload (removing it from the public-group RBAC surface), retracts/depublishes the OpenCatalogi publication, flips `isPublished` back, records actor+reason+timestamp on the `PublicationRecord` and in the decision audit trail. The payload object is soft-retained (audit), not hard-deleted.
 - **Rectify**: publishes a NEW payload version that references the version it rectifies (`rectifiesVersion`); the old version is withdrawn in the same transaction. Published payloads are themselves immutable — corrections are visible as corrections (WOO art. 3.7 spirit; same immutability stance as the decision audit trail).
 
 ### D6 — OpenCatalogi routing with the citizen-participation degradation contract
 
-Per governance body, admins configure a target catalog. On publish: set `@self.published` on the payload via the OR object API (verify-first task: the magic-mapper cannot set the predicate — same known constraint citizen-participation carries), then create the publication in the target catalog when OpenCatalogi is installed and configured. Absent OpenCatalogi: predicate still set, catalog step skipped, staff-visible warning — byte-for-byte the same contract as citizen-participation D4 so the two features degrade identically.
+Per governance body, admins configure a target catalog. On publish: set `publicatiedatum` on the payload via the normal OR object API (a regular field write on a register-owned object — the public-group `authorization.read` rule on the PublicationPayload schema then makes it anonymously readable while `publicatiedatum <= $now`), then create the publication in the target catalog when OpenCatalogi is installed and configured. Absent OpenCatalogi: predicate still set, catalog step skipped, staff-visible warning — byte-for-byte the same contract as citizen-participation D4 so the two features degrade identically. (Note: `@self.published` is deprecated and removed from OpenRegister; the live model is the RBAC `publicatiedatum` predicate. The earlier "magic-mapper cannot set the predicate" concern was a misdiagnosis — decidesk payloads are register-owned objects on the normal RBAC save path, so the magic-mapper limitation never applied.)
 
 ### D7 — Storage, RBAC, notifications: OpenRegister only
 
@@ -63,7 +63,7 @@ Per governance body, admins configure a target catalog. On publish: set `@self.p
 
 ## Risks
 
-- **Published-predicate gap on the deployed OR version** (magic-mapper finding from the OC federation testbed). Mitigation: explicit verification task gates the build phase; fallback is upgrading OR — never an app-local public page.
+- **Published-predicate model.** RESOLVED: anonymous visibility uses the OpenRegister RBAC published-predicate — the PublicationPayload schema declares an `authorization.read` rule granting the public group read access while `publicatiedatum <= $now`, and publish sets `publicatiedatum` (a normal field). The earlier "magic-mapper gap" framing was a misdiagnosis: decidesk payloads are register-owned objects on the normal RBAC save path, never magic-mapped, and `@self.published` is deprecated/removed. No app-local public page is needed or used.
 - **PII leakage through payload construction bugs.** Mitigation: payloads are built field-by-field allow-list style (D1), never object-copy-minus-fields; Newman asserts the published payload shape negatively (no voter IDs, no member UIDs beyond role-holder names where policy allows).
 - **Confidential agenda items leaking into published agendas.** Mitigation: strip-by-default — items publish only when explicitly marked public-eligible; the deny-list test publishes a mixed agenda and asserts absence.
 - **Catalog drift** (publication exists in OpenCatalogi but withdraw failed remotely). Mitigation: `PublicationRecord` stores the catalog publication reference; withdraw retries and surfaces failure to staff instead of pretending success.

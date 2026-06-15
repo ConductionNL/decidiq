@@ -3,9 +3,9 @@
  * Decidesk Publication Service
  *
  * Orchestrates the public-publication flow: eligibility, payload construction,
- * the OR published-predicate attempt, OpenCatalogi routing, PublicationRecord
- * lifecycle, and the source-object audit trail. Covers publish, withdraw, and
- * rectify.
+ * setting the OpenRegister published-predicate (publicatiedatum), OpenCatalogi
+ * routing, PublicationRecord lifecycle, and the source-object audit trail.
+ * Covers publish, withdraw, and rectify.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -34,11 +34,14 @@ use Psr\Log\LoggerInterface;
  * Stateful orchestration of a publication action.
  *
  * Anonymous read of published data happens EXCLUSIVELY through OpenRegister's
- * published-predicate surface and OpenCatalogi — never through an app-local
- * route. The service attempts to set `@self.published` on the derived payload
- * object so the data is correct the moment OR exposes per-object publishing;
- * when OpenCatalogi is absent it degrades gracefully with a staff-visible
- * warning. It shares OriPublicationService's graceful-degrade posture.
+ * RBAC published-predicate surface and OpenCatalogi — never through an app-local
+ * route. "Publish" means setting `publicatiedatum` on the derived payload object
+ * via the normal OR object API; the PublicationPayload schema's
+ * `authorization.read` rule then grants the public group read access while
+ * `publicatiedatum <= $now` (and no `depublicatiedatum` in the past). When
+ * OpenCatalogi is absent the catalog step is skipped and the service degrades
+ * gracefully with a staff-visible warning. It shares OriPublicationService's
+ * graceful-degrade posture.
  *
  * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
  */
@@ -47,14 +50,14 @@ class PublicationService
     /**
      * Constructor.
      *
-     * @param ContainerInterface             $container        DI container (lazy ObjectService).
-     * @param LoggerInterface                $logger           Logger.
-     * @param IAppManager                    $appManager       Detects OpenCatalogi presence.
-     * @param PublicationEligibilityService  $eligibility      Eligibility + deny-list gates.
-     * @param PublicationPayloadService      $payloadService   Allow-list payload builder.
-     * @param PublicationConfigService       $configService    Per-body publication config.
-     * @param OpenCatalogiPublisher          $catalogPublisher OpenCatalogi catalog routing.
-     * @param AuditLogService                $auditLogService  Immutable audit trail.
+     * @param ContainerInterface            $container        DI container (lazy ObjectService).
+     * @param LoggerInterface               $logger           Logger.
+     * @param IAppManager                   $appManager       Detects OpenCatalogi presence.
+     * @param PublicationEligibilityService $eligibility      Eligibility + deny-list gates.
+     * @param PublicationPayloadService     $payloadService   Allow-list payload builder.
+     * @param PublicationConfigService      $configService    Per-body publication config.
+     * @param OpenCatalogiPublisher         $catalogPublisher OpenCatalogi catalog routing.
+     * @param AuditLogService               $auditLogService  Immutable audit trail.
      *
      * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
      */
@@ -74,9 +77,10 @@ class PublicationService
      * Publish an eligible governance object.
      *
      * Runs the deny-list + eligibility gates, builds the allow-list payload,
-     * persists it as an immutable PublicationPayload, attempts `@self.published`
-     * (graceful degrade), routes into the configured OpenCatalogi catalog,
-     * writes the PublicationRecord, and appends a publish audit entry.
+     * persists it as an immutable PublicationPayload, sets `publicatiedatum` so
+     * the public-group RBAC rule makes it anonymously readable, routes into the
+     * configured OpenCatalogi catalog, writes the PublicationRecord, and appends
+     * a publish audit entry.
      *
      * @param string $sourceType One of decision|agenda|minutes.
      * @param string $sourceId   UUID of the source object.
@@ -89,22 +93,20 @@ class PublicationService
     public function publish(string $sourceType, string $sourceId, string $actorId): array
     {
         $source = $this->eligibility->assertEligible($sourceType, $sourceId);
-        $bodyId = $this->resolveBodyId($sourceType, $source);
+        $bodyId = $this->resolveBodyId(sourceType: $sourceType, source: $source);
 
         $version = 1;
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $version);
-        $payloadId = $this->persistPayload($payload);
+
+        // Set publicatiedatum on the payload so OR's public-group RBAC rule
+        // (publicatiedatum <= $now) makes it anonymously readable through the
+        // published-predicate surface. This is a normal field on a register-owned
+        // object — written on the standard saveObject path, not a magic predicate.
+        $payload['publicatiedatum']   = $this->now();
+        $payload['depublicatiedatum'] = null;
+        $payloadId = $this->persistPayload(payload: $payload);
 
         $warnings = [];
-
-        // Attempt to set @self.published on the derived payload object so it is
-        // readable through OR's anonymous published-predicate surface. This is
-        // a graceful attempt: a deployed-OR magic-mapper gap (no per-object
-        // publish) means it may not stick; the catalog path below remains viable.
-        $predicateSet = $this->attemptSelfPublished($payloadId, true);
-        if ($predicateSet === false) {
-            $warnings[] = 'predicate-unavailable';
-        }
 
         // OpenCatalogi routing (create publication in the per-body target catalog).
         $catalogRef    = '';
@@ -122,7 +124,7 @@ class PublicationService
             $warnings[] = 'opencatalogi-absent';
         }
 
-        $record = [
+        $record       = [
             'sourceType'              => $sourceType,
             'sourceObject'            => $sourceId,
             'sourceTitle'             => (string) ($source['title'] ?? ''),
@@ -137,11 +139,16 @@ class PublicationService
             'publishedBy'             => $actorId,
             'publishedAt'             => $this->now(),
         ];
-        $recordId = $this->persistRecord($record);
+        $recordId     = $this->persistRecord(record: $record);
         $record['id'] = $recordId;
 
-        $this->markSourcePublished($sourceType, $sourceId, $source, true);
-        $this->audit($actorId, 'publish', [$sourceId, $payloadId], ['sourceType' => $sourceType, 'payloadVersion' => $version]);
+        $this->markSourcePublished(sourceType: $sourceType, sourceId: $sourceId, source: $source, published: true);
+        $this->audit(
+            actorId: $actorId,
+            action: 'publish',
+            objectUids: [$sourceId, $payloadId],
+            payload: ['sourceType' => $sourceType, 'payloadVersion' => $version]
+        );
 
         return [
             'record'   => $record,
@@ -153,10 +160,11 @@ class PublicationService
     /**
      * Withdraw a publication with a mandatory reason.
      *
-     * Clears `@self.published`, retracts the OpenCatalogi publication (surfacing
-     * + marking pending on failure — never a silent success), resets the source
-     * object's published state, records actor/reason/timestamp on the record and
-     * in the audit trail, and soft-retains the payload.
+     * Sets `depublicatiedatum` on the payload (removing it from the public-group
+     * RBAC surface), retracts the OpenCatalogi publication (surfacing + marking
+     * pending on failure — never a silent success), resets the source object's
+     * published state, records actor/reason/timestamp on the record and in the
+     * audit trail, and soft-retains the payload.
      *
      * @param string $recordId UUID of the PublicationRecord.
      * @param string $actorId  Nextcloud UID of the withdrawing staff member.
@@ -175,16 +183,18 @@ class PublicationService
             throw new \InvalidArgumentException('A withdraw reason is required.');
         }
 
-        $record = $this->loadRecord($recordId);
+        $record = $this->loadRecord(recordId: $recordId);
 
         $warnings = [];
 
-        // Clear the local predicate first so the data stops being anonymously
-        // readable even if the remote retraction fails.
-        $this->attemptSelfPublished((string) $record['payloadObject'], false);
+        // Set depublicatiedatum on the payload first so the public-group RBAC
+        // rule stops returning it (publicatiedatum <= $now is no longer the only
+        // gate once depublicatiedatum is in the past) — the data stops being
+        // anonymously readable even if the remote retraction fails.
+        $this->setDepublicationDate(payloadId: (string) $record['payloadObject']);
 
         $catalogRetractionStatus = 'none';
-        $catalogRef              = (string) ($record['catalogPublication'] ?? '');
+        $catalogRef = (string) ($record['catalogPublication'] ?? '');
         if ($catalogRef !== '') {
             $retracted = $this->catalogPublisher->retract((string) ($record['targetCatalog'] ?? ''), $catalogRef);
             if ($retracted === true) {
@@ -192,19 +202,29 @@ class PublicationService
             } else {
                 // Surface the failure and mark pending — never report success.
                 $catalogRetractionStatus = 'pending';
-                $warnings[]              = 'catalog-retraction-failed';
+                $warnings[] = 'catalog-retraction-failed';
             }
         }
 
-        $record['status']                  = 'withdrawn';
-        $record['withdrawnBy']             = $actorId;
-        $record['withdrawnAt']             = $this->now();
-        $record['withdrawReason']          = $reason;
+        $record['status']         = 'withdrawn';
+        $record['withdrawnBy']    = $actorId;
+        $record['withdrawnAt']    = $this->now();
+        $record['withdrawReason'] = $reason;
         $record['catalogRetractionStatus'] = $catalogRetractionStatus;
-        $this->persistRecord($record, $recordId);
+        $this->persistRecord(record: $record, uuid: $recordId);
 
-        $this->markSourcePublished((string) $record['sourceType'], (string) $record['sourceObject'], null, false);
-        $this->audit($actorId, 'withdraw', [(string) $record['sourceObject'], (string) $record['payloadObject']], ['reason' => $reason]);
+        $this->markSourcePublished(
+            sourceType: (string) $record['sourceType'],
+            sourceId: (string) $record['sourceObject'],
+            source: null,
+            published: false
+        );
+        $this->audit(
+            actorId: $actorId,
+            action: 'withdraw',
+            objectUids: [(string) $record['sourceObject'], (string) $record['payloadObject']],
+            payload: ['reason' => $reason]
+        );
 
         return [
             'record'   => $record,
@@ -229,23 +249,21 @@ class PublicationService
      */
     public function rectify(string $recordId, string $actorId, string $reason): array
     {
-        $prior      = $this->loadRecord($recordId);
+        $prior      = $this->loadRecord(recordId: $recordId);
         $sourceType = (string) $prior['sourceType'];
         $sourceId   = (string) $prior['sourceObject'];
         $newVersion = ((int) ($prior['payloadVersion'] ?? 1) + 1);
 
         // Re-validate eligibility for the corrected source state.
         $source = $this->eligibility->assertEligible($sourceType, $sourceId);
-        $bodyId = $this->resolveBodyId($sourceType, $source);
+        $bodyId = $this->resolveBodyId(sourceType: $sourceType, source: $source);
 
-        $payload   = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
-        $payloadId = $this->persistPayload($payload);
+        $payload = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
+        $payload['publicatiedatum']   = $this->now();
+        $payload['depublicatiedatum'] = null;
+        $payloadId = $this->persistPayload(payload: $payload);
 
-        $warnings     = [];
-        $predicateSet = $this->attemptSelfPublished($payloadId, true);
-        if ($predicateSet === false) {
-            $warnings[] = 'predicate-unavailable';
-        }
+        $warnings = [];
 
         $catalogRef    = '';
         $targetCatalog = (string) ($prior['targetCatalog'] ?? '');
@@ -258,7 +276,7 @@ class PublicationService
             $warnings[] = 'opencatalogi-absent';
         }
 
-        $newRecord = [
+        $newRecord       = [
             'sourceType'              => $sourceType,
             'sourceObject'            => $sourceId,
             'sourceTitle'             => (string) ($source['title'] ?? ($prior['sourceTitle'] ?? '')),
@@ -274,7 +292,7 @@ class PublicationService
             'publishedBy'             => $actorId,
             'publishedAt'             => $this->now(),
         ];
-        $newRecordId = $this->persistRecord($newRecord);
+        $newRecordId     = $this->persistRecord(record: $newRecord);
         $newRecord['id'] = $newRecordId;
 
         // Withdraw the prior version in the same operation.
@@ -283,11 +301,15 @@ class PublicationService
             $withdrawReason = 'Superseded by rectified version '.$newVersion;
         }
 
-        $withdrawResult = $this->withdraw($recordId, $actorId, $withdrawReason);
+        $withdrawResult = $this->withdraw(recordId: $recordId, actorId: $actorId, reason: $withdrawReason);
         $warnings       = array_values(array_unique(array_merge($warnings, $withdrawResult['warnings'])));
 
-        $this->markSourcePublished($sourceType, $sourceId, $source, true);
-        $this->audit($actorId, 'rectify', [$sourceId, $payloadId], ['rectifiesVersion' => (int) ($prior['payloadVersion'] ?? 1), 'newVersion' => $newVersion]);
+        $this->markSourcePublished(sourceType: $sourceType, sourceId: $sourceId, source: $source, published: true);
+        $rectifyDetail = [
+            'rectifiesVersion' => (int) ($prior['payloadVersion'] ?? 1),
+            'newVersion'       => $newVersion,
+        ];
+        $this->audit(actorId: $actorId, action: 'rectify', objectUids: [$sourceId, $payloadId], payload: $rectifyDetail);
 
         return [
             'record'   => $newRecord,
@@ -298,39 +320,30 @@ class PublicationService
     }//end rectify()
 
     /**
-     * Attempt to set or clear `@self.published` on a payload object.
+     * Set `depublicatiedatum` on a payload object so OR's public-group RBAC rule
+     * stops returning it — the withdraw side of the published-predicate.
      *
-     * Returns true when the OR object API accepted the predicate write. A
-     * deployed-OR magic-mapper gap (no per-object publish) makes this best-effort.
+     * This is a normal field write on a register-owned object via the standard
+     * OR object API. There is no magic-mapper limitation: PublicationPayload is
+     * a register-owned schema on the ordinary RBAC save path.
      *
      * @param string $payloadId UUID of the PublicationPayload object.
-     * @param bool   $published Whether to set (true) or clear (false) the predicate.
      *
      * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
      *
-     * @return bool True when the predicate write was accepted.
+     * @return void
      */
-    private function attemptSelfPublished(string $payloadId, bool $published): bool
+    private function setDepublicationDate(string $payloadId): void
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $entity        = $objectService->find(id: $payloadId, register: 'decidesk', schema: 'publication-payload');
             if ($entity === null) {
-                return false;
+                return;
             }
 
             $data = $entity->jsonSerialize();
-            // The published-predicate lives under the @self metadata envelope.
-            $now = $this->now();
-            if (isset($data['@self']) === false || is_array($data['@self']) === false) {
-                $data['@self'] = [];
-            }
-
-            if ($published === true) {
-                $data['@self']['published'] = $now;
-            } else {
-                $data['@self']['published'] = null;
-            }
+            $data['depublicatiedatum'] = $this->now();
 
             $objectService->saveObject(
                 object: $data,
@@ -338,23 +351,11 @@ class PublicationService
                 schema: 'publication-payload',
                 uuid: $payloadId,
             );
-
-            // Verify the predicate stuck (the magic-mapper gap silently drops it).
-            $reread = $objectService->find(id: $payloadId, register: 'decidesk', schema: 'publication-payload');
-            if ($reread === null) {
-                return false;
-            }
-
-            $rereadData = $reread->jsonSerialize();
-            $current    = ($rereadData['@self']['published'] ?? null);
-
-            return ($published === true) ? ($current !== null) : ($current === null);
         } catch (\Throwable $e) {
-            $this->logger->warning('Decidesk publication: @self.published write not accepted (OR magic-mapper gap)', ['exception' => $e->getMessage()]);
-            return false;
+            $this->logger->warning('Decidesk publication: failed to set depublicatiedatum on payload', ['exception' => $e->getMessage()]);
         }//end try
 
-    }//end attemptSelfPublished()
+    }//end setDepublicationDate()
 
     /**
      * Persist a derived payload as an immutable PublicationPayload object.
@@ -370,7 +371,7 @@ class PublicationService
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         $saved         = $objectService->saveObject(object: $payload, register: 'decidesk', schema: 'publication-payload');
 
-        return $this->extractId($saved);
+        return $this->extractId(saved: $saved);
 
     }//end persistPayload()
 
@@ -394,7 +395,7 @@ class PublicationService
 
         $saved = $objectService->saveObject(object: $record, register: 'decidesk', schema: 'publication-record');
 
-        return $this->extractId($saved);
+        return $this->extractId(saved: $saved);
 
     }//end persistRecord()
 
@@ -414,7 +415,7 @@ class PublicationService
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         $entity        = $objectService->find(id: $recordId, register: 'decidesk', schema: 'publication-record');
         if ($entity === null) {
-            throw new MissingObjectException('Publication record not found: '.$recordId);
+            throw new MissingObjectException(message: 'Publication record not found: '.$recordId);
         }
 
         return $entity->jsonSerialize();
@@ -452,8 +453,15 @@ class PublicationService
                 $source = $entity->jsonSerialize();
             }
 
-            $source['isPublished'] = ($published === true) ? 'public' : 'internal';
-            $source['publishedAt'] = ($published === true) ? $this->now() : null;
+            $publishedAt = null;
+            $isPublished = 'internal';
+            if ($published === true) {
+                $isPublished = 'public';
+                $publishedAt = $this->now();
+            }
+
+            $source['isPublished'] = $isPublished;
+            $source['publishedAt'] = $publishedAt;
 
             $objectService->saveObject(object: $source, register: 'decidesk', schema: 'decision', uuid: $sourceId);
         } catch (\Throwable $e) {

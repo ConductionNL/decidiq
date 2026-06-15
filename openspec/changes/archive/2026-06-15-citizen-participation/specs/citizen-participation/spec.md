@@ -4,7 +4,7 @@ This file contains delta specifications for the citizen-participation change.
 
 **Entities (existing, from p3):** PublicConsultation (`schema:Event`), ParticipatoryBudget (`schema:Grant`), BudgetProposal (`schema:Proposal`), CitizenVote (`schema:VoteAction`)
 **Entities (new):** ConsultationReaction (`schema:Comment`)
-**Conventions:** storage/RBAC/notifications via OpenRegister (ADR-031 dialect); publication via OpenCatalogi / OR published-predicate; no app-local contact schema; no app-local public pages
+**Conventions:** storage/RBAC/notifications via OpenRegister (ADR-031 dialect); publication via OpenCatalogi / the OR RBAC published-predicate (`publicatiedatum` + public-group `authorization.read`); no app-local contact schema; no app-local public pages
 
 ---
 
@@ -176,27 +176,27 @@ Authenticated citizens SHALL cast one advisory vote (voor/tegen) per `validated`
 
 ---
 
-### Requirement: Result publication via OpenCatalogi and the published-predicate
+### Requirement: Result publication via OpenCatalogi and the RBAC published-predicate
 
-When staff transition a consultation to `results-published`, or set `resultsPublished: true` on a closed budget round, the system SHALL create a result summary object (consultation: digest of approved reactions plus the staff response; budget: ranked proposals with allocated amounts within `totalAmount` and participation count) and SHALL set `@self.published` on it via OpenRegister, making it readable through OR's anonymous published-predicate surface. When OpenCatalogi is installed and a target catalog is configured, the summary SHALL additionally be routed into that catalog as a publication. Moderators MAY publish individual approved reactions by setting `@self.published` per reaction (never blanket). The system SHALL NOT serve app-local anonymous pages or unauthenticated read endpoints for participation data.
+When staff transition a consultation to `results-published`, or set `resultsPublished: true` on a closed budget round, the system SHALL create a result summary object (consultation: digest of approved reactions plus the staff response; budget: ranked proposals with allocated amounts within `totalAmount` and participation count) and SHALL set `publicatiedatum` on it via OpenRegister (a normal field write). The schema SHALL declare a public-group `authorization.read` rule matching `publicatiedatum <= $now`, so the summary becomes readable through OR's anonymous RBAC published-predicate surface. When OpenCatalogi is installed and a target catalog is configured, the summary SHALL additionally be routed into that catalog as a publication. Moderators MAY publish individual approved reactions by setting `publicatiedatum` per reaction (never blanket); the ConsultationReaction read rule additionally requires `moderationStatus: approved`. The system SHALL NOT serve app-local anonymous pages or unauthenticated read endpoints for participation data. (`@self.published` is deprecated/removed from OpenRegister and SHALL NOT be used.)
 
 #### Scenario: Consultation results published
 
 - **GIVEN** a `closed` consultation with approved reactions and a configured target catalog
 - **WHEN** staff transition it to `results-published`
-- **THEN** a result summary object exists with `@self.published` set and a publication referencing it exists in the configured OpenCatalogi catalog
+- **THEN** a result summary object exists with `publicatiedatum` set in the past (making it public-group readable) and a publication referencing it exists in the configured OpenCatalogi catalog
 
 #### Scenario: Budget results published with allocation
 
 - **GIVEN** a `closed` budget round with tallied proposals and `resultsPublished` set to true
 - **WHEN** the publication step runs
-- **THEN** the summary ranks proposals by `votesFor` and marks proposals as funded greedily within `totalAmount`, and the summary carries `@self.published`
+- **THEN** the summary ranks proposals by `votesFor` and marks proposals as funded greedily within `totalAmount`, and the summary carries `publicatiedatum`
 
 #### Scenario: OpenCatalogi absent degrades gracefully
 
 - **GIVEN** OpenCatalogi is not installed
 - **WHEN** staff publish results
-- **THEN** the summary object still receives `@self.published`, the catalog step is skipped, and a staff-visible warning is shown
+- **THEN** the summary object still receives `publicatiedatum` (and is anonymously readable via the public-group RBAC rule), the catalog step is skipped, and a staff-visible warning is shown
 
 #### Scenario: No voter identity in published output
 
