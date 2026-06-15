@@ -30,38 +30,38 @@ adding a new entity/page/route.
 
 ## Phase 1: Retire the top-level Motions menu leaf (ADR-037, REQ-RMN-001)
 
-- [ ] In `src/manifest.json` `menu`, remove the `Motions` menu object (`id: "Motions"`,
+- [x] In `src/manifest.json` `menu`, remove the `Motions` menu object (`id: "Motions"`,
   `route: "Motions"`, `order: 50`) — the demote-not-delete pattern proven by `ia-six-item-nav`
   (drop the menu item only).
-- [ ] Confirm the `menu` array no longer contains any entry whose `route` is `Motions`.
-- [ ] Leave the menu `order` values of the remaining items unchanged (gaps are harmless; no
+- [x] Confirm the `menu` array no longer contains any entry whose `route` is `Motions`.
+- [x] Leave the menu `order` values of the remaining items unchanged (gaps are harmless; no
   reflow required).
 
 ## Phase 2: Keep the Motions page + routes reachable (REQ-RMN-002)
 
-- [ ] Verify the `Motions` page (`pages[]` id `Motions`, route `/motions`, type `index`,
+- [x] Verify the `Motions` page (`pages[]` id `Motions`, route `/motions`, type `index`,
   `config.filter.decisionType="motion"`) remains present and unchanged.
-- [ ] Verify `MotionDetail` (`/motions/:id`) and `MotionIntegrations`
+- [x] Verify `MotionDetail` (`/motions/:id`) and `MotionIntegrations`
   (`/motions/:id/integrations`) pages remain present so the Motions-index `view` /
   `Discussion` actions and deep links keep resolving.
-- [ ] Do NOT touch `appinfo/routes.php` (manifest-driven nav; no server route change needed).
+- [x] Do NOT touch `appinfo/routes.php` (manifest-driven nav; no server route change needed).
 
 ## Phase 3: Add the Decisions → Motions filtered view (ADR-037, REQ-RMN-003)
 
-- [ ] On the `Decisions` index page (`pages[]` id `Decisions`, route `/decisions`), add a
+- [x] On the `Decisions` index page (`pages[]` id `Decisions`, route `/decisions`), add a
   declarative `decisionType=motion` quick-filter / sub-view link (e.g. a `config.quickFilters`
   entry or `config.subViews` link, label "Motions") that navigates to the retained `Motions`
   page (`/motions`).
-- [ ] Ensure the filter targets the STORED `decisionType` field (server-resolvable per the
+- [x] Ensure the filter targets the STORED `decisionType` field (server-resolvable per the
   manifest's `_inForceFilterNote`) — no client-side derivation.
-- [ ] Add the "Motions" filtered-view label to the en/nl l10n source so it is translatable
+- [x] Add the "Motions" filtered-view label to the en/nl l10n source so it is translatable
   (English key, Dutch value) — i18n keys are English source strings.
 
 ## Phase 4: Verify
 
-- [ ] Manifest build: rebuild the bundle and confirm `src/manifest.json` parses (no orphaned
+- [x] Manifest build: rebuild the bundle and confirm `src/manifest.json` parses (no orphaned
   menu reference; the `Motions` route is no longer in `menu` but the page/route still exist).
-- [ ] e2e: the top nav no longer shows a standalone "Motions" item; the `/motions` deep link
+- [x] e2e: the top nav no longer shows a standalone "Motions" item; the `/motions` deep link
   still renders the Motions index; the Decisions surface exposes a Motions filtered view that
   reaches the Motions page.
-- [ ] `openspec validate decidesk-retire-motions-nav --strict` passes.
+- [x] `openspec validate decidesk-retire-motions-nav --strict` passes.
