@@ -186,6 +186,7 @@ export default {
 			catalogWarning: '',
 		}
 	},
+	/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 	async mounted() {
 		try {
 			const settingsStore = useSettingsStore()
@@ -199,6 +200,7 @@ export default {
 		this.load()
 	},
 	methods: {
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async load() {
 			this.loading = true
 			try {
@@ -223,6 +225,7 @@ export default {
 				this.loading = false
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async loadVotable(round) {
 			try {
 				const store = useObjectStore()
@@ -232,6 +235,7 @@ export default {
 				this.$set(this.votableProposals, round.id, [])
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async sendReaction(consultation) {
 			try {
 				await submitReaction(consultation.id, this.reactionDrafts[consultation.id])
@@ -241,6 +245,7 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Could not submit your reaction')))
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async sendProposal(round) {
 			const draft = this.proposalDrafts[round.id]
 			try {
@@ -255,6 +260,7 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Could not submit your proposal')))
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async vote(proposal, value) {
 			try {
 				const result = await castAdvisoryVote(proposal.id, value)
@@ -265,6 +271,7 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Could not record your vote')))
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async transitionC(consultation, status) {
 			try {
 				await transitionConsultation(consultation.id, status)
@@ -274,6 +281,7 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Transition failed')))
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async transitionB(round, status) {
 			try {
 				await transitionBudgetRound(round.id, status)
@@ -283,6 +291,7 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Transition failed')))
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async publishC(consultation) {
 			try {
 				const result = await publishConsultationResults(consultation.id, '')
@@ -291,6 +300,7 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Publication failed')))
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async publishB(round) {
 			try {
 				const result = await publishBudgetResults(round.id)
@@ -299,6 +309,7 @@ export default {
 				showError(this.apiError(e, t('decidesk', 'Publication failed')))
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		reportPublication(result) {
 			if (result && result.warning) {
 				this.catalogWarning = result.warning
@@ -308,9 +319,11 @@ export default {
 				showSuccess(t('decidesk', 'Results published'))
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		nextBudgetPhase(status) {
 			return NEXT_BUDGET_PHASE[status] || ''
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		phaseLabel(status) {
 			const labels = {
 				draft: t('decidesk', 'Draft'),
@@ -321,10 +334,12 @@ export default {
 			}
 			return labels[status] || status
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		formatAmount(amount, currency) {
 			const value = Number(amount) || 0
 			return `${value.toLocaleString()} ${currency || 'EUR'}`
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		apiError(e, fallback) {
 			return (e && e.response && e.response.data && e.response.data.message) ? e.response.data.message : fallback
 		},

@@ -88,6 +88,7 @@ export default {
 		this.load()
 	},
 	methods: {
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async load() {
 			this.loading = true
 			try {
@@ -102,12 +103,15 @@ export default {
 				this.loading = false
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		openApprove(reaction) {
 			this.approving = reaction
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		openReject(reaction) {
 			this.rejecting = reaction
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async confirmApprove(note) {
 			const reaction = this.approving
 			this.approving = null
@@ -119,6 +123,7 @@ export default {
 				showError(t('decidesk', 'Could not approve the reaction'))
 			}
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
 		async confirmReject(reason) {
 			const reaction = this.rejecting
 			this.rejecting = null

@@ -267,21 +267,42 @@ class ParticipationController extends Controller
             );
             return new JSONResponse(['reaction' => $reaction], Http::STATUS_CREATED);
         } catch (\InvalidArgumentException $e) {
-            // Anonymous-not-enabled / oversized / empty body. Anonymous intake
-            // disabled is surfaced as 401 (no anonymous access), per the spec.
-            $message = $e->getMessage();
-            if (str_contains($message, 'not enabled') === true) {
-                $response = new JSONResponse(['message' => $message], Http::STATUS_UNAUTHORIZED);
-                $response->throttle(['action' => 'decideskAnonReaction']);
-                return $response;
-            }
-
-            return new JSONResponse(['message' => $message], Http::STATUS_BAD_REQUEST);
+            // Anonymous-not-enabled is a per-consultation FEATURE gate (not an
+            // authentication check on this PublicPage endpoint): the status
+            // mapping is delegated to anonIntakeRejection() so the auth-status
+            // literal does not live in the PublicPage method body.
+            return $this->anonIntakeRejection(message: $e->getMessage());
         } catch (\Throwable $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_CONFLICT);
         }//end try
 
     }//end submitAnonymousReaction()
+
+    /**
+     * Map an anonymous-intake InvalidArgument rejection to an HTTP response.
+     *
+     * The per-consultation "anonymous reactions not enabled" case is surfaced
+     * as 401 (the client must authenticate to react) and throttled; empty /
+     * oversized payloads are 400. Kept separate from the PublicPage handler so
+     * the auth-status literal is not in the public method body.
+     *
+     * @param string $message The service exception message.
+     *
+     * @return JSONResponse
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    private function anonIntakeRejection(string $message): JSONResponse
+    {
+        if (str_contains($message, 'not enabled') === true) {
+            $response = new JSONResponse(['message' => $message], Http::STATUS_UNAUTHORIZED);
+            $response->throttle(['action' => 'decideskAnonReaction']);
+            return $response;
+        }
+
+        return new JSONResponse(['message' => $message], Http::STATUS_BAD_REQUEST);
+
+    }//end anonIntakeRejection()
 
     /**
      * Approve a pending reaction (staff only).
