@@ -4300,6 +4300,19 @@
           "searchable": true,
           "mailEnabled": false
         },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "publicatiedatum": {
+                  "$lte": "$now"
+                }
+              }
+            },
+            "authenticated"
+          ]
+        },
         "required": [
           "name",
           "totalAmount",
@@ -4307,6 +4320,18 @@
           "status"
         ],
         "properties": {
+          "publicatiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Publication date (WOO/DIWOO). When set in the past, the PII-free resultsSummary is anonymously readable via the public-group RBAC rule (publicatiedatum <= $now). Set by ParticipationPublicationService on publish."
+          },
+          "depublicatiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Depublication date (WOO/DIWOO). When set in the past, the results are withdrawn from public access."
+          },
           "name": {
             "type": "string",
             "description": "Budget round name.",
@@ -4522,11 +4547,36 @@
           "searchable": true,
           "mailEnabled": false
         },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "publicatiedatum": {
+                  "$lte": "$now"
+                }
+              }
+            },
+            "authenticated"
+          ]
+        },
         "required": [
           "title",
           "status"
         ],
         "properties": {
+          "publicatiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Publication date (WOO/DIWOO). When set in the past, the PII-free resultsSummary is anonymously readable via the public-group RBAC rule (publicatiedatum <= $now). Set by ParticipationPublicationService on publish."
+          },
+          "depublicatiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Depublication date (WOO/DIWOO). When set in the past, the results are withdrawn from public access."
+          },
           "title": {
             "type": "string",
             "description": "Consultation title.",
@@ -4652,11 +4702,37 @@
           "searchable": false,
           "mailEnabled": false
         },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "publicatiedatum": {
+                  "$lte": "$now"
+                },
+                "moderationStatus": "approved"
+              }
+            },
+            "authenticated"
+          ]
+        },
         "required": [
           "body",
           "moderationStatus"
         ],
         "properties": {
+          "publicatiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Publication date (WOO/DIWOO). Set by a moderator opt-in (publishReaction) on an approved reaction; the public-group RBAC rule then makes the reaction anonymously readable while publicatiedatum <= $now AND moderationStatus is approved."
+          },
+          "depublicatiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Depublication date (WOO/DIWOO). When set in the past, the reaction is withdrawn from public access."
+          },
           "body": {
             "type": "string",
             "description": "The reaction text supplied by the citizen. Server-side size-capped."

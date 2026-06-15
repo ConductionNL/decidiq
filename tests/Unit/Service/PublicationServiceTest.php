@@ -159,10 +159,86 @@ class PublicationServiceTest extends TestCase
         $this->assertSame('j.bakker', $result['record']['publishedBy']);
         // OpenCatalogi absent => warning surfaced, never a silent success.
         $this->assertContains('opencatalogi-absent', $result['warnings']);
+        // No legacy magic-mapper warning is emitted anymore — the predicate is a
+        // normal field on a register-owned object.
+        $this->assertNotContains('predicate-unavailable', $result['warnings']);
         // The decision source was stamped published (flow-owned write).
         $this->assertSame('public', $this->store['dec-1']['isPublished']);
 
+        // RBAC model: the derived payload carries publicatiedatum <= $now so the
+        // public-group authorization.read rule makes it anonymously readable.
+        $payloadId = $result['record']['payloadObject'];
+        $this->assertArrayHasKey('publicatiedatum', $this->store[$payloadId]);
+        $this->assertTrue($this->isPubliclyReadable($this->store[$payloadId]));
+        $this->assertNull($this->store[$payloadId]['depublicatiedatum']);
+
     }//end testPublishEnactedDecisionCreatesRecord()
+
+    /**
+     * Anonymous read lifecycle: a published payload is public-group readable once
+     * publicatiedatum <= now, NOT before, and is gone after withdraw sets
+     * depublicatiedatum.
+     *
+     * @return void
+     */
+    public function testAnonReadablePredicateLifecycle(): void
+    {
+        $this->store['dec-2'] = ['id' => 'dec-2', 'title' => 'Verordening', 'lifecycle' => 'decided', 'outcome' => 'adopted', 'governanceBody' => 'body-1', 'decisionType' => 'meeting-outcome'];
+
+        $service = $this->makeService(openCatalogi: false);
+
+        // Before publish there is no payload object and nothing is public.
+        $publicBefore = array_filter($this->store, fn(array $o): bool => $this->isPubliclyReadable($o));
+        $this->assertCount(0, $publicBefore);
+
+        $result    = $service->publish('decision', 'dec-2', 'j.bakker');
+        $payloadId = $result['record']['payloadObject'];
+
+        // Once published: payload is public-group readable (publicatiedatum<=now).
+        $this->assertTrue($this->isPubliclyReadable($this->store[$payloadId]));
+
+        // A payload whose publicatiedatum is in the FUTURE must NOT be public.
+        $future = array_merge($this->store[$payloadId], ['publicatiedatum' => (new \DateTimeImmutable('+1 day'))->format(\DateTimeInterface::ATOM)]);
+        $this->assertFalse($this->isPubliclyReadable($future));
+
+        // Withdraw sets depublicatiedatum in the past: no longer public.
+        $service->withdraw($result['record']['id'], 'j.bakker', 'Ingetrokken');
+        $this->assertArrayHasKey('depublicatiedatum', $this->store[$payloadId]);
+        $this->assertFalse($this->isPubliclyReadable($this->store[$payloadId]));
+
+    }//end testAnonReadablePredicateLifecycle()
+
+    /**
+     * Evaluate the public-group RBAC read rule of PublicationPayload:
+     * readable iff publicatiedatum is set and <= now AND depublicatiedatum is
+     * unset or in the future. Mirrors the authorization.read match in
+     * decidesk_register.json.
+     *
+     * @param array<string,mixed> $object The candidate payload object.
+     *
+     * @return bool
+     */
+    private function isPubliclyReadable(array $object): bool
+    {
+        $pub = ($object['publicatiedatum'] ?? null);
+        if (is_string($pub) === false || $pub === '') {
+            return false;
+        }
+
+        $now      = (new \DateTimeImmutable())->getTimestamp();
+        $pubTs    = (new \DateTimeImmutable($pub))->getTimestamp();
+        if ($pubTs > $now) {
+            return false;
+        }
+
+        $depub = ($object['depublicatiedatum'] ?? null);
+        if (is_string($depub) === true && $depub !== '') {
+            return ((new \DateTimeImmutable($depub))->getTimestamp() > $now);
+        }
+
+        return true;
+
+    }//end isPubliclyReadable()
 
     /**
      * Withdraw requires a non-empty reason.

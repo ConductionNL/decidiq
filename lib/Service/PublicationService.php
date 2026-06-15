@@ -3,9 +3,9 @@
  * Decidesk Publication Service
  *
  * Orchestrates the public-publication flow: eligibility, payload construction,
- * the OR published-predicate attempt, OpenCatalogi routing, PublicationRecord
- * lifecycle, and the source-object audit trail. Covers publish, withdraw, and
- * rectify.
+ * setting the OpenRegister published-predicate (publicatiedatum), OpenCatalogi
+ * routing, PublicationRecord lifecycle, and the source-object audit trail.
+ * Covers publish, withdraw, and rectify.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -34,11 +34,14 @@ use Psr\Log\LoggerInterface;
  * Stateful orchestration of a publication action.
  *
  * Anonymous read of published data happens EXCLUSIVELY through OpenRegister's
- * published-predicate surface and OpenCatalogi — never through an app-local
- * route. The service attempts to set `@self.published` on the derived payload
- * object so the data is correct the moment OR exposes per-object publishing;
- * when OpenCatalogi is absent it degrades gracefully with a staff-visible
- * warning. It shares OriPublicationService's graceful-degrade posture.
+ * RBAC published-predicate surface and OpenCatalogi — never through an app-local
+ * route. "Publish" means setting `publicatiedatum` on the derived payload object
+ * via the normal OR object API; the PublicationPayload schema's
+ * `authorization.read` rule then grants the public group read access while
+ * `publicatiedatum <= $now` (and no `depublicatiedatum` in the past). When
+ * OpenCatalogi is absent the catalog step is skipped and the service degrades
+ * gracefully with a staff-visible warning. It shares OriPublicationService's
+ * graceful-degrade posture.
  *
  * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
  */
@@ -74,9 +77,10 @@ class PublicationService
      * Publish an eligible governance object.
      *
      * Runs the deny-list + eligibility gates, builds the allow-list payload,
-     * persists it as an immutable PublicationPayload, attempts `@self.published`
-     * (graceful degrade), routes into the configured OpenCatalogi catalog,
-     * writes the PublicationRecord, and appends a publish audit entry.
+     * persists it as an immutable PublicationPayload, sets `publicatiedatum` so
+     * the public-group RBAC rule makes it anonymously readable, routes into the
+     * configured OpenCatalogi catalog, writes the PublicationRecord, and appends
+     * a publish audit entry.
      *
      * @param string $sourceType One of decision|agenda|minutes.
      * @param string $sourceId   UUID of the source object.
@@ -93,18 +97,16 @@ class PublicationService
 
         $version = 1;
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $version);
+
+        // Set publicatiedatum on the payload so OR's public-group RBAC rule
+        // (publicatiedatum <= $now) makes it anonymously readable through the
+        // published-predicate surface. This is a normal field on a register-owned
+        // object — written on the standard saveObject path, not a magic predicate.
+        $payload['publicatiedatum']   = $this->now();
+        $payload['depublicatiedatum'] = null;
         $payloadId = $this->persistPayload($payload);
 
         $warnings = [];
-
-        // Attempt to set @self.published on the derived payload object so it is
-        // readable through OR's anonymous published-predicate surface. This is
-        // a graceful attempt: a deployed-OR magic-mapper gap (no per-object
-        // publish) means it may not stick; the catalog path below remains viable.
-        $predicateSet = $this->attemptSelfPublished($payloadId, true);
-        if ($predicateSet === false) {
-            $warnings[] = 'predicate-unavailable';
-        }
 
         // OpenCatalogi routing (create publication in the per-body target catalog).
         $catalogRef    = '';
@@ -153,10 +155,11 @@ class PublicationService
     /**
      * Withdraw a publication with a mandatory reason.
      *
-     * Clears `@self.published`, retracts the OpenCatalogi publication (surfacing
-     * + marking pending on failure — never a silent success), resets the source
-     * object's published state, records actor/reason/timestamp on the record and
-     * in the audit trail, and soft-retains the payload.
+     * Sets `depublicatiedatum` on the payload (removing it from the public-group
+     * RBAC surface), retracts the OpenCatalogi publication (surfacing + marking
+     * pending on failure — never a silent success), resets the source object's
+     * published state, records actor/reason/timestamp on the record and in the
+     * audit trail, and soft-retains the payload.
      *
      * @param string $recordId UUID of the PublicationRecord.
      * @param string $actorId  Nextcloud UID of the withdrawing staff member.
@@ -179,9 +182,11 @@ class PublicationService
 
         $warnings = [];
 
-        // Clear the local predicate first so the data stops being anonymously
-        // readable even if the remote retraction fails.
-        $this->attemptSelfPublished((string) $record['payloadObject'], false);
+        // Set depublicatiedatum on the payload first so the public-group RBAC
+        // rule stops returning it (publicatiedatum <= $now is no longer the only
+        // gate once depublicatiedatum is in the past) — the data stops being
+        // anonymously readable even if the remote retraction fails.
+        $this->setDepublicationDate((string) $record['payloadObject']);
 
         $catalogRetractionStatus = 'none';
         $catalogRef              = (string) ($record['catalogPublication'] ?? '');
@@ -238,14 +243,12 @@ class PublicationService
         $source = $this->eligibility->assertEligible($sourceType, $sourceId);
         $bodyId = $this->resolveBodyId($sourceType, $source);
 
-        $payload   = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
+        $payload = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
+        $payload['publicatiedatum']   = $this->now();
+        $payload['depublicatiedatum'] = null;
         $payloadId = $this->persistPayload($payload);
 
-        $warnings     = [];
-        $predicateSet = $this->attemptSelfPublished($payloadId, true);
-        if ($predicateSet === false) {
-            $warnings[] = 'predicate-unavailable';
-        }
+        $warnings = [];
 
         $catalogRef    = '';
         $targetCatalog = (string) ($prior['targetCatalog'] ?? '');
@@ -298,39 +301,30 @@ class PublicationService
     }//end rectify()
 
     /**
-     * Attempt to set or clear `@self.published` on a payload object.
+     * Set `depublicatiedatum` on a payload object so OR's public-group RBAC rule
+     * stops returning it — the withdraw side of the published-predicate.
      *
-     * Returns true when the OR object API accepted the predicate write. A
-     * deployed-OR magic-mapper gap (no per-object publish) makes this best-effort.
+     * This is a normal field write on a register-owned object via the standard
+     * OR object API. There is no magic-mapper limitation: PublicationPayload is
+     * a register-owned schema on the ordinary RBAC save path.
      *
      * @param string $payloadId UUID of the PublicationPayload object.
-     * @param bool   $published Whether to set (true) or clear (false) the predicate.
      *
      * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
      *
-     * @return bool True when the predicate write was accepted.
+     * @return void
      */
-    private function attemptSelfPublished(string $payloadId, bool $published): bool
+    private function setDepublicationDate(string $payloadId): void
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $entity        = $objectService->find(id: $payloadId, register: 'decidesk', schema: 'publication-payload');
             if ($entity === null) {
-                return false;
+                return;
             }
 
-            $data = $entity->jsonSerialize();
-            // The published-predicate lives under the @self metadata envelope.
-            $now = $this->now();
-            if (isset($data['@self']) === false || is_array($data['@self']) === false) {
-                $data['@self'] = [];
-            }
-
-            if ($published === true) {
-                $data['@self']['published'] = $now;
-            } else {
-                $data['@self']['published'] = null;
-            }
+            $data                      = $entity->jsonSerialize();
+            $data['depublicatiedatum'] = $this->now();
 
             $objectService->saveObject(
                 object: $data,
@@ -338,23 +332,11 @@ class PublicationService
                 schema: 'publication-payload',
                 uuid: $payloadId,
             );
-
-            // Verify the predicate stuck (the magic-mapper gap silently drops it).
-            $reread = $objectService->find(id: $payloadId, register: 'decidesk', schema: 'publication-payload');
-            if ($reread === null) {
-                return false;
-            }
-
-            $rereadData = $reread->jsonSerialize();
-            $current    = ($rereadData['@self']['published'] ?? null);
-
-            return ($published === true) ? ($current !== null) : ($current === null);
         } catch (\Throwable $e) {
-            $this->logger->warning('Decidesk publication: @self.published write not accepted (OR magic-mapper gap)', ['exception' => $e->getMessage()]);
-            return false;
+            $this->logger->warning('Decidesk publication: failed to set depublicatiedatum on payload', ['exception' => $e->getMessage()]);
         }//end try
 
-    }//end attemptSelfPublished()
+    }//end setDepublicationDate()
 
     /**
      * Persist a derived payload as an immutable PublicationPayload object.
