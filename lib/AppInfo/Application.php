@@ -214,6 +214,79 @@ class Application extends App implements IBootstrap
                 }
                 );
 
+        // Register publication services for DI (publish-decisions-via-opencatalogi).
+        // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md.
+        $context->registerService(
+                \OCA\Decidesk\Service\PublicationConfigService::class,
+                static function ($c): \OCA\Decidesk\Service\PublicationConfigService {
+                    return new \OCA\Decidesk\Service\PublicationConfigService(
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                \OCA\Decidesk\Service\PublicationEligibilityService::class,
+                static function ($c): \OCA\Decidesk\Service\PublicationEligibilityService {
+                    return new \OCA\Decidesk\Service\PublicationEligibilityService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                \OCA\Decidesk\Service\PublicationPayloadService::class,
+                static function ($c): \OCA\Decidesk\Service\PublicationPayloadService {
+                    return new \OCA\Decidesk\Service\PublicationPayloadService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    configService: $c->get(\OCA\Decidesk\Service\PublicationConfigService::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                \OCA\Decidesk\Service\OpenCatalogiPublisher::class,
+                static function ($c): \OCA\Decidesk\Service\OpenCatalogiPublisher {
+                    return new \OCA\Decidesk\Service\OpenCatalogiPublisher(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    appManager: $c->get(\OCP\App\IAppManager::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                \OCA\Decidesk\Service\PublicationService::class,
+                static function ($c): \OCA\Decidesk\Service\PublicationService {
+                    return new \OCA\Decidesk\Service\PublicationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    appManager: $c->get(\OCP\App\IAppManager::class),
+                    eligibility: $c->get(\OCA\Decidesk\Service\PublicationEligibilityService::class),
+                    payloadService: $c->get(\OCA\Decidesk\Service\PublicationPayloadService::class),
+                    configService: $c->get(\OCA\Decidesk\Service\PublicationConfigService::class),
+                    catalogPublisher: $c->get(\OCA\Decidesk\Service\OpenCatalogiPublisher::class),
+                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                \OCA\Decidesk\Controller\PublicationController::class,
+                static function ($c): \OCA\Decidesk\Controller\PublicationController {
+                    return new \OCA\Decidesk\Controller\PublicationController(
+                    request: $c->get(\OCP\IRequest::class),
+                    publicationService: $c->get(\OCA\Decidesk\Service\PublicationService::class),
+                    objectService: $c->get(ObjectService::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    );
+                }
+                );
+
         // Register VotingBehaviourService for DI.
         // @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1.
         $context->registerService(

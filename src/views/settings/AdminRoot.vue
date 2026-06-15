@@ -17,6 +17,8 @@
 		</CnVersionInfoCard>
 
 		<Settings v-if="storesReady" />
+
+		<PublicationSettings v-if="storesReady" />
 	</div>
 </template>
 
@@ -24,6 +26,7 @@
 import { loadState } from '@nextcloud/initial-state'
 import { CnVersionInfoCard } from '@conduction/nextcloud-vue'
 import Settings from './Settings.vue'
+import PublicationSettings from './PublicationSettings.vue'
 import { initializeStores } from '../../store/store.js'
 
 export default {
@@ -31,6 +34,7 @@ export default {
 	components: {
 		CnVersionInfoCard,
 		Settings,
+		PublicationSettings,
 	},
 	data() {
 		return {

@@ -69,6 +69,13 @@ import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 
+// Public-publication tabs (publish-decisions-via-opencatalogi): publish /
+// withdraw / rectify actions on the decision, meeting (agenda), and minutes
+// detail views. Three thin wrappers around the shared PublicationActionsTab.
+import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
+import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
+import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
+
 // User settings (user-settings-v1): in-app mount of the personal settings
 // sections (notification / display / delegation / communication). The
 // canonical mount is the Nextcloud personal settings panel (ISettings).
@@ -227,6 +234,11 @@ export default {
 	DecisionRouteTab: page(DecisionRouteTab),
 	DecisionVotingTab: page(DecisionVotingTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),
+
+	// Public-publication action tabs (publish-decisions-via-opencatalogi).
+	DecisionPublicationTab: page(DecisionPublicationTab),
+	AgendaPublicationTab: page(AgendaPublicationTab),
+	MinutesPublicationTab: page(MinutesPublicationTab),
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.

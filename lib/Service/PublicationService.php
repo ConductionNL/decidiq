@@ -1,0 +1,580 @@
+<?php
+/**
+ * Decidesk Publication Service
+ *
+ * Orchestrates the public-publication flow: eligibility, payload construction,
+ * the OR published-predicate attempt, OpenCatalogi routing, PublicationRecord
+ * lifecycle, and the source-object audit trail. Covers publish, withdraw, and
+ * rectify.
+ *
+ * @category Service
+ * @package  OCA\Decidesk\Service
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ */
+
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
+declare(strict_types=1);
+
+namespace OCA\Decidesk\Service;
+
+use OCA\Decidesk\Exception\MissingObjectException;
+use OCP\App\IAppManager;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Stateful orchestration of a publication action.
+ *
+ * Anonymous read of published data happens EXCLUSIVELY through OpenRegister's
+ * published-predicate surface and OpenCatalogi — never through an app-local
+ * route. The service attempts to set `@self.published` on the derived payload
+ * object so the data is correct the moment OR exposes per-object publishing;
+ * when OpenCatalogi is absent it degrades gracefully with a staff-visible
+ * warning. It shares OriPublicationService's graceful-degrade posture.
+ *
+ * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ */
+class PublicationService
+{
+    /**
+     * Constructor.
+     *
+     * @param ContainerInterface             $container        DI container (lazy ObjectService).
+     * @param LoggerInterface                $logger           Logger.
+     * @param IAppManager                    $appManager       Detects OpenCatalogi presence.
+     * @param PublicationEligibilityService  $eligibility      Eligibility + deny-list gates.
+     * @param PublicationPayloadService      $payloadService   Allow-list payload builder.
+     * @param PublicationConfigService       $configService    Per-body publication config.
+     * @param OpenCatalogiPublisher          $catalogPublisher OpenCatalogi catalog routing.
+     * @param AuditLogService                $auditLogService  Immutable audit trail.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     */
+    public function __construct(
+        private readonly ContainerInterface $container,
+        private readonly LoggerInterface $logger,
+        private readonly IAppManager $appManager,
+        private readonly PublicationEligibilityService $eligibility,
+        private readonly PublicationPayloadService $payloadService,
+        private readonly PublicationConfigService $configService,
+        private readonly OpenCatalogiPublisher $catalogPublisher,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }//end __construct()
+
+    /**
+     * Publish an eligible governance object.
+     *
+     * Runs the deny-list + eligibility gates, builds the allow-list payload,
+     * persists it as an immutable PublicationPayload, attempts `@self.published`
+     * (graceful degrade), routes into the configured OpenCatalogi catalog,
+     * writes the PublicationRecord, and appends a publish audit entry.
+     *
+     * @param string $sourceType One of decision|agenda|minutes.
+     * @param string $sourceId   UUID of the source object.
+     * @param string $actorId    Nextcloud UID of the publishing staff member.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return array<string,mixed> { record, warnings[] }
+     */
+    public function publish(string $sourceType, string $sourceId, string $actorId): array
+    {
+        $source = $this->eligibility->assertEligible($sourceType, $sourceId);
+        $bodyId = $this->resolveBodyId($sourceType, $source);
+
+        $version = 1;
+        $payload = $this->payloadService->build($sourceType, $source, $bodyId, $version);
+        $payloadId = $this->persistPayload($payload);
+
+        $warnings = [];
+
+        // Attempt to set @self.published on the derived payload object so it is
+        // readable through OR's anonymous published-predicate surface. This is
+        // a graceful attempt: a deployed-OR magic-mapper gap (no per-object
+        // publish) means it may not stick; the catalog path below remains viable.
+        $predicateSet = $this->attemptSelfPublished($payloadId, true);
+        if ($predicateSet === false) {
+            $warnings[] = 'predicate-unavailable';
+        }
+
+        // OpenCatalogi routing (create publication in the per-body target catalog).
+        $catalogRef    = '';
+        $targetCatalog = '';
+        if ($bodyId !== null) {
+            $targetCatalog = $this->configService->getForBody($bodyId)['catalog'];
+        }
+
+        if ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '') {
+            $catalogRef = $this->catalogPublisher->publish($targetCatalog, $payloadId, $payload);
+            if ($catalogRef === '') {
+                $warnings[] = 'catalog-publish-failed';
+            }
+        } else {
+            $warnings[] = 'opencatalogi-absent';
+        }
+
+        $record = [
+            'sourceType'              => $sourceType,
+            'sourceObject'            => $sourceId,
+            'sourceTitle'             => (string) ($source['title'] ?? ''),
+            'governanceBody'          => ($bodyId ?? ''),
+            'payloadObject'           => $payloadId,
+            'payloadVersion'          => $version,
+            'oriType'                 => (string) $payload['oriType'],
+            'catalogPublication'      => $catalogRef,
+            'targetCatalog'           => $targetCatalog,
+            'status'                  => 'published',
+            'catalogRetractionStatus' => 'none',
+            'publishedBy'             => $actorId,
+            'publishedAt'             => $this->now(),
+        ];
+        $recordId = $this->persistRecord($record);
+        $record['id'] = $recordId;
+
+        $this->markSourcePublished($sourceType, $sourceId, $source, true);
+        $this->audit($actorId, 'publish', [$sourceId, $payloadId], ['sourceType' => $sourceType, 'payloadVersion' => $version]);
+
+        return [
+            'record'   => $record,
+            'warnings' => $warnings,
+        ];
+
+    }//end publish()
+
+    /**
+     * Withdraw a publication with a mandatory reason.
+     *
+     * Clears `@self.published`, retracts the OpenCatalogi publication (surfacing
+     * + marking pending on failure — never a silent success), resets the source
+     * object's published state, records actor/reason/timestamp on the record and
+     * in the audit trail, and soft-retains the payload.
+     *
+     * @param string $recordId UUID of the PublicationRecord.
+     * @param string $actorId  Nextcloud UID of the withdrawing staff member.
+     * @param string $reason   Mandatory withdraw reason.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @throws \InvalidArgumentException When the reason is empty.
+     * @throws MissingObjectException    When the record does not exist.
+     *
+     * @return array<string,mixed> { record, warnings[] }
+     */
+    public function withdraw(string $recordId, string $actorId, string $reason): array
+    {
+        if (trim($reason) === '') {
+            throw new \InvalidArgumentException('A withdraw reason is required.');
+        }
+
+        $record = $this->loadRecord($recordId);
+
+        $warnings = [];
+
+        // Clear the local predicate first so the data stops being anonymously
+        // readable even if the remote retraction fails.
+        $this->attemptSelfPublished((string) $record['payloadObject'], false);
+
+        $catalogRetractionStatus = 'none';
+        $catalogRef              = (string) ($record['catalogPublication'] ?? '');
+        if ($catalogRef !== '') {
+            $retracted = $this->catalogPublisher->retract((string) ($record['targetCatalog'] ?? ''), $catalogRef);
+            if ($retracted === true) {
+                $catalogRetractionStatus = 'done';
+            } else {
+                // Surface the failure and mark pending — never report success.
+                $catalogRetractionStatus = 'pending';
+                $warnings[]              = 'catalog-retraction-failed';
+            }
+        }
+
+        $record['status']                  = 'withdrawn';
+        $record['withdrawnBy']             = $actorId;
+        $record['withdrawnAt']             = $this->now();
+        $record['withdrawReason']          = $reason;
+        $record['catalogRetractionStatus'] = $catalogRetractionStatus;
+        $this->persistRecord($record, $recordId);
+
+        $this->markSourcePublished((string) $record['sourceType'], (string) $record['sourceObject'], null, false);
+        $this->audit($actorId, 'withdraw', [(string) $record['sourceObject'], (string) $record['payloadObject']], ['reason' => $reason]);
+
+        return [
+            'record'   => $record,
+            'warnings' => $warnings,
+        ];
+
+    }//end withdraw()
+
+    /**
+     * Rectify a publication: publish a corrected new version and withdraw the
+     * old one in the same operation. Published payloads are never edited in place.
+     *
+     * @param string $recordId UUID of the PublicationRecord to rectify.
+     * @param string $actorId  Nextcloud UID of the rectifying staff member.
+     * @param string $reason   Reason recorded against the withdrawn prior version.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @throws MissingObjectException When the prior record does not exist.
+     *
+     * @return array<string,mixed> { record, previous, warnings[] }
+     */
+    public function rectify(string $recordId, string $actorId, string $reason): array
+    {
+        $prior      = $this->loadRecord($recordId);
+        $sourceType = (string) $prior['sourceType'];
+        $sourceId   = (string) $prior['sourceObject'];
+        $newVersion = ((int) ($prior['payloadVersion'] ?? 1) + 1);
+
+        // Re-validate eligibility for the corrected source state.
+        $source = $this->eligibility->assertEligible($sourceType, $sourceId);
+        $bodyId = $this->resolveBodyId($sourceType, $source);
+
+        $payload   = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
+        $payloadId = $this->persistPayload($payload);
+
+        $warnings     = [];
+        $predicateSet = $this->attemptSelfPublished($payloadId, true);
+        if ($predicateSet === false) {
+            $warnings[] = 'predicate-unavailable';
+        }
+
+        $catalogRef    = '';
+        $targetCatalog = (string) ($prior['targetCatalog'] ?? '');
+        if ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '') {
+            $catalogRef = $this->catalogPublisher->publish($targetCatalog, $payloadId, $payload);
+            if ($catalogRef === '') {
+                $warnings[] = 'catalog-publish-failed';
+            }
+        } else {
+            $warnings[] = 'opencatalogi-absent';
+        }
+
+        $newRecord = [
+            'sourceType'              => $sourceType,
+            'sourceObject'            => $sourceId,
+            'sourceTitle'             => (string) ($source['title'] ?? ($prior['sourceTitle'] ?? '')),
+            'governanceBody'          => ($bodyId ?? (string) ($prior['governanceBody'] ?? '')),
+            'payloadObject'           => $payloadId,
+            'payloadVersion'          => $newVersion,
+            'oriType'                 => (string) $payload['oriType'],
+            'catalogPublication'      => $catalogRef,
+            'targetCatalog'           => $targetCatalog,
+            'status'                  => 'published',
+            'catalogRetractionStatus' => 'none',
+            'rectifiesVersion'        => (int) ($prior['payloadVersion'] ?? 1),
+            'publishedBy'             => $actorId,
+            'publishedAt'             => $this->now(),
+        ];
+        $newRecordId = $this->persistRecord($newRecord);
+        $newRecord['id'] = $newRecordId;
+
+        // Withdraw the prior version in the same operation.
+        $withdrawReason = $reason;
+        if (trim($withdrawReason) === '') {
+            $withdrawReason = 'Superseded by rectified version '.$newVersion;
+        }
+
+        $withdrawResult = $this->withdraw($recordId, $actorId, $withdrawReason);
+        $warnings       = array_values(array_unique(array_merge($warnings, $withdrawResult['warnings'])));
+
+        $this->markSourcePublished($sourceType, $sourceId, $source, true);
+        $this->audit($actorId, 'rectify', [$sourceId, $payloadId], ['rectifiesVersion' => (int) ($prior['payloadVersion'] ?? 1), 'newVersion' => $newVersion]);
+
+        return [
+            'record'   => $newRecord,
+            'previous' => $withdrawResult['record'],
+            'warnings' => $warnings,
+        ];
+
+    }//end rectify()
+
+    /**
+     * Attempt to set or clear `@self.published` on a payload object.
+     *
+     * Returns true when the OR object API accepted the predicate write. A
+     * deployed-OR magic-mapper gap (no per-object publish) makes this best-effort.
+     *
+     * @param string $payloadId UUID of the PublicationPayload object.
+     * @param bool   $published Whether to set (true) or clear (false) the predicate.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return bool True when the predicate write was accepted.
+     */
+    private function attemptSelfPublished(string $payloadId, bool $published): bool
+    {
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $entity        = $objectService->find(id: $payloadId, register: 'decidesk', schema: 'publication-payload');
+            if ($entity === null) {
+                return false;
+            }
+
+            $data = $entity->jsonSerialize();
+            // The published-predicate lives under the @self metadata envelope.
+            $now = $this->now();
+            if (isset($data['@self']) === false || is_array($data['@self']) === false) {
+                $data['@self'] = [];
+            }
+
+            if ($published === true) {
+                $data['@self']['published'] = $now;
+            } else {
+                $data['@self']['published'] = null;
+            }
+
+            $objectService->saveObject(
+                object: $data,
+                register: 'decidesk',
+                schema: 'publication-payload',
+                uuid: $payloadId,
+            );
+
+            // Verify the predicate stuck (the magic-mapper gap silently drops it).
+            $reread = $objectService->find(id: $payloadId, register: 'decidesk', schema: 'publication-payload');
+            if ($reread === null) {
+                return false;
+            }
+
+            $rereadData = $reread->jsonSerialize();
+            $current    = ($rereadData['@self']['published'] ?? null);
+
+            return ($published === true) ? ($current !== null) : ($current === null);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Decidesk publication: @self.published write not accepted (OR magic-mapper gap)', ['exception' => $e->getMessage()]);
+            return false;
+        }//end try
+
+    }//end attemptSelfPublished()
+
+    /**
+     * Persist a derived payload as an immutable PublicationPayload object.
+     *
+     * @param array<string,mixed> $payload The allow-list payload.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return string The created payload object UUID.
+     */
+    private function persistPayload(array $payload): string
+    {
+        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+        $saved         = $objectService->saveObject(object: $payload, register: 'decidesk', schema: 'publication-payload');
+
+        return $this->extractId($saved);
+
+    }//end persistPayload()
+
+    /**
+     * Persist (create or update) a PublicationRecord object.
+     *
+     * @param array<string,mixed> $record The record data.
+     * @param string|null         $uuid   Existing UUID for an update, null to create.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return string The record object UUID.
+     */
+    private function persistRecord(array $record, ?string $uuid=null): string
+    {
+        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+        if ($uuid !== null) {
+            $saved = $objectService->saveObject(object: $record, register: 'decidesk', schema: 'publication-record', uuid: $uuid);
+            return $uuid;
+        }
+
+        $saved = $objectService->saveObject(object: $record, register: 'decidesk', schema: 'publication-record');
+
+        return $this->extractId($saved);
+
+    }//end persistRecord()
+
+    /**
+     * Load a PublicationRecord by UUID.
+     *
+     * @param string $recordId The record UUID.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @throws MissingObjectException When the record does not exist.
+     *
+     * @return array<string,mixed>
+     */
+    private function loadRecord(string $recordId): array
+    {
+        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+        $entity        = $objectService->find(id: $recordId, register: 'decidesk', schema: 'publication-record');
+        if ($entity === null) {
+            throw new MissingObjectException('Publication record not found: '.$recordId);
+        }
+
+        return $entity->jsonSerialize();
+
+    }//end loadRecord()
+
+    /**
+     * Mark (or unmark) the source object's published state in the same write,
+     * routed through the eligibility guard so the value is flow-owned.
+     *
+     * @param string                   $sourceType One of decision|agenda|minutes.
+     * @param string                   $sourceId   UUID of the source object.
+     * @param array<string,mixed>|null $source     Resolved source data (re-fetched when null).
+     * @param bool                     $published  Whether the source becomes published.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    private function markSourcePublished(string $sourceType, string $sourceId, ?array $source, bool $published): void
+    {
+        if ($sourceType !== 'decision') {
+            // Only the Decision schema carries the isPublished/publishedAt fields.
+            return;
+        }
+
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            if ($source === null) {
+                $entity = $objectService->find(id: $sourceId, register: 'decidesk', schema: 'decision');
+                if ($entity === null) {
+                    return;
+                }
+
+                $source = $entity->jsonSerialize();
+            }
+
+            $source['isPublished'] = ($published === true) ? 'public' : 'internal';
+            $source['publishedAt'] = ($published === true) ? $this->now() : null;
+
+            $objectService->saveObject(object: $source, register: 'decidesk', schema: 'decision', uuid: $sourceId);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Decidesk publication: failed to stamp source published state', ['exception' => $e->getMessage()]);
+        }//end try
+
+    }//end markSourcePublished()
+
+    /**
+     * Append an entry to the immutable decision audit trail.
+     *
+     * @param string   $actorId    Nextcloud UID of the actor.
+     * @param string   $action     'publish'|'withdraw'|'rectify'.
+     * @param string[] $objectUids Touched object UUIDs.
+     * @param array    $payload    Structured detail.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    private function audit(string $actorId, string $action, array $objectUids, array $payload): void
+    {
+        // The hash-chained audit trail enumerates its accepted actions; map the
+        // publication actions onto the generic 'decision-transition' action and
+        // carry the specific verb in the structured payload.
+        $this->auditLogService->append(
+            actor: $actorId,
+            action: 'decision-transition',
+            objectUids: $objectUids,
+            payload: array_merge(['publicationAction' => $action], $payload),
+        );
+
+    }//end audit()
+
+    /**
+     * Resolve the governance body UUID for a source object.
+     *
+     * @param string              $sourceType One of decision|agenda|minutes.
+     * @param array<string,mixed> $source     The source object data.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return string|null
+     */
+    private function resolveBodyId(string $sourceType, array $source): ?string
+    {
+        $direct = ($source['governanceBody'] ?? ($source['relations']['GovernanceBody'] ?? $source['relations']['governanceBody'] ?? null));
+        if (is_array($direct) === true) {
+            $direct = ($direct[0] ?? ($direct['id'] ?? null));
+        }
+
+        if (is_string($direct) === true && $direct !== '') {
+            return $direct;
+        }
+
+        return null;
+
+    }//end resolveBodyId()
+
+    /**
+     * Determine whether OpenCatalogi is installed.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return bool
+     */
+    private function isOpenCatalogiAvailable(): bool
+    {
+        return $this->appManager->isInstalled('opencatalogi');
+
+    }//end isOpenCatalogiAvailable()
+
+    /**
+     * Extract a UUID from an ObjectService save result (object or array).
+     *
+     * @param mixed $saved The save result.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return string
+     */
+    private function extractId(mixed $saved): string
+    {
+        if (is_object($saved) === true) {
+            if (method_exists($saved, 'getUuid') === true) {
+                $uuid = $saved->getUuid();
+                if (is_string($uuid) === true && $uuid !== '') {
+                    return $uuid;
+                }
+            }
+
+            if (method_exists($saved, 'jsonSerialize') === true) {
+                $data = $saved->jsonSerialize();
+                $id   = ($data['id'] ?? $data['uuid'] ?? ($data['@self']['id'] ?? null));
+                if (is_string($id) === true && $id !== '') {
+                    return $id;
+                }
+            }
+        }
+
+        if (is_array($saved) === true) {
+            $id = ($saved['id'] ?? $saved['uuid'] ?? ($saved['@self']['id'] ?? null));
+            if (is_string($id) === true && $id !== '') {
+                return $id;
+            }
+        }
+
+        return '';
+
+    }//end extractId()
+
+    /**
+     * Current UTC timestamp in ATOM format.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return string
+     */
+    private function now(): string
+    {
+        return (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+
+    }//end now()
+}//end class

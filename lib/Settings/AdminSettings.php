@@ -50,6 +50,7 @@ class AdminSettings implements IDelegatedSettings
     public function __construct(
         private IAppManager $appManager,
         private IInitialState $initialState,
+        private \OCA\Decidesk\Service\PublicationConfigService $publicationConfigService,
     ) {
     }//end __construct()
 
@@ -66,6 +67,19 @@ class AdminSettings implements IDelegatedSettings
     {
         $version = $this->appManager->getAppVersion(appId: Application::APP_ID);
         $this->initialState->provideInitialState('version', $version);
+
+        // Provide the publication configuration (per-body catalog/policy/attendance)
+        // and policy enums to the admin settings page via IInitialState — rendered
+        // by the NC settings framework, NOT added to the in-app vue-router.
+        // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+        $this->initialState->provideInitialState('publicationConfig', $this->publicationConfigService->getAll());
+        $this->initialState->provideInitialState(
+            'publicationPolicies',
+            [
+                'policies'   => \OCA\Decidesk\Service\PublicationConfigService::POLICIES,
+                'attendance' => \OCA\Decidesk\Service\PublicationConfigService::ATTENDANCE_POLICIES,
+            ]
+        );
 
         return new TemplateResponse(
             Application::APP_ID,

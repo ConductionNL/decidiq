@@ -409,6 +409,13 @@
 						"order": 60
 					},
 					{
+						"id": "publication",
+						"label": "Publication",
+						"icon": "icon-public",
+						"component": "AgendaPublicationTab",
+						"order": 70
+					},
+					{
 						"id": "audit",
 						"label": "Audit trail",
 						"icon": "icon-history",
@@ -884,6 +891,13 @@
 						"order": 40
 					},
 					{
+						"id": "publication",
+						"label": "Publication",
+						"icon": "icon-public",
+						"component": "MinutesPublicationTab",
+						"order": 70
+					},
+					{
 						"id": "audit",
 						"label": "Audit trail",
 						"icon": "icon-history",
@@ -1034,6 +1048,13 @@
 						"icon": "icon-link",
 						"component": "RelatedDecisionsTab",
 						"order": 35
+					},
+					{
+						"id": "publication",
+						"label": "Publication",
+						"icon": "icon-public",
+						"component": "DecisionPublicationTab",
+						"order": 70
 					},
 					{
 						"id": "audit",
@@ -1344,11 +1365,26 @@
 								"label": "Organisation mode",
 								"help": "Controls mode-specific labels across the app (e.g. Bodies label). Default: gov.",
 								"options": [
-									{ "value": "gov",     "label": "Government (gov)" },
-									{ "value": "corp",    "label": "Corporate (corp)" },
-									{ "value": "assoc",   "label": "Association (assoc)" },
-									{ "value": "ops",     "label": "Operations (ops)" },
-									{ "value": "citizen", "label": "Citizen portal (citizen)" }
+									{
+										"value": "gov",
+										"label": "Government (gov)"
+									},
+									{
+										"value": "corp",
+										"label": "Corporate (corp)"
+									},
+									{
+										"value": "assoc",
+										"label": "Association (assoc)"
+									},
+									{
+										"value": "ops",
+										"label": "Operations (ops)"
+									},
+									{
+										"value": "citizen",
+										"label": "Citizen portal (citizen)"
+									}
 								]
 							},
 							{
