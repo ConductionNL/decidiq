@@ -144,12 +144,14 @@ is a universal `decision` with `decisionType=resolution` (ADR-005, done in
 search provider; decisions remain searchable.
 
 #### Scenario: Resolution is a decision, not a separate schema
+@e2e exclude register-schema-structure invariant — verified by register-import + PHPUnit, not browser-observable
 - GIVEN the register is imported on a clean instance
 - WHEN the schemas are listed
 - THEN no `resolution` schema exists
 - AND resolutions are represented as `decision` objects with `decisionType=resolution`
 
 #### Scenario: Decisions remain searchable after resolution removal
+@e2e exclude search-provider configuration invariant — verified by PHPUnit on the searched-schemas set, not browser-observable
 - GIVEN the unified search provider
 - WHEN its searched schemas are inspected
 - THEN `resolution` is not listed
@@ -169,6 +171,7 @@ governance-report, multilingual-reconciliation, proxy-vote, audit-log) are
 retargeted onto these unified entities, keeping their auth guards.
 
 #### Scenario: Board sub-entities removed and services retargeted
+@e2e exclude register-schema-structure + service-retargeting invariant — verified by register-import + PHPUnit, not browser-observable
 - GIVEN the register is imported and the app boots
 - WHEN the schemas are listed and the governance services run
 - THEN no `board-vote` / `board-minutes` / `board-material` / `board-audit-log-entry` schema exists
@@ -179,6 +182,7 @@ retargeted onto these unified entities, keeping their auth guards.
 When a `DecisionStage` has `method=signature`, the eIDAS signing of its `signedDocument` SHALL reuse the existing minutes signing flow — signatories are read from `Minutes.signedBy` and the QES workflow is driven by `EIDASSignatureService`. On signing completion, the service SHALL resolve the related signature stage (link `signedDocument`, set `outcome=adopted` + `decidedAt`). No separate Signature schema SHALL be introduced; the signed artefact remains a `DigitalDocument` and the signatories remain `Minutes.signedBy`, consistent with ADR-006's retirement of parallel board-* entities.
 
 #### Scenario: Signed minutes resolve the ratifying signature stage
+@e2e exclude eIDAS QES signing flow — external signing provider not driveable in headless e2e; verified by PHPUnit on EIDASSignatureService stage resolution
 
 - **GIVEN** a `method=signature` DecisionStage whose `signedDocument` is the meeting minutes and whose signatories are listed in `Minutes.signedBy`
 - **WHEN** the chair and secretary complete eIDAS signing

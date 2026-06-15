@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.4.0"
+    "version": "0.5.0"
   },
   "x-openregister": {
     "type": "application",
@@ -4135,9 +4135,9 @@
       "CitizenVote": {
         "slug": "citizen-vote",
         "icon": "AccountVoiceOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "CitizenVote",
-        "description": "A vote cast by a citizen on a motion that has citizenVotingAllowed enabled (p3-citizen-participation). Distinct from staff Vote entities tied to a VotingRound — citizen votes may be participatory or advisory and are tallied separately.",
+        "description": "A vote cast by a citizen, either on a motion (citizenVotingAllowed) or — in citizen-participation advisory mode — on a validated BudgetProposal. Distinct from staff Vote entities tied to a VotingRound; advisory citizen tallies are kept strictly separate from statutory VotingRound tallies. Version 0.2.0 added the proposalId field + proposal relation and relaxed motionId from required (a vote targets EITHER a motion OR a proposal).",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:VoteAction",
@@ -4149,7 +4149,6 @@
         "required": [
           "voteValue",
           "voterId",
-          "motionId",
           "castAt"
         ],
         "properties": {
@@ -4163,7 +4162,11 @@
           },
           "motionId": {
             "type": "string",
-            "description": "UUID of the Motion this vote applies to."
+            "description": "UUID of the Motion this vote applies to (omitted for budget-proposal advisory votes)."
+          },
+          "proposalId": {
+            "type": "string",
+            "description": "UUID of the BudgetProposal this advisory vote applies to (citizen-participation). Mutually exclusive with motionId."
           },
           "citizenPanelId": {
             "type": "string",
@@ -4194,6 +4197,11 @@
           "motion": {
             "register": "decidesk",
             "schema": "Motion",
+            "cardinality": "many-to-one"
+          },
+          "proposal": {
+            "register": "decidesk",
+            "schema": "BudgetProposal",
             "cardinality": "many-to-one"
           },
           "citizenPanel": {
@@ -4347,6 +4355,10 @@
             "description": "Whether final allocation results are visible to citizens.",
             "default": false,
             "example": false
+          },
+          "resultsSummary": {
+            "type": "string",
+            "description": "JSON-encoded, PII-free result summary (ranked proposals + greedy allocation + participation count) attached when results are published; the @self.published predicate is set alongside it. Carries aggregate vote counts only, never voter identities."
           }
         },
         "x-openregister-relations": {
@@ -4499,9 +4511,9 @@
         },
         "slug": "public-consultation",
         "icon": "ForumOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "PublicConsultation",
-        "description": "A formal citizen consultation round attached to a decision, motion, or policy (p3-citizen-participation).",
+        "description": "A formal citizen consultation round attached to a decision, motion, or policy. Version 0.2.0 (citizen-participation): renamed status value 'summarised' to 'results-published' and added anonymousReactionsAllowed + moderationPolicy. Legacy 'summarised' objects are normalised to 'results-published' on read by ParticipationLifecycleService.",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:Event",
@@ -4541,21 +4553,41 @@
           },
           "status": {
             "type": "string",
-            "description": "Consultation lifecycle.",
+            "description": "Consultation lifecycle. The legacy value 'summarised' (schema v0.1.0) was renamed to 'results-published' in v0.2.0.",
             "enum": [
               "draft",
               "open",
               "closed",
-              "summarised"
+              "results-published"
             ],
             "default": "draft",
             "example": "open"
           },
+          "anonymousReactionsAllowed": {
+            "type": "boolean",
+            "description": "When true, unauthenticated citizens may submit reactions on this open consultation via the public intake endpoint (always pre-moderated). Default false: only authenticated Nextcloud accounts may react.",
+            "default": false,
+            "example": false
+          },
+          "moderationPolicy": {
+            "type": "string",
+            "description": "Moderation policy for reactions. 'pre-moderation' (default): every reaction enters the queue as pending and must be approved before it counts. 'post-moderation': authenticated reactions auto-approve; anonymous reactions are ALWAYS pre-moderated regardless of this value.",
+            "enum": [
+              "pre-moderation",
+              "post-moderation"
+            ],
+            "default": "pre-moderation",
+            "example": "pre-moderation"
+          },
           "submissionCount": {
             "type": "integer",
-            "description": "Number of feedback submissions received.",
+            "description": "Number of APPROVED reaction submissions received (derived; incremented on moderation approval).",
             "default": 0,
             "example": 0
+          },
+          "resultsSummary": {
+            "type": "string",
+            "description": "JSON-encoded, PII-free result summary (approved-reaction digest + staff response) attached when results are published; the @self.published predicate is set alongside it."
           }
         },
         "x-openregister-relations": {
@@ -4567,6 +4599,97 @@
           "decision": {
             "register": "decidesk",
             "schema": "Decision",
+            "cardinality": "many-to-one"
+          },
+          "reactions": {
+            "register": "decidesk",
+            "schema": "ConsultationReaction",
+            "cardinality": "one-to-many"
+          }
+        }
+      },
+      "ConsultationReaction": {
+        "x-openregister-notifications": {
+          "reactionPendingModeration": {
+            "trigger": {
+              "type": "create",
+              "filter": {
+                "moderationStatus": "pending"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "update"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Nieuwe reactie wacht op moderatie",
+              "en": "A new reaction is awaiting moderation"
+            }
+          }
+        },
+        "slug": "consultation-reaction",
+        "icon": "CommentTextOutline",
+        "version": "0.1.0",
+        "title": "ConsultationReaction",
+        "description": "A citizen reaction (idea, feedback) submitted on an open PublicConsultation (citizen-participation). Carries NO contact details or PII: the submitter is identified only by a Nextcloud UID (authenticated) or a pseudonymous token (anonymous). Soft-delete only so rejected reactions remain auditable.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Comment",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "body",
+          "moderationStatus"
+        ],
+        "properties": {
+          "body": {
+            "type": "string",
+            "description": "The reaction text supplied by the citizen. Server-side size-capped."
+          },
+          "moderationStatus": {
+            "type": "string",
+            "description": "Moderation state. Reactions enter as 'pending'; only 'approved' reactions count toward submissionCount and may be published.",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ],
+            "default": "pending",
+            "example": "pending"
+          },
+          "submitterId": {
+            "type": "string",
+            "description": "Nextcloud UID for authenticated submissions, or an opaque pseudonymous token for anonymous submissions. Never a name, email, or other contact detail."
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the reaction was submitted."
+          },
+          "moderationReason": {
+            "type": "string",
+            "description": "Optional staff-supplied reason recorded on approval or rejection."
+          }
+        },
+        "x-openregister-relations": {
+          "consultation": {
+            "register": "decidesk",
+            "schema": "PublicConsultation",
             "cardinality": "many-to-one"
           }
         }

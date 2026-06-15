@@ -1,0 +1,431 @@
+<?php
+/**
+ * Decidesk Budget Voting Service
+ *
+ * Participatory-budget proposal submission, staff validation, advisory voting
+ * (delegating to the shared tally machinery), and greedy allocation results.
+ *
+ * @category Service
+ * @package  OCA\Decidesk\Service
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @version GIT: <git-id>
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ */
+
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
+declare(strict_types=1);
+
+namespace OCA\Decidesk\Service;
+
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Stateless service for participatory-budget proposals + advisory voting.
+ *
+ * Advisory voting NEVER produces a statutory decision outcome; the tally is
+ * delegated to VotingService::applyAdvisoryTally() so there is no parallel
+ * tally implementation and citizen tallies stay separate from VotingRound
+ * tallies.
+ *
+ * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ */
+class BudgetVotingService
+{
+
+    /**
+     * Constructor for BudgetVotingService.
+     *
+     * @param ContainerInterface            $container        DI container (lazy ObjectService)
+     * @param LoggerInterface               $logger           The logger
+     * @param ParticipationLifecycleService $lifecycleService Status/deadline guards
+     * @param VotingService                 $votingService    Shared advisory tally machinery
+     *
+     * @return void
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    public function __construct(
+        private readonly ContainerInterface $container,
+        private readonly LoggerInterface $logger,
+        private readonly ParticipationLifecycleService $lifecycleService,
+        private readonly VotingService $votingService,
+    ) {
+    }//end __construct()
+
+    /**
+     * Resolve the OpenRegister ObjectService lazily.
+     *
+     * @return object The ObjectService instance.
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    private function objectService(): object
+    {
+        return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+    }//end objectService()
+
+    /**
+     * Normalise a saved ObjectEntity (or array) to an array.
+     *
+     * @param mixed                $saved    The saveObject() return value.
+     * @param array<string, mixed> $fallback The original payload.
+     *
+     * @return array<string, mixed> The persisted object as an array.
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    private function normaliseSaved(mixed $saved, array $fallback): array
+    {
+        if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
+            return $saved->jsonSerialize();
+        }
+
+        if (is_array($saved) === true) {
+            return $saved;
+        }
+
+        return $fallback;
+
+    }//end normaliseSaved()
+
+    /**
+     * Submit a budget proposal during a round's submission phase.
+     *
+     * Validates server-side that the round accepts proposals (status +
+     * deadline) and that requestedAmount is positive and within totalAmount.
+     *
+     * @param string $budgetId    The ParticipatoryBudget round UUID.
+     * @param string $title       The proposal title.
+     * @param string $description The proposal description.
+     * @param float  $requested   The requested amount.
+     * @param string $submitterId The citizen's NC UID.
+     * @param string $category    Optional category.
+     *
+     * @return array<string, mixed> The created BudgetProposal object.
+     *
+     * @throws \RuntimeException         When the round is missing or not accepting proposals.
+     * @throws \InvalidArgumentException When the amount is invalid.
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    public function submitProposal(
+        string $budgetId,
+        string $title,
+        string $description,
+        float $requested,
+        string $submitterId,
+        string $category=''
+    ): array {
+        $title = trim($title);
+        if ($title === '') {
+            throw new \InvalidArgumentException('Proposal title must not be empty');
+        }
+
+        $objectService = $this->objectService();
+        $roundEntity   = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
+        if ($roundEntity === null) {
+            throw new \RuntimeException("ParticipatoryBudget {$budgetId} not found");
+        }
+
+        $round = $roundEntity->jsonSerialize();
+
+        if ($this->lifecycleService->budgetAcceptsProposals(round: $round) === false) {
+            throw new \RuntimeException('This budget round is not open for proposal submission');
+        }
+
+        if ($requested <= 0) {
+            throw new \InvalidArgumentException('requestedAmount must be a positive number');
+        }
+
+        $total = (float) ($round['totalAmount'] ?? 0);
+        if ($total > 0 && $requested > $total) {
+            throw new \InvalidArgumentException('requestedAmount exceeds the round total amount');
+        }
+
+        $proposal = [
+            'title'           => $title,
+            'description'     => $description,
+            'requestedAmount' => $requested,
+            'submitter'       => $submitterId,
+            'status'          => 'submitted',
+            'votesFor'        => 0,
+            'votesAgainst'    => 0,
+            'relations'       => [
+                ['register' => 'decidesk', 'schema' => 'participatory-budget', 'id' => $budgetId],
+            ],
+        ];
+
+        if ($category !== '') {
+            $proposal['category'] = $category;
+        }
+
+        $saved = $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
+
+        return $this->normaliseSaved(saved: $saved, fallback: $proposal);
+
+    }//end submitProposal()
+
+    /**
+     * Staff-validate a submitted proposal (submitted -> validated | rejected).
+     *
+     * Only 'validated' proposals are votable.
+     *
+     * @param string $proposalId The proposal UUID.
+     * @param bool   $approve    True to validate, false to reject.
+     *
+     * @return array<string, mixed> The updated proposal object.
+     *
+     * @throws \RuntimeException         When the proposal is not found.
+     * @throws \InvalidArgumentException When the proposal is not in 'submitted'.
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    public function validateProposal(string $proposalId, bool $approve): array
+    {
+        $objectService = $this->objectService();
+        $entity        = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
+        if ($entity === null) {
+            throw new \RuntimeException("BudgetProposal {$proposalId} not found");
+        }
+
+        $proposal = $entity->jsonSerialize();
+        if ((string) ($proposal['status'] ?? '') !== 'submitted') {
+            throw new \InvalidArgumentException('Only a submitted proposal can be validated or rejected');
+        }
+
+        $proposal['status'] = ($approve === true) ? 'validated' : 'rejected';
+        $saved              = $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
+
+        return $this->normaliseSaved(saved: $saved, fallback: $proposal);
+
+    }//end validateProposal()
+
+    /**
+     * Cast one advisory vote on a validated proposal during the voting window.
+     *
+     * Enforces the window guard (round in 'voting' + before votingDeadline,
+     * server-side) and that the proposal is 'validated', then delegates the
+     * one-vote integrity + atomic tally to the shared VotingService.
+     *
+     * @param string $proposalId The BudgetProposal UUID.
+     * @param string $voterId    The authenticated citizen NC UID.
+     * @param string $value      'voor' | 'tegen'.
+     *
+     * @return array<string, mixed> ['vote' => ..., 'votesFor' => int, 'votesAgainst' => int].
+     *
+     * @throws \RuntimeException         When the proposal/round is missing, closed, or not validated.
+     * @throws \InvalidArgumentException When the value is invalid.
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/changes/citizen-participation/specs/voting-system/spec.md
+     */
+    public function castAdvisoryVote(string $proposalId, string $voterId, string $value): array
+    {
+        $objectService = $this->objectService();
+        $entity        = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
+        if ($entity === null) {
+            throw new \RuntimeException("BudgetProposal {$proposalId} not found");
+        }
+
+        $proposal = $entity->jsonSerialize();
+        if ((string) ($proposal['status'] ?? '') !== 'validated') {
+            throw new \RuntimeException('Only validated proposals can be voted on');
+        }
+
+        $budgetId = $this->resolveBudgetId(proposal: $proposal);
+        if ($budgetId !== null) {
+            $roundEntity = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
+            if ($roundEntity !== null) {
+                $round = $roundEntity->jsonSerialize();
+                if ($this->lifecycleService->budgetAcceptsVotes(round: $round) === false) {
+                    throw new \RuntimeException('Voting is closed for this budget round');
+                }
+            }
+        }
+
+        return $this->votingService->applyAdvisoryTally(proposalId: $proposalId, voterId: $voterId, value: $value);
+
+    }//end castAdvisoryVote()
+
+    /**
+     * Compute the greedy allocation result for a closed budget round.
+     *
+     * Ranks validated proposals by votesFor descending (votesAgainst then
+     * requestedAmount as deterministic tiebreakers) and funds them greedily
+     * while the running total stays within totalAmount. Funded proposals are
+     * marked 'awarded'; the rest remain 'validated'. Advisory only — never
+     * produces a statutory decision.
+     *
+     * @param string $budgetId The ParticipatoryBudget round UUID.
+     *
+     * @return array<string, mixed> Allocation summary with ranked proposals.
+     *
+     * @throws \RuntimeException When the round is not found.
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    public function calculateAllocation(string $budgetId): array
+    {
+        $objectService = $this->objectService();
+        $roundEntity   = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
+        if ($roundEntity === null) {
+            throw new \RuntimeException("ParticipatoryBudget {$budgetId} not found");
+        }
+
+        $round = $roundEntity->jsonSerialize();
+        $total = (float) ($round['totalAmount'] ?? 0);
+
+        $proposals = $this->fetchValidatedProposals(budgetId: $budgetId);
+
+        usort(
+            $proposals,
+            static function (array $a, array $b): int {
+                $forCmp = ((int) ($b['votesFor'] ?? 0) <=> (int) ($a['votesFor'] ?? 0));
+                if ($forCmp !== 0) {
+                    return $forCmp;
+                }
+
+                $againstCmp = ((int) ($a['votesAgainst'] ?? 0) <=> (int) ($b['votesAgainst'] ?? 0));
+                if ($againstCmp !== 0) {
+                    return $againstCmp;
+                }
+
+                return ((float) ($a['requestedAmount'] ?? 0) <=> (float) ($b['requestedAmount'] ?? 0));
+            }
+        );
+
+        $allocated = 0.0;
+        $ranked    = [];
+        foreach ($proposals as $index => $proposal) {
+            $requested = (float) ($proposal['requestedAmount'] ?? 0);
+            $funded    = false;
+            if ($total <= 0 || ($allocated + $requested) <= $total) {
+                $funded     = true;
+                $allocated += $requested;
+            }
+
+            $proposalId = (string) ($proposal['id'] ?? $proposal['uuid'] ?? '');
+
+            // Persist the award decision on the proposal.
+            if ($funded === true && $proposalId !== '') {
+                $proposal['status'] = 'awarded';
+                $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
+            }
+
+            $ranked[] = [
+                'rank'            => ($index + 1),
+                'proposalId'      => $proposalId,
+                'title'           => (string) ($proposal['title'] ?? ''),
+                'requestedAmount' => $requested,
+                'votesFor'        => (int) ($proposal['votesFor'] ?? 0),
+                'votesAgainst'    => (int) ($proposal['votesAgainst'] ?? 0),
+                'funded'          => $funded,
+            ];
+        }//end foreach
+
+        return [
+            'budgetId'        => $budgetId,
+            'totalAmount'     => $total,
+            'allocatedAmount' => $allocated,
+            'proposalCount'   => count($ranked),
+            'proposals'       => $ranked,
+        ];
+
+    }//end calculateAllocation()
+
+    /**
+     * Fetch all validated/awarded proposals for a round.
+     *
+     * @param string $budgetId The round UUID.
+     *
+     * @return array<int, array<string, mixed>> The proposal objects.
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    private function fetchValidatedProposals(string $budgetId): array
+    {
+        $objectService = $this->objectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('budget-proposal');
+        $entities = $objectService->findAll(['filters' => ['_relations.participatory-budget' => $budgetId]]);
+
+        $result = [];
+        foreach ($entities as $entity) {
+            $proposal = $entity->jsonSerialize();
+            if ($this->relatesToBudget(proposal: $proposal, budgetId: $budgetId) === false) {
+                continue;
+            }
+
+            $status = (string) ($proposal['status'] ?? '');
+            if (in_array($status, ['validated', 'awarded', 'voting'], true) === true) {
+                $result[] = $proposal;
+            }
+        }
+
+        return $result;
+
+    }//end fetchValidatedProposals()
+
+    /**
+     * Whether a proposal genuinely references the given budget round.
+     *
+     * @param array<string, mixed> $proposal The proposal object.
+     * @param string               $budgetId The round UUID.
+     *
+     * @return bool True when the proposal belongs to the round.
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    private function relatesToBudget(array $proposal, string $budgetId): bool
+    {
+        return ($this->resolveBudgetId(proposal: $proposal) === $budgetId);
+
+    }//end relatesToBudget()
+
+    /**
+     * Resolve the parent ParticipatoryBudget UUID from a proposal.
+     *
+     * @param array<string, mixed> $proposal The proposal object.
+     *
+     * @return string|null The round UUID, or null when unresolved.
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    private function resolveBudgetId(array $proposal): ?string
+    {
+        foreach (($proposal['relations'] ?? []) as $relation) {
+            if (is_array($relation) === true && ($relation['schema'] ?? '') === 'participatory-budget') {
+                $id = ($relation['id'] ?? null);
+                if ($id !== null && $id !== '') {
+                    return (string) $id;
+                }
+            }
+        }
+
+        $flat = ($proposal['participatoryBudget'] ?? null);
+        if (is_string($flat) === true && $flat !== '') {
+            return $flat;
+        }
+
+        if (is_array($flat) === true) {
+            $id = ($flat['id'] ?? $flat['uuid'] ?? '');
+            if ($id !== '') {
+                return (string) $id;
+            }
+        }
+
+        return null;
+
+    }//end resolveBudgetId()
+
+}//end class
