@@ -67,6 +67,14 @@ class AdminSettings implements IDelegatedSettings
         $version = $this->appManager->getAppVersion(appId: Application::APP_ID);
         $this->initialState->provideInitialState('version', $version);
 
+        // Default per-body transcript/recording retention policy
+        // (meeting-transcription-ai-minutes). Bodies inherit these defaults
+        // until a chair/secretary overrides them on the body detail view; the
+        // frontend reads them via loadState (NOT DOM data-attributes).
+        // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md.
+        $this->initialState->provideInitialState('transcriptRetentionDefaultPolicy', 'delete-both');
+        $this->initialState->provideInitialState('transcriptRetentionDefaultDays', 30);
+
         return new TemplateResponse(
             Application::APP_ID,
             'settings/admin',
