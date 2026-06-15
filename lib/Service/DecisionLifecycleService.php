@@ -28,9 +28,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCA\Decidesk\Event\DecisionConcludedEvent;
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidesk\Service\ProcessTemplateService;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -57,11 +59,13 @@ class DecisionLifecycleService
     /**
      * Constructor for DecisionLifecycleService.
      *
-     * @param ContainerInterface      $container       The DI container (lazy-loads OpenRegister's ObjectService)
-     * @param LoggerInterface         $logger          The logger
-     * @param DecisionTransitionGuard $transitionGuard Pure transition map + per-domain policy guard
-     * @param AuditLogService         $auditLogService Hash-chained append-only audit log
-     * @param ProcessTemplateService  $templateService Resolves a body's process-template policy override (process-configuration)
+     * @param ContainerInterface         $container          The DI container (lazy-loads OpenRegister's ObjectService)
+     * @param LoggerInterface            $logger             The logger
+     * @param DecisionTransitionGuard    $transitionGuard    Pure transition map + per-domain policy guard
+     * @param AuditLogService            $auditLogService    Hash-chained append-only audit log
+     * @param ProcessTemplateService     $templateService    Resolves a body's process-template policy override (process-configuration)
+     * @param DecisionIntegrationService $integrationService Builds the cross-app outcome envelope for concluded delegated decisions
+     * @param IEventDispatcher           $eventDispatcher    Dispatches the DecisionConcludedEvent cross-app contract
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -69,6 +73,8 @@ class DecisionLifecycleService
         private readonly DecisionTransitionGuard $transitionGuard,
         private readonly AuditLogService $auditLogService,
         private readonly ProcessTemplateService $templateService,
+        private readonly DecisionIntegrationService $integrationService,
+        private readonly IEventDispatcher $eventDispatcher,
     ) {
     }//end __construct()
 
@@ -167,6 +173,7 @@ class DecisionLifecycleService
      * @param string      $comment       Optional transition comment recorded in the audit entry
      *
      * @spec openspec/specs/decision-management/spec.md
+     * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
      *
      * @return array{success: bool, decision: array|null, message: string}
      */
@@ -309,6 +316,17 @@ class DecisionLifecycleService
                 ['id' => $decisionId, 'action' => $action, 'from' => $currentLifecycle, 'to' => $transition['to']]
             );
 
+            // Cross-app event contract (decidesk-decision-events): when a
+            // delegated decision (one carrying provenance) reaches a terminal
+            // outcome, emit DecisionConcludedEvent so the originating consumer
+            // app can perform its own downstream side effects. Internal
+            // (no-provenance) decisions emit nothing. Fail-soft — never roll back.
+            $this->emitConclusionIfDelegated(
+                decision: array_merge($decision, $patch),
+                decisionId: $decisionId,
+                newState: $transition['to']
+            );
+
             return [
                 'success'  => true,
                 'decision' => $updated->jsonSerialize(),
@@ -333,6 +351,78 @@ class DecisionLifecycleService
         }//end try
 
     }//end transition()
+
+    /**
+     * Terminal-outcome lifecycle states that conclude a delegated decision.
+     *
+     * `withdrawn` is not a state in the transition guard graph (which ends at
+     * `archived`) but IS a recognised `lifecycle` value getOutcomeEnvelope()
+     * maps to `status=withdrawn`; it is included so a withdrawal reaching
+     * transition() still notifies the consumer.
+     *
+     * @var list<string>
+     */
+    private const TERMINAL_OUTCOME_STATES = ['decided', 'enacted', 'withdrawn'];
+
+    /**
+     * Emit a DecisionConcludedEvent when a delegated decision concludes.
+     *
+     * Only fires for a decision that carries provenance (`sourceApp` set) and
+     * whose new lifecycle state is terminal for outcome purposes
+     * (decided/enacted/withdrawn). The outcome envelope is built by
+     * DecisionIntegrationService::getOutcomeEnvelope() (status derived, signing
+     * resolved — no duplication). Fail-soft: any error is logged and the
+     * already-persisted transition is never rolled back.
+     *
+     * @param array<string, mixed> $decision   Decision object array (post-transition)
+     * @param string               $decisionId UUID of the transitioned decision
+     * @param string               $newState   The post-transition lifecycle state
+     *
+     * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+     *
+     * @return void
+     */
+    private function emitConclusionIfDelegated(array $decision, string $decisionId, string $newState): void
+    {
+        if (in_array($newState, self::TERMINAL_OUTCOME_STATES, true) === false) {
+            return;
+        }
+
+        $sourceApp = (string) ($decision['sourceApp'] ?? '');
+        if ($sourceApp === '') {
+            // Internal decision (no consumer is waiting) — emit nothing.
+            return;
+        }
+
+        try {
+            $envelope = $this->integrationService->getOutcomeEnvelope($decisionId);
+            if ($envelope === null) {
+                return;
+            }
+
+            $event = DecisionConcludedEvent::fromEnvelope(
+                envelope: $envelope,
+                outcome: (string) ($decision['outcome'] ?? ''),
+                sourceApp: $sourceApp,
+                correlationId: (string) ($decision['externalReference'] ?? '')
+            );
+
+            $this->eventDispatcher->dispatchTyped($event);
+
+            $this->logger->info(
+                'Decidesk: dispatched DecisionConcludedEvent',
+                ['id' => $decisionId, 'sourceApp' => $sourceApp, 'state' => $newState]
+            );
+        } catch (\Throwable $e) {
+            // The transition has already persisted; a dispatch failure must not
+            // roll it back (matches generateResolutionRecord's fail-loud contract).
+            $this->logger->error(
+                'Decidesk: decision concluded but DecisionConcludedEvent dispatch failed',
+                ['id' => $decisionId, 'exception' => $e->getMessage()]
+            );
+        }//end try
+
+    }//end emitConclusionIfDelegated()
 
     /**
      * Generate the formal resolution record for an enacted decision
