@@ -126,7 +126,12 @@ export default {
 				this.selectedPolicy = this.policyOptions.find((o) => o.id === this.defaultPolicy) || this.policyOptions[2]
 			}
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/**
+		 * Set the selected retention policy.
+		 *
+		 * @param {object} value The selected policy option.
+		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+		 */
 		onPolicy(value) {
 			this.selectedPolicy = value
 		},

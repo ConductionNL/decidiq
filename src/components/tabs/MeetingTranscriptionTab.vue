@@ -296,7 +296,12 @@ export default {
 				this.agendaTitles = {}
 			}
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/**
+		 * Set the selected recording source.
+		 *
+		 * @param {object} value The selected source option.
+		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+		 */
 		onSelectSource(value) {
 			this.selectedSource = value
 		},
@@ -370,11 +375,21 @@ export default {
 				this.working = false
 			}
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/resolution-minutes/spec.md */
+		/**
+		 * Discard a generated section (removes its AI content + marker).
+		 *
+		 * @param {object} section The draft section.
+		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/resolution-minutes/spec.md
+		 */
 		discardSection(section) {
 			section.discarded = true
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/resolution-minutes/spec.md */
+		/**
+		 * Mark a generated section as edited by the secretary.
+		 *
+		 * @param {object} section The draft section.
+		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/resolution-minutes/spec.md
+		 */
 		markEdited(section) {
 			section.edited = true
 		},
