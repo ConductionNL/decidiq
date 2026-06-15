@@ -97,3 +97,13 @@ export default {
 	},
 }
 </script>
+
+<style scoped>
+/* Let long KPI titles wrap rather than ellipsis-clip in the narrow horizontal
+   stat tile (CnStatsBlock's title defaults to nowrap + ellipsis). */
+:deep(.cn-stats-block__header h4) {
+	white-space: normal;
+	overflow: visible;
+	line-height: 1.2;
+}
+</style>
