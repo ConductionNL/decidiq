@@ -51,6 +51,8 @@ import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
 import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
+import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
+import GovernanceBodyRetentionTab from './components/tabs/GovernanceBodyRetentionTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
@@ -163,6 +165,8 @@ export default {
 	// Minutes + Decisions are create+browse (split with the top-level
 	// register index pages); Votes is the read-only post-meeting aggregate.
 	MeetingMinutesTab: page(MeetingMinutesTab),
+	MeetingTranscriptionTab: page(MeetingTranscriptionTab),
+	GovernanceBodyRetentionTab: page(GovernanceBodyRetentionTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),
 	MeetingVotesTab: page(MeetingVotesTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),

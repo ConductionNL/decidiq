@@ -144,12 +144,14 @@ is a universal `decision` with `decisionType=resolution` (ADR-005, done in
 search provider; decisions remain searchable.
 
 #### Scenario: Resolution is a decision, not a separate schema
+@e2e exclude register-schema-structure invariant — verified by register-import + PHPUnit, not browser-observable
 - GIVEN the register is imported on a clean instance
 - WHEN the schemas are listed
 - THEN no `resolution` schema exists
 - AND resolutions are represented as `decision` objects with `decisionType=resolution`
 
 #### Scenario: Decisions remain searchable after resolution removal
+@e2e exclude search-provider configuration invariant — verified by PHPUnit on the searched-schemas set, not browser-observable
 - GIVEN the unified search provider
 - WHEN its searched schemas are inspected
 - THEN `resolution` is not listed
@@ -169,6 +171,7 @@ governance-report, multilingual-reconciliation, proxy-vote, audit-log) are
 retargeted onto these unified entities, keeping their auth guards.
 
 #### Scenario: Board sub-entities removed and services retargeted
+@e2e exclude register-schema-structure + service-retargeting invariant — verified by register-import + PHPUnit, not browser-observable
 - GIVEN the register is imported and the app boots
 - WHEN the schemas are listed and the governance services run
 - THEN no `board-vote` / `board-minutes` / `board-material` / `board-audit-log-entry` schema exists
@@ -179,10 +182,39 @@ retargeted onto these unified entities, keeping their auth guards.
 When a `DecisionStage` has `method=signature`, the eIDAS signing of its `signedDocument` SHALL reuse the existing minutes signing flow — signatories are read from `Minutes.signedBy` and the QES workflow is driven by `EIDASSignatureService`. On signing completion, the service SHALL resolve the related signature stage (link `signedDocument`, set `outcome=adopted` + `decidedAt`). No separate Signature schema SHALL be introduced; the signed artefact remains a `DigitalDocument` and the signatories remain `Minutes.signedBy`, consistent with ADR-006's retirement of parallel board-* entities.
 
 #### Scenario: Signed minutes resolve the ratifying signature stage
+@e2e exclude eIDAS QES signing flow — external signing provider not driveable in headless e2e; verified by PHPUnit on EIDASSignatureService stage resolution
 
 - **GIVEN** a `method=signature` DecisionStage whose `signedDocument` is the meeting minutes and whose signatories are listed in `Minutes.signedBy`
 - **WHEN** the chair and secretary complete eIDAS signing
 - **THEN** `EIDASSignatureService` resolves the stage to `outcome=adopted` with `decidedAt` stamped, reusing the minutes signing flow rather than a new signature entity
+
+### Requirement: Minute-taking editor initialization from an AI-generated draft
+
+The minute-taking editor SHALL support initialization from an AI-generated draft produced by the meeting-transcription capability, in addition to the existing metadata pre-population. AI-generated content SHALL be visibly marked in the editor (a draft-provenance banner plus per-section markers), and the secretary SHALL be able to accept, edit, or discard each generated section independently. Accepting, editing, or submitting AI-initialized minutes SHALL follow the existing review and approval workflow without any shortcut: AI provenance SHALL never alter the lifecycle, and approval SHALL always be an explicit human action. The provenance metadata SHALL be retained on the minutes record through approval for audit purposes.
+
+#### Scenario: Editor pre-filled from a generated draft
+
+- **GIVEN** a meeting with an AI-generated draft from its transcript
+- **WHEN** the secretary opens the minutes editor and chooses to start from the generated draft
+- **THEN** the template is pre-populated with the per-agenda-item generated summaries alongside the existing metadata pre-population, a provenance banner is shown, and each generated section carries a visible AI marker
+
+#### Scenario: Discard a generated section
+
+- **GIVEN** the editor initialized from a generated draft
+- **WHEN** the secretary discards the generated section for one agenda item and writes their own text
+- **THEN** the discarded content is removed, the replacement section carries no AI marker, and the other generated sections are unaffected
+
+#### Scenario: Approval workflow unchanged for AI-initialized minutes
+
+- **GIVEN** minutes that were initialized from an AI-generated draft and marked ready for review
+- **WHEN** the chair approves them
+- **THEN** the approval follows the existing workflow (review, correction suggestions, explicit approval with timestamp and approver identity, locking), and the retained provenance metadata records that the draft originated from AI generation
+
+#### Scenario: Provenance retained for audit
+
+@e2e exclude metadata-retention contract — covered by PHPUnit on the minutes record
+- **WHEN** AI-initialized minutes reach `approved`
+- **THEN** the minutes record still carries the generation provenance (provider id, generated-at, sections accepted as generated vs. rewritten)
 
 ## User Stories
 

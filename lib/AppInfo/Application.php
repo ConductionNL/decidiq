@@ -789,6 +789,83 @@ class Application extends App implements IBootstrap
             listener: \OCA\Decidesk\Listener\MeetingFolderListener::class
         );
 
+        // Meeting transcription + AI-assisted draft minutes
+        // (meeting-transcription-ai-minutes): thin orchestration over the NC
+        // SpeechToText + TaskProcessing provider abstractions. All provider
+        // resolution is lazy + guarded so absence is a first-class state.
+        // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md.
+        $context->registerService(
+            \OCA\Decidesk\Service\PublicationEligibilityService::class,
+            static function (): \OCA\Decidesk\Service\PublicationEligibilityService {
+                return new \OCA\Decidesk\Service\PublicationEligibilityService();
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Service\TranscriptionSourceResolver::class,
+            static function ($c): \OCA\Decidesk\Service\TranscriptionSourceResolver {
+                return new \OCA\Decidesk\Service\TranscriptionSourceResolver(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    folderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Service\TranscriptionService::class,
+            static function ($c): \OCA\Decidesk\Service\TranscriptionService {
+                return new \OCA\Decidesk\Service\TranscriptionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    sourceResolver: $c->get(\OCA\Decidesk\Service\TranscriptionSourceResolver::class),
+                    folderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Service\MinutesDraftService::class,
+            static function ($c): \OCA\Decidesk\Service\MinutesDraftService {
+                return new \OCA\Decidesk\Service\MinutesDraftService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\BackgroundJob\TranscriptionJob::class,
+            static function ($c): \OCA\Decidesk\BackgroundJob\TranscriptionJob {
+                return new \OCA\Decidesk\BackgroundJob\TranscriptionJob(
+                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    transcriptionService: $c->get(\OCA\Decidesk\Service\TranscriptionService::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\BackgroundJob\TranscriptRetentionJob::class,
+            static function ($c): \OCA\Decidesk\BackgroundJob\TranscriptRetentionJob {
+                return new \OCA\Decidesk\BackgroundJob\TranscriptRetentionJob(
+                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Controller\TranscriptionController::class,
+            static function ($c): \OCA\Decidesk\Controller\TranscriptionController {
+                return new \OCA\Decidesk\Controller\TranscriptionController(
+                    request: $c->get(\OCP\IRequest::class),
+                    transcriptionService: $c->get(\OCA\Decidesk\Service\TranscriptionService::class),
+                    minutesDraftService: $c->get(\OCA\Decidesk\Service\MinutesDraftService::class),
+                    objectService: $c->get(ObjectService::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
+                    jobList: $c->get(\OCP\BackgroundJob\IJobList::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                );
+            }
+        );
+
         // Submission deadline gate (motion-amendment spec): pre-save hook that
         // rejects motion/amendment creations after the linked meeting's
         // submissionDeadline (OpenRegister converts the stopped event into

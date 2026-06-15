@@ -639,6 +639,23 @@
             "type": "number",
             "description": "Average hourly rate in EUR per attendee, used by the meeting cost calculator (meeting-efficiency). Schema.org MonetaryAmount value; currency is EUR.",
             "example": 75
+          },
+          "transcriptRetentionPolicy": {
+            "type": "string",
+            "description": "Per-body retention policy for meeting recordings and raw transcripts after the meeting's minutes are approved (meeting-transcription). 'keep' retains everything; 'delete-recording' removes only the audio recording; 'delete-both' removes the recording and the raw transcript file. Enforced by the TranscriptRetentionJob.",
+            "enum": [
+              "keep",
+              "delete-recording",
+              "delete-both"
+            ],
+            "default": "delete-both",
+            "example": "delete-both"
+          },
+          "transcriptRetentionDays": {
+            "type": "integer",
+            "description": "Number of days after minutes approval before the retention policy is enforced for this body's recordings/transcripts (meeting-transcription). Default 30.",
+            "default": 30,
+            "example": 30
           }
         },
         "x-openregister-seeds": [
@@ -3600,6 +3617,220 @@
             "version": 1
           }
         ]
+      },
+      "Transcript": {
+        "x-openregister-notifications": {
+          "transcriptionDone": {
+            "trigger": {
+              "type": "updated",
+              "filter": {
+                "status": "done"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Transcriptie gereed: {{title}}",
+              "en": "Transcription ready: {{title}}"
+            }
+          },
+          "transcriptionFailed": {
+            "trigger": {
+              "type": "updated",
+              "filter": {
+                "status": "failed"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Transcriptie mislukt: {{title}}",
+              "en": "Transcription failed: {{title}}"
+            }
+          }
+        },
+        "slug": "transcript",
+        "icon": "Microphone",
+        "version": "0.1.0",
+        "title": "Transcript",
+        "description": "Timestamped transcription of a meeting recording, produced through the Nextcloud SpeechToText provider abstraction. Recordings and raw transcript files live in the meeting's NC Files folder; this object holds only file references and timed segments, never audio or content blobs. NEVER eligible for public publication (structural deny-list, see PublicationEligibilityService).",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:CreativeWork",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false,
+          "x-decidesk-publishable": false,
+          "x-decidesk-publication-deny-reason": "Recordings and raw transcripts of a governance meeting are confidential to the body's members; the approved Minutes are the only public record. This schema is on the public-publication structural deny-list (coordinate with publish-decisions-via-opencatalogi task 2.2 — the deny-list lives in PublicationEligibilityService)."
+        },
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Human-readable transcript title (defaults to the meeting title)",
+            "example": "Transcriptie Raadsvergadering 10 april 2025"
+          },
+          "sourceType": {
+            "type": "string",
+            "description": "Origin of the transcription source",
+            "enum": [
+              "talk-recording",
+              "uploaded-file"
+            ],
+            "example": "uploaded-file"
+          },
+          "sourceFilePath": {
+            "type": "string",
+            "description": "Path of the source audio/recording file in the meeting's NC Files folder. A file reference only; audio content is never stored on this object.",
+            "example": "Decidesk/Gemeenteraad Amsterdam/2025-04-10 Raadsvergadering/recording.mp3"
+          },
+          "transcriptFilePath": {
+            "type": "string",
+            "description": "Path of the produced plain-text transcript file in the meeting's NC Files folder (written when status reaches 'done')."
+          },
+          "providerId": {
+            "type": "string",
+            "description": "Identifier of the SpeechToText provider that produced (or will produce) the transcript. Empty until a provider is selected/run."
+          },
+          "language": {
+            "type": "string",
+            "description": "BCP-47 language hint for the transcription (best-effort; providers may auto-detect)",
+            "example": "nl"
+          },
+          "status": {
+            "type": "string",
+            "description": "Transcription lifecycle state",
+            "enum": [
+              "pending",
+              "processing",
+              "done",
+              "failed"
+            ],
+            "default": "pending",
+            "example": "pending"
+          },
+          "failureReason": {
+            "type": "string",
+            "description": "Human-readable failure reason, set when status is 'failed'."
+          },
+          "consent": {
+            "type": "object",
+            "description": "Consent confirmation recorded before any transcription job is accepted (AVG/GDPR). The chair or secretary confirms participants were informed of the recording. Transcription is refused server-side without this record.",
+            "properties": {
+              "confirmedBy": {
+                "type": "string",
+                "description": "Nextcloud UID of the chair/secretary who confirmed consent (server-attributed)"
+              },
+              "confirmedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Consent confirmation timestamp"
+              }
+            }
+          },
+          "segments": {
+            "type": "array",
+            "description": "Timestamped transcript segments. Speaker labels are the provider's neutral labels (e.g. 'Speaker 1') and are NEVER mapped to participant identities.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "startTime": {
+                  "type": "number",
+                  "description": "Segment start offset in seconds from the start of the recording"
+                },
+                "endTime": {
+                  "type": "number",
+                  "description": "Segment end offset in seconds from the start of the recording"
+                },
+                "speakerLabel": {
+                  "type": "string",
+                  "description": "Neutral provider speaker label, e.g. 'Speaker 1' (no participant identity mapping)"
+                },
+                "agendaItem": {
+                  "type": "string",
+                  "description": "UUID of the agenda item this segment aligns to, derived from the conduct timeline. Absent/empty when the segment falls outside any agenda item's window (unassigned)."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "Transcribed text for this segment"
+                }
+              }
+            }
+          },
+          "alignedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the most recent agenda-alignment derivation. Alignment is a pure re-runnable derivation over stored data; correcting the timeline re-aligns without re-transcribing."
+          },
+          "draftGeneration": {
+            "type": "object",
+            "description": "Provenance of the AI-assisted draft minutes generated from this transcript (meeting-transcription / resolution-minutes). The draft itself is written into the minute-taking template; this records what was generated and when. Never auto-approves or publishes anything.",
+            "properties": {
+              "aiGenerated": {
+                "type": "boolean",
+                "description": "Whether an AI-generated draft was produced from this transcript"
+              },
+              "providerId": {
+                "type": "string",
+                "description": "Identifier of the TaskProcessing/AI provider that produced the draft"
+              },
+              "generatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Draft generation timestamp"
+              }
+            }
+          },
+          "retentionState": {
+            "type": "string",
+            "description": "Retention state of this transcript's files, set by the TranscriptRetentionJob after minutes approval per the body's policy.",
+            "enum": [
+              "active",
+              "recording-deleted",
+              "purged"
+            ],
+            "default": "active",
+            "example": "active"
+          }
+        },
+        "x-openregister-relations": {
+          "meeting": {
+            "register": "decidesk",
+            "schema": "Meeting",
+            "cardinality": "one-to-one"
+          }
+        }
       },
       "DigitalDocument": {
         "slug": "digital-document",

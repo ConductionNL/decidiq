@@ -88,6 +88,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <job>OCA\Decidesk\BackgroundJob\VotingDeadlineReminderJob</job>
         <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
         <job>OCA\Decidesk\BackgroundJob\ConsultationAutoCloseJob</job>
+        <!-- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md -->
+        <job>OCA\Decidesk\BackgroundJob\TranscriptRetentionJob</job>
     </background-jobs>
 
     <repair-steps>

@@ -297,6 +297,13 @@
 						"order": 35
 					},
 					{
+						"id": "retention",
+						"label": "Recording retention",
+						"icon": "icon-sound",
+						"component": "GovernanceBodyRetentionTab",
+						"order": 37
+					},
+					{
 						"id": "audit",
 						"label": "Audit trail",
 						"icon": "icon-history",
@@ -393,6 +400,13 @@
 						"icon": "icon-file",
 						"component": "MeetingMinutesTab",
 						"order": 40
+					},
+					{
+						"id": "transcription",
+						"label": "Transcription",
+						"icon": "icon-sound",
+						"component": "MeetingTranscriptionTab",
+						"order": 45
 					},
 					{
 						"id": "decisions",
