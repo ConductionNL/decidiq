@@ -4,7 +4,7 @@ This file contains delta specifications for the publish-decisions-via-opencatalo
 
 **Entities (existing):** Decision (`schema:ChooseAction`, ORI `Besluit`), Meeting (`schema:Event`, ORI `Vergadering`), AgendaItem (`schema:ListItem`, ORI `AgendaPunt`), Minutes (`schema:CreativeWork`, ORI `Verslag`)
 **Entities (new):** PublicationRecord (`schema:PublicationEvent`)
-**Conventions:** storage/RBAC/notifications via OpenRegister (ADR-031 dialect); publication via OpenCatalogi / OR published-predicate; no app-local public pages (same posture as citizen-participation)
+**Conventions:** storage/RBAC/notifications via OpenRegister (ADR-031 dialect); publication via OpenCatalogi / the OR RBAC published-predicate (`publicatiedatum` + public-group `authorization.read`); no app-local public pages (same posture as citizen-participation)
 
 ---
 
@@ -49,7 +49,7 @@ The system SHALL allow publication only of: `Decision` objects in status `decide
 
 ### Requirement: Derived publication payloads with PII stripping
 
-Publication SHALL create a derived, immutable payload object per publish action — never set `@self.published` on the live `Decision`/`Meeting`/`Minutes` objects. Payloads SHALL be constructed allow-list style (field-by-field): decision payloads carry title, decision text, outcome, decisionDate, legalBasis, body name, and vote totals only; agenda payloads carry meeting metadata and the ordered agenda items with confidential items and their document references stripped; minutes payloads carry the approved content version with attendance rendered per the body's configured policy (counts, or names of role-holders). No payload SHALL contain individual votes, voter identities, NC UIDs, or contact details.
+Publication SHALL create a derived, immutable payload object per publish action — never set the publication predicate (`publicatiedatum`) on the live `Decision`/`Meeting`/`Minutes` objects. Payloads SHALL be constructed allow-list style (field-by-field): decision payloads carry title, decision text, outcome, decisionDate, legalBasis, body name, and vote totals only; agenda payloads carry meeting metadata and the ordered agenda items with confidential items and their document references stripped; minutes payloads carry the approved content version with attendance rendered per the body's configured policy (counts, or names of role-holders). No payload SHALL contain individual votes, voter identities, NC UIDs, or contact details.
 
 #### Scenario: Decision payload carries totals, not voters
 
@@ -73,21 +73,21 @@ Publication SHALL create a derived, immutable payload object per publish action 
 
 ---
 
-### Requirement: Publication via the OR published-predicate and OpenCatalogi routing
+### Requirement: Publication via the OR RBAC published-predicate and OpenCatalogi routing
 
-On publish, the system SHALL set `@self.published` on the payload object via the OpenRegister object API, making it readable through OR's anonymous published-predicate surface. When OpenCatalogi is installed and a target catalog is configured for the governance body, the payload SHALL additionally be routed into that catalog as a publication, and the catalog publication reference SHALL be stored on the `PublicationRecord`. When OpenCatalogi is absent or unconfigured, the predicate step SHALL still run, the catalog step SHALL be skipped, and a staff-visible warning SHALL be shown. The system SHALL NOT serve app-local anonymous pages or unauthenticated read endpoints for published governance data.
+On publish, the system SHALL set `publicatiedatum` on the payload object via the OpenRegister object API (a normal field write on a register-owned object). The PublicationPayload schema SHALL declare an `authorization.read` rule granting the `public` group read access while `publicatiedatum <= $now`, so the published payload becomes readable through OR's anonymous RBAC published-predicate surface. When OpenCatalogi is installed and a target catalog is configured for the governance body, the payload SHALL additionally be routed into that catalog as a publication, and the catalog publication reference SHALL be stored on the `PublicationRecord`. When OpenCatalogi is absent or unconfigured, the predicate step SHALL still run, the catalog step SHALL be skipped, and a staff-visible warning SHALL be shown. The system SHALL NOT serve app-local anonymous pages or unauthenticated read endpoints for published governance data. (`@self.published` is deprecated/removed from OpenRegister and SHALL NOT be used.)
 
 #### Scenario: Published decision reaches the configured catalog
 
 - **GIVEN** a governance body with a configured target OpenCatalogi catalog
 - **WHEN** staff publish an enacted decision
-- **THEN** the payload object carries `@self.published` and a publication referencing it exists in the configured catalog
+- **THEN** the payload object carries a `publicatiedatum` in the past (making it public-group readable) and a publication referencing it exists in the configured catalog
 
 #### Scenario: OpenCatalogi absent degrades gracefully
 
 - **GIVEN** OpenCatalogi is not installed
 - **WHEN** staff publish an approved set of minutes
-- **THEN** the payload still receives `@self.published`, the catalog step is skipped, and a staff-visible warning is shown
+- **THEN** the payload still receives `publicatiedatum` (and is anonymously readable via the public-group RBAC rule), the catalog step is skipped, and a staff-visible warning is shown
 
 #### Scenario: No app-local public surface
 
@@ -117,13 +117,13 @@ Publication payloads SHALL carry the OpenRaadsinformatie mappings the decidesk s
 
 ### Requirement: Withdraw and rectify
 
-Staff with governance-body authority SHALL be able to withdraw a publication with a mandatory reason: the payload's `@self.published` is cleared, the OpenCatalogi publication is retracted when one exists, the source object's published state is reset, and actor, reason, and timestamp are recorded on the `PublicationRecord` and in the source object's audit trail. The withdrawn payload SHALL be soft-retained for audit. Rectification SHALL publish a new payload version that references the version it rectifies (`rectifiesVersion`) and withdraw the old version in the same operation — published payloads are never edited in place. When retraction from the catalog fails, the system SHALL surface the failure to staff and retry rather than report success.
+Staff with governance-body authority SHALL be able to withdraw a publication with a mandatory reason: the payload's `depublicatiedatum` is set (removing it from the public-group RBAC surface), the OpenCatalogi publication is retracted when one exists, the source object's published state is reset, and actor, reason, and timestamp are recorded on the `PublicationRecord` and in the source object's audit trail. The withdrawn payload SHALL be soft-retained for audit. Rectification SHALL publish a new payload version that references the version it rectifies (`rectifiesVersion`) and withdraw the old version in the same operation — published payloads are never edited in place. When retraction from the catalog fails, the system SHALL surface the failure to staff and retry rather than report success.
 
 #### Scenario: Withdraw a published decision
 
 - **GIVEN** a published decision and a staff member with governance-body authority
 - **WHEN** they withdraw the publication with a reason
-- **THEN** the payload no longer carries `@self.published`, the catalog publication is retracted, the decision's `isPublished` becomes false, and the audit trail records actor, reason, and timestamp
+- **THEN** the payload carries a `depublicatiedatum` in the past (so the public-group RBAC rule no longer returns it), the catalog publication is retracted, the decision's `isPublished` becomes false, and the audit trail records actor, reason, and timestamp
 
 #### Scenario: Rectify a publication
 

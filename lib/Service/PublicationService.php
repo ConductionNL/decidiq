@@ -50,14 +50,14 @@ class PublicationService
     /**
      * Constructor.
      *
-     * @param ContainerInterface             $container        DI container (lazy ObjectService).
-     * @param LoggerInterface                $logger           Logger.
-     * @param IAppManager                    $appManager       Detects OpenCatalogi presence.
-     * @param PublicationEligibilityService  $eligibility      Eligibility + deny-list gates.
-     * @param PublicationPayloadService      $payloadService   Allow-list payload builder.
-     * @param PublicationConfigService       $configService    Per-body publication config.
-     * @param OpenCatalogiPublisher          $catalogPublisher OpenCatalogi catalog routing.
-     * @param AuditLogService                $auditLogService  Immutable audit trail.
+     * @param ContainerInterface            $container        DI container (lazy ObjectService).
+     * @param LoggerInterface               $logger           Logger.
+     * @param IAppManager                   $appManager       Detects OpenCatalogi presence.
+     * @param PublicationEligibilityService $eligibility      Eligibility + deny-list gates.
+     * @param PublicationPayloadService     $payloadService   Allow-list payload builder.
+     * @param PublicationConfigService      $configService    Per-body publication config.
+     * @param OpenCatalogiPublisher         $catalogPublisher OpenCatalogi catalog routing.
+     * @param AuditLogService               $auditLogService  Immutable audit trail.
      *
      * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
      */
@@ -93,7 +93,7 @@ class PublicationService
     public function publish(string $sourceType, string $sourceId, string $actorId): array
     {
         $source = $this->eligibility->assertEligible($sourceType, $sourceId);
-        $bodyId = $this->resolveBodyId($sourceType, $source);
+        $bodyId = $this->resolveBodyId(sourceType: $sourceType, source: $source);
 
         $version = 1;
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $version);
@@ -104,7 +104,7 @@ class PublicationService
         // object — written on the standard saveObject path, not a magic predicate.
         $payload['publicatiedatum']   = $this->now();
         $payload['depublicatiedatum'] = null;
-        $payloadId = $this->persistPayload($payload);
+        $payloadId = $this->persistPayload(payload: $payload);
 
         $warnings = [];
 
@@ -124,7 +124,7 @@ class PublicationService
             $warnings[] = 'opencatalogi-absent';
         }
 
-        $record = [
+        $record       = [
             'sourceType'              => $sourceType,
             'sourceObject'            => $sourceId,
             'sourceTitle'             => (string) ($source['title'] ?? ''),
@@ -139,11 +139,16 @@ class PublicationService
             'publishedBy'             => $actorId,
             'publishedAt'             => $this->now(),
         ];
-        $recordId = $this->persistRecord($record);
+        $recordId     = $this->persistRecord(record: $record);
         $record['id'] = $recordId;
 
-        $this->markSourcePublished($sourceType, $sourceId, $source, true);
-        $this->audit($actorId, 'publish', [$sourceId, $payloadId], ['sourceType' => $sourceType, 'payloadVersion' => $version]);
+        $this->markSourcePublished(sourceType: $sourceType, sourceId: $sourceId, source: $source, published: true);
+        $this->audit(
+            actorId: $actorId,
+            action: 'publish',
+            objectUids: [$sourceId, $payloadId],
+            payload: ['sourceType' => $sourceType, 'payloadVersion' => $version]
+        );
 
         return [
             'record'   => $record,
@@ -178,7 +183,7 @@ class PublicationService
             throw new \InvalidArgumentException('A withdraw reason is required.');
         }
 
-        $record = $this->loadRecord($recordId);
+        $record = $this->loadRecord(recordId: $recordId);
 
         $warnings = [];
 
@@ -186,10 +191,10 @@ class PublicationService
         // rule stops returning it (publicatiedatum <= $now is no longer the only
         // gate once depublicatiedatum is in the past) — the data stops being
         // anonymously readable even if the remote retraction fails.
-        $this->setDepublicationDate((string) $record['payloadObject']);
+        $this->setDepublicationDate(payloadId: (string) $record['payloadObject']);
 
         $catalogRetractionStatus = 'none';
-        $catalogRef              = (string) ($record['catalogPublication'] ?? '');
+        $catalogRef = (string) ($record['catalogPublication'] ?? '');
         if ($catalogRef !== '') {
             $retracted = $this->catalogPublisher->retract((string) ($record['targetCatalog'] ?? ''), $catalogRef);
             if ($retracted === true) {
@@ -197,19 +202,29 @@ class PublicationService
             } else {
                 // Surface the failure and mark pending — never report success.
                 $catalogRetractionStatus = 'pending';
-                $warnings[]              = 'catalog-retraction-failed';
+                $warnings[] = 'catalog-retraction-failed';
             }
         }
 
-        $record['status']                  = 'withdrawn';
-        $record['withdrawnBy']             = $actorId;
-        $record['withdrawnAt']             = $this->now();
-        $record['withdrawReason']          = $reason;
+        $record['status']         = 'withdrawn';
+        $record['withdrawnBy']    = $actorId;
+        $record['withdrawnAt']    = $this->now();
+        $record['withdrawReason'] = $reason;
         $record['catalogRetractionStatus'] = $catalogRetractionStatus;
-        $this->persistRecord($record, $recordId);
+        $this->persistRecord(record: $record, uuid: $recordId);
 
-        $this->markSourcePublished((string) $record['sourceType'], (string) $record['sourceObject'], null, false);
-        $this->audit($actorId, 'withdraw', [(string) $record['sourceObject'], (string) $record['payloadObject']], ['reason' => $reason]);
+        $this->markSourcePublished(
+            sourceType: (string) $record['sourceType'],
+            sourceId: (string) $record['sourceObject'],
+            source: null,
+            published: false
+        );
+        $this->audit(
+            actorId: $actorId,
+            action: 'withdraw',
+            objectUids: [(string) $record['sourceObject'], (string) $record['payloadObject']],
+            payload: ['reason' => $reason]
+        );
 
         return [
             'record'   => $record,
@@ -234,19 +249,19 @@ class PublicationService
      */
     public function rectify(string $recordId, string $actorId, string $reason): array
     {
-        $prior      = $this->loadRecord($recordId);
+        $prior      = $this->loadRecord(recordId: $recordId);
         $sourceType = (string) $prior['sourceType'];
         $sourceId   = (string) $prior['sourceObject'];
         $newVersion = ((int) ($prior['payloadVersion'] ?? 1) + 1);
 
         // Re-validate eligibility for the corrected source state.
         $source = $this->eligibility->assertEligible($sourceType, $sourceId);
-        $bodyId = $this->resolveBodyId($sourceType, $source);
+        $bodyId = $this->resolveBodyId(sourceType: $sourceType, source: $source);
 
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
         $payload['publicatiedatum']   = $this->now();
         $payload['depublicatiedatum'] = null;
-        $payloadId = $this->persistPayload($payload);
+        $payloadId = $this->persistPayload(payload: $payload);
 
         $warnings = [];
 
@@ -261,7 +276,7 @@ class PublicationService
             $warnings[] = 'opencatalogi-absent';
         }
 
-        $newRecord = [
+        $newRecord       = [
             'sourceType'              => $sourceType,
             'sourceObject'            => $sourceId,
             'sourceTitle'             => (string) ($source['title'] ?? ($prior['sourceTitle'] ?? '')),
@@ -277,7 +292,7 @@ class PublicationService
             'publishedBy'             => $actorId,
             'publishedAt'             => $this->now(),
         ];
-        $newRecordId = $this->persistRecord($newRecord);
+        $newRecordId     = $this->persistRecord(record: $newRecord);
         $newRecord['id'] = $newRecordId;
 
         // Withdraw the prior version in the same operation.
@@ -286,11 +301,15 @@ class PublicationService
             $withdrawReason = 'Superseded by rectified version '.$newVersion;
         }
 
-        $withdrawResult = $this->withdraw($recordId, $actorId, $withdrawReason);
+        $withdrawResult = $this->withdraw(recordId: $recordId, actorId: $actorId, reason: $withdrawReason);
         $warnings       = array_values(array_unique(array_merge($warnings, $withdrawResult['warnings'])));
 
-        $this->markSourcePublished($sourceType, $sourceId, $source, true);
-        $this->audit($actorId, 'rectify', [$sourceId, $payloadId], ['rectifiesVersion' => (int) ($prior['payloadVersion'] ?? 1), 'newVersion' => $newVersion]);
+        $this->markSourcePublished(sourceType: $sourceType, sourceId: $sourceId, source: $source, published: true);
+        $rectifyDetail = [
+            'rectifiesVersion' => (int) ($prior['payloadVersion'] ?? 1),
+            'newVersion'       => $newVersion,
+        ];
+        $this->audit(actorId: $actorId, action: 'rectify', objectUids: [$sourceId, $payloadId], payload: $rectifyDetail);
 
         return [
             'record'   => $newRecord,
@@ -323,7 +342,7 @@ class PublicationService
                 return;
             }
 
-            $data                      = $entity->jsonSerialize();
+            $data = $entity->jsonSerialize();
             $data['depublicatiedatum'] = $this->now();
 
             $objectService->saveObject(
@@ -352,7 +371,7 @@ class PublicationService
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         $saved         = $objectService->saveObject(object: $payload, register: 'decidesk', schema: 'publication-payload');
 
-        return $this->extractId($saved);
+        return $this->extractId(saved: $saved);
 
     }//end persistPayload()
 
@@ -376,7 +395,7 @@ class PublicationService
 
         $saved = $objectService->saveObject(object: $record, register: 'decidesk', schema: 'publication-record');
 
-        return $this->extractId($saved);
+        return $this->extractId(saved: $saved);
 
     }//end persistRecord()
 
@@ -396,7 +415,7 @@ class PublicationService
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         $entity        = $objectService->find(id: $recordId, register: 'decidesk', schema: 'publication-record');
         if ($entity === null) {
-            throw new MissingObjectException('Publication record not found: '.$recordId);
+            throw new MissingObjectException(message: 'Publication record not found: '.$recordId);
         }
 
         return $entity->jsonSerialize();
@@ -434,8 +453,15 @@ class PublicationService
                 $source = $entity->jsonSerialize();
             }
 
-            $source['isPublished'] = ($published === true) ? 'public' : 'internal';
-            $source['publishedAt'] = ($published === true) ? $this->now() : null;
+            $publishedAt = null;
+            $isPublished = 'internal';
+            if ($published === true) {
+                $isPublished = 'public';
+                $publishedAt = $this->now();
+            }
+
+            $source['isPublished'] = $isPublished;
+            $source['publishedAt'] = $publishedAt;
 
             $objectService->saveObject(object: $source, register: 'decidesk', schema: 'decision', uuid: $sourceId);
         } catch (\Throwable $e) {

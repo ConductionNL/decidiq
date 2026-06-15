@@ -38,11 +38,11 @@ The voting-system spec already owns tally calculation, majority rules, deadline/
 
 When staff transition a consultation to `results-published` (or set `resultsPublished: true` on a budget round):
 
-1. The app writes a **result summary object** (consultation: reaction digest + staff response; budget: ranked proposals + allocation) and sets `@self.published` on it via OR, making it visible to OR's anonymous published-predicate surface.
+1. The app writes a **result summary object** (consultation: reaction digest + staff response; budget: ranked proposals + allocation) and sets `publicatiedatum` on it via OR. The schema declares a public-group `authorization.read` rule matching `publicatiedatum <= $now`, so OR's RBAC engine makes the object readable on the anonymous published-predicate surface.
 2. If OpenCatalogi is installed and a target catalog is configured for the governance body, the summary is routed into that catalog as a publication.
-3. Approved reactions selected for publication get `@self.published` individually (opt-in per reaction by the moderator, never blanket).
+3. Approved reactions selected for publication get `publicatiedatum` individually (opt-in per reaction by the moderator, never blanket); the ConsultationReaction read rule additionally requires `moderationStatus: approved`.
 
-**Known constraint:** magic-mapped objects cannot set `@self.published` through the magic mapper today (OC federation testbed finding) — publication must go through the OR object API path that supports the predicate; this is called out as an implementation task, not silently assumed.
+**Note:** `@self.published` is deprecated and removed from OpenRegister; the live anonymous-publication model is the RBAC `publicatiedatum` predicate above. The earlier "magic-mapped objects cannot set the predicate" framing was a misdiagnosis — these are register-owned objects on the normal RBAC save path, where `publicatiedatum` is just a field written through the standard OR object API.
 
 No decidesk-served anonymous pages or read APIs exist; without OpenCatalogi the predicate step still runs and the catalog step degrades with a staff-visible warning.
 
@@ -57,6 +57,6 @@ Objects live in the decidesk register; staff-vs-citizen authority is OR per-obje
 ## Risks
 
 - **Anonymous intake abuse.** Mitigated by per-consultation opt-in, `#[AnonRateLimit]`, brute-force throttling, payload caps, and mandatory pre-moderation. Residual risk (distributed spam) is accepted; moderators can close intake at any time.
-- **Published-predicate gap on magic-mapped objects.** If the OR API path can't set `@self.published` for these objects in the deployed OR version, publication blocks. Surfaced early via an explicit verification task; fallback is upgrading OR, never an app-local public page.
+- **Published-predicate model.** RESOLVED: anonymous visibility uses the OR RBAC published-predicate — the published schemas declare a public-group `authorization.read` rule matching `publicatiedatum <= $now`, and publication sets `publicatiedatum` (a normal field) via the standard OR object API. The earlier "magic-mapped objects can't set the predicate" risk was a misdiagnosis (these are register-owned objects on the normal RBAC save path; `@self.published` is deprecated/removed). No app-local public page is needed or used.
 - **Enum rename touches existing data.** `summarised` is believed unused in production (feature was never implemented); the declarative migration still maps values defensively.
 - **Vote-count race on tallies.** Tally writes go through the voting machinery's atomic update path (same integrity requirement the voting-system spec already imposes), not read-modify-write in the controller.

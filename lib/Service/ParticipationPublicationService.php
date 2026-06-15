@@ -49,15 +49,14 @@ use Psr\Log\LoggerInterface;
  */
 class ParticipationPublicationService
 {
-
     /**
      * Constructor for ParticipationPublicationService.
      *
-     * @param ContainerInterface     $container       DI container (lazy ObjectService)
-     * @param LoggerInterface        $logger          The logger
-     * @param IAppManager            $appManager      Detects whether OpenCatalogi is installed
-     * @param IAppConfig             $appConfig       Reads the target catalog config
-     * @param BudgetVotingService    $budgetService   Allocation result computation
+     * @param ContainerInterface  $container     DI container (lazy ObjectService)
+     * @param LoggerInterface     $logger        The logger
+     * @param IAppManager         $appManager    Detects whether OpenCatalogi is installed
+     * @param IAppConfig          $appConfig     Reads the target catalog config
+     * @param BudgetVotingService $budgetService Allocation result computation
      *
      * @return void
      *
@@ -113,8 +112,8 @@ class ParticipationPublicationService
      * Build + publish the PII-free summary for a closed consultation.
      *
      * Builds a digest of APPROVED reactions (body only — no submitterId, no
-     * pseudonymous token) plus the staff response, attempts `@self.published`,
-     * and routes to OpenCatalogi when installed.
+     * pseudonymous token) plus the staff response, sets `publicatiedatum` (the
+     * RBAC published predicate), and routes to OpenCatalogi when installed.
      *
      * @param string $consultationId The consultation UUID.
      * @param string $staffResponse  The staff response text included in the summary.
@@ -138,14 +137,14 @@ class ParticipationPublicationService
         $digest = $this->buildReactionDigest(consultationId: $consultationId);
 
         $summary = [
-            'summaryType'  => 'consultation-results',
-            'title'        => (string) ($consultation['title'] ?? 'Consultation results'),
-            'description'  => (string) ($consultation['description'] ?? ''),
+            'summaryType'   => 'consultation-results',
+            'title'         => (string) ($consultation['title'] ?? 'Consultation results'),
+            'description'   => (string) ($consultation['description'] ?? ''),
             'staffResponse' => $staffResponse,
             'reactionCount' => count($digest),
-            'reactions'    => $digest,
-            'sourceId'     => $consultationId,
-            'generatedAt'  => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'reactions'     => $digest,
+            'sourceId'      => $consultationId,
+            'generatedAt'   => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
         ];
 
         return $this->publishSummary(
@@ -180,23 +179,23 @@ class ParticipationPublicationService
             throw new \RuntimeException("ParticipatoryBudget {$budgetId} not found");
         }
 
-        $round       = $entity->jsonSerialize();
-        $allocation  = $this->budgetService->calculateAllocation(budgetId: $budgetId);
+        $round         = $entity->jsonSerialize();
+        $allocation    = $this->budgetService->calculateAllocation(budgetId: $budgetId);
         $participation = 0;
         foreach (($allocation['proposals'] ?? []) as $proposal) {
             $participation += ((int) ($proposal['votesFor'] ?? 0) + (int) ($proposal['votesAgainst'] ?? 0));
         }
 
         $summary = [
-            'summaryType'      => 'budget-results',
-            'title'            => (string) ($round['name'] ?? 'Budget results'),
-            'description'      => (string) ($round['description'] ?? ''),
-            'totalAmount'      => (float) ($round['totalAmount'] ?? 0),
-            'allocatedAmount'  => (float) ($allocation['allocatedAmount'] ?? 0),
+            'summaryType'        => 'budget-results',
+            'title'              => (string) ($round['name'] ?? 'Budget results'),
+            'description'        => (string) ($round['description'] ?? ''),
+            'totalAmount'        => (float) ($round['totalAmount'] ?? 0),
+            'allocatedAmount'    => (float) ($allocation['allocatedAmount'] ?? 0),
             'participationCount' => $participation,
-            'proposals'        => ($allocation['proposals'] ?? []),
-            'sourceId'         => $budgetId,
-            'generatedAt'      => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'proposals'          => ($allocation['proposals'] ?? []),
+            'sourceId'           => $budgetId,
+            'generatedAt'        => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
         ];
 
         // Mark the round as having published results.
@@ -279,13 +278,21 @@ class ParticipationPublicationService
      *
      * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
      */
-    private function publishSummary(array $summary, string $sourceSchema, string $sourceId, ?string $governanceBodyId, ?array $sourceObject=null): array
-    {
+    private function publishSummary(
+        array $summary,
+        string $sourceSchema,
+        string $sourceId,
+        ?string $governanceBodyId,
+        ?array $sourceObject=null
+    ): array {
         $objectService = $this->objectService();
 
         if ($sourceObject === null) {
             $entity       = $objectService->find(id: $sourceId, register: 'decidesk', schema: $sourceSchema);
-            $sourceObject = ($entity !== null) ? $entity->jsonSerialize() : [];
+            $sourceObject = [];
+            if ($entity !== null) {
+                $sourceObject = $entity->jsonSerialize();
+            }
         }
 
         // Attach the PII-free summary and set publicatiedatum so the public-group
@@ -309,12 +316,13 @@ class ParticipationPublicationService
 
         $openCatalogiInstalled = $this->isOpenCatalogiInstalled();
         $openCatalogiRouted    = false;
-        $warning               = null;
+        $warning = null;
 
         if ($openCatalogiInstalled === true) {
             $openCatalogiRouted = $this->routeToOpenCatalogi(summary: $summary, governanceBodyId: $governanceBodyId);
             if ($openCatalogiRouted === false) {
-                $warning = 'OpenCatalogi is installed but no target catalog is configured for this governance body; the summary was not routed to a catalog.';
+                $warning = 'OpenCatalogi is installed but no target catalog is configured for this governance body; '
+                    .'the summary was not routed to a catalog.';
             }
         } else {
             $warning = 'OpenCatalogi is not installed; the catalog routing step was skipped. The summary carries the published predicate only.';
@@ -422,9 +430,9 @@ class ParticipationPublicationService
         try {
             $objectService = $this->objectService();
             $publication   = [
-                'title'       => (string) ($summary['title'] ?? 'Participation results'),
-                'summary'     => (string) ($summary['description'] ?? ''),
-                'catalog'     => $catalogId,
+                'title'           => (string) ($summary['title'] ?? 'Participation results'),
+                'summary'         => (string) ($summary['description'] ?? ''),
+                'catalog'         => $catalogId,
                 'sourceId'        => (string) ($summary['sourceId'] ?? ''),
                 'publishedAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
                 'publicatiedatum' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
@@ -469,5 +477,4 @@ class ParticipationPublicationService
         return null;
 
     }//end resolveGovernanceBodyId()
-
 }//end class

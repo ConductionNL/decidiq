@@ -4383,7 +4383,7 @@
           },
           "resultsSummary": {
             "type": "string",
-            "description": "JSON-encoded, PII-free result summary (ranked proposals + greedy allocation + participation count) attached when results are published; the @self.published predicate is set alongside it. Carries aggregate vote counts only, never voter identities."
+            "description": "JSON-encoded, PII-free result summary (ranked proposals + greedy allocation + participation count) attached when results are published; publicatiedatum is set alongside it so the public-group RBAC rule makes the object anonymously readable. Carries aggregate vote counts only, never voter identities."
           }
         },
         "x-openregister-relations": {
@@ -4637,7 +4637,7 @@
           },
           "resultsSummary": {
             "type": "string",
-            "description": "JSON-encoded, PII-free result summary (approved-reaction digest + staff response) attached when results are published; the @self.published predicate is set alongside it."
+            "description": "JSON-encoded, PII-free result summary (approved-reaction digest + staff response) attached when results are published; publicatiedatum is set alongside it so the public-group RBAC rule makes the object anonymously readable."
           }
         },
         "x-openregister-relations": {
@@ -5442,7 +5442,7 @@
         "icon": "BullhornOutline",
         "version": "0.1.0",
         "title": "PublicationRecord",
-        "description": "Bookkeeping record for a single public-publication action (publish-decisions-via-opencatalogi). Tracks which source governance object was published, the derived immutable payload object that received @self.published, the OpenCatalogi catalog publication reference, and the withdraw/rectify lifecycle. Anonymous read of published data happens exclusively through OR's published-predicate / OpenCatalogi — NOT through any app-local route. Maps schema:PublicationEvent.",
+        "description": "Bookkeeping record for a single public-publication action (publish-decisions-via-opencatalogi). Tracks which source governance object was published, the derived immutable payload object that received publicatiedatum, the OpenCatalogi catalog publication reference, and the withdraw/rectify lifecycle. Anonymous read of published data happens exclusively through OR's RBAC published-predicate (public-group authorization.read matching publicatiedatum <= $now) / OpenCatalogi — NOT through any app-local route. Maps schema:PublicationEvent.",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:PublicationEvent",
@@ -5489,7 +5489,7 @@
           },
           "payloadObject": {
             "type": "string",
-            "description": "UUID of the derived immutable PublicationPayload object that carries @self.published. Never the live source object.",
+            "description": "UUID of the derived immutable PublicationPayload object that carries publicatiedatum. Never the live source object.",
             "example": "f1e2d3c4-b5a6-9870-fedc-ba0987654321"
           },
           "payloadVersion": {
