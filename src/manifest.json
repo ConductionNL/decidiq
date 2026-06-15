@@ -34,13 +34,6 @@
 			"order": 40
 		},
 		{
-			"id": "Motions",
-			"label": "Motions",
-			"icon": "icon-comment",
-			"route": "Motions",
-			"order": 50
-		},
-		{
 			"id": "GovernanceBodies",
 			"label": "Bodies",
 			"icon": "icon-group",
@@ -934,6 +927,23 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
+				"quickFilters": [
+					{
+						"label": "Decisions",
+						"filter": {},
+						"default": true
+					},
+					{
+						"label": "Motions",
+						"icon": "icon-comment",
+						"filter": {
+							"decisionType": "motion"
+						},
+						"page": "Motions",
+						"route": "Motions"
+					}
+				],
+				"_motionsFilterNote": "REQ-RMN-003 — Motions is one decisionType of the unified Decision supertype (ADR-005), not a sibling concept. This quick-filter surfaces Motions AS a filtered view of Decisions (decisionType=motion, a STORED/queryable field merged server-side into the OpenRegister fetch — no client-side derivation, unlike effectiveStatus per the _inForceFilterNote). The retained Motions index page (pages[] id `Motions`, route /motions) carries the same filter plus motion-specific columns/tabs; the `page`/`route` hints let the strip deep-link there. The standalone top-level Motions menu leaf was retired (REQ-RMN-001) so Motions is reachable through its parent Decisions surface rather than as a peer top-level item.",
 				"columns": [
 					{
 						"key": "title",
