@@ -50,6 +50,11 @@ const TYPE_TO_SETTINGS_KEY = {
 	// governance-body). The mappings are kept explicit for documentation.
 	'decision-stage': 'decisionStageSchema',
 	person: 'personSchema',
+	// publish-decisions-via-opencatalogi: the publication overview + detail
+	// actions read PublicationRecord objects via the OR object API. No
+	// settings key exists, so this falls back to the literal slug
+	// `publication-record`, matching the schema slug in decidesk_register.json.
+	'publication-record': 'publicationRecordSchema',
 }
 
 /**

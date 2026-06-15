@@ -957,7 +957,7 @@
           },
           "isPublic": {
             "type": "boolean",
-            "description": "Whether this meeting is visible to citizens in the public transparency portal (p3-citizen-participation). When true, the agenda (if published), recordings, and approved minutes become visible to unauthenticated users.",
+            "description": "Staff INTENT flag (publish-decisions-via-opencatalogi): marks that this meeting is intended for public visibility. It is a precondition for AGENDA publication eligibility (true + convocation sent), NOT itself a publication action — anonymous visibility happens only when staff explicitly publish the derived agenda payload via the public-publication flow. When true, the agenda (if published), recordings, and approved minutes become eligible for citizen visibility.",
             "default": false,
             "example": false
           },
@@ -2065,7 +2065,7 @@
           },
           "isPublished": {
             "type": "string",
-            "description": "Publication state controlling citizen visibility (p3-citizen-participation). 'internal' = staff-only; 'public' = visible in transparency portal and ORI API; 'confidential' = restricted access.",
+            "description": "Publication state controlling citizen visibility. FLOW-OWNED (publish-decisions-via-opencatalogi): this field is a DERIVED OUTPUT of the public-publication flow — set to 'public' on publish, reset to 'internal' on withdraw — and is REJECTED when written directly through an OR object update outside that flow (PublicationEligibilityService::guardDirectPublicationWrite). 'internal' = staff-only; 'public' = published via the OR published-predicate / OpenCatalogi surface; 'confidential' = restricted access.",
             "enum": [
               "internal",
               "public",
@@ -2077,7 +2077,7 @@
           "publishedAt": {
             "type": "string",
             "format": "date-time",
-            "description": "Publication timestamp"
+            "description": "Publication timestamp. FLOW-OWNED (publish-decisions-via-opencatalogi): stamped by the publication flow on publish and cleared on withdraw; rejected on direct client writes alongside isPublished."
           },
           "legalBasis": {
             "type": "string",
@@ -5314,6 +5314,342 @@
             "declarationTimestamp": "2025-09-18T09:05:00Z"
           }
         ]
+      },
+      "PublicationRecord": {
+        "x-openregister-notifications": {
+          "publicationCreated": {
+            "trigger": {
+              "type": "created"
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Publicatie gepubliceerd: {{sourceTitle}}",
+              "en": "Publication published: {{sourceTitle}}"
+            }
+          },
+          "publicationUpdated": {
+            "trigger": {
+              "type": "updated"
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Publicatie bijgewerkt (intrekking/rectificatie): {{sourceTitle}}",
+              "en": "Publication updated (withdraw/rectify): {{sourceTitle}}"
+            }
+          }
+        },
+        "slug": "publication-record",
+        "icon": "BullhornOutline",
+        "version": "0.1.0",
+        "title": "PublicationRecord",
+        "description": "Bookkeeping record for a single public-publication action (publish-decisions-via-opencatalogi). Tracks which source governance object was published, the derived immutable payload object that received @self.published, the OpenCatalogi catalog publication reference, and the withdraw/rectify lifecycle. Anonymous read of published data happens exclusively through OR's published-predicate / OpenCatalogi — NOT through any app-local route. Maps schema:PublicationEvent.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:PublicationEvent",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "sourceType",
+          "sourceObject",
+          "payloadObject",
+          "payloadVersion",
+          "oriType",
+          "publishedBy",
+          "publishedAt",
+          "status"
+        ],
+        "properties": {
+          "sourceType": {
+            "type": "string",
+            "description": "The kind of governance output published.",
+            "enum": [
+              "decision",
+              "agenda",
+              "minutes"
+            ],
+            "example": "decision"
+          },
+          "sourceObject": {
+            "type": "string",
+            "description": "UUID of the live source object (Decision / Meeting / Minutes) this publication derives from.",
+            "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          },
+          "sourceTitle": {
+            "type": "string",
+            "description": "Denormalised title of the source object for notification templating and the published overview list.",
+            "example": "Vaststelling Programmabegroting 2026"
+          },
+          "governanceBody": {
+            "type": "string",
+            "description": "UUID of the GovernanceBody the source belongs to. Drives the per-body target catalog and policy lookup.",
+            "example": "gemeenteraad-amsterdam"
+          },
+          "payloadObject": {
+            "type": "string",
+            "description": "UUID of the derived immutable PublicationPayload object that carries @self.published. Never the live source object.",
+            "example": "f1e2d3c4-b5a6-9870-fedc-ba0987654321"
+          },
+          "payloadVersion": {
+            "type": "integer",
+            "description": "Monotonic payload version. Incremented on rectify; never edited in place.",
+            "default": 1,
+            "example": 1
+          },
+          "oriType": {
+            "type": "string",
+            "description": "OpenRaadsinformatie record type of the payload.",
+            "enum": [
+              "Besluit",
+              "Vergadering",
+              "Verslag"
+            ],
+            "example": "Besluit"
+          },
+          "catalogPublication": {
+            "type": "string",
+            "description": "Reference (UUID/URI) of the OpenCatalogi publication object created for this payload, when OpenCatalogi is installed and a target catalog is configured. Empty when degraded.",
+            "example": ""
+          },
+          "targetCatalog": {
+            "type": "string",
+            "description": "The OpenCatalogi catalog the payload was routed into for the governance body.",
+            "example": "openbesluitvorming-amsterdam"
+          },
+          "status": {
+            "type": "string",
+            "description": "Publication lifecycle status.",
+            "enum": [
+              "published",
+              "withdrawn",
+              "rectified"
+            ],
+            "default": "published",
+            "example": "published"
+          },
+          "catalogRetractionStatus": {
+            "type": "string",
+            "description": "Tracks the OpenCatalogi retraction on withdraw. 'pending' means the local predicate was cleared but the catalog retraction call failed and must be retried — staff see the failure, never a false success.",
+            "enum": [
+              "none",
+              "done",
+              "pending"
+            ],
+            "default": "none",
+            "example": "none"
+          },
+          "publishedBy": {
+            "type": "string",
+            "description": "Nextcloud UID of the staff member who published.",
+            "example": "j.bakker"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Publication timestamp."
+          },
+          "withdrawnBy": {
+            "type": "string",
+            "description": "Nextcloud UID of the staff member who withdrew the publication."
+          },
+          "withdrawnAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Withdraw timestamp."
+          },
+          "withdrawReason": {
+            "type": "string",
+            "description": "Mandatory reason recorded on withdraw (WOO correction duty)."
+          },
+          "rectifiesVersion": {
+            "type": "integer",
+            "description": "When this record is a rectification, the payloadVersion of the prior publication it corrects and supersedes.",
+            "example": 1
+          }
+        },
+        "@self": {
+          "register": "decidesk",
+          "schema": "PublicationRecord"
+        }
+      },
+      "PublicationPayload": {
+        "slug": "publication-payload",
+        "icon": "FileDocumentOutline",
+        "version": "0.1.0",
+        "title": "PublicationPayload",
+        "description": "Derived, immutable public payload (publish-decisions-via-opencatalogi). Constructed ALLOW-LIST style by PublicationPayloadService — one polymorphic shape discriminated by oriType (Besluit / Vergadering / Verslag). Carries OpenRaadsinformatie-mapped fields alongside schema.org annotations so OpenCatalogi/OR public-API consumers receive ORI-compatible data without a bespoke harvester. By construction this schema contains NO UID fields, NO contact details, NO individual vote records, and NO voter identities — decision payloads carry vote TOTALS only, agenda payloads omit confidential items, minutes payloads render attendance per the body's policy. @self.published is set on instances of this schema, never on the live source object.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:CreativeWork",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "oriType",
+          "title"
+        ],
+        "properties": {
+          "oriType": {
+            "type": "string",
+            "description": "OpenRaadsinformatie record type — interprets the payload ORI-compatibly.",
+            "enum": [
+              "Besluit",
+              "Vergadering",
+              "Verslag"
+            ],
+            "example": "Besluit"
+          },
+          "schemaOrgType": {
+            "type": "string",
+            "description": "schema.org annotation matching the ORI type (ChooseAction / Event / CreativeWork).",
+            "example": "ChooseAction"
+          },
+          "title": {
+            "type": "string",
+            "description": "Public title of the published output.",
+            "example": "Vaststelling Programmabegroting 2026"
+          },
+          "bodyName": {
+            "type": "string",
+            "description": "Display name of the governance body (no UID).",
+            "example": "Gemeenteraad Amsterdam"
+          },
+          "payloadVersion": {
+            "type": "integer",
+            "description": "Version of this payload (mirrors the PublicationRecord).",
+            "default": 1,
+            "example": 1
+          },
+          "text": {
+            "type": "string",
+            "description": "Decision text (Besluit). ORI: besluittekst.",
+            "example": "De raad besluit de Programmabegroting 2026 vast te stellen."
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Decision outcome (Besluit). ORI: uitslag.",
+            "example": "adopted"
+          },
+          "decisionDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date the decision was made (Besluit). ORI: besluitdatum."
+          },
+          "legalBasis": {
+            "type": "string",
+            "description": "Legal article or regulation (Besluit). ORI: juridischeGrondslag.",
+            "example": "Gemeentewet art. 189"
+          },
+          "voteTotals": {
+            "type": "object",
+            "description": "Aggregate vote tally ONLY — for/against/abstain counts. NEVER per-member votes or voter identities (Besluit).",
+            "properties": {
+              "for": {
+                "type": "integer",
+                "example": 23
+              },
+              "against": {
+                "type": "integer",
+                "example": 12
+              },
+              "abstain": {
+                "type": "integer",
+                "example": 2
+              }
+            }
+          },
+          "meetingDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Meeting start date (Vergadering). ORI: startdatum."
+          },
+          "meetingType": {
+            "type": "string",
+            "description": "Meeting type (Vergadering).",
+            "example": "regular"
+          },
+          "agendaItems": {
+            "type": "array",
+            "description": "Ordered, non-confidential agenda items (Vergadering → AgendaPunt). Confidential items and their document references are stripped during construction and never appear here.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "oriType": {
+                  "type": "string",
+                  "example": "AgendaPunt"
+                },
+                "order": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "title": {
+                  "type": "string",
+                  "example": "Vaststellen notulen"
+                }
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "description": "Approved minutes content (Verslag). ORI: tekst."
+          },
+          "attendance": {
+            "type": "object",
+            "description": "Attendance rendered per the body's policy (Verslag) — either aggregate counts or names of role-holders only, never NC UIDs or contact details.",
+            "properties": {
+              "policy": {
+                "type": "string",
+                "enum": [
+                  "counts",
+                  "role-holders"
+                ],
+                "example": "counts"
+              },
+              "presentCount": {
+                "type": "integer",
+                "example": 31
+              },
+              "roleHolders": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "@self": {
+          "register": "decidesk",
+          "schema": "PublicationPayload"
+        }
       }
     }
   }

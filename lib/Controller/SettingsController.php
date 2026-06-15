@@ -53,6 +53,7 @@ class SettingsController extends Controller
         IRequest $request,
         private SettingsService $settingsService,
         private IUserSession $userSession,
+        private \OCA\Decidesk\Service\PublicationConfigService $publicationConfigService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -125,4 +126,46 @@ class SettingsController extends Controller
 
         return new JSONResponse($result);
     }//end load()
+
+    /**
+     * Read the per-governance-body publication configuration.
+     *
+     * Returned to authenticated staff so the publish/withdraw UI can resolve
+     * each body's target catalog and policy. Read-only; safe for any authed user.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return JSONResponse
+     */
+    #[NoAdminRequired]
+    public function getPublicationConfig(): JSONResponse
+    {
+        if ($this->userSession->getUser() === null) {
+            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        return new JSONResponse(['config' => $this->publicationConfigService->getAll()]);
+    }//end getPublicationConfig()
+
+    /**
+     * Persist the per-governance-body publication configuration.
+     *
+     * Admin-only via the AuthorizedAdminSetting attribute. Body: { config: { <bodyId>: { catalog, policy, attendance } } }.
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     *
+     * @return JSONResponse
+     */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
+    public function setPublicationConfig(): JSONResponse
+    {
+        $config = $this->request->getParam('config', []);
+        if (is_array($config) === false) {
+            $config = [];
+        }
+
+        $saved = $this->publicationConfigService->save($config);
+
+        return new JSONResponse(['success' => true, 'config' => $saved]);
+    }//end setPublicationConfig()
 }//end class

@@ -76,6 +76,22 @@ class ObjectService
 
 
     /**
+     * Delete an object using named-parameter API.
+     *
+     * @param string|null     $uuid     Object UUID.
+     * @param string|int|null $register Register slug or ID.
+     * @param string|int|null $schema   Schema slug or ID.
+     *
+     * @return bool
+     */
+    public function deleteObject(?string $uuid=null, string|int|null $register=null, string|int|null $schema=null): bool
+    {
+        return true;
+
+    }//end deleteObject()
+
+
+    /**
      * Set the active register context.
      *
      * @param string $register Register slug.

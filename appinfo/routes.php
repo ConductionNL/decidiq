@@ -10,6 +10,17 @@ return [
         ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
         ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
 
+        // Publication configuration (publish-decisions-via-opencatalogi).
+        // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+        ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
+        ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
+
+        // Publication action endpoints — publish/withdraw/rectify ONLY (ADR-022; CRUD stays on OR object API).
+        // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+        ['name' => 'publication#publish',  'url' => '/api/publications',                     'verb' => 'POST'],
+        ['name' => 'publication#withdraw', 'url' => '/api/publications/{recordId}/withdraw', 'verb' => 'POST'],
+        ['name' => 'publication#rectify',  'url' => '/api/publications/{recordId}/rectify',  'verb' => 'POST'],
+
         // Process template management (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/process-configuration/spec.md
         ['name' => 'processTemplate#index',     'url' => '/api/process-templates',                  'verb' => 'GET'],

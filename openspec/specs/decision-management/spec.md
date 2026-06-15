@@ -182,12 +182,14 @@ The `decision` schema SHALL carry a required `decisionType` enum discriminator w
 
 #### Scenario: Create a decision with a required type
 
+@e2e exclude validation contract — covered by PHPUnit/Newman on the required-field rule, not a distinct UI flow
 - **GIVEN** a user with decision-making access creating a decision
 - **WHEN** they submit a decision without selecting a `decisionType`
 - **THEN** the system MUST reject the create with a validation error naming `decisionType` as required
 
 #### Scenario: A typed nav filter is the same store
 
+@e2e exclude store-sourcing invariant — covered by the unified-store filter test; not browser-observable beyond the list already exercised
 - **GIVEN** decisions exist with `decisionType` values `motion` and `resolution`
 - **WHEN** the user opens the "Moties" nav entry
 - **THEN** the decision register list is shown pre-filtered to `decisionType=motion`, sourced from the same `decision` store as all other decisions
@@ -200,18 +202,21 @@ The `decision` schema SHALL absorb the type-specific fields formerly carried by 
 
 #### Scenario: Motion fields appear only for a motion decision
 
+@e2e exclude progressive-disclosure UI binding — covered by vitest on the form's conditional field rendering
 - **GIVEN** a user creating a decision
 - **WHEN** they select `decisionType = motion`
 - **THEN** the form reveals the `proposer`, `coSigners`, and `motionType` fields, and these fields are hidden when `decisionType` is `meeting-outcome`
 
 #### Scenario: Type-specific required field is enforced
 
+@e2e exclude validation contract — covered by PHPUnit/Newman on the type-keyed required-field rule
 - **GIVEN** a user creating a decision with `decisionType = resolution`
 - **WHEN** they submit without `resolutionNumber` or `voteThreshold`
 - **THEN** the create is rejected with a validation error naming the missing resolution fields
 
 #### Scenario: Amendment links to its parent decision
 
+@e2e exclude relation-storage contract — covered by PHPUnit/Newman on the OpenRegister `amends` relation
 - **GIVEN** an existing `decisionType = motion` decision
 - **WHEN** a user creates a `decisionType = amendment` decision and sets its `amends` relation to that motion decision
 - **THEN** the amendment decision is stored with an OpenRegister relation to the parent motion decision
@@ -224,18 +229,21 @@ The decision lifecycle SHALL be declared as an `x-openregister-lifecycle` block 
 
 #### Scenario: Lifecycle is declared in the register
 
+@e2e exclude register-structure invariant — verified by register-import + PHPUnit on the `x-openregister-lifecycle` block, not browser-observable
 - **GIVEN** the decidesk register definition
 - **WHEN** the `decision` schema is inspected
 - **THEN** it contains an `x-openregister-lifecycle` block declaring the guarded transition map including the `withdrawn` terminal state
 
 #### Scenario: A decision can be withdrawn before enactment
 
+@e2e exclude declarative-lifecycle transition contract — covered by PHPUnit/Newman on the declared transition map
 - **GIVEN** a decision in lifecycle `deliberating`
 - **WHEN** an authorised user withdraws it
 - **THEN** the decision transitions to `withdrawn` and no further forward transition is permitted
 
 #### Scenario: A guarded transition is rejected
 
+@e2e exclude declarative-lifecycle guard contract — covered by PHPUnit/Newman (rejected illegal transition); UI only offers server-allowed actions
 - **GIVEN** a decision in lifecycle `draft`
 - **WHEN** a transition directly to `enacted` is attempted
 - **THEN** the transition is rejected by the declared lifecycle guard and the status remains `draft`
@@ -248,12 +256,14 @@ A `decisionType = contract` decision SHALL be able to carry `offer`, `order`, an
 
 #### Scenario: Attach an offer to a contract decision
 
+@e2e exclude relation-storage contract — covered by PHPUnit/Newman on the `offer` OpenRegister relation
 - **GIVEN** a `decisionType = contract` decision
 - **WHEN** an `offer` object is related to it
 - **THEN** the offer is stored as an OpenRegister relation on the contract decision and appears in the decision's attachments
 
 #### Scenario: Procurement schemas are not orphaned nav items
 
+@e2e exclude navigation-structure invariant — verified by manifest/nav assertion, not a distinct UI flow
 - **GIVEN** the decidesk navigation
 - **WHEN** the nav is rendered
 - **THEN** `offer`, `order`, and `product` do not appear as standalone top-level stores; they are reached through contract decisions
@@ -266,12 +276,14 @@ The shipped demo data SHALL include at least one `decision` seed object per `dec
 
 #### Scenario: Every decision type has a seed
 
+@e2e exclude seed-data invariant — verified by register-import + PHPUnit over the seeded objects, not browser-observable
 - **GIVEN** a freshly installed decidesk register
 - **WHEN** the decision register is listed
 - **THEN** at least one decision exists for each `decisionType` value (`motion`, `amendment`, `resolution`, `contract`, `appointment`, `management-point`, `policy`, `meeting-outcome`)
 
 #### Scenario: Migrated amendment seed links to its motion
 
+@e2e exclude seed-data relation invariant — verified by register-import + PHPUnit on the seeded `amends` relation
 - **GIVEN** the re-seeded demo data
 - **WHEN** a `decisionType = amendment` seed (e.g. `amendement-cultuursubsidie`) is inspected
 - **THEN** it carries an `amends` relation to a `decisionType = motion` decision
@@ -282,12 +294,14 @@ The `Decision` schema SHALL support a `route` relation to `DecisionStage` object
 
 #### Scenario: A decision exposes its route
 
+@e2e exclude relation-resolution contract — covered by PHPUnit/Newman on the `route`→stages resolution
 - **GIVEN** a Decision with three related DecisionStage objects
 - **WHEN** the decision is loaded
 - **THEN** its `route` resolves to the stages in `sequence` order without altering the decision's `lifecycle`
 
 #### Scenario: Existing single-body decisions are unaffected
 
+@e2e exclude backward-compatibility invariant — covered by PHPUnit on empty-route behaviour, not browser-observable
 - **GIVEN** a Decision created before this change with no stages
 - **WHEN** it is loaded
 - **THEN** its `route` is empty and every existing field and lifecycle transition behaves exactly as before
@@ -310,6 +324,7 @@ The `Decision` schema SHALL support typed modification relations to other decisi
 
 #### Scenario: Declare that a decision supersedes another
 
+@e2e exclude relation-storage + audit contract — covered by PHPUnit/Newman on the stored `supersedes` relation and dual audit entries
 - **GIVEN** a staff member with governance-body authority editing decision "Programmabegroting 2027"
 - **WHEN** they add a `supersedes` relation to the enacted decision "Programmabegroting 2026"
 - **THEN** the relation is stored on "Programmabegroting 2027", and both decisions' audit trails record the relation with actor and timestamp
@@ -335,6 +350,7 @@ The system SHALL validate relations at write time: self-references SHALL be reje
 
 #### Scenario: Self-reference rejected
 
+@e2e exclude relation-validation contract — covered by PHPUnit on the self-reference guard
 - **WHEN** a user attempts to add any relation from a decision to itself
 - **THEN** the relation is rejected with a validation error and nothing is stored
 
@@ -347,6 +363,7 @@ The system SHALL validate relations at write time: self-references SHALL be reje
 
 #### Scenario: Draft relation exerts no effect yet
 
+@e2e exclude derived effective-status contract — covered by PHPUnit on the read-time derivation gated by source status
 - **GIVEN** a decision in status `draft` carrying a `repeals` relation to an enacted decision
 - **WHEN** the target decision is displayed
 - **THEN** the target still presents as in force, and only when the source reaches `decided`/`enacted` does the target's effective status become `repealed`
@@ -359,6 +376,7 @@ The system SHALL compute an `effectiveStatus` for every decision, derived at rea
 
 #### Scenario: Enacted supersession flips effective status
 
+@e2e exclude derived effective-status contract — covered by PHPUnit on the read-time derivation (lifecycle + audit unchanged)
 - **GIVEN** enacted decision "Programmabegroting 2026" and decision "Programmabegroting 2027" carrying `supersedes` → "Programmabegroting 2026"
 - **WHEN** "Programmabegroting 2027" is enacted
 - **THEN** "Programmabegroting 2026" presents effectiveStatus `superseded` while its lifecycle status remains `enacted` and its audit trail is unchanged
@@ -384,15 +402,39 @@ The decision list SHALL offer an in-force filter exposing the values `in force`,
 
 #### Scenario: Filter the register to decisions in force
 
+@e2e exclude effective-status filter contract — covered by PHPUnit/Newman on the in-force filter over derived status
 - **GIVEN** a register containing enacted, superseded, and repealed decisions
 - **WHEN** the user filters the decision list by `in force`
 - **THEN** superseded and repealed decisions are excluded from the results and the result count reflects only decisions in force
 
 #### Scenario: Superseded banner with chain navigation
 
+@e2e exclude detail-view derived-banner binding — covered by vitest on the banner component fed the derived effectiveStatus
 - **GIVEN** a decision whose effectiveStatus is `superseded` by "Programmabegroting 2027"
 - **WHEN** the user opens its detail view
 - **THEN** a banner states it is superseded by "Programmabegroting 2027" with its date, activating the banner navigates to "Programmabegroting 2027", and the original lifecycle badge remains visible
+
+### Requirement: Publication state is owned by the publication flow
+
+The `Decision` fields `isPublished` and `publishedAt` SHALL be derived outputs of the public-publication flow: set on publish, cleared on withdraw, and rejected when written directly through object update requests. The decision detail view SHALL expose publish and withdraw actions to staff with governance-body authority, visible only when the decision meets the publication eligibility gates. Publish and withdraw events SHALL be recorded in the decision's immutable audit trail with actor, timestamp, and (for withdraw) reason.
+
+#### Scenario: Publish action visible only when eligible
+
+- **GIVEN** a staff member viewing a decision in status `enacted`
+- **WHEN** they open the decision detail view
+- **THEN** a publish action is available, while the same view for a `draft` decision offers no publish action
+
+#### Scenario: Direct client write to isPublished rejected
+
+@e2e exclude server-side field guard — covered by Newman attempting a direct OR object update
+- **WHEN** a client sends an object update setting `isPublished: true` on a decision outside the publication flow
+- **THEN** the write to `isPublished`/`publishedAt` is rejected and the stored values are unchanged
+
+#### Scenario: Publication events in the audit trail
+
+- **GIVEN** a decision that has been published and later withdrawn
+- **WHEN** a user views the decision's audit trail
+- **THEN** both the publish and the withdraw appear in chronological order with timestamp, actor, and the withdraw reason
 
 ## User Stories
 

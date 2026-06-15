@@ -67,6 +67,11 @@
 				{{ transitionError }}
 			</CnNoteCard>
 		</div>
+
+		<PublicationPromptModal
+			v-if="publishPromptOpen"
+			@publish="promptPublish"
+			@dismiss="publishPromptOpen = false" />
 	</div>
 </template>
 
@@ -75,10 +80,12 @@ import { NcButton } from '@nextcloud/vue'
 import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { buildTimeline } from './decisionLifecycle.js'
+import PublicationPromptModal from '../../modals/PublicationPromptModal.vue'
+import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'DecisionLifecycleTab',
-	components: { NcButton, CnNoteCard, CnStatusBadge },
+	components: { NcButton, CnNoteCard, CnStatusBadge, PublicationPromptModal },
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -90,6 +97,7 @@ export default {
 			transitionError: '',
 			lifecycle: 'draft',
 			actions: [],
+			publishPromptOpen: false,
 		}
 	},
 	computed: {
@@ -178,10 +186,68 @@ export default {
 				}
 				await this.refresh()
 				this.$emit('refresh')
+				// prompt-on-transition: when a decision reaches `enacted` for a
+				// body configured so, offer a NON-BLOCKING publish prompt.
+				// Dismissal never publishes.
+				if (action === 'enact') {
+					await this.maybePromptPublish()
+				}
 			} catch (e) {
 				this.transitionError = e?.message || this.t('decidesk', 'Transition failed.')
 			} finally {
 				this.busy = false
+			}
+		},
+		/**
+		 * Open the non-blocking publish prompt when the decision's governance
+		 * body is configured with the `prompt-on-transition` policy for decisions.
+		 *
+		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 */
+		async maybePromptPublish() {
+			try {
+				const store = ensureRelationType('decision')
+				const decision = await store.fetchObject('decision', this.objectId)
+				let bodyId = decision?.governanceBody
+					|| decision?.relations?.GovernanceBody
+					|| decision?.relations?.governanceBody
+				if (Array.isArray(bodyId)) bodyId = bodyId[0]
+				if (!bodyId) return
+
+				const res = await fetch(
+					generateUrl('/apps/decidesk/api/settings/publication-config'),
+					{ headers: { Accept: 'application/json', requesttoken: OC.requestToken } },
+				)
+				if (!res.ok) return
+				const body = await res.json()
+				const policy = body?.config?.[bodyId]?.policy?.decision
+				if (policy === 'prompt-on-transition') {
+					this.publishPromptOpen = true
+				}
+			} catch (e) {
+				// Prompt is best-effort; never block the transition on it.
+			}
+		},
+		/**
+		 * Publish from the prompt — calls the same authoritative publish endpoint
+		 * as the Publication tab.
+		 *
+		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 */
+		async promptPublish() {
+			this.publishPromptOpen = false
+			try {
+				await fetch(
+					generateUrl('/apps/decidesk/api/publications'),
+					{
+						method: 'POST',
+						headers: { Accept: 'application/json', 'Content-Type': 'application/json', requesttoken: OC.requestToken },
+						body: JSON.stringify({ sourceType: 'decision', sourceId: this.objectId }),
+					},
+				)
+				this.$emit('refresh')
+			} catch (e) {
+				this.transitionError = e?.message || this.t('decidesk', 'Publication failed.')
 			}
 		},
 	},

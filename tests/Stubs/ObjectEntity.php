@@ -46,4 +46,16 @@ class ObjectEntity implements \JsonSerializable
     }//end jsonSerialize()
 
 
+    /**
+     * Return the object UUID.
+     *
+     * @return string|null
+     */
+    public function getUuid(): ?string
+    {
+        return null;
+
+    }//end getUuid()
+
+
 }//end class
