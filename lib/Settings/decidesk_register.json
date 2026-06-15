@@ -5503,7 +5503,7 @@
         "icon": "FileDocumentOutline",
         "version": "0.1.0",
         "title": "PublicationPayload",
-        "description": "Derived, immutable public payload (publish-decisions-via-opencatalogi). Constructed ALLOW-LIST style by PublicationPayloadService — one polymorphic shape discriminated by oriType (Besluit / Vergadering / Verslag). Carries OpenRaadsinformatie-mapped fields alongside schema.org annotations so OpenCatalogi/OR public-API consumers receive ORI-compatible data without a bespoke harvester. By construction this schema contains NO UID fields, NO contact details, NO individual vote records, and NO voter identities — decision payloads carry vote TOTALS only, agenda payloads omit confidential items, minutes payloads render attendance per the body's policy. @self.published is set on instances of this schema, never on the live source object.",
+        "description": "Derived, immutable public payload (publish-decisions-via-opencatalogi). Constructed ALLOW-LIST style by PublicationPayloadService — one polymorphic shape discriminated by oriType (Besluit / Vergadering / Verslag). Carries OpenRaadsinformatie-mapped fields alongside schema.org annotations so OpenCatalogi/OR public-API consumers receive ORI-compatible data without a bespoke harvester. By construction this schema contains NO UID fields, NO contact details, NO individual vote records, and NO voter identities — decision payloads carry vote TOTALS only, agenda payloads omit confidential items, minutes payloads render attendance per the body's policy. Anonymous visibility is governed by the OpenRegister RBAC published-predicate: the authorization.read rule grants the public group read access when publicatiedatum <= $now; publishing sets publicatiedatum on the payload instance, withdraw sets depublicatiedatum. The live source object is never published.",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:CreativeWork",
@@ -5512,11 +5512,36 @@
           "searchable": true,
           "mailEnabled": false
         },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "publicatiedatum": {
+                  "$lte": "$now"
+                }
+              }
+            },
+            "authenticated"
+          ]
+        },
         "required": [
           "oriType",
           "title"
         ],
         "properties": {
+          "publicatiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Publication date (WOO/DIWOO). When set to a date in the past, this payload is live and anonymously readable through the OpenRegister published-predicate (public-group RBAC rule publicatiedatum <= $now). Set by PublicationService on publish; never written by clients."
+          },
+          "depublicatiedatum": {
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Depublication date (WOO/DIWOO). When set and in the past, this payload is withdrawn from public access. A future value schedules automatic depublication via the OpenRegister published-predicate. Set by PublicationService on withdraw."
+          },
           "oriType": {
             "type": "string",
             "description": "OpenRaadsinformatie record type — interprets the payload ORI-compatibly.",
