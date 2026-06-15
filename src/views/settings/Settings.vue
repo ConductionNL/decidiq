@@ -148,6 +148,50 @@
 				<label for="email_voting_enabled">{{ t('decidesk', 'Enable voting by email reply') }}</label>
 			</div>
 		</CnSettingsSection>
+
+		<!-- Citizen-participation instance defaults -->
+		<!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
+		<CnSettingsSection
+			:name="t('decidesk', 'Citizen participation defaults')"
+			:description="t('decidesk', 'Defaults applied to new consultations and budget rounds. Staff can override per round.')">
+			<form data-testid="participation-settings" @submit.prevent="saveParticipation">
+				<div class="form-group">
+					<NcSelect
+						v-model="form.participation_default_moderation_policy"
+						:options="moderationPolicyOptions"
+						:input-label="t('decidesk', 'Default moderation policy')"
+						label="label"
+						track-by="id"
+						data-testid="participation-moderation-policy" />
+				</div>
+				<div class="form-group">
+					<label for="participation_catalog">{{ t('decidesk', 'Default OpenCatalogi catalog (UUID)') }}</label>
+					<input
+						id="participation_catalog"
+						v-model="form.participation_catalog"
+						type="text"
+						data-testid="participation-catalog"
+						:placeholder="t('decidesk', 'Leave empty to skip catalog routing')">
+				</div>
+				<div class="form-group">
+					<label for="participation_anon_rate_limit">{{ t('decidesk', 'Anonymous intake rate limit (per hour)') }}</label>
+					<input
+						id="participation_anon_rate_limit"
+						v-model="form.participation_anon_rate_limit"
+						type="number"
+						min="1"
+						data-testid="participation-rate-limit"
+						placeholder="5">
+				</div>
+				<NcButton
+					type="primary"
+					native-type="submit"
+					data-testid="participation-save"
+					:disabled="savingParticipation">
+					{{ savingParticipation ? t('decidesk', 'Saving...') : t('decidesk', 'Save') }}
+				</NcButton>
+			</form>
+		</CnSettingsSection>
 	</div>
 </template>
 
@@ -177,10 +221,14 @@ export default {
 				organisation_locale: null,
 				organisation_currency: '',
 				organisation_retention_days: '',
+				participation_default_moderation_policy: null,
+				participation_catalog: '',
+				participation_anon_rate_limit: '',
 			},
 			saving: false,
 			savingOri: false,
 			savingOrganisation: false,
+			savingParticipation: false,
 			successMessage: '',
 			organisationMessage: '',
 		}
@@ -204,6 +252,13 @@ export default {
 		currencyOptions() {
 			return ['EUR', 'USD', 'GBP', 'CHF']
 		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+		moderationPolicyOptions() {
+			return [
+				{ id: 'pre-moderation', label: this.t('decidesk', 'Pre-moderation (approve before counting)') },
+				{ id: 'post-moderation', label: this.t('decidesk', 'Post-moderation (auto-approve authenticated)') },
+			]
+		},
 	},
 	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
 	created() {
@@ -218,6 +273,9 @@ export default {
 		this.form.organisation_locale = this.localeOptions.find((o) => o.id === settings.organisation_locale) || null
 		this.form.organisation_currency = settings.organisation_currency || ''
 		this.form.organisation_retention_days = settings.organisation_retention_days || ''
+		this.form.participation_default_moderation_policy = this.moderationPolicyOptions.find((o) => o.id === settings.participation_default_moderation_policy) || this.moderationPolicyOptions[0]
+		this.form.participation_catalog = settings.participation_catalog || ''
+		this.form.participation_anon_rate_limit = settings.participation_anon_rate_limit || ''
 	},
 	methods: {
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
@@ -248,6 +306,17 @@ export default {
 				this.organisationMessage = this.t('decidesk', 'Organization settings saved')
 			}
 			this.savingOrganisation = false
+		},
+		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+		async saveParticipation() {
+			this.savingParticipation = true
+			const settingsStore = useSettingsStore()
+			await settingsStore.saveSettings({
+				participation_default_moderation_policy: this.form.participation_default_moderation_policy?.id || 'pre-moderation',
+				participation_catalog: this.form.participation_catalog || '',
+				participation_anon_rate_limit: String(this.form.participation_anon_rate_limit || ''),
+			})
+			this.savingParticipation = false
 		},
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 */
 		async saveOri() {

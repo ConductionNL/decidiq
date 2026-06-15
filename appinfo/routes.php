@@ -219,6 +219,22 @@ return [
         ['name' => 'integration#getOutcome',     'url' => '/api/v1/decisions/{id}/outcome',       'verb' => 'GET'],
         ['name' => 'integration#subscribe',      'url' => '/api/v1/decisions/{id}/subscriptions', 'verb' => 'POST'],
 
+        // Citizen-participation ACTION endpoints (lifecycle, intake, moderation, voting,
+        // publication). Plain CRUD stays on the OpenRegister object API per ADR-022.
+        // @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+        ['name' => 'participation#transitionConsultation',     'url' => '/api/participation/consultations/{consultationId}/transition',       'verb' => 'POST'],
+        ['name' => 'participation#submitReaction',             'url' => '/api/participation/consultations/{consultationId}/reactions',        'verb' => 'POST'],
+        ['name' => 'participation#submitAnonymousReaction',    'url' => '/api/participation/public/consultations/{consultationId}/reactions', 'verb' => 'POST'],
+        ['name' => 'participation#publishConsultationResults', 'url' => '/api/participation/consultations/{consultationId}/publish',          'verb' => 'POST'],
+        ['name' => 'participation#approveReaction',            'url' => '/api/participation/reactions/{reactionId}/approve',                  'verb' => 'POST'],
+        ['name' => 'participation#rejectReaction',             'url' => '/api/participation/reactions/{reactionId}/reject',                   'verb' => 'POST'],
+        ['name' => 'participation#publishReaction',            'url' => '/api/participation/reactions/{reactionId}/publish',                  'verb' => 'POST'],
+        ['name' => 'participation#transitionBudgetRound',      'url' => '/api/participation/budgets/{budgetId}/transition',                   'verb' => 'POST'],
+        ['name' => 'participation#submitProposal',             'url' => '/api/participation/budgets/{budgetId}/proposals',                    'verb' => 'POST'],
+        ['name' => 'participation#publishBudgetResults',       'url' => '/api/participation/budgets/{budgetId}/publish',                      'verb' => 'POST'],
+        ['name' => 'participation#validateProposal',           'url' => '/api/participation/proposals/{proposalId}/validate',                 'verb' => 'POST'],
+        ['name' => 'participation#castAdvisoryVote',           'url' => '/api/participation/proposals/{proposalId}/vote',                     'verb' => 'POST'],
+
         // SPA catch-all — same controller as the index route; must use a distinct route name
         // (duplicate names replace the earlier route in Symfony, which breaks GET /).
         ['name' => 'dashboard#catchAll', 'url' => '/{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], 'defaults' => ['path' => '']],

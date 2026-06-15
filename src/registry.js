@@ -74,6 +74,13 @@ import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 // canonical mount is the Nextcloud personal settings panel (ISettings).
 import UserSettingsPage from './views/settings/UserSettingsPage.vue'
 
+// Citizen-participation pages (citizen-participation). The consultation/budget
+// list+detail pages are auto-rendered by CnPageRenderer from the manifest
+// schema config; these two are bespoke action surfaces (citizen + staff
+// participation, and the staff moderation queue).
+import ParticipationPage from './views/participation/ParticipationPage.vue'
+import ModerationQueuePage from './views/participation/ModerationQueuePage.vue'
+
 /**
  * Wrap a Vue component into the v2 registry shape required by CnAppRoot's
  * `registry` prop (`kind: "page"` is the discriminator CnPageRenderer keys
@@ -231,4 +238,11 @@ export default {
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.
 	UserSettingsPage: page(UserSettingsPage),
+
+	// --- Citizen participation (citizen-participation). ---
+	// Bespoke action surfaces: the citizen+staff participation view (reaction
+	// form, proposal form, advisory voting cards, staff lifecycle/publish) and
+	// the staff reaction moderation queue.
+	ParticipationPage: page(ParticipationPage),
+	ModerationQueuePage: page(ModerationQueuePage),
 }

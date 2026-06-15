@@ -2011,4 +2011,140 @@ class VotingService
         ];
 
     }//end getPublicState()
+
+    /**
+     * Cast one advisory citizen vote on a BudgetProposal and re-tally (citizen-participation).
+     *
+     * Advisory mode reuses the statutory tally machinery's guarantees:
+     * - duplicate detection via the SAME filterByRelation()/relation scan used for
+     *   statutory votes (one CitizenVote per voterId per proposal — second cast throws);
+     * - atomic upsert via a deterministic @self.slug so concurrent casts converge;
+     * - the proposal tally is recomputed by counting CitizenVote objects, never mixed
+     *   with statutory VotingRound Vote tallies (separation invariant).
+     *
+     * No quorum, no secret ballot, no proxy — voor/tegen only. The caller
+     * (BudgetVotingService) enforces the voting-window guard; this method enforces
+     * the value enum and the one-vote-per-citizen integrity.
+     *
+     * @param string $proposalId The validated BudgetProposal UUID.
+     * @param string $voterId    The authenticated citizen NC UID.
+     * @param string $value      'voor' | 'tegen'.
+     *
+     * @return array<string,mixed> ['vote' => <CitizenVote>, 'votesFor' => int, 'votesAgainst' => int].
+     *
+     * @throws \RuntimeException         When the proposal is missing or a duplicate vote exists.
+     * @throws \InvalidArgumentException When the value is not voor/tegen.
+     *
+     * @spec openspec/changes/citizen-participation/specs/voting-system/spec.md
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    public function applyAdvisoryTally(string $proposalId, string $voterId, string $value): array
+    {
+        if (in_array($value, ['voor', 'tegen'], true) === false) {
+            throw new \InvalidArgumentException("Advisory vote value must be 'voor' or 'tegen'");
+        }
+
+        $objectService = $this->objectService();
+
+        // Duplicate detection — reuse filterByRelation() (the statutory dedup path):
+        // scope to the proposal, then to the voterId.
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('citizen-vote');
+        $existing = $this->filterByRelation(
+            entities: $objectService->findAll(
+                [
+                    'filters' => [
+                        '_relations.budget-proposal' => $proposalId,
+                        'voterId'                     => $voterId,
+                    ],
+                ]
+            ),
+            schema: 'budget-proposal',
+            targetId: $proposalId
+        );
+        foreach ($existing as $existingEntity) {
+            $existingVote = $existingEntity->jsonSerialize();
+            if ((string) ($existingVote['voterId'] ?? '') === $voterId) {
+                throw new \RuntimeException('Citizen has already voted on this proposal');
+            }
+        }
+
+        // Atomic upsert via deterministic slug (same idempotency strategy as castVote()).
+        $idempotencySlug = 'cvote-'.substr($proposalId, 0, 8).'-'.substr(hash('sha256', $voterId), 0, 16);
+
+        $vote = [
+            '@self'      => ['slug' => $idempotencySlug],
+            'voteValue'  => $value,
+            'voterId'    => $voterId,
+            'proposalId' => $proposalId,
+            'weight'     => 1,
+            'isProxy'    => false,
+            'castAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'relations'  => [
+                ['register' => 'decidesk', 'schema' => 'budget-proposal', 'id' => $proposalId],
+            ],
+        ];
+
+        $saved    = $objectService->saveObject(register: 'decidesk', schema: 'citizen-vote', object: $vote);
+        $savedArr = $this->normaliseSaved(saved: $saved, fallback: $vote);
+
+        // Re-tally all CitizenVotes for this proposal (atomic count path) and persist
+        // onto the BudgetProposal. CitizenVote objects only — never statutory Votes.
+        $tally = $this->tallyAdvisoryProposal(proposalId: $proposalId);
+
+        return [
+            'vote'         => $savedArr,
+            'votesFor'     => $tally['votesFor'],
+            'votesAgainst' => $tally['votesAgainst'],
+        ];
+
+    }//end applyAdvisoryTally()
+
+    /**
+     * Recount advisory CitizenVotes for a BudgetProposal and persist the tally.
+     *
+     * @param string $proposalId The BudgetProposal UUID.
+     *
+     * @return array{votesFor:int,votesAgainst:int} The recomputed advisory tally.
+     *
+     * @spec openspec/changes/citizen-participation/specs/voting-system/spec.md
+     */
+    public function tallyAdvisoryProposal(string $proposalId): array
+    {
+        $objectService = $this->objectService();
+
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('citizen-vote');
+        $voteEntities = $this->filterByRelation(
+            entities: $objectService->findAll(['filters' => ['_relations.budget-proposal' => $proposalId]]),
+            schema: 'budget-proposal',
+            targetId: $proposalId
+        );
+
+        $for     = 0;
+        $against = 0;
+        foreach ($voteEntities as $voteEntity) {
+            $vote = $voteEntity->jsonSerialize();
+            $val  = (string) ($vote['voteValue'] ?? '');
+            if ($val === 'voor') {
+                $for++;
+            } else if ($val === 'tegen') {
+                $against++;
+            }
+        }
+
+        $proposalEntity = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
+        if ($proposalEntity !== null) {
+            $proposal                 = $proposalEntity->jsonSerialize();
+            $proposal['votesFor']     = $for;
+            $proposal['votesAgainst'] = $against;
+            $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
+        }
+
+        return [
+            'votesFor'     => $for,
+            'votesAgainst' => $against,
+        ];
+
+    }//end tallyAdvisoryProposal()
 }//end class
