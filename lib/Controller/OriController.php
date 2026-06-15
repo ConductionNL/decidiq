@@ -67,6 +67,14 @@ class OriController extends Controller
         'voteevents'    => 'voting-round',
         'votes'         => 'vote',
         'reports'       => 'minutes',
+        // publish-decisions-via-opencatalogi task 5.2 — ORI harvest feed over the
+        // derived, immutable PublicationPayload objects produced by the publication
+        // flow. This is the harvest-able feed the deferred follow-up specifies: a
+        // single ORI surface a national/OAI-PMH harvester can poll to discover all
+        // published decisions/agendas/minutes without per-type endpoints. Visibility
+        // is gated by the same RBAC published-predicate the payload schema declares
+        // (publicatiedatum <= $now, not depublished).
+        'publications'  => 'publication-payload',
     ];
 
     /**
@@ -111,6 +119,10 @@ class OriController extends Controller
         'voteevents'    => 'VoteEvent',
         'votes'         => 'Vote',
         'reports'       => 'Report',
+        // The publication-payload feed self-declares its ORI @type per item via the
+        // payload's own `oriType` (Besluit / Vergadering / Verslag); this envelope
+        // label describes the harvest collection.
+        'publications'  => 'Publication',
     ];
 
     /**
@@ -146,6 +158,7 @@ class OriController extends Controller
      * @return JSONResponse JSON-LD list envelope or error
      *
      * @spec openspec/changes/p4-integration/tasks.md#task-11
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -173,7 +186,18 @@ class OriController extends Controller
             ];
 
             $decisionType = self::DECISION_TYPE_MAP[$resource] ?? null;
-            if ($decisionType !== null) {
+            if ($resource === 'publications') {
+                // publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
+                // feed has no `lifecycle`/`isPublished` field; its anonymous visibility
+                // is governed solely by the RBAC published-predicate the schema declares
+                // (public group when publicatiedatum <= $now). OR enforces that rule for
+                // anonymous callers; the controller additionally filters the window in
+                // PHP below (defence-in-depth so a misconfigured RBAC rule cannot leak
+                // future-dated or depublished payloads through the harvest feed).
+                // No server-side filter field is added; the RBAC rule + the PHP
+                // window check below are the gate.
+                unset($decisionType);
+            } else if ($decisionType !== null) {
                 // ADR-005: motion/amendment ORI resources are decisions gated by
                 // `isPublished=public` and discriminated by `decisionType`.
                 $filters['isPublished']  = 'public';
@@ -203,6 +227,26 @@ class OriController extends Controller
                 $objectArray = (array) $object;
             }
 
+            if ($resource === 'publications') {
+                // Defence-in-depth published-predicate window: only emit payloads
+                // that are live RIGHT NOW (publicatiedatum in the past and either no
+                // depublicatiedatum or one still in the future). A future-dated or
+                // already-depublished payload must never appear in the harvest feed.
+                if ($this->isPayloadLive($objectArray) === false) {
+                    continue;
+                }
+
+                // Each payload self-declares its ORI @type via `oriType`
+                // (Besluit / Vergadering / Verslag); fall back to the collection type.
+                $itemType = ($objectArray['oriType'] ?? null);
+                if (is_string($itemType) === false || $itemType === '') {
+                    $itemType = $type;
+                }
+
+                $items[] = $this->serializeOri(type: $itemType, object: $objectArray);
+                continue;
+            }
+
             $items[] = $this->serializeOri(type: $type, object: $objectArray);
         }
 
@@ -230,6 +274,7 @@ class OriController extends Controller
      * @return JSONResponse The JSON-LD entity or error
      *
      * @spec openspec/changes/p4-integration/tasks.md#task-11
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -254,6 +299,28 @@ class OriController extends Controller
 
         if ($object === null) {
             return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+        }
+
+        if ($resource === 'publications') {
+            // PublicationPayload visibility is the RBAC published-predicate window
+            // (publicatiedatum <= $now, not depublished). A future-dated or
+            // depublished payload is not-found for anonymous callers — return 404
+            // (not 403) so the endpoint never confirms an unpublished payload exists.
+            if ($this->isPayloadLive((array) $object) === false) {
+                return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+            }
+
+            $itemType = ($object['oriType'] ?? null);
+            if (is_string($itemType) === false || $itemType === '') {
+                $itemType = self::ORI_TYPE_MAP[$resource];
+            }
+
+            $payload  = $this->serializeOri(type: $itemType, object: (array) $object);
+            $response = new JSONResponse($payload);
+            $response->addHeader(name: 'Content-Type', value: 'application/ld+json');
+            $this->applyCorsHeaders(response: $response);
+
+            return $response;
         }
 
         // #316: Treat non-published objects as not-found for anonymous callers.
@@ -391,9 +458,122 @@ class OriController extends Controller
             $payload['email'] = $object['email'];
         }
 
+        // publish-decisions-via-opencatalogi task 5.2 — PublicationPayload-specific
+        // ORI fields. PublicationPayloads are derived, allow-list objects (no UID,
+        // no voter identities, no contact details by construction), so every field
+        // present here is safe to surface on the harvest feed. The payload self-
+        // declares its $type via oriType (Besluit / Vergadering / Verslag).
+        $oriType = ($object['oriType'] ?? null);
+        if (is_string($oriType) === true && $oriType !== '') {
+            $payload['oriType'] = $oriType;
+
+            if (isset($object['schemaOrgType']) === true) {
+                $payload['schemaOrgType'] = $object['schemaOrgType'];
+            }
+
+            if (isset($object['bodyName']) === true) {
+                $payload['body'] = $object['bodyName'];
+            }
+
+            if (isset($object['outcome']) === true) {
+                $payload['outcome'] = $object['outcome'];
+            }
+
+            if (isset($object['decisionDate']) === true) {
+                $payload['decision_date'] = $object['decisionDate'];
+            }
+
+            if (isset($object['legalBasis']) === true) {
+                $payload['legal_basis'] = $object['legalBasis'];
+            }
+
+            if (isset($object['voteTotals']) === true) {
+                $payload['vote_totals'] = $object['voteTotals'];
+            }
+
+            if (isset($object['meetingDate']) === true) {
+                $payload['meeting_date'] = $object['meetingDate'];
+            }
+
+            if (isset($object['agendaItems']) === true) {
+                $payload['agenda_items'] = $object['agendaItems'];
+            }
+
+            if (isset($object['content']) === true) {
+                $payload['content'] = $object['content'];
+            }
+
+            if (isset($object['attendance']) === true) {
+                $payload['attendance'] = $object['attendance'];
+            }
+
+            if (isset($object['publicatiedatum']) === true) {
+                $payload['published_at'] = $object['publicatiedatum'];
+            }
+        }//end if
+
         return $payload;
 
     }//end serializeOri()
+
+    /**
+     * Evaluate the RBAC published-predicate window for a PublicationPayload.
+     *
+     * A payload is "live" — and therefore visible on the anonymous ORI harvest
+     * feed — when its `publicatiedatum` is set and not in the future, AND its
+     * `depublicatiedatum` is either unset or still in the future. This mirrors
+     * the public-group `authorization.read` rule the PublicationPayload schema
+     * declares (`publicatiedatum <= $now`); the controller re-checks it in PHP as
+     * defence-in-depth so a misconfigured RBAC rule cannot leak future-dated or
+     * already-depublished payloads through the harvest surface.
+     *
+     * @param array<string, mixed> $object The serialized PublicationPayload
+     *
+     * @return bool True when the payload is currently publicly visible
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     */
+    private function isPayloadLive(array $object): bool
+    {
+        $publishedRaw = ($object['publicatiedatum'] ?? null);
+        if (is_string($publishedRaw) === false || $publishedRaw === '') {
+            return false;
+        }
+
+        $now       = new \DateTimeImmutable();
+        $published = $this->parseDate($publishedRaw);
+        if ($published === null || $published > $now) {
+            return false;
+        }
+
+        $depublishedRaw = ($object['depublicatiedatum'] ?? null);
+        if (is_string($depublishedRaw) === true && $depublishedRaw !== '') {
+            $depublished = $this->parseDate($depublishedRaw);
+            if ($depublished !== null && $depublished <= $now) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }//end isPayloadLive()
+
+    /**
+     * Parse an ISO-8601 / ATOM date string into a DateTimeImmutable.
+     *
+     * @param string $value The date-time string
+     *
+     * @return \DateTimeImmutable|null The parsed value, or null when unparseable
+     */
+    private function parseDate(string $value): ?\DateTimeImmutable
+    {
+        try {
+            return new \DateTimeImmutable($value);
+        } catch (\Throwable) {
+            return null;
+        }
+
+    }//end parseDate()
 
     /**
      * Build a consistent JSON error envelope (REQ-API-003).
