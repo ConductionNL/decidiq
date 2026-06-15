@@ -11,6 +11,13 @@
 #   - decidesk.postman_collection.json       (council/local-government surface:
 #                                             meeting + motion + voting-round +
 #                                             decision + settings)
+#   - decidesk-publication-anon-read.postman_collection.json
+#                                             (anonymous published-predicate read
+#                                             contract: a PublicationPayload is
+#                                             anon-visible on the ORI harvest feed
+#                                             once publicatiedatum <= now, NOT before,
+#                                             and gone after depublicatiedatum —
+#                                             publish-decisions-via-opencatalogi 5.2)
 #   - board-portal.postman_collection.json   (enterprise board-portal surface:
 #                                             Board / BoardMember / BoardMeeting /
 #                                             Resolution / BoardVote / RegulatorExport /
@@ -75,6 +82,7 @@ COLLECTIONS=(
   "${INTEGRATION_DIR}/decidesk-admin-settings.postman_collection.json"
   "${INTEGRATION_DIR}/decidesk-process-config.postman_collection.json"
   "${INTEGRATION_DIR}/decidesk-motion-amendment.postman_collection.json"
+  "${INTEGRATION_DIR}/decidesk-publication-anon-read.postman_collection.json"
   "${INTEGRATION_DIR}/board-portal.postman_collection.json"
 )
 
