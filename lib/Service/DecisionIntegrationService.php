@@ -124,9 +124,11 @@ class DecisionIntegrationService
 
             try {
                 $existing = $objectService->findAll(
-                    register: 'decidesk',
-                    schema: 'decision',
-                    filters: $filters
+                    [
+                        'register' => 'decidesk',
+                        'schema'   => 'decision',
+                        'filters'  => $filters,
+                    ]
                 );
             } catch (\Throwable $e) {
                 $existing = [];
@@ -455,9 +457,11 @@ class DecisionIntegrationService
 
         try {
             $stages = $objectService->findAll(
-                register: 'decidesk',
-                schema: 'decision-stage',
-                filters: ['decision' => $decisionId, 'method' => 'signature']
+                [
+                    'register' => 'decidesk',
+                    'schema'   => 'decision-stage',
+                    'filters'  => ['decision' => $decisionId, 'method' => 'signature'],
+                ]
             );
         } catch (\Throwable $e) {
             $this->logger->warning(
