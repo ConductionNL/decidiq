@@ -3,6 +3,12 @@
 /**
  * Unit tests for PublicationEligibilityService.
  *
+ * Covers both deny-list families that share this single service:
+ *   - the eligibility matrix per source type and the flow-owned-field guard
+ *     (publish-decisions-via-opencatalogi); and
+ *   - the structural publication deny-list for Transcript objects and
+ *     recording/transcript files (meeting-transcription-ai-minutes, task 2.7).
+ *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Service
  *
@@ -13,6 +19,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,9 +39,11 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Tests the deny-list, eligibility matrix per type, and the flow-owned guard.
+ * Tests the deny-list, eligibility matrix per type, the flow-owned guard, and
+ * the structural schema/file deny-list helpers.
  *
  * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
  */
 class PublicationEligibilityServiceTest extends TestCase
 {
@@ -236,4 +245,86 @@ class PublicationEligibilityServiceTest extends TestCase
         $this->assertTrue(true);
 
     }//end testUnchangedPublicationFieldsAllowed()
+
+    /**
+     * Test that the Transcript schema is structurally denied.
+     *
+     * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
+     *
+     * @return void
+     */
+    public function testTranscriptSchemaDenied(): void
+    {
+        $service = $this->makeService([]);
+        self::assertTrue($service->isSchemaDenied('transcript'));
+        self::assertFalse($service->isSchemaDenied('decision'));
+
+    }//end testTranscriptSchemaDenied()
+
+
+    /**
+     * Test that recording/transcript files are denied.
+     *
+     * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
+     *
+     * @return void
+     */
+    public function testRecordingFilesDenied(): void
+    {
+        $service = $this->makeService([]);
+        self::assertTrue($service->isFileDenied('Decidesk/x/recording.mp3'));
+        self::assertTrue($service->isFileDenied('transcript-abc.txt'));
+        self::assertTrue($service->isFileDenied('call.wav'));
+        self::assertFalse($service->isFileDenied('minutes.pdf'));
+
+    }//end testRecordingFilesDenied()
+
+
+    /**
+     * Test that assertPublishable throws on a denied schema.
+     *
+     * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
+     *
+     * @return void
+     */
+    public function testAssertPublishableRefusesTranscript(): void
+    {
+        $service = $this->makeService([]);
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionCode(422);
+        $service->assertPublishable(schemaSlug: 'transcript');
+
+    }//end testAssertPublishableRefusesTranscript()
+
+
+    /**
+     * Test that assertPublishable throws on a recording file.
+     *
+     * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
+     *
+     * @return void
+     */
+    public function testAssertPublishableRefusesRecordingFile(): void
+    {
+        $service = $this->makeService([]);
+        $this->expectException(\DomainException::class);
+        $service->assertPublishable(schemaSlug: 'minutes', fileName: 'recording.mp3');
+
+    }//end testAssertPublishableRefusesRecordingFile()
+
+
+    /**
+     * Test that a non-denied schema + file is allowed (no exception).
+     *
+     * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1
+     *
+     * @return void
+     */
+    public function testAssertPublishableAllowsMinutes(): void
+    {
+        $service = $this->makeService([]);
+        $service->assertPublishable(schemaSlug: 'minutes', fileName: 'minutes.pdf');
+        self::assertTrue(true);
+
+    }//end testAssertPublishableAllowsMinutes()
 }//end class

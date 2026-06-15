@@ -81,6 +81,16 @@ return [
         // @spec openspec/specs/resolution-minutes/spec.md
         ['name' => 'meeting#proofPackage', 'url' => '/api/meetings/{id}/proof-package', 'verb' => 'POST'],
 
+        // Meeting transcription action endpoints (meeting-transcription-ai-minutes).
+        // Action-only routes; plain Transcript CRUD stays on the OR object API (ADR-022).
+        // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+        ['name' => 'transcription#sources',         'url' => '/api/meetings/{meetingId}/transcription/sources', 'verb' => 'GET'],
+        ['name' => 'transcription#attach',          'url' => '/api/meetings/{meetingId}/transcription/attach',  'verb' => 'POST'],
+        ['name' => 'transcription#transcribe',      'url' => '/api/transcripts/{transcriptId}/transcribe',      'verb' => 'POST'],
+        ['name' => 'transcription#realign',         'url' => '/api/transcripts/{transcriptId}/re-align',        'verb' => 'POST'],
+        ['name' => 'transcription#generateDraft',   'url' => '/api/transcripts/{transcriptId}/generate-draft',  'verb' => 'POST'],
+        ['name' => 'transcription#retentionConfig', 'url' => '/api/governance-bodies/{bodyId}/retention-config', 'verb' => 'PUT'],
+
         // Decision endpoints — server-side publish enforces governance access control.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
@@ -229,6 +239,22 @@ return [
         ['name' => 'integration#createDecision', 'url' => '/api/v1/decisions',                   'verb' => 'POST'],
         ['name' => 'integration#getOutcome',     'url' => '/api/v1/decisions/{id}/outcome',       'verb' => 'GET'],
         ['name' => 'integration#subscribe',      'url' => '/api/v1/decisions/{id}/subscriptions', 'verb' => 'POST'],
+
+        // Citizen-participation ACTION endpoints (lifecycle, intake, moderation, voting,
+        // publication). Plain CRUD stays on the OpenRegister object API per ADR-022.
+        // @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+        ['name' => 'participation#transitionConsultation',     'url' => '/api/participation/consultations/{consultationId}/transition',       'verb' => 'POST'],
+        ['name' => 'participation#submitReaction',             'url' => '/api/participation/consultations/{consultationId}/reactions',        'verb' => 'POST'],
+        ['name' => 'participation#submitAnonymousReaction',    'url' => '/api/participation/public/consultations/{consultationId}/reactions', 'verb' => 'POST'],
+        ['name' => 'participation#publishConsultationResults', 'url' => '/api/participation/consultations/{consultationId}/publish',          'verb' => 'POST'],
+        ['name' => 'participation#approveReaction',            'url' => '/api/participation/reactions/{reactionId}/approve',                  'verb' => 'POST'],
+        ['name' => 'participation#rejectReaction',             'url' => '/api/participation/reactions/{reactionId}/reject',                   'verb' => 'POST'],
+        ['name' => 'participation#publishReaction',            'url' => '/api/participation/reactions/{reactionId}/publish',                  'verb' => 'POST'],
+        ['name' => 'participation#transitionBudgetRound',      'url' => '/api/participation/budgets/{budgetId}/transition',                   'verb' => 'POST'],
+        ['name' => 'participation#submitProposal',             'url' => '/api/participation/budgets/{budgetId}/proposals',                    'verb' => 'POST'],
+        ['name' => 'participation#publishBudgetResults',       'url' => '/api/participation/budgets/{budgetId}/publish',                      'verb' => 'POST'],
+        ['name' => 'participation#validateProposal',           'url' => '/api/participation/proposals/{proposalId}/validate',                 'verb' => 'POST'],
+        ['name' => 'participation#castAdvisoryVote',           'url' => '/api/participation/proposals/{proposalId}/vote',                     'verb' => 'POST'],
 
         // SPA catch-all — same controller as the index route; must use a distinct route name
         // (duplicate names replace the earlier route in Symfony, which breaks GET /).

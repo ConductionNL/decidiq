@@ -15,6 +15,7 @@ The system SHALL allow publication only of: `Decision` objects in status `decide
 
 #### Scenario: Draft decision refused
 
+@e2e exclude eligibility-matrix contract — covered by PHPUnit (PublicationEligibilityServiceTest::testDraftDecisionRefused) and Newman against the publish endpoint
 - **GIVEN** a decision in status `draft`
 - **WHEN** a publish request is made for it
 - **THEN** the request is rejected with an eligibility error and no publication payload or `PublicationRecord` is created

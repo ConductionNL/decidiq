@@ -51,6 +51,8 @@ import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
 import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
+import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
+import GovernanceBodyRetentionTab from './components/tabs/GovernanceBodyRetentionTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
@@ -80,6 +82,13 @@ import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
 // sections (notification / display / delegation / communication). The
 // canonical mount is the Nextcloud personal settings panel (ISettings).
 import UserSettingsPage from './views/settings/UserSettingsPage.vue'
+
+// Citizen-participation pages (citizen-participation). The consultation/budget
+// list+detail pages are auto-rendered by CnPageRenderer from the manifest
+// schema config; these two are bespoke action surfaces (citizen + staff
+// participation, and the staff moderation queue).
+import ParticipationPage from './views/participation/ParticipationPage.vue'
+import ModerationQueuePage from './views/participation/ModerationQueuePage.vue'
 
 /**
  * Wrap a Vue component into the v2 registry shape required by CnAppRoot's
@@ -163,6 +172,8 @@ export default {
 	// Minutes + Decisions are create+browse (split with the top-level
 	// register index pages); Votes is the read-only post-meeting aggregate.
 	MeetingMinutesTab: page(MeetingMinutesTab),
+	MeetingTranscriptionTab: page(MeetingTranscriptionTab),
+	GovernanceBodyRetentionTab: page(GovernanceBodyRetentionTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),
 	MeetingVotesTab: page(MeetingVotesTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
@@ -243,4 +254,11 @@ export default {
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.
 	UserSettingsPage: page(UserSettingsPage),
+
+	// --- Citizen participation (citizen-participation). ---
+	// Bespoke action surfaces: the citizen+staff participation view (reaction
+	// form, proposal form, advisory voting cards, staff lifecycle/publish) and
+	// the staff reaction moderation queue.
+	ParticipationPage: page(ParticipationPage),
+	ModerationQueuePage: page(ModerationQueuePage),
 }

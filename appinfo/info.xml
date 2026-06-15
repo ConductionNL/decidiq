@@ -34,7 +34,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
 **Ondersteuning:** Voor ondersteuning, neem contact op via support@conduction.nl.
     ]]></description>
-    <version>0.2.1</version>
+    <version>0.3.0</version>
     <licence>agpl</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidesk</namespace>
@@ -86,6 +86,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <job>OCA\Decidesk\BackgroundJob\TranslationQueueJob</job>
         <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
         <job>OCA\Decidesk\BackgroundJob\VotingDeadlineReminderJob</job>
+        <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
+        <job>OCA\Decidesk\BackgroundJob\ConsultationAutoCloseJob</job>
+        <!-- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md -->
+        <job>OCA\Decidesk\BackgroundJob\TranscriptRetentionJob</job>
     </background-jobs>
 
     <repair-steps>

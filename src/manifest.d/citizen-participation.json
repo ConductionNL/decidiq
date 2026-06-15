@@ -1,0 +1,135 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Citizen-participation manifest fragment (citizen-participation) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Adds the participation menu group, the consultation + budget-round index/detail pages (auto-rendered CRUD via the OpenRegister object API), the citizen+staff participation action page, and the staff moderation queue.",
+	"_spec": "openspec/changes/citizen-participation/specs/citizen-participation/spec.md",
+	"menu": [
+		{
+			"id": "Participation",
+			"label": "Participation",
+			"icon": "icon-comment",
+			"route": "Participation",
+			"order": 65
+		},
+		{
+			"id": "Consultations",
+			"label": "Consultations",
+			"icon": "icon-comment",
+			"route": "Consultations",
+			"order": 66
+		},
+		{
+			"id": "BudgetRounds",
+			"label": "Participatory budgets",
+			"icon": "icon-category-monitoring",
+			"route": "BudgetRounds",
+			"order": 67
+		},
+		{
+			"id": "ModerationQueue",
+			"label": "Moderation queue",
+			"icon": "icon-checkmark",
+			"route": "ModerationQueue",
+			"order": 68
+		}
+	],
+	"pages": [
+		{
+			"id": "Participation",
+			"route": "/participation",
+			"type": "custom",
+			"title": "Citizen participation",
+			"_spec": "openspec/changes/citizen-participation/specs/citizen-participation/spec.md",
+			"component": "ParticipationPage"
+		},
+		{
+			"id": "Consultations",
+			"route": "/consultations",
+			"type": "index",
+			"title": "Consultations",
+			"config": {
+				"register": "decidesk",
+				"schema": "public-consultation",
+				"columns": [
+					"title",
+					"status",
+					"submissionDeadline",
+					"submissionCount"
+				],
+				"actions": [
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "icon-toggle",
+						"handler": "navigate",
+						"route": "ConsultationDetail",
+						"primary": true
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "ConsultationDetail",
+			"route": "/consultations/:id",
+			"type": "detail",
+			"title": "Consultation",
+			"config": {
+				"register": "decidesk",
+				"schema": "public-consultation"
+			}
+		},
+		{
+			"id": "BudgetRounds",
+			"route": "/budget-rounds",
+			"type": "index",
+			"title": "Participatory budgets",
+			"config": {
+				"register": "decidesk",
+				"schema": "participatory-budget",
+				"columns": [
+					"name",
+					"totalAmount",
+					"currency",
+					"status"
+				],
+				"actions": [
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "icon-toggle",
+						"handler": "navigate",
+						"route": "BudgetRoundDetail",
+						"primary": true
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "BudgetRoundDetail",
+			"route": "/budget-rounds/:id",
+			"type": "detail",
+			"title": "Participatory budget",
+			"config": {
+				"register": "decidesk",
+				"schema": "participatory-budget"
+			}
+		},
+		{
+			"id": "ModerationQueue",
+			"route": "/moderation-queue",
+			"type": "custom",
+			"title": "Moderation queue",
+			"_spec": "openspec/changes/citizen-participation/specs/citizen-participation/spec.md",
+			"component": "ModerationQueuePage"
+		}
+	]
+}

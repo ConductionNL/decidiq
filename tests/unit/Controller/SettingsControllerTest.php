@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\SettingsController;
+use OCA\Decidesk\Service\PublicationConfigService;
 use OCA\Decidesk\Service\SettingsService;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -65,6 +66,13 @@ class SettingsControllerTest extends TestCase
     private IUserSession&MockObject $userSession;
 
     /**
+     * Mock PublicationConfigService.
+     *
+     * @var PublicationConfigService&MockObject
+     */
+    private PublicationConfigService&MockObject $publicationConfigService;
+
+    /**
      * Mock non-admin IUser.
      *
      * @var IUser&MockObject
@@ -80,9 +88,10 @@ class SettingsControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->request         = $this->createMock(originalClassName: IRequest::class);
-        $this->settingsService = $this->createMock(originalClassName: SettingsService::class);
-        $this->userSession     = $this->createMock(originalClassName: IUserSession::class);
+        $this->request                  = $this->createMock(originalClassName: IRequest::class);
+        $this->settingsService          = $this->createMock(originalClassName: SettingsService::class);
+        $this->userSession              = $this->createMock(originalClassName: IUserSession::class);
+        $this->publicationConfigService = $this->createMock(originalClassName: PublicationConfigService::class);
 
         $this->nonAdminUser = $this->createMock(originalClassName: IUser::class);
         $this->nonAdminUser->method('getUID')->willReturn('regularuser');
@@ -91,6 +100,7 @@ class SettingsControllerTest extends TestCase
             request: $this->request,
             settingsService: $this->settingsService,
             userSession: $this->userSession,
+            publicationConfigService: $this->publicationConfigService,
         );
 
     }//end setUp()

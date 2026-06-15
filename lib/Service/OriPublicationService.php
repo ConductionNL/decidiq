@@ -127,6 +127,23 @@ class OriPublicationService
      */
     public function publish(string $votingRoundId): void
     {
+        // Structural publication deny-list (meeting-transcription-ai-minutes
+        // task 2.7): refuse before any payload is built if the target type is
+        // never publishable. VotingRound is publishable today; the guard is the
+        // single enforcement seam so the deny-list home stays exercised and the
+        // publish-decisions change extends the same list.
+        // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md.
+        try {
+            $eligibility = $this->container->get(\OCA\Decidesk\Service\PublicationEligibilityService::class);
+            $eligibility->assertPublishable(schemaSlug: 'voting-round');
+        } catch (\DomainException $e) {
+            $this->logger->warning('Decidesk ORI: publication refused by deny-list — '.$e->getMessage());
+            return;
+        } catch (\Throwable) {
+            // Eligibility service unavailable (very old container): do not block
+            // the existing publish path on a missing optional guard.
+        }
+
         $endpoint = $this->getEndpoint();
         if ($endpoint === null) {
             return;

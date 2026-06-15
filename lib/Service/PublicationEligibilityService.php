@@ -2,8 +2,23 @@
 /**
  * Decidesk Publication Eligibility Service
  *
- * Server-side gates and the structural type deny-list governing which
- * governance objects may be published to the public surface.
+ * Single home for the public-publication structural deny-list and the
+ * server-side gates governing which governance objects may be published to the
+ * public surface. Board-governance entities, votes/rounds, conflict
+ * declarations and audit logs are never publishable; recordings and raw
+ * transcripts of a governance meeting are confidential to the body's members
+ * and are NEVER eligible for public publication — the approved Minutes are the
+ * only public record.
+ *
+ * This file is the single deny-list home shared by two changes:
+ *   - meeting-transcription-ai-minutes seeds the schema/file deny-list with
+ *     `Transcript` and recording files (its task 2.7) via DENIED_SCHEMAS /
+ *     DENIED_FILE_MARKERS / DENIED_FILE_EXTENSIONS and the dependency-free
+ *     isSchemaDenied/isFileDenied/assertPublishable helpers.
+ *   - publish-decisions-via-opencatalogi adds the board-governance family and
+ *     the lifecycle eligibility gates (its tasks 2.2/2.3) via DENY_TYPES and
+ *     isDeniedType/assertEligible/guardDirectPublicationWrite.
+ * The two deny-lists are unioned here so the merge reconciles cleanly.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -15,10 +30,12 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
-// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -37,11 +54,13 @@ use Psr\Log\LoggerInterface;
  *      conflict declarations, audit logs, transcripts, recordings).
  *   2. Lifecycle/state eligibility per source type (decision / agenda / minutes).
  *
- * Sibling PR #73 (meeting-transcription) also introduces this file as the
- * deny-list home; the union of both deny-lists is intended — Transcript and
- * recording-file types are included here so the merge reconciles cleanly.
+ * It also owns the schema/file deny-list seeded by the meeting-transcription
+ * change (Transcript schema + recording-file markers/extensions), exposed via
+ * the dependency-free isSchemaDenied/isFileDenied/assertPublishable helpers.
+ * Both deny-lists live here as a single, testable home.
  *
  * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
  */
 class PublicationEligibilityService
 {
@@ -50,7 +69,7 @@ class PublicationEligibilityService
      *
      * Matched case-insensitively against the schema slug AND the object's
      * declared type discriminators. Includes the meeting-transcription family
-     * (Transcript, recording) so PR #73's deny-list unions cleanly at merge.
+     * (Transcript, recording) so the deny-lists union cleanly.
      *
      * @var string[]
      */
@@ -73,6 +92,43 @@ class PublicationEligibilityService
         'voting-round',
         'transcript',
         'recording',
+    ];
+
+    /**
+     * Schema slugs that are structurally ineligible for public publication.
+     *
+     * @var string[]
+     */
+    public const DENIED_SCHEMAS = [
+        'transcript',
+    ];
+
+    /**
+     * File-name patterns (lowercase substrings) treated as confidential
+     * recording/transcript artefacts that must never be published.
+     *
+     * @var string[]
+     */
+    public const DENIED_FILE_MARKERS = [
+        'recording',
+        'transcript',
+    ];
+
+    /**
+     * Audio extensions whose files are confidential recordings.
+     *
+     * @var string[]
+     */
+    public const DENIED_FILE_EXTENSIONS = [
+        'mp3',
+        'wav',
+        'm4a',
+        'ogg',
+        'oga',
+        'opus',
+        'flac',
+        'mka',
+        'webm',
     ];
 
     /**
@@ -133,6 +189,86 @@ class PublicationEligibilityService
         return false;
 
     }//end isDeniedType()
+
+    /**
+     * Whether a schema slug is on the structural publication deny-list.
+     *
+     * @param string $schemaSlug The schema slug (kebab-case, e.g. 'transcript').
+     *
+     * @return bool True when the schema can never be published.
+     *
+     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     */
+    public function isSchemaDenied(string $schemaSlug): bool
+    {
+        return in_array(strtolower(trim($schemaSlug)), self::DENIED_SCHEMAS, true);
+
+    }//end isSchemaDenied()
+
+    /**
+     * Whether a file is a confidential recording/transcript artefact.
+     *
+     * @param string $fileName File name (with extension) or path.
+     *
+     * @return bool True when the file can never be published.
+     *
+     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     */
+    public function isFileDenied(string $fileName): bool
+    {
+        $lower = strtolower(basename(trim($fileName)));
+        if ($lower === '') {
+            return false;
+        }
+
+        $ext = (string) pathinfo($lower, PATHINFO_EXTENSION);
+        if (in_array($ext, self::DENIED_FILE_EXTENSIONS, true) === true) {
+            return true;
+        }
+
+        foreach (self::DENIED_FILE_MARKERS as $marker) {
+            if (str_contains($lower, $marker) === true) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }//end isFileDenied()
+
+    /**
+     * Assert that a publication target is eligible, throwing on a denied target.
+     *
+     * Payload-construction callers invoke this before building any public
+     * payload so a denied schema or recording file is refused regardless of
+     * status or actor.
+     *
+     * @param string      $schemaSlug The target schema slug.
+     * @param string|null $fileName   Optional target file name/path.
+     *
+     * @return void
+     *
+     * @throws \DomainException When the target is on the deny-list (code 422).
+     *
+     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     */
+    public function assertPublishable(string $schemaSlug, ?string $fileName=null): void
+    {
+        if ($this->isSchemaDenied(schemaSlug: $schemaSlug) === true) {
+            throw new \DomainException(
+                sprintf('Objects of type "%s" are not publishable (structural deny-list).', $schemaSlug),
+                422
+            );
+        }
+
+        if ($fileName !== null && $this->isFileDenied(fileName: $fileName) === true) {
+            throw new \DomainException(
+                sprintf('File "%s" is a confidential recording/transcript and is not publishable.', $fileName),
+                422
+            );
+        }
+
+    }//end assertPublishable()
 
     /**
      * Evaluate full publication eligibility for a source object.

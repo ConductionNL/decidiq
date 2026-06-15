@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\AppInfo;
 
+use OCA\Decidesk\BackgroundJob\ConsultationAutoCloseJob;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
 use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Controller\AnalyticsController;
@@ -32,6 +33,7 @@ use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Controller\MotionController;
 use OCA\Decidesk\Controller\MotionCoauthorController;
 use OCA\Decidesk\Controller\NotificationPreferenceController;
+use OCA\Decidesk\Controller\ParticipationController;
 use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
@@ -53,6 +55,10 @@ use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\NotificationPreferenceService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ParticipationLifecycleService;
+use OCA\Decidesk\Service\ParticipationPublicationService;
+use OCA\Decidesk\Service\BudgetVotingService;
+use OCA\Decidesk\Service\ReactionIntakeService;
 use OCA\Decidesk\Service\VotingBehaviourService;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
@@ -181,6 +187,83 @@ class Application extends App implements IBootstrap
                 OverdueActionItemsJob::class,
                 static function ($c): OverdueActionItemsJob {
                     return new OverdueActionItemsJob(
+                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        // Register citizen-participation services for DI.
+        // @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md.
+        $context->registerService(
+                ParticipationLifecycleService::class,
+                static function ($c): ParticipationLifecycleService {
+                    return new ParticipationLifecycleService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                ReactionIntakeService::class,
+                static function ($c): ReactionIntakeService {
+                    return new ReactionIntakeService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    lifecycleService: $c->get(ParticipationLifecycleService::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                BudgetVotingService::class,
+                static function ($c): BudgetVotingService {
+                    return new BudgetVotingService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    lifecycleService: $c->get(ParticipationLifecycleService::class),
+                    votingService: $c->get(VotingService::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                ParticipationPublicationService::class,
+                static function ($c): ParticipationPublicationService {
+                    return new ParticipationPublicationService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    appManager: $c->get(\OCP\App\IAppManager::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    budgetService: $c->get(BudgetVotingService::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                ParticipationController::class,
+                static function ($c): ParticipationController {
+                    return new ParticipationController(
+                    request: $c->get(\OCP\IRequest::class),
+                    lifecycleService: $c->get(ParticipationLifecycleService::class),
+                    intakeService: $c->get(ReactionIntakeService::class),
+                    budgetService: $c->get(BudgetVotingService::class),
+                    publicationService: $c->get(ParticipationPublicationService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    );
+                }
+                );
+
+        $context->registerService(
+                ConsultationAutoCloseJob::class,
+                static function ($c): ConsultationAutoCloseJob {
+                    return new ConsultationAutoCloseJob(
                     time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
@@ -777,6 +860,83 @@ class Application extends App implements IBootstrap
         $context->registerEventListener(
             event: ObjectCreatedEvent::class,
             listener: \OCA\Decidesk\Listener\MeetingFolderListener::class
+        );
+
+        // Meeting transcription + AI-assisted draft minutes
+        // (meeting-transcription-ai-minutes): thin orchestration over the NC
+        // SpeechToText + TaskProcessing provider abstractions. All provider
+        // resolution is lazy + guarded so absence is a first-class state.
+        // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md.
+        $context->registerService(
+            \OCA\Decidesk\Service\PublicationEligibilityService::class,
+            static function (): \OCA\Decidesk\Service\PublicationEligibilityService {
+                return new \OCA\Decidesk\Service\PublicationEligibilityService();
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Service\TranscriptionSourceResolver::class,
+            static function ($c): \OCA\Decidesk\Service\TranscriptionSourceResolver {
+                return new \OCA\Decidesk\Service\TranscriptionSourceResolver(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    folderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Service\TranscriptionService::class,
+            static function ($c): \OCA\Decidesk\Service\TranscriptionService {
+                return new \OCA\Decidesk\Service\TranscriptionService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                    sourceResolver: $c->get(\OCA\Decidesk\Service\TranscriptionSourceResolver::class),
+                    folderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Service\MinutesDraftService::class,
+            static function ($c): \OCA\Decidesk\Service\MinutesDraftService {
+                return new \OCA\Decidesk\Service\MinutesDraftService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\BackgroundJob\TranscriptionJob::class,
+            static function ($c): \OCA\Decidesk\BackgroundJob\TranscriptionJob {
+                return new \OCA\Decidesk\BackgroundJob\TranscriptionJob(
+                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    transcriptionService: $c->get(\OCA\Decidesk\Service\TranscriptionService::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\BackgroundJob\TranscriptRetentionJob::class,
+            static function ($c): \OCA\Decidesk\BackgroundJob\TranscriptRetentionJob {
+                return new \OCA\Decidesk\BackgroundJob\TranscriptRetentionJob(
+                    time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Controller\TranscriptionController::class,
+            static function ($c): \OCA\Decidesk\Controller\TranscriptionController {
+                return new \OCA\Decidesk\Controller\TranscriptionController(
+                    request: $c->get(\OCP\IRequest::class),
+                    transcriptionService: $c->get(\OCA\Decidesk\Service\TranscriptionService::class),
+                    minutesDraftService: $c->get(\OCA\Decidesk\Service\MinutesDraftService::class),
+                    objectService: $c->get(ObjectService::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
+                    jobList: $c->get(\OCP\BackgroundJob\IJobList::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                );
+            }
         );
 
         // Submission deadline gate (motion-amendment spec): pre-save hook that
