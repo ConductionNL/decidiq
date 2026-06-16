@@ -1,0 +1,57 @@
+/* SPDX-License-Identifier: EUPL-1.2 */
+/* Copyright (C) 2026 Conduction B.V. */
+
+/**
+ * NL Design System token mapping file.
+ * Maps government NL Design System CSS custom property names to Nextcloud CSS variable equivalents.
+ *
+ * This is the ONLY file where --nldesign-* tokens may appear (ADR-004, ADR-010).
+ * Components must use Nextcloud CSS variables directly; this file enables
+ * NL Design System components that consume --nldesign-* tokens to work
+ * within the Nextcloud theming context.
+ *
+ * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-8.1
+ */
+
+:root {
+	/* Brand colours */
+	--nldesign-color-brand-1: var(--color-primary);
+	--nldesign-color-brand-2: var(--color-primary-element-light);
+	--nldesign-color-brand-3: var(--color-primary-element-hover);
+
+	/* Backgrounds */
+	--nldesign-color-background-1: var(--color-main-background);
+	--nldesign-color-background-2: var(--color-background-dark);
+	--nldesign-color-background-3: var(--color-background-hover);
+
+	/* Text */
+	--nldesign-color-text-1: var(--color-main-text);
+	--nldesign-color-text-2: var(--color-text-maxcontrast);
+	--nldesign-color-text-inverse-1: var(--color-primary-element-text);
+
+	/* Borders */
+	--nldesign-color-border-1: var(--color-border);
+	--nldesign-color-border-2: var(--color-border-dark);
+
+	/* Status */
+	--nldesign-color-success: var(--color-success);
+	--nldesign-color-warning: var(--color-warning);
+	--nldesign-color-error: var(--color-error);
+	--nldesign-color-info: var(--color-info);
+
+	/* Typography */
+	--nldesign-font-family-body: var(--font-face);
+	--nldesign-font-size-body: var(--default-font-size);
+	--nldesign-line-height-body: var(--default-line-height);
+
+	/* Spacing */
+	--nldesign-space-1: 4px;
+	--nldesign-space-2: 8px;
+	--nldesign-space-3: 16px;
+	--nldesign-space-4: 24px;
+	--nldesign-space-5: 32px;
+
+	/* Border radius */
+	--nldesign-border-radius: var(--border-radius);
+	--nldesign-border-radius-large: var(--border-radius-large);
+}

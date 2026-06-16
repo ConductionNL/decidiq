@@ -1,0 +1,440 @@
+{
+	"info": {
+		"name": "Decidesk Publication Anon-Read Contract Suite",
+		"description": "Newman contract tests for the anonymous published-predicate read leg of publish-decisions-via-opencatalogi (RBAC publicatiedatum + public-group authorization.read on PublicationPayload). Asserts the WOO/ORI visibility lifecycle through decidesk's anonymous harvest surface (the ORI feed at /api/ori/v1/publications, a #[PublicPage] endpoint): a PublicationPayload is anonymously visible ONCE publicatiedatum <= now, NOT before (future-dated), and GONE after depublicatiedatum is in the past. Also locks the harvest-feed payload shape (oriType self-declaration, allow-list PII-free fields) and the immutability posture (anonymous writes rejected).\n\nThe anonymous reads target the ORI harvest feed rather than a raw OR object read because (a) that is decidesk's actual anonymous read surface for published governance data (ADR-022: no per-app raw read endpoint beyond ORI), and (b) the feed re-applies the published-predicate window in PHP as defence-in-depth, so the contract holds even if the live OR RBAC rule is misconfigured. The feed's own PHP window filter (isPayloadLive) is what these tests gate; the underlying OR public-group RBAC rule is unit-verified in PublicationServiceTest::testAnonReadablePredicateLifecycle.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated (admin) request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The anonymous read/write requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "0. Setup",
+			"item": [
+				{
+					"name": "Seed future-dated PublicationPayload (admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const future = new Date(Date.now() + 7*24*3600*1000).toISOString();",
+									"const tag = 'newman-anon-' + Date.now();",
+									"pm.collectionVariables.set('futurePublicatiedatum', future);",
+									"pm.collectionVariables.set('payloadTag', tag);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: future-dated payload created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'payload id captured').to.be.a('string');",
+									"pm.collectionVariables.set('payloadId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/publication-payload",
+							"host": [ "{{baseUrl}}" ],
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload" ]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"oriType\": \"Besluit\",\n  \"schemaOrgType\": \"ChooseAction\",\n  \"title\": \"{{payloadTag}} Vaststelling Programmabegroting 2026\",\n  \"text\": \"De raad besluit de Programmabegroting 2026 vast te stellen.\",\n  \"outcome\": \"adopted\",\n  \"bodyName\": \"Gemeenteraad Newman\",\n  \"voteTotals\": { \"for\": 30, \"against\": 5, \"abstain\": 0 },\n  \"payloadVersion\": 1,\n  \"publicatiedatum\": \"{{futurePublicatiedatum}}\",\n  \"depublicatiedatum\": null\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Not visible before publicatiedatum",
+			"item": [
+				{
+					"name": "Anon feed excludes future-dated payload",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Anon harvest feed responds 200 (PublicPage)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"const ids = (b.items || []).map(i => i.id);",
+									"pm.test('Future-dated payload is NOT visible anonymously', () => {",
+									"  pm.expect(ids).to.not.include(pm.collectionVariables.get('payloadId'));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" } ],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/ori/v1/publications",
+							"host": [ "{{noAuthBase}}" ],
+							"path": [ "index.php", "apps", "decidesk", "api", "ori", "v1", "publications" ]
+						}
+					}
+				},
+				{
+					"name": "Anon show of future-dated payload is 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Future-dated payload show is 404 (not 403, never confirm existence)', () => pm.response.to.have.status(404));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" } ],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/ori/v1/publications/{{payloadId}}",
+							"host": [ "{{noAuthBase}}" ],
+							"path": [ "index.php", "apps", "decidesk", "api", "ori", "v1", "publications", "{{payloadId}}" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Publish (publicatiedatum <= now)",
+			"item": [
+				{
+					"name": "Set publicatiedatum to the past (admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const past = new Date(Date.now() - 24*3600*1000).toISOString();",
+									"pm.collectionVariables.set('pastPublicatiedatum', past);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Publish: payload updated to past publicatiedatum (200)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/publication-payload/{{payloadId}}",
+							"host": [ "{{baseUrl}}" ],
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload", "{{payloadId}}" ]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"oriType\": \"Besluit\",\n  \"schemaOrgType\": \"ChooseAction\",\n  \"title\": \"{{payloadTag}} Vaststelling Programmabegroting 2026\",\n  \"text\": \"De raad besluit de Programmabegroting 2026 vast te stellen.\",\n  \"outcome\": \"adopted\",\n  \"bodyName\": \"Gemeenteraad Newman\",\n  \"voteTotals\": { \"for\": 30, \"against\": 5, \"abstain\": 0 },\n  \"payloadVersion\": 1,\n  \"publicatiedatum\": \"{{pastPublicatiedatum}}\",\n  \"depublicatiedatum\": null\n}"
+						}
+					}
+				},
+				{
+					"name": "Anon feed now includes the published payload (PII-free shape)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Anon harvest feed responds 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"const item = (b.items || []).find(i => i.id === pm.collectionVariables.get('payloadId'));",
+									"pm.test('Published payload IS visible anonymously once publicatiedatum <= now', () => {",
+									"  pm.expect(item, 'published payload present in feed').to.be.an('object');",
+									"});",
+									"pm.test('Item self-declares oriType=Besluit', () => pm.expect(item['@type']).to.eql('Besluit'));",
+									"pm.test('Item carries ORI-mapped allow-list fields', () => {",
+									"  pm.expect(item.outcome).to.eql('adopted');",
+									"  pm.expect(item.vote_totals).to.be.an('object');",
+									"});",
+									"pm.test('Item is PII-free (no email / @self / UID / individual votes)', () => {",
+									"  pm.expect(item).to.not.have.property('email');",
+									"  pm.expect(item).to.not.have.property('@self');",
+									"  pm.expect(item).to.not.have.property('uid');",
+									"  pm.expect(item).to.not.have.property('votes');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" } ],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/ori/v1/publications",
+							"host": [ "{{noAuthBase}}" ],
+							"path": [ "index.php", "apps", "decidesk", "api", "ori", "v1", "publications" ]
+						}
+					}
+				},
+				{
+					"name": "Anon show of published payload returns the entity (200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Published payload show is 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('Show entity self-declares oriType=Besluit', () => pm.expect(b['@type']).to.eql('Besluit'));",
+									"pm.test('Show entity id matches', () => pm.expect(b.id).to.eql(pm.collectionVariables.get('payloadId')));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" } ],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/ori/v1/publications/{{payloadId}}",
+							"host": [ "{{noAuthBase}}" ],
+							"path": [ "index.php", "apps", "decidesk", "api", "ori", "v1", "publications", "{{payloadId}}" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Immutability (anonymous writes rejected)",
+			"item": [
+				{
+					"name": "Anon write to the payload object is rejected (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Anonymous write to published payload rejected (401)', () => pm.expect(pm.response.code).to.be.oneOf([401, 403, 405]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/openregister/api/objects/decidesk/publication-payload/{{payloadId}}",
+							"host": [ "{{noAuthBase}}" ],
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload", "{{payloadId}}" ]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"outcome\": \"tampered\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Withdraw (depublicatiedatum <= now)",
+			"item": [
+				{
+					"name": "Set depublicatiedatum to the past (admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const past = new Date(Date.now() - 3600*1000).toISOString();",
+									"pm.collectionVariables.set('pastDepublicatiedatum', past);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Withdraw: payload depublicatiedatum set (200)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/publication-payload/{{payloadId}}",
+							"host": [ "{{baseUrl}}" ],
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload", "{{payloadId}}" ]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"oriType\": \"Besluit\",\n  \"schemaOrgType\": \"ChooseAction\",\n  \"title\": \"{{payloadTag}} Vaststelling Programmabegroting 2026\",\n  \"text\": \"De raad besluit de Programmabegroting 2026 vast te stellen.\",\n  \"outcome\": \"adopted\",\n  \"bodyName\": \"Gemeenteraad Newman\",\n  \"voteTotals\": { \"for\": 30, \"against\": 5, \"abstain\": 0 },\n  \"payloadVersion\": 1,\n  \"publicatiedatum\": \"{{pastPublicatiedatum}}\",\n  \"depublicatiedatum\": \"{{pastDepublicatiedatum}}\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Anon feed no longer includes the withdrawn payload",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Anon harvest feed responds 200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"const ids = (b.items || []).map(i => i.id);",
+									"pm.test('Withdrawn payload is GONE from the anonymous feed after depublicatiedatum', () => {",
+									"  pm.expect(ids).to.not.include(pm.collectionVariables.get('payloadId'));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" } ],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/ori/v1/publications",
+							"host": [ "{{noAuthBase}}" ],
+							"path": [ "index.php", "apps", "decidesk", "api", "ori", "v1", "publications" ]
+						}
+					}
+				},
+				{
+					"name": "Anon show of withdrawn payload is 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Withdrawn payload show is 404', () => pm.response.to.have.status(404));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [ { "key": "Accept", "value": "application/json" } ],
+						"url": {
+							"raw": "{{noAuthBase}}/index.php/apps/decidesk/api/ori/v1/publications/{{payloadId}}",
+							"host": [ "{{noAuthBase}}" ],
+							"path": [ "index.php", "apps", "decidesk", "api", "ori", "v1", "publications", "{{payloadId}}" ]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Teardown",
+			"item": [
+				{
+					"name": "Delete the publication payload",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Teardown: payload deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{adminUser}}", "type": "string" },
+								{ "key": "password", "value": "{{adminPass}}", "type": "string" }
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "OCS-APIRequest", "value": "true" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/publication-payload/{{payloadId}}",
+							"host": [ "{{baseUrl}}" ],
+							"path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "publication-payload", "{{payloadId}}" ]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080" },
+		{ "key": "noAuthBase", "value": "http://127.0.0.1:8080" },
+		{ "key": "adminUser", "value": "admin" },
+		{ "key": "adminPass", "value": "admin" },
+		{ "key": "payloadId", "value": "" },
+		{ "key": "payloadTag", "value": "" },
+		{ "key": "futurePublicatiedatum", "value": "" },
+		{ "key": "pastPublicatiedatum", "value": "" },
+		{ "key": "pastDepublicatiedatum", "value": "" }
+	]
+}

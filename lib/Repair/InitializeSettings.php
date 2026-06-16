@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Decidesk Initialize Settings Repair Step
  *
@@ -8,26 +7,35 @@
  * @category Repair
  * @package  OCA\Decidesk\Repair
  *
- * @author    Conduction Development Team <dev@conductio.nl>
+ * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @version GIT: <git-id>
  *
  * @link https://conduction.nl
+ *
+ * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.1
  */
 
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Repair;
 
 use OCA\Decidesk\Service\SettingsService;
+use OCP\IAppConfig;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
 
 /**
  * Repair step that initializes Decidesk configuration via SettingsService.
+ *
+ * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.1
  */
 class InitializeSettings implements IRepairStep
 {
@@ -35,12 +43,14 @@ class InitializeSettings implements IRepairStep
      * Constructor for InitializeSettings.
      *
      * @param SettingsService $settingsService The settings service
+     * @param IAppConfig      $appConfig       The app config
      * @param LoggerInterface $logger          The logger interface
      *
      * @return void
      */
     public function __construct(
         private SettingsService $settingsService,
+        private IAppConfig $appConfig,
         private LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -49,6 +59,10 @@ class InitializeSettings implements IRepairStep
      * Get the name of this repair step.
      *
      * @return string
+     *
+     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function getName(): string
     {
@@ -61,10 +75,21 @@ class InitializeSettings implements IRepairStep
      * @param IOutput $output The output interface for progress reporting
      *
      * @return void
+     *
+     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
      */
     public function run(IOutput $output): void
     {
         $output->info('Initializing Decidesk configuration...');
+
+        // Ensure voter_token_secret is initialized exactly once, at install/upgrade time,
+        // to prevent a concurrent first-call race in VotingService::voterTokenSecret().
+        if ($this->appConfig->getValueString('decidesk', 'voter_token_secret', '') === '') {
+            $this->appConfig->setValueString('decidesk', 'voter_token_secret', bin2hex(random_bytes(32)));
+            $output->info('Generated voter_token_secret for Decidesk.');
+        }
 
         if ($this->settingsService->isOpenRegisterAvailable() === false) {
             $output->warning(
@@ -77,7 +102,7 @@ class InitializeSettings implements IRepairStep
         }
 
         try {
-            $result = $this->settingsService->loadConfiguration(force: true);
+            $result = $this->settingsService->loadConfiguration(force: false);
 
             if ($result['success'] === true) {
                 $version = ($result['version'] ?? 'unknown');

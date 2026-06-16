@@ -1,0 +1,214 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- Copyright (C) 2026 Conduction B.V. -->
+
+<!--
+ Sidebar tab: voting overview (stemmingen) for a Meeting.
+
+ Posture: read-only — consistent with MotionVotesTab.vue. Votes are
+ cast exclusively through the LiveMeeting view during the meeting; this
+ tab is the post-meeting aggregate that lets a secretary scan every
+ voting round + tally for a single meeting without re-entering
+ LiveMeeting. It walks meeting → agenda-item → motion → voting-round
+ (the canonical relation chain used by AgendaMotionsTab and
+ MotionVotesTab) and groups the rounds by their parent motion. No
+ create / edit / cast action is offered.
+
+ @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-stemmingen-overview-tab
+-->
+<template>
+	<div class="decidesk-tab decidesk-tab--votes" data-testid="meeting-votes-tab">
+		<div class="decidesk-tab__header">
+			<h3 class="decidesk-tab__title">
+				{{ t('decidesk', 'Votes') }}
+				<span v-if="!loading" class="decidesk-tab__count">({{ rounds.length }})</span>
+			</h3>
+		</div>
+
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidesk', 'Could not load voting overview')">
+			{{ error }}
+		</CnNoteCard>
+
+		<CnNoteCard
+			v-else-if="!loading && !rounds.length"
+			type="info"
+			:title="t('decidesk', 'No voting recorded for this meeting')"
+			data-testid="meeting-votes-empty">
+			{{ t('decidesk', 'No voting recorded for this meeting.') }}
+		</CnNoteCard>
+
+		<p v-else-if="loading" class="decidesk-tab__loading">
+			{{ t('decidesk', 'Loading voting overview…') }}
+		</p>
+
+		<CnDataTable
+			v-else
+			:columns="columns"
+			:rows="rounds"
+			:loading="loading"
+			row-key="id"
+			:empty-text="t('decidesk', 'No voting recorded for this meeting.')"
+			@row-click="openMotion">
+			<template #column-result="{ value }">
+				<CnStatusBadge v-if="value" :label="value" :color-map="resultColors" />
+			</template>
+		</CnDataTable>
+	</div>
+</template>
+
+<script>
+import { CnDataTable, CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
+import { ensureRelationType } from './useRelationStore.js'
+
+export default {
+	name: 'MeetingVotesTab',
+	components: { CnDataTable, CnNoteCard, CnStatusBadge },
+	props: {
+		objectId: { type: [String, Number], default: '' },
+	},
+	data() {
+		return {
+			loading: false,
+			error: '',
+			// Each row: { id, motionId, motionTitle, motionType,
+			//   votesFor, votesAgainst, votesAbstain, result, timestamp }.
+			rounds: [],
+		}
+	},
+	computed: {
+		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
+		columns() {
+			return [
+				{ key: 'motionTitle', label: this.t('decidesk', 'Motion') },
+				{ key: 'motionType', label: this.t('decidesk', 'Type') },
+				{ key: 'votesFor', label: this.t('decidesk', 'For') },
+				{ key: 'votesAgainst', label: this.t('decidesk', 'Against') },
+				{ key: 'votesAbstain', label: this.t('decidesk', 'Abstain') },
+				{ key: 'result', label: this.t('decidesk', 'Result') },
+				{ key: 'timestamp', label: this.t('decidesk', 'When') },
+			]
+		},
+		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
+		resultColors() {
+			return { adopted: 'success', rejected: 'error', tied: 'warning' }
+		},
+	},
+	watch: {
+		objectId: {
+			immediate: true,
+			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
+			handler() { this.refresh() },
+		},
+	},
+	methods: {
+		// Read-only aggregate. Walks meeting → agenda-item → motion →
+		// voting-round (the chain AgendaMotionsTab/MotionVotesTab use);
+		// no direct meeting link exists on voting-round. Vote authoring
+		// stays exclusively in LiveMeetingView.
+		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
+		async refresh() {
+			if (!this.objectId) return
+			this.loading = true
+			this.error = ''
+			try {
+				const agendaStore = ensureRelationType('agenda-item')
+				const agendaItems = await agendaStore.fetchCollection('agenda-item', {
+					meeting: this.objectId,
+					_limit: 200,
+				})
+				if (!Array.isArray(agendaItems) || !agendaItems.length) {
+					this.rounds = []
+					return
+				}
+
+				const motionStore = ensureRelationType('motion')
+				const roundStore = ensureRelationType('voting-round')
+				const collected = []
+				for (const item of agendaItems) {
+					const itemId = item?.id || item?.uuid
+					if (!itemId) continue
+					const motions = await motionStore.fetchCollection('motion', {
+						decisionType: 'motion',
+						agendaItem: itemId,
+						_limit: 100,
+					})
+					for (const motion of motions || []) {
+						const motionId = motion?.id || motion?.uuid
+						if (!motionId) continue
+						const rounds = await roundStore.fetchCollection('voting-round', {
+							motion: motionId,
+							_limit: 50,
+						})
+						for (const round of rounds || []) {
+							collected.push({
+								id: round.id || round.uuid,
+								motionId,
+								motionTitle: motion.title || this.t('decidesk', 'Motion'),
+								motionType: motion.motionType || '',
+								votesFor: round.votesFor ?? 0,
+								votesAgainst: round.votesAgainst ?? 0,
+								votesAbstain: round.votesAbstain ?? 0,
+								result: round.result || '',
+								timestamp: round.closedAt || round.openedAt || '',
+							})
+						}
+					}
+				}
+				this.rounds = collected
+			} catch (e) {
+				this.error = e?.message || this.t('decidesk', 'Failed to load voting overview.')
+			} finally {
+				this.loading = false
+			}
+		},
+		/**
+		 * Deep-link to MotionDetail with the votes tab requested via query.
+		 *
+		 * @param {object} row Round row (must carry `motionId`).
+		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 */
+		openMotion(row) {
+			if (!row || !row.motionId) return
+			this.$router.push({
+				name: 'MotionDetail',
+				params: { id: row.motionId },
+				query: { tab: 'votes' },
+			})
+		},
+	},
+}
+</script>
+
+<style scoped>
+.decidesk-tab {
+	display: flex;
+	flex-direction: column;
+	gap: var(--default-grid-baseline);
+	padding: var(--default-grid-baseline);
+}
+
+.decidesk-tab__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--default-grid-baseline);
+}
+
+.decidesk-tab__title {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: bold;
+}
+
+.decidesk-tab__count {
+	color: var(--color-text-maxcontrast);
+	font-weight: normal;
+	margin-inline-start: 4px;
+}
+
+.decidesk-tab__loading {
+	color: var(--color-text-maxcontrast);
+}
+</style>

@@ -1,5 +1,6 @@
 ---
-status: idea
+status: done
+status-note: completed 2026-06-12 via user-settings-v1 — all 4 requirements built (personal settings panel + SPA page + dialog, preference-aware notification dispatch, absence delegation with proxy-voting gate, communication preferences).
 ---
 
 # User Settings Specification
@@ -10,7 +11,6 @@ User settings allow individual Decidesk users to configure their personal prefer
 
 **Standards**: Nextcloud Settings API (`OCP\Settings\ISettings`), Nextcloud Notification API
 **Feature tier**: MVP
-
 ## Requirements
 
 ---
@@ -80,6 +80,8 @@ The system MUST allow users to configure a delegate who receives their notificat
 - AND the delegation MUST expire automatically on 2026-07-14
 
 #### Scenario: Delegate cannot vote without explicit proxy
+
+@e2e exclude server-side voting guard inside VotingService::castVote; requires a seeded two-member voting round with an active absence delegation, which has no deterministic UI fixture — verified by PHPUnit (VotingServiceDelegationGateTest) and the Newman cast-vote negative request in decidesk-user-settings.postman_collection.json
 
 - GIVEN member B is a delegate for member A during absence
 - WHEN member B attempts to cast a vote on member A's behalf

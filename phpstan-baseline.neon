@@ -1,0 +1,27 @@
+# Tracked phpstan debt entries surfaced when decidesk synced to the fleet canonical.
+# All entries are tracked in https://codeberg.org/Conduction/decidesk/issues/242
+# (Phase 2 pilot lint-debt cleanup). Regenerate with:
+#     ./vendor/bin/phpstan analyse --generate-baseline
+# Entries removed as the underlying code is refactored per the issue checklist.
+
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Constant OCA\\\\Decidesk\\\\Controller\\\\ApiController\\:\\:SCOPE_MAP is unused\\.$#"
+			count: 1
+			path: lib/Controller/ApiController.php
+
+		-
+			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
+			count: 1
+			path: lib/Service/ActionItemAnalyticsService.php
+
+		-
+			message: "#^Offset 0 on array\\{array\\<int, string\\>, array\\<int, non\\-falsy\\-string&numeric\\-string\\>, array\\<int, non\\-falsy\\-string&numeric\\-string\\>\\} in isset\\(\\) always exists and is not nullable\\.$#"
+			count: 1
+			path: lib/Service/EmailLinkService.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between true and false will always evaluate to false\\.$#"
+			count: 1
+			path: lib/Service/MotionCoauthorService.php

@@ -1,16 +1,18 @@
 ---
-status: idea
+status: partial
+status-note: 2026-06-12 admin-settings-v1 — all 4 requirements now have working surfaces. Members tab root cause fixed (governanceBody materialised as a real Participant property via the ADR-037 register fragment — it previously lived only in x-openregister-relations, which OpenRegister never turns into a queryable property, so the tab always rendered empty) plus role-assignment UI; member import from Nextcloud groups and CSV (validation preview, duplicate handling, email-to-account matching, 500-row cap client and server); organization configuration UI (name, logo URL, timezone, locale, currency, retention days via IAppConfig); per-body default + specialized process-template assignment from the built-in catalogue. Honest residue — Nextcloud Contacts import not built (requirement satisfiable via Groups/CSV); template chooser on decision-create not built (decision-management surface); org name/logo not yet consumed by generated resolutions/minutes (document-generation pipeline); template management itself is process-configuration (V1, separate spec).
 ---
 
 # Admin Settings Specification
 
 ## Purpose
-
 Admin settings enable organization administrators to configure Decidesk for their specific governance context. This includes setting up governing bodies (bodies), assigning members with roles, selecting process templates, configuring voting rules, and managing the OpenRegister schema setup. The admin interface is the first thing configured after installation and determines how the entire system behaves.
 
 **Standards**: Nextcloud Settings API (`OCP\Settings\ISettings`), Schema.org (`Organization`, `Role`)
 **Feature tier**: MVP
 
+**OpenSpec changes**:
+- ia-six-item-nav (active) — adds the `organisatie-modus` tenant-mode setting (ADR-004 Rule 1 / ADR-006 label adaptation)
 ## Requirements
 
 ---
@@ -23,6 +25,8 @@ The system MUST support creating and managing governing bodies (bestuursorganen)
 
 #### Scenario: Create a governing body for an association board
 
+@e2e openspec/specs/admin-settings/spec.md#create-a-governing-body-for-an-association-board
+
 - GIVEN an administrator in the Decidesk admin settings
 - WHEN they create a body with name "Bestuur", type "board", and add 5 members with roles (chair, secretary, treasurer, member, member)
 - THEN the system MUST create an OpenRegister object with the `body` schema
@@ -31,12 +35,16 @@ The system MUST support creating and managing governing bodies (bestuursorganen)
 
 #### Scenario: Configure quorum rules for a body
 
+@e2e openspec/specs/admin-settings/spec.md#configure-quorum-rules-for-a-body
+
 - GIVEN an existing body "Algemene Ledenvergadering" with 200 members
 - WHEN the administrator sets quorum to "50%+1 of members present or represented"
 - THEN the quorum rule MUST be stored on the body configuration
 - AND the quorum MUST be automatically calculated at each meeting
 
 #### Scenario: Assign roles within a body
+
+@e2e openspec/specs/admin-settings/spec.md#assign-roles-within-a-body
 
 - GIVEN an existing body with members
 - WHEN the administrator assigns the "chair" role to a member
@@ -54,6 +62,8 @@ The system MUST allow administrators to assign process templates to bodies. Each
 
 #### Scenario: Assign default and specialized templates to a body
 
+@e2e openspec/specs/admin-settings/spec.md#assign-default-and-specialized-templates-to-a-body
+
 - GIVEN a body "ALV" with a default template "ALV Standard Decision"
 - WHEN the administrator adds a specialized template "ALV Statute Amendment" for statute changes
 - THEN the body MUST have both templates available
@@ -70,6 +80,8 @@ The system MUST support configuring organization-level settings: organization na
 
 #### Scenario: Configure organization defaults
 
+@e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
+
 - GIVEN the administrator opens the organization settings
 - WHEN they set organization name "Vereniging De Harmonie", language "nl", timezone "Europe/Amsterdam", and currency "EUR"
 - THEN these defaults MUST apply to all meetings, decisions, and generated documents
@@ -85,6 +97,8 @@ The system MUST support importing members from Nextcloud Groups, Nextcloud Conta
 
 #### Scenario: Import members from a Nextcloud group
 
+@e2e openspec/specs/admin-settings/spec.md#import-members-from-a-nextcloud-group
+
 - GIVEN a Nextcloud group "bestuur" with 5 members
 - WHEN the administrator imports the group into a Decidesk body
 - THEN all 5 Nextcloud users MUST be added as body members
@@ -93,11 +107,51 @@ The system MUST support importing members from Nextcloud Groups, Nextcloud Conta
 
 #### Scenario: Import members from CSV
 
+@e2e openspec/specs/admin-settings/spec.md#import-members-from-csv
+
 - GIVEN a CSV file with columns: name, email, role
 - WHEN the administrator uploads the CSV for a body
 - THEN the system MUST create member entries for each row
 - AND members with matching Nextcloud accounts (by email) MUST be automatically linked
 - AND unmatched members MUST be flagged for manual linking or invitation
+
+### Requirement: REQ-ADM-MODE-001 Organisatie-modus tenant setting
+The system MUST expose an `organisatie_modus` setting whose value is one of
+`gov`, `corp`, `assoc`, `ops`, or `citizen`, defaulting to `gov`. The setting MUST
+be persisted via `IAppConfig` through `SettingsService` (added to
+`SettingsService::CONFIG_KEYS`), returned by `getSettings()` with the `gov`
+default when unset, and writable via `updateSettings()`. The setting MUST be
+selectable in the Decidesk admin settings UI. The value MUST drive the
+navigation label map (per the app-navigation capability) and MUST NOT alter the
+entity/schema set or the navigation structure (ADR-006: mode adaptation, never
+parallel entities).
+
+#### Scenario: Default mode is gov
+
+@e2e openspec/specs/admin-settings/spec.md#default-mode-is-gov
+
+- GIVEN a fresh install where `organisatie_modus` has never been set
+- WHEN `getSettings()` is called
+- THEN it returns `organisatie_modus = "gov"`
+
+#### Scenario: Admin selects a tenant mode
+
+@e2e openspec/specs/admin-settings/spec.md#admin-selects-a-tenant-mode
+
+- GIVEN an administrator in the Decidesk admin settings
+- WHEN they set the organisation mode to "corp"
+- THEN `updateSettings()` persists `organisatie_modus = "corp"` via `IAppConfig`
+- AND `getSettings()` subsequently returns `"corp"`
+- AND the navigation Bodies item relabels to "Board" on next render
+
+#### Scenario: Mode does not create parallel entities
+
+@e2e openspec/specs/admin-settings/spec.md#mode-does-not-create-parallel-entities
+
+- GIVEN any `organisatie_modus` value
+- WHEN the app boots with that mode
+- THEN the register schema set is unchanged and the navigation structure stays the six-item IA
+- AND only displayed labels differ
 
 ## User Stories
 

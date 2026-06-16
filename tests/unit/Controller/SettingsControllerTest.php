@@ -6,7 +6,7 @@
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Controller
  *
- * @author    Conduction Development Team <dev@conductio.nl>
+ * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
@@ -20,14 +20,19 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\SettingsController;
+use OCA\Decidesk\Service\PublicationConfigService;
 use OCA\Decidesk\Service\SettingsService;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for SettingsController.
+ *
+ * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
  */
 class SettingsControllerTest extends TestCase
 {
@@ -54,6 +59,27 @@ class SettingsControllerTest extends TestCase
     private SettingsService&MockObject $settingsService;
 
     /**
+     * Mock IUserSession.
+     *
+     * @var IUserSession&MockObject
+     */
+    private IUserSession&MockObject $userSession;
+
+    /**
+     * Mock PublicationConfigService.
+     *
+     * @var PublicationConfigService&MockObject
+     */
+    private PublicationConfigService&MockObject $publicationConfigService;
+
+    /**
+     * Mock non-admin IUser.
+     *
+     * @var IUser&MockObject
+     */
+    private IUser&MockObject $nonAdminUser;
+
+    /**
      * Set up test fixtures.
      *
      * @return void
@@ -62,12 +88,19 @@ class SettingsControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->request         = $this->createMock(IRequest::class);
-        $this->settingsService = $this->createMock(SettingsService::class);
+        $this->request                  = $this->createMock(originalClassName: IRequest::class);
+        $this->settingsService          = $this->createMock(originalClassName: SettingsService::class);
+        $this->userSession              = $this->createMock(originalClassName: IUserSession::class);
+        $this->publicationConfigService = $this->createMock(originalClassName: PublicationConfigService::class);
+
+        $this->nonAdminUser = $this->createMock(originalClassName: IUser::class);
+        $this->nonAdminUser->method('getUID')->willReturn('regularuser');
 
         $this->controller = new SettingsController(
             request: $this->request,
             settingsService: $this->settingsService,
+            userSession: $this->userSession,
+            publicationConfigService: $this->publicationConfigService,
         );
 
     }//end setUp()
@@ -85,19 +118,26 @@ class SettingsControllerTest extends TestCase
             'isAdmin'       => false,
         ];
 
+        $this->userSession->expects($this->once())
+            ->method('getUser')
+            ->willReturn($this->nonAdminUser);
+
         $this->settingsService->expects($this->once())
             ->method('getSettings')
             ->willReturn($settings);
 
         $result = $this->controller->index();
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertSame($settings, $result->getData());
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertSame(expected: $settings, actual: $result->getData());
 
     }//end testIndexReturnsJsonResponseWithSettings()
 
     /**
      * Test that create() calls updateSettings with request params and returns success.
+     *
+     * Admin enforcement is handled by the #[AuthorizedAdminSetting] framework attribute,
+     * not by the controller itself.
      *
      * @return void
      */
@@ -117,14 +157,17 @@ class SettingsControllerTest extends TestCase
 
         $result = $this->controller->create();
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertTrue($result->getData()['success']);
-        self::assertArrayHasKey('config', $result->getData());
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertTrue(condition: $result->getData()['success']);
+        self::assertArrayHasKey(key: 'config', array: $result->getData());
 
     }//end testCreateCallsUpdateSettingsAndReturnsSuccess()
 
     /**
      * Test that load() returns the result of loadConfiguration.
+     *
+     * Admin enforcement is handled by the #[AuthorizedAdminSetting] framework attribute,
+     * not by the controller itself.
      *
      * @return void
      */
@@ -143,8 +186,9 @@ class SettingsControllerTest extends TestCase
 
         $result = $this->controller->load();
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertTrue($result->getData()['success']);
+        self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+        self::assertTrue(condition: $result->getData()['success']);
 
     }//end testLoadReturnsConfigurationResult()
+
 }//end class

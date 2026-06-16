@@ -1,0 +1,13 @@
+{
+  "spec_slug": "p4-reporting-and-analytics",
+  "title": "Reporting and Analytics",
+  "app": "decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
+  "depends_on": [
+    "integration-analytics",
+    "p3-citizen-participation",
+    "p3-document-management",
+    "p3-governance-bodies"
+  ],
+  "issue": null
+}

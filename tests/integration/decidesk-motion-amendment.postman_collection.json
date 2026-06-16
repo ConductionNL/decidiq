@@ -1,0 +1,266 @@
+{
+	"info": {
+		"name": "Decidesk Motion & Amendment Contract Suite",
+		"description": "Newman contract tests for motion-amendment-v1: the chair-controlled amendment voting order endpoint (POST /api/motions/{id}/amendment-order), its validation envelope (400 on empty/invalid order, 404 on unknown motion) and authorization posture (401 unauthenticated), plus the voting-round subjectType contract (POST /api/voting-rounds rejects an unknown subjectType with 400). Self-contained: seeds a motion plus two amendments via the OpenRegister object API and tears them down.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The no-auth request carries NEITHER and targets {{noAuthBase}} so the host-scoped NC session cookie never leaks to it.\n\n@spec openspec/specs/motion-amendment/spec.md",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "0. Setup",
+			"item": [
+				{
+					"name": "Seed parent motion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: motion created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'motion id captured').to.be.a('string');",
+									"pm.collectionVariables.set('motionId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "motion" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Newman motion-amendment parent motion\",\n  \"text\": \"The original motion text under consideration.\",\n  \"lifecycle\": \"debating\"\n}" }
+					}
+				},
+				{
+					"name": "Seed amendment A",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: amendment A created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'amendment A id captured').to.be.a('string');",
+									"pm.collectionVariables.set('amendmentA', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Amendment A\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"Original text with a small addition\",\n  \"parentMotion\": \"{{motionId}}\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-01T10:00:00Z\"\n}" }
+					}
+				},
+				{
+					"name": "Seed amendment B",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: amendment B created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'amendment B id captured').to.be.a('string');",
+									"pm.collectionVariables.set('amendmentB', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Amendment B\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"A far more sweeping rewrite of the entire passage entirely\",\n  \"parentMotion\": \"{{motionId}}\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-02T10:00:00Z\"\n}" }
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Amendment voting order",
+			"item": [
+				{
+					"name": "POST amendment-order with empty order is 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('AmendmentOrder: empty order rejected (400)', () => pm.response.to.have.status(400));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message, 'rejection message present').to.be.a('string');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/motions/{{motionId}}/amendment-order", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "{{motionId}}", "amendment-order" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"orderedAmendmentIds\": []\n}" }
+					}
+				},
+				{
+					"name": "POST amendment-order with valid order persists 1..N",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('AmendmentOrder: valid order accepted (200)', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.expect(b.success, 'success flag').to.eql(true);",
+									"pm.expect(b.amendments, 'amendments returned').to.be.an('array');",
+									"const byId = {};",
+									"(b.amendments || []).forEach(a => { const id = (a['@self'] && a['@self'].id) || a.id; byId[id] = a.votingOrder; });",
+									"pm.expect(byId[pm.collectionVariables.get('amendmentB')], 'B is first').to.eql(1);",
+									"pm.expect(byId[pm.collectionVariables.get('amendmentA')], 'A is second').to.eql(2);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/motions/{{motionId}}/amendment-order", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "{{motionId}}", "amendment-order" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"orderedAmendmentIds\": [\"{{amendmentB}}\", \"{{amendmentA}}\"]\n}" }
+					}
+				},
+				{
+					"name": "POST amendment-order on unknown motion is 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('AmendmentOrder: unknown motion is 404 not 500', () => pm.expect(pm.response.code, 'status').to.be.oneOf([403, 404]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/motions/00000000-0000-0000-0000-000000000000/amendment-order", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "00000000-0000-0000-0000-000000000000", "amendment-order" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"orderedAmendmentIds\": [\"{{amendmentA}}\"]\n}" }
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Voting-round subjectType contract",
+			"item": [
+				{
+					"name": "POST open round with invalid subjectType is 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Open: invalid subjectType rejected (400)', () => pm.response.to.have.status(400));",
+									"const b = pm.response.json();",
+									"pm.expect(b.message, 'subjectType message').to.include('subjectType');"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/decidesk/api/voting-rounds", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "decidesk", "api", "voting-rounds" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"motionId\": \"{{motionId}}\",\n  \"meetingId\": \"meeting-x\",\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"subjectType\": \"resolution\"\n}" }
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Authorization",
+			"item": [
+				{
+					"name": "POST amendment-order unauthenticated (401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Authz: amendment-order requires auth (401)', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ],
+						"url": { "raw": "{{noAuthBase}}/index.php/apps/decidesk/api/motions/{{motionId}}/amendment-order", "host": [ "{{noAuthBase}}" ], "path": [ "index.php", "apps", "decidesk", "api", "motions", "{{motionId}}", "amendment-order" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"orderedAmendmentIds\": [\"{{amendmentA}}\"]\n}" }
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Teardown",
+			"item": [
+				{
+					"name": "Delete amendment A",
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Teardown: amendment A deleted', () => pm.expect(pm.response.code, 'status').to.be.oneOf([200, 204, 404]));" ] } } ],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment/{{amendmentA}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment", "{{amendmentA}}" ] }
+					}
+				},
+				{
+					"name": "Delete amendment B",
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Teardown: amendment B deleted', () => pm.expect(pm.response.code, 'status').to.be.oneOf([200, 204, 404]));" ] } } ],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment/{{amendmentB}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment", "{{amendmentB}}" ] }
+					}
+				},
+				{
+					"name": "Delete parent motion",
+					"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Teardown: motion deleted', () => pm.expect(pm.response.code, 'status').to.be.oneOf([200, 204, 404]));" ] } } ],
+					"request": {
+						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
+						"method": "DELETE",
+						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{motionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "motion", "{{motionId}}" ] }
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080" },
+		{ "key": "noAuthBase", "value": "http://127.0.0.1:8080" },
+		{ "key": "adminUser", "value": "admin" },
+		{ "key": "adminPass", "value": "admin" },
+		{ "key": "motionId", "value": "" },
+		{ "key": "amendmentA", "value": "" },
+		{ "key": "amendmentB", "value": "" }
+	]
+}

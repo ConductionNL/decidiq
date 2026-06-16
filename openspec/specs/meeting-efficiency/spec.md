@@ -1,5 +1,6 @@
 ---
-status: idea
+status: done
+status-note: 2026-06-13 meeting-efficiency-v1 — all 4 requirements built. Agenda-item countdown timer (AgendaItemTimer.vue + meetingTimer.js), speaker queue with per-speaker timer recording speeches via EngagementService (SpeakerQueuePanel.vue + speakerQueue.js), live + server-stamped meeting cost (MeetingCostPanel.vue + meetingCost.js + MeetingCostService.php), and the per-body Efficiency analytics tab (GovernanceBodyEfficiencyTab.vue + meetingAnalytics.js). Pure logic exhaustively vitest-covered; wall-clock expiry scenarios @e2e-excluded (vitest-covered). Additive schema: governance-body.hourlyRate, meeting.openedAt/closedAt/meetingCost, agenda-item.pausedDuration.
 ---
 
 # Meeting Efficiency Specification
@@ -10,7 +11,6 @@ Meeting efficiency features help governance bodies run productive meetings. This
 
 **Standards**: Schema.org (`Duration`, `MonetaryAmount`)
 **Feature tier**: V1
-
 ## Requirements
 
 ---
@@ -22,6 +22,8 @@ The system MUST provide a visible countdown timer for each agenda item during me
 **Feature tier**: V1
 
 #### Scenario: Timer alerts when time is exceeded
+
+@e2e exclude wall-clock countdown expiry cannot be compressed in e2e; tick math, over-time state and the extend/close options are exhaustively covered in tests/vitest/meetingTimer.spec.js, and the rendered controls are e2e-covered via the pause scenario
 
 - GIVEN an agenda item with 15 minutes allocated and the timer running
 - WHEN 15 minutes have elapsed
@@ -44,8 +46,6 @@ The system MUST provide a visible countdown timer for each agenda item during me
 - THEN no timer MUST be displayed
 - AND the elapsed time MUST still be tracked in the background for analytics
 
----
-
 ### Requirement: Speaking Time Management
 
 The system MUST track speaking time per participant during discussions. The chair MUST be able to set speaking time limits. The system MUST maintain a speaker queue for managing turn-taking.
@@ -53,6 +53,8 @@ The system MUST track speaking time per participant during discussions. The chai
 **Feature tier**: V1
 
 #### Scenario: Enforce speaking time limit
+
+@e2e exclude the 3-minute wall clock cannot be compressed in e2e; over-limit detection, the alert condition and the extension/next-speaker transitions are exhaustively covered in tests/vitest/speakerQueue.spec.js, and the rendered queue controls are e2e-covered via the manage-speaker-queue scenario
 
 - GIVEN a speaking time limit of 3 minutes per speaker
 - WHEN a speaker has been speaking for 3 minutes
@@ -66,8 +68,6 @@ The system MUST track speaking time per participant during discussions. The chai
 - THEN the system MUST display a speaker queue in order of request
 - AND the chair MUST be able to reorder the queue
 - AND the current speaker MUST be highlighted
-
----
 
 ### Requirement: Meeting Cost Calculator
 
@@ -88,8 +88,6 @@ The system MUST calculate and display the running cost of a meeting based on par
 - WHEN the user views meeting analytics
 - THEN the cost MUST be broken down per agenda item based on actual time spent
 - AND the most expensive agenda items MUST be highlighted
-
----
 
 ### Requirement: Meeting Analytics Dashboard
 

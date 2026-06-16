@@ -1,0 +1,75 @@
+{
+  "skill": "app-verify",
+  "version": "1.0.0",
+  "created": "2026-04-07",
+  "scenarios": [
+    {
+      "id": "verify-namespace-mismatch",
+      "description": "App with mismatched PHP namespace in composer.json vs app-config.json",
+      "prompt": "Run /app-verify on openregister — the composer.json autoload namespace has been changed to OCA\\WrongNamespace\\",
+      "setup": "composer.json autoload.psr-4 key differs from app-config.json namespace",
+      "expected": "Should detect the namespace mismatch and report it as CRITICAL severity",
+      "assertions": [
+        "Reports CRITICAL severity for namespace mismatch",
+        "Shows both the expected value (from app-config.json) and actual value (from composer.json)",
+        "Does NOT modify any files (read-only audit)",
+        "Suggests running /app-apply to fix the drift"
+      ]
+    },
+    {
+      "id": "verify-clean-app",
+      "description": "App where all files match app-config.json perfectly",
+      "prompt": "Run /app-verify on an app where everything is in sync",
+      "setup": "All tracked files match app-config.json values exactly",
+      "expected": "Should report no drift detected, clean audit result",
+      "assertions": [
+        "Reports no CRITICAL or WARNING items",
+        "Explicitly states the app is in sync or no drift detected",
+        "Does NOT suggest running /app-apply (nothing to fix)",
+        "Still runs OpenSpec validation (openspec validate --all) if available"
+      ]
+    },
+    {
+      "id": "verify-outdated-min-version",
+      "description": "App with outdated min-version in appinfo/info.xml vs app-config.json",
+      "prompt": "Run /app-verify on an app where info.xml has min-version 29 but app-config.json targets stable31+",
+      "setup": "info.xml min-version is lower than what app-config.json nextcloudRefs implies",
+      "expected": "Should detect the version mismatch and report it as WARNING severity",
+      "assertions": [
+        "Reports WARNING severity for min-version mismatch",
+        "Shows the current info.xml value and the expected range from app-config.json",
+        "Does NOT report it as CRITICAL (version mismatch is metadata, not identity/runtime)",
+        "Does NOT modify any files"
+      ]
+    },
+    {
+      "id": "verify-missing-ci-workflow",
+      "description": "App missing the code-quality CI workflow that app-config.json expects",
+      "prompt": "Run /app-verify on an app where .github/workflows/code-quality.yml is missing",
+      "setup": "app-config.json exists with CI settings but the code-quality workflow file is absent",
+      "expected": "Should detect the missing workflow and report it as WARNING",
+      "assertions": [
+        "Reports WARNING for missing CI workflow",
+        "Identifies which specific workflow file is missing",
+        "Suggests running /app-apply to create the missing file",
+        "Does NOT create the file itself"
+      ]
+    }
+  ],
+  "trigger_tests": {
+    "should_trigger": [
+      "verify the app config",
+      "check if app files match the config",
+      "audit openregister for drift",
+      "does the app match its app-config.json?",
+      "run app verify on opencatalogi"
+    ],
+    "should_not_trigger": [
+      "apply the config changes",
+      "create a new app",
+      "explore app features",
+      "verify the OpenSpec change",
+      "run the test suite"
+    ]
+  }
+}

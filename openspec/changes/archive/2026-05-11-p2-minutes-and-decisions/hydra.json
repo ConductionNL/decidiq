@@ -1,0 +1,12 @@
+{
+  "spec_slug": "p2-minutes-and-decisions",
+  "title": "Minutes and Decisions",
+  "app": "decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
+  "depends_on": [
+    "p1-schemas-and-data-model",
+    "p1-dashboard-and-navigation",
+    "p1-crud-operations"
+  ],
+  "issue": "https://codeberg.org/Conduction/decidesk/issues/17"
+}

@@ -325,9 +325,22 @@ An item on a meeting's agenda. Agenda items structure the meeting flow and can r
 | `deferred` | Uitgesteld | Deferred to future meeting |
 | `withdrawn` | Ingetrokken | Withdrawn from agenda |
 
+#### Decision-maker model: Person, Membership, Post, ContactDetail
+
+> **Cycle-1 refactor (C2 popolo-decision-makers):** The Popolo decision-maker model is now the implemented standard. The flat `Participant` schema is DEPRECATED — a compatibility shim is retained for quorum/voting only; removal is tracked as the `retire-participant-shim` change.
+
+| Entity | Popolo equivalent | Role |
+|--------|------------------|------|
+| `Person` | `popolo:Person` | Identity record for an individual (name, birthdate, image, email). Board disclosure fields: `nationality` as beyond-Popolo extension. |
+| `Membership` | `popolo:Membership` | Relationship between a Person and a GovernanceBody, with role, time bounds, voting weight. Board disclosure fields: `independenceStatus`, `otherPositions` as beyond-Popolo extensions. |
+| `Post` | `popolo:Post` | A formal position within a body (Chair, Secretary, Treasurer) that a Membership fills. |
+| `ContactDetail` | `popolo:ContactDetail` | Typed, multi-value contact channels for a Person or GovernanceBody. |
+
+ORI `/persons` and `/memberships` now serve real Popolo objects. `Person.email` is exposed as a top-level convenience field (full contacts via `ContactDetail`).
+
 #### Decision
 
-The core entity — a formal decision moving through a configurable state machine. Decisions can originate from any governance domain and follow domain-specific workflows.
+The universal supertype for all formal decisions (ADR-005, Cycle-1 refactor 2026-06-14). `decisionType` is a required discriminator replacing the former separate Motion, Amendment, and Resolution schemas. ORI/Popolo compatibility is preserved at the serialization layer: `/api/ori/v1/motions` sources `decisionType=motion` decisions.
 
 | Aspect | Decision | Rationale |
 |--------|----------|-----------|
@@ -335,12 +348,14 @@ The core entity — a formal decision moving through a configurable state machin
 | **Akoma Ntoso** | `bill` / `decision` / `act` | Legislative document lifecycle |
 | **State machine** | Symfony Workflow (configurable per ProcessTemplate) | Different domains have different approval chains |
 | **Awb compliance** | Written form + motivation fields | Awb Art. 1:3 / 3:46 requirements |
+| **decisionType values** | motion, amendment, resolution, contract, appointment, management-point, policy, meeting-outcome | Required discriminator (ADR-005); replaces separate schema per type |
 
 **Core properties**:
 
 | Property | Type | Schema.org | Akoma Ntoso | Required | Default |
 |----------|------|------------|-------------|----------|---------|
 | `title` | string | `schema:name` | `preface/docTitle` | Yes | -- |
+| `decisionType` | enum | -- | -- | **Yes** | -- |
 | `description` | string | `schema:description` | `preamble` | No | -- |
 | `body` | reference | `schema:agent` | -- | Yes | -- |
 | `status` | enum | `schema:actionStatus` | `lifecycle/@source` | Yes | `draft` |
@@ -394,6 +409,8 @@ The core entity — a formal decision moving through a configurable state machin
 | `amended_approved` | Geamendeerd aangenomen | Approved with amendments |
 
 #### Motion
+
+> **RETIRED (ADR-005, Cycle-1 refactor 2026-06-14):** Motion is no longer a separate schema. Use `Decision` with `decisionType=motion`. The documentation below is kept for historical reference. ORI `/api/ori/v1/motions` continues to serve motion-type decisions for backwards compatibility.
 
 A formal proposal for a decision, following Akoma Ntoso's motion concept. Motions can be standalone (requesting action) or attached to a decision (proposing specific text).
 
@@ -452,6 +469,8 @@ A formal proposal for a decision, following Akoma Ntoso's motion concept. Motion
 | `withdrawn` | Ingetrokken | Withdrawn by proposer |
 
 #### Amendment
+
+> **RETIRED (ADR-005, Cycle-1 refactor 2026-06-14):** Amendment is no longer a separate schema. Use `Decision` with `decisionType=amendment`. The documentation below is kept for historical reference.
 
 A proposed textual change to a motion or decision. Follows Akoma Ntoso's amendment pattern with explicit change tracking.
 
@@ -583,6 +602,8 @@ An individual vote cast by a member. For secret ballots, the `voter` field is nu
 | `invalid` | Ongeldig | Invalid ballot (secret ballot only) |
 
 #### Resolution
+
+> **RETIRED (ADR-005, Cycle-1 refactor 2026-06-14):** Resolution is no longer a separate schema. Use `Decision` with `decisionType=resolution`. The documentation below is kept for historical reference. In mode=corp, resolutions appear as Decision objects with `decisionType=resolution`; the corporate experience is served by mode-adaptation (ADR-006), not a parallel schema.
 
 The formal output of an approved decision. Resolutions are the official, published acts that result from the decision-making process.
 
@@ -767,17 +788,36 @@ A configurable decision process definition using Symfony Workflow YAML structure
 
 All status enums are defined in entity sections above. Cross-entity summary:
 
+> **Cycle-1 refactor (ADR-005):** Motion, Amendment, and Resolution are no longer separate schemas. Their lifecycle statuses are now expressed as Decision statuses on the appropriate `decisionType`. The rows below are retained for historical reference.
+
 | Entity | Statuses | Default |
 |--------|----------|---------|
 | **Meeting** | draft, convened, in_progress, adjourned, completed, minutes_approved, cancelled | `draft` |
 | **AgendaItem** | pending, active, completed, deferred, withdrawn | `pending` |
-| **Decision** | draft, submitted, agenda, committee, debated, voted, approved, rejected, deferred, implemented, archived | `draft` |
-| **Motion** | draft, submitted, seconded, debated, voted, adopted, rejected, withdrawn | `draft` |
-| **Amendment** | draft, submitted, seconded, debated, voted, adopted, rejected, withdrawn | `draft` |
+| **Decision** (universal) | draft, submitted, agenda, committee, debated, voted, approved, rejected, deferred, implemented, archived | `draft` |
+| **Motion** ~~(retired)~~ | draft, submitted, seconded, debated, voted, adopted, rejected, withdrawn | `draft` |
+| **Amendment** ~~(retired)~~ | draft, submitted, seconded, debated, voted, adopted, rejected, withdrawn | `draft` |
 | **Vote** | (result enum) passed, failed, tied, invalidated, deferred | -- |
 | **Ballot** | (choice enum) for, against, abstain, blank, invalid | -- |
-| **Resolution** | active, superseded, repealed, expired, archived | `active` |
+| **Resolution** ~~(retired)~~ | active, superseded, repealed, expired, archived | `active` |
 | **Minutes** | draft, review, approved, corrected | `draft` |
+
+### 3.3b Retired Board-* Entities (ADR-006)
+
+> **Cycle-1 refactor (C3 retire-board-portal, ADR-006):** The parallel corporate "board portal" entity set was retired. The seven `board-*` schemas (Board, BoardMember, BoardMeeting, BoardVote, BoardMinutes, BoardMaterial, BoardAuditLogEntry) no longer exist. Corporate governance is now served by **mode-adaptation** of the universal entities with `organisatie_modus=corp`:
+
+| Former board-* entity | Now expressed as |
+|----------------------|-----------------|
+| Board | GovernanceBody with `bodyType=supervisory-board` or `bodyType=executive-board` |
+| BoardMeeting | Meeting (universal) |
+| BoardMember | Person + Membership |
+| BoardVote | Vote (universal) |
+| BoardMinutes | Minutes (universal) |
+| BoardMaterial | DigitalDocument (universal) |
+| BoardAuditLogEntry | OR built-in `auditTrail` |
+| Resolution *(board sense)* | Decision with `decisionType=resolution` |
+
+Coupled governance features (eIDAS signing, conflict-of-interest, proxy voting, governance reporting, regulator export, multilingual reconciliation) were retargeted onto the unified entities, not removed.
 
 ### 3.4 Cross-App Relationships
 
@@ -864,29 +904,42 @@ Decidesk uses shared components from `@conduction/nextcloud-vue`:
 
 ### 3.7 Vue Router
 
+> **Cycle-1 IA refactor (C7 ia-six-item-nav):** The top-level navigation was restructured to ADR-004's 6-item IA. `organisatie_modus` (gov/corp/assoc/ops/citizen) drives per-mode label adaptation via `src/config/modeLabels.js` — e.g. Bodies renders as "Fracties & Organen" (gov), "Board" (corp), or "Teams" (ops); mode=corp relabels Decisions as "Resolutions". Minutes, Workspaces, and Engagement are demoted from top-level (routes retained).
+
+**Top-level navigation (6 items):**
+
+| Nav item | Route | Description |
+|----------|-------|-------------|
+| Dashboard | `/` | Landing: upcoming meetings, pending decisions, my votes, action items |
+| Meetings | `/meetings` | All meetings (calendar + list toggle) |
+| Decisions | `/decisions` | All decisions / mode=corp: Resolutions (decisionType discriminated) |
+| Action items | `/action-items` | Action items from minutes, assigned to me or all |
+| Motions | `/motions` | Decision objects with decisionType=motion or amendment |
+| Bodies | `/bodies` | Fracties & Organen / Board / Teams — mode-adapted label |
+
+**All routes:**
+
 | Route | View | Description |
 |-------|------|-------------|
 | `/` | Dashboard | Overview: upcoming meetings, pending decisions, my votes, action items |
 | `/organizations` | OrganizationList | All organizations |
 | `/organizations/:id` | OrganizationDetail | Organization with bodies, settings |
-| `/bodies` | BodyList | All decision-making bodies |
+| `/bodies` | BodyList | All decision-making bodies (mode-adapted label) |
 | `/bodies/:id` | BodyDetail | Body with members, meetings, decisions |
 | `/meetings` | MeetingList | All meetings (calendar + list toggle) |
 | `/meetings/:id` | MeetingDetail | Meeting with agenda, attendance, documents |
 | `/meetings/:id/agenda` | AgendaEditor | Drag-and-drop agenda builder |
 | `/meetings/:id/live` | LiveMeeting | Active meeting view: current item, voting, timer |
-| `/decisions` | DecisionList | All decisions (filterable by status, body, category) |
+| `/decisions` | DecisionList | All decisions (filterable by status, body, category, decisionType) |
 | `/decisions/:id` | DecisionDetail | Decision with full lifecycle, dossier, votes |
 | `/decisions/:id/vote` | VotingView | Active voting interface |
-| `/motions` | MotionList | All motions |
-| `/motions/:id` | MotionDetail | Motion with amendments, voting results |
-| `/resolutions` | ResolutionList | Resolution register (searchable, filterable) |
-| `/resolutions/:id` | ResolutionDetail | Published resolution with metadata |
-| `/minutes` | MinutesList | All minutes |
+| `/motions` | MotionList | Decisions with decisionType=motion (mode label: Motions) |
+| `/motions/:id` | MotionDetail | Motion decision with amendments, voting results |
+| `/minutes` | MinutesList | All minutes (demoted from top nav; route retained) |
 | `/minutes/:id` | MinutesEditor | Rich text editor with structured sections |
 | `/templates` | TemplateList | Process template management |
 | `/templates/:id` | TemplateEditor | Visual workflow editor |
-| `/settings` | AdminSettings | App configuration |
+| `/settings` | AdminSettings | App configuration (includes organisatie_modus selector) |
 
 ### 3.8 Nextcloud Integration Strategy
 
@@ -1010,19 +1063,25 @@ $notificationManager->notify($notification);
 
 Schemas MUST be defined in `lib/Settings/decidesk_register.json` using OpenAPI 3.0.0 format (not inline PHP), following the pattern used by opencatalogi and softwarecatalog.
 
-**Schemas**:
+**Schemas** (Cycle-1 state — ADR-005/006 applied):
 - `organization` — Governance body (schema:Organization)
-- `body` — Decision-making body within organization (schema:Organization subOrganization)
-- `meeting` — Scheduled gathering (schema:Event)
+- `body` / `governanceBody` — Decision-making body within organization (schema:Organization subOrganization); `bodyType` values include `supervisory-board`, `executive-board` for corporate mode
+- `meeting` — Scheduled gathering (schema:Event); universal — serves both council and board meetings in mode=corp
 - `agendaItem` — Meeting agenda item (schema:Event part)
-- `decision` — Formal decision with state machine (schema:Action)
-- `motion` — Formal proposal (Akoma Ntoso motion)
-- `amendment` — Proposed change to motion (Akoma Ntoso amendment)
-- `vote` — Voting round (schema:VoteAction)
+- `decision` — Universal supertype for all formal decisions (schema:Action); required `decisionType` discriminator: motion, amendment, resolution, contract, appointment, management-point, policy, meeting-outcome
+- `person` — Individual identity (foaf:Person / Popolo:Person); replaces Participant
+- `membership` — Person-body relationship with role and time bounds (Popolo:Membership)
+- `post` — Formal position within a body (Popolo:Post)
+- `contactDetail` — Typed contact channels for a Person or GovernanceBody (Popolo:ContactDetail)
+- `vote` — Voting round (schema:VoteAction / Popolo:VoteEvent)
 - `ballot` — Individual vote cast (schema:VoteAction individual)
-- `resolution` — Formal output of approved decision (Akoma Ntoso act)
-- `minutes` — Meeting record (schema:CreativeWork)
+- `minutes` — Meeting record (schema:CreativeWork); universal
 - `processTemplate` — Configurable workflow definition (Symfony Workflow)
+- ~~`motion`~~ — RETIRED; use `decision` with `decisionType=motion`
+- ~~`amendment`~~ — RETIRED; use `decision` with `decisionType=amendment`
+- ~~`resolution`~~ — RETIRED; use `decision` with `decisionType=resolution`
+- ~~`participant`~~ — DEPRECATED; use `person` + `membership`
+- ~~`board*`~~ — RETIRED (7 schemas); replaced by mode-adapted universal entities (ADR-006)
 
 The configuration is imported via `ConfigurationService::importFromApp()` in the repair step.
 

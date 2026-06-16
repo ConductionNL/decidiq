@@ -1,0 +1,13 @@
+{
+  "spec_slug": "p3-citizen-participation",
+  "title": "Citizen Participation",
+  "app": "decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
+  "depends_on": [
+    "p2-minutes-and-decisions",
+    "p2-motion-and-voting",
+    "p2-agenda-management",
+    "p2-meeting-management"
+  ],
+  "issue": null
+}

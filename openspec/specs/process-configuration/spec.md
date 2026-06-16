@@ -1,12 +1,36 @@
 ---
-status: idea
+status: done
+status-note: |
+  2026-06-13 process-config-v1 — 4/4 requirements built. Process templates are
+  OpenRegister `processTemplate` objects (ADR-037 fragment) with a structured
+  JSON state machine and default voting rule; a `ProcessTemplateService` does
+  CRUD + duplicate + server-side transition-graph validation (rejects
+  dangling/unreachable states + unknown guard tokens, fail closed). Five
+  built-in templates ship via x-openregister-seeds (association-alv,
+  association-board, corporate-board, municipal-council, operational-team) and
+  are read-only-but-duplicable. An admin-gated section (Settings.vue ->
+  ProcessTemplates.vue + ProcessTemplateEditModal.vue + StateMachineEditor.vue)
+  manages them. The assigned template drives the DecisionTransitionGuard /
+  WorkflowService policy ADDITIVELY: a `ProcessTemplatePolicyResolver`
+  translates the template to the guard policy shape and the guard methods take
+  an optional `?array $policyOverride` (null -> the hardcoded default-deny
+  domain constants, unchanged); a malformed template reverts to default-deny
+  (never fail-open). Voting-round open applies the template's voteThreshold /
+  abstentionHandling / tieBreakRule defaults unless the caller overrides them.
+  RESIDUE (additive, non-breaking): (1) the state machine is stored as
+  structured JSON, not literal Symfony Workflow YAML — a YAML import/export is
+  deferred; (2) the editor renders a textual graph summary, not an SVG/visual
+  diagram; (3) weighted voting is configurable on the template but the weighted
+  TALLY engine is owned by the voting-system spec, not this change; (4) the
+  guard override is wired through the meeting->governanceBody link — a decision
+  with no meeting and no body field falls back to the domain constants.
 ---
 
 # Process Configuration Specification
 
 ## Purpose
 
-Process configuration enables administrators to define and customize decision-making workflows for different governance contexts. A process template defines the state machine, voting rules, quorum requirements, and procedural rules for a specific type of decision or meeting. The system uses YAML-based Symfony Workflow definitions for state machines and DMN-inspired decision tables for voting rules. This allows Decidesk to serve municipal councils, corporate boards, associations, and operational teams with their own procedural rules.
+Process configuration enables administrators to define and customize decision-making workflows for different governance contexts. A process template defines the state machine, voting rules, quorum requirements, and procedural rules for a specific type of decision or meeting. The system stores state machines as structured JSON (1:1 convertible to Symfony Workflow YAML) and voting rules as a DMN-inspired rule object. This allows Decidesk to serve municipal councils, corporate boards, associations, and operational teams with their own procedural rules.
 
 **Standards**: Symfony Workflow Component (YAML config), DMN (Decision Model and Notation) for voting rules, Schema.org (`HowTo`, `HowToStep`)
 **Feature tier**: V1
@@ -14,102 +38,124 @@ Process configuration enables administrators to define and customize decision-ma
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full ProcessTemplate entity definition.
-
 ## Requirements
 
 ---
 
 ### Requirement: Process Template Management
 
-The system MUST support creating, editing, and managing process templates. Each template MUST define a state machine (states and transitions), voting rules, quorum requirements, and optional time limits. Templates MUST be stored as OpenRegister objects in the `decidesk` register using the `processTemplate` schema.
-
-**Feature tier**: V1
+The system MUST support creating, editing, duplicating, listing and deleting
+process templates. Each template MUST define a state machine (states and
+transitions), default voting rule, quorum requirement and optional
+decide-without-vote flag. Templates MUST be stored as OpenRegister objects in the
+`decidesk` register using the `processTemplate` schema and MUST be managed through
+an admin-gated surface (`#[AuthorizedAdminSetting]`). Built-in templates MUST be
+read-only (edit and delete refused) but MUST be duplicable into an editable copy.
 
 #### Scenario: Create a process template for ALV decisions
 
-- GIVEN an administrator configuring Decidesk for an association
-- WHEN they create a process template with name "ALV Standard Decision"
-- THEN the template MUST define states: draft, proposed, debating, voting, adopted, rejected
-- AND the template MUST specify voting rule: simple majority (50%+1 of votes cast)
-- AND the template MUST specify quorum: 50%+1 of total members present or represented
-- AND the template MUST be assignable to the "ALV" body
-
-#### Scenario: Create a process template for statute amendments
-
-- GIVEN the same administrator
-- WHEN they create a process template "ALV Statute Amendment"
-- THEN the template MUST specify voting rule: qualified majority (2/3 of votes cast)
-- AND the template MUST specify quorum: 2/3 of total members present
-- AND the template MUST include a required legal review step before voting
+- GIVEN an administrator on the Decidesk admin process-templates section
+- WHEN they create a template "ALV Standard Decision"
+- THEN the template MUST persist as a `processTemplate` object with its state set
+- AND the template MUST carry a default voting rule (simple-majority)
+- AND the template MUST be assignable to a body via the body's `processTemplate`
+  identifier
 
 #### Scenario: Duplicate and customize an existing template
 
-- GIVEN an existing process template "Board Standard Decision"
-- WHEN the administrator duplicates it as "Board Urgent Decision"
-- THEN the new template MUST be a copy of the original
-- AND the administrator MUST be able to modify states, transitions, and rules independently
+- GIVEN an existing process template (built-in or custom)
+- WHEN the administrator duplicates it
+- THEN the new template MUST be a copy with a fresh slug and `builtIn` cleared
+- AND the administrator MUST be able to modify the copy's states, transitions and
+  rules independently
 - AND the original template MUST remain unchanged
+
+#### Scenario: Built-in templates are read-only
+
+- GIVEN a built-in template (`builtIn: true`)
+- WHEN the administrator attempts to edit or delete it
+- THEN the system MUST refuse the operation
+- AND the administrator MUST still be able to duplicate it
 
 ---
 
 ### Requirement: State Machine Configuration
 
-The system MUST support defining state machines as YAML-based Symfony Workflow configurations. Each state MUST have a name, optional description, and optional metadata (e.g., required approvers, time limits). Transitions MUST define from-state, to-state, guard conditions, and triggered actions.
+The system MUST support defining a per-template state machine as a structured
+object: `states[]` (each with a name and optional metadata) and `transitions[]`
+(each with `from`, `to`, optional `chairOnly` flag and optional `guards[]`). The
+system MUST validate the transition graph server-side on save (fail closed): it
+MUST reject a transition referencing a state absent from `states[]` (dangling), a
+state with no inbound and no outbound transition that is not the declared
+`initialState` (unreachable), and an unrecognized guard token. A body's assigned
+template MUST drive the decision/meeting transition guards: when a body has a
+template, the template's policy (chair-only transitions, quorum enforcement,
+decide-without-vote) MUST be consulted; when no template is assigned, the built-in
+hardcoded default-deny domain policy MUST apply unchanged. A malformed template
+MUST fall back to the default-deny policy (never fail open).
 
-**Feature tier**: V1
+#### Scenario: Reject an invalid transition graph
 
-#### Scenario: Define a custom state machine with guard conditions
+- GIVEN an administrator editing a template's state machine
+- WHEN they add a transition whose `to` state is not declared in `states[]`
+- THEN the server MUST refuse to save the template (HTTP 400)
+- AND the validation error MUST identify the dangling state
 
-- GIVEN an administrator editing a process template
-- WHEN they add a transition "start_voting" from "debating" to "voting" with guard condition "quorum_met AND all_amendments_resolved"
-- THEN the system MUST validate the YAML syntax
-- AND the guard condition MUST be enforced at runtime
-- AND the transition MUST only be allowed when both conditions are true
+#### Scenario: Assigned template drives the guard, absent template falls back
 
-#### Scenario: Visualize the state machine
+@e2e exclude Backend guard-policy resolution with no UI surface; covered by DecisionTransitionGuardTest + ProcessTemplateServiceTest (guard-consults-template-with-fallback).
 
-- GIVEN a process template with a defined state machine
-- WHEN the administrator views the template
-- THEN the system MUST display a visual state machine diagram showing all states and transitions
-- AND the current state MUST be highlighted when viewing a specific decision
+- GIVEN a decision whose meeting belongs to a body with an assigned template
+- WHEN the lifecycle guard evaluates an available transition
+- THEN the guard MUST use the template's policy (chair-only, quorum)
+- AND GIVEN a decision whose meeting belongs to a body with no template
+- THEN the guard MUST use the built-in hardcoded domain policy unchanged
 
 ---
 
 ### Requirement: Voting Rule Configuration
 
-The system MUST support configurable voting rules using DMN-inspired decision tables. Rules MUST specify: majority type (simple, qualified, unanimous), quorum threshold, abstention handling (counted or excluded), tie-breaking method, and secret ballot requirement.
+The system MUST support a per-template default voting rule specifying
+`voteThreshold` (simple-majority, qualified-majority-two-thirds,
+qualified-majority-three-quarters, unanimous), `abstentionHandling` (exclude or
+count) and `tieBreakRule` (rejected, chair-decides, revote) — mirroring the
+VotingRound schema enums added by voting-rules-v1. When a voting round is opened
+for a motion under a body that has a template, the template's rule defaults MUST
+apply unless the caller explicitly overrides them; an explicit caller-supplied
+value MUST always take precedence. A missing template MUST leave the built-in
+method defaults in place (fail-soft).
 
-**Feature tier**: V1
+#### Scenario: Template voting-rule defaults applied at round-open
 
-#### Scenario: Configure a voting rule with abstention handling
+@e2e exclude Backend round-open default resolution; covered by VotingServiceTemplateRuleTest + Newman (admin/non-admin auth). API behaviour, not a UI surface.
 
-- GIVEN an administrator creating a voting rule
-- WHEN they set majority type to "simple", abstentions to "excluded from count", and tie-breaking to "chair's casting vote"
-- THEN the rule MUST be saved and assignable to process templates
-- AND when a vote has 10 for, 10 against, 3 abstain, the calculation MUST be 10/20 = 50% (not adopted, tie)
-- AND the chair MUST be prompted for a casting vote
-
-#### Scenario: Configure weighted voting for shareholders
-
-- GIVEN a corporate BV with shareholders holding different share percentages
-- WHEN the administrator configures weighted voting based on share ownership
-- THEN each member's vote weight MUST be proportional to their shares
-- AND the system MUST calculate results based on weighted totals, not headcount
+- GIVEN a body with a template whose default `voteThreshold` is
+  `qualified-majority-two-thirds`
+- WHEN a voting round is opened for a motion under that body without an explicit
+  threshold
+- THEN the round MUST be created with `voteThreshold = qualified-majority-two-thirds`
+- AND GIVEN the caller supplies an explicit `voteThreshold`
+- THEN the caller's value MUST be used instead
 
 ---
 
 ### Requirement: Built-in Process Templates
 
-The system MUST ship with built-in process templates for common governance contexts: association ALV, association board, corporate board (BV), municipal council, and operational team meeting. Built-in templates MUST be read-only but duplicable for customization.
-
-**Feature tier**: V1
+The system MUST ship with built-in process templates for common governance
+contexts: association ALV, association board, corporate board (BV), municipal
+council, and operational team. Built-in templates MUST be seeded via
+`x-openregister-seeds` so a fresh install has usable templates immediately. Each
+built-in MUST carry `builtIn: true`, a valid state machine and an appropriate
+default voting rule for its context.
 
 #### Scenario: Use built-in ALV template without customization
 
-- GIVEN a new Decidesk installation for an association
-- WHEN the administrator selects the built-in "Association ALV" template
-- THEN the template MUST include all legally required states and voting rules for Dutch associations (BW Book 2)
-- AND the template MUST be immediately usable without further configuration
+@e2e exclude Built-in seed presence + usability is asserted via Newman (list returns the five built-ins) and the read-only built-in row in process-configuration.spec.ts; no distinct UI surface for "use without customization".
+
+- GIVEN a fresh Decidesk installation
+- WHEN the administrator selects the built-in "Association ALV" template for a body
+- THEN the template MUST be immediately usable with its seeded states and voting
+  rule, without further configuration
 
 ## User Stories
 

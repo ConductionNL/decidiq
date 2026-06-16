@@ -1,31 +1,247 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2026 Conduction B.V.
+
 import Vue from 'vue'
-import { PiniaVuePlugin } from 'pinia'
+import VueRouter from 'vue-router'
+import { PiniaVuePlugin, setActivePinia } from 'pinia'
 import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
+import {
+	CnPageRenderer,
+	defaultPageTypes,
+	registerIcons,
+	registerTranslations,
+	installIntegrationRegistry,
+	registerBuiltinIntegrations,
+	registerLeafIntegrations,
+} from '@conduction/nextcloud-vue'
 import pinia from './pinia.js'
-import router from './router/index.js'
 import App from './App.vue'
+import bundledManifest from './manifest.json'
+import registry from './registry.js'
 import { initializeStores } from './store/store.js'
 
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
 import '@conduction/nextcloud-vue/css/index.css'
+
+// NL Design System token mapping (ADR-010)
+import './assets/nl-design.css'
 
 // Global (unscoped) app styles
 import './assets/app.css'
 
 Vue.mixin({ methods: { t, n } })
 Vue.use(PiniaVuePlugin)
+Vue.use(VueRouter)
 
-loadTranslations('decidesk', () => {
-	// Create Vue instance to activate Pinia context, then initialize stores.
-	const app = new Vue({
+// Pluggable integration registry (ADR-019). Install the global registry
+// (draining any pre-mount `window.OCA.OpenRegister.integrations` queue),
+// then register the built-in core integrations (files / notes / tags /
+// tasks / audit-trail) plus the xWiki "Articles" leaf plus the 17 leaf
+// integrations (calendar / contacts / email / talk / bookmarks /
+// collectives / maps / photos / activity / analytics / cospend / deck /
+// flow / forms / polls / time-tracker / shares / openproject). Detail
+// pages whose manifest `config.sidebar.useRegistry` is true render one
+// sidebar tab per registered integration via the host `<CnObjectSidebar>`
+// in App.vue; each integration's tab shows up only when the underlying
+// NC app is installed (the registry filters on isEnabled per AD-5).
+installIntegrationRegistry()
+registerBuiltinIntegrations()
+registerLeafIntegrations()
+
+// Register library-side icon set + lib translations once at bootstrap.
+registerIcons()
+try {
+	registerTranslations()
+} catch (e) {
+	// Non-fatal — lib translations fall back to English source.
+	// eslint-disable-next-line no-console
+	console.warn('[decidesk] registerTranslations failed; falling back to English', e)
+}
+
+// Fire-and-forget translation load. Some Nextcloud installs (including
+// this repo's standard dev container) only allow the JS/CSS allowlist
+// through Apache and rewrite everything else to index.php — there's no
+// route for /custom_apps/<app>/l10n/<locale>.json so the request 404s.
+// `loadTranslations` rejects on 404, so wrapping the Vue mount inside
+// its callback meant boot silently failed when translations couldn't
+// load. Strings just fall back to their English source on miss; boot
+// MUST not depend on this resolving.
+function tryLoadTranslations() {
+	try {
+		const result = loadTranslations('decidesk', () => {})
+		if (result && typeof result.then === 'function') {
+			result.then(() => {}, () => {})
+		}
+	} catch {
+		// no-op
+	}
+}
+
+/**
+ * Build the vue-router config from the manifest. Each manifest page becomes
+ * one route; the route's `name` IS `page.id` (per the lib's manifest contract).
+ * `LiveMeeting` carries `:id`, so we pass `props: true` for any route whose
+ * path declares a `:` parameter — generic, schema-agnostic.
+ *
+ * @param {object} manifest The bundled manifest (with `pages[]`).
+ * @return {Array<object>} vue-router 3 routes config.
+ */
+// Shallow-clone CnPageRenderer because the lib's barrel exports are
+// non-extensible (webpack ESM module records). Vue 2's `Vue.extend()`
+// adds an internal `_Ctor` cache to the component definition; mutating
+// a non-extensible export throws "Cannot add property _Ctor, object is
+// not extensible". Cloning gives Vue Router an extensible
+// component-options object without altering the lib's internals.
+const RoutePageRenderer = { ...CnPageRenderer }
+
+/**
+ * ADR-037: merge modular manifest fragments from src/manifest.d/*.json onto the
+ * bundled base manifest. Each OpenSpec change drops its own fragment (pages/menu)
+ * instead of editing the monolith src/manifest.json, so concurrent builds touch
+ * disjoint files. `pages` and `menu` arrays are concatenated.
+ *
+ * @param {object} base The bundled base manifest.
+ * @return {object} The manifest with all fragment pages/menu appended.
+ */
+function mergeManifestFragments(base) {
+	const merged = { ...base, pages: [...(base.pages || [])], menu: [...(base.menu || [])] }
+	// require.context is resolved at build time; src/manifest.d/ must exist (it
+	// ships with a _placeholder.json). It is a no-op when the directory holds
+	// no real fragments.
+	const ctx = require.context('./manifest.d/', false, /\.json$/)
+	ctx.keys().sort().forEach((key) => {
+		const frag = ctx(key)
+		if (Array.isArray(frag.pages)) {
+			merged.pages.push(...frag.pages)
+		}
+		if (Array.isArray(frag.menu)) {
+			merged.menu.push(...frag.menu)
+		}
+	})
+	return merged
+}
+
+const mergedManifest = mergeManifestFragments(bundledManifest)
+
+function routesFromManifest(manifest) {
+	const routes = manifest.pages.map((page) => ({
+		name: page.id,
+		path: page.route,
+		component: RoutePageRenderer,
+		props: page.route.includes(':'),
+	}))
+	// Catch-all redirect to dashboard, preserving prior router behaviour.
+	routes.push({ path: '*', redirect: '/' })
+	return routes
+}
+
+const router = new VueRouter({
+	mode: 'history',
+	base: generateUrl('/apps/decidesk'),
+	routes: routesFromManifest(mergedManifest),
+})
+
+/**
+ * User-settings spec — "Set default landing page": when the user lands on the
+ * app root (`/`) and has configured a non-dashboard default view, replace the
+ * route with their preference. Deep links are never overridden (only the `/`
+ * entry is rewritten), and any failure leaves the dashboard untouched.
+ * Fire-and-forget with a short timeout so boot never blocks on it.
+ *
+ * @spec openspec/specs/user-settings/spec.md
+ */
+function applyDefaultViewPreference() {
+	if (router.currentRoute.path !== '/') {
+		return
+	}
+	const routesByPreference = { meetings: '/meetings', decisions: '/decisions' }
+	const controller = new AbortController()
+	const timer = setTimeout(() => controller.abort(), 3000)
+	fetch(generateUrl('/apps/decidesk/api/preferences/default-view'), {
+		headers: { Accept: 'application/json' },
+		signal: controller.signal,
+	})
+		.then((response) => (response.ok ? response.json() : null))
+		.then((data) => {
+			const target = routesByPreference[data?.value]
+			if (target && router.currentRoute.path === '/') {
+				router.replace(target).catch(() => {})
+			}
+		})
+		.catch(() => {})
+		.finally(() => clearTimeout(timer))
+}
+
+tryLoadTranslations()
+
+// Pass shallow copies of the registry maps to CnAppRoot. The lib exports
+// `defaultPageTypes` (and our `registry`) as frozen module objects in some
+// bundle shapes — Vue 2's `Vue.extend()` mutates component definitions to
+// attach an internal `_Ctor` cache, which throws "Cannot add property _Ctor,
+// object is not extensible" against a frozen source map. Cloning here yields
+// extensible objects without changing the values the lib resolves at render
+// time.
+const pageTypesProp = { ...defaultPageTypes }
+const registryProp = { ...registry }
+
+// Boot order matters: initializeStores() registers every object type
+// (meeting, agenda-item, participant, motion, ...) on the lib's shared
+// store via registerObjectType(). If we mount Vue before this resolves,
+// Vue creates child components synchronously and any `created()` hook
+// that calls fetchObject/fetchCollection/subscribe runs before the
+// types are registered — the lib throws "Object type X is not
+// registered" and the page renders empty data + a fallback header.
+// App.vue's own `await initializeStores()` was insufficient because Vue
+// doesn't wait for an async `created()` to resolve before mounting
+// children. Awaiting here, before $mount, means the store is ready by
+// the time the first child component runs.
+//
+// initializeStores() is documented as idempotent so App.vue's call
+// stays in place as a safety net for future entry points.
+// Activate the Pinia instance BEFORE initializeStores() runs.
+// initializeStores() calls `useObjectStore()` / `useSettingsStore()`
+// outside a Vue setup() context — Pinia's `useStore()` reads the
+// active pinia from a module-global, and `new Vue({ pinia })` is what
+// normally sets it via PiniaVuePlugin. But that happens AFTER this
+// async IIFE awaits, so any `useStore()` call here would hit
+// `getActivePinia()._s` against undefined and throw
+// "Cannot read properties of undefined (reading '_s')". Setting it
+// explicitly upfront is the idiomatic fix for boot-time store access
+// in Vue 2 + Pinia.
+setActivePinia(pinia)
+
+;(async () => {
+	// Activate Pinia globally before any useStore() call. Without this,
+	// initializeStores() (which calls useObjectStore() outside any Vue
+	// component) throws "Cannot read properties of undefined (reading
+	// '_s')" because Pinia falls back to the active instance and there
+	// isn't one yet — Vue.use(PiniaVuePlugin) only auto-activates pinia
+	// when Vue itself uses it via `new Vue({ pinia })`.
+	setActivePinia(pinia)
+
+	try {
+		await initializeStores()
+	} catch (e) {
+		// Boot must not depend on this resolving — the app should still
+		// mount so the user sees a usable shell. Children that need
+		// registered types will surface their own errors and recover
+		// when initializeStores() retries via App.vue's lifecycle hook.
+		console.error('Boot: initializeStores() failed; mounting anyway', e)
+	}
+
+	new Vue({
 		pinia,
 		router,
-		render: h => h(App),
-	})
+		render: (h) => h(App, {
+			props: {
+				manifest: mergedManifest,
+				registry: registryProp,
+				pageTypes: pageTypesProp,
+			},
+		}),
+	}).$mount('#content')
 
-	// Mount immediately so the App renders (NC32 needs #content to be taken over).
-	app.$mount('#content')
-
-	// Initialize stores after mount.
-	initializeStores()
-})
+	// Honour the user's default-view display preference (user-settings spec).
+	applyDefaultViewPreference()
+})()

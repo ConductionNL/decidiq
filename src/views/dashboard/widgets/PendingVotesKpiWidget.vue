@@ -1,0 +1,109 @@
+<!-- SPDX-License-Identifier: EUPL-1.2 -->
+<!-- SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl> -->
+
+<!--
+ PendingVotesKpiWidget — count of open voting-rounds awaiting the current
+ user's vote (REQ-009).
+
+ Resolves the current Nextcloud user to their participant record, fetches the
+ open voting-rounds and the participant's cast votes, and counts the
+ set-difference (open rounds the participant has NOT voted in). A user with no
+ matching participant record is not a voting member, so the count is 0
+ (Decision 4). variant="warning" while any vote is pending, else "default".
+-->
+<template>
+	<CnStatsBlock
+		:title="t('decidesk', 'Pending votes')"
+		:count="count"
+		:count-label="t('decidesk', 'votes')"
+		:icon="VoteOutline"
+		:variant="variant"
+		:loading="loading"
+		show-zero-count
+		horizontal
+		data-testid="pending-votes-kpi" />
+</template>
+
+<script>
+import { getCurrentUser } from '@nextcloud/auth'
+import { CnStatsBlock } from '@conduction/nextcloud-vue'
+import VoteOutline from 'vue-material-design-icons/VoteOutline.vue'
+import dashboardRefreshMixin from './dashboardRefreshMixin.js'
+import { resolveParticipantId, pendingVotingRounds } from './widgetLogic.js'
+import { getParticipants, getVotingRounds, getVotes } from '../../../services/dashboardData.js'
+
+export default {
+	name: 'PendingVotesKpiWidget',
+
+	components: { CnStatsBlock },
+
+	mixins: [dashboardRefreshMixin],
+
+	data() {
+		return {
+			VoteOutline,
+			/** Open voting-rounds awaiting this participant's vote. */
+			pending: [],
+		}
+	},
+
+	computed: {
+		/**
+		 * Number of pending votes for the current user.
+		 *
+		 * @return {number} Count of open rounds awaiting the user's vote.
+		 */
+		count() {
+			return this.pending.length
+		},
+
+		/**
+		 * CnStatsBlock variant: "warning" while votes are pending.
+		 *
+		 * @return {string} The stats-block variant.
+		 */
+		variant() {
+			return this.count > 0 ? 'warning' : 'default'
+		},
+	},
+
+	methods: {
+		/**
+		 * Fetch participants + open rounds + the user's votes and compute the
+		 * pending set-difference. Called on mount and on dashboard refresh.
+		 *
+		 * @return {Promise<void>}
+		 */
+		async load() {
+			this.loading = true
+			this.error = null
+			try {
+				const uid = getCurrentUser()?.uid
+				const [participants, openRounds, votes] = await Promise.all([
+					getParticipants(),
+					getVotingRounds({ lifecycle: 'open' }),
+					getVotes(),
+				])
+				const participantId = resolveParticipantId(participants, uid)
+				this.pending = pendingVotingRounds(openRounds, votes, participantId)
+			} catch (e) {
+				console.error('[decidesk] PendingVotesKpiWidget load failed', e)
+				this.error = e
+				this.pending = []
+			} finally {
+				this.loading = false
+			}
+		},
+	},
+}
+</script>
+
+<style scoped>
+/* Let long KPI titles wrap rather than ellipsis-clip in the narrow horizontal
+   stat tile (CnStatsBlock's title defaults to nowrap + ellipsis). */
+:deep(.cn-stats-block__header h4) {
+	white-space: normal;
+	overflow: visible;
+	line-height: 1.2;
+}
+</style>

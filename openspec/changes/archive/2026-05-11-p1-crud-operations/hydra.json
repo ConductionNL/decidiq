@@ -1,0 +1,20 @@
+{
+  "spec_slug": "p1-crud-operations",
+  "title": "CRUD Operations",
+  "app": "decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
+  "depends_on": [],
+  "issue": "https://codeberg.org/Conduction/decidesk/issues/7",
+  "pipeline": {
+    "review_rounds": 6,
+    "build_count": 1,
+    "fix_iterations": 2,
+    "total_cost_eur": 0,
+    "total_turns": 148,
+    "findings_open": 0,
+    "findings_fixed": 0,
+    "suggestions_open": 0,
+    "last_code_review_pass": null,
+    "last_security_review_pass": null
+  }
+}

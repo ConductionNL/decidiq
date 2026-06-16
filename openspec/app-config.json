@@ -8,7 +8,7 @@
   "version": "0.1.0",
   "license": "EUPL-1.2",
   "author": "Conduction B.V.",
-  "repository": "https://github.com/ConductionNL/decidesk",
+  "repository": "https://codeberg.org/Conduction/decidesk",
   "dependencies": {
     "requiresOpenRegister": true,
     "additionalCiApps": [
@@ -21,5 +21,5 @@
     "enableNewman": false
   },
   "createdAt": "2026-03-26",
-  "updatedAt": "2026-03-26"
+  "updatedAt": "2026-04-09"
 }

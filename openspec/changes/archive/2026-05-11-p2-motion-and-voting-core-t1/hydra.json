@@ -1,0 +1,10 @@
+{
+  "spec_slug": "p2-motion-and-voting-core-t1",
+  "title": "Motion and Voting \u2014 Core T1",
+  "app": "decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
+  "depends_on": [
+    "p2-motion-and-voting"
+  ],
+  "issue": "https://codeberg.org/Conduction/decidesk/issues/134"
+}

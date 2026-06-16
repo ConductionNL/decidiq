@@ -1,5 +1,6 @@
 ---
-status: idea
+status: done
+status-note: 2026-06-12 — the three audit gaps (statutory ALV agenda-item enforcement, hierarchical sub-items, meeting document-package assembly) closed by meeting-agenda-gaps-v1 (agendaRules statutory warning in AgendaBuilder + MeetingAgendaTab, additive AgendaItem.parentItem with nested rendering + grouped reorder, MeetingPackageService + "Assemble meeting package" action). Earlier requirements built via agenda-builder/-item-crud/-live-management/-publication + meeting-agenda capabilities. Known soft spot — the "agenda exceeds scheduled meeting length" warning shows total duration only, no exceed-comparison.
 ---
 
 # Agenda Management Specification
@@ -14,7 +15,6 @@ Agenda management handles the creation, ordering, and conduct of meeting agendas
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full AgendaItem entity definition including property tables, Schema.org mappings, and OpenRaadsinformatie alignment.
-
 ## Requirements
 
 ---
@@ -52,7 +52,7 @@ The system MUST support creating agenda items with a title, type (informational,
 
 ### Requirement: Agenda Ordering and Structure
 
-The system MUST support drag-and-drop reordering of agenda items. The system MUST enforce legally required items for specific meeting types (e.g., ALV must include annual report, financial statements, kascommissie report, board elections). Sub-items MUST be supported for grouping related topics.
+The system MUST support drag-and-drop reordering of agenda items. The system MUST enforce legally required items for specific meeting types (e.g., ALV must include annual report, financial statements, kascommissie report, board elections) by warning about — and listing — the missing statutory items whenever a `general_assembly` agenda is incomplete. Sub-items MUST be supported for grouping related topics: an additive `parentItem` property on AgendaItem nests an item under its parent, sub-items render nested with their own type and allocated time, and reordering keeps children grouped under their parent (the flattened parent→children order is persisted through the existing reorder endpoint).
 
 **Feature tier**: MVP
 
@@ -77,7 +77,14 @@ The system MUST support drag-and-drop reordering of agenda items. The system MUS
 - THEN the sub-items MUST appear nested under the parent item
 - AND each sub-item MUST have its own allocated time, type, and presenter
 
----
+#### Scenario: Sub-items stay grouped under their parent when reordering
+
+@e2e exclude pure ordering arithmetic; covered by agendaRules vitest (buildAgendaTree + flattenTree) — the nesting surface itself is asserted by the sub-item e2e test
+
+- GIVEN an agenda where "Committee Reports" has two sub-items
+- WHEN the user moves another top-level item above "Committee Reports"
+- THEN the sub-items MUST keep following their parent in the persisted order
+- AND sub-items MUST only reorder within their own sibling group
 
 ### Requirement: Agenda Time Management
 
@@ -103,7 +110,7 @@ The system MUST calculate total meeting duration from individual item allocation
 
 ### Requirement: Agenda Document Package
 
-The system MUST support assembling all agenda item documents into a single meeting package (vergaderstukken) for distribution to participants.
+The system MUST support assembling all agenda item documents into a single meeting package (vergaderstukken) for distribution to participants. Assembly MUST produce a structured folder in Nextcloud Files (one `NN - <item title>/` folder per agenda item, ordered by item number) with a generated table of contents, and unresolvable documents MUST be reported as skipped rather than failing the assembly.
 
 **Feature tier**: MVP
 
@@ -114,6 +121,15 @@ The system MUST support assembling all agenda item documents into a single meeti
 - THEN the system MUST create a structured document package with a table of contents
 - AND documents MUST be organized by agenda item number and title
 - AND the package MUST be available for download and distribution via convocation
+
+#### Scenario: Package assembly reports skipped documents instead of failing
+
+@e2e exclude defensive file-copy semantics; covered by MeetingPackageServiceTest (PHPUnit) — the package action surface is asserted by the assemble-package e2e test
+
+- GIVEN a meeting whose agenda items include a document that cannot be resolved
+- WHEN the package is assembled
+- THEN the assembly MUST complete successfully
+- AND the unresolvable document MUST be listed in the `skipped` report
 
 ## User Stories
 

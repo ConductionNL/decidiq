@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 
 export const useSettingsStore = defineStore('settings', {
@@ -15,11 +16,12 @@ export const useSettingsStore = defineStore('settings', {
 	},
 
 	actions: {
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
 		async fetchSettings() {
 			this.loading = true
 			try {
 				const response = await fetch(generateUrl('/apps/decidesk/api/settings'), {
-					headers: { requesttoken: OC.requestToken },
+					headers: { requesttoken: getRequestToken() },
 				})
 				if (response.ok) {
 					const data = await response.json()
@@ -36,6 +38,7 @@ export const useSettingsStore = defineStore('settings', {
 			return null
 		},
 
+		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
 		async saveSettings(settings) {
 			this.loading = true
 			try {
@@ -43,14 +46,18 @@ export const useSettingsStore = defineStore('settings', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
+						requesttoken: getRequestToken(),
 					},
 					body: JSON.stringify(settings),
 				})
 				if (response.ok) {
 					const data = await response.json()
-					this.settings = data
-					return data
+					// settings#create wraps the settings in a {success, config}
+					// envelope — unwrap so this.settings stays the flat map the
+					// rest of the app (useRelationStore, Settings.vue) reads.
+					const saved = data?.config ?? data
+					this.settings = saved
+					return saved
 				}
 			} catch (error) {
 				console.error('Failed to save settings:', error)

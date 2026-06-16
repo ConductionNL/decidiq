@@ -1,10 +1,12 @@
 ---
-status: idea
+status: done
+status-note: 2026-06-12 audit — all 3 requirements verified in code. Delivered via app-foundation + schemas-and-data-model capabilities (lib/Settings/decidesk_register.json, lib/Repair/InitializeSettings.php, useObjectStore pattern).
 ---
 
 # OpenRegister Integration Specification
 
 ## Purpose
+@e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidesk UI form to drive.
 
 OpenRegister is the data layer for Decidesk. All Decidesk entities (meetings, decisions, agenda items, votes, resolutions, bodies, process templates) are stored as OpenRegister objects with schema validation. This specification covers the register and schema definitions, the repair step that imports them, the JSON-based register configuration file, and the data access patterns used by the frontend and backend.
 

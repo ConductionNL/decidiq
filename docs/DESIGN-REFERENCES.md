@@ -47,13 +47,15 @@
 | Dribbble "agenda builder UI" | Search Dribbble | Timeline-style agenda with duration bars, drag handles, type badges |
 | Teamly Meeting Agenda | teamly.com/templates | Action items and agreements columns alongside agenda topics |
 
-### Minutes & Resolution View
+### Minutes & Decision/Resolution View
 | Source | URL / Search | Key Patterns |
 |--------|-------------|--------------|
 | MinuteBox Minutes | minutebox.com | Auto-generated minutes from agenda + decisions, signature workflow |
 | OnBoard Minutes | onboardmeetings.com | Minutes linked to agenda items, resolution numbering, approval tracking |
 | Ideals Board | idealsboard.com | Document-centric resolution view with version history and annotations |
 | Dribbble "meeting minutes UI" | Search Dribbble | Structured minutes with decision highlights and action item extraction |
+
+> **Note (ADR-005):** Resolutions in Decidesk are Decision objects with `decisionType=resolution`. Design patterns for resolution views apply to the universal Decision detail view in mode=corp.
 
 ### Admin Settings / Process Configuration
 | Source | URL / Search | Key Patterns |

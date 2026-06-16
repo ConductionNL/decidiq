@@ -1,0 +1,12 @@
+{
+  "spec_slug": "p4-collaboration",
+  "title": "Collaboration",
+  "app": "decidesk",
+  "repo": "https://codeberg.org/Conduction/decidesk",
+  "depends_on": [
+    "p3-governance-bodies",
+    "p3-citizen-participation",
+    "p3-document-management"
+  ],
+  "issue": "https://codeberg.org/Conduction/decidesk/issues/67"
+}

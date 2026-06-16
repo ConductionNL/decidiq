@@ -1,10 +1,14 @@
 ---
-status: idea
+status: done
+status-note: 2026-06-12 voting-rules-v1 — closed the five audit gaps. qualified-majority thresholds (simple/2-3/3-4/unanimous via additive voteThreshold), abstention handling (exclude|count), configurable tie-breaking (rejected|chair-decides with chair-only casting vote|revote-once via revoteOfRound), per-member proxy limits (decidesk/max_proxies_per_holder app config, default 2, fail closed) and castAs attendance-mode stamping (replacing remote-session verification theater with honest recording, per the modified Remote Voting requirement). All 5 requirements built; covered by PHPUnit (tally matrix, proxy cap, castAs), vitest (votingRules.js), Playwright (rule selectors + active-rules display) and Newman (decidesk-voting-rules collection — authored against this branch; runs green once the branch is the deployed instance). In progress 2026-06-14 via decision-methods (VotingRound retargeted motion→DecisionStage; a VotingRound now resolves a method=vote DecisionStage and the stage outcome derives from VotingRound.result; vote sub-variants stay on VotingRound.isSecret/votingMethod).
+openspec-changes:
+  - decision-methods
 ---
 
 # Voting System Specification
 
 ## Purpose
+@e2e exclude All voting scenarios require a live meeting in-progress with active voting rounds, quorum calculations, and multi-user ballot state that cannot be deterministically set up via pure UI interactions. The VotingRoundPanel component exists but its scenarios are integration-level (vote casting, real-time tallying, secret ballot, proxy enforcement) requiring backend state that must be tested at the PHP/WebSocket layer.
 
 The voting system is Decidesk's most critical feature. It supports multiple voting methods (open vote, secret ballot, roll call, weighted voting), real-time ballot casting and result calculation, quorum-aware majority thresholds, proxy vote handling, and configurable voting rules per governing body. The system ensures legally compliant voting for associations (ALV), corporate boards (BV/NV), and government councils.
 
@@ -15,7 +19,6 @@ The voting system is Decidesk's most critical feature. It supports multiple voti
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Vote and VotingRound entity definitions including property tables, Schema.org mappings, and OpenRaadsinformatie alignment.
-
 ## Requirements
 
 ---
@@ -78,12 +81,36 @@ The system MUST support secret (anonymous) voting where individual votes are not
 
 ### Requirement: Qualified Majority and Voting Rules
 
-The system MUST support configurable majority rules: simple majority (50%+1), qualified majority (e.g., 2/3), unanimous, and weighted voting. Abstentions MUST be configurable as counting toward total or excluded from calculation.
+The system MUST support configurable majority rules per voting round: simple
+majority (50%+1), qualified majority two-thirds, qualified majority
+three-quarters, and unanimous (mirroring the Resolution schema's
+`voteThreshold` enum). Abstentions MUST be configurable as counting toward the
+calculation base (`abstentionHandling: count`) or excluded from it
+(`abstentionHandling: exclude`, default). Tie-breaking MUST be configurable per
+round (`tieBreakRule`): `rejected` (default — a tied motion fails),
+`chair-decides` (round result becomes `tied` and the chair resolves it with an
+explicit casting vote), or `revote` (round result becomes `tied` and the round
+may be reopened exactly once via a new round linked through `revoteOfRound`).
+The system MUST record the applied threshold, abstention handling, tie-break
+rule and computed base alongside the result.
+
+**Tally formula** (F = weighted for, A = weighted against, B = weighted
+abstentions, T = F+A+B):
+
+- base = F + A (`exclude`) or F + A + B (`count`)
+- T == 0 → `invalid`; tie (simple-majority only, F == A and F > 0) → tie-break
+  rule applies; base == 0 → `rejected`
+- simple-majority: adopted iff 2F > base
+- qualified-majority-two-thirds: adopted iff 3F ≥ 2·base
+- qualified-majority-three-quarters: adopted iff 4F ≥ 3·base
+- unanimous: adopted iff F == base
 
 **Feature tier**: MVP
 **Legal reference**: BW 2:42 (statute amendment requires 2/3), BW 2:18 (dissolution requires 2/3)
 
 #### Scenario: Verify qualified majority for statute amendment
+
+@e2e exclude tally math is server-side over multi-user ballot state; exhaustively covered by the PHPUnit tally matrix (VotingServiceTallyMatrixTest) and the Newman two-thirds contract test
 
 - GIVEN a vote on statute amendment requiring 2/3 majority of votes cast
 - WHEN 20 members vote: 14 for, 5 against, 1 abstain
@@ -93,27 +120,80 @@ The system MUST support configurable majority rules: simple majority (50%+1), qu
 
 #### Scenario: Verify quorum requirement for statute amendment vote
 
+@e2e exclude quorum gate is a server-side precondition requiring seeded multi-member attendance state; covered at the PHP layer (checkQuorum + openVotingRound tests)
+
 - GIVEN a statute amendment vote requiring 2/3 of members present
 - WHEN only 8 of 15 members are present (53%)
 - THEN the system MUST block the vote with a message: "Quorum not met. Statute amendment requires 2/3 of members present (10 required, 8 present)."
 
+#### Scenario: Configure voting rules when opening a round
+
+- GIVEN a chair opening a voting round on a motion under debate
+- WHEN the open-round dialog is shown
+- THEN the chair MUST be able to select the vote threshold (simple majority, two-thirds, three-quarters, unanimous), the abstention handling (exclude or count), and the tie-break rule (motion fails, chair decides, revote)
+- AND the defaults MUST be simple majority, abstentions excluded, and motion fails on a tie
+
+#### Scenario: Abstentions counted toward the base
+
+@e2e exclude tally math is server-side; covered by the PHPUnit tally matrix (count-mode rows)
+
+- GIVEN a voting round with `abstentionHandling: count` and a two-thirds threshold
+- WHEN 20 members vote: 13 for, 4 against, 3 abstain
+- THEN the base MUST be 20 (abstentions counted) and the result "rejected" (3·13=39 < 2·20=40)
+- AND with `abstentionHandling: exclude` the same votes MUST yield base 17 and "adopted" (3·13=39 ≥ 2·17=34)
+
 #### Scenario: Handle a tie vote
+
+@e2e exclude tie resolution is server-side over multi-user ballot state; covered by the PHPUnit tally matrix (all three tie-break rules) and the Newman chair-casting guard test
 
 - GIVEN a simple majority vote where 10 for and 10 against
 - WHEN the votes are tallied
-- THEN the system MUST declare the result as "tied"
-- AND the system MUST apply the configured tie-breaking rule (e.g., chair's casting vote, motion fails, or revote)
+- THEN the system MUST apply the configured tie-break rule: with `rejected` (default) the result MUST be "rejected" (the motion fails), with `chair-decides` or `revote` the result MUST be "tied"
+
+#### Scenario: Chair casting vote resolves a tie
+
+@e2e exclude requires a live tied round with multi-user ballots; chair-only authorization and resolution are covered by PHPUnit (tally matrix chair-casting rows) and the Newman casting-vote guard test
+
+- GIVEN a round closed as "tied" with `tieBreakRule: chair-decides`
+- WHEN the chair re-runs close with an explicit casting vote (`chairCasting: for` or `against`)
+- THEN the casting vote MUST be recorded on the round as `chairCastingVote` and the result resolved to "adopted" or "rejected"
+- AND a casting vote from anyone who does not hold the chair role for the meeting MUST be refused (fail closed)
+- AND a casting vote on a round whose tie-break rule is not `chair-decides` MUST be refused
+
+#### Scenario: Revote permitted once after a tie
+
+@e2e exclude requires a live tied round with multi-user ballots; the revote-once guard is covered by PHPUnit (openVotingRound revote tests) and the Newman revote contract test
+
+- GIVEN a round closed as "tied" with `tieBreakRule: revote`
+- WHEN a new round is opened with `revoteOfRound` linking to the tied round
+- THEN the new round MUST be created and linked, without re-transitioning the motion lifecycle
+- AND a second revote of the same tied round MUST be refused
+- AND a revote of a round that is not tied, or whose tie-break rule is not `revote`, MUST be refused
+
+#### Scenario: Display active rules and computed base
+
+- GIVEN a voting round with configured rules
+- WHEN a user views the live tally or the closed-round results
+- THEN the panel MUST show the active threshold, abstention handling and tie-break rule, and the computed base the threshold is evaluated against
 
 ---
 
 ### Requirement: Proxy Voting
 
-The system MUST support digital proxy voting (volmacht) where a member authorizes another member to vote on their behalf. Proxy votes MUST be verifiable and count toward both quorum and voting.
+The system MUST support digital proxy voting (volmacht) where a member
+authorizes another member to vote on their behalf. Proxy votes MUST be
+verifiable and count toward both quorum and voting. The system MUST enforce a
+maximum number of ACTIVE proxies a single member may hold per meeting,
+configurable via app config `decidesk`/`max_proxies_per_holder` (NL governance
+default: 2). The cap MUST fail closed: when existing proxies cannot be counted,
+registration MUST be rejected.
 
 **Feature tier**: MVP
 **Legal reference**: BW 2:227 (shareholder proxy), BW 2:38 (ALV proxy per statutes)
 
 #### Scenario: Grant and exercise a digital proxy
+
+@e2e exclude requires two authenticated members with live meeting/round state; covered at the PHP layer (castVote proxy tests) and the lifecycle Newman suite
 
 - GIVEN member A cannot attend the ALV and grants a proxy to member B
 - WHEN member B votes on a decision item
@@ -123,25 +203,85 @@ The system MUST support digital proxy voting (volmacht) where a member authorize
 
 #### Scenario: Limit proxy votes per member
 
-- GIVEN the statutes allow a maximum of 2 proxies per member
-- WHEN member B already holds 2 proxies and member C attempts to grant a proxy to member B
-- THEN the system MUST reject the proxy with a message indicating the maximum has been reached
+@e2e exclude proxy-cap enforcement is a server-side rule over seeded proxy rows; covered by PHPUnit (ProxyVoteServiceTest cap cases) and the Newman proxy-cap contract test
+
+- GIVEN the configured maximum is 2 proxies per holder per meeting
+- WHEN member B already holds 2 ACTIVE proxies in the meeting and member C attempts to register a proxy to member B
+- THEN the system MUST reject the registration with a message indicating the maximum has been reached
+- AND when the existing proxies cannot be counted, the registration MUST also be rejected (fail closed)
 
 ---
 
 ### Requirement: Remote Voting in Digital/Hybrid Meetings
 
-The system MUST support real-time voting for remote participants in digital and hybrid meetings. Remote votes MUST have equal weight to in-person votes. The system MUST ensure vote integrity through session verification.
+The system MUST support real-time voting for remote participants in digital and
+hybrid meetings. Remote votes MUST have equal weight to in-person votes. The
+system MUST honestly record the caster's attendance mode alongside the vote: at
+cast time the participant's `participantType` (`in-person` | `remote`) is
+stamped on the vote as `castAs` (`unknown` when the participant cannot be
+resolved). No session-verification theater is performed.
 
 **Feature tier**: MVP
 
 #### Scenario: Cast vote remotely during hybrid meeting
 
+@e2e exclude requires a remote-attending second user with live round state; castAs stamping is covered by PHPUnit (VotingServiceCastAsTest)
+
 - GIVEN a hybrid meeting where member is attending remotely
 - WHEN the chair initiates a vote
 - THEN the remote member MUST see the same voting panel as in-person attendees
 - AND their vote MUST be counted with equal weight
-- AND their attendance mode (remote) MUST be recorded alongside their vote
+- AND their attendance mode (remote) MUST be recorded alongside their vote as `castAs: remote`
+
+### Requirement: VotingRound resolves a DecisionStage of method vote
+
+A `VotingRound` SHALL be relatable to the `DecisionStage` it resolves, so that a `method=vote` stage derives its outcome from the round. The `VotingRound` relation that previously targeted the retired `motion` schema (ADR-005) SHALL be retargeted onto `DecisionStage`. Vote sub-variants — anonymous/secret ballot, personal, general, roll-call, show-of-hands — SHALL continue to be expressed via the existing `VotingRound.isSecret` and `VotingRound.votingMethod` fields and SHALL NOT be promoted to `DecisionStage.method` enum values.
+
+#### Scenario: A voting round is linked to the stage it resolves
+
+- **GIVEN** a `method=vote` DecisionStage and a `VotingRound` with `result=adopted`
+- **WHEN** the stage references the round via `votingRound`
+- **THEN** the round resolves that stage and the stage outcome derives from `VotingRound.result`
+
+#### Scenario: Secret ballot sub-variant is carried by the round
+
+- **GIVEN** a `VotingRound` with `isSecret=true` linked to a `method=vote` stage
+- **WHEN** the ballot is configured
+- **THEN** the anonymous/secret nature is carried by `VotingRound.isSecret`, not by a distinct stage method value
+
+### Requirement: Advisory voting mode for citizen participation
+
+The voting machinery (tally calculation, atomic tally updates, deadline/phase enforcement, duplicate-vote detection, count-integrity verification) MUST support an **advisory mode** used by citizen participation on `BudgetProposal` objects. Advisory mode MUST reuse the existing tally engine and integrity guarantees and MUST differ from statutory voting only as follows: no quorum requirement, no secret-ballot mode, no proxy votes, simple voor/tegen only (weighted and ranked methods are out of scope), votes recorded as `CitizenVote` (`schema:VoteAction`) instead of staff `Vote` objects, and results are advisory (they never produce an adopted/rejected decision outcome). Advisory tallies MUST remain strictly separate from statutory `VotingRound` tallies and MUST never be combined with them in any decision calculation.
+
+**Feature tier**: V1
+**Reuses**: open-vote tally engine, deadline enforcement, duplicate detection from the MVP voting requirements
+
+#### Scenario: Advisory vote uses the shared tally engine
+
+@e2e exclude service-level reuse assertion — PHPUnit verifies the advisory path delegates to the shared tally service
+- **GIVEN** a `validated` budget proposal in a round in `voting` phase
+- **WHEN** an authenticated citizen casts a `voor` advisory vote
+- **THEN** the vote is recorded as a `CitizenVote` and the tally update runs through the same atomic tally path as statutory open votes
+
+#### Scenario: Advisory vote requires no quorum
+
+@e2e exclude mode-configuration branch — PHPUnit on the voting rule resolver
+- **GIVEN** a budget round with any number of participants
+- **WHEN** advisory voting opens
+- **THEN** no quorum check is performed and voting proceeds regardless of participation level
+
+#### Scenario: Advisory and statutory tallies never mix
+
+@e2e exclude separation invariant — PHPUnit on the tally/result services
+- **GIVEN** a motion with a statutory `VotingRound` and a related budget proposal with advisory `CitizenVote` records
+- **WHEN** the statutory result is calculated
+- **THEN** only `Vote` objects from the `VotingRound` are counted; `CitizenVote` records contribute nothing to the statutory outcome
+
+#### Scenario: Duplicate detection shared with statutory voting
+
+- **GIVEN** a citizen who has already cast an advisory vote on a proposal
+- **WHEN** they attempt to vote again on the same proposal
+- **THEN** the duplicate is rejected by the same duplicate-detection mechanism used for statutory votes and the tally is unchanged
 
 ## User Stories
 
