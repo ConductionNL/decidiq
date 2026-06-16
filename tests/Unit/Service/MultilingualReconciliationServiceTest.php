@@ -329,7 +329,7 @@ class MultilingualReconciliationServiceTest extends TestCase
     public function testProcessQueueCompletesHappyPath(): void
     {
         $rows = [
-            'board-minutes' => [
+            'minutes' => [
                 [
                     'id'               => 'min-1',
                     'meetingKoppeling' => 'meet-1',
@@ -362,7 +362,7 @@ class MultilingualReconciliationServiceTest extends TestCase
         $translatedMinutes = array_values(
             array_filter(
                 $saved,
-                static fn(array $s): bool => ($s['_schema'] ?? '') === 'board-minutes'
+                static fn(array $s): bool => ($s['_schema'] ?? '') === 'minutes'
             )
         );
         $this->assertCount(1, $translatedMinutes);
@@ -393,7 +393,7 @@ class MultilingualReconciliationServiceTest extends TestCase
     public function testProcessQueueRecordsAdapterFailure(): void
     {
         $rows = [
-            'board-minutes' => [
+            'minutes' => [
                 [
                     'id'               => 'min-1',
                     'meetingKoppeling' => 'meet-1',

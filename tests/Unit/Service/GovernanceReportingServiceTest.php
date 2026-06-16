@@ -142,26 +142,29 @@ class GovernanceReportingServiceTest extends TestCase
      */
     public function testGenerateAnnualReportAggregates(): void
     {
+        // Schema slugs follow the ADR-005 supertype model: board-meeting →
+        // meeting, resolution → decision, board-vote → vote, board-member →
+        // membership. The link/data field names are unchanged.
         $rows = [
-            'board-meeting'   => [
+            'meeting'    => [
                 ['id' => 'm-1', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-03-15T10:00:00Z'],
                 ['id' => 'm-2', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-06-15T10:00:00Z'],
                 ['id' => 'm-3', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-09-15T10:00:00Z'],
                 ['id' => 'm-4', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-12-15T10:00:00Z'],
                 ['id' => 'm-5', 'boardKoppeling' => 'b-1', 'meetingDate' => '2025-12-15T10:00:00Z'],
             ],
-            'resolution'      => [
+            'decision'   => [
                 ['id' => 'r-1', 'meetingKoppeling' => 'm-1', 'voteThreshold' => 'simple-majority'],
                 ['id' => 'r-2', 'meetingKoppeling' => 'm-2', 'voteThreshold' => 'simple-majority'],
                 ['id' => 'r-3', 'meetingKoppeling' => 'm-5', 'voteThreshold' => 'simple-majority'],
             ],
-            'board-vote'      => [
+            'vote'       => [
                 ['id' => 'v-1', 'resolutionKoppeling' => 'r-1', 'vote' => 'in-favor'],
                 ['id' => 'v-2', 'resolutionKoppeling' => 'r-1', 'vote' => 'against'],
                 ['id' => 'v-3', 'resolutionKoppeling' => 'r-2', 'vote' => 'in-favor'],
                 ['id' => 'v-4', 'resolutionKoppeling' => 'r-3', 'vote' => 'in-favor'],
             ],
-            'board-member'    => [
+            'membership' => [
                 ['id' => 'bm-1', 'boardKoppeling' => 'b-1', 'independenceStatus' => 'independent'],
                 ['id' => 'bm-2', 'boardKoppeling' => 'b-1', 'independenceStatus' => 'independent'],
                 ['id' => 'bm-3', 'boardKoppeling' => 'b-1', 'independenceStatus' => 'non-independent'],
