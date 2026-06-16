@@ -73,7 +73,11 @@ jobs:
         uses: https://code.forgejo.org/actions/checkout@v4
 
       - name: Install composer deps
-        run: composer install --no-interaction --no-progress --prefer-dist
+        # edgedesign/phpqa (require-dev, static-analysis aggregator parked per
+        # ADR-022) pulls ext-xsl, which the ci-php:8.3 image does not ship.
+        # The unit suite never touches phpqa, so ignore that platform req to
+        # let the HARD GATE install + run instead of aborting at composer.
+        run: composer install --no-interaction --no-progress --prefer-dist --ignore-platform-req=ext-xsl
 
       - name: Run unit suite (phpunit-unit.xml)
         # unit-gating=false reports failures without failing the job, for apps
@@ -154,7 +158,11 @@ jobs:
             || echo "coverage driver: ABSENT (ratchet will no-op; see TESTING-CI-ROLLOUT.md)"
 
       - name: Install composer deps
-        run: composer install --no-interaction --no-progress --prefer-dist
+        # edgedesign/phpqa (require-dev, static-analysis aggregator parked per
+        # ADR-022) pulls ext-xsl, which the ci-php:8.3 image does not ship.
+        # The unit suite never touches phpqa, so ignore that platform req to
+        # let the HARD GATE install + run instead of aborting at composer.
+        run: composer install --no-interaction --no-progress --prefer-dist --ignore-platform-req=ext-xsl
 
       - name: Run unit suite WITH coverage (clover)
         run: |
