@@ -4196,7 +4196,7 @@
         "x-openregister-relations": {
           "motion": {
             "register": "decidesk",
-            "schema": "Motion",
+            "schema": "Decision",
             "cardinality": "many-to-one"
           },
           "proposal": {
@@ -4832,7 +4832,7 @@
         "x-openregister-relations": {
           "motion": {
             "register": "decidesk",
-            "schema": "Motion",
+            "schema": "Decision",
             "cardinality": "many-to-one"
           }
         }
