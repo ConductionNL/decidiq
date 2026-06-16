@@ -201,6 +201,11 @@ return \OCA\OpenRegister\AppHost\Routes::standard(
         // window — see openspec/changes/adopt-apphost/tasks.md#task-2.3). The
         // canonical /api/health (health#index) comes from Routes::standard().
         // @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+        // Canonical /api/health re-declared here (identical to the entry
+        // Routes::standard() would inject) so the decidesk HealthController
+        // subclass route target is statically visible (gate-14); the $extra
+        // override is behaviour-neutral. @spec openspec/changes/adopt-apphost/tasks.md#task-2.2
+        ['name' => 'health#index',           'url' => '/api/health',     'verb' => 'GET'],
         ['name' => 'health#status',          'url' => '/api/v1/health',  'verb' => 'GET'],
         ['name' => 'health#statusOptions',   'url' => '/api/v1/health',  'verb' => 'OPTIONS'],
         // CORS preflight for the whole v1 surface — must precede the catch-all GET.
