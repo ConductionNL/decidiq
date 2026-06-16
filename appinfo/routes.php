@@ -1,15 +1,30 @@
 <?php
 
+/**
+ * Decidesk route table.
+ *
+ * Adopts the OpenRegister AppHost canonical route table
+ * ({@see \OCA\OpenRegister\AppHost\Routes::standard()}) for the mechanical
+ * fleet-standard routes (dashboard page + SPA catch-all, settings API,
+ * per-user preferences, the observability /api/health + /api/metrics
+ * endpoints), and appends decidesk's domain routes via `$extra`.
+ *
+ * `$extra` routes are inserted before the SPA catch-all so they keep priority
+ * over the `/{path}` fallback; an `$extra` route whose name matches a canonical
+ * one overrides it (used here to add the publication-config sub-routes under
+ * the canonical `settings#*` controller without re-declaring it).
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+ * SPDX-License-Identifier: EUPL-1.2.
+ *
+ * @spec openspec/changes/adopt-apphost/tasks.md#task-2.2
+ * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
+ */
+
 declare(strict_types=1);
 
-return [
-    'routes' => [
-        // Dashboard + Settings.
-        ['name' => 'dashboard#page', 'url' => '/', 'verb' => 'GET'],
-        ['name' => 'settings#index', 'url' => '/api/settings', 'verb' => 'GET'],
-        ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
-        ['name' => 'settings#load',  'url' => '/api/settings/load', 'verb' => 'POST'],
-
+return \OCA\OpenRegister\AppHost\Routes::standard(
+    [
         // Publication configuration (publish-decisions-via-opencatalogi).
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
@@ -37,13 +52,7 @@ return [
         ['name' => 'memberImport#groupMembers', 'url' => '/api/member-import/groups/{groupId}/members', 'verb' => 'GET'],
         ['name' => 'memberImport#match',        'url' => '/api/member-import/match',                    'verb' => 'POST'],
 
-        // Generic per-user preferences (used by shared nextcloud-vue widgets, e.g. CnSupportDialog).
-        ['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
-        ['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],
-
         // Analytics endpoint — personal action-item list only.
-        // getSummary and getCompletionRates removed: generic aggregations now live in
-        // x-openregister-aggregations on Meeting schema, rendered by the analytics leaf.
         // @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
         ['name' => 'analytics#getMyItems',             'url' => '/api/analytics/action-items/my-items',         'verb' => 'GET'],
 
@@ -82,7 +91,6 @@ return [
         ['name' => 'meeting#proofPackage', 'url' => '/api/meetings/{id}/proof-package', 'verb' => 'POST'],
 
         // Meeting transcription action endpoints (meeting-transcription-ai-minutes).
-        // Action-only routes; plain Transcript CRUD stays on the OR object API (ADR-022).
         // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
         ['name' => 'transcription#sources',         'url' => '/api/meetings/{meetingId}/transcription/sources', 'verb' => 'GET'],
         ['name' => 'transcription#attach',          'url' => '/api/meetings/{meetingId}/transcription/attach',  'verb' => 'POST'],
@@ -107,7 +115,6 @@ return [
         // (meeting-agenda-gaps-v1). @spec openspec/specs/meeting-management/spec.md
         ['name' => 'meeting#createSeries',    'url' => '/api/meetings/{id}/series',  'verb' => 'POST'],
         ['name' => 'meeting#assemblePackage', 'url' => '/api/meetings/{id}/package', 'verb' => 'POST'],
-
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],
@@ -188,8 +195,12 @@ return [
 
         // Public REST API — versioned v1 (REQ-API-001..004).
         // @spec openspec/changes/p4-integration/tasks.md#task-1
-        // @spec openspec/changes/p4-integration/tasks.md#task-2
-        // Health check — public, no auth required.
+        // Legacy health endpoint — public, no auth. Re-pointed at the AppHost
+        // engine via the decidesk HealthController subclass; kept on the
+        // historical /api/v1/health URL for reverse-proxy probes (deprecation
+        // window — see openspec/changes/adopt-apphost/tasks.md#task-2.3). The
+        // canonical /api/health (health#index) comes from Routes::standard().
+        // @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
         ['name' => 'health#status',          'url' => '/api/v1/health',  'verb' => 'GET'],
         ['name' => 'health#statusOptions',   'url' => '/api/v1/health',  'verb' => 'OPTIONS'],
         // CORS preflight for the whole v1 surface — must precede the catch-all GET.
@@ -205,20 +216,6 @@ return [
         ['name' => 'ori#preflightItem', 'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#index',         'url' => '/api/ori/v1/{resource}',      'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
-
-        // p4-collaboration routes — @spec openspec/changes/p4-collaboration/tasks.md.
-        // Task/Delegation lifecycle routes were retired in
-        // migrate-action-items-to-deck-leaf (ADR-022 / task-4.2): action-item
-        // content lives on the CalDAV VTODO ActionItem (ADR-002) and the board UI
-        // is the Deck integration leaf bound via the ADR-019 registry.
-
-        // Workspace member-management routes retired in
-        // migrate-workspaces-to-collectives-leaf (ADR-022 / task-4.2): the
-        // faction/committee workspace is now a Nextcloud Collective surfaced via
-        // the ADR-019 registry binding declared in
-        // lib/Settings/register.d/41-migrate-workspaces-to-collectives-leaf.json,
-        // so membership lives on the Collective and object-level RBAC stays in
-        // OR AuthorizationService.
 
         // Notification preference endpoints (own preferences).
         ['name' => 'notificationPreference#show',   'url' => '/api/notification-preference', 'verb' => 'GET'],
@@ -255,9 +252,5 @@ return [
         ['name' => 'participation#publishBudgetResults',       'url' => '/api/participation/budgets/{budgetId}/publish',                      'verb' => 'POST'],
         ['name' => 'participation#validateProposal',           'url' => '/api/participation/proposals/{proposalId}/validate',                 'verb' => 'POST'],
         ['name' => 'participation#castAdvisoryVote',           'url' => '/api/participation/proposals/{proposalId}/vote',                     'verb' => 'POST'],
-
-        // SPA catch-all — same controller as the index route; must use a distinct route name
-        // (duplicate names replace the earlier route in Symfony, which breaks GET /).
-        ['name' => 'dashboard#catchAll', 'url' => '/{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], 'defaults' => ['path' => '']],
-    ],
-];
+    ]
+);

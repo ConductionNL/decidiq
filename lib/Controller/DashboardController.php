@@ -1,82 +1,58 @@
 <?php
+
 /**
  * Decidesk Dashboard Controller
  *
- * Controller for the main Decidesk dashboard page.
+ * Thin AppHost adopter: subclasses the OpenRegister AppHost
+ * {@see \OCA\OpenRegister\AppHost\Controller\GenericDashboardController}, which
+ * renders the SPA from `templates/index.php` and serves the Vue history-mode
+ * catch-all. No decidesk-specific behaviour — the subclass exists only to keep
+ * the `dashboard#page` / `dashboard#catchAll` route targets concrete (gate-5 /
+ * gate-14) while the implementation lives in the generic.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
- * @copyright 2024 Conduction B.V.
+ * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @version GIT: <git-id>
  *
  * @link https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+ * SPDX-License-Identifier: EUPL-1.2.
+ *
+ * @spec openspec/changes/adopt-apphost/tasks.md#task-2.1
+ * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
  */
 
-// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
-use OCP\AppFramework\Http\TemplateResponse;
+use OCA\OpenRegister\AppHost\Controller\GenericDashboardController;
 use OCP\IRequest;
 
 /**
- * Controller for the main Decidesk dashboard page.
+ * SPA host for decidesk — delegates entirely to the AppHost generic.
  *
- * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.4
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+ * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
  */
-class DashboardController extends Controller
+class DashboardController extends GenericDashboardController
 {
     /**
-     * Constructor for the DashboardController.
+     * Constructor.
      *
-     * @param IRequest $request The request object
+     * @param IRequest $request The request object.
      *
      * @return void
      */
     public function __construct(IRequest $request)
     {
         parent::__construct(appName: Application::APP_ID, request: $request);
+
     }//end __construct()
-
-    /**
-     * Render the main dashboard page.
-     *
-     * @return TemplateResponse
-     *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
-     */
-    #[NoAdminRequired]
-    #[NoCSRFRequired]
-    public function page(): TemplateResponse
-    {
-        return new TemplateResponse(Application::APP_ID, 'index');
-    }//end page()
-
-    /**
-     * Serve the SPA for deep links (Vue history mode). Delegates to {@see page()}.
-     *
-     * @return TemplateResponse
-     *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
-     */
-    #[NoAdminRequired]
-    #[NoCSRFRequired]
-    public function catchAll(): TemplateResponse
-    {
-        return $this->page();
-    }//end catchAll()
 }//end class

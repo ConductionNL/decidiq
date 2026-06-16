@@ -38,7 +38,6 @@ use OCA\Decidesk\Controller\ProjectionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Event\DecisionRequestedEvent;
-use OCA\Decidesk\Listener\DeepLinkRegistrationListener;
 use OCA\Decidesk\Listener\DecisionRequestedListener;
 use OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf;
 use OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf;
@@ -110,12 +109,12 @@ class Application extends App implements IBootstrap
      */
     public function register(IRegistrationContext $context): void
     {
-        // Register deep link patterns with OpenRegister's unified search provider.
-        // Only fires when OpenRegister is installed and dispatches the event.
-        $context->registerEventListener(
-            event: DeepLinkRegistrationEvent::class,
-            listener: DeepLinkRegistrationListener::class
-        );
+        // AppHost adoption (ADR-040 / ADR-022): re-point the mechanical
+        // dashboard + observability + deep-link plumbing at the OpenRegister
+        // AppHost generics, keeping decidesk's URLs unchanged. Decidesk's
+        // domain-entangled Settings / Preferences / AdminSettings / repair /
+        // SettingsService stay bespoke (see registerAppHostBoilerplate()).
+        $this->registerAppHostBoilerplate(context: $context);
 
         // Register MinutesGenerationService for DI.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
@@ -812,6 +811,82 @@ class Application extends App implements IBootstrap
         $this->registerNcPlatformIntegration(context: $context);
 
     }//end register()
+
+    /**
+     * AppHost boilerplate adoption (ADR-040 / ADR-022).
+     *
+     * Re-points the mechanical, fleet-standard plumbing at the OpenRegister
+     * AppHost generics — keeping decidesk's existing URLs unchanged — while
+     * leaving every domain-entangled class bespoke:
+     *
+     *   - `Controller\DashboardController`  -> `GenericDashboardController`
+     *     (pure SPA/template host; identical to the generic).
+     *   - `Controller\MetricsController`    -> `GenericMetricsController`
+     *     (decidesk had NO metrics endpoint; this is an additive ADR-006
+     *     compliance upgrade serving the manifest `observability` block).
+     *   - `Controller\HealthController`     -> kept as a thin generic subclass
+     *     (NOT aliased here) so it can reshape the engine result into the
+     *     published REQ-API-004 body. Its engine dependencies are wired below.
+     *   - the generic deep-link listener (manifest `deepLinks` driven) replaces
+     *     the former hand-written `Listener\DeepLinkRegistrationListener`.
+     *
+     * Deliberately NOT adopted (kept bespoke — domain behaviour the generics
+     * cannot express, per the "don't force" rule):
+     *   - `Controller\SettingsController` + `Service\SettingsService`
+     *     (decidesk-register import, publication-config CRUD).
+     *   - `Settings\AdminSettings` (domain initial state: publication config,
+     *     transcript-retention defaults) and `Sections\SettingsSection`,
+     *     `Settings\PersonalSettings`, `Sections\PersonalSection`.
+     *   - `Repair\InitializeSettings` (voter_token_secret seeding + OR
+     *     configuration import).
+     *   - `Controller\PreferencesController` — the AppHost has no
+     *     `GenericPreferencesController` in OpenRegister development, so the
+     *     bespoke per-user preferences controller is retained as-is.
+     *
+     * Lazy by construction: every binding is a `registerService` closure, so a
+     * disabled OpenRegister never loads an AppHost class at bootstrap (the
+     * closure only resolves when a route is dispatched), matching the AppHost
+     * fatal-free invariant.
+     *
+     * @param IRegistrationContext $context The registration context
+     *
+     * @spec openspec/changes/adopt-apphost/tasks.md#task-2
+     * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
+     *
+     * @return void
+     */
+    private function registerAppHostBoilerplate(IRegistrationContext $context): void
+    {
+        // The dashboard / metrics / health route targets are thin decidesk
+        // subclasses of the AppHost generics
+        // (`Controller\DashboardController`, `Controller\MetricsController`,
+        // `Controller\HealthController`) — concrete classes so the route
+        // targets stay reachable (gate-5 / gate-14). Their constructor
+        // dependencies (the engine's ManifestLoader / MetricsEngine /
+        // HealthCheckExecutor, all OpenRegister services) are resolved by the
+        // DI container at dispatch time, so no explicit binding is needed here
+        // and a disabled OpenRegister never loads an AppHost class at bootstrap.
+        //
+        // Generic, manifest-driven deep-link listener replaces the former
+        // hand-written listener. Patterns now live in the manifest `deepLinks`
+        // block. Fires only when OpenRegister dispatches the event.
+        $context->registerService(
+            'OCA\\OpenRegister\\AppHost\\Listener\\GenericDeepLinkRegistrationListener',
+            static function ($c): object {
+                $class = 'OCA\\OpenRegister\\AppHost\\Listener\\GenericDeepLinkRegistrationListener';
+                return new $class(
+                    appId: self::APP_ID,
+                    appManager: $c->get(\OCP\App\IAppManager::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerEventListener(
+            event: DeepLinkRegistrationEvent::class,
+            listener: 'OCA\\OpenRegister\\AppHost\\Listener\\GenericDeepLinkRegistrationListener'
+        );
+
+    }//end registerAppHostBoilerplate()
 
     /**
      * NC platform integration bindings: Activity publisher, unified search,
