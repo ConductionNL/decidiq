@@ -54,7 +54,7 @@ class QuorumVerificationServiceTest extends TestCase
         $objectService = $this->createMock(ObjectService::class);
         $objectService->method('find')->willReturnCallback(
             function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null) use ($meeting): ?ObjectEntity {
-                if ($schema === 'board-meeting' && (string) $id === (string) ($meeting['id'] ?? '')) {
+                if ($schema === 'meeting' && (string) $id === (string) ($meeting['id'] ?? '')) {
                     $entity = $this->createMock(ObjectEntity::class);
                     $entity->method('jsonSerialize')->willReturn($meeting);
                     return $entity;

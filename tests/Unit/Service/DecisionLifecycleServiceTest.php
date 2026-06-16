@@ -24,10 +24,12 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidesk\Service\AuditLogService;
+use OCA\Decidesk\Service\DecisionIntegrationService;
 use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCA\Decidesk\Service\ProcessTemplateService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
+use OCP\EventDispatcher\IEventDispatcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -93,12 +95,24 @@ class DecisionLifecycleServiceTest extends TestCase
         $templateService = $this->createMock(ProcessTemplateService::class);
         $templateService->method('resolvePolicyForBody')->willReturn(null);
 
+        // Cross-app event contract (decidesk-decision-events): the service now
+        // also dispatches a DecisionConcludedEvent when a *delegated* decision
+        // (one carrying a sourceApp provenance) reaches a terminal state. The
+        // fixtures here are internal decisions (no sourceApp), so neither
+        // collaborator is invoked — they are wired as plain mocks so the
+        // constructor signature is satisfied without altering the asserted
+        // behaviour of the existing lifecycle scenarios.
+        $integrationService = $this->createMock(DecisionIntegrationService::class);
+        $eventDispatcher    = $this->createMock(IEventDispatcher::class);
+
         $this->service = new DecisionLifecycleService(
             container: $this->container,
             logger: $this->createMock(LoggerInterface::class),
             transitionGuard: new DecisionTransitionGuard(),
             auditLogService: $this->auditLogService,
             templateService: $templateService,
+            integrationService: $integrationService,
+            eventDispatcher: $eventDispatcher,
         );
 
     }//end setUp()
@@ -339,10 +353,22 @@ class DecisionLifecycleServiceTest extends TestCase
         $this->objectService->method('find')
             ->willReturn($this->entity(['id' => 'dec-1', 'lifecycle' => 'decided', 'outcome' => 'adopted', 'title' => 'Budget 2026', 'text' => 'Adopt the budget.']));
 
-        $savedBySchema = [];
+        // Both the lifecycle update and the generated resolution record now
+        // persist on the unified `decision` schema (ADR-005 folded the former
+        // `resolution` schema into `decision`). They are distinguished by the
+        // save shape, not the schema slug: the lifecycle update is an in-place
+        // update carrying a uuid; the generated resolution is a fresh insert
+        // (no uuid) carrying a `status` + `effectiveDate`.
+        $updates    = [];
+        $resolution = null;
         $this->objectService->method('saveObject')->willReturnCallback(
-            function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null) use (&$savedBySchema) {
-                $savedBySchema[(string) $schema] = $object;
+            function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null) use (&$updates, &$resolution) {
+                if ((string) ($uuid ?? '') !== '') {
+                    $updates[] = $object;
+                } else {
+                    $resolution = $object;
+                }
+
                 return $this->entity($object);
             }
         );
@@ -351,16 +377,20 @@ class DecisionLifecycleServiceTest extends TestCase
 
         $result = $this->service->transition(decisionId: 'dec-1', action: 'enact', currentUserId: 'alice');
         self::assertTrue(condition: $result['success']);
-        self::assertSame(expected: 'enacted', actual: $savedBySchema['decision']['lifecycle']);
-        self::assertNotEmpty(actual: $savedBySchema['decision']['enactedAt']);
+
+        // The lifecycle update (uuid-bearing) flips to enacted + stamps enactedAt.
+        self::assertCount(expectedCount: 1, haystack: $updates);
+        $decisionSave = $updates[0];
+        self::assertSame(expected: 'enacted', actual: $decisionSave['lifecycle']);
+        self::assertNotEmpty(actual: $decisionSave['enactedAt']);
 
         // Enacting generates the formal resolution record (resolution-minutes spec).
-        self::assertArrayHasKey(key: 'resolution', array: $savedBySchema);
-        self::assertSame(expected: 'adopted', actual: $savedBySchema['resolution']['status']);
-        self::assertSame(expected: 'Budget 2026', actual: $savedBySchema['resolution']['title']);
+        self::assertNotNull(actual: $resolution);
+        self::assertSame(expected: 'adopted', actual: $resolution['status']);
+        self::assertSame(expected: 'Budget 2026', actual: $resolution['title']);
         self::assertSame(
-            expected: $savedBySchema['decision']['enactedAt'],
-            actual: $savedBySchema['resolution']['effectiveDate']
+            expected: $decisionSave['enactedAt'],
+            actual: $resolution['effectiveDate']
         );
 
     }//end testEnactSetsEnactedAtAndGeneratesResolution()

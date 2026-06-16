@@ -4,6 +4,39 @@
 	"dependencies": [
 		"openregister"
 	],
+	"observability": {
+		"_note": "Decidesk adopts the OpenRegister AppHost observability engine (ADR-040 / ADR-006). The /api/health route is served by a thin GenericHealthController subclass (HealthController) that reshapes the engine result into the published REQ-API-004 body {status, baseUrl, version, openregister}; /api/metrics is aliased straight to GenericMetricsController. statusCodePolicy=always200 + cors=true reproduce the REQ-API-004 reverse-proxy probe contract (probes succeed even when degraded; CORS + OPTIONS preflight). The orAvailable check subsumes the former hand-rolled DI-container ObjectService lookup. No metrics[] descriptors: decidesk gains the implicit decidesk_info / decidesk_up gauges, a pure compliance upgrade over the no-metrics-endpoint baseline.",
+		"health": {
+			"statusCodePolicy": "always200",
+			"cors": true,
+			"checks": [
+				{
+					"id": "openregister",
+					"type": "orAvailable",
+					"severity": "critical"
+				}
+			]
+		}
+	},
+	"deepLinks": [
+		{ "registerSlug": "decidesk", "schemaSlug": "governance-body", "urlTemplate": "/apps/decidesk/#/governance-bodies/{uuid}", "displayName": "Governance body" },
+		{ "registerSlug": "decidesk", "schemaSlug": "meeting", "urlTemplate": "/apps/decidesk/#/meetings/{uuid}", "displayName": "Meeting" },
+		{ "registerSlug": "decidesk", "schemaSlug": "participant", "urlTemplate": "/apps/decidesk/#/participants/{uuid}", "displayName": "Participant" },
+		{ "registerSlug": "decidesk", "schemaSlug": "agenda-item", "urlTemplate": "/apps/decidesk/#/agenda-items/{uuid}", "displayName": "Agenda item" },
+		{ "registerSlug": "decidesk", "schemaSlug": "motion", "urlTemplate": "/apps/decidesk/#/motions/{uuid}", "displayName": "Motion" },
+		{ "registerSlug": "decidesk", "schemaSlug": "amendment", "urlTemplate": "/apps/decidesk/#/amendments/{uuid}", "displayName": "Amendment" },
+		{ "registerSlug": "decidesk", "schemaSlug": "voting-round", "urlTemplate": "/apps/decidesk/#/voting-rounds/{uuid}", "displayName": "Voting round" },
+		{ "registerSlug": "decidesk", "schemaSlug": "vote", "urlTemplate": "/apps/decidesk/#/votes/{uuid}", "displayName": "Vote" },
+		{ "registerSlug": "decidesk", "schemaSlug": "decision", "urlTemplate": "/apps/decidesk/#/decisions/{uuid}", "displayName": "Decision" },
+		{ "registerSlug": "decidesk", "schemaSlug": "action-item", "urlTemplate": "/apps/decidesk/#/action-items/{uuid}", "displayName": "Action item" },
+		{ "registerSlug": "decidesk", "schemaSlug": "minutes", "urlTemplate": "/apps/decidesk/#/minutes/{uuid}", "displayName": "Minutes" },
+		{ "registerSlug": "decidesk", "schemaSlug": "digital-document", "urlTemplate": "/apps/decidesk/#/digital-documents/{uuid}", "displayName": "Digital document" },
+		{ "registerSlug": "decidesk", "schemaSlug": "monetary-amount", "urlTemplate": "/apps/decidesk/#/monetary-amounts/{uuid}", "displayName": "Monetary amount" },
+		{ "registerSlug": "decidesk", "schemaSlug": "offer", "urlTemplate": "/apps/decidesk/#/offers/{uuid}", "displayName": "Offer" },
+		{ "registerSlug": "decidesk", "schemaSlug": "order", "urlTemplate": "/apps/decidesk/#/orders/{uuid}", "displayName": "Order" },
+		{ "registerSlug": "decidesk", "schemaSlug": "product", "urlTemplate": "/apps/decidesk/#/products/{uuid}", "displayName": "Product" },
+		{ "registerSlug": "decidesk", "schemaSlug": "report", "urlTemplate": "/apps/decidesk/#/reports/{uuid}", "displayName": "Report" }
+	],
 	"menu": [
 		{
 			"id": "Dashboard",

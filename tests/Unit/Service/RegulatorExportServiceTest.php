@@ -190,10 +190,10 @@ class RegulatorExportServiceTest extends TestCase
     public function testGenerateResolutionsPdf(): void
     {
         $rows = [
-            'board-meeting' => [
+            'meeting' => [
                 ['id' => 'm-1', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-03-15T10:00:00Z'],
             ],
-            'resolution'    => [
+            'decision'    => [
                 [
                     'id'               => 'r-1',
                     'meetingKoppeling' => 'm-1',
@@ -243,10 +243,10 @@ class RegulatorExportServiceTest extends TestCase
     public function testGenerateResolutionsCsv(): void
     {
         $rows = [
-            'board-meeting' => [
+            'meeting' => [
                 ['id' => 'm-1', 'boardKoppeling' => 'b-1'],
             ],
-            'resolution'    => [
+            'decision'    => [
                 [
                     'id'               => 'r-1',
                     'meetingKoppeling' => 'm-1',
@@ -279,8 +279,8 @@ class RegulatorExportServiceTest extends TestCase
     public function testGenerateAuditLogCsv(): void
     {
         $rows = [
-            'board-meeting'          => [],
-            'board-audit-log-entry'  => [
+            'meeting'          => [],
+            'audit-trail'  => [
                 [
                     'id'           => 'a-1',
                     'timestamp'    => '2026-04-01T10:00:00Z',
@@ -326,10 +326,10 @@ class RegulatorExportServiceTest extends TestCase
     public function testDownloadRegeneratesPersistedExport(): void
     {
         $rows = [
-            'board-meeting'                       => [
+            'meeting'                       => [
                 ['id' => 'm-1', 'boardKoppeling' => 'b-1'],
             ],
-            'resolution'                          => [
+            'decision'                          => [
                 ['id' => 'r-1', 'meetingKoppeling' => 'm-1', 'title' => 'R'],
             ],
             RegulatorExportService::SCHEMA        => [
