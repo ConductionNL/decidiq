@@ -808,6 +808,47 @@
               "nl": "Herinnering: vergadering '{{title}}' komt eraan",
               "en": "Reminder: meeting '{{title}}' is coming up"
             }
+          },
+          "meetingStartingSoon": {
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 900,
+              "filter": {
+                "lifecycle": "scheduled"
+              }
+            },
+            "enabled": true,
+            "originApp": "decidesk",
+            "channels": [
+              "nc-notification",
+              "web-push"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Vergadering begint binnenkort: {{title}}",
+              "en": "Meeting starts soon: {{title}}"
+            },
+            "message": {
+              "nl": "{{title}} begint in Decidesk. Openen?",
+              "en": "{{title}} is starting in Decidesk. Open it?"
+            },
+            "actions": [
+              {
+                "label": {
+                  "nl": "Vergadering openen",
+                  "en": "Open meeting"
+                },
+                "primary": true,
+                "target": {
+                  "kind": "object-detail"
+                }
+              }
+            ]
           }
         },
         "slug": "meeting",
@@ -1998,6 +2039,48 @@
               "nl": "Besluit uitkomst beschikbaar: {{title}}",
               "en": "Decision outcome available: {{title}}"
             }
+          },
+          "voteRequested": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "voting"
+              }
+            },
+            "enabled": true,
+            "originApp": "decidesk",
+            "channels": [
+              "nc-notification",
+              "web-push"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Jouw stem is gevraagd: {{title}}",
+              "en": "Your vote is requested: {{title}}"
+            },
+            "message": {
+              "nl": "Dit besluit staat in Decidesk. Openen?",
+              "en": "This decision is in Decidesk. Open it?"
+            },
+            "actions": [
+              {
+                "label": {
+                  "nl": "Besluit openen",
+                  "en": "Open decision"
+                },
+                "primary": true,
+                "target": {
+                  "kind": "object-detail"
+                }
+              }
+            ]
           }
         },
         "slug": "decision",
@@ -3144,6 +3227,43 @@
               "nl": "Actie over tijd: {{title}}",
               "en": "Action item overdue: {{title}}"
             }
+          },
+          "actionItemAssignedToYou": {
+            "trigger": {
+              "type": "created"
+            },
+            "enabled": true,
+            "originApp": "decidesk",
+            "channels": [
+              "nc-notification",
+              "web-push"
+            ],
+            "recipients": [
+              {
+                "kind": "field",
+                "field": "assignee"
+              }
+            ],
+            "subject": {
+              "nl": "Aan jou toegewezen: {{title}}",
+              "en": "Assigned to you: {{title}}"
+            },
+            "message": {
+              "nl": "Dit actiepunt staat in Decidesk. Openen?",
+              "en": "This action item is in Decidesk. Open it?"
+            },
+            "actions": [
+              {
+                "label": {
+                  "nl": "Actiepunt openen",
+                  "en": "Open action item"
+                },
+                "primary": true,
+                "target": {
+                  "kind": "object-detail"
+                }
+              }
+            ]
           }
         },
         "slug": "action-item",
