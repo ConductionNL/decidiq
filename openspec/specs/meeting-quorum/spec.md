@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-quorum Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Calculates and enforces meeting quorum based on each governance body's rule, supporting fixed-count and percentage methods and counting present and proxy attendees. Blocks the transition from scheduled to opened when quorum is not met in domains that enforce it, exposes quorum status in the meeting API and detail-page indicator, and allows the chair to override a quorum failure with a recorded reason.
 
 ## Requirements
 

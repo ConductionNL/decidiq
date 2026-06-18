@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # proxy-voting Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting. Update Purpose after archive.
+Allows an active participant to delegate their voting right (volmacht) for a specific voting round to another active member of the same governance body, with the delegate's vote then cast on both their own and the delegator's behalf. The capability enforces at most one proxy per delegate per round, permits revocation only before the round opens, restricts delegation to eligible members (excluding observers and guests), and clearly identifies proxy votes in the audit trail and non-secret result breakdowns.
 
 ## Requirements
 

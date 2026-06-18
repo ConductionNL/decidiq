@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # p2-minutes-and-decisions-core-t3 Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-minutes-and-decisions-core-t3. Update Purpose after archive.
+Provides real-time minutes capture during active meetings with debounced auto-save, concurrent-edit locking, and version tracking, plus a role-guarded minutes approval workflow requiring chair and secretary digital acknowledgements. The capability also automates action-item extraction from approved minutes into CalDAV VTODOs, exposes published minutes and decisions through public ORI Report and Motion endpoints, and supports full-text search, faceted filtering, multi-format export, and notification events for decision discovery.
 
 ## Requirements
 

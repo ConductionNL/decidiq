@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # governance-body-crud Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-crud-operations. Update Purpose after archive.
+Provides full create, read, update, and delete management of GovernanceBody objects. Bodies are shown in a paginated, searchable, filterable list, created and edited through schema-driven form dialogs with required-field validation, and deleted with confirmation. The detail page renders a body's properties alongside its linked Meetings and Participants and an object sidebar with Files, Notes, Tags, Tasks, and Audit Trail tabs.
 
 ## Requirements
 

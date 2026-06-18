@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Decidesk store migration — spec
 
 ## Purpose

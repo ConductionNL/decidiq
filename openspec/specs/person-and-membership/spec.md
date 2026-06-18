@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 status-note: In progress 2026-06-14 via popolo-decision-makers (Person/Membership/Post Popolo schemas implemented in the register per ADR-001).
 openspec-changes:
   - popolo-decision-makers
@@ -8,7 +8,7 @@ openspec-changes:
 # person-and-membership Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Defines the Popolo decision-maker model as separate Person, Membership, and Post schemas, where Person holds identity data only and Membership links a person to a governance body with role, party, voting weight, and an active validity window. The capability uses active memberships to auto-populate and count meeting attendees for quorum, supports persons holding multiple memberships across bodies, models vacant formal positions via Post, and ships realistic seed data across council, corporate-board, and association organisation types.
 ## Requirements
 ### Requirement: REQ-PMB-001 — Meeting attendance tracking via Membership
 

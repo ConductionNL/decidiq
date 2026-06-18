@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # agenda-publication Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-agenda-management. Update Purpose after archive.
+Lets the secretary or chair publish a complete agenda package for a meeting and make it available to participants ahead of time. Publication validates the agenda, notifies all active participants, and updates the meeting's calendar event; supporting files can be attached to individual items, the published agenda is browsable online sorted by order number, and the full agenda can be exported to CSV.
 
 ## Requirements
 

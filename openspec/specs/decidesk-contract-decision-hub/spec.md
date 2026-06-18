@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # decidesk-contract-decision-hub Specification
 
 ## Purpose
-TBD - created by archiving change decidesk-contract-decision-hub. Update Purpose after archive.
+Turns decidesk into a decision hub that any fleet app can call to raise a governance decision (such as a contract approval or report adoption) about an object it owns. It adds subject-reference and provenance fields to the Decision schema, an idempotent create-decision API endpoint, a queryable outcome envelope and callback subscriptions, and delegation of document signing to docudesk — while owning only the decision itself and leaving downstream side effects to the consuming app.
 ## Requirements
 ### Requirement: REQ-DCDH-001 — Subject reference and provenance on a Decision
 

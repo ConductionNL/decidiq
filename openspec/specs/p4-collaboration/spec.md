@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # p4-collaboration Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p4-collaboration. Update Purpose after archive.
+Supports collaborative governance work through task creation and delegation with absence substitution, bounded collaboration workspaces with role-based access, and threaded comments with @mention notifications on governance artifacts. The capability also covers email-to-dossier linking, per-event notification preferences, live participant engagement tracking, motion co-authoring with version capture and conflict detection, and enriched participant profiles with quick-lookup by name, party, and role.
 
 ## Requirements
 

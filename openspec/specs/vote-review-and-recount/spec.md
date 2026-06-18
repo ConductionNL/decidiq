@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # vote-review-and-recount Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-other-t1. Update Purpose after archive.
+Lets the chair or secretary request a recount on a closed voting round and resolve disputed outcomes. A one-time recount re-tallies all votes; a discrepancy sets the round result to "disputed" and records a structured note comparing original and recounted values, surfaced as a warning banner on the motion. The chair or secretary can then set a final result, and auditors with read-only access can review individual votes on non-secret rounds and the recount comparison data.
 
 ## Requirements
 

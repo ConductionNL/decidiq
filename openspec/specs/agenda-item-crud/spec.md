@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # agenda-item-crud Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-crud-operations. Update Purpose after archive.
+Provides full create, read, update, and delete management of agenda items, each linked to a meeting. Users browse agenda items in a paginated, searchable list filterable by item type, create and edit them through schema-driven form dialogs, and view item details alongside the linked meeting and an object sidebar for files, notes, tags, tasks, and audit trail.
 
 ## Requirements
 

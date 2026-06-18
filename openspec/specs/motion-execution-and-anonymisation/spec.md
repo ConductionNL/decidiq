@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Specs: Motion and Voting — Core T3
 
 **Change:** p2-motion-and-voting-core-t3

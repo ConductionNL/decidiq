@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-agenda Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Manages the agenda of a meeting as ordered OpenRegister agenda-item objects related to the meeting wrapper. Authorized users can create, list, update, and delete agenda items, each with a title, validated item type (procedural, discussion, decision, motion, report, information), and a contiguous order number that auto-increments on add and resequences on reorder or delete. Items are returned sorted by order number, and order changes flow only through the dedicated reorder mechanism.
 
 ## Requirements
 

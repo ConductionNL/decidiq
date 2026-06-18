@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # quorum-schema-declaration Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-quorum-schema-declaration. Update Purpose after archive.
+Declares the OpenRegister aggregations and calculations on the Meeting schema that compute meeting quorum directly from related Participant objects. It defines totalParticipantCount and presentParticipantCount aggregations and derives a guarded quorumPercentage and a quorumMet boolean, so quorum status is computed by the data model rather than ad-hoc application code.
 
 ## Requirements
 

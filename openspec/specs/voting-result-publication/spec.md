@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # voting-result-publication Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting. Update Purpose after archive.
+Displays a voting round's full result the moment it closes — totals, outcome, and the required majority threshold — while secret ballots show totals only. The chair or secretary can publish results to the configured ORI API as JSON-LD with queued retry on failure, an adopted motion automatically gets a structured Nextcloud Files dossier folder seeded with the result, every motion and vote event is logged to the Activity stream as an exportable audit trail, and voting history is full-text searchable and filterable across all motions.
 
 ## Requirements
 

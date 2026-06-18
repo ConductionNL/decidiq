@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Specs: Meeting Management — Other T2
 
 **Change:** p2-meeting-management-other-t2

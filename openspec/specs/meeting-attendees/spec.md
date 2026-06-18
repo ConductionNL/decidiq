@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-attendees Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Manages meeting attendees as CalDAV ATTENDEE entries on the meeting's VEVENT, auto-populated from the governance body's active Membership records (excluding expired memberships) when a meeting is created. Authorized users can add and remove attendees, track attendance status (present, absent, proxy, excused) via the PARTSTAT parameter, and attendee roles (chair, vice-chair, secretary, member, observer, guest) map to the CalDAV ROLE parameter. Each attendee's voting weight from their Membership is exposed in the meeting detail for quorum and voting calculations.
 
 ## Requirements
 

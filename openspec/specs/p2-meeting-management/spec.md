@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # p2-meeting-management Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management. Update Purpose after archive.
+Manages the full lifecycle of governance meetings, from scheduling and templating through opening, pausing, adjourning, and closing, with server-side state-machine and role-based authorization enforcement. Meetings are stored as CalDAV VEVENTs in a dedicated calendar per governance body alongside thin OpenRegister wrapper objects, and the capability covers quorum gating, attendance tracking, speaker-queue and speaking-time management, meeting series, document attachments, and an ORI-compatible events endpoint.
 
 ## Requirements
 

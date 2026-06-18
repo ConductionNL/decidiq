@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # accessibility-baseline Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-dashboard-and-navigation. Update Purpose after archive.
+Establishes a WCAG 2.1 accessibility baseline across every Decidesk page. Each page carries a single H1, a skip-navigation link, standard ARIA landmarks, and fully keyboard-operable interactive elements, while all user-visible strings are routed through translation wrappers.
 
 ## Requirements
 

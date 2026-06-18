@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # conflict-of-interest Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-agenda-management. Update Purpose after archive.
+Lets participants declare a conflict of interest against a specific agenda item, recording a structured, reasoned note that is logged in the audit trail. The chair sees a summary of all declarations for a meeting and per-item badges, and decision-type agenda items can be linked to one or more motions.
 
 ## Requirements
 

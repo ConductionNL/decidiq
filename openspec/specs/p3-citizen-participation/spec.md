@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # p3-citizen-participation Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p3-citizen-participation. Update Purpose after archive.
+Opens governance processes to the public by letting citizens browse and cast votes on motions, join citizen panels, submit and vote on participatory budget proposals, and respond to public consultations and deliberation threads. The capability also provides a transparency portal with public decision search, meeting calendars, ORI and open-data exports, offline participation via QR-coded PDF forms, and GDPR-compliant citizen notification management, while enforcing governance-body isolation and excluding personally identifiable information from public responses.
 
 ## Requirements
 

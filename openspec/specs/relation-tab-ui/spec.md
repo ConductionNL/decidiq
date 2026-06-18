@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # relation-tab-ui Specification
 
 ## Purpose
-TBD - created by archiving change retrofit-2026-05-25-relation-tab-ui. Update Purpose after archive.
+Provides the sidebar relation tabs that let users manage and view objects related to a parent across decidesk detail pages. It covers full-CRUD child lists (motions, agenda items, action items, amendments), participant-linking tabs, read-only relation viewers (votes, parent motion), minutes signer management with a sign-now action, typed peer-relation tabs between objects of the same schema, and consistent lifecycle and status colour semantics for at-a-glance reading.
 ## Requirements
 ### Requirement: REQ-RTU-001 Relation-scoped CRUD list tabs
 

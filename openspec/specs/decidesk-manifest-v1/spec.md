@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # decidesk-manifest-v1 Specification
 
 ## Purpose

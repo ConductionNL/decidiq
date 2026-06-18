@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # discussion-via-talk-leaf Specification
 
 ## Purpose
-TBD - created by archiving change 2026-06-10-migrate-comments-to-talk-leaf. Update Purpose after archive.
+Provides discussion on governance artifacts (meetings, motions, amendments, decisions) through a Nextcloud Talk conversation bound to the artifact's OpenRegister object, rather than an app-local comment store. The Talk leaf is surfaced as a discussion tab via the integration registry and degrades gracefully when the Talk app is absent. Legacy in-app comments are migrated into the bound conversation by a one-shot, idempotent migration that preserves author and timestamp and archives the original comments instead of deleting them.
 
 ## Requirements
 

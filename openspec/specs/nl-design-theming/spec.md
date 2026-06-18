@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # nl-design-theming Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-dashboard-and-navigation. Update Purpose after archive.
+Enforces government NL Design System theming across Decidesk by requiring every component to reference Nextcloud CSS custom properties rather than hardcoded colours. A single token-mapping file maps NL Design System token names to their Nextcloud variable equivalents, and the theme adapts automatically when users switch between Nextcloud light and dark mode.
 
 ## Requirements
 

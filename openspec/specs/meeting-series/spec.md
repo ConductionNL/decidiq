@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-series Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Manages recurring meetings as a series, generating individual meeting instances from a recurrence pattern that share a common series identifier. Lets users edit a single instance without affecting others, edit the series template to regenerate future instances while preserving opened or closed ones, group meetings by series in the list view, and delete an entire series while keeping in-progress and completed instances.
 
 ## Requirements
 

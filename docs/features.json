@@ -1,1 +1,518 @@
-[]
+[
+  {
+    "slug": "accessibility-baseline",
+    "title": "accessibility-baseline",
+    "summary": "Establishes a WCAG 2.1 accessibility baseline across every Decidesk page. Each page carries a single H1, a skip-navigation link, standard ARIA landmarks, and fully keyboard-operable interactive elements, while all user-visible strings are routed through translation wrappers.",
+    "docsUrl": "openspec/specs/accessibility-baseline/spec.md"
+  },
+  {
+    "slug": "action-item-board-via-deck-leaf",
+    "title": "action-item-board-via-deck-leaf",
+    "summary": "Surfaces meeting and decision action items as cards on a Nextcloud Deck board bound to the underlying OpenRegister object, with the CalDAV VTODO record remaining authoritative. Delegation and reclaim map onto VTODO assignee changes and OpenRegister audit events, and a migration projects legacy in-app Task and Delegation objects onto the board before archiving them.",
+    "docsUrl": "openspec/specs/action-item-board-via-deck-leaf/spec.md"
+  },
+  {
+    "slug": "admin-settings",
+    "title": "Admin Settings",
+    "summary": "Admin settings enable organization administrators to configure Decidesk for their specific governance context. This includes setting up governing bodies (bodies), assigning members with roles, selecting process templates, configuring voting rules, and managing the OpenRegister schema setup. The admin interface is the first thing configured after installation and determines how the entire system behaves.",
+    "docsUrl": "openspec/specs/admin-settings/spec.md"
+  },
+  {
+    "slug": "agenda-builder",
+    "title": "agenda-builder",
+    "summary": "Lets chairs and secretaries assemble a meeting agenda from ordered agenda items with types, estimated durations, spokespersons, and recurring-item templates. Items can be reordered by drag-and-drop or keyboard, and participants can propose items for chair review before they enter the agenda.",
+    "docsUrl": "openspec/specs/agenda-builder/spec.md"
+  },
+  {
+    "slug": "agenda-item-crud",
+    "title": "agenda-item-crud",
+    "summary": "Provides full create, read, update, and delete management of agenda items, each linked to a meeting. Users browse agenda items in a paginated, searchable list filterable by item type, create and edit them through schema-driven form dialogs, and view item details alongside the linked meeting and an object sidebar for files, notes, tags, tasks, and audit trail.",
+    "docsUrl": "openspec/specs/agenda-item-crud/spec.md"
+  },
+  {
+    "slug": "agenda-live-management",
+    "title": "agenda-live-management",
+    "summary": "Lets the chair run the agenda live during an open meeting. The chair can add, remove, and reorder agenda items on the fly, advance each discussion or decision item through its BOB phases, batch-adopt consent items (hamerstukken), and mark which item is currently active, while other participants see the updated, read-only agenda in real time.",
+    "docsUrl": "openspec/specs/agenda-live-management/spec.md"
+  },
+  {
+    "slug": "agenda-management",
+    "title": "Agenda Management",
+    "summary": "Agenda management handles the creation, ordering, and conduct of meeting agendas. An agenda is a structured list of items to be discussed at a meeting, each with a type (informational, discussion, decision), allocated time, and attached documents. The system supports drag-and-drop reordering, legally required items for specific meeting types (e.g., ALV statutory items), and real-time agenda tracking during meetings.",
+    "docsUrl": "openspec/specs/agenda-management/spec.md"
+  },
+  {
+    "slug": "agenda-publication",
+    "title": "agenda-publication",
+    "summary": "Lets the secretary or chair publish a complete agenda package for a meeting and make it available to participants ahead of time. Publication validates the agenda, notifies all active participants, and updates the meeting's calendar event; supporting files can be attached to individual items, the published agenda is browsable online sorted by order number, and the full agenda can be exported to CSV.",
+    "docsUrl": "openspec/specs/agenda-publication/spec.md"
+  },
+  {
+    "slug": "amendment-diff",
+    "title": "amendment-diff",
+    "summary": "Shows a side-by-side textual comparison between a motion and an amendment proposed against it. A \"Vergelijken\" tab renders an inline diff of the original and amended text, marking insertions and deletions with both colour and +/− symbols for WCAG AA accessibility, handling reordered list items cleanly, and deferring computation for long texts so the UI stays responsive.",
+    "docsUrl": "openspec/specs/amendment-diff/spec.md"
+  },
+  {
+    "slug": "amendment-workflow",
+    "title": "amendment-workflow",
+    "summary": "Manages the lifecycle of amendments proposed against a motion, mirroring the motion's own transitions from submitted through debating, voting, and adopted or rejected. Amendments are listed with their lifecycle on the motion detail, can be voted on independently via a dedicated voting round, apply their changes to the parent motion text on adoption, and trigger an alert to the griffier when multiple amendments target overlapping text.",
+    "docsUrl": "openspec/specs/amendment-workflow/spec.md"
+  },
+  {
+    "slug": "app-dashboard",
+    "title": "app-dashboard",
+    "summary": "Provides the app's landing dashboard, shown at the root route when OpenRegister is available. It presents four governance KPI cards (upcoming meetings, pending motions, open action items, recent decisions), a meeting status distribution chart, and quick-access navigation tiles to the primary entity types, loading all data in parallel with a loading state.",
+    "docsUrl": "openspec/specs/app-dashboard/spec.md"
+  },
+  {
+    "slug": "app-foundation",
+    "title": "app-foundation",
+    "summary": "Establishes the foundational app scaffolding: importing the Decidesk OpenRegister register and its entity schemas on install and upgrade, loading Dutch-language seed data so the app is usable immediately, an admin settings page with register mapping and re-import, an OpenRegister dependency check with an empty state, and the six-item navigation menu and KPI dashboard.",
+    "docsUrl": "openspec/specs/app-foundation/spec.md"
+  },
+  {
+    "slug": "app-navigation",
+    "title": "app-navigation",
+    "summary": "Defines the app shell layout, navigation menu, and routing. App.vue renders loading, no-OpenRegister, and ready states; the main menu presents ADR-004's six-item information architecture with mode-aware label resolution; the history-mode router exposes flat named routes (keeping demoted surfaces reachable by deep link); and store initialisation registers all entity types. It also surfaces Motions as a filtered view of Decisions rather than a standalone top-level item.",
+    "docsUrl": "openspec/specs/app-navigation/spec.md"
+  },
+  {
+    "slug": "citizen-participation",
+    "title": "citizen-participation",
+    "summary": "Lets governments run public consultations and participatory budget rounds where citizens can react and vote advisorily on proposals. It manages consultation and budget-round lifecycles, accepts authenticated (and optionally rate-limited anonymous) reaction submissions through a moderation queue, validates budget proposals and tallies citizen votes, and publishes results via OpenRegister's RBAC published-predicate and OpenCatalogi without exposing voter identities or app-local public endpoints.",
+    "docsUrl": "openspec/specs/citizen-participation/spec.md"
+  },
+  {
+    "slug": "conflict-of-interest",
+    "title": "conflict-of-interest",
+    "summary": "Lets participants declare a conflict of interest against a specific agenda item, recording a structured, reasoned note that is logged in the audit trail. The chair sees a summary of all declarations for a meeting and per-item badges, and decision-type agenda items can be linked to one or more motions.",
+    "docsUrl": "openspec/specs/conflict-of-interest/spec.md"
+  },
+  {
+    "slug": "decidesk-contract-decision-hub",
+    "title": "decidesk-contract-decision-hub",
+    "summary": "Turns decidesk into a decision hub that any fleet app can call to raise a governance decision (such as a contract approval or report adoption) about an object it owns. It adds subject-reference and provenance fields to the Decision schema, an idempotent create-decision API endpoint, a queryable outcome envelope and callback subscriptions, and delegation of document signing to docudesk — while owning only the decision itself and leaving downstream side effects to the consuming app.",
+    "docsUrl": "openspec/specs/decidesk-contract-decision-hub/spec.md"
+  },
+  {
+    "slug": "decidesk-manifest-v1",
+    "title": "decidesk-manifest-v1",
+    "summary": "Migrate `decidesk/src/manifest.json` from 20-of-20 `type: \"custom\"` entries (each pointing at a per-page Vue file under `src/views/`) to declarative built-in page types consumed by `@conduction/nextcloud-vue`'s JSON manifest renderer.",
+    "docsUrl": "openspec/specs/decidesk-manifest-v1/spec.md"
+  },
+  {
+    "slug": "decidesk-notifications",
+    "title": "decidesk-notifications",
+    "summary": "@e2e exclude Configuration-only spec — declares `x-openregister-notifications` annotations on schemas in `lib/Settings/decidesk_register.json` in the verified OpenRegister notification-engine dialect, covering meeting scheduled + reminder, action item assigned + overdue, motion submitted, decision recorded, and participation deadlines. No data-model, API, or UI surface; coverage is the register JSON's validity against OpenRegister's register schema.",
+    "docsUrl": "openspec/specs/decidesk-notifications/spec.md"
+  },
+  {
+    "slug": "decidesk-store-migration",
+    "title": "Decidesk store migration — spec",
+    "summary": "Decidesk MUST share the OpenRegister object store provided by `@conduction/nextcloud-vue` (`useObjectStore` / `createObjectStore`) for all Pinia-backed CRUD against OpenRegister objects. Decidesk MUST NOT ship a parallel custom store with a divergent API.",
+    "docsUrl": "openspec/specs/decidesk-store-migration/spec.md"
+  },
+  {
+    "slug": "decision-evolution-and-cascade",
+    "title": "Specs: Minutes and Decisions — Other T2",
+    "summary": "This spec defines decision evolution links, stakeholder notifications, decision cascade to departments, and the related dashboard extension for Decidesk.",
+    "docsUrl": "openspec/specs/decision-evolution-and-cascade/spec.md"
+  },
+  {
+    "slug": "decision-methods",
+    "title": "decision-methods",
+    "summary": "Defines how each decision stage is resolved through a method enum (manual, vote, signature, chair-register, advice) with the typed mechanism relation matching its method. Vote-method outcomes are derived declaratively from the linked voting round, chair-register/advice/manual outcomes are set directly by the actor, and signature stages are resolved via eIDAS signing of the referenced document — available to any decision regardless of organisation mode.",
+    "docsUrl": "openspec/specs/decision-methods/spec.md"
+  },
+  {
+    "slug": "decision-route",
+    "title": "decision-route",
+    "summary": "Models a decision as an ordered route of stages, each owned by a different decision-maker, so a single decision can travel from preparation through advice to a final or ratifying vote. Each DecisionStage carries its own type, status, outcome, and resolution method, can be assigned to either a person or a governance body, and supports both municipal (college → raadscommissie → gemeenteraad) and corporate (MT → RvB → RvC) patterns. Route progress and the current stage are derived declaratively and shown on a read-only timeline tab on the decision detail.",
+    "docsUrl": "openspec/specs/decision-route/spec.md"
+  },
+  {
+    "slug": "digital-meetings-and-recurrence",
+    "title": "Specs: Meeting Management — Other T1",
+    "summary": "This spec defines digital council meetings, speaking time management, and recurring meeting series for Decidesk.",
+    "docsUrl": "openspec/specs/digital-meetings-and-recurrence/spec.md"
+  },
+  {
+    "slug": "discussion-via-talk-leaf",
+    "title": "discussion-via-talk-leaf",
+    "summary": "Provides discussion on governance artifacts (meetings, motions, amendments, decisions) through a Nextcloud Talk conversation bound to the artifact's OpenRegister object, rather than an app-local comment store. The Talk leaf is surfaced as a discussion tab via the integration registry and degrades gracefully when the Talk app is absent. Legacy in-app comments are migrated into the bound conversation by a one-shot, idempotent migration that preserves author and timestamp and archives the original comments instead of deleting them.",
+    "docsUrl": "openspec/specs/discussion-via-talk-leaf/spec.md"
+  },
+  {
+    "slug": "email-linking-via-email-leaf",
+    "title": "email-linking-via-email-leaf",
+    "summary": "Links emails to a decision dossier or agenda item through the Nextcloud Mail integration leaf bound to the OpenRegister object, surfaced as an email tab and widget instead of an app-local link store. Reverse lookups are served by the registry's object-link index, and the email tab degrades gracefully when the Mail app is absent. Vote-by-email casting stays in the in-app statutory voting path, and legacy email-link objects are relinked to the registry by an idempotent migration that archives the originals rather than deleting them.",
+    "docsUrl": "openspec/specs/email-linking-via-email-leaf/spec.md"
+  },
+  {
+    "slug": "faction-workspace-via-collectives-leaf",
+    "title": "faction-workspace-via-collectives-leaf",
+    "summary": "Provides a faction or committee workspace as a Nextcloud Collective bound to the governance-body or faction OpenRegister object, surfaced as a workspace tab and widget instead of an app-local workspace store. Workspace membership maps to the collective's member list for space access while authorization over governance objects stays in OpenRegister RBAC, and the tab degrades gracefully when the Collectives app is absent. Legacy workspace objects are migrated to collectives by an idempotent migration that seeds membership, binds the collective to the governance object, and archives the originals rather than deleting them.",
+    "docsUrl": "openspec/specs/faction-workspace-via-collectives-leaf/spec.md"
+  },
+  {
+    "slug": "global-search",
+    "title": "global-search",
+    "summary": "Provides a global search bar in the navigation header that runs a single full-text query across Meetings, Motions, Decisions, AgendaItems, and Participants via OpenRegister's IndexService. Up to ten matches appear in a floating dropdown showing each result's entity type, title, and status badge, and clicking a result navigates to its detail page. The search is fully keyboard accessible and ignores queries shorter than three characters.",
+    "docsUrl": "openspec/specs/global-search/spec.md"
+  },
+  {
+    "slug": "governance-analytics-via-analytics-leaf",
+    "title": "governance-analytics-via-analytics-leaf",
+    "summary": "Renders engagement, action-item, and voting-behaviour dashboards through the Nextcloud Analytics integration leaf over OpenRegister object data, surfaced as a registry tab and widget instead of app-local chart components. Generic aggregations (counts, sums, completion and overdue rates, group-bys) are computed by the leaf or schema-declarative aggregations, while governance-specific metrics such as the engagement-score formula and quorum-weighted voting statistics stay as in-app calculations fed to the leaf as values. The dashboard tab degrades gracefully when the Analytics app is absent, and underlying metric capture is unchanged.",
+    "docsUrl": "openspec/specs/governance-analytics-via-analytics-leaf/spec.md"
+  },
+  {
+    "slug": "governance-bodies",
+    "title": "governance-bodies",
+    "summary": "Defines the GovernanceBody as the universal model for any decision-making body — municipal councils, associations, and corporate boards alike — carrying a workflowTemplate preset that governs its meeting lifecycle and a bodyType enum that absorbs corporate subtypes (supervisory-board, executive-board) so no separate Board schema is needed. People relate to a body through the Popolo Membership entity with typed multi-value ContactDetails, replacing the deprecated flat Participant model. The body detail page lists its scheduled and recent meetings and allows creating a meeting from the body regardless of mode.",
+    "docsUrl": "openspec/specs/governance-bodies/spec.md"
+  },
+  {
+    "slug": "governance-body-crud",
+    "title": "governance-body-crud",
+    "summary": "Provides full create, read, update, and delete management of GovernanceBody objects. Bodies are shown in a paginated, searchable, filterable list, created and edited through schema-driven form dialogs with required-field validation, and deleted with confirmation. The detail page renders a body's properties alongside its linked Meetings and Participants and an object sidebar with Files, Notes, Tags, Tasks, and Audit Trail tabs.",
+    "docsUrl": "openspec/specs/governance-body-crud/spec.md"
+  },
+  {
+    "slug": "live-voting-projection",
+    "title": "live-voting-projection",
+    "summary": "Provides a public fullscreen projection screen that displays the live state of a voting round — motion title, voting method, and aggregate vote counts — for showing on a projector without requiring Nextcloud login. The view refreshes every few seconds, highlights the leading option tile (showing none when tied), and reveals only aggregate data through a public-state API that never exposes individual votes, participant identities, or vote values. The chair or secretary can copy the projection link directly from the voting-round panel.",
+    "docsUrl": "openspec/specs/live-voting-projection/spec.md"
+  },
+  {
+    "slug": "manifest-version-bump",
+    "title": "manifest-version-bump",
+    "summary": "Bumps the decidesk app manifest version in src/manifest.json from 0.3.0 to 0.4.0 per the content-versioning rules, changing only the top-level version field and leaving all other manifest fields untouched.",
+    "docsUrl": "openspec/specs/manifest-version-bump/spec.md"
+  },
+  {
+    "slug": "mcp-tools",
+    "title": "Spec: Decidesk MCP Tools Provider",
+    "summary": "@e2e exclude Pure PHP backend spec — all scenarios are server-side DI/service-layer contracts covered by PHPUnit (tests/Unit/Mcp/DecideskToolProviderTest.php and tests/Integration/Mcp/DecideskToolProviderIntegrationTest.php). No browser UI surface exists.",
+    "docsUrl": "openspec/specs/mcp-tools/spec.md"
+  },
+  {
+    "slug": "meeting-agenda",
+    "title": "meeting-agenda",
+    "summary": "Manages the agenda of a meeting as ordered OpenRegister agenda-item objects related to the meeting wrapper. Authorized users can create, list, update, and delete agenda items, each with a title, validated item type (procedural, discussion, decision, motion, report, information), and a contiguous order number that auto-increments on add and resequences on reorder or delete. Items are returned sorted by order number, and order changes flow only through the dedicated reorder mechanism.",
+    "docsUrl": "openspec/specs/meeting-agenda/spec.md"
+  },
+  {
+    "slug": "meeting-attendees",
+    "title": "meeting-attendees",
+    "summary": "Manages meeting attendees as CalDAV ATTENDEE entries on the meeting's VEVENT, auto-populated from the governance body's active Membership records (excluding expired memberships) when a meeting is created. Authorized users can add and remove attendees, track attendance status (present, absent, proxy, excused) via the PARTSTAT parameter, and attendee roles (chair, vice-chair, secretary, member, observer, guest) map to the CalDAV ROLE parameter. Each attendee's voting weight from their Membership is exposed in the meeting detail for quorum and voting calculations.",
+    "docsUrl": "openspec/specs/meeting-attendees/spec.md"
+  },
+  {
+    "slug": "meeting-core",
+    "title": "meeting-core",
+    "summary": "Manages the full backend lifecycle of governance meetings, storing each meeting as a CalDAV VEVENT with governance metadata alongside an OpenRegister wrapper object for relational queries. Provides create, read, update, soft-delete, and filtered list operations over the `/api/meetings` endpoints, with an audit trail recording every change and authorization enforced through governance-body membership or admin rights.",
+    "docsUrl": "openspec/specs/meeting-core/spec.md"
+  },
+  {
+    "slug": "meeting-crud",
+    "title": "meeting-crud",
+    "summary": "Lets users create, view, edit, and delete Meeting objects through schema-driven dialogs and detail pages in the app frontend. Provides a paginated, searchable, sortable meeting list, a detail view showing meeting properties with related agenda items and an object sidebar, and confirmation-guarded deletion, all persisting through OpenRegister's ObjectService.",
+    "docsUrl": "openspec/specs/meeting-crud/spec.md"
+  },
+  {
+    "slug": "meeting-detail-view",
+    "title": "meeting-detail-view",
+    "summary": "Provides the meeting detail page where users view and edit a single meeting, with sections for the meeting header, schedule, attendees, agenda items, and minutes. Lets users run lifecycle action buttons based on the current state, manage attendees and agenda items inline, work with a Files/Notes/Audit/Tags sidebar, and delete the meeting with confirmation.",
+    "docsUrl": "openspec/specs/meeting-detail-view/spec.md"
+  },
+  {
+    "slug": "meeting-list-view",
+    "title": "meeting-list-view",
+    "summary": "Provides the meeting list page where users browse meetings in table or card views, sorted by scheduled date. Lets users filter by governance body, date range, and lifecycle status, search by title, page through results, add a new meeting, and click through to a meeting's detail page.",
+    "docsUrl": "openspec/specs/meeting-list-view/spec.md"
+  },
+  {
+    "slug": "meeting-management",
+    "title": "Meeting Management",
+    "summary": "Meeting management covers the full lifecycle of governance meetings: creation, scheduling, attendance tracking, quorum verification, and meeting conduct. Meetings are the primary container for agenda items, decisions, and minutes. The system supports physical, digital, and hybrid meeting formats for governance bodies, associations (ALV/ledenraad), corporate boards, and operational teams.",
+    "docsUrl": "openspec/specs/meeting-management/spec.md"
+  },
+  {
+    "slug": "meeting-management-extensions",
+    "title": "Specs: Meeting Management — Other T2",
+    "summary": "This spec defines meeting management extensions for Decidesk: virtual-only meetings, participant list limits, space indicators, attendance tracking, speech recognition, area visualization, and the shared task inbox.",
+    "docsUrl": "openspec/specs/meeting-management-extensions/spec.md"
+  },
+  {
+    "slug": "meeting-quorum",
+    "title": "meeting-quorum",
+    "summary": "Calculates and enforces meeting quorum based on each governance body's rule, supporting fixed-count and percentage methods and counting present and proxy attendees. Blocks the transition from scheduled to opened when quorum is not met in domains that enforce it, exposes quorum status in the meeting API and detail-page indicator, and allows the chair to override a quorum failure with a recorded reason.",
+    "docsUrl": "openspec/specs/meeting-quorum/spec.md"
+  },
+  {
+    "slug": "meeting-series",
+    "title": "meeting-series",
+    "summary": "Manages recurring meetings as a series, generating individual meeting instances from a recurrence pattern that share a common series identifier. Lets users edit a single instance without affecting others, edit the series template to regenerate future instances while preserving opened or closed ones, group meetings by series in the list view, and delete an entire series while keeping in-progress and completed instances.",
+    "docsUrl": "openspec/specs/meeting-series/spec.md"
+  },
+  {
+    "slug": "meeting-transcription",
+    "title": "meeting-transcription",
+    "summary": "Lets the secretary or chair attach a meeting recording and, after a recorded consent confirmation, transcribe it asynchronously through the Nextcloud SpeechToText provider abstraction into timestamped segments. Aligns transcript segments to agenda items via the meeting timeline, optionally generates AI-assisted draft minutes (with provenance and verification against the structured record) through the Nextcloud AI provider, and enforces RBAC, a public-publication deny-list, and per-body retention of recordings and transcripts.",
+    "docsUrl": "openspec/specs/meeting-transcription/spec.md"
+  },
+  {
+    "slug": "meeting-workflow",
+    "title": "meeting-workflow",
+    "summary": "Enforces a finite state machine for the meeting lifecycle (draft, scheduled, opened, paused, adjourned, closed, cancelled) stored on the CalDAV VEVENT, rejecting invalid transitions. Applies governance-domain workflow presets that determine which transitions, pause/adjourn states, and quorum enforcement apply, exposes transitions through a lifecycle action API, and records each transition in the audit trail.",
+    "docsUrl": "openspec/specs/meeting-workflow/spec.md"
+  },
+  {
+    "slug": "member-voting-behaviour-tracking",
+    "title": "member-voting-behaviour-tracking",
+    "summary": "Aggregates per-participant voting statistics across closed voting rounds for a governance body, including participation rate, for/against/abstain counts, and proxy votes given and received. Exposes the data via a dedicated API endpoint and route, visualises it with a donut chart and a paginated history table, and lets users export their voting history as CSV or JSON, with access to other members' stats restricted to authorized roles.",
+    "docsUrl": "openspec/specs/member-voting-behaviour-tracking/spec.md"
+  },
+  {
+    "slug": "motion-amendment",
+    "title": "Motion and Amendment",
+    "summary": "Motions and amendments are the formal mechanisms for proposing decisions and modifying proposals before a vote. A motion is a formal proposal submitted by a member for consideration by the governing body. An amendment is a proposed modification to a pending motion. The system supports motion submission, amendment drafting, amendment voting order (amendments voted before the main motion), and the parliamentary procedure for handling competing amendments.",
+    "docsUrl": "openspec/specs/motion-amendment/spec.md"
+  },
+  {
+    "slug": "motion-and-voting",
+    "title": "Specs: Motion and Voting — Core T1",
+    "summary": "This spec defines motion management, amendments, voting rounds, vote casting, proxy voting, and voting results transparency for Decidesk.",
+    "docsUrl": "openspec/specs/motion-and-voting/spec.md"
+  },
+  {
+    "slug": "motion-execution-and-anonymisation",
+    "title": "Specs: Motion and Voting — Core T3",
+    "summary": "This spec defines motion execution tracking, vote anonymisation, the quorum calculator, and written/circular resolution approval for Decidesk.",
+    "docsUrl": "openspec/specs/motion-execution-and-anonymisation/spec.md"
+  },
+  {
+    "slug": "motion-forwarding-controls",
+    "title": "motion-forwarding-controls",
+    "summary": "Controls forwarding a motion from one governance body to another, with admin settings that define which roles may forward and whether the receiving body's chair must approve. Enforces the role check on the backend in `MotionService::forwardMotion()`, creates the forwarded motion in the target body (submitted for approval or immediately active), and links it to the source motion so the lineage is visible from both sides.",
+    "docsUrl": "openspec/specs/motion-forwarding-controls/spec.md"
+  },
+  {
+    "slug": "motion-management",
+    "title": "motion-management",
+    "summary": "Manages the motion lifecycle with role-controlled transitions (submitted, debating, voting, adopted, rejected, withdrawn), allowing a proposer to withdraw their own motion before voting begins. Displays the lifecycle as a timeline, supports digital co-signatory collection, attaches budget impact data to amendment motions, and provides a per-meeting motion index filterable by lifecycle and motion type.",
+    "docsUrl": "openspec/specs/motion-management/spec.md"
+  },
+  {
+    "slug": "motion-status-management",
+    "title": "motion-status-management",
+    "summary": "Makes motion behaviour configurable per governance body through its `workflowTemplate`, governing the permitted motion types, the allowed lifecycle transitions, and the majority rule (simple, absolute, or qualified two-thirds) used to tally voting results. Provides an admin settings editor for these rules and falls back to platform defaults when no template is configured.",
+    "docsUrl": "openspec/specs/motion-status-management/spec.md"
+  },
+  {
+    "slug": "nextcloud-integration",
+    "title": "Nextcloud Integration",
+    "summary": "@e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.",
+    "docsUrl": "openspec/specs/nextcloud-integration/spec.md"
+  },
+  {
+    "slug": "nl-design-theming",
+    "title": "nl-design-theming",
+    "summary": "Enforces government NL Design System theming across Decidesk by requiring every component to reference Nextcloud CSS custom properties rather than hardcoded colours. A single token-mapping file maps NL Design System token names to their Nextcloud variable equivalents, and the theme adapts automatically when users switch between Nextcloud light and dark mode.",
+    "docsUrl": "openspec/specs/nl-design-theming/spec.md"
+  },
+  {
+    "slug": "openregister-integration",
+    "title": "OpenRegister Integration",
+    "summary": "@e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidesk UI form to drive.",
+    "docsUrl": "openspec/specs/openregister-integration/spec.md"
+  },
+  {
+    "slug": "ori-api",
+    "title": "ori-api",
+    "summary": "Exposes Decidesk meetings, motions, persons, and memberships through publicly accessible, ORI-compatible open-data endpoints using Popolo and Akoma Ntoso vocabularies. Meeting events are serialized from CalDAV VEVENTs and motions from published typed decisions, with support for date and organisation filtering, pagination, and JSON-LD or XML content negotiation so external consumers such as Dutch municipalities can harvest the data without authentication.",
+    "docsUrl": "openspec/specs/ori-api/spec.md"
+  },
+  {
+    "slug": "p2-meeting-management",
+    "title": "p2-meeting-management",
+    "summary": "Manages the full lifecycle of governance meetings, from scheduling and templating through opening, pausing, adjourning, and closing, with server-side state-machine and role-based authorization enforcement. Meetings are stored as CalDAV VEVENTs in a dedicated calendar per governance body alongside thin OpenRegister wrapper objects, and the capability covers quorum gating, attendance tracking, speaker-queue and speaking-time management, meeting series, document attachments, and an ORI-compatible events endpoint.",
+    "docsUrl": "openspec/specs/p2-meeting-management/spec.md"
+  },
+  {
+    "slug": "p2-minutes-and-decisions",
+    "title": "p2-minutes-and-decisions",
+    "summary": "Manages the recording, approval, signing, and publication of meeting minutes and formal decisions, including draft generation from meeting agenda data and a full lifecycle visualisation with audit trail. The capability also tracks action items through their status lifecycle with overdue detection, links decisions to source motions and action items, and surfaces minutes, decisions, and action-item counts as dashboard KPIs.",
+    "docsUrl": "openspec/specs/p2-minutes-and-decisions/spec.md"
+  },
+  {
+    "slug": "p2-minutes-and-decisions-core-t1",
+    "title": "Specs: Minutes and Decisions — Core T1",
+    "summary": "This spec defines case decision documents, permit and publication decisions, statutory deadlines, urgent decisions, decision lists, audit trail completeness, and the extended decision archive for Decidesk.",
+    "docsUrl": "openspec/specs/p2-minutes-and-decisions-core-t1/spec.md"
+  },
+  {
+    "slug": "p2-minutes-and-decisions-core-t2",
+    "title": "Specs: Minutes and Decisions — Core T2",
+    "summary": "This spec defines decision and minutes state notifications, minutes version control and digital approval, decision portal publication, unified search, and Smart Picker integration for Decidesk.",
+    "docsUrl": "openspec/specs/p2-minutes-and-decisions-core-t2/spec.md"
+  },
+  {
+    "slug": "p2-minutes-and-decisions-core-t3",
+    "title": "p2-minutes-and-decisions-core-t3",
+    "summary": "Provides real-time minutes capture during active meetings with debounced auto-save, concurrent-edit locking, and version tracking, plus a role-guarded minutes approval workflow requiring chair and secretary digital acknowledgements. The capability also automates action-item extraction from approved minutes into CalDAV VTODOs, exposes published minutes and decisions through public ORI Report and Motion endpoints, and supports full-text search, faceted filtering, multi-format export, and notification events for decision discovery.",
+    "docsUrl": "openspec/specs/p2-minutes-and-decisions-core-t3/spec.md"
+  },
+  {
+    "slug": "p2-minutes-and-decisions-other-t1",
+    "title": "Specs: Minutes and Decisions — Other T1",
+    "summary": "This spec defines the digital approval workflow, strategic decision review, decision analytics, outcome tracking, auto record creation, action item tracking, and the weekly email digest for Decidesk.",
+    "docsUrl": "openspec/specs/p2-minutes-and-decisions-other-t1/spec.md"
+  },
+  {
+    "slug": "p3-citizen-participation",
+    "title": "p3-citizen-participation",
+    "summary": "Opens governance processes to the public by letting citizens browse and cast votes on motions, join citizen panels, submit and vote on participatory budget proposals, and respond to public consultations and deliberation threads. The capability also provides a transparency portal with public decision search, meeting calendars, ORI and open-data exports, offline participation via QR-coded PDF forms, and GDPR-compliant citizen notification management, while enforcing governance-body isolation and excluding personally identifiable information from public responses.",
+    "docsUrl": "openspec/specs/p3-citizen-participation/spec.md"
+  },
+  {
+    "slug": "p4-collaboration",
+    "title": "p4-collaboration",
+    "summary": "Supports collaborative governance work through task creation and delegation with absence substitution, bounded collaboration workspaces with role-based access, and threaded comments with @mention notifications on governance artifacts. The capability also covers email-to-dossier linking, per-event notification preferences, live participant engagement tracking, motion co-authoring with version capture and conflict detection, and enriched participant profiles with quick-lookup by name, party, and role.",
+    "docsUrl": "openspec/specs/p4-collaboration/spec.md"
+  },
+  {
+    "slug": "p4-integration",
+    "title": "p4-integration",
+    "summary": "Exposes Decidesk governance data to external systems through a versioned public REST API following Dutch REST-API Design Rules, OAuth 2.0 read scopes, and ORI API 1.4 endpoints for organizations, persons, meetings, motions, votes, and minutes. The capability also synchronizes meetings and action items to CalDAV calendars, links Nextcloud Files to governance objects, integrates Nextcloud Talk video calls, publishes governance events as CloudEvents to n8n and OpenConnector webhooks, and supports reverse-proxy deployment with configurable base URLs.",
+    "docsUrl": "openspec/specs/p4-integration/spec.md"
+  },
+  {
+    "slug": "participant-crud",
+    "title": "participant-crud",
+    "summary": "Provides list, detail, create, edit, and delete operations for decision-maker records, with full-text search and role filtering. New decision makers are created as Popolo Person plus Membership pairs, while the legacy flat Participant schema is retained as a deprecated backward-compatibility shim so existing records, quorum aggregation, and vote-casting continue to function.",
+    "docsUrl": "openspec/specs/participant-crud/spec.md"
+  },
+  {
+    "slug": "person-and-membership",
+    "title": "person-and-membership",
+    "summary": "Defines the Popolo decision-maker model as separate Person, Membership, and Post schemas, where Person holds identity data only and Membership links a person to a governance body with role, party, voting weight, and an active validity window. The capability uses active memberships to auto-populate and count meeting attendees for quorum, supports persons holding multiple memberships across bodies, models vacant formal positions via Post, and ships realistic seed data across council, corporate-board, and association organisation types.",
+    "docsUrl": "openspec/specs/person-and-membership/spec.md"
+  },
+  {
+    "slug": "preferential-ballot",
+    "title": "preferential-ballot",
+    "summary": "Provides ranked-choice (Borda count) voting for elections, letting a chair open a voting round with a candidate list and members rank all candidates in order of preference. Votes are tallied server-side using Borda scoring to determine a winner or recorded tie, results are presented in a ranking table highlighting the elected candidate, and secret ballots mask per-voter rankings while still showing final point totals.",
+    "docsUrl": "openspec/specs/preferential-ballot/spec.md"
+  },
+  {
+    "slug": "process-configuration",
+    "title": "Process Configuration",
+    "summary": "Process configuration enables administrators to define and customize decision-making workflows for different governance contexts. A process template defines the state machine, voting rules, quorum requirements, and procedural rules for a specific type of decision or meeting. The system stores state machines as structured JSON (1:1 convertible to Symfony Workflow YAML) and voting rules as a DMN-inspired rule object. This allows Decidesk to serve municipal councils, corporate boards, associations, and operational teams with their own procedural rules.",
+    "docsUrl": "openspec/specs/process-configuration/spec.md"
+  },
+  {
+    "slug": "proxy-voting",
+    "title": "proxy-voting",
+    "summary": "Allows an active participant to delegate their voting right (volmacht) for a specific voting round to another active member of the same governance body, with the delegate's vote then cast on both their own and the delegator's behalf. The capability enforces at most one proxy per delegate per round, permits revocation only before the round opens, restricts delegation to eligible members (excluding observers and guests), and clearly identifies proxy votes in the audit trail and non-secret result breakdowns.",
+    "docsUrl": "openspec/specs/proxy-voting/spec.md"
+  },
+  {
+    "slug": "public-publication",
+    "title": "public-publication",
+    "summary": "Publishes eligible decisions, public meeting agendas, and approved minutes as derived, PII-stripped payloads through OpenRegister's RBAC published-predicate surface and, when configured, into an OpenCatalogi catalog. It enforces server-side eligibility gates and a type deny-list, builds immutable allow-list payloads carrying vote totals (never individual votes or voter identities), aligns payloads to OpenRaadsinformatie mappings, and supports auditable withdraw and rectify flows so governance data can be opened to the public without exposing confidential material.",
+    "docsUrl": "openspec/specs/public-publication/spec.md"
+  },
+  {
+    "slug": "quorum-schema-declaration",
+    "title": "quorum-schema-declaration",
+    "summary": "Declares the OpenRegister aggregations and calculations on the Meeting schema that compute meeting quorum directly from related Participant objects. It defines totalParticipantCount and presentParticipantCount aggregations and derives a guarded quorumPercentage and a quorumMet boolean, so quorum status is computed by the data model rather than ad-hoc application code.",
+    "docsUrl": "openspec/specs/quorum-schema-declaration/spec.md"
+  },
+  {
+    "slug": "real-time-ballot-distribution",
+    "title": "real-time-ballot-distribution",
+    "summary": "Notifies eligible participants when a voting round opens and lets the chair track how many ballots have been cast. Opening a round pushes a deep-linked Nextcloud notification to every active member, a live \"invited / voted\" counter in the VotingRoundPanel and the round list shows distribution progress without revealing vote values or voter identities, and the chair or secretary can send a reminder to participants who have not yet voted.",
+    "docsUrl": "openspec/specs/real-time-ballot-distribution/spec.md"
+  },
+  {
+    "slug": "real-time-vote-tabulation",
+    "title": "real-time-vote-tabulation",
+    "summary": "Shows a live vote tally during an open voting round, refreshed automatically and gated by role and ballot secrecy. The chair and secretary see a per-member breakdown on non-secret rounds while ordinary members see only aggregate counts, secret rounds hide all individual attribution until the round closes, and after closing every role sees the full result. The tally panel meets WCAG 2.1 AA, conveying vote options by text label and not colour alone.",
+    "docsUrl": "openspec/specs/real-time-vote-tabulation/spec.md"
+  },
+  {
+    "slug": "relation-tab-ui",
+    "title": "relation-tab-ui",
+    "summary": "Provides the sidebar relation tabs that let users manage and view objects related to a parent across decidesk detail pages. It covers full-CRUD child lists (motions, agenda items, action items, amendments), participant-linking tabs, read-only relation viewers (votes, parent motion), minutes signer management with a sign-now action, typed peer-relation tabs between objects of the same schema, and consistent lifecycle and status colour semantics for at-a-glance reading.",
+    "docsUrl": "openspec/specs/relation-tab-ui/spec.md"
+  },
+  {
+    "slug": "resolution-minutes",
+    "title": "Resolution and Minutes",
+    "summary": "Resolutions and minutes are the formal output of the decision-making process. A resolution is the legal text of an adopted decision, suitable for archival and external communication. Minutes (notulen) are the structured record of a meeting including attendance, discussions, decisions, votes, and action items. The system supports real-time minute-taking during meetings, automated generation from meeting data, review/approval workflows, and integration with Docudesk for professional document rendering.",
+    "docsUrl": "openspec/specs/resolution-minutes/spec.md"
+  },
+  {
+    "slug": "roll-call-publication",
+    "title": "roll-call-publication",
+    "summary": "Lets the chair close, publish, and optionally anonymise a roll-call voting round in one atomic action. It tallies and stores the aggregate result, publishes only aggregate totals (never individual vote values or voter identity) to the ORI API, and can null individual vote values so the result stays queryable while per-member attribution is removed. The result view shows an anonymisation notice instead of the per-member breakdown, and the anonymisation event is recorded in the audit trail.",
+    "docsUrl": "openspec/specs/roll-call-publication/spec.md"
+  },
+  {
+    "slug": "schemas-and-data-model",
+    "title": "schemas-and-data-model",
+    "summary": "Defines the decidesk OpenRegister register and its full set of schemas — governance bodies, meetings, agenda items, motions, amendments, voting rounds, votes, decisions, action items, minutes, participants, documents, and the commercial schemas (monetary amount, offer, order, product, report). It specifies each schema's required fields and enumerated values, their relations, the install-time register import and idempotent seed data, email-to-decision linking via _mail metadata, and decision publication flags for ORI integration, providing the data foundation all other decidesk capabilities build on.",
+    "docsUrl": "openspec/specs/schemas-and-data-model/spec.md"
+  },
+  {
+    "slug": "secret-ballot",
+    "title": "secret-ballot",
+    "summary": "Keeps individual votes anonymous when a voting round is marked secret. A backend guard masks each vote's value and strips the voter relation for all roles, including chair and secretary, while aggregate counts remain available; the UI hides the per-participant table, shows a lock icon and a \"secret ballot\" badge, and the audit trail records that a participant voted without revealing the direction. Internal recount logic can still read actual values directly, bypassing the masked API layer.",
+    "docsUrl": "openspec/specs/secret-ballot/spec.md"
+  },
+  {
+    "slug": "user-settings",
+    "title": "User Settings",
+    "summary": "User settings allow individual Decidesk users to configure their personal preferences for notifications, display, and participation. These settings control how and when users receive alerts about meetings, votes, and decisions, as well as display preferences for the dashboard and meeting interface.",
+    "docsUrl": "openspec/specs/user-settings/spec.md"
+  },
+  {
+    "slug": "vote-casting",
+    "title": "vote-casting",
+    "summary": "Lets active participants cast and change their vote (for, against, or abstain) in an open voting round, with exactly one vote per participant. Votes can be cast through the UI or by replying to the voting notification email, the chair records show-of-hands rounds as manual totals, and a live tally is visible to the chair and secretary while members see only the count cast until the round closes. The casting interface meets WCAG 2.1 AA, and votes in a stage-linked round feed the decision-stage outcome.",
+    "docsUrl": "openspec/specs/vote-casting/spec.md"
+  },
+  {
+    "slug": "vote-review-and-recount",
+    "title": "vote-review-and-recount",
+    "summary": "Lets the chair or secretary request a recount on a closed voting round and resolve disputed outcomes. A one-time recount re-tallies all votes; a discrepancy sets the round result to \"disputed\" and records a structured note comparing original and recounted values, surfaced as a warning banner on the motion. The chair or secretary can then set a final result, and auditors with read-only access can review individual votes on non-secret rounds and the recount comparison data.",
+    "docsUrl": "openspec/specs/vote-review-and-recount/spec.md"
+  },
+  {
+    "slug": "voting-group-presets",
+    "title": "voting-group-presets",
+    "summary": "Lets admins define named voting group presets per governance body — a preset name and a list of participant UUIDs — so the chair can restrict a voting round to a specific group. When opening a round the chair picks a preset to set the eligible voter list (or leaves it blank for all active members), stale UUIDs of departed members are detected and excluded with a warning, and the admin settings list each preset with its member count and last-modified date.",
+    "docsUrl": "openspec/specs/voting-group-presets/spec.md"
+  },
+  {
+    "slug": "voting-result-publication",
+    "title": "voting-result-publication",
+    "summary": "Displays a voting round's full result the moment it closes — totals, outcome, and the required majority threshold — while secret ballots show totals only. The chair or secretary can publish results to the configured ORI API as JSON-LD with queued retry on failure, an adopted motion automatically gets a structured Nextcloud Files dossier folder seeded with the result, every motion and vote event is logged to the Activity stream as an exportable audit trail, and voting history is full-text searchable and filterable across all motions.",
+    "docsUrl": "openspec/specs/voting-result-publication/spec.md"
+  },
+  {
+    "slug": "voting-round-management",
+    "title": "voting-round-management",
+    "summary": "Lets the chair or secretary open, configure, and close a voting round for a motion. Opening a round transitions the motion to voting, enforces a single open round per motion, and verifies quorum before it can start; the chair chooses the voting method and secret-ballot setting, and closing the round automatically tallies the votes and sets the outcome (adopted, rejected, or tied). An optional voting deadline creates a reminder calendar event for asynchronous or email voting.",
+    "docsUrl": "openspec/specs/voting-round-management/spec.md"
+  },
+  {
+    "slug": "voting-system",
+    "title": "Voting System",
+    "summary": "@e2e exclude All voting scenarios require a live meeting in-progress with active voting rounds, quorum calculations, and multi-user ballot state that cannot be deterministically set up via pure UI interactions. The VotingRoundPanel component exists but its scenarios are integration-level (vote casting, real-time tallying, secret ballot, proxy enforcement) requiring backend state that must be tested at the PHP/WebSocket layer.",
+    "docsUrl": "openspec/specs/voting-system/spec.md"
+  }
+]

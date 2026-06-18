@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Specs: Minutes and Decisions — Other T1
 
 **Change:** p2-minutes-and-decisions-other-t1
