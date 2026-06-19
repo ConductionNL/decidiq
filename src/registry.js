@@ -34,14 +34,9 @@ import AgendaItemIntegrations from './views/AgendaItemIntegrations.vue'
 import CreateMeetingAction from './views/dashboard/widgets/CreateMeetingAction.vue'
 import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
-import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
-import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
-import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
-import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWidget.vue'
 import RunningProcessesWidget from './views/dashboard/widgets/RunningProcessesWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
-import RecentDecisionsWidget from './views/dashboard/widgets/RecentDecisionsWidget.vue'
 import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
 
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
@@ -204,18 +199,6 @@ export default {
 	PendingVotesKpiWidget: widget(PendingVotesKpiWidget, {
 		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
 	}),
-	UpcomingMeetingsKpiWidget: widget(UpcomingMeetingsKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
-	}),
-	OverdueActionsKpiWidget: widget(OverdueActionsKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
-	}),
-	ActiveDecisionsKpiWidget: widget(ActiveDecisionsKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
-	}),
-	UpcomingMeetingsListWidget: widget(UpcomingMeetingsListWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
-	}),
 	PendingVotesListWidget: widget(PendingVotesListWidget, {
 		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
 	}),
@@ -223,9 +206,6 @@ export default {
 		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
 	}),
 	MyActionItemsWidget: widget(MyActionItemsWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
-	}),
-	RecentDecisionsWidget: widget(RecentDecisionsWidget, {
 		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
 	}),
 	DashboardEmptyState: widget(DashboardEmptyState, {
