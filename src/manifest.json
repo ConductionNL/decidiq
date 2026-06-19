@@ -75,13 +75,15 @@
 				"widgets": [
 					{
 						"id": "active-decisions",
-						"type": "custom",
-						"title": "Active decisions"
+						"type": "stat",
+						"title": "Active decisions",
+						"content": { "label": "Decisions", "icon": "ScaleBalance", "valueColor": "#1a4a72", "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "decision", "metric": "count", "filter": {} } }
 					},
 					{
 						"id": "upcoming-meetings-kpi",
-						"type": "custom",
-						"title": "Upcoming meetings"
+						"type": "stat",
+						"title": "Upcoming meetings",
+						"content": { "label": "Upcoming meetings", "icon": "Calendar", "valueColor": "#0082c9", "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "meeting", "metric": "count", "filter": { "lifecycle": "scheduled" } } }
 					},
 					{
 						"id": "pending-votes-kpi",
@@ -90,13 +92,15 @@
 					},
 					{
 						"id": "overdue-actions-kpi",
-						"type": "custom",
-						"title": "Overdue actions"
+						"type": "stat",
+						"title": "Open action items",
+						"content": { "label": "Open action items", "icon": "ClipboardList", "valueColor": "#c7860c", "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "action-item", "metric": "count", "filter": { "taskStatus": ["open", "in-progress"] } } }
 					},
 					{
 						"id": "upcoming-meetings-list",
-						"type": "custom",
-						"title": "Upcoming meetings"
+						"type": "object-list",
+						"title": "Upcoming meetings",
+						"content": { "register": "decidesk", "schema": "meeting", "filter": { "lifecycle": "scheduled" }, "sort": { "field": "scheduledDate", "dir": "asc" }, "limit": 6, "columns": [{ "key": "title", "label": "Meeting" }, { "key": "scheduledDate", "label": "Date" }] }
 					},
 					{
 						"id": "pending-votes-list",
@@ -115,8 +119,9 @@
 					},
 					{
 						"id": "recent-decisions",
-						"type": "custom",
-						"title": "Recent decisions"
+						"type": "object-list",
+						"title": "Recent decisions",
+						"content": { "register": "decidesk", "schema": "decision", "filter": {}, "sort": { "field": "decisionDate", "dir": "desc" }, "limit": 6, "columns": [{ "key": "title", "label": "Decision" }, { "key": "decisionDate", "label": "Date" }] }
 					},
 					{
 						"id": "dashboard-empty-state",
@@ -210,17 +215,11 @@
 				"documentationUrl": "https://decidesk.conduction.nl"
 			},
 			"slots": {
-				"widget-active-decisions": "ActiveDecisionsKpiWidget",
-				"widget-upcoming-meetings-kpi": "UpcomingMeetingsKpiWidget",
 				"widget-pending-votes-kpi": "PendingVotesKpiWidget",
-				"widget-overdue-actions-kpi": "OverdueActionsKpiWidget",
-				"widget-upcoming-meetings-list": "UpcomingMeetingsListWidget",
-				"widget-upcoming-meetings-list-actions": "CreateMeetingAction",
 				"widget-pending-votes-list": "PendingVotesListWidget",
 				"widget-running-processes": "RunningProcessesWidget",
 				"widget-running-processes-actions": "StartProcessAction",
 				"widget-my-action-items": "MyActionItemsWidget",
-				"widget-recent-decisions": "RecentDecisionsWidget",
 				"widget-dashboard-empty-state": "DashboardEmptyState"
 			}
 		},
