@@ -30,5 +30,14 @@ jobs:
     uses: ./.forgejo/workflows/tests.yml
     with:
       app-id: decidesk
-      run-e2e: ${{ github.event.inputs.run-e2e == 'true' }}
-      run-newman: ${{ github.event.inputs.run-newman == 'true' }}
+      # The deep-e2e / Newman jobs in the reusable are SCAFFOLDED (need a live
+      # NC — see tests.yml TODOs) and stay opt-in. They are gated by the
+      # LIVE-NC caller (app-tests-live.yml), so on this bare-gates caller they
+      # are always off. Passing plain literals (not
+      # `${{ github.event.inputs.* == 'true' }}`) is what app-tests-live.yml
+      # does and what compiles: on a `pull_request` event
+      # `github.event.inputs` is null, and feeding that null-deref expression
+      # into the reusable's boolean-typed inputs made the caller fail to
+      # compile ("Failing after 0s" — file-level, no job dispatched).
+      run-e2e: false
+      run-newman: false
