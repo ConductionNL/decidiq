@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-list-view Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Provides the meeting list page where users browse meetings in table or card views, sorted by scheduled date. Lets users filter by governance body, date range, and lifecycle status, search by title, page through results, add a new meeting, and click through to a meeting's detail page.
 
 ## Requirements
 

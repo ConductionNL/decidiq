@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # global-search Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-dashboard-and-navigation. Update Purpose after archive.
+Provides a global search bar in the navigation header that runs a single full-text query across Meetings, Motions, Decisions, AgendaItems, and Participants via OpenRegister's IndexService. Up to ten matches appear in a floating dropdown showing each result's entity type, title, and status badge, and clicking a result navigates to its detail page. The search is fully keyboard accessible and ignores queries shorter than three characters.
 
 ## Requirements
 

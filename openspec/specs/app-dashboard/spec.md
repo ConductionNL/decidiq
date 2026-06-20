@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # app-dashboard Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-dashboard-and-navigation. Update Purpose after archive.
+Provides the app's landing dashboard, shown at the root route when OpenRegister is available. It presents four governance KPI cards (upcoming meetings, pending motions, open action items, recent decisions), a meeting status distribution chart, and quick-access navigation tiles to the primary entity types, loading all data in parallel with a loading state.
 
 ## Requirements
 

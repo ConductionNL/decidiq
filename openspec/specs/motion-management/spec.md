@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 status-note: In progress 2026-06-14 via unify-decision-supertype (capability retired — motions become decisionType=motion decisions owned by decision-management per ADR-005/ADR-006).
 openspec-changes:
   - unify-decision-supertype
@@ -8,7 +8,7 @@ openspec-changes:
 # motion-management Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting. Update Purpose after archive.
+Manages the motion lifecycle with role-controlled transitions (submitted, debating, voting, adopted, rejected, withdrawn), allowing a proposer to withdraw their own motion before voting begins. Displays the lifecycle as a timeline, supports digital co-signatory collection, attaches budget impact data to amendment motions, and provides a per-meeting motion index filterable by lifecycle and motion type.
 ## Requirements
 ### Requirement: REQ-MOT-002 Motion lifecycle transitions are controlled by role
 The app SHALL enforce that only the chair or secretary can advance a Motion's lifecycle from `submitted` → `debating` → `voting` → `adopted` / `rejected`. A proposer may withdraw their own Motion (transition to `withdrawn`) at any time before lifecycle reaches `voting`.

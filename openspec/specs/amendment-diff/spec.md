@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # amendment-diff Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-core-t2. Update Purpose after archive.
+Shows a side-by-side textual comparison between a motion and an amendment proposed against it. A "Vergelijken" tab renders an inline diff of the original and amended text, marking insertions and deletions with both colour and +/− symbols for WCAG AA accessibility, handling reordered list items cleanly, and deferring computation for long texts so the UI stays responsive.
 
 ## Requirements
 

@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # decidesk-notifications Specification
 
 ## Purpose

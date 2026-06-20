@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # decision-methods Specification
 
 ## Purpose
-TBD - created by archiving change decision-methods. Update Purpose after archive.
+Defines how each decision stage is resolved through a method enum (manual, vote, signature, chair-register, advice) with the typed mechanism relation matching its method. Vote-method outcomes are derived declaratively from the linked voting round, chair-register/advice/manual outcomes are set directly by the actor, and signature stages are resolved via eIDAS signing of the referenced document — available to any decision regardless of organisation mode.
 ## Requirements
 ### Requirement: Decision method enum and mechanism relations
 

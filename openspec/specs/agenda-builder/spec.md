@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # agenda-builder Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-agenda-management. Update Purpose after archive.
+Lets chairs and secretaries assemble a meeting agenda from ordered agenda items with types, estimated durations, spokespersons, and recurring-item templates. Items can be reordered by drag-and-drop or keyboard, and participants can propose items for chair review before they enter the agenda.
 
 ## Requirements
 

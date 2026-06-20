@@ -1,4 +1,5 @@
 ---
+status: done
 openspec-changes:
   - decision-methods
 ---
@@ -6,7 +7,7 @@ openspec-changes:
 # vote-casting Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting. Update Purpose after archive.
+Lets active participants cast and change their vote (for, against, or abstain) in an open voting round, with exactly one vote per participant. Votes can be cast through the UI or by replying to the voting notification email, the chair records show-of-hands rounds as manual totals, and a live tally is visible to the chair and secretary while members see only the count cast until the round closes. The casting interface meets WCAG 2.1 AA, and votes in a stage-linked round feed the decision-stage outcome.
 ## Requirements
 ### Requirement: REQ-VCT-001 Participant casts a vote in an open VotingRound
 The app SHALL allow any active Participant to cast a vote (for, against, or abstain) in an open VotingRound. Each Participant may cast exactly one vote per VotingRound. Duplicate submissions overwrite the previous vote.

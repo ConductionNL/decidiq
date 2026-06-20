@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # p2-minutes-and-decisions Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-minutes-and-decisions. Update Purpose after archive.
+Manages the recording, approval, signing, and publication of meeting minutes and formal decisions, including draft generation from meeting agenda data and a full lifecycle visualisation with audit trail. The capability also tracks action items through their status lifecycle with overdue detection, links decisions to source motions and action items, and surfaces minutes, decisions, and action-item counts as dashboard KPIs.
 
 ## Requirements
 

@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # voting-round-management Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting. Update Purpose after archive.
+Lets the chair or secretary open, configure, and close a voting round for a motion. Opening a round transitions the motion to voting, enforces a single open round per motion, and verifies quorum before it can start; the chair chooses the voting method and secret-ballot setting, and closing the round automatically tallies the votes and sets the outcome (adopted, rejected, or tied). An optional voting deadline creates a reminder calendar event for asynchronous or email voting.
 
 ## Requirements
 

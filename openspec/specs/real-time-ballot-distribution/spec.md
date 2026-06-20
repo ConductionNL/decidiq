@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # real-time-ballot-distribution Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-other-t1. Update Purpose after archive.
+Notifies eligible participants when a voting round opens and lets the chair track how many ballots have been cast. Opening a round pushes a deep-linked Nextcloud notification to every active member, a live "invited / voted" counter in the VotingRoundPanel and the round list shows distribution progress without revealing vote values or voter identities, and the chair or secretary can send a reminder to participants who have not yet voted.
 
 ## Requirements
 

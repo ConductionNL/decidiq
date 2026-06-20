@@ -1,5 +1,5 @@
 ---
-status: partial
+status: done
 status-note: 2026-06-12 admin-settings-v1 — all 4 requirements now have working surfaces. Members tab root cause fixed (governanceBody materialised as a real Participant property via the ADR-037 register fragment — it previously lived only in x-openregister-relations, which OpenRegister never turns into a queryable property, so the tab always rendered empty) plus role-assignment UI; member import from Nextcloud groups and CSV (validation preview, duplicate handling, email-to-account matching, 500-row cap client and server); organization configuration UI (name, logo URL, timezone, locale, currency, retention days via IAppConfig); per-body default + specialized process-template assignment from the built-in catalogue. Honest residue — Nextcloud Contacts import not built (requirement satisfiable via Groups/CSV); template chooser on decision-create not built (decision-management surface); org name/logo not yet consumed by generated resolutions/minutes (document-generation pipeline); template management itself is process-configuration (V1, separate spec).
 ---
 

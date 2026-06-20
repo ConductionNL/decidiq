@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # roll-call-publication Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-core-t2. Update Purpose after archive.
+Lets the chair close, publish, and optionally anonymise a roll-call voting round in one atomic action. It tallies and stores the aggregate result, publishes only aggregate totals (never individual vote values or voter identity) to the ORI API, and can null individual vote values so the result stays queryable while per-member attribution is removed. The result view shows an anonymisation notice instead of the per-member breakdown, and the anonymisation event is recorded in the audit trail.
 
 ## Requirements
 

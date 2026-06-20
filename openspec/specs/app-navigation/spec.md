@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # app-navigation Specification
 
 **Status**: in-progress
@@ -6,7 +10,7 @@
 - ia-six-item-nav (active) — restructures the menu to ADR-004's six-item, mode-aware IA
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-dashboard-and-navigation. Update Purpose after archive.
+Defines the app shell layout, navigation menu, and routing. App.vue renders loading, no-OpenRegister, and ready states; the main menu presents ADR-004's six-item information architecture with mode-aware label resolution; the history-mode router exposes flat named routes (keeping demoted surfaces reachable by deep link); and store initialisation registers all entity types. It also surfaces Motions as a filtered view of Decisions rather than a standalone top-level item.
 ## Requirements
 ### Requirement: REQ-NAV-001 App.vue provides root layout with three states
 `App.vue` SHALL use `NcContent` as the root layout element and SHALL render one of three states: (1) loading — `NcLoadingIcon` while settings are fetched; (2) no-OpenRegister — `NcEmptyContent` if `openRegisters` is false; (3) ready — `MainMenu` + `NcAppContent` + `router-view` with optional `CnIndexSidebar`.

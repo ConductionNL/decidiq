@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # manifest-version-bump Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-manifest-version-bump. Update Purpose after archive.
+Bumps the decidesk app manifest version in src/manifest.json from 0.3.0 to 0.4.0 per the content-versioning rules, changing only the top-level version field and leaving all other manifest fields untouched.
 
 ## Requirements
 

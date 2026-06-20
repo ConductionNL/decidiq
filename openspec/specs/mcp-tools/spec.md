@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Spec: Decidesk MCP Tools Provider
 
 ## Purpose

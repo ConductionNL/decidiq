@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # decision-route Specification
 
 ## Purpose
-TBD - created by archiving change decision-route-and-stages. Update Purpose after archive.
+Models a decision as an ordered route of stages, each owned by a different decision-maker, so a single decision can travel from preparation through advice to a final or ratifying vote. Each DecisionStage carries its own type, status, outcome, and resolution method, can be assigned to either a person or a governance body, and supports both municipal (college → raadscommissie → gemeenteraad) and corporate (MT → RvB → RvC) patterns. Route progress and the current stage are derived declaratively and shown on a read-only timeline tab on the decision detail.
 ## Requirements
 ### Requirement: DecisionStage entity
 

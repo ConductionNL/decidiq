@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 status-note: In progress 2026-06-14 via unify-decision-supertype (capability retired — amendments become decisionType=amendment decisions owned by decision-management per ADR-005/ADR-006).
 openspec-changes:
   - unify-decision-supertype
@@ -8,7 +8,7 @@ openspec-changes:
 # amendment-workflow Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting. Update Purpose after archive.
+Manages the lifecycle of amendments proposed against a motion, mirroring the motion's own transitions from submitted through debating, voting, and adopted or rejected. Amendments are listed with their lifecycle on the motion detail, can be voted on independently via a dedicated voting round, apply their changes to the parent motion text on adoption, and trigger an alert to the griffier when multiple amendments target overlapping text.
 ## Requirements
 ### Requirement: REQ-AMD-002 Amendment lifecycle mirrors motion lifecycle transitions
 The app SHALL allow the chair to advance an Amendment's lifecycle from `submitted` → `debating` → `voting` → `adopted` / `rejected`. Amendment lifecycle transitions are controlled by `MotionService::transitionLifecycle()` with the Amendment object as input.

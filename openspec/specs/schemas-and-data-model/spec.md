@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # schemas-and-data-model Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-schemas-and-data-model. Update Purpose after archive.
+Defines the decidesk OpenRegister register and its full set of schemas — governance bodies, meetings, agenda items, motions, amendments, voting rounds, votes, decisions, action items, minutes, participants, documents, and the commercial schemas (monetary amount, offer, order, product, report). It specifies each schema's required fields and enumerated values, their relations, the install-time register import and idempotent seed data, email-to-decision linking via _mail metadata, and decision publication flags for ORI integration, providing the data foundation all other decidesk capabilities build on.
 
 ## Requirements
 

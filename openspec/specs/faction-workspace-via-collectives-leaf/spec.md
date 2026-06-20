@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # faction-workspace-via-collectives-leaf Specification
 
 ## Purpose
-TBD - created by archiving change migrate-workspaces-to-collectives-leaf. Update Purpose after archive.
+Provides a faction or committee workspace as a Nextcloud Collective bound to the governance-body or faction OpenRegister object, surfaced as a workspace tab and widget instead of an app-local workspace store. Workspace membership maps to the collective's member list for space access while authorization over governance objects stays in OpenRegister RBAC, and the tab degrades gracefully when the Collectives app is absent. Legacy workspace objects are migrated to collectives by an idempotent migration that seeds membership, binds the collective to the governance object, and archives the originals rather than deleting them.
 ## Requirements
 ### Requirement: REQ-WS-COLL-001 Faction workspace is a Collective bound to the governance object
 The system SHALL provide a faction/committee workspace as a Nextcloud Collective bound to the governance-body or faction OpenRegister object via the ADR-019 integration registry, surfaced as a registry tab + widget. The system SHALL NOT store the workspace in an app-local `CollaborationWorkspace` schema.

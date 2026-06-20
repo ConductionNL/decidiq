@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # action-item-board-via-deck-leaf Specification
 
 ## Purpose
-TBD - created by archiving change 2026-06-10-migrate-action-items-to-deck-leaf. Update Purpose after archive.
+Surfaces meeting and decision action items as cards on a Nextcloud Deck board bound to the underlying OpenRegister object, with the CalDAV VTODO record remaining authoritative. Delegation and reclaim map onto VTODO assignee changes and OpenRegister audit events, and a migration projects legacy in-app Task and Delegation objects onto the board before archiving them.
 
 ## Requirements
 

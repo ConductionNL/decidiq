@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-detail-view Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Provides the meeting detail page where users view and edit a single meeting, with sections for the meeting header, schedule, attendees, agenda items, and minutes. Lets users run lifecycle action buttons based on the current state, manage attendees and agenda items inline, work with a Files/Notes/Audit/Tags sidebar, and delete the meeting with confirmation.
 
 ## Requirements
 

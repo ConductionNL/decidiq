@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # motion-status-management Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-other-t1. Update Purpose after archive.
+Makes motion behaviour configurable per governance body through its `workflowTemplate`, governing the permitted motion types, the allowed lifecycle transitions, and the majority rule (simple, absolute, or qualified two-thirds) used to tally voting results. Provides an admin settings editor for these rules and falls back to platform defaults when no template is configured.
 
 ## Requirements
 

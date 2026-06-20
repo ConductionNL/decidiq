@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 status-note: In progress 2026-06-14 via popolo-decision-makers (ContactDetail Popolo schema added; Person + Membership become the governance-body decision-maker model per ADR-001/ADR-006). In progress 2026-06-14 via retire-board-portal (parallel Board schema + Board views retired per ADR-006; corporate boards become governance-body objects with bodyType=corporate-board and mode=corp labels).
 openspec-changes:
   - popolo-decision-makers
@@ -9,7 +9,7 @@ openspec-changes:
 # governance-bodies Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Defines the GovernanceBody as the universal model for any decision-making body — municipal councils, associations, and corporate boards alike — carrying a workflowTemplate preset that governs its meeting lifecycle and a bodyType enum that absorbs corporate subtypes (supervisory-board, executive-board) so no separate Board schema is needed. People relate to a body through the Popolo Membership entity with typed multi-value ContactDetails, replacing the deprecated flat Participant model. The body detail page lists its scheduled and recent meetings and allows creating a meeting from the body regardless of mode.
 ## Requirements
 ### Requirement: REQ-GBD-001 — Governance body workflowTemplate property
 

@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # p4-integration Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p4-integration. Update Purpose after archive.
+Exposes Decidesk governance data to external systems through a versioned public REST API following Dutch REST-API Design Rules, OAuth 2.0 read scopes, and ORI API 1.4 endpoints for organizations, persons, meetings, motions, votes, and minutes. The capability also synchronizes meetings and action items to CalDAV calendars, links Nextcloud Files to governance objects, integrates Nextcloud Talk video calls, publishes governance events as CloudEvents to n8n and OpenConnector webhooks, and supports reverse-proxy deployment with configurable base URLs.
 
 ## Requirements
 

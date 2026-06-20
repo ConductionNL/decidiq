@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # preferential-ballot Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-other-t1. Update Purpose after archive.
+Provides ranked-choice (Borda count) voting for elections, letting a chair open a voting round with a candidate list and members rank all candidates in order of preference. Votes are tallied server-side using Borda scoring to determine a winner or recorded tie, results are presented in a ranking table highlighting the elected candidate, and secret ballots mask per-voter rankings while still showing final point totals.
 
 ## Requirements
 
