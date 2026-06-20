@@ -234,7 +234,7 @@ class MotionController extends Controller
             }
         } catch (\Throwable) {
             // Silently fall through to global check.
-        }
+        }//end try
 
         return null;
 
@@ -519,7 +519,7 @@ class MotionController extends Controller
             return $guard;
         }
 
-        $params              = $this->request->getParams();
+        $params = $this->request->getParams();
         $orderedAmendmentIds = ($params['orderedAmendmentIds'] ?? []);
 
         if (is_array($orderedAmendmentIds) === false || $orderedAmendmentIds === []) {
@@ -527,7 +527,7 @@ class MotionController extends Controller
         }
 
         $orderedAmendmentIds = array_values(array_map('strval', $orderedAmendmentIds));
-        $actorId             = ($this->userSession->getUser()?->getUID() ?? '');
+        $actorId = ($this->userSession->getUser()?->getUID() ?? '');
 
         try {
             $updated = $this->motionService->setAmendmentVotingOrder(

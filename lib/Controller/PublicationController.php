@@ -96,7 +96,7 @@ class PublicationController extends Controller
             return new JSONResponse(['message' => 'sourceType (decision|agenda|minutes) and sourceId are required.'], Http::STATUS_BAD_REQUEST);
         }
 
-        $denied = $this->requireStaffForSource($sourceType, $sourceId);
+        $denied = $this->requireStaffForSource(sourceType: $sourceType, sourceId: $sourceId);
         if ($denied !== null) {
             return $denied;
         }
@@ -134,7 +134,7 @@ class PublicationController extends Controller
             return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
         }
 
-        $denied = $this->requireStaffForRecord($recordId);
+        $denied = $this->requireStaffForRecord(recordId: $recordId);
         if ($denied !== null) {
             return $denied;
         }
@@ -177,7 +177,7 @@ class PublicationController extends Controller
             return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
         }
 
-        $denied = $this->requireStaffForRecord($recordId);
+        $denied = $this->requireStaffForRecord(recordId: $recordId);
         if ($denied !== null) {
             return $denied;
         }
@@ -217,7 +217,7 @@ class PublicationController extends Controller
             return null;
         }
 
-        $meetingId = $this->resolveMeetingId($sourceType, $sourceId);
+        $meetingId = $this->resolveMeetingId(sourceType: $sourceType, sourceId: $sourceId);
         if ($meetingId !== null
             && $this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: ['chair', 'secretary']) === true
         ) {
@@ -256,7 +256,7 @@ class PublicationController extends Controller
         $sourceType = (string) ($data['sourceType'] ?? '');
         $sourceId   = (string) ($data['sourceObject'] ?? '');
 
-        $meetingId = $this->resolveMeetingId($sourceType, $sourceId);
+        $meetingId = $this->resolveMeetingId(sourceType: $sourceType, sourceId: $sourceId);
         if ($meetingId !== null
             && $this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: ['chair', 'secretary']) === true
         ) {
@@ -289,7 +289,12 @@ class PublicationController extends Controller
             return $sourceId;
         }
 
-        $schema = ($sourceType === 'minutes') ? 'minutes' : 'decision';
+        if ($sourceType === 'minutes') {
+            $schema = 'minutes';
+        } else {
+            $schema = 'decision';
+        }
+
         $entity = $this->objectService->find(id: $sourceId, register: 'decidesk', schema: $schema);
         if ($entity === null) {
             return null;

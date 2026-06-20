@@ -51,13 +51,12 @@ use OCP\IURLGenerator;
  */
 class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
 {
-
     /**
      * Constructor.
      *
-     * @param IL10N                 $l10n         App-scoped translation
-     * @param IURLGenerator         $urlGenerator URL generator (deep links)
-     * @param ITimeFactory          $timeFactory  Clock source
+     * @param IL10N                  $l10n          App-scoped translation
+     * @param IURLGenerator          $urlGenerator  URL generator (deep links)
+     * @param ITimeFactory           $timeFactory   Clock source
      * @param DashboardWidgetService $widgetService Per-user summary resolver
      */
     public function __construct(
@@ -222,7 +221,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
         $nextMeeting = ($summary['nextMeeting'] ?? null);
         if (is_array($nextMeeting) === true) {
             $title    = (string) ($nextMeeting['title'] ?? ($nextMeeting['name'] ?? $this->l10n->t('Next meeting')));
-            $subtitle = $this->formatMeetingSubtitle((string) ($nextMeeting['scheduledDate'] ?? ''));
+            $subtitle = $this->formatMeetingSubtitle(scheduledDate: (string) ($nextMeeting['scheduledDate'] ?? ''));
             $items[]  = new WidgetItem(
                 $title,
                 $subtitle,

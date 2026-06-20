@@ -43,14 +43,13 @@ use Psr\Log\LoggerInterface;
  */
 class TranscriptionService
 {
-
     /**
      * Constructor.
      *
-     * @param ContainerInterface          $container       DI container (lazy OR + NC providers).
-     * @param LoggerInterface             $logger          The logger.
-     * @param TranscriptionSourceResolver $sourceResolver  Candidate-source resolver.
-     * @param MeetingFolderService        $folderService   Meeting folder + file writer.
+     * @param ContainerInterface          $container      DI container (lazy OR + NC providers).
+     * @param LoggerInterface             $logger         The logger.
+     * @param TranscriptionSourceResolver $sourceResolver Candidate-source resolver.
+     * @param MeetingFolderService        $folderService  Meeting folder + file writer.
      *
      * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
      */
@@ -61,7 +60,6 @@ class TranscriptionService
         private readonly MeetingFolderService $folderService,
     ) {
     }//end __construct()
-
 
     /**
      * Whether a SpeechToText provider is available on this instance.
@@ -99,7 +97,6 @@ class TranscriptionService
 
     }//end isProviderAvailable()
 
-
     /**
      * List the candidate transcription sources for a meeting.
      *
@@ -117,7 +114,6 @@ class TranscriptionService
         return $this->sourceResolver->listSources(meeting: $meeting);
 
     }//end listSources()
-
 
     /**
      * Attach a transcription source to a meeting and record consent.
@@ -179,7 +175,6 @@ class TranscriptionService
 
     }//end attach()
 
-
     /**
      * Submit a Transcript for transcription (consent precondition enforced).
      *
@@ -217,7 +212,6 @@ class TranscriptionService
         return $transcript;
 
     }//end submit()
-
 
     /**
      * Execute the transcription for a Transcript (called from the background job).
@@ -277,10 +271,10 @@ class TranscriptionService
             $providerId = '';
         }
 
-        $transcript['status']             = 'done';
-        $transcript['failureReason']      = '';
-        $transcript['providerId']         = $providerId;
-        $transcript['segments']           = $segments;
+        $transcript['status']        = 'done';
+        $transcript['failureReason'] = '';
+        $transcript['providerId']    = $providerId;
+        $transcript['segments']      = $segments;
         $transcript['transcriptFilePath'] = ($transcriptPath ?? '');
 
         $transcript = $this->saveTranscript(transcript: $transcript);
@@ -289,7 +283,6 @@ class TranscriptionService
         return $this->align(transcriptId: (string) $this->transcriptId(transcript: $transcript));
 
     }//end process()
-
 
     /**
      * Parse a provider transcription result into neutral-label segments.
@@ -357,7 +350,6 @@ class TranscriptionService
 
     }//end parseSegments()
 
-
     /**
      * Re-run agenda alignment for a Transcript (pure re-runnable derivation).
      *
@@ -390,13 +382,12 @@ class TranscriptionService
             $segments = [];
         }
 
-        $transcript['segments'] = $this->alignSegments(segments: $segments, timeline: $timeline);
+        $transcript['segments']  = $this->alignSegments(segments: $segments, timeline: $timeline);
         $transcript['alignedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
 
         return $this->saveTranscript(transcript: $transcript);
 
     }//end align()
-
 
     /**
      * Pure alignment of segments against a timeline window list.
@@ -440,7 +431,6 @@ class TranscriptionService
 
     }//end alignSegments()
 
-
     /**
      * Build the conduct timeline windows from a meeting's agenda items.
      *
@@ -476,7 +466,7 @@ class TranscriptionService
                 $meetingStart = $itemStart;
             }
 
-            $duration = (float) ($item['actualDuration'] ?? 0);
+            $duration  = (float) ($item['actualDuration'] ?? 0);
             $windows[] = [
                 'agendaItem' => (string) ($item['id'] ?? ($item['uuid'] ?? '')),
                 'absStart'   => (float) $itemStart,
@@ -508,7 +498,6 @@ class TranscriptionService
 
     }//end buildTimeline()
 
-
     /**
      * Mark a Transcript failed with a stored reason and persist it.
      *
@@ -526,7 +515,6 @@ class TranscriptionService
         return $this->saveTranscript(transcript: $transcript);
 
     }//end markFailed()
-
 
     /**
      * Write the plain-text transcript file into the meeting's Minutes subfolder.
@@ -578,7 +566,6 @@ class TranscriptionService
 
     }//end writeTranscriptFile()
 
-
     /**
      * Resolve the source File node from a Files path.
      *
@@ -610,7 +597,6 @@ class TranscriptionService
 
     }//end resolveSourceNode()
 
-
     /**
      * Fetch a meeting object by id (throws when absent).
      *
@@ -634,7 +620,6 @@ class TranscriptionService
 
     }//end fetchMeeting()
 
-
     /**
      * Fetch a transcript object by id (throws when absent).
      *
@@ -657,7 +642,6 @@ class TranscriptionService
         return (array) $entity->jsonSerialize();
 
     }//end fetchTranscript()
-
 
     /**
      * Fetch the agenda items linked to a meeting.
@@ -698,7 +682,6 @@ class TranscriptionService
 
     }//end fetchAgendaItems()
 
-
     /**
      * Persist a Transcript object via the OpenRegister object API.
      *
@@ -736,7 +719,6 @@ class TranscriptionService
 
     }//end saveTranscript()
 
-
     /**
      * Extract the transcript object UUID (id or @self.id), or null.
      *
@@ -756,7 +738,6 @@ class TranscriptionService
         return (string) $id;
 
     }//end transcriptId()
-
 
     /**
      * Resolve the linked meeting UUID from a Transcript object.
@@ -781,7 +762,6 @@ class TranscriptionService
         return (string) $relation;
 
     }//end resolveMeetingId()
-
 
     /**
      * Lazy-load the OpenRegister ObjectService.

@@ -452,8 +452,8 @@ class MotionService
         $objectService->setSchema('amendment');
         $byProperty = $objectService->findAll(['filters' => ['parentMotion' => $motionId]]);
         foreach ($byProperty as $entity) {
-            $amendment = $this->serializeAmendment($entity);
-            if ($amendment !== null && $this->amendmentReferencesMotion($amendment, $motionId) === true) {
+            $amendment = $this->serializeAmendment(entity: $entity);
+            if ($amendment !== null && $this->amendmentReferencesMotion(amendment: $amendment, motionId: $motionId) === true) {
                 $key         = (string) ($amendment['id'] ?? $amendment['uuid'] ?? '');
                 $found[$key] = $amendment;
             }
@@ -466,7 +466,7 @@ class MotionService
         $objectService->setSchema('amendment');
         $byRelation = $objectService->findAll(['filters' => ['_relations.motion' => $motionId]]);
         foreach ($byRelation as $entity) {
-            $amendment = $this->serializeAmendment($entity);
+            $amendment = $this->serializeAmendment(entity: $entity);
             if ($amendment === null) {
                 continue;
             }
@@ -476,7 +476,7 @@ class MotionService
                 continue;
             }
 
-            if ($this->amendmentReferencesMotion($amendment, $motionId) === true) {
+            if ($this->amendmentReferencesMotion(amendment: $amendment, motionId: $motionId) === true) {
                 $found[$key] = $amendment;
             }
         }
@@ -610,7 +610,7 @@ class MotionService
         $objectService = $this->getObjectService();
         $updated       = [];
         foreach (array_values($orderedAmendmentIds) as $position => $amendmentId) {
-            $amendment                = $byId[$amendmentId];
+            $amendment = $byId[$amendmentId];
             $amendment['votingOrder'] = ($position + 1);
 
             $objectService->setRegister('decidesk');

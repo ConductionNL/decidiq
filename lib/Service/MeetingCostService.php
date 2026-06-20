@@ -110,7 +110,7 @@ class MeetingCostService
      *
      * @spec openspec/specs/meeting-efficiency/spec.md
      */
-    public function calculateForMeeting(string $meetingId, ?array $meeting = null): ?float
+    public function calculateForMeeting(string $meetingId, ?array $meeting=null): ?float
     {
         $objectService = $this->getObjectService();
 
@@ -178,7 +178,7 @@ class MeetingCostService
                 ['error' => $e->getMessage()]
             );
             return null;
-        }
+        }//end try
 
     }//end resolveHourlyRate()
 
@@ -240,9 +240,12 @@ class MeetingCostService
         try {
             $start    = new DateTimeImmutable((string) $openedAt);
             $closedAt = ($meeting['closedAt'] ?? null);
-            $end      = ($closedAt !== null && $closedAt !== '')
-                ? new DateTimeImmutable((string) $closedAt)
-                : new DateTimeImmutable('now');
+            if ($closedAt !== null && $closedAt !== '') {
+                $end = new DateTimeImmutable((string) $closedAt);
+            } else {
+                $end = new DateTimeImmutable('now');
+            }
+
             return max(0, $end->getTimestamp() - $start->getTimestamp());
         } catch (Throwable $e) {
             return 0;

@@ -136,7 +136,7 @@ class PublicationConfigService
      */
     public function getPolicy(string $bodyId, string $sourceType): string
     {
-        $body  = $this->getForBody($bodyId);
+        $body  = $this->getForBody(bodyId: $bodyId);
         $value = ($body['policy'][$sourceType] ?? 'manual-only');
         if (in_array($value, self::POLICIES, true) === false) {
             return 'manual-only';
@@ -166,7 +166,7 @@ class PublicationConfigService
                 continue;
             }
 
-            $policy = [];
+            $policy    = [];
             $rawPolicy = ($body['policy'] ?? []);
             if (is_array($rawPolicy) === true) {
                 foreach (['decision', 'agenda', 'minutes'] as $type) {

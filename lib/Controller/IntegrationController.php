@@ -54,7 +54,6 @@ use Psr\Log\LoggerInterface;
  */
 class IntegrationController extends Controller
 {
-
     /**
      * Construct the Integration controller.
      *
@@ -105,7 +104,7 @@ class IntegrationController extends Controller
      * @return JSONResponse
      *
      * @NoAdminRequired
-     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+     * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -120,7 +119,7 @@ class IntegrationController extends Controller
 
         // Validate required fields.
         $requiredFields = ['decisionType', 'title', 'text', 'decisionDate'];
-        $missing = [];
+        $missing        = [];
         foreach ($requiredFields as $field) {
             if (empty($body[$field]) === true) {
                 $missing[] = $field;
@@ -176,7 +175,7 @@ class IntegrationController extends Controller
      * @return JSONResponse
      *
      * @NoAdminRequired
-     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+     * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -229,7 +228,7 @@ class IntegrationController extends Controller
      * @return JSONResponse
      *
      * @NoAdminRequired
-     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+     * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -263,7 +262,7 @@ class IntegrationController extends Controller
             $status = Http::STATUS_UNPROCESSABLE_ENTITY;
             if (($result['code'] ?? '') === 'not_found') {
                 $status = Http::STATUS_NOT_FOUND;
-            } elseif (($result['code'] ?? '') === 'ssrf_rejected') {
+            } else if (($result['code'] ?? '') === 'ssrf_rejected') {
                 $status = Http::STATUS_FORBIDDEN;
             }
 

@@ -164,8 +164,12 @@ class ReactionIntakeService
             $moderationStatus = 'pending';
             // Anonymous reactions are ALWAYS pre-moderated regardless of policy.
         } else {
-            $submitterId      = $ncUid;
-            $moderationStatus = ($policy === 'post-moderation') ? 'approved' : 'pending';
+            $submitterId = $ncUid;
+            if ($policy === 'post-moderation') {
+                $moderationStatus = 'approved';
+            } else {
+                $moderationStatus = 'pending';
+            }
         }
 
         $reaction = [
@@ -265,7 +269,7 @@ class ReactionIntakeService
             throw new \RuntimeException("ConsultationReaction {$reactionId} not found");
         }
 
-        $reaction                     = $entity->jsonSerialize();
+        $reaction = $entity->jsonSerialize();
         $reaction['moderationStatus'] = 'rejected';
         $reaction['moderationReason'] = $reason;
 
@@ -292,7 +296,7 @@ class ReactionIntakeService
             return;
         }
 
-        $consultation                    = $entity->jsonSerialize();
+        $consultation = $entity->jsonSerialize();
         $consultation['submissionCount'] = ((int) ($consultation['submissionCount'] ?? 0) + 1);
         $objectService->saveObject(register: 'decidesk', schema: 'public-consultation', object: $consultation);
 
@@ -361,5 +365,4 @@ class ReactionIntakeService
         return 'anon-'.hash_hmac('sha256', $consultationId.':'.$seed, $secret);
 
     }//end pseudonymousId()
-
 }//end class

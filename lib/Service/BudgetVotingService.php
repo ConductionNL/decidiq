@@ -40,7 +40,6 @@ use Psr\Log\LoggerInterface;
  */
 class BudgetVotingService
 {
-
     /**
      * Constructor for BudgetVotingService.
      *
@@ -203,8 +202,13 @@ class BudgetVotingService
             throw new \InvalidArgumentException('Only a submitted proposal can be validated or rejected');
         }
 
-        $proposal['status'] = ($approve === true) ? 'validated' : 'rejected';
-        $saved              = $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
+        if ($approve === true) {
+            $proposal['status'] = 'validated';
+        } else {
+            $proposal['status'] = 'rejected';
+        }
+
+        $saved = $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
 
         return $this->normaliseSaved(saved: $saved, fallback: $proposal);
 
@@ -427,5 +431,4 @@ class BudgetVotingService
         return null;
 
     }//end resolveBudgetId()
-
 }//end class

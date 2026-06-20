@@ -373,7 +373,7 @@ class RegulatorExportService
         // Audit-log scope — return all entries (no per-board filter; objectUids
         // contains governance references so the regulator gets a full trail).
         // Retargeted to the unified audit-trail store (ADR-006); the OR built-in
-        // auditTrail integration is finalised in Cycle 2. // TODO Cycle 2
+        // AuditTrail integration is finalised in Cycle 2. TODO Cycle 2.
         return $this->normalize(
             rows: $objectService->findAll(
                 [

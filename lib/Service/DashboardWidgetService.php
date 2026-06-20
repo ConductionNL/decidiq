@@ -45,7 +45,6 @@ use Psr\Log\LoggerInterface;
  */
 class DashboardWidgetService
 {
-
     /**
      * Constructor for DashboardWidgetService.
      *
@@ -101,7 +100,7 @@ class DashboardWidgetService
      * Count open voting-rounds the current user has not voted in.
      *
      * @param object   $objectService  OpenRegister ObjectService instance
-     * @param string[] $participantIds  Participant record ids for the current user
+     * @param string[] $participantIds Participant record ids for the current user
      *
      * @spec openspec/specs/dashboard/spec.md
      *
@@ -126,7 +125,7 @@ class DashboardWidgetService
                 continue;
             }
 
-            $roundId = $this->idOf($round);
+            $roundId = $this->idOf(row: $round);
             if ($roundId !== '') {
                 $openRoundIds[$roundId] = true;
             }
@@ -138,12 +137,12 @@ class DashboardWidgetService
 
         // Remove rounds this user's participant record has already voted in.
         foreach ($this->fetch(objectService: $objectService, schema: 'vote') as $vote) {
-            $participant = $this->refId($vote['participant'] ?? null);
+            $participant = $this->refId(ref: $vote['participant'] ?? null);
             if ($participant === '' || in_array($participant, $participantIds, true) === false) {
                 continue;
             }
 
-            $roundId = $this->refId($vote['votingRound'] ?? null);
+            $roundId = $this->refId(ref: $vote['votingRound'] ?? null);
             if ($roundId !== '') {
                 unset($openRoundIds[$roundId]);
             }
@@ -157,8 +156,8 @@ class DashboardWidgetService
      * Resolve the soonest future lifecycle=scheduled meeting the user is in.
      *
      * @param object   $objectService  OpenRegister ObjectService instance
-     * @param string[] $participantIds  Participant record ids for the current user
-     * @param int      $now             Current unix timestamp
+     * @param string[] $participantIds Participant record ids for the current user
+     * @param int      $now            Current unix timestamp
      *
      * @spec openspec/specs/dashboard/spec.md
      *
@@ -192,7 +191,7 @@ class DashboardWidgetService
 
             // When the user has participant records, restrict to meetings they
             // are in; otherwise (no participant records) show none.
-            $meetingId = $this->idOf($meeting);
+            $meetingId = $this->idOf(row: $meeting);
             if (count($meetingIds) === 0 || in_array($meetingId, $meetingIds, true) === false) {
                 continue;
             }
@@ -223,7 +222,7 @@ class DashboardWidgetService
         foreach ($this->fetch(objectService: $objectService, schema: 'participant') as $participant) {
             $link = ($participant['nextcloudUserId'] ?? ($participant['owner'] ?? null));
             if (is_string($link) === true && $link === $userId) {
-                $pid = $this->idOf($participant);
+                $pid = $this->idOf(row: $participant);
                 if ($pid !== '') {
                     $ids[] = $pid;
                 }
@@ -238,7 +237,7 @@ class DashboardWidgetService
      * Meeting ids the current user's participant records reference.
      *
      * @param object   $objectService  OpenRegister ObjectService instance
-     * @param string[] $participantIds  Participant record ids for the current user
+     * @param string[] $participantIds Participant record ids for the current user
      *
      * @spec openspec/specs/dashboard/spec.md
      *
@@ -252,12 +251,12 @@ class DashboardWidgetService
 
         $meetingIds = [];
         foreach ($this->fetch(objectService: $objectService, schema: 'participant') as $participant) {
-            $pid = $this->idOf($participant);
+            $pid = $this->idOf(row: $participant);
             if ($pid === '' || in_array($pid, $participantIds, true) === false) {
                 continue;
             }
 
-            $meetingId = $this->refId($participant['meeting'] ?? ($participant['relations']['Meeting'][0] ?? null));
+            $meetingId = $this->refId(ref: $participant['meeting'] ?? ($participant['relations']['Meeting'][0] ?? null));
             if ($meetingId !== '') {
                 $meetingIds[] = $meetingId;
             }
@@ -322,7 +321,11 @@ class DashboardWidgetService
     private function idOf(array $row): string
     {
         $id = ($row['id'] ?? ($row['@self']['id'] ?? ''));
-        return is_scalar($id) === true ? (string) $id : '';
+        if (is_scalar($id) === true) {
+            return (string) $id;
+        }
+
+        return '';
 
     }//end idOf()
 
@@ -341,7 +344,11 @@ class DashboardWidgetService
             $ref = ($ref['id'] ?? null);
         }
 
-        return is_scalar($ref) === true ? (string) $ref : '';
+        if (is_scalar($ref) === true) {
+            return (string) $ref;
+        }
+
+        return '';
 
     }//end refId()
 }//end class

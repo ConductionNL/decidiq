@@ -126,7 +126,7 @@ class ProcessTemplateService
 
         $out = [];
         foreach ((array) $rows as $row) {
-            $out[] = $this->toArray($row);
+            $out[] = $this->toArray(row: $row);
         }
 
         return $out;
@@ -149,7 +149,7 @@ class ProcessTemplateService
             return null;
         }
 
-        return $this->toArray($entity);
+        return $this->toArray(row: $entity);
 
     }//end get()
 
@@ -172,7 +172,7 @@ class ProcessTemplateService
         $template['builtIn'] = false;
 
         $saved = $this->objectService()->saveObject(register: 'decidesk', schema: 'process-template', object: $template);
-        return $this->toArray($saved);
+        return $this->toArray(row: $saved);
 
     }//end create()
 
@@ -209,7 +209,7 @@ class ProcessTemplateService
         $template['builtIn'] = false;
 
         $saved = $this->objectService()->saveObject(register: 'decidesk', schema: 'process-template', object: $template);
-        return $this->toArray($saved);
+        return $this->toArray(row: $saved);
 
     }//end update()
 
@@ -220,7 +220,7 @@ class ProcessTemplateService
      * a fresh object; the original is never touched.
      *
      * @param string      $templateId The template UUID to duplicate
-     * @param string|null $newName     Optional name for the copy (defaults to "<name> (copy)")
+     * @param string|null $newName    Optional name for the copy (defaults to "<name> (copy)")
      *
      * @throws \RuntimeException When the source template is missing
      *
@@ -241,7 +241,7 @@ class ProcessTemplateService
         $copy['name']    = ($newName ?? (($source['name'] ?? 'Template').' (copy)'));
 
         $saved = $this->objectService()->saveObject(register: 'decidesk', schema: 'process-template', object: $copy);
-        return $this->toArray($saved);
+        return $this->toArray(row: $saved);
 
     }//end duplicate()
 
@@ -296,7 +296,12 @@ class ProcessTemplateService
 
         $stateNames = [];
         foreach ((array) ($stateMachine['states'] ?? []) as $state) {
-            $name = (is_array($state) === true ? ($state['name'] ?? null) : null);
+            if (is_array($state) === true) {
+                $name = ($state['name'] ?? null);
+            } else {
+                $name = null;
+            }
+
             if (is_string($name) === true && $name !== '') {
                 $stateNames[$name] = true;
             }
@@ -342,7 +347,13 @@ class ProcessTemplateService
 
             foreach ((array) ($transition['guards'] ?? []) as $guard) {
                 if (in_array($guard, self::KNOWN_GUARDS, true) === false) {
-                    $errors[] = "Unknown guard token '".(is_string($guard) === true ? $guard : '?')."'.";
+                    if (is_string($guard) === true) {
+                        $guardLabel = $guard;
+                    } else {
+                        $guardLabel = '?';
+                    }
+
+                    $errors[] = "Unknown guard token '".$guardLabel."'.";
                 }
             }
         }//end foreach
@@ -439,8 +450,8 @@ class ProcessTemplateService
                 return null;
             }
 
-            $body         = $this->toArray($bodyEntity);
-            $templateRef  = ($body['processTemplate'] ?? null);
+            $body        = $this->toArray(row: $bodyEntity);
+            $templateRef = ($body['processTemplate'] ?? null);
             if (is_string($templateRef) === false || $templateRef === '') {
                 return null;
             }
@@ -475,7 +486,7 @@ class ProcessTemplateService
         );
 
         foreach ((array) $rows as $row) {
-            return $this->toArray($row);
+            return $this->toArray(row: $row);
         }
 
         // Fall back to a direct UUID lookup.
@@ -484,7 +495,7 @@ class ProcessTemplateService
             return null;
         }
 
-        return $this->toArray($entity);
+        return $this->toArray(row: $entity);
 
     }//end loadTemplateByRef()
 }//end class
