@@ -1,6 +1,7 @@
 ---
 status: done
-status-note: 2026-06-13 meeting-efficiency-v1 — all 4 requirements built. Agenda-item countdown timer (AgendaItemTimer.vue + meetingTimer.js), speaker queue with per-speaker timer recording speeches via EngagementService (SpeakerQueuePanel.vue + speakerQueue.js), live + server-stamped meeting cost (MeetingCostPanel.vue + meetingCost.js + MeetingCostService.php), and the per-body Efficiency analytics tab (GovernanceBodyEfficiencyTab.vue + meetingAnalytics.js). Pure logic exhaustively vitest-covered; wall-clock expiry scenarios @e2e-excluded (vitest-covered). Additive schema: governance-body.hourlyRate, meeting.openedAt/closedAt/meetingCost, agenda-item.pausedDuration.
+status-note: >-
+  2026-06-13 meeting-efficiency-v1 — all 4 requirements built. Agenda-item countdown timer (AgendaItemTimer.vue + meetingTimer.js), speaker queue with per-speaker timer recording speeches via EngagementService (SpeakerQueuePanel.vue + speakerQueue.js), live + server-stamped meeting cost (MeetingCostPanel.vue + meetingCost.js + MeetingCostService.php), and the per-body Efficiency analytics tab (GovernanceBodyEfficiencyTab.vue + meetingAnalytics.js). Pure logic exhaustively vitest-covered; wall-clock expiry scenarios @e2e-excluded (vitest-covered). Additive schema: governance-body.hourlyRate, meeting.openedAt/closedAt/meetingCost, agenda-item.pausedDuration.
 ---
 
 # Meeting Efficiency Specification
