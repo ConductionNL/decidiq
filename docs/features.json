@@ -90,6 +90,12 @@
     "docsUrl": "openspec/specs/conflict-of-interest/spec.md"
   },
   {
+    "slug": "dashboard",
+    "title": "Dashboard",
+    "summary": "The Decidesk dashboard provides an at-a-glance overview of active decisions, upcoming meetings, pending votes, action items, and governance KPIs. It uses the `CnDashboardPage` component from `@conduction/nextcloud-vue` for a configurable grid layout and integrates with the Nextcloud Dashboard Widget API (`OCP\\Dashboard\\IWidget`) for platform-level widget exposure. The dashboard serves as the primary entry point for all Decidesk users.",
+    "docsUrl": "openspec/specs/dashboard/spec.md"
+  },
+  {
     "slug": "decidesk-contract-decision-hub",
     "title": "decidesk-contract-decision-hub",
     "summary": "Turns decidesk into a decision hub that any fleet app can call to raise a governance decision (such as a contract approval or report adoption) about an object it owns. It adds subject-reference and provenance fields to the Decision schema, an idempotent create-decision API endpoint, a queryable outcome envelope and callback subscriptions, and delegation of document signing to docudesk — while owning only the decision itself and leaving downstream side effects to the consuming app.",
@@ -118,6 +124,12 @@
     "title": "Specs: Minutes and Decisions — Other T2",
     "summary": "This spec defines decision evolution links, stakeholder notifications, decision cascade to departments, and the related dashboard extension for Decidesk.",
     "docsUrl": "openspec/specs/decision-evolution-and-cascade/spec.md"
+  },
+  {
+    "slug": "decision-management",
+    "title": "Decision Management",
+    "summary": "Decision management is the core capability of Decidesk. A decision represents a formal choice made by a governance body, association, corporate board, or operational team. Each decision follows a configurable state machine lifecycle from proposal through deliberation, voting, and resolution. This specification covers the decision entity, status transitions, the Symfony Workflow-backed state machine, and audit trail recording.",
+    "docsUrl": "openspec/specs/decision-management/spec.md"
   },
   {
     "slug": "decision-methods",
@@ -226,6 +238,12 @@
     "title": "meeting-detail-view",
     "summary": "Provides the meeting detail page where users view and edit a single meeting, with sections for the meeting header, schedule, attendees, agenda items, and minutes. Lets users run lifecycle action buttons based on the current state, manage attendees and agenda items inline, work with a Files/Notes/Audit/Tags sidebar, and delete the meeting with confirmation.",
     "docsUrl": "openspec/specs/meeting-detail-view/spec.md"
+  },
+  {
+    "slug": "meeting-efficiency",
+    "title": "Meeting Efficiency",
+    "summary": "Meeting efficiency features help governance bodies run productive meetings. This includes real-time timers for agenda items and speaking time, a meeting cost calculator (based on participant hourly rates), analytics on meeting duration and decision throughput, and tools to keep discussions focused. These features transform Decidesk from a compliance tool into a productivity platform that actively improves organizational decision-making.",
+    "docsUrl": "openspec/specs/meeting-efficiency/spec.md"
   },
   {
     "slug": "meeting-list-view",
