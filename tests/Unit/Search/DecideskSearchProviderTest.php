@@ -146,8 +146,14 @@ class DecideskSearchProviderTest extends TestCase
     }//end testEmptyTermShortCircuits()
 
     /**
-     * Result rows from all three schemas map into entries; rows without
+     * Result rows from every searched schema map into entries; rows without
      * id/title are dropped.
+     *
+     * The supertype refactor (ADR-005) folded the former `resolution` schema
+     * into `decision` (resolutions are now Decision rows carrying a
+     * decisionType), so the provider searches the two live schemas
+     * (`decision`, `meeting`). A row supplied under the retired `resolution`
+     * schema is never queried and must not surface.
      *
      * @spec openspec/specs/nextcloud-integration/spec.md
      *
@@ -164,6 +170,7 @@ class DecideskSearchProviderTest extends TestCase
                 'meeting'    => [
                     ['id' => 'm-1', 'title' => 'Q2 Board Meeting', 'lifecycle' => 'scheduled'],
                 ],
+                // Retired schema — supplied to prove it is not searched.
                 'resolution' => [
                     ['id' => 'r-1', 'title' => 'Merger resolution', 'status' => 'adopted'],
                 ],
@@ -173,7 +180,8 @@ class DecideskSearchProviderTest extends TestCase
         $result  = $provider->search($this->createMock(IUser::class), $this->query('budget'));
         $entries = $result->jsonSerialize()['entries'];
 
-        self::assertCount(expectedCount: 3, haystack: $entries);
+        // d-1 + m-1 map; d-broken (no title) is dropped; r-1 is never queried.
+        self::assertCount(expectedCount: 2, haystack: $entries);
 
     }//end testMapsRowsAcrossSchemas()
 

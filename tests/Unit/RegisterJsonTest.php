@@ -3,8 +3,18 @@
 /**
  * Unit tests for the Decidesk register JSON (decidesk_register.json).
  *
- * Validates that all 17 schemas are defined with correct properties, types,
+ * Validates that all schemas are defined with correct properties, types,
  * required fields, enum values, relations, and seed data.
+ *
+ * ADR-005 (unify-decision-supertype): the standalone Motion / Amendment /
+ * Resolution schemas were folded into a single Decision supertype carrying a
+ * `decisionType` discriminator (motion | amendment | resolution | …). The
+ * board-portal schemas (Board, BoardMember, BoardMeeting, Resolution,
+ * BoardVote, BoardMinutes, BoardMaterial, BoardAuditLogEntry) were retired by
+ * retire-board-portal. DecisionStage (decision-route-and-stages) plus the
+ * popolo decision-maker schemas (Person, Membership, Post, ContactDetail) and
+ * the publication / transcript schemas were added downstream. These tests
+ * assert the resulting unified 34-schema model.
  *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit
@@ -83,80 +93,91 @@ class RegisterJsonTest extends TestCase
     /**
      * Test that all required schemas are defined.
      *
-     * P1-schemas-and-data-model defined 17 core schemas. P3-citizen-participation
-     * extended the register with 7 additional schemas for citizen engagement
-     * (BudgetProposal, CitizenPanel, CitizenVote, Deliberation, Notification,
-     * ParticipatoryBudget, PublicConsultation), bringing the total to 24.
-     * migrate-engagement-analytics-to-analytics-leaf adds EngagementRecord (1),
-     * bringing the total to 25. user-settings-v1 adds NotificationPreference (1)
-     * — registering the schema NotificationPreferenceService already consumed.
+     * ADR-005 unified Motion / Amendment / Resolution into the Decision
+     * supertype and retire-board-portal removed the 8 board-portal schemas.
+     * decision-route-and-stages added DecisionStage; popolo-decision-makers
+     * added Person, Membership, Post and ContactDetail; the publication +
+     * transcript work added ConsultationReaction, Transcript, PublicationPayload
+     * and PublicationRecord. The register now defines exactly 34 schemas.
      *
      * @return void
      *
-     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
-     * @spec openspec/changes/p3-citizen-participation/tasks.md
-     * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-2.2
-     * @spec openspec/specs/user-settings/spec.md
+     * @spec openspec/changes/archive/2026-06-14-unify-decision-supertype/proposal.md
+     * @spec openspec/changes/archive/2026-06-14-decision-route-and-stages/proposal.md
+     * @spec openspec/changes/archive/2026-06-14-popolo-decision-makers/proposal.md
      */
-    public function testAllSeventeenSchemasExist(): void
+    public function testAllSchemasExist(): void
     {
         $expected = [
-            // P1 core schemas (17).
+            // Meeting + governance core.
             'GovernanceBody',
             'Meeting',
             'Participant',
             'AgendaItem',
-            'Motion',
-            'Amendment',
             'VotingRound',
             'Vote',
-            'Decision',
             'ActionItem',
             'Minutes',
+            'Transcript',
+            // Unified decision supertype (ADR-005) + route stages.
+            'Decision',
+            'DecisionStage',
+            // Popolo decision-makers.
+            'Person',
+            'Membership',
+            'Post',
+            'ContactDetail',
+            // Document / commerce supporting schemas.
             'DigitalDocument',
             'MonetaryAmount',
             'Offer',
             'Order',
             'Product',
             'Report',
-            // P3 citizen participation schemas (7).
+            // Citizen-participation schemas.
             'BudgetProposal',
             'CitizenPanel',
             'CitizenVote',
+            'ConsultationReaction',
             'Deliberation',
-            'Notification',
             'ParticipatoryBudget',
             'PublicConsultation',
-            // Analytics-leaf migration schema (1).
-            'EngagementRecord',
-            // Board portal schemas (9 — board-meeting-resolutions Phase 1).
-            'Board',
-            'BoardMember',
-            'BoardMeeting',
-            'Resolution',
-            'BoardVote',
-            'BoardMinutes',
-            'ConflictOfInterest',
-            'BoardMaterial',
-            'BoardAuditLogEntry',
-            // User settings schema (1 — user-settings-v1).
+            // Notification + preferences.
+            'Notification',
             'NotificationPreference',
+            // Analytics-leaf migration schema.
+            'EngagementRecord',
+            // Governance support.
+            'ConflictOfInterest',
+            // Publication pipeline (publish-decisions-via-opencatalogi).
+            'PublicationPayload',
+            'PublicationRecord',
         ];
 
         self::assertCount(
-            expectedCount: 35,
+            expectedCount: 34,
             haystack: $this->schemas,
-            message: 'Register must contain exactly 35 schemas (17 p1 core + 7 p3 citizen participation + 1 EngagementRecord + 9 board-portal + 1 NotificationPreference)'
+            message: 'Register must contain exactly 34 schemas (unified Decision supertype model, board portal retired)'
         );
 
         foreach ($expected as $name) {
             self::assertArrayHasKey(key: $name, array: $this->schemas, message: "Schema '{$name}' must exist");
         }
 
-    }//end testAllSeventeenSchemasExist()
+        // The board portal and standalone motion/amendment/resolution schemas
+        // were removed by ADR-005 + retire-board-portal — assert they are gone.
+        foreach (['Motion', 'Amendment', 'Resolution', 'Board', 'BoardMember', 'BoardMeeting', 'BoardVote', 'BoardMaterial'] as $removed) {
+            self::assertArrayNotHasKey(
+                key: $removed,
+                array: $this->schemas,
+                message: "Schema '{$removed}' must have been removed by the decision-supertype refactor"
+            );
+        }
+
+    }//end testAllSchemasExist()
 
     /**
-     * Test that schema.org type annotations are present on all schemas.
+     * Test schema.org type annotations are present on the core schemas.
      *
      * @return void
      *
@@ -169,13 +190,16 @@ class RegisterJsonTest extends TestCase
             'Meeting'         => 'schema:Event',
             'Participant'     => 'schema:Person',
             'AgendaItem'      => 'custom:AgendaItem',
-            'Motion'          => 'custom:Motion',
-            'Amendment'       => 'custom:Amendment',
             'VotingRound'     => 'custom:VotingRound',
             'Vote'            => 'custom:Vote',
             'Decision'        => 'custom:Decision',
+            'DecisionStage'   => 'custom:DecisionStage',
             'ActionItem'      => 'custom:ActionItem',
             'Minutes'         => 'custom:Minutes',
+            'Person'          => 'foaf:Person',
+            'Membership'      => 'org:Membership',
+            'Post'            => 'org:Post',
+            'ContactDetail'   => 'popolo:ContactDetail',
             'DigitalDocument' => 'schema:DigitalDocument',
             'MonetaryAmount'  => 'schema:MonetaryAmount',
             'Offer'           => 'schema:Offer',
@@ -213,7 +237,12 @@ class RegisterJsonTest extends TestCase
         self::assertContains(needle: 'corporate-board', haystack: $bodyTypeEnum);
         self::assertContains(needle: 'operational', haystack: $bodyTypeEnum);
         self::assertContains(needle: 'citizen-panel', haystack: $bodyTypeEnum);
-        self::assertCount(expectedCount: 5, haystack: $bodyTypeEnum);
+        // The retire-board-portal change folded the board concept into
+        // governance bodies, adding the supervisory-board and executive-board
+        // body types.
+        self::assertContains(needle: 'supervisory-board', haystack: $bodyTypeEnum);
+        self::assertContains(needle: 'executive-board', haystack: $bodyTypeEnum);
+        self::assertCount(expectedCount: 7, haystack: $bodyTypeEnum);
 
     }//end testGovernanceBodySchema()
 
@@ -235,8 +264,9 @@ class RegisterJsonTest extends TestCase
     /**
      * Test the meeting-agenda-gaps-v1 additive schema properties: Schema.org
      * eventAttendanceMode / virtualLocation annotations on Meeting, the
-     * general_assembly meetingType, the seriesPattern object, AgendaItem
-     * parentItem, and BoardMeeting noticePeriodDays / noticeDeliveries.
+     * general_assembly meetingType, the seriesPattern object and AgendaItem
+     * parentItem. (The BoardMeeting notice-period assertions were dropped when
+     * retire-board-portal removed the BoardMeeting schema.)
      *
      * @return void
      *
@@ -279,39 +309,41 @@ class RegisterJsonTest extends TestCase
             actual: $this->schemas['AgendaItem']['properties']['parentItem']['type']
         );
 
-        $boardMeeting = $this->schemas['BoardMeeting']['properties'];
-        self::assertSame(expected: 15, actual: $boardMeeting['noticePeriodDays']['default']);
-        self::assertSame(expected: 'array', actual: $boardMeeting['noticeDeliveries']['type']);
-        self::assertSame(
-            expected: ['sent', 'delivered', 'failed'],
-            actual: $boardMeeting['noticeDeliveries']['items']['properties']['status']['enum']
-        );
-
     }//end testMeetingAgendaGapsAdditiveProperties()
 
     /**
-     * Test Motion schema has correct required fields and lifecycle enum.
+     * Test the unified Decision supertype carries the decisionType discriminator
+     * (ADR-005) covering the former Motion / Amendment / Resolution kinds plus
+     * the corporate decision kinds, and the lifecycle / outcome enums.
      *
      * @return void
      *
-     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
+     * @spec openspec/changes/archive/2026-06-14-unify-decision-supertype/specs/decision-management/spec.md
      */
-    public function testMotionSchema(): void
+    public function testDecisionSupertypeSchema(): void
     {
-        $schema = $this->schemas['Motion'];
+        $schema = $this->schemas['Decision'];
+
         self::assertSame(
-            expected: ['title', 'text', 'motionType', 'proposer', 'lifecycle', 'submittedAt'],
+            expected: ['title', 'text', 'decisionDate', 'outcome', 'decisionType'],
             actual: $schema['required']
         );
 
+        // The decisionType discriminator folds in the former standalone schemas.
+        $decisionType = $schema['properties']['decisionType']['enum'];
+        self::assertContains(needle: 'motion', haystack: $decisionType);
+        self::assertContains(needle: 'amendment', haystack: $decisionType);
+        self::assertContains(needle: 'resolution', haystack: $decisionType);
+
         $lifecycle = $schema['properties']['lifecycle']['enum'];
-        self::assertContains(needle: 'submitted', haystack: $lifecycle);
+        self::assertContains(needle: 'draft', haystack: $lifecycle);
+        self::assertContains(needle: 'voting', haystack: $lifecycle);
+        self::assertContains(needle: 'decided', haystack: $lifecycle);
         self::assertContains(needle: 'withdrawn', haystack: $lifecycle);
-        self::assertCount(expectedCount: 6, haystack: $lifecycle);
 
         self::assertSame(expected: 'array', actual: $schema['properties']['coSigners']['type']);
 
-    }//end testMotionSchema()
+    }//end testDecisionSupertypeSchema()
 
     /**
      * Test VotingRound has votingMethod enum and isSecret boolean.
@@ -351,7 +383,7 @@ class RegisterJsonTest extends TestCase
         );
 
         self::assertSame(expected: ['adopted', 'rejected'], actual: $schema['properties']['outcome']['enum']);
-        // P3-citizen-participation: isPublished is now a string enum (internal | public | confidential)
+        // P3-citizen-participation: isPublished is a string enum (internal | public | confidential)
         // controlling citizen transparency portal visibility, not a boolean ORI publish flag.
         self::assertSame(expected: 'string', actual: $schema['properties']['isPublished']['type']);
         self::assertSame(
@@ -375,11 +407,10 @@ class RegisterJsonTest extends TestCase
             'Meeting',
             'Participant',
             'AgendaItem',
-            'Motion',
-            'Amendment',
+            'Decision',
+            'DecisionStage',
             'VotingRound',
             'Vote',
-            'Decision',
             'ActionItem',
             'Minutes',
         ];
@@ -420,23 +451,26 @@ class RegisterJsonTest extends TestCase
     /**
      * Test that relations are declared with x-openregister-relations.
      *
+     * ADR-005 + decision-route-and-stages: agenda items, voting rounds and
+     * stages now hang off the unified Decision / DecisionStage schemas rather
+     * than the removed Motion / Amendment schemas.
+     *
      * @return void
      *
-     * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-1
+     * @spec openspec/changes/archive/2026-06-14-decision-route-and-stages/proposal.md
      */
     public function testRelationsAreConfigured(): void
     {
         $expectedRelations = [
-            'Meeting'     => ['governanceBody'],
-            'Participant' => ['governanceBody'],
-            'AgendaItem'  => ['meeting'],
-            'Motion'      => ['agendaItem'],
-            'Amendment'   => ['motion'],
-            'VotingRound' => ['motion'],
-            'Vote'        => ['votingRound', 'participant'],
-            'Decision'    => ['motion'],
-            'ActionItem'  => ['decision', 'meeting'],
-            'Minutes'     => ['meeting'],
+            'Meeting'       => ['governanceBody'],
+            'Participant'   => ['governanceBody'],
+            'AgendaItem'    => ['meeting'],
+            'VotingRound'   => ['decisionStage'],
+            'Vote'          => ['votingRound', 'participant'],
+            'Decision'      => ['route', 'amends'],
+            'DecisionStage' => ['decision', 'votingRound'],
+            'ActionItem'    => ['decision', 'meeting'],
+            'Minutes'       => ['meeting'],
         ];
 
         foreach ($expectedRelations as $schemaName => $relations) {
@@ -454,6 +488,17 @@ class RegisterJsonTest extends TestCase
                 );
             }//end foreach
         }//end foreach
+
+        // ADR-005: no surviving relation may point at a removed schema.
+        foreach ($this->schemas as $schemaName => $schema) {
+            foreach (($schema['x-openregister-relations'] ?? []) as $relName => $rel) {
+                self::assertNotContains(
+                    needle: ($rel['schema'] ?? ''),
+                    haystack: ['Motion', 'Amendment', 'Resolution'],
+                    message: "Relation '{$relName}' on '{$schemaName}' must not point at a removed schema"
+                );
+            }
+        }
 
     }//end testRelationsAreConfigured()
 

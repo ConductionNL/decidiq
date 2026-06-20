@@ -79,8 +79,15 @@ export async function initializeStores() {
 		['meeting', settings.meetingSchema || 'meeting'],
 		['agenda-item', settings.agendaItemSchema || 'agenda-item'],
 		['participant', settings.participantSchema || 'participant'],
-		['motion', settings.motionSchema || 'motion'],
-		['amendment', settings.amendmentSchema || 'amendment'],
+		// ADR-005: motion and amendment are folded into the unified Decision
+		// supertype (decisionType discriminator). The standalone Motion/Amendment
+		// schemas were removed from decidesk_register.json, so the logical relation
+		// types must resolve to the `decision` schema here too. Registering them to
+		// the deleted 'motion'/'amendment' slugs would shadow the same remap in
+		// useRelationStore.ensureRelationType (guarded by !objectTypeRegistry[type]),
+		// causing the motion/amendment tabs to query dead schemas at runtime.
+		['motion', settings.decisionSchema || 'decision'],
+		['amendment', settings.decisionSchema || 'decision'],
 		['voting-round', settings.votingRoundSchema || 'voting-round'],
 		['governance-body', settings.governanceBodySchema || 'governance-body'],
 		['vote', settings.voteSchema || 'vote'],

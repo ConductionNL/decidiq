@@ -57,7 +57,7 @@ class QesGuardTest extends TestCase
 
         $objectService->method('find')->willReturnCallback(
             function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null) use ($resolutionEntity) {
-                if ($schema === 'resolution') {
+                if ($schema === 'decision') {
                     return $resolutionEntity;
                 }
 
