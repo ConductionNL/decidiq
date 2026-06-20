@@ -171,7 +171,7 @@ class ParticipationLifecycleService
         }
 
         $consultation = $entity->jsonSerialize();
-        $current      = $this->normaliseConsultationStatus((string) ($consultation['status'] ?? 'draft'));
+        $current      = $this->normaliseConsultationStatus(status: (string) ($consultation['status'] ?? 'draft'));
 
         $this->assertTransitionAllowed(
             current: $current,
@@ -189,7 +189,7 @@ class ParticipationLifecycleService
         }
 
         $consultation['status'] = $newStatus;
-        $saved                  = $objectService->saveObject(register: 'decidesk', schema: 'public-consultation', object: $consultation);
+        $saved = $objectService->saveObject(register: 'decidesk', schema: 'public-consultation', object: $consultation);
 
         return $this->normaliseSaved(saved: $saved, fallback: $consultation);
 
@@ -277,7 +277,7 @@ class ParticipationLifecycleService
      */
     public function consultationAcceptsSubmissions(array $consultation): bool
     {
-        $status = $this->normaliseConsultationStatus((string) ($consultation['status'] ?? 'draft'));
+        $status = $this->normaliseConsultationStatus(status: (string) ($consultation['status'] ?? 'draft'));
         if ($status !== 'open') {
             return false;
         }
@@ -351,5 +351,4 @@ class ParticipationLifecycleService
         return $timestamp > time();
 
     }//end deadlineInFuture()
-
 }//end class

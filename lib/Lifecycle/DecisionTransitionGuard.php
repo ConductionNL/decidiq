@@ -213,7 +213,13 @@ class DecisionTransitionGuard
                 continue;
             }
 
-            if ($this->isTransitionAllowed(domain: $domain, fromState: $currentLifecycle, toState: $transition['to'], policyOverride: $policyOverride) === false) {
+            $isAllowed = $this->isTransitionAllowed(
+                domain: $domain,
+                fromState: $currentLifecycle,
+                toState: $transition['to'],
+                policyOverride: $policyOverride
+            );
+            if ($isAllowed === false) {
                 continue;
             }
 

@@ -45,7 +45,6 @@ use Psr\Log\LoggerInterface;
  */
 class ProcessTemplateController extends Controller
 {
-
     /**
      * Constructor for ProcessTemplateController.
      *
@@ -177,7 +176,11 @@ class ProcessTemplateController extends Controller
     public function duplicate(string $id): JSONResponse
     {
         $params  = $this->request->getParams();
-        $newName = (isset($params['name']) === true && is_string($params['name']) === true && $params['name'] !== '') ? $params['name'] : null;
+        $newName = null;
+        if (isset($params['name']) === true && is_string($params['name']) === true && $params['name'] !== '') {
+            $newName = $params['name'];
+        }
+
         try {
             $copy = $this->templateService->duplicate(templateId: $id, newName: $newName);
             return new JSONResponse($copy, Http::STATUS_CREATED);

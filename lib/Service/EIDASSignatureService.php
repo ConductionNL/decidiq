@@ -464,7 +464,7 @@ class EIDASSignatureService implements IEIDASSignatureService
      *
      * @return void
      */
-    public function resolveSignatureStage(string $minutesId, ?string $signingReference = null): void
+    public function resolveSignatureStage(string $minutesId, ?string $signingReference=null): void
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
@@ -557,7 +557,7 @@ class EIDASSignatureService implements IEIDASSignatureService
             $sourceMapper = $this->container->get('OCA\OpenConnector\Db\SourceMapper');
             $source       = $sourceMapper->findBySlug(slug: self::DOCUDESK_SOURCE_SLUG);
         } catch (\Throwable) {
-            // openconnector absent or source not configured — docudesk unavailable.
+            // Openconnector absent or source not configured — docudesk unavailable.
             return ['success' => false, 'requestId' => null, 'signingUrl' => null, 'message' => 'Docudesk source not configured.'];
         }
 
@@ -611,10 +611,20 @@ class EIDASSignatureService implements IEIDASSignatureService
                 payload: ['phase' => 'docudesk-initiate', 'signatories' => array_values($signatories)]
             );
 
+            $requestIdValue = null;
+            if ($requestId !== '') {
+                $requestIdValue = $requestId;
+            }
+
+            $signingUrlValue = null;
+            if ($signingUrl !== '') {
+                $signingUrlValue = $signingUrl;
+            }
+
             return [
                 'success'    => true,
-                'requestId'  => $requestId !== '' ? $requestId : null,
-                'signingUrl' => $signingUrl !== '' ? $signingUrl : null,
+                'requestId'  => $requestIdValue,
+                'signingUrl' => $signingUrlValue,
                 'message'    => 'Signing request composed via docudesk.',
             ];
         } catch (\Throwable $e) {

@@ -48,7 +48,6 @@ use Psr\Log\LoggerInterface;
  */
 class MinutesDraftService
 {
-
     /**
      * Constructor.
      *
@@ -62,7 +61,6 @@ class MinutesDraftService
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
-
 
     /**
      * Whether a TaskProcessing/AI provider is available on this instance.
@@ -96,7 +94,6 @@ class MinutesDraftService
         }
 
     }//end isProviderAvailable()
-
 
     /**
      * Generate a draft from a transcript.
@@ -132,7 +129,7 @@ class MinutesDraftService
             $segments = [];
         }
 
-        $agendaItems = [];
+        $agendaItems  = [];
         $votingRounds = [];
         $decisions    = [];
         if ($meetingId !== null) {
@@ -173,7 +170,6 @@ class MinutesDraftService
         return $draft;
 
     }//end generate()
-
 
     /**
      * Build the per-section draft (or a flat whole-meeting section).
@@ -265,7 +261,6 @@ class MinutesDraftService
 
     }//end buildSections()
 
-
     /**
      * Build one provenance-stamped section with cross-checked suggestions.
      *
@@ -303,7 +298,6 @@ class MinutesDraftService
         ];
 
     }//end buildSection()
-
 
     /**
      * Cross-check the AI summary's suggested outcomes against the recorded record.
@@ -350,10 +344,15 @@ class MinutesDraftService
 
             $matched = (mb_strtolower($title) !== '' && str_contains($lowerSummary, mb_strtolower($title)) === true);
 
+            $linkedId = '';
+            if ($matched === true) {
+                $linkedId = $id;
+            }
+
             $suggestions[] = [
                 'title'      => $title,
                 'recordType' => $record['type'],
-                'linkedId'   => ($matched === true ? $id : ''),
+                'linkedId'   => $linkedId,
                 'unverified' => ($matched === false),
             ];
         }//end foreach
@@ -361,7 +360,6 @@ class MinutesDraftService
         return $suggestions;
 
     }//end crossCheck()
-
 
     /**
      * Assemble the prompt for one agenda item (or the whole meeting).
@@ -377,7 +375,7 @@ class MinutesDraftService
      */
     public function assemblePrompt(string $title, array $segments, array $votes, array $decisions): string
     {
-        $lines = [];
+        $lines   = [];
         $lines[] = 'Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. '
             .'Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.';
         $lines[] = '';
@@ -390,9 +388,14 @@ class MinutesDraftService
                 continue;
             }
 
-            $label = (string) ($segment['speakerLabel'] ?? '');
-            $text  = (string) ($segment['text'] ?? '');
-            $lines[] = ($label !== '' ? $label.': ' : '').$text;
+            $label  = (string) ($segment['speakerLabel'] ?? '');
+            $text   = (string) ($segment['text'] ?? '');
+            $prefix = '';
+            if ($label !== '') {
+                $prefix = $label.': ';
+            }
+
+            $lines[] = $prefix.$text;
         }
 
         if ($votes !== [] || $decisions !== []) {
@@ -414,7 +417,6 @@ class MinutesDraftService
         return implode("\n", $lines);
 
     }//end assemblePrompt()
-
 
     /**
      * Run a single text-to-text prompt through TaskProcessing synchronously.
@@ -447,7 +449,6 @@ class MinutesDraftService
 
     }//end runPrompt()
 
-
     /**
      * Resolve the preferred TaskProcessing provider id for provenance.
      *
@@ -471,7 +472,6 @@ class MinutesDraftService
 
     }//end preferredProviderId()
 
-
     /**
      * Segments aligned to a given agenda item.
      *
@@ -494,7 +494,6 @@ class MinutesDraftService
         return $result;
 
     }//end segmentsForItem()
-
 
     /**
      * Records (votes/decisions) linked to a given agenda item.
@@ -527,7 +526,6 @@ class MinutesDraftService
         return $result;
 
     }//end recordForItem()
-
 
     /**
      * Fetch objects related to a meeting via OR findAll.
@@ -577,7 +575,6 @@ class MinutesDraftService
 
     }//end fetchRelated()
 
-
     /**
      * Fetch a single object as an array (or null).
      *
@@ -605,7 +602,6 @@ class MinutesDraftService
 
     }//end fetchObject()
 
-
     /**
      * Persist a Transcript object (for draftGeneration provenance only).
      *
@@ -620,11 +616,16 @@ class MinutesDraftService
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
             $id            = ($transcript['id'] ?? ($transcript['@self']['id'] ?? null));
+            $uuid          = null;
+            if ($id !== null) {
+                $uuid = (string) $id;
+            }
+
             $objectService->saveObject(
                 object: $transcript,
                 register: 'decidesk',
                 schema: 'transcript',
-                uuid: ($id === null ? null : (string) $id)
+                uuid: $uuid
             );
         } catch (\Throwable $e) {
             $this->logger->warning(
@@ -634,7 +635,6 @@ class MinutesDraftService
         }
 
     }//end saveTranscript()
-
 
     /**
      * Resolve the linked meeting UUID from a Transcript object.

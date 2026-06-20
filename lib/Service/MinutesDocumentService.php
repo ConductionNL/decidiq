@@ -141,7 +141,7 @@ class MinutesDocumentService
         if ($format === 'pdf') {
             $pdfBytes = $this->tryDocudeskPdf(markdown: $markdown, title: $title);
             if ($pdfBytes !== null) {
-                $path = $this->folderService->writeMeetingFile(
+                $path     = $this->folderService->writeMeetingFile(
                     meeting: $meeting,
                     subfolder: 'Minutes',
                     fileName: $baseName.'.pdf',
@@ -155,7 +155,7 @@ class MinutesDocumentService
         }
 
         if ($path === null) {
-            $path = $this->folderService->writeMeetingFile(
+            $path     = $this->folderService->writeMeetingFile(
                 meeting: $meeting,
                 subfolder: 'Minutes',
                 fileName: $baseName.'.md',
@@ -246,8 +246,8 @@ class MinutesDocumentService
                 if ($decisions !== '') {
                     $content .= "\n**Besluiten:** ".$decisions."\n";
                 }
-            }
-        }
+            }//end foreach
+        }//end if
 
         return $content;
 
@@ -352,7 +352,7 @@ class MinutesDocumentService
             } else {
                 $html[] = '<p>'.$escaped.'</p>';
             }
-        }
+        }//end foreach
 
         return '<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body>'
             .implode("\n", $html)

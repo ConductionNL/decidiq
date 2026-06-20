@@ -123,8 +123,8 @@ class ProofPackageService
         $sha256      = hash('sha256', $canonical);
 
         $envelope = [
-            'package'   => $package,
-            'integrity' => [
+            'package'     => $package,
+            'integrity'   => [
                 'algorithm'    => 'sha256',
                 'hash'         => $sha256,
                 'canonical'    => 'JSON, recursively key-sorted, no whitespace, UTF-8',
@@ -205,11 +205,12 @@ class ProofPackageService
         $registeredAt = (string) ($meeting['@self']['created'] ?? ($meeting['created'] ?? ''));
 
         return [
-            'scheduledDate'      => (string) ($meeting['scheduledDate'] ?? ''),
+            'scheduledDate'       => (string) ($meeting['scheduledDate'] ?? ''),
             'meetingRegisteredAt' => $registeredAt,
-            'noticeRecorded'     => false,
-            'noticeNote'         => 'No explicit convocation-notice timestamp is recorded on the meeting object; the meeting registration date and published agenda below are the available convocation evidence.',
-            'agenda'             => $agenda,
+            'noticeRecorded'      => false,
+            'noticeNote'          => 'No explicit convocation-notice timestamp is recorded on the meeting object; '
+                .'the meeting registration date and published agenda below are the available convocation evidence.',
+            'agenda'              => $agenda,
         ];
 
     }//end buildConvocation()
@@ -226,8 +227,8 @@ class ProofPackageService
      */
     private function buildQuorumSnapshot(array $meeting, array $participants): array
     {
-        $roll               = [];
-        $present            = 0;
+        $roll    = [];
+        $present = 0;
         $attendanceRecorded = false;
 
         foreach ($participants as $participant) {
@@ -416,7 +417,9 @@ class ProofPackageService
 
         $lines[] = '---';
         $lines[] = '';
-        $lines[] = '_De machineleesbare versie van dit pakket (JSON, naast dit bestand) bevat de SHA-256 integriteitshash; herbereken de hash over het canonieke JSON van het "package"-element om manipulatie uit te sluiten._';
+        $lines[] = '_De machineleesbare versie van dit pakket (JSON, naast dit bestand) bevat de SHA-256 '
+            .'integriteitshash; herbereken de hash over het canonieke JSON van het "package"-element '
+            .'om manipulatie uit te sluiten._';
 
         return implode("\n", $lines);
 

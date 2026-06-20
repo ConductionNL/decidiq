@@ -58,8 +58,8 @@ class DecideskSearchProvider implements IProvider
      * @var array<string, string>
      */
     private const SCHEMAS = [
-        'decision'   => 'decisions',
-        'meeting'    => 'meetings',
+        'decision' => 'decisions',
+        'meeting'  => 'meetings',
     ];
 
     /**

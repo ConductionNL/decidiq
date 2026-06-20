@@ -818,7 +818,7 @@ class MinutesController extends Controller
                 $correction['resolvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
 
                 $corrections[$index] = $correction;
-                $updated             = $correction;
+                $updated = $correction;
                 break;
             }
 

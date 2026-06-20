@@ -58,7 +58,6 @@ use Psr\Log\LoggerInterface;
  */
 class ParticipationController extends Controller
 {
-
     /**
      * Constructor for ParticipationController.
      *
@@ -323,7 +322,12 @@ class ParticipationController extends Controller
         }
 
         try {
-            $reaction = $this->intakeService->approveReaction(reactionId: $reactionId, reason: ($reason !== '' ? $reason : null));
+            $reasonValue = null;
+            if ($reason !== '') {
+                $reasonValue = $reason;
+            }
+
+            $reaction = $this->intakeService->approveReaction(reactionId: $reactionId, reason: $reasonValue);
             return new JSONResponse(['reaction' => $reaction]);
         } catch (\Throwable $e) {
             return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
@@ -535,5 +539,4 @@ class ParticipationController extends Controller
         }
 
     }//end publishReaction()
-
 }//end class

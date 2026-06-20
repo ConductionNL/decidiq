@@ -42,24 +42,23 @@ use OCP\EventDispatcher\Event;
  */
 class DecisionConcludedEvent extends Event
 {
-
     /**
      * Construct the conclusion event.
      *
-     * @param string                    $decisionId        The concluded Decision id
-     * @param string                    $decisionType      The Decision type
-     * @param string                    $status            Derived outcome status (approved|rejected|withdrawn|pending)
-     * @param string                    $outcome           Raw decision outcome (e.g. adopted|rejected)
-     * @param bool                      $signed            Whether a signature stage resolved
-     * @param string|null               $signingReference  Signing reference, when signed
-     * @param array<int, mixed>         $signers           Resolved signers list
-     * @param string|null               $decidedAt         When the decision concluded
-     * @param string                    $sourceApp         Consumer app that raised the decision
-     * @param string|null               $subjectRegister   OpenRegister register of the originating object
-     * @param string|null               $subjectSchema     OpenRegister schema of the originating object
-     * @param string|null               $subjectId         OpenRegister id of the originating object
-     * @param string                    $externalReference Consumer's own reference
-     * @param string                    $correlationId     Correlation id from the request event
+     * @param string            $decisionId        The concluded Decision id
+     * @param string            $decisionType      The Decision type
+     * @param string            $status            Derived outcome status (approved|rejected|withdrawn|pending)
+     * @param string            $outcome           Raw decision outcome (e.g. adopted|rejected)
+     * @param bool              $signed            Whether a signature stage resolved
+     * @param string|null       $signingReference  Signing reference, when signed
+     * @param array<int, mixed> $signers           Resolved signers list
+     * @param string|null       $decidedAt         When the decision concluded
+     * @param string            $sourceApp         Consumer app that raised the decision
+     * @param string|null       $subjectRegister   OpenRegister register of the originating object
+     * @param string|null       $subjectSchema     OpenRegister schema of the originating object
+     * @param string|null       $subjectId         OpenRegister id of the originating object
+     * @param string            $externalReference Consumer's own reference
+     * @param string            $correlationId     Correlation id from the request event
      */
     public function __construct(
         private readonly string $decisionId,
@@ -74,8 +73,8 @@ class DecisionConcludedEvent extends Event
         private readonly ?string $subjectRegister,
         private readonly ?string $subjectSchema,
         private readonly ?string $subjectId,
-        private readonly string $externalReference = '',
-        private readonly string $correlationId = '',
+        private readonly string $externalReference='',
+        private readonly string $correlationId='',
     ) {
         parent::__construct();
     }//end __construct()
@@ -98,7 +97,7 @@ class DecisionConcludedEvent extends Event
         array $envelope,
         string $outcome,
         string $sourceApp,
-        string $correlationId = '',
+        string $correlationId='',
     ): self {
         return new self(
             decisionId: (string) ($envelope['decisionId'] ?? ''),

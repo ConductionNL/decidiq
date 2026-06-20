@@ -246,10 +246,10 @@ class VotingController extends Controller
                                 }
                             }
                         }
-                    }
+                    }//end if
 
                     break;
-                }
+                }//end if
             }//end foreach
 
             if ($motionId !== null) {
@@ -273,7 +273,7 @@ class VotingController extends Controller
                         }
                     }
                 }
-            }
+            }//end if
         } catch (\Throwable) {
             // Silently fall through to global check.
         }//end try
@@ -344,21 +344,48 @@ class VotingController extends Controller
         // service enums up front so a bad value is a clean 400, never a 500.
         // process-configuration: an OMITTED rule param is passed as null so the
         // opening body's process-template default applies; an explicit param wins.
-        $voteThreshold      = (isset($params['voteThreshold']) === true && $params['voteThreshold'] !== '') ? (string) $params['voteThreshold'] : null;
-        $abstentionHandling = (isset($params['abstentionHandling']) === true && $params['abstentionHandling'] !== '') ? (string) $params['abstentionHandling'] : null;
-        $tieBreakRule       = (isset($params['tieBreakRule']) === true && $params['tieBreakRule'] !== '') ? (string) $params['tieBreakRule'] : null;
-        $governanceBodyId   = (isset($params['governanceBody']) === true && is_string($params['governanceBody']) === true && $params['governanceBody'] !== '') ? $params['governanceBody'] : null;
+        $voteThreshold = null;
+        if (isset($params['voteThreshold']) === true && $params['voteThreshold'] !== '') {
+            $voteThreshold = (string) $params['voteThreshold'];
+        }
+
+        $abstentionHandling = null;
+        if (isset($params['abstentionHandling']) === true && $params['abstentionHandling'] !== '') {
+            $abstentionHandling = (string) $params['abstentionHandling'];
+        }
+
+        $tieBreakRule = null;
+        if (isset($params['tieBreakRule']) === true && $params['tieBreakRule'] !== '') {
+            $tieBreakRule = (string) $params['tieBreakRule'];
+        }
+
+        $governanceBodyId = null;
+        if (isset($params['governanceBody']) === true
+            && is_string($params['governanceBody']) === true
+            && $params['governanceBody'] !== ''
+        ) {
+            $governanceBodyId = $params['governanceBody'];
+        }
 
         if ($voteThreshold !== null && in_array($voteThreshold, VotingService::VOTE_THRESHOLDS, true) === false) {
-            return new JSONResponse(['message' => 'voteThreshold must be one of: '.implode(', ', VotingService::VOTE_THRESHOLDS)], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(
+                ['message' => 'voteThreshold must be one of: '.implode(', ', VotingService::VOTE_THRESHOLDS)],
+                Http::STATUS_BAD_REQUEST
+            );
         }
 
         if ($abstentionHandling !== null && in_array($abstentionHandling, VotingService::ABSTENTION_MODES, true) === false) {
-            return new JSONResponse(['message' => 'abstentionHandling must be one of: '.implode(', ', VotingService::ABSTENTION_MODES)], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(
+                ['message' => 'abstentionHandling must be one of: '.implode(', ', VotingService::ABSTENTION_MODES)],
+                Http::STATUS_BAD_REQUEST
+            );
         }
 
         if ($tieBreakRule !== null && in_array($tieBreakRule, VotingService::TIE_BREAK_RULES, true) === false) {
-            return new JSONResponse(['message' => 'tieBreakRule must be one of: '.implode(', ', VotingService::TIE_BREAK_RULES)], Http::STATUS_BAD_REQUEST);
+            return new JSONResponse(
+                ['message' => 'tieBreakRule must be one of: '.implode(', ', VotingService::TIE_BREAK_RULES)],
+                Http::STATUS_BAD_REQUEST
+            );
         }
 
         $revoteOfRoundId = null;
@@ -393,7 +420,7 @@ class VotingController extends Controller
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        }
+        }//end try
 
     }//end open()
 

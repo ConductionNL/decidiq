@@ -64,9 +64,9 @@ class TranscriptionSourceResolver
     /**
      * Constructor.
      *
-     * @param ContainerInterface    $container     DI container (lazy OR services).
-     * @param LoggerInterface       $logger        The logger.
-     * @param MeetingFolderService  $folderService Meeting folder resolver.
+     * @param ContainerInterface   $container     DI container (lazy OR services).
+     * @param LoggerInterface      $logger        The logger.
+     * @param MeetingFolderService $folderService Meeting folder resolver.
      *
      * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
      */
@@ -76,7 +76,6 @@ class TranscriptionSourceResolver
         private readonly MeetingFolderService $folderService,
     ) {
     }//end __construct()
-
 
     /**
      * List the candidate transcription sources for a meeting.
@@ -103,7 +102,6 @@ class TranscriptionSourceResolver
         return $sources;
 
     }//end listSources()
-
 
     /**
      * List audio files in the meeting's NC Files folder.
@@ -156,7 +154,6 @@ class TranscriptionSourceResolver
         return $sources;
 
     }//end listMeetingFolderAudio()
-
 
     /**
      * Best-effort discovery of Talk call recordings for the meeting.
@@ -213,7 +210,6 @@ class TranscriptionSourceResolver
         return $sources;
 
     }//end listTalkRecordings()
-
 
     /**
      * Whether a file name has an audio/recording extension.

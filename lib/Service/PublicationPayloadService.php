@@ -71,11 +71,11 @@ class PublicationPayloadService
     {
         switch ($sourceType) {
             case 'decision':
-                return $this->buildDecisionPayload($source, $version);
+                return $this->buildDecisionPayload(source: $source, version: $version);
             case 'agenda':
-                return $this->buildAgendaPayload($source, $version);
+                return $this->buildAgendaPayload(source: $source, version: $version);
             case 'minutes':
-                return $this->buildMinutesPayload($source, $bodyId, $version);
+                return $this->buildMinutesPayload(source: $source, bodyId: $bodyId, version: $version);
             default:
                 throw new \InvalidArgumentException('Unknown publication source type: '.$sourceType);
         }
@@ -95,16 +95,16 @@ class PublicationPayloadService
     private function buildDecisionPayload(array $source, int $version): array
     {
         return [
-            'oriType'       => 'Besluit',
-            'schemaOrgType' => 'ChooseAction',
+            'oriType'        => 'Besluit',
+            'schemaOrgType'  => 'ChooseAction',
             'payloadVersion' => $version,
-            'title'         => (string) ($source['title'] ?? ''),
-            'text'          => (string) ($source['text'] ?? ''),
-            'outcome'       => (string) ($source['outcome'] ?? ''),
-            'decisionDate'  => ($source['decisionDate'] ?? null),
-            'legalBasis'    => (string) ($source['legalBasis'] ?? ''),
-            'bodyName'      => $this->resolveBodyName($source),
-            'voteTotals'    => $this->extractVoteTotals($source),
+            'title'          => (string) ($source['title'] ?? ''),
+            'text'           => (string) ($source['text'] ?? ''),
+            'outcome'        => (string) ($source['outcome'] ?? ''),
+            'decisionDate'   => ($source['decisionDate'] ?? null),
+            'legalBasis'     => (string) ($source['legalBasis'] ?? ''),
+            'bodyName'       => $this->resolveBodyName(source: $source),
+            'voteTotals'     => $this->extractVoteTotals(source: $source),
         ];
 
     }//end buildDecisionPayload()
@@ -121,10 +121,10 @@ class PublicationPayloadService
      */
     private function buildAgendaPayload(array $source, int $version): array
     {
-        $items     = $this->resolveAgendaItems($source);
+        $items     = $this->resolveAgendaItems(meeting: $source);
         $published = [];
         foreach ($items as $item) {
-            if ($this->isConfidentialItem($item) === true) {
+            if ($this->isConfidentialItem(item: $item) === true) {
                 // Strip the confidential item and ALL of its document references.
                 continue;
             }
@@ -145,14 +145,14 @@ class PublicationPayloadService
         );
 
         return [
-            'oriType'       => 'Vergadering',
-            'schemaOrgType' => 'Event',
+            'oriType'        => 'Vergadering',
+            'schemaOrgType'  => 'Event',
             'payloadVersion' => $version,
-            'title'         => (string) ($source['title'] ?? ''),
-            'bodyName'      => $this->resolveBodyName($source),
-            'meetingDate'   => ($source['scheduledDate'] ?? null),
-            'meetingType'   => (string) ($source['meetingType'] ?? ''),
-            'agendaItems'   => $published,
+            'title'          => (string) ($source['title'] ?? ''),
+            'bodyName'       => $this->resolveBodyName(source: $source),
+            'meetingDate'    => ($source['scheduledDate'] ?? null),
+            'meetingType'    => (string) ($source['meetingType'] ?? ''),
+            'agendaItems'    => $published,
         ];
 
     }//end buildAgendaPayload()
@@ -176,13 +176,13 @@ class PublicationPayloadService
         }
 
         return [
-            'oriType'       => 'Verslag',
-            'schemaOrgType' => 'CreativeWork',
+            'oriType'        => 'Verslag',
+            'schemaOrgType'  => 'CreativeWork',
             'payloadVersion' => $version,
-            'title'         => (string) ($source['title'] ?? ''),
-            'bodyName'      => $this->resolveBodyName($source),
-            'content'       => (string) ($source['content'] ?? ''),
-            'attendance'    => $this->renderAttendance($source, $policy),
+            'title'          => (string) ($source['title'] ?? ''),
+            'bodyName'       => $this->resolveBodyName(source: $source),
+            'content'        => (string) ($source['content'] ?? ''),
+            'attendance'     => $this->renderAttendance(source: $source, policy: $policy),
         ];
 
     }//end buildMinutesPayload()

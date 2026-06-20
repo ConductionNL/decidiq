@@ -42,7 +42,6 @@ use Psr\Log\LoggerInterface;
  */
 class TranscriptionJob extends QueuedJob
 {
-
     /**
      * Constructor.
      *
@@ -60,7 +59,6 @@ class TranscriptionJob extends QueuedJob
         parent::__construct(time: $time);
 
     }//end __construct()
-
 
     /**
      * Run the transcription for the enqueued transcript id.
@@ -86,7 +84,7 @@ class TranscriptionJob extends QueuedJob
         try {
             $this->transcriptionService->process(transcriptId: $transcriptId);
         } catch (\Throwable $e) {
-            // process() already marks the Transcript failed for provider errors;
+            // Process() already marks the Transcript failed for provider errors;
             // this catch covers infrastructure faults (e.g. OR briefly down) so
             // the cron worker never crashes on a single bad job.
             $this->logger->error(

@@ -78,10 +78,10 @@ class VotingService
     /**
      * Constructor for VotingService.
      *
-     * @param ContainerInterface    $container             The DI container
-     * @param LoggerInterface       $logger                The logger
-     * @param OriPublicationService $oriPublicationService The ORI publication service
-     * @param MotionService         $motionService         The motion service for lifecycle transitions
+     * @param ContainerInterface     $container             The DI container
+     * @param LoggerInterface        $logger                The logger
+     * @param OriPublicationService  $oriPublicationService The ORI publication service
+     * @param MotionService          $motionService         The motion service for lifecycle transitions
      * @param ParticipantResolver    $participantResolver   Participant resolver for meeting-based membership checks
      * @param ProcessTemplateService $templateService       Resolves a body's template voting-rule defaults (process-configuration)
      *
@@ -355,11 +355,12 @@ class VotingService
      * @param string|null   $tieBreakRule         Tie-break rule (see TIE_BREAK_RULES); null = body template default, then rejected
      * @param string|null   $revoteOfRoundId      UUID of a tied round this round is the single permitted revote of
      * @param string        $subjectType          What is being voted: 'motion' (default) or 'amendment' (fail closed)
-     * @param string|null   $governanceBodyId     Body opening the round; when set, its process template supplies rule defaults (process-configuration)
+     * @param string|null   $governanceBodyId     Body opening the round; when set, its process template supplies rule defaults
      *
      * @return array<string,mixed> The created voting round object with excludedPresetUuids key if any UUIDs were excluded
      *
-     * @throws \RuntimeException         When quorum is not met, the revote guard fails, the amendment ordering rule is violated, or lifecycle transition fails
+     * @throws \RuntimeException         When quorum is not met, the revote guard fails, the amendment ordering rule is violated,
+     *                                   or lifecycle transition fails
      * @throws \InvalidArgumentException When a rule or subjectType value is not in its enum (fail closed)
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
@@ -381,7 +382,7 @@ class VotingService
         string $subjectType='motion',
         ?string $governanceBodyId=null,
     ): array {
-        // process-configuration: resolution order per rule is caller value (non-null) ->
+        // Process-configuration: resolution order per rule is caller value (non-null) ->
         // body template default -> built-in default. The caller (controller) always passes
         // explicit values, so it always wins; the template only fills nulls.
         $templateRule       = $this->templateService->resolveVotingRuleForBody(governanceBodyId: $governanceBodyId);
@@ -559,7 +560,8 @@ class VotingService
             if ($pending !== []) {
                 throw new \RuntimeException(
                     sprintf(
-                        'Cannot open a voting round on the motion: %d amendment(s) must be decided first (amendments are voted before the main motion): %s',
+                        'Cannot open a voting round on the motion: %d amendment(s) must be decided first '
+                        .'(amendments are voted before the main motion): %s',
                         count($pending),
                         implode(', ', $pending)
                     )
@@ -567,7 +569,7 @@ class VotingService
             }
 
             return;
-        }
+        }//end if
 
         // Amendment round: resolve the amendment and its parent motion.
         $amendmentEntity = $this->objectService()->find(id: $subjectId, register: 'decidesk', schema: 'amendment');
@@ -605,8 +607,18 @@ class VotingService
             static function (array $a, array $b): int {
                 $orderA = $a['votingOrder'] ?? null;
                 $orderB = $b['votingOrder'] ?? null;
-                $rankA  = (is_numeric($orderA) === true) ? (int) $orderA : PHP_INT_MAX;
-                $rankB  = (is_numeric($orderB) === true) ? (int) $orderB : PHP_INT_MAX;
+                if (is_numeric($orderA) === true) {
+                    $rankA = (int) $orderA;
+                } else {
+                    $rankA = PHP_INT_MAX;
+                }
+
+                if (is_numeric($orderB) === true) {
+                    $rankB = (int) $orderB;
+                } else {
+                    $rankB = PHP_INT_MAX;
+                }
+
                 if ($rankA !== $rankB) {
                     return ($rankA <=> $rankB);
                 }
@@ -1458,10 +1470,10 @@ class VotingService
      *
      * Integer math throughout — no float threshold comparisons.
      *
-     * @param int                  $for     Weighted for-votes
-     * @param int                  $against Weighted against-votes
-     * @param int                  $abstain Weighted abstentions
-     * @param array<string,mixed>  $round   The voting round (rules + chairCastingVote are read from it)
+     * @param int                 $for     Weighted for-votes
+     * @param int                 $against Weighted against-votes
+     * @param int                 $abstain Weighted abstentions
+     * @param array<string,mixed> $round   The voting round (rules + chairCastingVote are read from it)
      *
      * @return array{result: string, base: int, voteThreshold: string, abstentionHandling: string, tieBreakRule: string}
      *
@@ -1525,7 +1537,7 @@ class VotingService
 
             // Default 'rejected': a tied motion fails (legal status quo).
             return (['result' => 'rejected'] + $meta);
-        }
+        }//end if
 
         if ($base === 0) {
             return (['result' => 'rejected'] + $meta);
@@ -1602,12 +1614,12 @@ class VotingService
 
         // Update VotingRound with tally + the applied rules and base (audit trail).
         if ($round !== null) {
-            $round['votesFor']           = $for;
-            $round['votesAgainst']       = $against;
-            $round['votesAbstain']       = $abstain;
-            $round['result']             = $result;
-            $round['voteBase']           = $computed['base'];
-            $round['voteThreshold']      = $computed['voteThreshold'];
+            $round['votesFor']      = $for;
+            $round['votesAgainst']  = $against;
+            $round['votesAbstain']  = $abstain;
+            $round['result']        = $result;
+            $round['voteBase']      = $computed['base'];
+            $round['voteThreshold'] = $computed['voteThreshold'];
             $round['abstentionHandling'] = $computed['abstentionHandling'];
             $round['tieBreakRule']       = $computed['tieBreakRule'];
             $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
@@ -1695,12 +1707,12 @@ class VotingService
             round: $round
         );
 
-        $round['votesFor']           = $votesFor;
-        $round['votesAgainst']       = $votesAgainst;
-        $round['votesAbstain']       = $votesAbstain;
-        $round['result']             = $computed['result'];
-        $round['voteBase']           = $computed['base'];
-        $round['voteThreshold']      = $computed['voteThreshold'];
+        $round['votesFor']      = $votesFor;
+        $round['votesAgainst']  = $votesAgainst;
+        $round['votesAbstain']  = $votesAbstain;
+        $round['result']        = $computed['result'];
+        $round['voteBase']      = $computed['base'];
+        $round['voteThreshold'] = $computed['voteThreshold'];
         $round['abstentionHandling'] = $computed['abstentionHandling'];
         $round['tieBreakRule']       = $computed['tieBreakRule'];
 
@@ -2055,7 +2067,7 @@ class VotingService
                 [
                     'filters' => [
                         '_relations.budget-proposal' => $proposalId,
-                        'voterId'                     => $voterId,
+                        'voterId'                    => $voterId,
                     ],
                 ]
             ),
@@ -2135,7 +2147,7 @@ class VotingService
 
         $proposalEntity = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
         if ($proposalEntity !== null) {
-            $proposal                 = $proposalEntity->jsonSerialize();
+            $proposal = $proposalEntity->jsonSerialize();
             $proposal['votesFor']     = $for;
             $proposal['votesAgainst'] = $against;
             $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
