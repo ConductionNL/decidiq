@@ -226,7 +226,6 @@ class Application extends App implements IBootstrap
                 static function ($c): OverdueActionItemsJob {
                     return new OverdueActionItemsJob(
                     time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
@@ -731,11 +730,7 @@ class Application extends App implements IBootstrap
         $context->registerService(
             MigrateActionItemsToDeckLeaf::class,
             static function ($c): MigrateActionItemsToDeckLeaf {
-                return new MigrateActionItemsToDeckLeaf(
-                    settingsService: $c->get(\OCA\Decidesk\Service\SettingsService::class),
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
+                return new MigrateActionItemsToDeckLeaf();
             }
         );
 

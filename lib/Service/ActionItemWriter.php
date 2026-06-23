@@ -133,7 +133,16 @@ class ActionItemWriter
                 return null;
             }
 
-            $merged = array_merge($located, $changes);
+            // Flatten the existing round-tripped non-core fields to the top level
+            // so unchanged fields (e.g. assignee) survive, then apply the changes.
+            $existingFields = ($located['fields'] ?? []);
+            if (is_array($existingFields) === false) {
+                $existingFields = [];
+            }
+
+            $base = array_merge($located, $existingFields);
+            unset($base['fields']);
+            $merged = array_merge($base, $changes);
             $data   = $this->toTaskData(item: $merged, title: (string) ($merged['title'] ?? $merged['summary'] ?? 'Action item'));
 
             return $taskService->updateTask(
