@@ -79,6 +79,7 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import { ensureRelationType } from './useRelationStore.js'
+import { createActionItem, updateActionItem, deleteActionItem } from '../../services/actionItemApi.js'
 
 export default {
 	name: 'DecisionActionItemsTab',
@@ -171,9 +172,15 @@ export default {
 		},
 		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async onConfirm(formData) {
-			const store = ensureRelationType('action-item')
+			// Action items are read-only VTODO projections — write via the VTODO
+			// endpoints (action-items-vtodo-deck-reconcile), not the object API.
 			try {
-				await store.saveObject('action-item', { ...formData, decision: this.objectId })
+				const uid = this.editTarget && (this.editTarget.uuid || this.editTarget.id || this.editTarget['@self']?.uuid)
+				if (uid) {
+					await updateActionItem(uid, { ...formData, decision: this.objectId })
+				} else {
+					await createActionItem({ ...formData, decision: this.objectId })
+				}
 				this.$refs.formDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {
@@ -182,9 +189,9 @@ export default {
 		},
 		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
 		async confirmDelete() {
-			const store = ensureRelationType('action-item')
 			try {
-				await store.deleteObject('action-item', this.deleteTarget.id)
+				const uid = this.deleteTarget && (this.deleteTarget.uuid || this.deleteTarget.id || this.deleteTarget['@self']?.uuid)
+				await deleteActionItem(uid)
 				this.$refs.deleteDialog?.setResult({ success: true })
 				this.refresh()
 			} catch (e) {

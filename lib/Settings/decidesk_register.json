@@ -3268,9 +3268,9 @@
         },
         "slug": "action-item",
         "icon": "CheckboxMarkedOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "ActionItem",
-        "description": "A follow-up task from a meeting decision",
+        "description": "A follow-up task from a meeting decision. Backed by CalDAV VTODOs (ADR-002): this schema is a READ-ONLY OpenRegister projection over the user's action-item VTODOs (action-items-vtodo-deck-reconcile). Writes go through the decidesk action-item endpoints / ActionItemWriter (OpenRegister TaskService), never ObjectService::saveObject.",
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:ActionItem",
@@ -3278,6 +3278,10 @@
           "hardDelete": false,
           "searchable": true,
           "mailEnabled": false
+        },
+        "x-openregister-object-source": {
+          "provider": "caldav-vtodo",
+          "readOnly": true
         },
         "required": [
           "title",

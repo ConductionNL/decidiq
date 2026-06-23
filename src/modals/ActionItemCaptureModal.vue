@@ -55,7 +55,7 @@
 
 <script>
 import { NcButton, NcDateTimePickerNative, NcDialog, NcSelect, NcTextField } from '@nextcloud/vue'
-import { ensureRelationType } from '../components/tabs/useRelationStore.js'
+import { createActionItem } from '../services/actionItemApi.js'
 
 export default {
 	name: 'ActionItemCaptureModal',
@@ -93,7 +93,6 @@ export default {
 			this.saving = true
 			this.error = ''
 			try {
-				const store = ensureRelationType('action-item')
 				const payload = {
 					title: this.title.trim(),
 					taskStatus: 'open',
@@ -112,7 +111,7 @@ export default {
 						{ title: this.agendaItem.title || this.agendaItem.id },
 					)
 				}
-				await store.saveObject('action-item', payload)
+				await createActionItem(payload)
 				this.$emit('saved')
 				this.$emit('close')
 			} catch (e) {

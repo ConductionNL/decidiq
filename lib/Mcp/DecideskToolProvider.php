@@ -921,13 +921,19 @@ class DecideskToolProvider implements IMcpToolProvider
         }
 
         try {
-            $persisted = $objectService->saveObject(
-                register: 'decidesk',
-                schema: 'ActionItem',
-                object: $actionItemData,
-            );
-            $saved     = $this->toArray(item: $persisted);
-            $itemUuid  = $this->extractUuid(item: $saved);
+            // The action-item schema is a read-only VTODO projection, so create
+            // via ActionItemWriter (TaskService) rather than ObjectService::saveObject.
+            $writer = $this->container->get(\OCA\Decidesk\Service\ActionItemWriter::class);
+            $saved  = $writer->create(item: $actionItemData);
+            if ($saved === null) {
+                return [
+                    'isError' => true,
+                    'error'   => 'create_failed',
+                    'message' => 'Could not create the action item.',
+                ];
+            }
+
+            $itemUuid = (string) ($saved['uid'] ?? $saved['id'] ?? '');
 
             return [
                 'success'    => true,
