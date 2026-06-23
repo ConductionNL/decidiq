@@ -107,11 +107,6 @@
 			"config": {
 				"widgets": [
 					{
-						"id": "quick-actions",
-						"type": "custom",
-						"title": "Quick actions"
-					},
-					{
 						"id": "active-decisions",
 						"type": "stat",
 						"title": "Decisions",
@@ -181,19 +176,10 @@
 				},
 				"layout": [
 					{
-						"id": "0",
-						"widgetId": "quick-actions",
-						"gridX": 0,
-						"gridY": 0,
-						"gridWidth": 12,
-						"gridHeight": 1,
-						"showTitle": false
-					},
-					{
 						"id": "1",
 						"widgetId": "active-decisions",
 						"gridX": 0,
-						"gridY": 1,
+						"gridY": 0,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -203,7 +189,7 @@
 						"id": "2",
 						"widgetId": "upcoming-meetings-kpi",
 						"gridX": 3,
-						"gridY": 1,
+						"gridY": 0,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -213,7 +199,7 @@
 						"id": "3",
 						"widgetId": "pending-votes-kpi",
 						"gridX": 6,
-						"gridY": 1,
+						"gridY": 0,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -223,7 +209,7 @@
 						"id": "4",
 						"widgetId": "overdue-actions-kpi",
 						"gridX": 9,
-						"gridY": 1,
+						"gridY": 0,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -233,7 +219,7 @@
 						"id": "5",
 						"widgetId": "upcoming-meetings-list",
 						"gridX": 0,
-						"gridY": 3,
+						"gridY": 2,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -242,7 +228,7 @@
 						"id": "6",
 						"widgetId": "pending-votes-list",
 						"gridX": 6,
-						"gridY": 3,
+						"gridY": 2,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -251,7 +237,7 @@
 						"id": "7",
 						"widgetId": "running-processes",
 						"gridX": 0,
-						"gridY": 7,
+						"gridY": 6,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -260,7 +246,7 @@
 						"id": "8",
 						"widgetId": "my-action-items",
 						"gridX": 6,
-						"gridY": 7,
+						"gridY": 6,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -269,7 +255,7 @@
 						"id": "9",
 						"widgetId": "recent-decisions",
 						"gridX": 0,
-						"gridY": 11,
+						"gridY": 10,
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
@@ -278,7 +264,7 @@
 				"documentationUrl": "https://decidesk.conduction.nl"
 			},
 			"slots": {
-				"widget-quick-actions": "DashboardQuickActions",
+				"header-actions": "DashboardQuickActions",
 				"widget-pending-votes-kpi": "PendingVotesKpiWidget",
 				"widget-pending-votes-list": "PendingVotesListWidget",
 				"widget-running-processes": "RunningProcessesWidget",

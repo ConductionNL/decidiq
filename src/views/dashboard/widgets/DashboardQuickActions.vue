@@ -1,9 +1,10 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 <!-- SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl> -->
 <!--
- DashboardQuickActions — a compact row of primary quick-start buttons on the
- dashboard. Currently surfaces "Start decision-making process" (routes to the
- Decisions index, the entry point of the decision lifecycle). Add further
+ DashboardQuickActions — primary quick-start action(s) for the dashboard,
+ rendered in the page header (CnDashboardPage #header-actions slot, beside the
+ Actions menu). Currently surfaces "Start decision-making process" (routes to
+ the Decisions index, the entry point of the decision lifecycle). Add further
  quick actions here as needed.
 -->
 <template>
@@ -36,9 +37,7 @@ export default {
 <style scoped>
 .decidesk-quick-actions {
 	display: flex;
-	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--default-grid-baseline, 8px);
-	padding: 8px 4px;
 }
 </style>
