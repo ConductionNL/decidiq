@@ -1,6 +1,9 @@
 ---
-status: done
+status: in-progress
 ---
+
+<!-- Active OpenSpec changes: action-item-deck-board (REQ-AI-DECK-007/008/009),
+     action-item-vtodo-migration (REQ-AI-DECK-010/011/012). -->
 
 # action-item-board-via-deck-leaf Specification
 
