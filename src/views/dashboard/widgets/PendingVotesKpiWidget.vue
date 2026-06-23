@@ -19,6 +19,7 @@
 		:icon="VoteOutline"
 		:variant="variant"
 		:loading="loading"
+		:route="{ name: 'Decisions' }"
 		show-zero-count
 		horizontal
 		data-testid="pending-votes-kpi" />
@@ -29,7 +30,7 @@ import { getCurrentUser } from '@nextcloud/auth'
 import { CnStatsBlock } from '@conduction/nextcloud-vue'
 import VoteOutline from 'vue-material-design-icons/VoteOutline.vue'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
-import { resolveParticipantId, pendingVotingRounds } from './widgetLogic.js'
+import { resolveParticipantId, pendingVotingRounds, pendingInRange } from './widgetLogic.js'
 import { getParticipants, getVotingRounds, getVotes } from '../../../services/dashboardData.js'
 
 export default {
@@ -38,6 +39,16 @@ export default {
 	components: { CnStatsBlock },
 
 	mixins: [dashboardRefreshMixin],
+
+	inject: {
+		/**
+		 * Reactive dashboard date-range ref provided by CnDashboardPage
+		 * (`{ from, to, preset }` or null). Scopes the count to the active
+		 * window by votingDeadline; null / the "All" preset counts every
+		 * pending round.
+		 */
+		cnDashboardDateRange: { default: null },
+	},
 
 	data() {
 		return {
@@ -49,12 +60,25 @@ export default {
 
 	computed: {
 		/**
-		 * Number of pending votes for the current user.
+		 * The unwrapped active date window (`{ from, to, preset }`) or null.
+		 *
+		 * @return {object|null} The dashboard date range.
+		 */
+		activeRange() {
+			const r = this.cnDashboardDateRange
+			if (!r) {
+				return null
+			}
+			return (typeof r === 'object' && 'value' in r) ? r.value : r
+		},
+
+		/**
+		 * Number of pending votes for the current user within the active window.
 		 *
 		 * @return {number} Count of open rounds awaiting the user's vote.
 		 */
 		count() {
-			return this.pending.length
+			return pendingInRange(this.pending, this.activeRange).length
 		},
 
 		/**

@@ -107,16 +107,21 @@
 			"config": {
 				"widgets": [
 					{
+						"id": "quick-actions",
+						"type": "custom",
+						"title": "Quick actions"
+					},
+					{
 						"id": "active-decisions",
 						"type": "stat",
-						"title": "Active decisions",
-						"content": { "label": "Decisions", "icon": "ScaleBalance", "valueColor": "#1a4a72", "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "decision", "metric": "count", "filter": {} } }
+						"title": "Decisions",
+						"content": { "label": "Decisions", "icon": "ScaleBalance", "valueColor": "#1a4a72", "route": { "name": "Decisions" }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "decision", "metric": "count", "filter": { "decisionDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
 					},
 					{
 						"id": "upcoming-meetings-kpi",
 						"type": "stat",
 						"title": "Upcoming meetings",
-						"content": { "label": "Upcoming meetings", "icon": "Calendar", "valueColor": "#0082c9", "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "meeting", "metric": "count", "filter": { "lifecycle": "scheduled" } } }
+						"content": { "label": "Upcoming meetings", "icon": "Calendar", "valueColor": "#0082c9", "route": { "name": "Meetings" }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "meeting", "metric": "count", "filter": { "lifecycle": "scheduled", "scheduledDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
 					},
 					{
 						"id": "pending-votes-kpi",
@@ -127,7 +132,7 @@
 						"id": "overdue-actions-kpi",
 						"type": "stat",
 						"title": "Open action items",
-						"content": { "label": "Open action items", "icon": "ClipboardList", "valueColor": "#c7860c", "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "action-item", "metric": "count", "filter": { "taskStatus": ["open", "in-progress"] } } }
+						"content": { "label": "Open action items", "icon": "ClipboardList", "valueColor": "#c7860c", "route": { "name": "ActionItems" }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "action-item", "metric": "count", "filter": { "taskStatus": ["open", "in-progress"], "dueDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
 					},
 					{
 						"id": "upcoming-meetings-list",
@@ -162,48 +167,73 @@
 						"title": "Welcome"
 					}
 				],
+				"dateRange": {
+					"enabled": true,
+					"showHeaderPicker": false,
+					"persistKey": "decidesk.dashboard.range",
+					"default": { "preset": "all" },
+					"presets": [
+						{ "id": "last-7", "label": "7d", "days": 7 },
+						{ "id": "last-30", "label": "30d", "days": 30 },
+						{ "id": "last-90", "label": "90d", "days": 90 },
+						{ "id": "all", "label": "All", "days": null }
+					]
+				},
 				"layout": [
+					{
+						"id": "0",
+						"widgetId": "quick-actions",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 1,
+						"showTitle": false
+					},
 					{
 						"id": "1",
 						"widgetId": "active-decisions",
 						"gridX": 0,
-						"gridY": 0,
+						"gridY": 1,
 						"gridWidth": 3,
 						"gridHeight": 2,
-						"showTitle": false
+						"showTitle": false,
+						"dateChip": true
 					},
 					{
 						"id": "2",
 						"widgetId": "upcoming-meetings-kpi",
 						"gridX": 3,
-						"gridY": 0,
+						"gridY": 1,
 						"gridWidth": 3,
 						"gridHeight": 2,
-						"showTitle": false
+						"showTitle": false,
+						"dateChip": true
 					},
 					{
 						"id": "3",
 						"widgetId": "pending-votes-kpi",
 						"gridX": 6,
-						"gridY": 0,
+						"gridY": 1,
 						"gridWidth": 3,
 						"gridHeight": 2,
-						"showTitle": false
+						"showTitle": false,
+						"dateChip": true
 					},
 					{
 						"id": "4",
 						"widgetId": "overdue-actions-kpi",
 						"gridX": 9,
-						"gridY": 0,
+						"gridY": 1,
 						"gridWidth": 3,
 						"gridHeight": 2,
-						"showTitle": false
+						"showTitle": false,
+						"dateChip": true
 					},
 					{
 						"id": "5",
 						"widgetId": "upcoming-meetings-list",
 						"gridX": 0,
-						"gridY": 2,
+						"gridY": 3,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -212,7 +242,7 @@
 						"id": "6",
 						"widgetId": "pending-votes-list",
 						"gridX": 6,
-						"gridY": 2,
+						"gridY": 3,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -221,7 +251,7 @@
 						"id": "7",
 						"widgetId": "running-processes",
 						"gridX": 0,
-						"gridY": 6,
+						"gridY": 7,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -230,7 +260,7 @@
 						"id": "8",
 						"widgetId": "my-action-items",
 						"gridX": 6,
-						"gridY": 6,
+						"gridY": 7,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -239,7 +269,7 @@
 						"id": "9",
 						"widgetId": "recent-decisions",
 						"gridX": 0,
-						"gridY": 10,
+						"gridY": 11,
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
@@ -248,6 +278,7 @@
 				"documentationUrl": "https://decidesk.conduction.nl"
 			},
 			"slots": {
+				"widget-quick-actions": "DashboardQuickActions",
 				"widget-pending-votes-kpi": "PendingVotesKpiWidget",
 				"widget-pending-votes-list": "PendingVotesListWidget",
 				"widget-running-processes": "RunningProcessesWidget",
@@ -1446,13 +1477,13 @@
 							{
 								"key": "ori_endpoint",
 								"type": "string",
-								"label": "ORI-eindpunt",
+								"label": "ORI endpoint",
 								"help": "ORI API endpoint URL for publishing voting results"
 							},
 							{
 								"key": "email_voting_enabled",
 								"type": "boolean",
-								"label": "E-mail stemmen inschakelen",
+								"label": "Enable email voting",
 								"help": "Enable email reply voting"
 							}
 						]

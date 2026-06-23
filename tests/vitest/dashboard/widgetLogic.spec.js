@@ -20,6 +20,8 @@ import {
 	toTime,
 	resolveParticipantId,
 	pendingVotingRounds,
+	withinDeadlineRange,
+	pendingInRange,
 	isUrgent,
 	countdownBucket,
 	isUpcoming,
@@ -310,5 +312,33 @@ describe('governance health (REQ-004)', () => {
 		const { series } = healthSeries([])
 		expect(series[0].data).toEqual([])
 		expect(series[1].data).toEqual([])
+	})
+})
+
+describe('pendingInRange / withinDeadlineRange (date-range pills)', () => {
+	const rounds = [
+		{ id: 'r1', votingDeadline: '2026-06-10T12:00:00Z' },
+		{ id: 'r2', votingDeadline: '2026-06-20T12:00:00Z' },
+		{ id: 'r3' }, // no deadline
+	]
+
+	it('no range (or All) → every round matches, undated included', () => {
+		expect(pendingInRange(rounds, null)).toHaveLength(3)
+		expect(pendingInRange(rounds, { from: '', to: '' })).toHaveLength(3)
+	})
+
+	it('bounded window keeps rounds whose deadline is inside it', () => {
+		const range = { from: '2026-06-01T00:00:00Z', to: '2026-06-15T23:59:59Z' }
+		expect(pendingInRange(rounds, range).map((r) => r.id)).toEqual(['r1'])
+	})
+
+	it('bounded window excludes rounds with no parseable deadline', () => {
+		const range = { from: '2026-06-01T00:00:00Z', to: '2026-06-30T23:59:59Z' }
+		expect(withinDeadlineRange({ id: 'x' }, range)).toBe(false)
+		expect(pendingInRange(rounds, range).map((r) => r.id)).toEqual(['r1', 'r2'])
+	})
+
+	it('an open-ended bound treats the missing side as unbounded', () => {
+		expect(pendingInRange(rounds, { from: '2026-06-15T00:00:00Z', to: '' }).map((r) => r.id)).toEqual(['r2'])
 	})
 })

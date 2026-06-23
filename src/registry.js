@@ -33,6 +33,7 @@ import AgendaItemIntegrations from './views/AgendaItemIntegrations.vue'
 // decidesk-dashboard-v2-layout inserts the widgets/layout/dataSources.
 import CreateMeetingAction from './views/dashboard/widgets/CreateMeetingAction.vue'
 import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue'
+import DashboardQuickActions from './views/dashboard/widgets/DashboardQuickActions.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
 import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWidget.vue'
 import RunningProcessesWidget from './views/dashboard/widgets/RunningProcessesWidget.vue'
@@ -216,6 +217,9 @@ export default {
 	}),
 	StartProcessAction: widget(StartProcessAction, {
 		defaultSize: { w: 1, h: 1 }, minSize: { w: 1, h: 1 }, maxSize: { w: 2, h: 1 }, allowedSlots: ['dashboard'],
+	}),
+	DashboardQuickActions: widget(DashboardQuickActions, {
+		defaultSize: { w: 12, h: 1 }, minSize: { w: 3, h: 1 }, maxSize: { w: 12, h: 1 }, allowedSlots: ['dashboard'],
 	}),
 
 	// Decision state machine (decision-state-machine-v1): lifecycle

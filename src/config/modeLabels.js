@@ -37,7 +37,7 @@ export const MODE_LABELS = {
 	 * Decisions = Besluiten, Meetings = Vergaderingen.
 	 */
 	gov: {
-		Bodies: 'Fracties & Organen',
+		Bodies: 'Factions & bodies',
 		// Scaffold — canonical labels fall through to standard l10n:
 		// Meetings    → 'Meetings'    (resolved as 'Vergaderingen' by nl_NL)
 		// Decisions   → 'Decisions'   (resolved as 'Besluiten' by nl_NL)
@@ -63,7 +63,7 @@ export const MODE_LABELS = {
 	 * Bodies = Fracties & commissies (fractions and committees).
 	 */
 	assoc: {
-		Bodies: 'Fracties & commissies',
+		Bodies: 'Factions & committees',
 		// Scaffold:
 		// Meetings    → 'Meetings'
 		// Decisions   → 'Decisions'
