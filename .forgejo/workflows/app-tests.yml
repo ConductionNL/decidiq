@@ -1,9 +1,27 @@
-# app-tests.yml — decidesk caller for the reusable feature-test workflow.
+# app-tests.yml — decidesk feature-test gates (PHASE-5).
 #
-# Runs the PHASE-5 testing layers on every PR to the protected branches.
-# phpunit-unit + l10n-check HARD-GATE; e2e/newman are scaffolded and opt-in
-# (run-e2e / run-newman) until the NC service container is wired (see tests.yml
-# TODOs). Additive — sits alongside the existing release/quality workflows.
+# NOTE (2026-06-20): this workflow was previously a thin caller that did
+#   jobs.tests.uses: ./.forgejo/workflows/tests.yml
+# i.e. a reusable `workflow_call` workflow. Codeberg's Forgejo build
+# (15.0.0-156-02d7aaa8) does NOT execute reusable-workflow callers: such a
+# caller posts a file-level `app-tests.yml /...` commit-status "Failing after
+# 0s" and never dispatches a run (no app-tests / tests run has EVER appeared
+# in the actions task list, fleet-wide). Reusable-workflow expansion only
+# landed in Forgejo via PR #10525 (merged 2025-12-24, v15.0.0) and is not
+# active on this instance. The fix is to INLINE the jobs the reusable defined
+# so this is a normal top-level workflow that the runner actually executes.
+# The only per-app knob was `app-id`; here it is hardcoded to `decidesk`.
+#
+# Layers, and what gates today:
+#   • phpunit-unit             — HARD GATE. tests/Unit via phpunit-unit.xml
+#                                (standalone bootstrap, vendor OCP stubs, no NC).
+#   • l10n-check               — HARD GATE. tests/l10n/check-l10n.js drift guard.
+#   • frontend-unit            — HARD GATE. offline Vitest (tests/vitest/**).
+#   • phpunit-coverage-ratchet — HARD GATE. backend line-coverage ratchet.
+#   • frontend-coverage-ratchet— HARD GATE. frontend line-coverage ratchet.
+#   • e2e-deep / newman        — SCAFFOLDED, opt-in via workflow_dispatch; the
+#                                LIVE-NC gates live in app-tests-live.yml.
+# Additive — does not touch pre-merge-check-strict.yaml or any release workflow.
 
 name: app-tests
 
@@ -13,6 +31,10 @@ on:
       - development
       - main
       - beta
+  push:
+    branches:
+      - development
+      - main
   workflow_dispatch:
     inputs:
       run-e2e:
@@ -26,9 +48,154 @@ permissions:
   contents: read
 
 jobs:
-  tests:
-    uses: ./.forgejo/workflows/tests.yml
-    with:
-      app-id: decidesk
-      run-e2e: ${{ github.event.inputs.run-e2e == 'true' }}
-      run-newman: ${{ github.event.inputs.run-newman == 'true' }}
+  # ---------------------------------------------------------------------------
+  # HARD GATE 1 — PHPUnit unit suite (no NC needed; vendor OCP stubs).
+  # ---------------------------------------------------------------------------
+  phpunit-unit:
+    name: PHPUnit unit (decidesk)
+    runs-on: docker
+    container:
+      image: code.forgejo.org/oci/ci-php:8.3
+    steps:
+      - name: Checkout
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: Install composer deps
+        # edgedesign/phpqa (require-dev) pulls ext-xsl, absent from ci-php:8.3.
+        # The unit suite never touches phpqa, so ignore that platform req.
+        run: composer install --no-interaction --no-progress --prefer-dist --ignore-platform-req=ext-xsl
+
+      - name: Run unit suite (phpunit-unit.xml)
+        run: ./vendor/bin/phpunit --configuration phpunit-unit.xml --no-coverage --colors=never
+
+  # ---------------------------------------------------------------------------
+  # HARD GATE 2 — l10n extraction-drift check (no NC needed; pure Node).
+  # ---------------------------------------------------------------------------
+  l10n-check:
+    name: l10n extraction check (decidesk)
+    runs-on: docker
+    container:
+      image: code.forgejo.org/oci/ci-node:20
+    steps:
+      - name: Checkout
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: Assert every t() source string is in l10n/en.json
+        run: node tests/l10n/check-l10n.js
+
+  # ---------------------------------------------------------------------------
+  # HARD GATE 3 — frontend unit suite (Vitest, OFFLINE; no NC needed).
+  # ---------------------------------------------------------------------------
+  frontend-unit:
+    name: Frontend unit (Vitest — decidesk)
+    runs-on: docker
+    container:
+      image: code.forgejo.org/oci/ci-node:20
+    steps:
+      - name: Checkout
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: Install npm deps
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Run Vitest unit suite
+        run: npm run test:unit
+
+  # ---------------------------------------------------------------------------
+  # HARD GATE 4 — PHPUnit COVERAGE RATCHET (PCOV; fails on a drop).
+  # ---------------------------------------------------------------------------
+  phpunit-coverage-ratchet:
+    name: PHPUnit coverage ratchet (decidesk)
+    runs-on: docker
+    container:
+      image: code.forgejo.org/oci/ci-php:8.3
+    steps:
+      - name: Checkout
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: Ensure a coverage driver (PCOV)
+        run: |
+          if ! php -m | grep -qiE 'pcov|xdebug'; then
+            (pecl install pcov && docker-php-ext-enable pcov) \
+              || echo "WARN: could not install pcov — coverage step may report no driver"
+          fi
+          php -m | grep -qiE 'pcov|xdebug' && echo "coverage driver: present" \
+            || echo "coverage driver: ABSENT (ratchet will no-op)"
+
+      - name: Install composer deps
+        run: composer install --no-interaction --no-progress --prefer-dist --ignore-platform-req=ext-xsl
+
+      - name: Run unit suite WITH coverage (clover)
+        run: |
+          php -d pcov.enabled=1 -d pcov.directory=lib \
+            ./vendor/bin/phpunit --configuration phpunit-unit.xml \
+            --coverage-clover coverage/clover.xml --colors=never || true
+          test -f coverage/clover.xml || { echo "no clover.xml (driver absent?) — skipping ratchet"; exit 0; }
+
+      - name: Coverage ratchet (fail on drop)
+        run: |
+          test -f coverage/clover.xml || exit 0
+          bash tests/coverage-ratchet.sh phpunit coverage/clover.xml
+
+  # ---------------------------------------------------------------------------
+  # HARD GATE 5 — FRONTEND COVERAGE RATCHET (Vitest, v8 provider).
+  # ---------------------------------------------------------------------------
+  frontend-coverage-ratchet:
+    name: Frontend coverage ratchet (decidesk)
+    runs-on: docker
+    container:
+      image: code.forgejo.org/oci/ci-node:20
+    steps:
+      - name: Checkout
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: Install npm deps (+ coverage-v8)
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+          VITEST_VER="$(node -e "console.log(require('./node_modules/vitest/package.json').version)")"
+          npm install --no-save --legacy-peer-deps "@vitest/coverage-v8@${VITEST_VER}"
+
+      - name: Run Vitest WITH coverage (json-summary over src/**)
+        run: |
+          npx vitest run --coverage --coverage.provider=v8 \
+            --coverage.reporter=json-summary --coverage.reporter=text-summary \
+            --coverage.include='src/**' \
+            --coverage.reportsDirectory=coverage-vitest
+
+      - name: Coverage ratchet (fail on drop)
+        run: bash tests/coverage-ratchet.sh vitest coverage-vitest/coverage-summary.json
+
+  # ---------------------------------------------------------------------------
+  # SCAFFOLD — deep e2e (opt-in via run-e2e). Needs a live NC; the gating
+  # live rig is app-tests-live.yml. Non-gating here.
+  # ---------------------------------------------------------------------------
+  e2e-deep:
+    name: Deep e2e (scaffold — needs NC)
+    if: ${{ github.event.inputs.run-e2e == 'true' }}
+    runs-on: docker
+    steps:
+      - name: Checkout
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: TODO — boot seeded NC, then run deep e2e
+        run: |
+          echo "Deep e2e requires a live, seeded Nextcloud (see app-tests-live.yml)."
+          echo "Local: npm ci && npm run test:e2e:install && npm run test:e2e -- tests/e2e/workflows"
+          echo "Skipping in CI until the NC service container is wired."
+
+  # ---------------------------------------------------------------------------
+  # SCAFFOLD — Newman API-contract (opt-in via run-newman). Non-gating here.
+  # ---------------------------------------------------------------------------
+  newman:
+    name: Newman API contract (scaffold — needs NC)
+    if: ${{ github.event.inputs.run-newman == 'true' }}
+    runs-on: docker
+    steps:
+      - name: Checkout
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: TODO — boot NC, then run Newman
+        run: |
+          echo "Newman requires a live Nextcloud serving the app (see app-tests-live.yml)."
+          echo "Local: bash tests/integration/run-newman.sh"
+          echo "Skipping in CI until the NC service container is wired."
