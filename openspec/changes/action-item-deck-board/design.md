@@ -22,36 +22,54 @@ rather than introducing a new mechanism.
 - No bi-directional sync with the *native* Deck app (editing a card in Deck itself writing back).
 - No legacy data migration (separate change).
 
-## Decisions
+## Decision: real Nextcloud Deck via the leaf (chosen 2026-06-23)
+Action items are surfaced as **real Nextcloud Deck cards** on a per-object Deck board, via the
+existing OpenRegister Deck leaf (`DeckProvider` → `DeckLinkService`/`DeckCardService` +
+`DeckLink` entity/mapper), NOT a decidesk-drawn in-app kanban. The VTODO remains authoritative; the
+Deck card is a **projection** of the VTODO that the leaf links to the meeting/decision object. This is
+a one-way VTODO→Deck bridge (v1), reusing the leaf's board/stack picker + card create/link/list.
 
-### D1 — Read the projection directly; no new backend read endpoint
-The board reads action items via the existing OR object API projection
-(`fetchCollection('action-item')` filtered to the current meeting/decision via the established
-relation), then groups client-side by `taskStatus`. **Why over a new endpoint:** the projection
-already returns faithful, scoped VTODO data; a bespoke grouped endpoint would duplicate that read for
-no gain. Alternative (thin grouped endpoint) rejected — adds surface + auth without value.
+### D1 — Per-object Deck board projection (the bridge)
+For a meeting/decision, ensure each of its action-item VTODOs has a corresponding **linked Deck card**
+(via `DeckLinkService::createAndLinkCard` / `linkCard`, persisted in `oc_openregister_deck_links`),
+idempotently: a card already linked to the VTODO's source key is reused, not duplicated. The board is
+the object's board (resolved/created via the picker or a per-object convention). **Why:** the leaf
+already owns OR-object↔Deck-card linking + availability detection; we add the VTODO→card mapping on top.
+Alternative (decidesk-drawn kanban over the projection) rejected per the product decision — must be the
+real Deck app surface.
 
-### D2 — Fixed lane model `open · in-progress · done`
-Lanes are the three canonical `taskStatus` values; any other/legacy status maps into `open`. **Why:**
-predictable columns, matches the VTODO STATUS mapping in ActionItemWriter (NEEDS-ACTION / IN-PROCESS /
-COMPLETED). Alternative (dynamic lanes from distinct statuses) rejected — noisy, unstable columns.
+### D2 — Status → Deck stack mapping
+Map `taskStatus` to Deck stacks `open · in-progress · done` (creating the stacks on the board if
+absent). Moving a card between Deck stacks reflects the action item's status. **Why:** the kanban lanes
+ARE Deck stacks in this approach; mirrors the VTODO STATUS mapping (NEEDS-ACTION/IN-PROCESS/COMPLETED).
 
-### D3 — Mutations route through the existing `/api/action-items/{uid}` PUT
-Dragging a card to a lane or completing it calls `updateActionItem(uid, { taskStatus })` (the proven
-write path). Create uses the existing create modal/endpoint. **Why:** keeps the VTODO authoritative
-(REQ-AI-DECK-004) and reuses tested code. No Deck-native write.
+### D3 — VTODO stays authoritative; status changes flow back via the existing write path
+v1 is a forward projection (VTODO→card). Where the in-decidesk surface offers status/complete actions,
+they call the existing `/api/action-items/{uid}` PUT (ActionItemWriter → TaskService); the projection
+then reflects the new status onto the Deck stack. Editing the card in the **native Deck app** writing
+back to the VTODO is **out of scope for v1** (no Deck→VTODO sync) — documented as a follow-up.
 
-### D4 — Capability-gated surface with table fallback
-A capability check (Deck app installed/enabled) decides the surface: board when present, the existing
-`DecisionActionItemsTab` table when absent. **Why:** the feature is additive and most envs (incl. this
-one) only have core `dav`; the action-items tab must never break. Alternative (board-only) rejected —
-would blank the tab without Deck.
+### D4 — Capability-gated with table fallback (REQ-AI-DECK-009)
+A Deck-availability check (`DeckLinkService::isDeckAvailable()` / leaf `isEnabled()`) decides the
+surface: the Deck board projection when Deck is enabled, the existing `DecisionActionItemsTab` table
+otherwise. **Why:** additive; the action-items tab must never break when Deck is absent.
 
-### D5 — Resolve the board via the integration registry (ADR-019)
-The Deck surface is resolved from `OCA.OpenRegister.integrations` (the registered `deck` leaf),
-bound to the meeting/decision object, rather than a decidesk-bespoke board widget. **Why:** ADR-019
-consistency + reuse; the leaf already exists. The decidesk board component is a thin consumer that
-feeds it the scoped action-item projection + the update callback.
+### D5 — Resolve the surface via the integration registry (ADR-019)
+The Deck surface is the registered `deck` leaf's widget/tab from `OCA.OpenRegister.integrations`, bound
+to the meeting/decision object; decidesk wires the action-items tab to it + supplies the VTODO→card
+projection trigger. **Why:** ADR-019 reuse; the leaf already renders linked Deck cards for an object.
+
+## Implementation scope note
+This is a cross-repo build on the existing OR Deck leaf, not a quick apply:
+- **OpenRegister**: `DeckProvider`/`DeckLinkService` already link/create/list Deck cards for an OR
+  object. The new piece is a VTODO→card projection (ensure-card-per-action-item-VTODO, status→stack),
+  which may live in OR (extending the deck leaf) or decidesk (a service calling the leaf API). Decide
+  during apply; prefer decidesk-side to keep the leaf generic.
+- **decidesk**: a projection service/endpoint (ensure Deck cards for an object's action-item VTODOs,
+  idempotent via the source-key link), the action-items surface wiring (Deck board when available,
+  table fallback), info.xml bump.
+- The VTODO↔Deck-card sync lifecycle (esp. Deck→VTODO back-sync) is the genuinely large part and is
+  scoped out of v1.
 
 ## Risks / Trade-offs
 - Deck absent → board unavailable; mitigated by the table fallback (D4).
