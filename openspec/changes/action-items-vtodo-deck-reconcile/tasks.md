@@ -12,12 +12,15 @@
 - [ ] 2.2 Ensure the meeting + decision detail action-items tab mounts the registry deck board
       (`DecisionActionItemsTab` / meeting equivalent).
 
-## 3. Retire / repoint app-local store
+## 3. Convert app-local store to read-only projection
 - [ ] 3.1 Run/verify `MigrateActionItemsToDeckLeaf` (idempotent): project existing app-local
       `ActionItem` + legacy `task`/`delegation` onto VTODOs, archive legacy (no hard delete).
-- [ ] 3.2 Set `ActionItem` schema inactive OR convert to a read-only projection of VTODOs
-      (per the open question — recommendation: read-only projection).
-- [ ] 3.3 Map delegation/reclaim onto VTODO assignee + OR audit (REQ-AI-DECK-002).
+- [ ] 3.2 Convert `ActionItem` schema to a **read-only projection** of VTODOs (decision resolved —
+      not a hard retire); reject app-side writes (REQ-AI-DECK-004).
+- [ ] 3.3 Bind the projection to the OpenRegister virtual-schema-over-leaf capability; do NOT build a
+      bespoke CalDAV→OR copier. If the OR capability is absent, file/track the dependent OpenRegister
+      change first (REQ-AI-DECK-006).
+- [ ] 3.4 Map delegation/reclaim onto VTODO assignee + OR audit (REQ-AI-DECK-002).
 
 ## 4. Dashboard / lists
 - [ ] 4.1 Repoint the "Open action items" KPI + any action-item list/filter to the VTODO-backed

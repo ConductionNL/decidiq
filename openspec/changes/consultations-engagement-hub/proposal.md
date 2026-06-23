@@ -38,31 +38,41 @@ Collapse the four menu entries into **one** top-level *Consultations* item. Insi
 in-bar quick-filter toggle (the `CnActionsBar` `#filters` pattern just shipped for Decisions/Motions)
 to switch between consultation **types**:
 
-`All · Citizen participation · Market consultations · Tenders · Idea box · Budgets`
+`All · Citizen participation · Market consultations · Tenders · Idea box · Participatory budgets`
 
-- *Participatory budgets* becomes a type within the hub (its own filtered view, retaining the
-  ParticipatoryBudget/BudgetProposal model and phase flow).
+- *Participatory budgets* becomes a **consultation type** within the hub (Q3 resolved — unify the
+  model): the `ParticipatoryBudget` / `BudgetProposal` schemas are folded into `consultationType:
+  participatory-budget`, with budget-specific fields (below) carried as additive optional properties
+  on the Consultation supertype rather than a separate schema.
 - The standalone *Participation* action page is reachable as the citizen-facing surface of an open
   consultation (kept, re-pointed), not a top-level peer.
-- The standalone *Moderation queue* top-level leaf is **retired** (see §3) — a cross-consultation
-  moderation view can return later as a filtered hub view if needed.
+- The standalone *Moderation queue* top-level leaf is **kept** (Q4 resolved — keep the hub-wide
+  queue) as the cross-consultation staff view, in addition to the per-consultation Reactions tab
+  added in §3.
 
 ### 2. Data model: `consultationType` on the Consultation supertype
 
 Extend `PublicConsultation` with a stored, queryable `consultationType` enum:
-`citizen-participation` (default) | `market-consultation` | `tender` | `idea-box`. The shared
-fields (title, description, status, moderationPolicy, submissionDeadline, reactions, resultsSummary)
-stay; type-specific fields are additive and optional so each type reuses the same list/detail
-surfaces (filtered by `consultationType`, exactly like Motions = `decisionType: motion`):
+`citizen-participation` (default) | `market-consultation` | `tender` | `idea-box` |
+`participatory-budget`. The shared fields (title, description, status, moderationPolicy,
+submissionDeadline, reactions, resultsSummary) stay; type-specific fields are additive and optional
+so each type reuses the same list/detail surfaces (filtered by `consultationType`, exactly like
+Motions = `decisionType: motion`):
 
 - **tender**: `referenceNumber`, `estimatedValue`, `awardCriteria`, `questionDeadline`, `awardedTo`
-  (+ phases: `published → questions → submission → evaluation → awarded`).
+  (+ phases: `published → questions → submission → evaluation → awarded`). **Scope boundary (Q2
+  resolved):** decidesk owns **publishing** the tender, **managing the responses**, and the **award
+  decision** (who wins) — because awarding is a decision-making process. It does *not* own tender
+  *authoring* (that is **procest**'s process) nor *responding* to a tender as a bidder (that is
+  **pipelinq**, the CRM). A tender Consultation links back to the procest process that authored it
+  and forward to the responses/bidders surfaced from pipelinq where present.
 - **market-consultation**: `marketScope`, lighter flow (`open → closed → report-published`).
 - **idea-box**: `votingEnabled`, `ideaCount` (ideas are `ConsultationReaction`s that can be voted on).
+- **participatory-budget**: `budgetCeiling`, `currency`, `votingMethod`, `proposalDeadline`,
+  `votingDeadline`; proposals are `ConsultationReaction`s of a budget-proposal shape (title, amount,
+  voteCount) — replacing the retired `BudgetProposal` schema (existing budget rounds migrate to
+  `consultationType: participatory-budget`, no hard delete).
 - **citizen-participation**: unchanged (the current PublicConsultation flow).
-
-`ParticipatoryBudget` + `BudgetProposal` are surfaced *in* the hub but keep their own schema/flow
-(budget voting is materially different); they are linked to a parent Consultation where one exists.
 
 ### 3. Moderation folded into the consultation detail
 
@@ -70,7 +80,8 @@ Add a **Reactions** tab to the consultation detail (`ConsultationDetail`) that l
 consultation's `ConsultationReaction`s with **inline approve/reject** (reusing the existing
 `ReactionApproveModal` / `ReactionRejectModal` + `participationApi` approve/reject endpoints). The
 `ModerationQueuePage` logic is refactored into a reusable `ConsultationReactionsTab` component so the
-same moderation UI works (a) per-consultation in the detail and (b) optionally as a hub-wide queue.
+same moderation UI works in **both** places (Q4): (a) per-consultation in the detail tab and (b) the
+retained hub-wide *Moderation queue* (all pending reactions across consultations).
 
 ### 4. Per-type lifecycle
 
@@ -80,23 +91,28 @@ derivation — all states are stored/queryable so they drive filters and badges.
 
 ## Impact
 
-- **Schemas**: `PublicConsultation` gains `consultationType` + the additive type fields; lifecycle
-  extended. `ConsultationReaction` gains an optional `voteCount` for idea-box voting. No breaking
-  removals (existing consultations default to `citizen-participation`).
-- **Manifest**: four menu entries → one `Consultations` hub; `Consultations` index gains
-  `quickFilters` by type; `ConsultationDetail` gains the Reactions/moderation tab; `BudgetRounds`
-  becomes a hub sub-view; `ModerationQueue` top-level leaf removed.
-- **Components**: new `ConsultationReactionsTab` (extracted from `ModerationQueuePage`); minor
-  `ParticipationPage` re-point. No lib changes required (uses shipped `#filters` + detail tabs).
-- **Out of scope (this change)**: a cross-consultation moderation dashboard; tender e-signing /
-  award workflows beyond status; SES/peppol tender publication. Flagged as follow-ups.
+- **Schemas**: `PublicConsultation` gains `consultationType` + the additive type fields (incl. the
+  budget fields); lifecycle extended. `ConsultationReaction` gains an optional `voteCount` (idea-box
+  + budget voting) and an optional budget-proposal shape. `BudgetProposal` is retired into the
+  Consultation/Reaction model; existing rows migrate to `consultationType: participatory-budget`
+  (no breaking removals — existing consultations default to `citizen-participation`).
+- **Manifest**: four menu entries → **two** (`Consultations` hub + retained `Moderation queue`);
+  `Consultations` index gains `quickFilters` by type (incl. `participatory-budget`);
+  `ConsultationDetail` gains the Reactions/moderation tab; `BudgetRounds` becomes the
+  participatory-budget hub sub-view.
+- **Components**: new `ConsultationReactionsTab` (extracted from `ModerationQueuePage`, reused in
+  both the detail tab and the hub-wide queue); minor `ParticipationPage` re-point. No lib changes
+  required (uses shipped `#filters` + detail tabs).
+- **Out of scope (this change)**: tender *authoring* (procest) and tender *response/bidding*
+  (pipelinq) — decidesk only publishes/manages/awards; tender e-signing / SES / peppol publication;
+  budget-allocation accounting. Flagged as follow-ups / other-app concerns.
 
-## Open questions (for review before implementation)
+## Decisions (resolved with product owner, 2026-06-23)
 
-1. Top-level name: **"Consultations"** vs **"Engagement"** vs **"Participation"**?
-2. Are **tenders/procurement** in decidesk's scope, or do they belong in a procurement app
-   (pipelinq/openzaak)? If out of scope here, drop the `tender` type from this change.
-3. Should **participatory budgets** become a `consultationType` too (unify the model), or stay a
-   linked-but-separate schema (this proposal keeps it separate)?
-4. Keep a **hub-wide moderation queue** view in addition to per-consultation moderation, or fully
-   retire the standalone queue?
+1. **Top-level name → "Consultations"** (not "Engagement"/"Participation").
+2. **Tenders are in decidesk's scope, but only the publish → manage-responses → award slice.**
+   Tender *authoring* is procest's process; *responding* as a bidder is pipelinq (CRM). The award is
+   a decision-making process, so it stays here.
+3. **Participatory budget becomes a `consultationType`** — unify the model (retire the separate
+   `BudgetProposal`/`ParticipatoryBudget` schema into the supertype).
+4. **Keep the hub-wide moderation queue** in addition to the per-consultation Reactions tab.

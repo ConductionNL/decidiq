@@ -40,10 +40,20 @@ Make the implementation match `action-item-board-via-deck-leaf`:
 2. **Register the Deck leaf.** Register the Deck integration (`leaf: 'deck'`, `boundSchemas:
    ['meeting','decision']`) so the registry renders one card per VTODO on the meeting/decision
    detail's action-items tab, with graceful degradation when Deck is absent (REQ-AI-DECK-001).
-3. **Retire / repoint the app-local store.** Mark the `ActionItem` schema inactive (or convert it to
-   a read-only projection), run `MigrateActionItemsToDeckLeaf` to project existing rows onto VTODOs +
-   archive the legacy objects (REQ-AI-DECK-003), and ensure delegation/reclaim map onto VTODO
-   assignee + OR audit (REQ-AI-DECK-002).
+3. **Convert the app-local store to a read-only projection.** Convert the `ActionItem` schema to a
+   **read-only projection** of the authoritative VTODOs (decision resolved 2026-06-23 — *not* a hard
+   retire), run `MigrateActionItemsToDeckLeaf` to project existing rows onto VTODOs + archive the
+   legacy writable objects (REQ-AI-DECK-003), and ensure delegation/reclaim map onto VTODO assignee +
+   OR audit (REQ-AI-DECK-002). The projection MUST NOT accept app-side writes — the VTODO stays
+   authoritative.
+
+   **Architectural placement (resolved 2026-06-23):** the *mechanism* that exposes a non-OR-native
+   source (a CalDAV VTODO collection, or any leaf-integration entity) as a queryable OR
+   schema/objects is **OpenRegister functionality, not a decidesk-bespoke sync**. Decidesk SHALL
+   consume an OR-provided "virtual schema / virtual objects over a leaf source" capability rather
+   than hand-rolling a VTODO→OR copy. If that capability does not yet exist in OR, this change
+   depends on (and motivates) an OpenRegister change to add it; decidesk's projection is a thin
+   declarative binding to it. See the follow-up note in Impact.
 4. **Repoint the dashboard KPI.** The "Open action items" KPI (and any action-item list/filter)
    counts the authoritative source (VTODO-backed items / the deck projection), not the retired
    app-local schema.
@@ -52,14 +62,19 @@ Make the implementation match `action-item-board-via-deck-leaf`:
 
 - **PHP**: `ActionItemExtractionService`, `MinutesController`, `DecideskToolProvider` (creation
   paths) → VTODO; run/verify `MigrateActionItemsToDeckLeaf`.
-- **Schema**: `ActionItem` → inactive / projection-only (no hard delete; archived per ADR).
+- **Schema**: `ActionItem` → **read-only projection** of VTODOs (no app-side writes; no hard delete;
+  legacy writable rows archived per ADR).
 - **Frontend**: Deck-leaf registration; `DecisionActionItemsTab` / meeting action-items tab render
-  the registry deck board; dashboard "Open action items" KPI source repointed.
+  the registry deck board; dashboard "Open action items" KPI source repointed to the projection.
+- **OpenRegister follow-up (resolved scope)**: the virtual-schema-over-leaf capability lives in OR.
+  If absent, file an OR change ("virtual/projected objects backed by a leaf source — CalDAV VTODO
+  first") that decidesk's read-only `ActionItem` projection binds to declaratively. Decidesk does not
+  build a bespoke CalDAV→OR copier.
 - **Risk**: CalDAV write path + migration are the sensitive parts — must be idempotent
   (REQ-AI-DECK-003) and degrade gracefully without Deck. Verify on `:8080` end-to-end.
 
-## Open question
-- Should the app-local `ActionItem` schema be **fully retired** (archived) or kept as a **read-only
-  projection** of VTODOs for OR-side querying (e.g. so the dashboard KPI can aggregate without a
-  CalDAV scan)? Recommendation: keep a read-only projection so existing OR-aggregation KPIs work,
-  with the VTODO authoritative.
+## Decision (resolved 2026-06-23)
+- The app-local `ActionItem` schema is kept as a **read-only projection** of VTODOs (so existing
+  OR-aggregation KPIs work, with the VTODO authoritative) — not hard-retired.
+- The projection **mechanism** (exposing a leaf/native-NC source as queryable OR objects) is an
+  **OpenRegister capability**; decidesk consumes it rather than hand-rolling a sync.

@@ -4,10 +4,10 @@
 
 ### Requirement: Consultation supertype with consultationType
 The system SHALL treat `PublicConsultation` as a supertype distinguished by a stored, queryable
-`consultationType` enum (`citizen-participation` | `market-consultation` | `tender` | `idea-box`),
-so that all consultation kinds reuse one list + detail surface filtered by type. Existing
-consultations without a value SHALL be treated as `citizen-participation`. Type-specific fields are
-optional and additive; no shared field is removed.
+`consultationType` enum (`citizen-participation` | `market-consultation` | `tender` | `idea-box` |
+`participatory-budget`), so that all consultation kinds reuse one list + detail surface filtered by
+type. Existing consultations without a value SHALL be treated as `citizen-participation`.
+Type-specific fields are optional and additive; no shared field is removed.
 
 #### Scenario: Default type for legacy consultations
 - GIVEN a `PublicConsultation` created before this change with no `consultationType`
@@ -22,20 +22,72 @@ optional and additive; no shared field is removed.
 
 ### Requirement: Single Consultations hub with in-bar type filters
 The system SHALL present engagement under ONE top-level "Consultations" navigation entry whose index
-offers in-action-bar quick-filter tabs to switch between `All` and each consultation type (plus a
-Participatory budgets view). The separate top-level "Participation", "Participatory budgets", and
-"Moderation queue" leaves SHALL NOT appear as top-level peers.
+offers in-action-bar quick-filter tabs to switch between `All` and each consultation type
+(`Citizen participation`, `Market consultations`, `Tenders`, `Idea box`, `Participatory budgets`).
+The separate top-level "Participation" and "Participatory budgets" leaves SHALL NOT appear as
+top-level peers (Participatory budgets becomes the `participatory-budget` type view inside the hub).
+The "Moderation queue" leaf is retained (see the hub-wide moderation requirement).
 
 #### Scenario: One engagement entry in the menu
 - GIVEN the app navigation
 - WHEN it renders
-- THEN there is a single "Consultations" entry and no separate top-level "Moderation queue" leaf.
+- THEN there is a single "Consultations" entry, the separate "Participation" and "Participatory
+  budgets" top-level leaves are gone, and "Moderation queue" remains as its own top-level leaf.
 
 #### Scenario: Type tabs live in the action bar
 - GIVEN the Consultations index
 - WHEN it renders
-- THEN the type quick-filters render inside the action bar (not as a separate row), and selecting a
-  tab re-fetches the list with the merged `consultationType` filter.
+- THEN the type quick-filters (including `Participatory budgets`) render inside the action bar (not
+  as a separate row), and selecting a tab re-fetches the list with the merged `consultationType`
+  filter.
+
+### Requirement: Tender scope boundary (publish, manage, award only)
+For `consultationType = tender`, the system SHALL own only **publishing** the tender, **managing the
+responses**, and recording the **award decision** (`awardedTo`). The system SHALL NOT provide tender
+*authoring* (owned by procest) nor bidder *response/submission* authoring (owned by pipelinq, the
+CRM); a tender consultation MAY link back to the procest process that authored it and reference
+pipelinq-sourced responses where present.
+
+#### Scenario: Award is recorded as a decision outcome
+- GIVEN a `tender` consultation in `evaluation`
+- WHEN staff record the winning party
+- THEN `awardedTo` is set and the status advances to `awarded`, treated as a decision outcome.
+
+#### Scenario: Authoring and bidding are out of scope
+- GIVEN a tender consultation
+- WHEN a user looks for tender-document authoring or bid submission
+- THEN decidesk does not provide them; the consultation links out to procest (authoring) and
+  surfaces pipelinq responses (bidding) instead.
+
+### Requirement: Hub-wide moderation queue retained
+In addition to the per-consultation Reactions tab, the system SHALL retain a hub-wide "Moderation
+queue" view listing all `pending` `ConsultationReaction`s across every consultation, using the same
+`ConsultationReactionsTab` moderation component and approve/reject endpoints.
+
+#### Scenario: Cross-consultation pending list
+- GIVEN pending reactions on several consultations
+- WHEN a staff user opens the Moderation queue
+- THEN all pending reactions across consultations are listed and can be approved/rejected with the
+  same component used on the detail tab.
+
+### Requirement: Participatory budget as a consultation type
+The system SHALL model participatory budgets as `consultationType = participatory-budget` on the
+Consultation supertype, with optional fields `budgetCeiling`, `currency`, `votingMethod`,
+`proposalDeadline`, `votingDeadline`. Budget proposals SHALL be `ConsultationReaction`s carrying a
+proposal shape (title, `amount`, `voteCount`), replacing the separate `BudgetProposal` schema.
+Existing participatory-budget data SHALL migrate to this type without hard deletion.
+
+#### Scenario: Budget round appears in the hub
+- GIVEN a participatory-budget consultation
+- WHEN the Consultations hub is filtered to `Participatory budgets`
+- THEN it appears with its `budgetCeiling`/`currency`, and its proposals are listed as vote-countable
+  reactions.
+
+#### Scenario: Legacy budget rounds migrate
+- GIVEN budget rounds created under the old `BudgetProposal`/`ParticipatoryBudget` model
+- WHEN the migration runs
+- THEN they are projected onto `consultationType = participatory-budget` consultations and reactions,
+  and the legacy records are archived (not hard-deleted).
 
 ### Requirement: In-context reaction moderation on the consultation detail
 The consultation detail page SHALL include a Reactions tab listing that consultation's
@@ -58,7 +110,8 @@ endpoints. A reaction's `moderationStatus` SHALL gate its visibility and its con
 Each `consultationType` SHALL define its `status` via declarative `x-openregister-lifecycle` with
 stored, queryable states: citizen-participation (`draft → open → closed → results-published`),
 market-consultation (`… → report-published`), tender (`draft → published → questions → submission →
-evaluation → awarded`), idea-box (`draft → open → closed`, reactions vote-countable).
+evaluation → awarded`), idea-box (`draft → open → closed`, reactions vote-countable),
+participatory-budget (`draft → proposals-open → voting → closed → results-published`).
 
 #### Scenario: Tender phase progression
 - GIVEN a `tender` consultation in `published`
