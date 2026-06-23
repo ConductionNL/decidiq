@@ -11,25 +11,26 @@
 - [ ] Implement a surface wrapper that capability-checks Deck (via integration registry / @nextcloud/capabilities) and switches between board and the existing table.
 - [ ] Test: board vs table chosen by Deck availability; table fallback keeps create/edit/delete.
 
-### Task 2: VTODO → real Deck-card projection (the bridge, idempotent)
+### Task 2: VTODO → real Deck-card projection (frontend, idempotent)
 - **spec_ref**: `openspec/changes/action-item-deck-board/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-007-deck-board-surface-for-action-items`
-- **files**: `lib/Service/ActionItemDeckProjector.php` (new), `lib/Controller/ActionItemController.php`, `appinfo/routes.php`
+- **files**: `src/services/deckProjection.js` (new)
 - **acceptance_criteria**:
-  - GIVEN a meeting/decision with action-item VTODOs and Deck enabled WHEN the projection runs THEN each VTODO has a real linked Deck card (via the OR Deck leaf), on a board bound to the object, in the stack matching its `taskStatus`
-  - GIVEN a VTODO already linked (source key present in `oc_openregister_deck_links`) WHEN re-run THEN its card is reused, not duplicated (idempotent)
+  - GIVEN a meeting/decision with action-item VTODOs and Deck enabled WHEN the projection runs THEN each VTODO has a real linked Deck card created via the OR Deck leaf HTTP API (`POST /api/objects/{reg}/{schema}/{id}/deck/new`), bound to the object, in the stack matching its `taskStatus`
+  - GIVEN a VTODO that already carries a `deckCardId` (stored back on the VTODO) and whose card still exists WHEN re-run THEN its card is reused, not duplicated (idempotent)
   - GIVEN a legacy/other status WHEN projected THEN the card lands in the `open` stack
-- [ ] Implement the projector calling the OR Deck leaf (`DeckProvider`/`DeckLinkService`): resolve/create the object's board + `open`/`in-progress`/`done` stacks, ensure one linked Deck card per action-item VTODO keyed by the VTODO uid, status→stack mapping. Expose a `POST /api/action-items/deck-sync` (NoAdminRequired + per-object guard) trigger.
-- [ ] Test: idempotent card-per-VTODO via the source-key link; status→stack; legacy-status→open (mocked DeckLinkService).
+- [ ] Implement the projector service against the existing OR Deck endpoints: resolve the object's board + `open`/`in-progress`/`done` stacks (schema sticky default via `/api/integrations/deck/...`, else first board with status-named stacks), ensure one card per action-item VTODO, status→stack mapping, then persist the new `deckCardId` back onto the VTODO via `updateActionItem` so re-runs are idempotent.
+- [ ] Test: idempotent card-per-VTODO via stored `deckCardId`; status→stack; legacy-status→open (mocked axios + actionItemApi).
 
 ### Task 3: Status changes flow through the VTODO write path
 - **spec_ref**: `openspec/changes/action-item-deck-board/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-008-board-mutations-use-the-vtodo-write-path`
-- **files**: `lib/Service/ActionItemDeckProjector.php`, `src/services/actionItemApi.js`
+- **files**: `src/components/tabs/ActionItemDeckBoard.vue`, `src/services/actionItemApi.js`
 - **acceptance_criteria**:
-  - GIVEN an in-decidesk status/complete action WHEN applied THEN `updateActionItem(uid, {taskStatus})` is called and the projection re-stacks the card
+  - GIVEN a card in the in-app status board WHEN moved to another lane THEN `updateActionItem(uid, {taskStatus})` is called and the in-app board re-lanes the card
   - GIVEN any mutation WHEN applied THEN the only authoritative write is the VTODO update — no `saveObject('action-item')` and no Deck-native edit treated as source of truth
+  - GIVEN an already-linked card WHEN its status changes THEN its physical Deck stack is NOT moved in v1 (the leaf has no card-move endpoint); the VTODO + in-app board stay correct (documented limitation)
   - GIVEN v1 WHEN a card is edited in the native Deck app THEN no Deck→VTODO back-sync occurs (documented out-of-scope)
-- [ ] Implement status change via the existing `actionItemApi` PUT, then re-run the projector to move the card to the matching stack.
-- [ ] Test: PUT payload on status change; card re-stacks; no object-API write; back-sync absent by design.
+- [ ] Implement optimistic lane move / complete dispatching the existing `actionItemApi` PUT (rollback on error).
+- [ ] Test: PUT payload on move; rollback on failure; no object-API write; Deck re-stack + back-sync absent by design.
 
 ### Task 4: Wire the surface into the meeting + decision detail
 - **spec_ref**: `openspec/changes/action-item-deck-board/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-007-deck-board-surface-for-action-items`

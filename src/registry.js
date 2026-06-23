@@ -63,6 +63,7 @@ import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
 import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
+import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
@@ -191,6 +192,10 @@ export default {
 	MinutesApprovalTab: page(MinutesApprovalTab),
 	MinutesDocumentTab: page(MinutesDocumentTab),
 	DecisionActionItemsTab: page(DecisionActionItemsTab),
+	// action-item-deck-board: surface switch — Deck-board projection (real
+	// Nextcloud Deck cards via the OR leaf) when Deck is installed, else the
+	// table tab. The manifest decision action-items tab points here.
+	ActionItemsSurface: page(ActionItemsSurface),
 
 	// --- Dashboard v2 widgets (decidesk-dashboard-v2-widgets). ---
 	// Eleven CnDashboardPage slot components. CnPageRenderer / CnWidgetGrid
