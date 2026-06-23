@@ -56,8 +56,9 @@ pipelinq-sourced responses where present.
 #### Scenario: Authoring and bidding are out of scope
 - GIVEN a tender consultation
 - WHEN a user looks for tender-document authoring or bid submission
-- THEN decidesk does not provide them; the consultation links out to procest (authoring) and
-  surfaces pipelinq responses (bidding) instead.
+- THEN decidesk does not provide them; the schema carries a `procestProcessRef` link-back field for
+  the procest authoring process (rendering the link-out + surfacing pipelinq responses is a
+  documented follow-up).
 
 ### Requirement: Hub-wide moderation queue retained
 In addition to the per-consultation Reactions tab, the system SHALL retain a hub-wide "Moderation
@@ -73,21 +74,23 @@ queue" view listing all `pending` `ConsultationReaction`s across every consultat
 ### Requirement: Participatory budget as a consultation type
 The system SHALL model participatory budgets as `consultationType = participatory-budget` on the
 Consultation supertype, with optional fields `budgetCeiling`, `currency`, `votingMethod`,
-`proposalDeadline`, `votingDeadline`. Budget proposals SHALL be `ConsultationReaction`s carrying a
-proposal shape (title, `amount`, `voteCount`), replacing the separate `BudgetProposal` schema.
-Existing participatory-budget data SHALL migrate to this type without hard deletion.
+`proposalDeadline`, `votingDeadline`. Budget proposals SHALL be expressible as
+`ConsultationReaction`s carrying a proposal shape (`proposalTitle`, `proposalAmount`, `voteCount`).
+The legacy `ParticipatoryBudget`/`BudgetProposal` schemas and their `BudgetRounds` page SHALL be
+retained as a transitional surface reachable from the hub; folding existing legacy data into the
+supertype is a documented follow-up migration (no hard deletion of legacy data in this change).
 
 #### Scenario: Budget round appears in the hub
 - GIVEN a participatory-budget consultation
 - WHEN the Consultations hub is filtered to `Participatory budgets`
-- THEN it appears with its `budgetCeiling`/`currency`, and its proposals are listed as vote-countable
-  reactions.
+- THEN it appears with its `budgetCeiling`/`currency`, and the filter additionally deep-links to the
+  retained BudgetRounds view for the legacy budget flow.
 
-#### Scenario: Legacy budget rounds migrate
-- GIVEN budget rounds created under the old `BudgetProposal`/`ParticipatoryBudget` model
-- WHEN the migration runs
-- THEN they are projected onto `consultationType = participatory-budget` consultations and reactions,
-  and the legacy records are archived (not hard-deleted).
+#### Scenario: Legacy budget data stays usable during transition
+- GIVEN budget rounds created under the legacy `ParticipatoryBudget`/`BudgetProposal` model
+- WHEN a user opens the retained BudgetRounds view from the hub
+- THEN the legacy budget data is fully readable/usable and is not hard-deleted; a follow-up migration
+  will fold it into `consultationType = participatory-budget` consultations.
 
 ### Requirement: In-context reaction moderation on the consultation detail
 The consultation detail page SHALL include a Reactions tab listing that consultation's

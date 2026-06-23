@@ -1,28 +1,14 @@
 {
 	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
-	"_note": "Citizen-participation manifest fragment (citizen-participation) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Adds the participation menu group, the consultation + budget-round index/detail pages (auto-rendered CRUD via the OpenRegister object API), the citizen+staff participation action page, and the staff moderation queue.",
-	"_spec": "openspec/changes/citizen-participation/specs/citizen-participation/spec.md",
+	"_note": "Consultations & engagement hub (consultations-engagement-hub) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Collapses the former Participation / Consultations / Participatory budgets leaves into ONE Consultations hub (typed via consultationType quick-filters), keeps the hub-wide Moderation queue, and folds reaction moderation into the consultation detail via the shared ConsultationReactionsTab. The Participation action page and BudgetRounds pages are retained but reachable from the hub rather than as top-level peers.",
+	"_spec": "openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md",
 	"menu": [
-		{
-			"id": "Participation",
-			"label": "Participation",
-			"icon": "icon-comment",
-			"route": "Participation",
-			"order": 65
-		},
 		{
 			"id": "Consultations",
 			"label": "Consultations",
 			"icon": "icon-comment",
 			"route": "Consultations",
 			"order": 66
-		},
-		{
-			"id": "BudgetRounds",
-			"label": "Participatory budgets",
-			"icon": "icon-category-monitoring",
-			"route": "BudgetRounds",
-			"order": 67
 		},
 		{
 			"id": "ModerationQueue",
@@ -38,7 +24,8 @@
 			"route": "/participation",
 			"type": "custom",
 			"title": "Citizen participation",
-			"_spec": "openspec/changes/citizen-participation/specs/citizen-participation/spec.md",
+			"_note": "Citizen-facing surface of an open consultation; reachable from the hub, not a top-level menu peer.",
+			"_spec": "openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md",
 			"component": "ParticipationPage"
 		},
 		{
@@ -49,9 +36,62 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "public-consultation",
+				"quickFilters": [
+					{
+						"label": "All",
+						"filter": {},
+						"default": true
+					},
+					{
+						"label": "Citizen participation",
+						"filter": {
+							"consultationType": "citizen-participation"
+						}
+					},
+					{
+						"label": "Market consultations",
+						"filter": {
+							"consultationType": "market-consultation"
+						}
+					},
+					{
+						"label": "Tenders",
+						"filter": {
+							"consultationType": "tender"
+						}
+					},
+					{
+						"label": "Idea box",
+						"filter": {
+							"consultationType": "idea-box"
+						}
+					},
+					{
+						"label": "Participatory budgets",
+						"filter": {
+							"consultationType": "participatory-budget"
+						},
+						"page": "BudgetRounds",
+						"route": "BudgetRounds"
+					}
+				],
+				"_quickFiltersNote": "consultationType is a stored/queryable field on the PublicConsultation supertype (consultations-engagement-hub), so each tab merges a server-side filter into the OpenRegister fetch — the proven Decisions/Motions decisionType pattern. Participatory budgets additionally deep-links to the retained BudgetRounds page for the legacy budget flow during migration.",
 				"columns": [
-					"title",
-					"status",
+					{
+						"key": "title",
+						"label": "Title",
+						"widget": "link"
+					},
+					{
+						"key": "consultationType",
+						"label": "Type",
+						"widget": "badge"
+					},
+					{
+						"key": "status",
+						"label": "Status",
+						"widget": "badge"
+					},
 					"submissionDeadline",
 					"submissionCount"
 				],
@@ -79,7 +119,42 @@
 			"title": "Consultation",
 			"config": {
 				"register": "decidesk",
-				"schema": "public-consultation"
+				"schema": "public-consultation",
+				"sidebarTabs": [
+					{
+						"id": "overview",
+						"label": "Overview",
+						"icon": "icon-info",
+						"widgets": [
+							{
+								"type": "data"
+							},
+							{
+								"type": "metadata"
+							}
+						],
+						"order": 10
+					},
+					{
+						"id": "reactions",
+						"label": "Reactions",
+						"icon": "icon-comment",
+						"component": "ConsultationReactionsTab",
+						"order": 20
+					},
+					{
+						"id": "audit",
+						"label": "Audit trail",
+						"icon": "icon-history",
+						"widgets": [
+							{
+								"type": "audit-trail"
+							}
+						],
+						"order": 90
+					}
+				],
+				"documentationUrl": "https://decidesk.conduction.nl"
 			}
 		},
 		{
@@ -87,6 +162,7 @@
 			"route": "/budget-rounds",
 			"type": "index",
 			"title": "Participatory budgets",
+			"_note": "Retained transitional view for the legacy participatory-budget flow; reachable from the Consultations hub Participatory budgets quick-filter, not a top-level menu peer.",
 			"config": {
 				"register": "decidesk",
 				"schema": "participatory-budget",
@@ -128,7 +204,7 @@
 			"route": "/moderation-queue",
 			"type": "custom",
 			"title": "Moderation queue",
-			"_spec": "openspec/changes/citizen-participation/specs/citizen-participation/spec.md",
+			"_spec": "openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md",
 			"component": "ModerationQueuePage"
 		}
 	]

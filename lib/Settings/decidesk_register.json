@@ -4656,9 +4656,9 @@
         },
         "slug": "public-consultation",
         "icon": "ForumOutline",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "title": "PublicConsultation",
-        "description": "A formal citizen consultation round attached to a decision, motion, or policy. Version 0.2.0 (citizen-participation): renamed status value 'summarised' to 'results-published' and added anonymousReactionsAllowed + moderationPolicy. Legacy 'summarised' objects are normalised to 'results-published' on read by ParticipationLifecycleService.",
+        "description": "Supertype for every public-engagement round, distinguished by consultationType (citizen-participation | market-consultation | tender | idea-box | participatory-budget). One list + detail surface filtered by type, mirroring the Decision/decisionType supertype (ADR-005). Version 0.3.0 (consultations-engagement-hub): added consultationType + additive optional type fields (tender, market, idea-box, participatory-budget) and broadened the status enum to the per-type union; states are declared in x-openregister-lifecycle. Version 0.2.0: renamed status value 'summarised' to 'results-published' and added anonymousReactionsAllowed + moderationPolicy. Legacy 'summarised' objects are normalised to 'results-published' on read by ParticipationLifecycleService; rows with no consultationType are treated as citizen-participation.",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:Event",
@@ -4721,16 +4721,39 @@
             "default": false,
             "example": false
           },
+          "consultationType": {
+            "type": "string",
+            "description": "Engagement supertype discriminator. Drives the type quick-filter on the Consultations hub and the per-type vocabulary, fields, and lifecycle. Rows without a value are treated as 'citizen-participation'.",
+            "enum": [
+              "citizen-participation",
+              "market-consultation",
+              "tender",
+              "idea-box",
+              "participatory-budget"
+            ],
+            "default": "citizen-participation",
+            "facetable": true,
+            "example": "citizen-participation"
+          },
           "status": {
             "type": "string",
-            "description": "Consultation lifecycle. The legacy value 'summarised' (schema v0.1.0) was renamed to 'results-published' in v0.2.0.",
+            "description": "Consultation lifecycle (per-type; declared in x-openregister-lifecycle). Union of all type states: citizen-participation (draft → open → closed → results-published), market-consultation (… → report-published), tender (draft → published → questions → submission → evaluation → awarded), idea-box (draft → open → closed), participatory-budget (draft → proposals-open → voting → closed → results-published). Legacy value 'summarised' (v0.1.0) was renamed to 'results-published' in v0.2.0.",
             "enum": [
               "draft",
               "open",
               "closed",
-              "results-published"
+              "results-published",
+              "report-published",
+              "published",
+              "questions",
+              "submission",
+              "evaluation",
+              "awarded",
+              "proposals-open",
+              "voting"
             ],
             "default": "draft",
+            "facetable": true,
             "example": "open"
           },
           "anonymousReactionsAllowed": {
@@ -4758,6 +4781,114 @@
           "resultsSummary": {
             "type": "string",
             "description": "JSON-encoded, PII-free result summary (approved-reaction digest + staff response) attached when results are published; publicatiedatum is set alongside it so the public-group RBAC rule makes the object anonymously readable."
+          },
+          "marketScope": {
+            "type": "string",
+            "description": "consultationType=market-consultation: scope/subject of the market consultation (what input is sought from the market)."
+          },
+          "referenceNumber": {
+            "type": "string",
+            "description": "consultationType=tender: public tender reference/notice number."
+          },
+          "estimatedValue": {
+            "type": "number",
+            "description": "consultationType=tender: estimated contract value."
+          },
+          "currency": {
+            "type": "string",
+            "description": "consultationType in {tender, participatory-budget}: ISO 4217 currency code.",
+            "default": "EUR",
+            "example": "EUR"
+          },
+          "awardCriteria": {
+            "type": "string",
+            "description": "consultationType=tender: award criteria description (e.g. MEAT / lowest price)."
+          },
+          "questionDeadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "consultationType=tender: deadline for bidder questions (questions phase)."
+          },
+          "awardedTo": {
+            "type": "string",
+            "description": "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidesk owns publish/manage/award only; authoring is procest and bidding is pipelinq."
+          },
+          "procestProcessRef": {
+            "type": "string",
+            "description": "consultationType=tender: optional reference (UUID/URL) to the procest process that authored this tender."
+          },
+          "votingEnabled": {
+            "type": "boolean",
+            "description": "consultationType=idea-box: whether ideas (reactions) can be voted on.",
+            "default": false,
+            "example": false
+          },
+          "ideaCount": {
+            "type": "integer",
+            "description": "consultationType=idea-box: derived count of approved ideas (reactions).",
+            "default": 0,
+            "example": 0
+          },
+          "budgetCeiling": {
+            "type": "number",
+            "description": "consultationType=participatory-budget: total amount available for allocation across proposals."
+          },
+          "votingMethod": {
+            "type": "string",
+            "description": "consultationType=participatory-budget: how citizens allocate the budget (e.g. approval, points, knapsack).",
+            "example": "approval"
+          },
+          "proposalDeadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "consultationType=participatory-budget: deadline for submitting budget proposals."
+          },
+          "votingDeadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "consultationType=participatory-budget: deadline for citizens to vote on proposals."
+          }
+        },
+        "x-openregister-lifecycle": {
+          "field": "status",
+          "transitions": {
+            "draft": [
+              "open",
+              "published",
+              "proposals-open",
+              "closed"
+            ],
+            "open": [
+              "closed"
+            ],
+            "proposals-open": [
+              "voting",
+              "closed"
+            ],
+            "voting": [
+              "closed"
+            ],
+            "published": [
+              "questions",
+              "submission",
+              "evaluation"
+            ],
+            "questions": [
+              "submission"
+            ],
+            "submission": [
+              "evaluation"
+            ],
+            "evaluation": [
+              "awarded"
+            ],
+            "closed": [
+              "results-published",
+              "report-published"
+            ],
+            "results-published": [],
+            "report-published": [],
+            "awarded": []
           }
         },
         "x-openregister-relations": {
@@ -4880,6 +5011,20 @@
           "moderationReason": {
             "type": "string",
             "description": "Optional staff-supplied reason recorded on approval or rejection."
+          },
+          "voteCount": {
+            "type": "integer",
+            "description": "Idea-box and participatory-budget voting: number of citizen votes this reaction (idea / budget proposal) has received.",
+            "default": 0,
+            "example": 0
+          },
+          "proposalTitle": {
+            "type": "string",
+            "description": "consultationType=participatory-budget: short title of the budget proposal (when this reaction is a budget proposal)."
+          },
+          "proposalAmount": {
+            "type": "number",
+            "description": "consultationType=participatory-budget: requested amount for this budget proposal."
           }
         },
         "x-openregister-relations": {

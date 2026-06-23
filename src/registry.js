@@ -40,6 +40,7 @@ import RunningProcessesWidget from './views/dashboard/widgets/RunningProcessesWi
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
 import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
 
+import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
 import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
@@ -153,6 +154,7 @@ export default {
 	// authoring lives elsewhere — votes are LiveMeeting-only by design).
 	// Cross-schema lookups resolve inside each component rather than the
 	// renderer, per the manifest-abstract-sidebar contract.
+	ConsultationReactionsTab: page(ConsultationReactionsTab),
 	GovernanceBodyMembersTab: page(GovernanceBodyMembersTab),
 	GovernanceBodyTemplateTab: page(GovernanceBodyTemplateTab),
 	// Meeting-efficiency analytics tab (meeting-efficiency): per-body duration
