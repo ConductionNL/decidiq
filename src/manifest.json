@@ -1105,7 +1105,7 @@
 						"id": "actionItems",
 						"label": "Action items",
 						"icon": "icon-checkmark",
-						"component": "DecisionActionItemsTab",
+						"component": "ActionItemsSurface",
 						"order": 20
 					},
 					{
