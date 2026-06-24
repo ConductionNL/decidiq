@@ -185,11 +185,6 @@ class ReactionIntakeService
         $saved  = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
         $result = $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
-        // An auto-approved (post-moderation authenticated) reaction counts immediately.
-        if ($moderationStatus === 'approved') {
-            $this->incrementSubmissionCount(consultationId: $consultationId);
-        }
-
         return $result;
 
     }//end submitReaction()
@@ -197,9 +192,8 @@ class ReactionIntakeService
     /**
      * Approve a pending reaction (staff action).
      *
-     * Sets moderationStatus to 'approved' and increments the consultation's
-     * derived submissionCount exactly once (idempotent: a reaction already
-     * approved is not double-counted).
+     * Sets moderationStatus to 'approved' so the reaction surfaces in the
+     * consultation's reactions relation and becomes eligible for publication.
      *
      * @param string      $reactionId The reaction UUID.
      * @param string|null $reason     Optional moderation note.
@@ -218,8 +212,7 @@ class ReactionIntakeService
             throw new \RuntimeException("ConsultationReaction {$reactionId} not found");
         }
 
-        $reaction    = $entity->jsonSerialize();
-        $wasApproved = ((string) ($reaction['moderationStatus'] ?? '') === 'approved');
+        $reaction = $entity->jsonSerialize();
 
         $reaction['moderationStatus'] = 'approved';
         if ($reason !== null && $reason !== '') {
@@ -227,13 +220,6 @@ class ReactionIntakeService
         }
 
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
-
-        if ($wasApproved === false) {
-            $consultationId = $this->resolveConsultationId(reaction: $reaction);
-            if ($consultationId !== null) {
-                $this->incrementSubmissionCount(consultationId: $consultationId);
-            }
-        }
 
         return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
@@ -278,66 +264,6 @@ class ReactionIntakeService
         return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
     }//end rejectReaction()
-
-    /**
-     * Increment a consultation's derived submissionCount by one.
-     *
-     * @param string $consultationId The consultation UUID.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
-     */
-    private function incrementSubmissionCount(string $consultationId): void
-    {
-        $objectService = $this->objectService();
-        $entity        = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
-        if ($entity === null) {
-            return;
-        }
-
-        $consultation = $entity->jsonSerialize();
-        $consultation['submissionCount'] = ((int) ($consultation['submissionCount'] ?? 0) + 1);
-        $objectService->saveObject(register: 'decidesk', schema: 'public-consultation', object: $consultation);
-
-    }//end incrementSubmissionCount()
-
-    /**
-     * Resolve the related consultation UUID from a reaction's relations.
-     *
-     * @param array<string, mixed> $reaction The reaction object.
-     *
-     * @return string|null The consultation UUID, or null when unresolved.
-     *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
-     */
-    private function resolveConsultationId(array $reaction): ?string
-    {
-        foreach (($reaction['relations'] ?? []) as $relation) {
-            if (is_array($relation) === true && ($relation['schema'] ?? '') === 'public-consultation') {
-                $id = ($relation['id'] ?? null);
-                if ($id !== null && $id !== '') {
-                    return (string) $id;
-                }
-            }
-        }
-
-        // Flat 'consultation' property fallback.
-        $flat = ($reaction['consultation'] ?? null);
-        if (is_string($flat) === true && $flat !== '') {
-            return $flat;
-        }
-
-        if (is_array($flat) === true) {
-            $id = ($flat['id'] ?? $flat['uuid'] ?? '');
-            if ($id !== '') {
-                return (string) $id;
-            }
-        }
-
-        return null;
-
-    }//end resolveConsultationId()
 
     /**
      * Build a stable, opaque pseudonymous submitter id for an anonymous reaction.
