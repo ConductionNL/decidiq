@@ -116,7 +116,7 @@
 						"id": "upcoming-meetings-kpi",
 						"type": "stat",
 						"title": "Upcoming meetings",
-						"content": { "label": "Upcoming meetings", "icon": "Calendar", "valueColor": "#0082c9", "route": { "name": "Meetings" }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "meeting", "metric": "count", "filter": { "lifecycle": "scheduled", "scheduledDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
+						"content": { "label": "Upcoming meetings", "icon": "Calendar", "valueColor": "#0082c9", "route": { "name": "Meetings", "query": { "lifecycle": "scheduled" } }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "meeting", "metric": "count", "filter": { "lifecycle": "scheduled", "scheduledDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
 					},
 					{
 						"id": "pending-votes-kpi",
@@ -127,13 +127,13 @@
 						"id": "overdue-actions-kpi",
 						"type": "stat",
 						"title": "Open action items",
-						"content": { "label": "Open action items", "icon": "ClipboardList", "valueColor": "#c7860c", "route": { "name": "ActionItems" }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "action-item", "metric": "count", "filter": { "taskStatus": ["open", "in-progress"], "dueDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
+						"content": { "label": "Open action items", "icon": "ClipboardList", "valueColor": "#c7860c", "route": { "name": "ActionItems", "query": { "taskStatus": ["open", "in-progress"] } }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "action-item", "metric": "count", "filter": { "taskStatus": ["open", "in-progress"], "dueDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
 					},
 					{
 						"id": "upcoming-meetings-list",
 						"type": "object-list",
 						"title": "Upcoming meetings",
-						"content": { "register": "decidesk", "schema": "meeting", "filter": { "lifecycle": "scheduled" }, "sort": { "field": "scheduledDate", "dir": "asc" }, "limit": 6, "columns": [{ "key": "title", "label": "Meeting" }, { "key": "scheduledDate", "label": "Date" }] }
+						"content": { "register": "decidesk", "schema": "meeting", "rowRoute": "MeetingDetail", "filter": { "lifecycle": "scheduled" }, "sort": { "field": "scheduledDate", "dir": "asc" }, "limit": 6, "columns": [{ "key": "title", "label": "Meeting" }, { "key": "scheduledDate", "label": "Date" }] }
 					},
 					{
 						"id": "pending-votes-list",
@@ -154,7 +154,7 @@
 						"id": "recent-decisions",
 						"type": "object-list",
 						"title": "Recent decisions",
-						"content": { "register": "decidesk", "schema": "decision", "filter": {}, "sort": { "field": "decisionDate", "dir": "desc" }, "limit": 6, "columns": [{ "key": "title", "label": "Decision" }, { "key": "decisionDate", "label": "Date" }] }
+						"content": { "register": "decidesk", "schema": "decision", "rowRoute": "DecisionDetail", "filter": {}, "sort": { "field": "decisionDate", "dir": "desc" }, "limit": 6, "columns": [{ "key": "title", "label": "Decision" }, { "key": "decisionDate", "label": "Date" }] }
 					},
 					{
 						"id": "dashboard-empty-state",
