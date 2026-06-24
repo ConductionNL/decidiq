@@ -36,6 +36,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "public-consultation",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
 				"quickFilters": [
 					{
 						"label": "All",
@@ -92,8 +94,7 @@
 						"label": "Status",
 						"widget": "badge"
 					},
-					"submissionDeadline",
-					"submissionCount"
+					"submissionDeadline"
 				],
 				"actions": [
 					{
@@ -120,6 +121,35 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "public-consultation",
+				"relatedCollections": [
+					{
+						"title": "Reactions",
+						"register": "decidesk",
+						"schema": "consultation-reaction",
+						"filter": {
+							"_relations.public-consultation": "@objectId"
+						},
+						"columns": [
+							{
+								"key": "body",
+								"label": "Reaction"
+							},
+							{
+								"key": "moderationStatus",
+								"label": "Status",
+								"widget": "badge"
+							},
+							"submitterId",
+							"submittedAt"
+						],
+						"sort": {
+							"key": "submittedAt",
+							"order": "desc"
+						},
+						"limit": 50
+					}
+				],
+				"_relatedCollectionsNote": "Reactions (the consultation's submissions) are related through OpenRegister (PublicConsultation.reactions one-to-many <-> ConsultationReaction.consultation many-to-one) and render as a table on the main detail body — moved off the former Reactions sidebar tab. Hub-wide pending moderation still uses ConsultationReactionsTab on the Moderation queue.",
 				"sidebarTabs": [
 					{
 						"id": "overview",
@@ -134,13 +164,6 @@
 							}
 						],
 						"order": 10
-					},
-					{
-						"id": "reactions",
-						"label": "Reactions",
-						"icon": "icon-comment",
-						"component": "ConsultationReactionsTab",
-						"order": 20
 					},
 					{
 						"id": "audit",

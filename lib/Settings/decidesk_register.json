@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.5.0"
+    "version": "0.5.1"
   },
   "x-openregister": {
     "type": "application",
@@ -4776,12 +4776,6 @@
             "default": "pre-moderation",
             "example": "pre-moderation"
           },
-          "submissionCount": {
-            "type": "integer",
-            "description": "Number of APPROVED reaction submissions received (derived; incremented on moderation approval).",
-            "default": 0,
-            "example": 0
-          },
           "resultsSummary": {
             "type": "string",
             "description": "JSON-encoded, PII-free result summary (approved-reaction digest + staff response) attached when results are published; publicatiedatum is set alongside it so the public-group RBAC rule makes the object anonymously readable."
@@ -4826,12 +4820,6 @@
             "description": "consultationType=idea-box: whether ideas (reactions) can be voted on.",
             "default": false,
             "example": false
-          },
-          "ideaCount": {
-            "type": "integer",
-            "description": "consultationType=idea-box: derived count of approved ideas (reactions).",
-            "default": 0,
-            "example": 0
           },
           "budgetCeiling": {
             "type": "number",
@@ -4994,7 +4982,7 @@
           },
           "moderationStatus": {
             "type": "string",
-            "description": "Moderation state. Reactions enter as 'pending'; only 'approved' reactions count toward submissionCount and may be published.",
+            "description": "Moderation state. Reactions enter as 'pending'; only 'approved' reactions are counted in the consultation's reactions relation and may be published.",
             "enum": [
               "pending",
               "approved",
