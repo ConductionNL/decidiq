@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # public-publication Specification
 
 ## Purpose
-TBD - created by archiving change publish-decisions-via-opencatalogi. Update Purpose after archive.
+Publishes eligible decisions, public meeting agendas, and approved minutes as derived, PII-stripped payloads through OpenRegister's RBAC published-predicate surface and, when configured, into an OpenCatalogi catalog. It enforces server-side eligibility gates and a type deny-list, builds immutable allow-list payloads carrying vote totals (never individual votes or voter identities), aligns payloads to OpenRaadsinformatie mappings, and supports auditable withdraw and rectify flows so governance data can be opened to the public without exposing confidential material.
 ## Requirements
 ### Requirement: Publication eligibility gates
 

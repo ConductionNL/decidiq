@@ -227,9 +227,9 @@ class MeetingService
             }
 
             // Meeting-efficiency timing/cost stamping (additive, server-side):
-            //   - first 'open' stamps openedAt (idempotent across pause/resume/
-            //     adjourn-resume so the cost window starts at the real start);
-            //   - 'close' stamps closedAt and the fail-soft final meetingCost.
+            // - first 'open' stamps openedAt (idempotent across pause/resume/
+            // adjourn-resume so the cost window starts at the real start);
+            // - 'close' stamps closedAt and the fail-soft final meetingCost.
             $efficiencyPatch = $this->buildEfficiencyPatch(
                 action: $action,
                 meetingId: $meetingId,
@@ -319,8 +319,8 @@ class MeetingService
         }
 
         if ($action === 'close') {
-            $closedAt           = (new \DateTimeImmutable('now'))->format(\DateTimeInterface::ATOM);
-            $patch['closedAt']  = $closedAt;
+            $closedAt          = (new \DateTimeImmutable('now'))->format(\DateTimeInterface::ATOM);
+            $patch['closedAt'] = $closedAt;
 
             try {
                 // Pass the closedAt forward so the elapsed window is closed.

@@ -108,13 +108,15 @@
 				"widgets": [
 					{
 						"id": "active-decisions",
-						"type": "custom",
-						"title": "Active decisions"
+						"type": "stat",
+						"title": "Decisions",
+						"content": { "label": "Decisions", "icon": "ScaleBalance", "valueColor": "#1a4a72", "route": { "name": "Decisions" }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "decision", "metric": "count", "filter": { "decisionDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
 					},
 					{
 						"id": "upcoming-meetings-kpi",
-						"type": "custom",
-						"title": "Upcoming meetings"
+						"type": "stat",
+						"title": "Upcoming meetings",
+						"content": { "label": "Upcoming meetings", "icon": "Calendar", "valueColor": "#0082c9", "route": { "name": "Meetings" }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "meeting", "metric": "count", "filter": { "lifecycle": "scheduled", "scheduledDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
 					},
 					{
 						"id": "pending-votes-kpi",
@@ -123,13 +125,15 @@
 					},
 					{
 						"id": "overdue-actions-kpi",
-						"type": "custom",
-						"title": "Overdue actions"
+						"type": "stat",
+						"title": "Open action items",
+						"content": { "label": "Open action items", "icon": "ClipboardList", "valueColor": "#c7860c", "route": { "name": "ActionItems" }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "action-item", "metric": "count", "filter": { "taskStatus": ["open", "in-progress"], "dueDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
 					},
 					{
 						"id": "upcoming-meetings-list",
-						"type": "custom",
-						"title": "Upcoming meetings"
+						"type": "object-list",
+						"title": "Upcoming meetings",
+						"content": { "register": "decidesk", "schema": "meeting", "filter": { "lifecycle": "scheduled" }, "sort": { "field": "scheduledDate", "dir": "asc" }, "limit": 6, "columns": [{ "key": "title", "label": "Meeting" }, { "key": "scheduledDate", "label": "Date" }] }
 					},
 					{
 						"id": "pending-votes-list",
@@ -148,8 +152,9 @@
 					},
 					{
 						"id": "recent-decisions",
-						"type": "custom",
-						"title": "Recent decisions"
+						"type": "object-list",
+						"title": "Recent decisions",
+						"content": { "register": "decidesk", "schema": "decision", "filter": {}, "sort": { "field": "decisionDate", "dir": "desc" }, "limit": 6, "columns": [{ "key": "title", "label": "Decision" }, { "key": "decisionDate", "label": "Date" }] }
 					},
 					{
 						"id": "dashboard-empty-state",
@@ -157,6 +162,18 @@
 						"title": "Welcome"
 					}
 				],
+				"dateRange": {
+					"enabled": true,
+					"showHeaderPicker": false,
+					"persistKey": "decidesk.dashboard.range",
+					"default": { "preset": "all" },
+					"presets": [
+						{ "id": "last-7", "label": "7d", "days": 7 },
+						{ "id": "last-30", "label": "30d", "days": 30 },
+						{ "id": "last-90", "label": "90d", "days": 90 },
+						{ "id": "all", "label": "All", "days": null }
+					]
+				},
 				"layout": [
 					{
 						"id": "1",
@@ -165,7 +182,8 @@
 						"gridY": 0,
 						"gridWidth": 3,
 						"gridHeight": 2,
-						"showTitle": false
+						"showTitle": false,
+						"dateChip": true
 					},
 					{
 						"id": "2",
@@ -174,7 +192,8 @@
 						"gridY": 0,
 						"gridWidth": 3,
 						"gridHeight": 2,
-						"showTitle": false
+						"showTitle": false,
+						"dateChip": true
 					},
 					{
 						"id": "3",
@@ -183,7 +202,8 @@
 						"gridY": 0,
 						"gridWidth": 3,
 						"gridHeight": 2,
-						"showTitle": false
+						"showTitle": false,
+						"dateChip": true
 					},
 					{
 						"id": "4",
@@ -192,7 +212,8 @@
 						"gridY": 0,
 						"gridWidth": 3,
 						"gridHeight": 2,
-						"showTitle": false
+						"showTitle": false,
+						"dateChip": true
 					},
 					{
 						"id": "5",
@@ -243,17 +264,12 @@
 				"documentationUrl": "https://decidesk.conduction.nl"
 			},
 			"slots": {
-				"widget-active-decisions": "ActiveDecisionsKpiWidget",
-				"widget-upcoming-meetings-kpi": "UpcomingMeetingsKpiWidget",
+				"header-actions": "DashboardQuickActions",
 				"widget-pending-votes-kpi": "PendingVotesKpiWidget",
-				"widget-overdue-actions-kpi": "OverdueActionsKpiWidget",
-				"widget-upcoming-meetings-list": "UpcomingMeetingsListWidget",
-				"widget-upcoming-meetings-list-actions": "CreateMeetingAction",
 				"widget-pending-votes-list": "PendingVotesListWidget",
 				"widget-running-processes": "RunningProcessesWidget",
 				"widget-running-processes-actions": "StartProcessAction",
 				"widget-my-action-items": "MyActionItemsWidget",
-				"widget-recent-decisions": "RecentDecisionsWidget",
 				"widget-dashboard-empty-state": "DashboardEmptyState"
 			}
 		},
@@ -1089,7 +1105,7 @@
 						"id": "actionItems",
 						"label": "Action items",
 						"icon": "icon-checkmark",
-						"component": "DecisionActionItemsTab",
+						"component": "ActionItemsSurface",
 						"order": 20
 					},
 					{
@@ -1447,13 +1463,13 @@
 							{
 								"key": "ori_endpoint",
 								"type": "string",
-								"label": "ORI-eindpunt",
+								"label": "ORI endpoint",
 								"help": "ORI API endpoint URL for publishing voting results"
 							},
 							{
 								"key": "email_voting_enabled",
 								"type": "boolean",
-								"label": "E-mail stemmen inschakelen",
+								"label": "Enable email voting",
 								"help": "Enable email reply voting"
 							}
 						]

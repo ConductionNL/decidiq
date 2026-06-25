@@ -54,7 +54,7 @@ class DecisionRequestedEvent extends Event
     /**
      * Whether decidesk's listener handled this request (result slot).
      *
-     * @var bool
+     * @var boolean
      */
     private bool $handled = false;
 
@@ -77,12 +77,12 @@ class DecisionRequestedEvent extends Event
         private readonly string $subjectRegister,
         private readonly string $subjectSchema,
         private readonly string $subjectId,
-        private readonly string $subjectLabel = '',
-        private readonly string $decisionType = 'contract',
-        private readonly string $actorId = '',
-        private readonly array $payload = [],
-        private readonly string $externalReference = '',
-        private readonly string $correlationId = '',
+        private readonly string $subjectLabel='',
+        private readonly string $decisionType='contract',
+        private readonly string $actorId='',
+        private readonly array $payload=[],
+        private readonly string $externalReference='',
+        private readonly string $correlationId='',
     ) {
         parent::__construct();
     }//end __construct()

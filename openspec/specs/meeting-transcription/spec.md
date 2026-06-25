@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-transcription Specification
 
 ## Purpose
-TBD - created by archiving change meeting-transcription-ai-minutes. Update Purpose after archive.
+Lets the secretary or chair attach a meeting recording and, after a recorded consent confirmation, transcribe it asynchronously through the Nextcloud SpeechToText provider abstraction into timestamped segments. Aligns transcript segments to agenda items via the meeting timeline, optionally generates AI-assisted draft minutes (with provenance and verification against the structured record) through the Nextcloud AI provider, and enforces RBAC, a public-publication deny-list, and per-body retention of recordings and transcripts.
 ## Requirements
 ### Requirement: Recording attachment with consent precondition
 

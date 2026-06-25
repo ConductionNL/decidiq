@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-crud Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-crud-operations. Update Purpose after archive.
+Lets users create, view, edit, and delete Meeting objects through schema-driven dialogs and detail pages in the app frontend. Provides a paginated, searchable, sortable meeting list, a detail view showing meeting properties with related agenda items and an object sidebar, and confirmation-guarded deletion, all persisting through OpenRegister's ObjectService.
 
 ## Requirements
 

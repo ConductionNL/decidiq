@@ -35,7 +35,6 @@ namespace OCA\Decidesk\Lifecycle;
  */
 class ProcessTemplatePolicyResolver
 {
-
     /**
      * Translate a process-template object array into the guard policy shape
      * `{quorumEnforced, chairOnlyTransitions, allowDecideWithoutVote}`.

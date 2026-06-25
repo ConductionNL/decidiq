@@ -139,7 +139,7 @@ class EngagementController extends Controller
         // OWASP A01 — verify participant identity matches the authenticated session.
         // Admins, and the meeting's chair/secretary, may record engagement for any
         // participant; everyone else may only record for their own participant record.
-        $callerUid = $user->getUID();
+        $callerUid    = $user->getUID();
         $isPrivileged = ($this->groupManager->isAdmin($callerUid) === true)
             || ($this->participantResolver->hasRole(
                 meetingId: $meeting,

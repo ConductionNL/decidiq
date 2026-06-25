@@ -118,7 +118,7 @@ class ConsultationAutoCloseJob extends TimedJob
                     ['offset' => $offset, 'exception' => $e->getMessage()]
                 );
                 break;
-            }
+            }//end try
 
             $batchCount = 0;
             foreach ($entities as $entity) {
@@ -162,5 +162,4 @@ class ConsultationAutoCloseJob extends TimedJob
         );
 
     }//end run()
-
 }//end class

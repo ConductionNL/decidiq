@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # governance-analytics-via-analytics-leaf Specification
 
 ## Purpose
-TBD - created by archiving change 2026-06-10-migrate-engagement-analytics-to-analytics-leaf. Update Purpose after archive.
+Renders engagement, action-item, and voting-behaviour dashboards through the Nextcloud Analytics integration leaf over OpenRegister object data, surfaced as a registry tab and widget instead of app-local chart components. Generic aggregations (counts, sums, completion and overdue rates, group-bys) are computed by the leaf or schema-declarative aggregations, while governance-specific metrics such as the engagement-score formula and quorum-weighted voting statistics stay as in-app calculations fed to the leaf as values. The dashboard tab degrades gracefully when the Analytics app is absent, and underlying metric capture is unchanged.
 
 ## Requirements
 

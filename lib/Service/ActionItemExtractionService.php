@@ -125,8 +125,11 @@ class ActionItemExtractionService
     public function saveExtracted(string $minutesId, array $confirmed): int
     {
         try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $savedCount    = 0;
+            // Action items are CalDAV VTODOs (ADR-002); the action-item schema is a
+            // read-only projection, so write via ActionItemWriter (TaskService) rather
+            // than ObjectService::saveObject.
+            $writer     = $this->container->get(\OCA\Decidesk\Service\ActionItemWriter::class);
+            $savedCount = 0;
 
             foreach ($confirmed as $candidate) {
                 $title = $candidate['title'] ?? null;
@@ -164,12 +167,12 @@ class ActionItemExtractionService
                 }
 
                 try {
-                    $objectService->saveObject(
-                        register: 'decidesk',
-                        schema: 'ActionItem',
-                        object: $actionItem
-                    );
-                    $savedCount++;
+                    $created = $writer->create(item: $actionItem);
+                    if ($created !== null) {
+                        $savedCount++;
+                    } else {
+                        $this->logger->warning('Failed to save ActionItem VTODO for minutes '.$minutesId);
+                    }
                 } catch (\Exception $e) {
                     $this->logger->warning("Failed to save ActionItem: ".$e->getMessage());
                 }

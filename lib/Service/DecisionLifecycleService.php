@@ -113,13 +113,19 @@ class DecisionLifecycleService
             $meeting   = $this->resolveLinkedMeeting(objectService: $objectService, decision: $decision);
             $domain    = $this->resolveDomain(decision: $decision, meeting: $meeting);
 
-            // process-configuration: when the decision's body has an assigned
+            // Process-configuration: when the decision's body has an assigned
             // process template, its policy drives the guard; null otherwise so
             // the built-in hardcoded domain policy applies unchanged.
             $policyOverride = $this->resolvePolicyOverride(decision: $decision, meeting: $meeting);
 
             $actions = [];
-            foreach ($this->transitionGuard->getAvailableActions(currentLifecycle: $lifecycle, domain: $domain, policyOverride: $policyOverride) as $action) {
+
+            $availableActions = $this->transitionGuard->getAvailableActions(
+                currentLifecycle: $lifecycle,
+                domain: $domain,
+                policyOverride: $policyOverride
+            );
+            foreach ($availableActions as $action) {
                 $transition = $this->transitionGuard->resolveTransition(action: $action);
                 $actions[]  = [
                     'action'    => $action,
@@ -215,12 +221,18 @@ class DecisionLifecycleService
             $meeting = $this->resolveLinkedMeeting(objectService: $objectService, decision: $decision);
             $domain  = $this->resolveDomain(decision: $decision, meeting: $meeting);
 
-            // process-configuration: a body's assigned process template drives the
+            // Process-configuration: a body's assigned process template drives the
             // guard policy when present; null falls back to the hardcoded domain policy.
             $policyOverride = $this->resolvePolicyOverride(decision: $decision, meeting: $meeting);
 
             // Domain-level transition validation (default-deny for unknown domains).
-            if ($this->transitionGuard->isTransitionAllowed(domain: $domain, fromState: $currentLifecycle, toState: $transition['to'], policyOverride: $policyOverride) === false) {
+            $isAllowed = $this->transitionGuard->isTransitionAllowed(
+                domain: $domain,
+                fromState: $currentLifecycle,
+                toState: $transition['to'],
+                policyOverride: $policyOverride
+            );
+            if ($isAllowed === false) {
                 return [
                     'success'  => false,
                     'decision' => null,
@@ -230,7 +242,13 @@ class DecisionLifecycleService
 
             // Chair-only enforcement (OWASP A01:2021 — broken access control). FAIL CLOSED:
             // a chair-only transition with no resolvable chair is rejected, never skipped.
-            if ($this->transitionGuard->requiresChairAuthorization(domain: $domain, from: $currentLifecycle, to: $transition['to'], policyOverride: $policyOverride) === true) {
+            $requiresChair = $this->transitionGuard->requiresChairAuthorization(
+                domain: $domain,
+                from: $currentLifecycle,
+                to: $transition['to'],
+                policyOverride: $policyOverride
+            );
+            if ($requiresChair === true) {
                 $chairNcUserId = $this->resolveChairUserId(objectService: $objectService, meeting: $meeting);
                 if ($chairNcUserId === null || $currentUserId === null || $currentUserId !== $chairNcUserId) {
                     return [

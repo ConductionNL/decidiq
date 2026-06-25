@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # member-voting-behaviour-tracking Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-core-t2. Update Purpose after archive.
+Aggregates per-participant voting statistics across closed voting rounds for a governance body, including participation rate, for/against/abstain counts, and proxy votes given and received. Exposes the data via a dedicated API endpoint and route, visualises it with a donut chart and a paginated history table, and lets users export their voting history as CSV or JSON, with access to other members' stats restricted to authorized roles.
 
 ## Requirements
 

@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 status-note: In progress 2026-06-14 via unify-decision-supertype (ORI Motion serialization sourced from decisionType=motion decisions per ADR-003/ADR-005; endpoint path and response shape unchanged).
 openspec-changes:
   - unify-decision-supertype
@@ -9,7 +9,7 @@ openspec-changes:
 # ori-api Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Exposes Decidesk meetings, motions, persons, and memberships through publicly accessible, ORI-compatible open-data endpoints using Popolo and Akoma Ntoso vocabularies. Meeting events are serialized from CalDAV VEVENTs and motions from published typed decisions, with support for date and organisation filtering, pagination, and JSON-LD or XML content negotiation so external consumers such as Dutch municipalities can harvest the data without authentication.
 ## Requirements
 ### Requirement: REQ-ORI-001 — ORI Meeting endpoint
 

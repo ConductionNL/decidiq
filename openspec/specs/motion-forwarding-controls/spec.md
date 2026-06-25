@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # motion-forwarding-controls Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-core-t2. Update Purpose after archive.
+Controls forwarding a motion from one governance body to another, with admin settings that define which roles may forward and whether the receiving body's chair must approve. Enforces the role check on the backend in `MotionService::forwardMotion()`, creates the forwarded motion in the target body (submitted for approval or immediately active), and links it to the source motion so the lineage is visible from both sides.
 
 ## Requirements
 

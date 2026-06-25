@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-core Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Manages the full backend lifecycle of governance meetings, storing each meeting as a CalDAV VEVENT with governance metadata alongside an OpenRegister wrapper object for relational queries. Provides create, read, update, soft-delete, and filtered list operations over the `/api/meetings` endpoints, with an audit trail recording every change and authorization enforced through governance-body membership or admin rights.
 
 ## Requirements
 

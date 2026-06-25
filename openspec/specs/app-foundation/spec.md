@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # app-foundation Specification
 
 **Status**: in-progress
@@ -6,7 +10,7 @@
 - ia-six-item-nav (active) — updates the MainMenu requirement to ADR-004's six-item IA
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-crud-operations. Update Purpose after archive.
+Establishes the foundational app scaffolding: importing the Decidesk OpenRegister register and its entity schemas on install and upgrade, loading Dutch-language seed data so the app is usable immediately, an admin settings page with register mapping and re-import, an OpenRegister dependency check with an empty state, and the six-item navigation menu and KPI dashboard.
 ## Requirements
 ### Requirement: Register import on install
 The app SHALL import the Decidesk OpenRegister register and all entity schemas from `lib/Settings/decidesk_register.json` during installation and upgrades via an `IRepairStep`.

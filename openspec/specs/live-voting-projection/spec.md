@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # live-voting-projection Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-core-t2. Update Purpose after archive.
+Provides a public fullscreen projection screen that displays the live state of a voting round — motion title, voting method, and aggregate vote counts — for showing on a projector without requiring Nextcloud login. The view refreshes every few seconds, highlights the leading option tile (showing none when tied), and reveals only aggregate data through a public-state API that never exposes individual votes, participant identities, or vote values. The chair or secretary can copy the projection link directly from the voting-round panel.
 
 ## Requirements
 

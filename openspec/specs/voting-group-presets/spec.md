@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # voting-group-presets Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-core-t2. Update Purpose after archive.
+Lets admins define named voting group presets per governance body — a preset name and a list of participant UUIDs — so the chair can restrict a voting round to a specific group. When opening a round the chair picks a preset to set the eligible voter list (or leaves it blank for all active members), stale UUIDs of departed members are detected and excluded with a warning, and the admin settings list each preset with its member count and last-modified date.
 
 ## Requirements
 

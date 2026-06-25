@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Specs: Minutes and Decisions — Core T1
 
 **Change:** p2-minutes-and-decisions-core-t1

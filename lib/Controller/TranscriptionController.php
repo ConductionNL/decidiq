@@ -54,7 +54,6 @@ use OCP\IUserSession;
  */
 class TranscriptionController extends Controller
 {
-
     /**
      * Constructor.
      *
@@ -82,7 +81,6 @@ class TranscriptionController extends Controller
         parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
-
 
     /**
      * List candidate transcription sources for a meeting + provider availability.
@@ -119,7 +117,6 @@ class TranscriptionController extends Controller
 
     }//end sources()
 
-
     /**
      * Attach a source to a meeting and record consent.
      *
@@ -148,9 +145,9 @@ class TranscriptionController extends Controller
             );
         }
 
-        $sourceType = (string) $this->request->getParam('sourceType', '');
-        $sourcePath = (string) $this->request->getParam('sourcePath', '');
-        $language   = (string) $this->request->getParam('language', '');
+        $sourceType  = (string) $this->request->getParam('sourceType', '');
+        $sourcePath  = (string) $this->request->getParam('sourcePath', '');
+        $language    = (string) $this->request->getParam('language', '');
         $confirmedBy = (string) $this->userSession->getUser()?->getUID();
 
         try {
@@ -170,7 +167,6 @@ class TranscriptionController extends Controller
         return new JSONResponse($transcript, Http::STATUS_CREATED);
 
     }//end attach()
-
 
     /**
      * Submit a Transcript for asynchronous transcription.
@@ -200,8 +196,12 @@ class TranscriptionController extends Controller
         } catch (MissingObjectException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         } catch (\DomainException $e) {
-            $code = (int) $e->getCode();
-            $status = ($code === 503 ? Http::STATUS_SERVICE_UNAVAILABLE : Http::STATUS_UNPROCESSABLE_ENTITY);
+            $code   = (int) $e->getCode();
+            $status = Http::STATUS_UNPROCESSABLE_ENTITY;
+            if ($code === 503) {
+                $status = Http::STATUS_SERVICE_UNAVAILABLE;
+            }
+
             return new JSONResponse(['message' => $e->getMessage()], $status);
         }
 
@@ -210,7 +210,6 @@ class TranscriptionController extends Controller
         return new JSONResponse(['status' => 'queued']);
 
     }//end transcribe()
-
 
     /**
      * Re-run agenda alignment for a Transcript (no re-transcription).
@@ -240,7 +239,6 @@ class TranscriptionController extends Controller
         return new JSONResponse($transcript);
 
     }//end realign()
-
 
     /**
      * Generate an AI-assisted draft from a Transcript.
@@ -276,7 +274,6 @@ class TranscriptionController extends Controller
         return new JSONResponse($draft);
 
     }//end generateDraft()
-
 
     /**
      * Configure the per-body transcript retention policy.
@@ -331,7 +328,6 @@ class TranscriptionController extends Controller
 
     }//end retentionConfig()
 
-
     /**
      * Staff guard for a meeting id (chair/secretary or NC admin).
      *
@@ -367,7 +363,6 @@ class TranscriptionController extends Controller
         );
 
     }//end requireStaffForMeeting()
-
 
     /**
      * Staff guard for a transcript id — resolves its meeting then delegates.
@@ -418,7 +413,6 @@ class TranscriptionController extends Controller
         );
 
     }//end requireStaffForTranscript()
-
 
     /**
      * Staff guard for a governance body id.

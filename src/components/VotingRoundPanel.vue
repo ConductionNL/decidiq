@@ -7,48 +7,48 @@
  @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6
 -->
 <template>
-	<CnDetailCard :title="t('decidesk', 'Stemronde')">
+	<CnDetailCard :title="t('decidesk', 'Voting round')">
 		<!-- Loading state -->
 		<p v-if="loading" class="decidesk-empty">
-			{{ t('decidesk', 'Laden…') }}
+			{{ t('decidesk', 'Loading…') }}
 		</p>
 
 		<!-- No round yet — chair can open one -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 -->
 		<template v-else-if="!currentRound">
 			<p class="decidesk-empty">
-				{{ t('decidesk', 'Geen actieve stemronde.') }}
+				{{ t('decidesk', 'No active voting round.') }}
 			</p>
 			<NcButton
 				v-if="motionLifecycle === 'debating'"
 				type="primary"
 				:disabled="!meetingId"
-				:title="!meetingId ? t('decidesk', 'Vergadering niet gekoppeld — stemronde kan niet worden geopend') : undefined"
+				:title="!meetingId ? t('decidesk', 'No meeting linked — the voting round cannot be opened') : undefined"
 				@click="showOpenRoundDialog = true">
-				{{ t('decidesk', 'Stemronde openen') }}
+				{{ t('decidesk', 'Open voting round') }}
 			</NcButton>
 
 			<!-- Open round dialog -->
 			<div v-if="showOpenRoundDialog"
 				class="decidesk-dialog"
 				role="dialog"
-				:aria-label="t('decidesk', 'Stemronde openen')">
-				<h3>{{ t('decidesk', 'Stemronde openen') }}</h3>
-				<label for="votingMethod">{{ t('decidesk', 'Stemmethode') }}</label>
+				:aria-label="t('decidesk', 'Open voting round')">
+				<h3>{{ t('decidesk', 'Open voting round') }}</h3>
+				<label for="votingMethod">{{ t('decidesk', 'Voting method') }}</label>
 				<select id="votingMethod" v-model="newRound.votingMethod">
 					<option value="for-against-abstain">
-						{{ t('decidesk', 'Voor / Tegen / Onthouding') }}
+						{{ t('decidesk', 'For / Against / Abstain') }}
 					</option>
 					<option value="show-of-hands">
-						{{ t('decidesk', 'Handopsteking') }}
+						{{ t('decidesk', 'Show of hands') }}
 					</option>
 					<option value="weighted">
-						{{ t('decidesk', 'Gewogen stemming') }}
+						{{ t('decidesk', 'Weighted vote') }}
 					</option>
 				</select>
 				<label>
 					<input v-model="newRound.isSecret" type="checkbox">
-					{{ t('decidesk', 'Geheime stemming') }}
+					{{ t('decidesk', 'Secret ballot') }}
 				</label>
 				<!-- Configurable voting rules (voting-system spec) -->
 				<!-- @spec openspec/specs/voting-system/spec.md -->
@@ -73,17 +73,17 @@
 				<p v-if="revoteOfRoundId" class="decidesk-revote-notice">
 					{{ t('decidesk', 'This round is the single permitted revote of the tied round.') }}
 				</p>
-				<label for="closedAt">{{ t('decidesk', 'Sluitingstijd (optioneel)') }}</label>
+				<label for="closedAt">{{ t('decidesk', 'Closing time (optional)') }}</label>
 				<input id="closedAt" v-model="newRound.closedAt" type="datetime-local">
 				<p v-if="openRoundError" class="decidesk-error" role="alert">
 					{{ openRoundError }}
 				</p>
 				<div class="decidesk-dialog-actions">
 					<NcButton type="primary" :disabled="openingRound" @click="openRound">
-						{{ t('decidesk', 'Openen') }}
+						{{ t('decidesk', 'Open') }}
 					</NcButton>
 					<NcButton @click="showOpenRoundDialog = false">
-						{{ t('decidesk', 'Annuleren') }}
+						{{ t('decidesk', 'Cancel') }}
 					</NcButton>
 				</div>
 			</div>
@@ -94,27 +94,27 @@
 			<!-- Show-of-hands entry (chair/secretary when round is open) -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 -->
 			<div v-if="isRoundOpen && currentRound.votingMethod === 'show-of-hands'" class="decidesk-show-of-hands">
-				<h4>{{ t('decidesk', 'Handopsteking resultaat opslaan') }}</h4>
-				<label for="showFor">{{ t('decidesk', 'Voor') }}</label>
+				<h4>{{ t('decidesk', 'Save show-of-hands result') }}</h4>
+				<label for="showFor">{{ t('decidesk', 'For') }}</label>
 				<input id="showFor"
 					v-model.number="showOfHands.for"
 					type="number"
 					min="0"
-					:aria-label="t('decidesk', 'Stemmen voor')">
-				<label for="showAgainst">{{ t('decidesk', 'Tegen') }}</label>
+					:aria-label="t('decidesk', 'Votes for')">
+				<label for="showAgainst">{{ t('decidesk', 'Against') }}</label>
 				<input id="showAgainst"
 					v-model.number="showOfHands.against"
 					type="number"
 					min="0"
-					:aria-label="t('decidesk', 'Stemmen tegen')">
-				<label for="showAbstain">{{ t('decidesk', 'Onthouding') }}</label>
+					:aria-label="t('decidesk', 'Votes against')">
+				<label for="showAbstain">{{ t('decidesk', 'Abstain') }}</label>
 				<input id="showAbstain"
 					v-model.number="showOfHands.abstain"
 					type="number"
 					min="0"
-					:aria-label="t('decidesk', 'Onthoudingen')">
+					:aria-label="t('decidesk', 'Abstentions')">
 				<NcButton type="primary" @click="saveShowOfHands">
-					{{ t('decidesk', 'Resultaat opslaan') }}
+					{{ t('decidesk', 'Save result') }}
 				</NcButton>
 			</div>
 
@@ -123,28 +123,28 @@
 			<div v-if="isRoundOpen && currentRound.votingMethod !== 'show-of-hands' && !voteCast" class="decidesk-vote-buttons">
 				<!-- Proxy notice -->
 				<p v-if="activeProxy" class="decidesk-proxy-notice">
-					{{ t('decidesk', 'U stemt namens: {name}', { name: activeProxy }) }}
+					{{ t('decidesk', 'You are voting on behalf of: {name}', { name: activeProxy }) }}
 				</p>
 				<NcButton
 					type="primary"
 					class="decidesk-vote-btn"
-					:aria-label="t('decidesk', 'Stem voor')"
+					:aria-label="t('decidesk', 'Vote for')"
 					@click="castVote('for')">
-					{{ t('decidesk', 'Voor') }}
+					{{ t('decidesk', 'For') }}
 				</NcButton>
 				<NcButton
 					type="error"
 					class="decidesk-vote-btn"
-					:aria-label="t('decidesk', 'Stem tegen')"
+					:aria-label="t('decidesk', 'Vote against')"
 					@click="castVote('against')">
-					{{ t('decidesk', 'Tegen') }}
+					{{ t('decidesk', 'Against') }}
 				</NcButton>
 				<NcButton
 					type="secondary"
 					class="decidesk-vote-btn"
-					:aria-label="t('decidesk', 'Onthouding')"
+					:aria-label="t('decidesk', 'Abstain')"
 					@click="castVote('abstain')">
-					{{ t('decidesk', 'Onthouding') }}
+					{{ t('decidesk', 'Abstain') }}
 				</NcButton>
 				<p v-if="castVoteError" class="decidesk-error" role="alert">
 					{{ castVoteError }}
@@ -153,16 +153,16 @@
 
 			<!-- Vote confirmation message -->
 			<p v-if="voteCast" class="decidesk-vote-confirmed" role="status">
-				{{ t('decidesk', 'Uw stem is geregistreerd.') }}
+				{{ t('decidesk', 'Your vote has been recorded.') }}
 			</p>
 
 			<!-- Live tally (chair/secretary see full tally; members see only total count) -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 -->
 			<div v-if="isRoundOpen" class="decidesk-tally">
-				<p>{{ t('decidesk', 'Uitgebracht: {cast} / {total}', { cast: tallyTotal, total: participantCount }) }}</p>
+				<p>{{ t('decidesk', 'Cast: {cast} / {total}', { cast: tallyTotal, total: participantCount }) }}</p>
 				<template v-if="isChairOrSecretary">
 					<p>
-						{{ t('decidesk', 'Voor: {for} — Tegen: {against} — Onthouding: {abstain}', {
+						{{ t('decidesk', 'For: {for} — Against: {against} — Abstain: {abstain}', {
 							for: currentRound.votesFor || 0,
 							against: currentRound.votesAgainst || 0,
 							abstain: currentRound.votesAbstain || 0,
@@ -180,23 +180,23 @@
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7 -->
 			<div class="decidesk-proxy">
 				<NcButton v-if="!activeProxy" type="secondary" @click="showProxyDialog = true">
-					{{ t('decidesk', 'Volmacht verlenen') }}
+					{{ t('decidesk', 'Grant proxy') }}
 				</NcButton>
 				<NcButton v-if="activeProxy" type="error" @click="revokeProxy">
-					{{ t('decidesk', 'Volmacht intrekken') }}
+					{{ t('decidesk', 'Revoke proxy') }}
 				</NcButton>
 				<div v-if="showProxyDialog"
 					class="decidesk-dialog"
 					role="dialog"
-					:aria-label="t('decidesk', 'Volmacht verlenen')">
-					<h4>{{ t('decidesk', 'Volmacht verlenen aan') }}</h4>
-					<input v-model="proxyToId" type="text" :placeholder="t('decidesk', 'Deelnemer UUID')">
+					:aria-label="t('decidesk', 'Grant proxy')">
+					<h4>{{ t('decidesk', 'Grant proxy to') }}</h4>
+					<input v-model="proxyToId" type="text" :placeholder="t('decidesk', 'Participant UUID')">
 					<div class="decidesk-dialog-actions">
 						<NcButton type="primary" @click="grantProxy">
-							{{ t('decidesk', 'Verlenen') }}
+							{{ t('decidesk', 'Grant') }}
 						</NcButton>
 						<NcButton @click="showProxyDialog = false">
-							{{ t('decidesk', 'Annuleren') }}
+							{{ t('decidesk', 'Cancel') }}
 						</NcButton>
 					</div>
 				</div>
@@ -208,16 +208,16 @@
 				v-if="isRoundOpen && isChairOrSecretary"
 				type="error"
 				@click="confirmCloseRound = true">
-				{{ t('decidesk', 'Stemronde sluiten') }}
+				{{ t('decidesk', 'Close voting round') }}
 			</NcButton>
 			<div v-if="confirmCloseRound" class="decidesk-dialog" role="dialog">
-				<p>{{ t('decidesk', 'Stemronde sluiten? {notVoted} van {total} leden hebben nog niet gestemd.', { notVoted: participantCount - tallyTotal, total: participantCount }) }}</p>
+				<p>{{ t('decidesk', 'Close voting round? {notVoted} of {total} members have not voted yet.', { notVoted: participantCount - tallyTotal, total: participantCount }) }}</p>
 				<div class="decidesk-dialog-actions">
 					<NcButton type="error" @click="closeRound">
-						{{ t('decidesk', 'Sluiten') }}
+						{{ t('decidesk', 'Close') }}
 					</NcButton>
 					<NcButton @click="confirmCloseRound = false">
-						{{ t('decidesk', 'Annuleren') }}
+						{{ t('decidesk', 'Cancel') }}
 					</NcButton>
 				</div>
 			</div>
@@ -226,11 +226,11 @@
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 -->
 			<div v-if="!isRoundOpen && currentRound.result" class="decidesk-result">
 				<p>
-					<strong>{{ t('decidesk', 'Uitslag:') }}</strong>
+					<strong>{{ t('decidesk', 'Result:') }}</strong>
 					<CnStatusBadge :status="currentRound.result" />
 				</p>
 				<p>
-					{{ t('decidesk', 'Voor: {for} — Tegen: {against} — Onthouding: {abstain}', {
+					{{ t('decidesk', 'For: {for} — Against: {against} — Abstain: {abstain}', {
 						for: currentRound.votesFor || 0,
 						against: currentRound.votesAgainst || 0,
 						abstain: currentRound.votesAbstain || 0,
@@ -277,7 +277,7 @@
 					v-if="isChairOrSecretary"
 					type="secondary"
 					@click="publishToOri">
-					{{ t('decidesk', 'Publiceren naar ORI') }}
+					{{ t('decidesk', 'Publish to ORI') }}
 				</NcButton>
 				<p v-if="oriStatus" class="decidesk-ori-status">
 					{{ oriStatusLabel }}
@@ -296,10 +296,10 @@
 				</p>
 				<div class="decidesk-dialog-actions">
 					<NcButton type="primary" :disabled="openingRound" @click="openRound">
-						{{ t('decidesk', 'Openen') }}
+						{{ t('decidesk', 'Open') }}
 					</NcButton>
 					<NcButton @click="cancelRevote">
-						{{ t('decidesk', 'Annuleren') }}
+						{{ t('decidesk', 'Cancel') }}
 					</NcButton>
 				</div>
 			</div>
@@ -422,9 +422,9 @@ export default {
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
 		oriStatusLabel() {
 			const labels = {
-				published: this.t('decidesk', 'Gepubliceerd naar ORI'),
-				pending: this.t('decidesk', 'Publicatie in behandeling'),
-				not_configured: this.t('decidesk', 'ORI niet geconfigureerd'),
+				published: this.t('decidesk', 'Published to ORI'),
+				pending: this.t('decidesk', 'Publication pending'),
+				not_configured: this.t('decidesk', 'ORI not configured'),
 			}
 			return labels[this.oriStatus] || this.oriStatus
 		},
@@ -492,10 +492,10 @@ export default {
 					await this.fetchCurrentRound()
 				} else {
 					const data = await resp.json()
-					this.castVoteError = data.message || this.t('decidesk', 'Stem uitbrengen mislukt')
+					this.castVoteError = data.message || this.t('decidesk', 'Failed to cast vote')
 				}
 			} catch (e) {
-				this.castVoteError = this.t('decidesk', 'Stem uitbrengen mislukt')
+				this.castVoteError = this.t('decidesk', 'Failed to cast vote')
 			}
 		},
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 */
@@ -528,10 +528,10 @@ export default {
 					await this.fetchCurrentRound()
 				} else {
 					const data = await resp.json()
-					this.openRoundError = data.message || this.t('decidesk', 'Stemronde openen mislukt')
+					this.openRoundError = data.message || this.t('decidesk', 'Failed to open voting round')
 				}
 			} catch (e) {
-				this.openRoundError = this.t('decidesk', 'Stemronde openen mislukt')
+				this.openRoundError = this.t('decidesk', 'Failed to open voting round')
 			} finally {
 				this.openingRound = false
 			}

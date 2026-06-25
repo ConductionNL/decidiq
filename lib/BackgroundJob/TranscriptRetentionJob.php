@@ -80,7 +80,6 @@ class TranscriptRetentionJob extends TimedJob
 
     }//end __construct()
 
-
     /**
      * Execute the retention sweep.
      *
@@ -102,7 +101,7 @@ class TranscriptRetentionJob extends TimedJob
             return;
         }
 
-        $now        = new \DateTimeImmutable();
+        $now         = new \DateTimeImmutable();
         $transcripts = $this->fetchActiveDoneTranscripts(objectService: $objectService);
 
         foreach ($transcripts as $transcript) {
@@ -117,7 +116,6 @@ class TranscriptRetentionJob extends TimedJob
         }
 
     }//end run()
-
 
     /**
      * Enforce the retention policy for one Transcript (pure, testable).
@@ -174,18 +172,18 @@ class TranscriptRetentionJob extends TimedJob
         $recordingPath = (string) ($transcript['sourceFilePath'] ?? '');
         if ($recordingPath !== '' && $currentState === 'active') {
             if ($this->deleteFile(path: $recordingPath) === true) {
-                $deleted[]                     = $recordingPath;
-                $transcript['sourceFilePath']  = '';
-                $currentState                  = 'recording-deleted';
+                $deleted[] = $recordingPath;
+                $transcript['sourceFilePath'] = '';
+                $currentState = 'recording-deleted';
             }
         }
 
-        // delete-both also removes the raw transcript text file.
+        // Delete-both also removes the raw transcript text file.
         if ($policy === 'delete-both') {
             $transcriptPath = (string) ($transcript['transcriptFilePath'] ?? '');
             if ($transcriptPath !== '') {
                 if ($this->deleteFile(path: $transcriptPath) === true) {
-                    $deleted[]                        = $transcriptPath;
+                    $deleted[] = $transcriptPath;
                     $transcript['transcriptFilePath'] = '';
                 }
             }
@@ -210,7 +208,6 @@ class TranscriptRetentionJob extends TimedJob
         return $currentState;
 
     }//end enforceForTranscript()
-
 
     /**
      * Resolve the per-body retention policy and window (days).
@@ -252,7 +249,6 @@ class TranscriptRetentionJob extends TimedJob
 
     }//end resolveBodyPolicy()
 
-
     /**
      * Resolve the approval timestamp of the meeting's approved minutes.
      *
@@ -278,7 +274,7 @@ class TranscriptRetentionJob extends TimedJob
         );
 
         foreach ($entities as $entity) {
-            $minutes = $this->toArray(entity: $entity);
+            $minutes   = $this->toArray(entity: $entity);
             $lifecycle = (string) ($minutes['lifecycle'] ?? '');
             if (in_array($lifecycle, ['approved', 'signed', 'published'], true) === false) {
                 continue;
@@ -299,7 +295,6 @@ class TranscriptRetentionJob extends TimedJob
         return null;
 
     }//end resolveMinutesApprovedAt()
-
 
     /**
      * Fetch all active/recording-deleted `done` transcripts.
@@ -333,7 +328,6 @@ class TranscriptRetentionJob extends TimedJob
 
     }//end fetchActiveDoneTranscripts()
 
-
     /**
      * Delete a file by Files path via the OR FileService (fail-soft).
      *
@@ -360,7 +354,6 @@ class TranscriptRetentionJob extends TimedJob
         }
 
     }//end deleteFile()
-
 
     /**
      * Append a retention deletion entry to the meeting's audit trail (fail-soft).
@@ -392,7 +385,6 @@ class TranscriptRetentionJob extends TimedJob
 
     }//end appendAudit()
 
-
     /**
      * Fetch a single object as an array (or null).
      *
@@ -419,7 +411,6 @@ class TranscriptRetentionJob extends TimedJob
         return $this->toArray(entity: $entity);
 
     }//end fetchObject()
-
 
     /**
      * Normalise an OR entity (object or array) to an array.
@@ -448,7 +439,6 @@ class TranscriptRetentionJob extends TimedJob
 
     }//end toArray()
 
-
     /**
      * Resolve the linked meeting UUID from a Transcript object.
      *
@@ -472,7 +462,6 @@ class TranscriptRetentionJob extends TimedJob
         return (string) $relation;
 
     }//end resolveMeetingId()
-
 
     /**
      * Extract an object UUID (id or @self.id).

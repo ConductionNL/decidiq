@@ -43,9 +43,10 @@ class SettingsController extends Controller
     /**
      * Constructor for the SettingsController.
      *
-     * @param IRequest        $request         The request object
-     * @param SettingsService $settingsService The settings service
-     * @param IUserSession    $userSession     The user session
+     * @param IRequest                 $request                  The request object
+     * @param SettingsService          $settingsService          The settings service
+     * @param IUserSession             $userSession              The user session
+     * @param PublicationConfigService $publicationConfigService The publication configuration service
      *
      * @return void
      */

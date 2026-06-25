@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 status-note: In progress 2026-06-14 via popolo-decision-makers (Participant deprecated in favour of Popolo Person + Membership; retained as a compatibility shim per ADR-001 §2).
 openspec-changes:
   - popolo-decision-makers
@@ -8,7 +8,7 @@ openspec-changes:
 # participant-crud Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p1-crud-operations. Update Purpose after archive.
+Provides list, detail, create, edit, and delete operations for decision-maker records, with full-text search and role filtering. New decision makers are created as Popolo Person plus Membership pairs, while the legacy flat Participant schema is retained as a deprecated backward-compatibility shim so existing records, quorum aggregation, and vote-casting continue to function.
 ## Requirements
 ### Requirement: Participant list view
 The app SHALL display all Participant objects in a paginated, searchable list using `CnIndexPage` with `useListView`.

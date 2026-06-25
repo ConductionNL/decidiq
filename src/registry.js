@@ -33,17 +33,14 @@ import AgendaItemIntegrations from './views/AgendaItemIntegrations.vue'
 // decidesk-dashboard-v2-layout inserts the widgets/layout/dataSources.
 import CreateMeetingAction from './views/dashboard/widgets/CreateMeetingAction.vue'
 import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue'
+import DashboardQuickActions from './views/dashboard/widgets/DashboardQuickActions.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
-import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
-import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
-import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
-import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWidget.vue'
 import RunningProcessesWidget from './views/dashboard/widgets/RunningProcessesWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
-import RecentDecisionsWidget from './views/dashboard/widgets/RecentDecisionsWidget.vue'
 import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
 
+import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
 import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
@@ -66,6 +63,7 @@ import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
 import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
+import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
@@ -157,6 +155,7 @@ export default {
 	// authoring lives elsewhere — votes are LiveMeeting-only by design).
 	// Cross-schema lookups resolve inside each component rather than the
 	// renderer, per the manifest-abstract-sidebar contract.
+	ConsultationReactionsTab: page(ConsultationReactionsTab),
 	GovernanceBodyMembersTab: page(GovernanceBodyMembersTab),
 	GovernanceBodyTemplateTab: page(GovernanceBodyTemplateTab),
 	// Meeting-efficiency analytics tab (meeting-efficiency): per-body duration
@@ -193,6 +192,10 @@ export default {
 	MinutesApprovalTab: page(MinutesApprovalTab),
 	MinutesDocumentTab: page(MinutesDocumentTab),
 	DecisionActionItemsTab: page(DecisionActionItemsTab),
+	// action-item-deck-board: surface switch — Deck-board projection (real
+	// Nextcloud Deck cards via the OR leaf) when Deck is installed, else the
+	// table tab. The manifest decision action-items tab points here.
+	ActionItemsSurface: page(ActionItemsSurface),
 
 	// --- Dashboard v2 widgets (decidesk-dashboard-v2-widgets). ---
 	// Eleven CnDashboardPage slot components. CnPageRenderer / CnWidgetGrid
@@ -204,18 +207,6 @@ export default {
 	PendingVotesKpiWidget: widget(PendingVotesKpiWidget, {
 		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
 	}),
-	UpcomingMeetingsKpiWidget: widget(UpcomingMeetingsKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
-	}),
-	OverdueActionsKpiWidget: widget(OverdueActionsKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
-	}),
-	ActiveDecisionsKpiWidget: widget(ActiveDecisionsKpiWidget, {
-		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
-	}),
-	UpcomingMeetingsListWidget: widget(UpcomingMeetingsListWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
-	}),
 	PendingVotesListWidget: widget(PendingVotesListWidget, {
 		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
 	}),
@@ -223,9 +214,6 @@ export default {
 		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
 	}),
 	MyActionItemsWidget: widget(MyActionItemsWidget, {
-		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
-	}),
-	RecentDecisionsWidget: widget(RecentDecisionsWidget, {
 		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
 	}),
 	DashboardEmptyState: widget(DashboardEmptyState, {
@@ -236,6 +224,9 @@ export default {
 	}),
 	StartProcessAction: widget(StartProcessAction, {
 		defaultSize: { w: 1, h: 1 }, minSize: { w: 1, h: 1 }, maxSize: { w: 2, h: 1 }, allowedSlots: ['dashboard'],
+	}),
+	DashboardQuickActions: widget(DashboardQuickActions, {
+		defaultSize: { w: 12, h: 1 }, minSize: { w: 3, h: 1 }, maxSize: { w: 12, h: 1 }, allowedSlots: ['dashboard'],
 	}),
 
 	// Decision state machine (decision-state-machine-v1): lifecycle

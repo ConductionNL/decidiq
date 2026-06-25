@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # real-time-vote-tabulation Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-core-t2. Update Purpose after archive.
+Shows a live vote tally during an open voting round, refreshed automatically and gated by role and ballot secrecy. The chair and secretary see a per-member breakdown on non-secret rounds while ordinary members see only aggregate counts, secret rounds hide all individual attribution until the round closes, and after closing every role sees the full result. The tally panel meets WCAG 2.1 AA, conveying vote options by text label and not colour alone.
 
 ## Requirements
 

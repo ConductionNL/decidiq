@@ -80,6 +80,42 @@ export function pendingVotingRounds(openRounds, votes, participantId) {
 	return openRounds.filter((r) => r && !votedRoundIds.has(String(r.id)))
 }
 
+/**
+ * Whether a voting round's deadline falls inside the active dashboard window.
+ * An empty / absent range (the "All" preset) matches everything; a bounded
+ * range excludes rounds with no parseable votingDeadline (consistent with the
+ * declarative `dateField BETWEEN from..to` filter the stat KPIs apply).
+ *
+ * @param {object} round A voting-round object (uses `votingDeadline`).
+ * @param {{from?: string, to?: string}|null} range The dashboard date window.
+ *
+ * @return {boolean} True when the round is in range (or no range is set).
+ */
+export function withinDeadlineRange(round, range) {
+	if (!range || (!range.from && !range.to)) {
+		return true
+	}
+	const t = toTime(round && round.votingDeadline)
+	if (Number.isNaN(t)) {
+		return false
+	}
+	const from = range.from ? toTime(range.from) : -Infinity
+	const to = range.to ? toTime(range.to) : Infinity
+	return t >= from && t <= to
+}
+
+/**
+ * Filter pending voting rounds to those whose deadline is in the active window.
+ *
+ * @param {Array<object>} rounds Pending voting rounds.
+ * @param {{from?: string, to?: string}|null} range The dashboard date window.
+ *
+ * @return {Array<object>} Rounds within the window (all when no range set).
+ */
+export function pendingInRange(rounds, range) {
+	return (Array.isArray(rounds) ? rounds : []).filter((r) => withinDeadlineRange(r, range))
+}
+
 // --- Urgency / countdown (REQ-011 / REQ-012) ---------------------------------
 
 /**

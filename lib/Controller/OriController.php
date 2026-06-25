@@ -67,7 +67,7 @@ class OriController extends Controller
         'voteevents'    => 'voting-round',
         'votes'         => 'vote',
         'reports'       => 'minutes',
-        // publish-decisions-via-opencatalogi task 5.2 — ORI harvest feed over the
+        // Publish-decisions-via-opencatalogi task 5.2 — ORI harvest feed over the
         // derived, immutable PublicationPayload objects produced by the publication
         // flow. This is the harvest-able feed the deferred follow-up specifies: a
         // single ORI surface a national/OAI-PMH harvester can poll to discover all
@@ -187,7 +187,7 @@ class OriController extends Controller
 
             $decisionType = self::DECISION_TYPE_MAP[$resource] ?? null;
             if ($resource === 'publications') {
-                // publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
+                // Publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
                 // feed has no `lifecycle`/`isPublished` field; its anonymous visibility
                 // is governed solely by the RBAC published-predicate the schema declares
                 // (public group when publicatiedatum <= $now). OR enforces that rule for
@@ -206,18 +206,18 @@ class OriController extends Controller
                 // Person/Membership are public reference data without a lifecycle field;
                 // all other resources require the published lifecycle gate (#316).
                 $filters['lifecycle'] = 'published';
-            }
+            }//end if
 
             $objects = $objectService->findAll(['limit' => 100, 'filters' => $filters]);
         } catch (Throwable $e) {
             $this->logger->error(message: 'OriController index failed', context: ['resource' => $resource, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
 
         $type  = self::ORI_TYPE_MAP[$resource];
         $items = [];
         foreach (($objects ?? []) as $object) {
-            // findAll() yields ObjectEntity instances; jsonSerialize() gives the
+            // FindAll() yields ObjectEntity instances; jsonSerialize() gives the
             // flat property map (title, lifecycle, motionType, …). A raw (array)
             // cast mangles the entity's protected props, leaving the serializer
             // with only @self/id — so normalise to the serialised array first.
@@ -232,7 +232,7 @@ class OriController extends Controller
                 // that are live RIGHT NOW (publicatiedatum in the past and either no
                 // depublicatiedatum or one still in the future). A future-dated or
                 // already-depublished payload must never appear in the harvest feed.
-                if ($this->isPayloadLive($objectArray) === false) {
+                if ($this->isPayloadLive(object: $objectArray) === false) {
                     continue;
                 }
 
@@ -248,7 +248,7 @@ class OriController extends Controller
             }
 
             $items[] = $this->serializeOri(type: $type, object: $objectArray);
-        }
+        }//end foreach
 
         $payload = [
             '@context' => self::ORI_CONTEXT,
@@ -306,7 +306,7 @@ class OriController extends Controller
             // (publicatiedatum <= $now, not depublished). A future-dated or
             // depublished payload is not-found for anonymous callers — return 404
             // (not 403) so the endpoint never confirms an unpublished payload exists.
-            if ($this->isPayloadLive((array) $object) === false) {
+            if ($this->isPayloadLive(object: (array) $object) === false) {
                 return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
             }
 
@@ -321,7 +321,7 @@ class OriController extends Controller
             $this->applyCorsHeaders(response: $response);
 
             return $response;
-        }
+        }//end if
 
         // #316: Treat non-published objects as not-found for anonymous callers.
         // Return 404 (not 403) to avoid confirming the object exists.
@@ -458,7 +458,7 @@ class OriController extends Controller
             $payload['email'] = $object['email'];
         }
 
-        // publish-decisions-via-opencatalogi task 5.2 — PublicationPayload-specific
+        // Publish-decisions-via-opencatalogi task 5.2 — PublicationPayload-specific
         // ORI fields. PublicationPayloads are derived, allow-list objects (no UID,
         // no voter identities, no contact details by construction), so every field
         // present here is safe to surface on the harvest feed. The payload self-
@@ -541,14 +541,14 @@ class OriController extends Controller
         }
 
         $now       = new \DateTimeImmutable();
-        $published = $this->parseDate($publishedRaw);
+        $published = $this->parseDate(value: $publishedRaw);
         if ($published === null || $published > $now) {
             return false;
         }
 
         $depublishedRaw = ($object['depublicatiedatum'] ?? null);
         if (is_string($depublishedRaw) === true && $depublishedRaw !== '') {
-            $depublished = $this->parseDate($depublishedRaw);
+            $depublished = $this->parseDate(value: $depublishedRaw);
             if ($depublished !== null && $depublished <= $now) {
                 return false;
             }

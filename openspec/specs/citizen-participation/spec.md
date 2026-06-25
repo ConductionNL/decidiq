@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # citizen-participation Specification
 
 ## Purpose
-TBD - created by archiving change citizen-participation. Update Purpose after archive.
+Lets governments run public consultations and participatory budget rounds where citizens can react and vote advisorily on proposals. It manages consultation and budget-round lifecycles, accepts authenticated (and optionally rate-limited anonymous) reaction submissions through a moderation queue, validates budget proposals and tallies citizen votes, and publishes results via OpenRegister's RBAC published-predicate and OpenCatalogi without exposing voter identities or app-local public endpoints.
 ## Requirements
 ### Requirement: Consultation lifecycle
 

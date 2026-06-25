@@ -3,8 +3,9 @@
 
 <!--
  Approve-with-optional-note dialog for the consultation reaction moderation
- queue (citizen-participation). Approval increments the consultation's derived
- submissionCount and makes the reaction eligible for publication.
+ queue (citizen-participation). Approval sets the reaction to 'approved' so it
+ surfaces in the consultation's reactions relation and becomes eligible for
+ publication.
 
  @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
 -->

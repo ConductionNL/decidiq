@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 status-note: 2026-06-12 — the three audit gaps (recurring-meeting generation UI, per-recipient convocation delivery tracking, Schema.org eventAttendanceMode/virtualLocation mapping) closed by meeting-agenda-gaps-v1 (MeetingSeriesService + Series tab, BoardMeetingService noticeDeliveries + deadline warnings + delivery table, additive Meeting schema annotations). Earlier requirements built via meeting-core/-crud/-workflow/-series/-attendees/-quorum/-list-view/-detail-view + digital-meetings-and-recurrence capabilities. In progress 2026-06-14 via retire-board-portal (parallel BoardMeeting/BoardMaterial schemas + views + CalDAV bridge retired per ADR-006; corporate board meetings fold onto the universal meeting schema with mode=corp labels).
 openspec-changes:
   - retire-board-portal

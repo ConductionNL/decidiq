@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # secret-ballot Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-motion-and-voting-other-t1. Update Purpose after archive.
+Keeps individual votes anonymous when a voting round is marked secret. A backend guard masks each vote's value and strips the voter relation for all roles, including chair and secretary, while aggregate counts remain available; the UI hides the per-participant table, shows a lock icon and a "secret ballot" badge, and the audit trail records that a participant voted without revealing the direction. Internal recount logic can still read actual values directly, bypassing the masked API layer.
 
 ## Requirements
 

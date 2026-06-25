@@ -92,8 +92,16 @@ class DecisionIntegrationService
 
         // Validate decisionType against the integration-hub supported types.
         $allowedTypes = [
-            'motion', 'amendment', 'resolution', 'contract', 'contract-renewal',
-            'report-adoption', 'appointment', 'management-point', 'policy', 'meeting-outcome',
+            'motion',
+            'amendment',
+            'resolution',
+            'contract',
+            'contract-renewal',
+            'report-adoption',
+            'appointment',
+            'management-point',
+            'policy',
+            'meeting-outcome',
         ];
         $decisionType = (string) ($decisionData['decisionType'] ?? '');
         if (in_array($decisionType, $allowedTypes, true) === false) {
@@ -135,9 +143,14 @@ class DecisionIntegrationService
             }
 
             if (is_array($existing) === true && count($existing) > 0) {
-                $first     = reset($existing);
-                $firstData = is_array($first) ? $first : (array) $first->jsonSerialize();
-                $id        = (string) ($firstData['id'] ?? ($firstData['uuid'] ?? ''));
+                $first = reset($existing);
+                if (is_array($first) === true) {
+                    $firstData = $first;
+                } else {
+                    $firstData = (array) $first->jsonSerialize();
+                }
+
+                $id = (string) ($firstData['id'] ?? ($firstData['uuid'] ?? ''));
                 return ['success' => true, 'decisionId' => $id, 'created' => false];
             }
         }//end if
@@ -154,8 +167,13 @@ class DecisionIntegrationService
 
         // Additive provenance fields (REQ-DCDH-001).
         $provenanceFields = [
-            'sourceApp', 'subjectRegister', 'subjectSchema', 'subjectId',
-            'subjectLabel', 'outcomeCallbackUrl', 'externalReference',
+            'sourceApp',
+            'subjectRegister',
+            'subjectSchema',
+            'subjectId',
+            'subjectLabel',
+            'outcomeCallbackUrl',
+            'externalReference',
         ];
         foreach ($provenanceFields as $field) {
             $val = (string) ($decisionData[$field] ?? '');
@@ -171,7 +189,12 @@ class DecisionIntegrationService
                 schema: 'decision'
             );
 
-            $savedArr   = is_array($saved) ? $saved : (array) $saved->jsonSerialize();
+            if (is_array($saved) === true) {
+                $savedArr = $saved;
+            } else {
+                $savedArr = (array) $saved->jsonSerialize();
+            }
+
             $decisionId = (string) ($savedArr['id'] ?? ($savedArr['uuid'] ?? ''));
 
             $this->auditLog->append(
@@ -188,7 +211,7 @@ class DecisionIntegrationService
                 ['exception' => $e->getMessage(), 'actor' => $actorId]
             );
             return ['success' => false, 'message' => 'Failed to persist decision: '.$e->getMessage()];
-        }
+        }//end try
 
     }//end createDecision()
 
@@ -230,7 +253,11 @@ class DecisionIntegrationService
             return null;
         }
 
-        $decision = is_array($entity) ? $entity : (array) $entity->jsonSerialize();
+        if (is_array($entity) === true) {
+            $decision = $entity;
+        } else {
+            $decision = (array) $entity->jsonSerialize();
+        }
 
         $lifecycle = (string) ($decision['lifecycle'] ?? 'draft');
         $outcome   = (string) ($decision['outcome'] ?? '');
@@ -238,9 +265,9 @@ class DecisionIntegrationService
         // Derive status (ADR-031 — declarative, no new state machine).
         if ($lifecycle === 'withdrawn') {
             $status = 'withdrawn';
-        } elseif (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome === 'adopted') {
+        } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome === 'adopted') {
             $status = 'approved';
-        } elseif (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome !== '') {
+        } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome !== '') {
             $status = 'rejected';
         } else {
             $status = 'pending';
@@ -318,11 +345,15 @@ class DecisionIntegrationService
             return ['success' => false, 'code' => 'not_found', 'message' => "Decision '{$decisionId}' not found."];
         }
 
-        $decision = is_array($entity) ? $entity : (array) $entity->jsonSerialize();
+        if (is_array($entity) === true) {
+            $decision = $entity;
+        } else {
+            $decision = (array) $entity->jsonSerialize();
+        }
 
         // Persist the callback URL on the Decision object (declarative delivery
         // is then handled by x-openregister-notifications outcomeEmitted trigger).
-        $updated                       = $decision;
+        $updated = $decision;
         $updated['outcomeCallbackUrl'] = $callbackUrl;
 
         try {
@@ -476,7 +507,12 @@ class DecisionIntegrationService
         }
 
         foreach ($stages as $stage) {
-            $stageData = is_array($stage) ? $stage : (array) $stage->jsonSerialize();
+            if (is_array($stage) === true) {
+                $stageData = $stage;
+            } else {
+                $stageData = (array) $stage->jsonSerialize();
+            }
+
             if (($stageData['outcome'] ?? '') === 'adopted' || ($stageData['status'] ?? '') === 'decided') {
                 // At least one signature stage is resolved.
                 return [

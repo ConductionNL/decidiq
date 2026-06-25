@@ -146,6 +146,7 @@ class Application extends App implements IBootstrap
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     objectService: $c->get(ObjectService::class),
                     participantResolver: $c->get(ParticipantResolver::class),
+                    minutesDocumentService: $c->get(\OCA\Decidesk\Service\MinutesDocumentService::class),
                     );
                 }
                 );
@@ -226,7 +227,6 @@ class Application extends App implements IBootstrap
                 static function ($c): OverdueActionItemsJob {
                     return new OverdueActionItemsJob(
                     time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
@@ -731,11 +731,7 @@ class Application extends App implements IBootstrap
         $context->registerService(
             MigrateActionItemsToDeckLeaf::class,
             static function ($c): MigrateActionItemsToDeckLeaf {
-                return new MigrateActionItemsToDeckLeaf(
-                    settingsService: $c->get(\OCA\Decidesk\Service\SettingsService::class),
-                    container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
-                );
+                return new MigrateActionItemsToDeckLeaf();
             }
         );
 
@@ -981,12 +977,6 @@ class Application extends App implements IBootstrap
         // SpeechToText + TaskProcessing provider abstractions. All provider
         // resolution is lazy + guarded so absence is a first-class state.
         // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md.
-        $context->registerService(
-            \OCA\Decidesk\Service\PublicationEligibilityService::class,
-            static function (): \OCA\Decidesk\Service\PublicationEligibilityService {
-                return new \OCA\Decidesk\Service\PublicationEligibilityService();
-            }
-        );
         $context->registerService(
             \OCA\Decidesk\Service\TranscriptionSourceResolver::class,
             static function ($c): \OCA\Decidesk\Service\TranscriptionSourceResolver {

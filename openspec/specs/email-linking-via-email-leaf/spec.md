@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # email-linking-via-email-leaf Specification
 
 ## Purpose
-TBD - created by archiving change 2026-06-10-migrate-email-links-to-email-leaf. Update Purpose after archive.
+Links emails to a decision dossier or agenda item through the Nextcloud Mail integration leaf bound to the OpenRegister object, surfaced as an email tab and widget instead of an app-local link store. Reverse lookups are served by the registry's object-link index, and the email tab degrades gracefully when the Mail app is absent. Vote-by-email casting stays in the in-app statutory voting path, and legacy email-link objects are relinked to the registry by an idempotent migration that archives the originals rather than deleting them.
 
 ## Requirements
 

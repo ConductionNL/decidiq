@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # meeting-workflow Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-meeting-management-core-t1. Update Purpose after archive.
+Enforces a finite state machine for the meeting lifecycle (draft, scheduled, opened, paused, adjourned, closed, cancelled) stored on the CalDAV VEVENT, rejecting invalid transitions. Applies governance-domain workflow presets that determine which transitions, pause/adjourn states, and quorum enforcement apply, exposes transitions through a lifecycle action API, and records each transition in the audit trail.
 
 ## Requirements
 

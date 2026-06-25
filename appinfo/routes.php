@@ -46,6 +46,12 @@ return \OCA\OpenRegister\AppHost\Routes::standard(
         ['name' => 'processTemplate#duplicate', 'url' => '/api/process-templates/{id}/duplicate',   'verb' => 'POST'],
         ['name' => 'processTemplate#destroy',   'url' => '/api/process-templates/{id}',             'verb' => 'DELETE'],
 
+        // Action items — VTODO write path (the action-item schema is a read-only
+        // projection; the object API rejects writes). @spec action-items-vtodo-deck-reconcile.
+        ['name' => 'actionItem#create',  'url' => '/api/action-items',       'verb' => 'POST'],
+        ['name' => 'actionItem#update',  'url' => '/api/action-items/{uid}', 'verb' => 'PUT',    'requirements' => ['uid' => '[^/]+']],
+        ['name' => 'actionItem#destroy', 'url' => '/api/action-items/{uid}', 'verb' => 'DELETE', 'requirements' => ['uid' => '[^/]+']],
+
         // Member import (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/admin-settings/spec.md
         ['name' => 'memberImport#groups',       'url' => '/api/member-import/groups',                   'verb' => 'GET'],

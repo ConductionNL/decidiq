@@ -289,25 +289,25 @@ class PublicationEligibilityService
      */
     public function assertEligible(string $sourceType, string $sourceId): array
     {
-        $schema = $this->schemaForType($sourceType);
-        $data   = $this->loadObject($schema, $sourceId);
+        $schema = $this->schemaForType(sourceType: $sourceType);
+        $data   = $this->loadObject(schema: $schema, id: $sourceId);
 
-        if ($this->isDeniedType($schema, $data) === true) {
-            throw new AccessDeniedException('This object type is not publishable.');
+        if ($this->isDeniedType(schema: $schema, objectData: $data) === true) {
+            throw new AccessDeniedException(message: 'This object type is not publishable.');
         }
 
         switch ($sourceType) {
             case 'decision':
-                $this->assertDecisionEligible($data);
+                $this->assertDecisionEligible(data: $data);
                 break;
             case 'agenda':
-                $this->assertAgendaEligible($data);
+                $this->assertAgendaEligible(data: $data);
                 break;
             case 'minutes':
-                $this->assertMinutesEligible($data);
+                $this->assertMinutesEligible(data: $data);
                 break;
             default:
-                throw new AccessDeniedException('Unknown publication source type: '.$sourceType);
+                throw new AccessDeniedException(message: 'Unknown publication source type: '.$sourceType);
         }
 
         return $data;
@@ -342,7 +342,7 @@ class PublicationEligibilityService
             $incomingValue = ($incoming[$field] ?? null);
             if ($incomingValue !== $storedValue) {
                 throw new AccessDeniedException(
-                    "The field '$field' is owned by the publication flow and cannot be written directly."
+                    message: "The field '$field' is owned by the publication flow and cannot be written directly."
                 );
             }
         }
@@ -365,7 +365,7 @@ class PublicationEligibilityService
         $lifecycle = (string) ($data['lifecycle'] ?? '');
         if (in_array($lifecycle, ['decided', 'enacted'], true) === false) {
             throw new AccessDeniedException(
-                'Only decisions in status "decided" or "enacted" are publishable.'
+                message: 'Only decisions in status "decided" or "enacted" are publishable.'
             );
         }
 
@@ -386,14 +386,14 @@ class PublicationEligibilityService
     {
         if (($data['isPublic'] ?? false) !== true) {
             throw new AccessDeniedException(
-                'Only agendas of meetings flagged isPublic are publishable.'
+                message: 'Only agendas of meetings flagged isPublic are publishable.'
             );
         }
 
         $convocationSent = ($data['convocationSentAt'] ?? $data['convocationSent'] ?? null);
         if (empty($convocationSent) === true) {
             throw new AccessDeniedException(
-                'The meeting convocation must have been sent before the agenda is publishable.'
+                message: 'The meeting convocation must have been sent before the agenda is publishable.'
             );
         }
 
@@ -415,7 +415,7 @@ class PublicationEligibilityService
         $lifecycle = (string) ($data['lifecycle'] ?? '');
         if (in_array($lifecycle, ['approved', 'signed', 'published'], true) === false) {
             throw new AccessDeniedException(
-                'Only minutes in lifecycle "approved" (or later) are publishable.'
+                message: 'Only minutes in lifecycle "approved" (or later) are publishable.'
             );
         }
 
@@ -460,11 +460,11 @@ class PublicationEligibilityService
             $entity        = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
         } catch (\Throwable $e) {
             $this->logger->error('Decidesk publication: failed to load source object', ['exception' => $e->getMessage()]);
-            throw new MissingObjectException('Source object could not be loaded.');
+            throw new MissingObjectException(message: 'Source object could not be loaded.');
         }
 
         if ($entity === null) {
-            throw new MissingObjectException('Source object not found: '.$id);
+            throw new MissingObjectException(message: 'Source object not found: '.$id);
         }
 
         return $entity->jsonSerialize();

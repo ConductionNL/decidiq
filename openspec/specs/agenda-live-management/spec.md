@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # agenda-live-management Specification
 
 ## Purpose
-TBD - created by archiving change 2026-05-11-p2-agenda-management. Update Purpose after archive.
+Lets the chair run the agenda live during an open meeting. The chair can add, remove, and reorder agenda items on the fly, advance each discussion or decision item through its BOB phases, batch-adopt consent items (hamerstukken), and mark which item is currently active, while other participants see the updated, read-only agenda in real time.
 
 ## Requirements
 
