@@ -18,7 +18,7 @@ _Source: /tmp/ia-doc-dec-cat-conn.md_
 
 Vrijwel alle 342 Nederlandse gemeenten (en de 12 provincies en 21 waterschappen) gebruiken één van twee griffie-systemen voor het beheer van politieke besluitvorming: NOTUBIZ (geschat marktaandeel circa 60% gemeenten) of iBabs (Gemeente Oplossingen, circa 35%). De overige paar procent gebruikt Companion (oudere LIAS-leverancier) of een zelfgebouwd systeem. Beide marktleiders zijn proprietary-SaaS, met gesloten datamodellen, en de gemeente betaalt jaarlijks zes-cijferige bedragen voor licenties, hosting en aanvullende modules. Bovendien zijn de exit-kosten enorm: alle agenda's, besluiten, moties en stemmingen zitten vast in vendor-formaten.
 
-Decidesk wil het democratisch besluitvormingsproces openen via een open datamodel (gebaseerd op het Popolo-standaard, het OASIS Akoma Ntoso-standaard en de Nederlandse Officiële Bekendmakingen-standaard STOP/TPOD). Maar gemeenten kunnen niet van de ene op de andere dag overstappen — het is realistischer om decidesk eerst naast NOTUBIZ of iBabs te draaien als open laag, met bidirectional sync, zodat: (1) de griffie haar bestaande tool blijft gebruiken voor de officiële workflow, (2) raadsleden via decidesk een betere UX krijgen voor consultatie en participatie, (3) alle data tegelijkertijd in een open formaat beschikbaar komt voor burgers en hergebruik door andere apps (mydash dashboards, opencatalogi inzichten, docudesk PDF-publicatie), en (4) de gemeente over 2-5 jaar de optie heeft om NOTUBIZ/iBabs uit te faseren zonder data-verlies.
+Decidesk wil het democratisch besluitvormingsproces openen via een open datamodel (gebaseerd op het Popolo-standaard, het OASIS Akoma Ntoso-standaard en de Nederlandse Officiële Bekendmakingen-standaard STOP/TPOD). Maar gemeenten kunnen niet van de ene op de andere dag overstappen — het is realistischer om decidesk eerst naast NOTUBIZ of iBabs te draaien als open laag, met bidirectional sync, zodat: (1) de griffie haar bestaande tool blijft gebruiken voor de officiële workflow, (2) raadsleden via decidesk een betere UX krijgen voor consultatie en participatie, (3) alle data tegelijkertijd in een open formaat beschikbaar komt voor burgers en hergebruik door andere apps (launchpad dashboards, opencatalogi inzichten, docudesk PDF-publicatie), en (4) de gemeente over 2-5 jaar de optie heeft om NOTUBIZ/iBabs uit te faseren zonder data-verlies.
 
 Deze spec definieert de bidirectional synchronisatie: lezen uit NOTUBIZ/iBabs van alle vergadering-gerelateerde objecten (agenda, vergaderstukken, aanwezigheid, stemming, besluiten, moties, amendementen, schriftelijke vragen, fracties), schrijven terug van decidesk-gegenereerde inzichten (samenvattingen, transcript-links, participatie-signalen), en het oplossen van conflicten bij gelijktijdige bewerkingen via een hybrid CRDT/last-writer-wins-with-audit-trail-model.
 
@@ -98,7 +98,7 @@ PDF-vergaderstukken en bijlagen MOETEN met provider-metadata worden gesynchronis
 De connector MOET een operationeel dashboard met statistieken en alert-thresholds bieden.
 - GIVEN een beheerder opent `/admin/sync-status`, WHEN de pagina laadt, THEN MOET deze per provider de laatste 24 uur SyncJobs tonen, het aantal open conflicten, gemiddelde sync-latency en quota-gebruik bij de provider.
 - GIVEN drie opeenvolgende sync-jobs hebben `status: failed`, WHEN de derde faalt, THEN MOET een PagerDuty/Slack/e-mail alert naar de geconfigureerde on-call gaan.
-- GIVEN het aantal openstaande SyncConflicts groter dan 25 is, WHEN de health-check loopt, THEN MOET de overall connector-status `degraded` worden, zichtbaar in mydash en in het admin-paneel.
+- GIVEN het aantal openstaande SyncConflicts groter dan 25 is, WHEN de health-check loopt, THEN MOET de overall connector-status `degraded` worden, zichtbaar in launchpad en in het admin-paneel.
 
 ## Standards & Sources
 
@@ -122,7 +122,7 @@ De connector MOET een operationeel dashboard met statistieken en alert-threshold
 - **opentalk** (optioneel) — kan stemmingen real-time pushen naar een Talk-kanaal van de fractie.
 - **docudesk** — gebruikt gesynchroniseerde Besluiten voor automatische PDF-besluitenlijst-generatie met STOP/TPOD-conform XML.
 - **opencatalogi** — publiceert de gesynchroniseerde data als open dataset op data.overheid.nl conform DCAT-AP-NL.
-- **mydash** — KPI's: aantal vergaderingen per maand, aantal aangenomen/verworpen moties, presentiepercentage per fractie, sync-success-rate per provider.
+- **launchpad** — KPI's: aantal vergaderingen per maand, aantal aangenomen/verworpen moties, presentiepercentage per fractie, sync-success-rate per provider.
 - **softwarecatalog** — registreert decidesk + de NOTUBIZ/iBabs-adapter als toegepaste software voor Pas-toe-of-leg-uit-rapportage.
 
 ## Target users

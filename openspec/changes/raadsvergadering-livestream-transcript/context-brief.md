@@ -118,7 +118,7 @@ Vergaderingen MOETEN volgens de gemeentelijke retention policy worden bewaard of
 - **openregister** — host voor de schema-definities; full-text-search-index gebruikt voor REQ-LIVE-009.
 - **opentalk** (optioneel) — Talk-integratie voor live commentaar tijdens livestream voor raadsleden achter de schermen; niet in scope voor v1.
 - **docudesk** — als de besluitenlijst als PDF wordt gegenereerd, MOET docudesk het transcript-uittreksel kunnen embedden via een verwijzing naar de Transcript-uri.
-- **mydash** — KPI's: aantal vergaderingen per maand met transcript, gemiddelde transcript-confidence, gemiddelde correctie-tijd griffie, aantal deep-link-shares.
+- **launchpad** — KPI's: aantal vergaderingen per maand met transcript, gemiddelde transcript-confidence, gemiddelde correctie-tijd griffie, aantal deep-link-shares.
 
 ## Target users
 
