@@ -4,6 +4,25 @@
 	"dependencies": [
 		"openregister"
 	],
+	"walkthrough": {
+		"enabled": true,
+		"version": 1,
+		"completionConfigKey": "walkthrough_completed_version",
+		"tours": [
+			{
+				"id": "decidesk:getting-started",
+				"title": "Getting started",
+				"trigger": "first-visit",
+				"minAppVersion": "0.3.5",
+				"steps": [
+					{ "id": "welcome", "sinceVersion": "0.3.5", "placement": "center", "title": "Welcome to Decidesk", "body": "Let's take a quick spin through decision-making — we'll schedule a meeting together so you can see how the pieces fit. You'll add the record yourself.", "target": { "kind": "page", "ref": "Dashboard" }, "advanceOn": { "type": "manual" } },
+					{ "id": "go-meetings", "sinceVersion": "0.3.5", "placement": "right", "body": "Meetings are the heart of Decidesk. Open Meetings from the menu to see everything on the agenda.", "task": "Click Meetings in the menu", "target": { "kind": "nav-item", "ref": "Meetings" }, "advanceOn": { "type": "route-match", "route": "Meetings" } },
+					{ "id": "create-meeting", "sinceVersion": "0.3.5", "placement": "bottom", "allowManualNext": true, "body": "Schedule your first meeting — give it a title and a date, then save. You can add agenda items, motions and decisions later.", "task": "Click New and save a meeting", "target": { "kind": "element", "ref": "index-add" }, "advanceOn": { "type": "object-created", "register": "decidesk", "schema": "meeting", "capture": { "meetingId": ":id" } } },
+					{ "id": "done", "sinceVersion": "0.3.5", "placement": "center", "title": "You're all set", "body": "Nicely done — your first meeting is on the calendar. Head back to the Dashboard to track decisions, and reopen this tour anytime from the … menu.", "target": { "kind": "page", "ref": "Dashboard" }, "advanceOn": { "type": "manual" } }
+				]
+			}
+		]
+	},
 	"observability": {
 		"_note": "Decidesk adopts the OpenRegister AppHost observability engine (ADR-040 / ADR-006). The /api/health route is served by a thin GenericHealthController subclass (HealthController) that reshapes the engine result into the published REQ-API-004 body {status, baseUrl, version, openregister}; /api/metrics is aliased straight to GenericMetricsController. statusCodePolicy=always200 + cors=true reproduce the REQ-API-004 reverse-proxy probe contract (probes succeed even when degraded; CORS + OPTIONS preflight). The orAvailable check subsumes the former hand-rolled DI-container ObjectService lookup. No metrics[] descriptors: decidesk gains the implicit decidesk_info / decidesk_up gauges, a pure compliance upgrade over the no-metrics-endpoint baseline.",
 		"health": {
