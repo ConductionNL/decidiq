@@ -27,6 +27,14 @@ webpackConfig.entry = {
 		import: path.join(__dirname, 'src', 'personal.js'),
 		filename: appId + '-personal.js',
 	},
+	// Global integration-leaf bootstrap loaded on EVERY Nextcloud page via
+	// Util::addInitScript (ADR-019). Registers the "Besluitvorming" decisions
+	// leaf so it surfaces on host objects (e.g. a procest case) without the
+	// full decidesk app bundle.
+	integrationInit: {
+		import: path.join(__dirname, 'src', 'integration-init.js'),
+		filename: appId + '-integration-init.js',
+	},
 }
 
 // Use local source when available (monorepo dev), otherwise fall back to npm package.

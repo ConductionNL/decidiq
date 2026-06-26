@@ -1356,5 +1356,12 @@ class Application extends App implements IBootstrap
         // C2: email-voting is disabled — MailReplyHandler is not registered.
         // The background job remains in place for future re-enablement but must
         // not be scheduled until the feature is audited and enabled deliberately.
+
+        // ADR-019 / ADR-022: load the tiny global integration-leaf bootstrap on
+        // EVERY Nextcloud page so decidesk's "Besluitvorming" decisions leaf
+        // registers on the shared OpenRegister integration registry and surfaces
+        // as a sidebar tab + detail-page widget on host objects (e.g. a procest
+        // case) without the full decidesk app bundle being present.
+        \OCP\Util::addInitScript(Application::APP_ID, 'decidesk-integration-init');
     }//end boot()
 }//end class
