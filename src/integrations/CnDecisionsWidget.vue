@@ -153,52 +153,67 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget title. */
 		cardTitle() {
 			return t('decidesk', 'Besluitvorming')
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget icon. */
 		cardIcon() {
 			return Gavel
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidesk. */
 		appUrl() {
 			return generateUrl('/apps/decidesk/decisions')
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
 		hostObjectId() {
 			return String(this.objectId || this.integrationContext.objectId || '')
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
 		hostRegister() {
 			return this.register || this.integrationContext.register || ''
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
 		hostSchema() {
 			return this.schema || this.integrationContext.schema || ''
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — adapt widget layout to the host surface. */
 		isDashboardSurface() {
 			return DASHBOARD_SURFACES.includes(String(this.surface).split(':')[0])
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — empty-state copy for the leaf surface. */
 		emptyLabel() {
 			return t('decidesk', 'No decision-making linked to this object yet.')
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal action label. */
 		createProposalLabel() {
 			return t('decidesk', 'Create proposal for this object')
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidesk. */
 		openInDecideskLabel() {
 			return t('decidesk', 'Open in decidesk')
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — linked-decision count label. */
 		countLabel() {
 			const total = this.decisions.length
 			return this.n('decidesk', '{count} decision', '{count} decisions', total, { count: total })
 		},
 
-		/** Grouped buckets, in presentation order: Voorstellen, Adviezen, Besluiten. */
+		/**
+		 * Grouped buckets, in presentation order: Voorstellen, Adviezen, Besluiten.
+		 *
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — group host decisions by kind.
+		 */
 		groups() {
 			const buckets = { proposals: [], advice: [], decisions: [] }
 			for (const decision of this.decisions) {
@@ -211,11 +226,16 @@ export default {
 			]
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — render only populated decision groups. */
 		nonEmptyGroups() {
 			return this.groups.filter((g) => g.items.length > 0)
 		},
 
-		/** Minimal schema for the create-proposal form (title + body + type). */
+		/**
+		 * Minimal schema for the create-proposal form (title + body + type).
+		 *
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal form schema.
+		 */
 		createSchema() {
 			return {
 				title: t('decidesk', 'Proposal'),
@@ -240,14 +260,17 @@ export default {
 	},
 
 	methods: {
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — stable list-row key. */
 		rowKey(decision) {
 			return objId(decision)
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — list-row title fallback. */
 		rowTitle(decision) {
 			return String(decision?.title ?? decision?.data?.title ?? '').trim() || t('decidesk', 'Untitled decision')
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle label. */
 		lifecycleLabel(decision) {
 			if (isProposal(decision)) {
 				return t('decidesk', 'Proposal')
@@ -262,6 +285,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle badge variant. */
 		lifecycleVariant(decision) {
 			if (isProposal(decision)) {
 				return 'info'
@@ -275,23 +299,27 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 deep-link to a decision. */
 		decisionUrl(decision) {
 			const id = objId(decision)
 			return id ? generateUrl(`/apps/decidesk/decisions/${encodeURIComponent(id)}`) : this.appUrl
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 open decidesk decisions app. */
 		openApp() {
 			if (typeof window !== 'undefined') {
 				window.open(this.appUrl, '_blank', 'noopener')
 			}
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 open create-proposal dialog. */
 		openCreate() {
 			if (this.hostObjectId) {
 				this.createOpen = true
 			}
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 load decisions for the host object. */
 		async refresh() {
 			if (!this.hostObjectId) {
 				this.decisions = []
@@ -313,6 +341,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create a decision pre-linked to the host. */
 		async onCreate(formData) {
 			if (!this.hostObjectId || this.creating) {
 				return
