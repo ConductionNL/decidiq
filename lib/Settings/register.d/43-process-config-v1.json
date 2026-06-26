@@ -23,15 +23,18 @@
         "properties": {
           "name": {
             "type": "string",
+            "title": "Name",
             "description": "Human-readable template name.",
             "example": "Association ALV"
           },
           "description": {
             "type": "string",
+            "title": "Description",
             "description": "Optional description of when this template applies."
           },
           "context": {
             "type": "string",
+            "title": "Context",
             "description": "Governance context this template is intended for (maps to the guard fallback domain when unset).",
             "enum": [
               "association",
@@ -44,42 +47,48 @@
           },
           "builtIn": {
             "type": "boolean",
+            "title": "Built-in",
             "description": "Read-only built-in template shipped with the app. Edit/delete are refused; duplicate is allowed (clears this flag).",
             "default": false,
             "example": true
           },
           "initialState": {
             "type": "string",
+            "title": "Initial state",
             "description": "The state a decision enters this template at.",
             "example": "draft"
           },
           "stateMachine": {
             "type": "object",
+            "title": "State machine",
             "description": "Structured state machine (1:1 convertible to Symfony Workflow YAML). states[] declares the lifecycle states; transitions[] declares the edges.",
             "properties": {
               "states": {
                 "type": "array",
+                "title": "States",
                 "description": "Lifecycle states.",
                 "items": {
                   "type": "object",
                   "properties": {
-                    "name": { "type": "string" },
-                    "description": { "type": "string" }
+                    "name": { "type": "string", "title": "Name", "description": "Name of the lifecycle state." },
+                    "description": { "type": "string", "title": "Description", "description": "Optional description of the lifecycle state." }
                   }
                 }
               },
               "transitions": {
                 "type": "array",
+                "title": "Transitions",
                 "description": "Allowed transitions between states.",
                 "items": {
                   "type": "object",
                   "properties": {
-                    "name": { "type": "string" },
-                    "from": { "type": "string" },
-                    "to": { "type": "string" },
-                    "chairOnly": { "type": "boolean", "default": false },
+                    "name": { "type": "string", "title": "Name", "description": "Name of the transition." },
+                    "from": { "type": "string", "title": "From state", "description": "State the transition moves from." },
+                    "to": { "type": "string", "title": "To state", "description": "State the transition moves to." },
+                    "chairOnly": { "type": "boolean", "default": false, "title": "Chair only", "description": "Whether only the chair may trigger this transition." },
                     "guards": {
                       "type": "array",
+                      "title": "Guards",
                       "description": "Guard tokens enforced before this transition (quorum_met, chair_only, all_amendments_resolved, legal_review_complete).",
                       "items": { "type": "string" }
                     }
@@ -90,10 +99,13 @@
           },
           "votingRule": {
             "type": "object",
+            "title": "Voting rule",
             "description": "Default voting rule applied to rounds opened under a body assigned this template.",
             "properties": {
               "voteThreshold": {
                 "type": "string",
+                "title": "Vote threshold",
+                "description": "Majority rule applied when tallying a round under this template.",
                 "enum": [
                   "simple-majority",
                   "qualified-majority-two-thirds",
@@ -104,11 +116,15 @@
               },
               "abstentionHandling": {
                 "type": "string",
+                "title": "Abstention handling",
+                "description": "Whether abstentions are excluded from or counted in the calculation base.",
                 "enum": ["exclude", "count"],
                 "example": "exclude"
               },
               "tieBreakRule": {
                 "type": "string",
+                "title": "Tie-break rule",
+                "description": "How a tied round is resolved under this template.",
                 "enum": ["rejected", "chair-decides", "revote"],
                 "example": "rejected"
               }
@@ -116,17 +132,20 @@
           },
           "quorumRequired": {
             "type": "boolean",
+            "title": "Quorum required",
             "description": "Whether quorum must be met before a decision may enter the voting state under this template.",
             "default": true,
             "example": true
           },
           "quorumRule": {
             "type": "string",
+            "title": "Quorum rule",
             "description": "Free-text human description of the quorum requirement (e.g. '50%+1 of members present or represented').",
             "example": "50%+1 of members present or represented"
           },
           "allowDecideWithoutVote": {
             "type": "boolean",
+            "title": "Allow decide without vote",
             "description": "Permits the deliberating -> decided edge (operational domains where a formal voting round is optional).",
             "default": false,
             "example": false
