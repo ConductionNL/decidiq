@@ -16,31 +16,34 @@ declare(strict_types=1);
 // Define that we're running PHPUnit.
 define('PHPUNIT_RUN', 1);
 
-// Include Composer's autoloader and register OCP namespace for standalone test runs.
+// Include Composer's autoloader.
 $autoloader = require __DIR__.'/../vendor/autoload.php';
-if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
+
+// Unit tests must NOT load NC's base.php for the following reasons:
+//  1. base.php triggers OC::init() which instantiates the DI container and
+//     wires Settings\Manager — on NC 34 + PHP 8.4, the #[\Override] attribute
+//     on Manager::getAdminDelegatedSettings() causes an E_COMPILE_ERROR when
+//     the OCP\Settings\IManager stub loaded from an older nextcloud/ocp vendor
+//     is missing that method.  E_COMPILE_ERROR cannot be caught by try/catch.
+//  2. Unit tests are designed to run in isolation with stub classes; the full
+//     NC bootstrap is only needed for integration tests.
+//
+// Instead, load only NC's own Composer autoloader so that OCP\* and OC\*
+// namespaces resolve to the installed server's public API files — this gives
+// us proper interfaces (IRequest, JSONResponse, etc.) without triggering the
+// framework initialisation that causes the fatal.
+$ncComposerAutoload = __DIR__.'/../../../lib/composer/autoload.php';
+if (file_exists($ncComposerAutoload) === true) {
+    require_once $ncComposerAutoload;
+} elseif (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
+    // Standalone mode (no NC server): fall back to vendored OCP stubs.
     $autoloader->addPsr4('OCP\\', __DIR__.'/../vendor/nextcloud/ocp/OCP/');
     $autoloader->addPsr4('NCU\\', __DIR__.'/../vendor/nextcloud/ocp/NCU/');
 }
 
-// Bootstrap Nextcloud when a full server environment is available.
-// The base.php include is wrapped in a try/catch so that unit tests can
-// run in standalone mode (e.g. a bare container without an installed NC).
-if (file_exists(__DIR__.'/../../../lib/base.php') === true) {
-    try {
-        include_once __DIR__.'/../../../lib/base.php';
-    } catch (\Throwable $e) {
-        // NC not fully installed — unit tests continue with vendor stubs only.
-    }
-}
-
-// Register Test\ namespace for NC test classes.
-$serverTestsLib = __DIR__.'/../../../tests/lib/';
-if (is_dir($serverTestsLib) === true) {
-    $loader = new \Composer\Autoload\ClassLoader();
-    $loader->addPsr4('Test\\', $serverTestsLib);
-    $loader->register(true);
-}
+// Register Test\ namespace for NC test classes (only when NC server is present
+// and its base.php has already been loaded — not needed for unit tests).
+// Intentionally omitted here: unit tests do not extend NC\Tests\TestCase.
 
 // Load test stubs for cross-app classes not available as Composer dependencies
 // (e.g. OCA\OpenRegister classes that are only present when the app is installed).
