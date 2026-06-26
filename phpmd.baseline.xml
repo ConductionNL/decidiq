@@ -1,112 +1,42 @@
 <?xml version="1.0"?>
 <phpmd-baseline>
-  <violation rule="PHPMD\Rule\Design\LongClass" file="lib/AppInfo/Application.php"/>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/AppInfo/Application.php"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/AppInfo/Application.php" method="register"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/AppInfo/Application.php"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/AppInfo/Application.php" method="registerNcPlatformIntegration"/>
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/AppInfo/Application.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/AppInfo/Application.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/BackgroundJob/ConsultationAutoCloseJob.php" method="run"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/BackgroundJob/ConsultationAutoCloseJob.php" method="run"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/ConsultationAutoCloseJob.php"/>
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/MailReplyHandler.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/BackgroundJob/MailReplyHandler.php" method="processRoundMailReplies"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/BackgroundJob/MailReplyHandler.php" method="processRoundMailReplies"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/BackgroundJob/MailReplyHandler.php" method="processRoundMailReplies"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/BackgroundJob/MailReplyHandler.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/OverdueActionItemsJob.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/BackgroundJob/TranscriptRetentionJob.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/TranscriptRetentionJob.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/BackgroundJob/TranscriptRetentionJob.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/BackgroundJob/TranscriptRetentionJob.php" method="enforceForTranscript"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/BackgroundJob/TranscriptRetentionJob.php" method="enforceForTranscript"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/BackgroundJob/TranslationQueueJob.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/TranslationQueueJob.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/VotingDeadlineReminderJob.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ReactionIntakeService.php" method="submitReaction"/>
+  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/ReactionIntakeService.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/ReactionIntakeService.php"/>
+  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Controller/SettingsController.php"/>
+  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Settings/AdminSettings.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/AgendaController.php"/>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/AgendaController.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/DecisionController.php"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/MinutesController.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/DecisionController.php" method="publish"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/DecisionController.php" method="publish"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Controller/DecisionController.php" method="publish"/>
   <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Controller/DecisionController.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/EngagementController.php" method="capture"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/MeetingController.php"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Controller/MeetingController.php"/>
-  <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="lib/Controller/MinutesController.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/MinutesController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/DecisionController.php"/>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/MinutesController.php"/>
-  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Controller/MinutesController.php" method="__construct"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Controller/MinutesController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/MinutesController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Controller/MinutesController.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/MinutesController.php" method="resolveCorrection"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/MinutesController.php" method="resolveCorrection"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/MotionController.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/MotionController.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/MinutesController.php" method="requireChairOrAdminForMinutes"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/MinutesController.php" method="requireChairOrAdminForMinutes"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/MotionController.php"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Controller/MultilingualReconciliationController.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/NotificationPreferenceController.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/NotificationPreferenceController.php" method="validateDelegation"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/NotificationPreferenceController.php" method="validateDelegation"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/NotificationPreferenceController.php" method="validateCommunication"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/NotificationPreferenceController.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/OriController.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/OriController.php" method="index"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/OriController.php" method="index"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Controller/OriController.php" method="index"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/OriController.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/OriController.php" method="show"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/OriController.php" method="show"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/OriController.php" method="serializeOri"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/OriController.php" method="serializeOri"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Controller/OriController.php" method="serializeOri"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Controller/OriController.php"/>
-  <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="lib/Controller/ParticipationController.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/ParticipationController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/ParticipationController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Controller/ParticipationController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/PreferencesController.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/PublicationController.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/PublicationController.php"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Controller/SettingsController.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/TranscriptionController.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/TranscriptionController.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/TranscriptionController.php" method="requireStaffForBody"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/TranscriptionController.php" method="requireStaffForBody"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/TranscriptionController.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/VotingController.php"/>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/VotingController.php"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Controller/VotingController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/VotingController.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/VotingController.php" method="resolveMeetingIdFromVotingRound"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/VotingController.php" method="resolveMeetingIdFromVotingRound"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/VotingController.php" method="open"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/VotingController.php" method="open"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Controller/VotingController.php" method="open"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Dashboard/DecideskDashboardWidget.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Dashboard/DecideskDashboardWidget.php"/>
-  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Dashboard/DecideskDashboardWidget.php"/>
-  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Event/DecisionConcludedEvent.php" method="__construct"/>
-  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Event/DecisionRequestedEvent.php" method="__construct"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Lifecycle/ProcessTemplatePolicyResolver.php" method="resolve"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Lifecycle/ProcessTemplatePolicyResolver.php" method="resolve"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Lifecycle/QesGuard.php" method="canConclude"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Lifecycle/QesGuard.php" method="canConclude"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Lifecycle/QesGuard.php" method="loadSignedBy"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Listener/MeetingFolderListener.php" method="handle"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Listener/MeetingFolderListener.php" method="resolveSchemaSlug"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Listener/SubmissionDeadlineListener.php" method="handle"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Listener/SubmissionDeadlineListener.php" method="handle"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Listener/SubmissionDeadlineListener.php" method="resolveSchemaSlug"/>
   <violation rule="PHPMD\Rule\Design\LongClass" file="lib/Mcp/DecideskToolProvider.php"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Mcp/DecideskToolProvider.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListOpenActionItems"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListOpenActionItems"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleListOpenActionItems"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListRecentMeetings"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListRecentMeetings"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleListRecentMeetings"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleGetMeetingDetails"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleGetMeetingDetails"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleGetMeetingDetails"/>
@@ -117,95 +47,28 @@
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleAddActionItem"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleAddActionItem"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleAddActionItem"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="requireParticipantOrAdmin"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListRecentMeetings"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Mcp/DecideskToolProvider.php" method="handleListRecentMeetings"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Mcp/DecideskToolProvider.php" method="handleListRecentMeetings"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Mcp/DecideskToolProvider.php" method="getCallerMeetingUuids"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/MigrateCommentsToTalkLeaf.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Migration/MigrateCommentsToTalkLeaf.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Migration/MigrateCommentsToTalkLeaf.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Search/DecideskSearchProvider.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Search/DecideskSearchProvider.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ALVMinutesService.php" method="generateALVDraft"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/ALVMinutesService.php" method="generateALVDraft"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/ALVMinutesService.php" method="generateALVDraft"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ALVMinutesService.php" method="distribute"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/ALVMinutesService.php" method="distribute"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/ALVMinutesService.php" method="distribute"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ActionItemExtractionService.php" method="saveExtracted"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/ActionItemExtractionService.php"/>
-  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Service/AuditLogService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/AuditLogService.php" method="query"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/AuditLogService.php" method="query"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/BudgetVotingService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/BudgetVotingService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/BudgetVotingService.php" method="resolveBudgetId"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/DashboardWidgetService.php" method="countPendingVotes"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/DashboardWidgetService.php" method="countPendingVotes"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/DashboardWidgetService.php" method="resolveNextMeeting"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/DashboardWidgetService.php"/>
-  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Service/DashboardWidgetService.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/DecisionIntegrationService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/DecisionIntegrationService.php" method="createDecision"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/DecisionIntegrationService.php" method="createDecision"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/DecisionIntegrationService.php" method="createDecision"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/DecisionIntegrationService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/DecisionIntegrationService.php" method="getOutcomeEnvelope"/>
-  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Service/DecisionIntegrationService.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/DecisionLifecycleService.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Service/DecisionLifecycleService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/DecisionLifecycleService.php" method="transition"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/DecisionLifecycleService.php" method="transition"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/DecisionLifecycleService.php" method="transition"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/DecisionLifecycleService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/DecisionLifecycleService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ActionItemAnalyticsService.php" method="getSummary"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ActionItemAnalyticsService.php" method="getCompletionRates"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/DecisionNotificationService.php" method="notifyOnPublish"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/DecisionNotificationService.php" method="notifyOnPublish"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/DecisionNotificationService.php" method="notifyOnPublish"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/EIDASSignatureService.php"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/EIDASSignatureService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/EIDASSignatureService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/EIDASSignatureService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/EIDASSignatureService.php" method="composeDocudeskSigningRequest"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/EngagementService.php" method="captureEngagement"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/GovernanceReportingService.php" method="generateAnnualReport"/>
-  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Service/GovernanceReportingService.php"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/IEIDASSignatureService.php"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/LiveDecisionService.php"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/LogEIDASSignatureService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/MeetingCostService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/MeetingFolderService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/MeetingFolderService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MeetingPackageService.php" method="assemble"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/MeetingPackageService.php" method="assemble"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MeetingPackageService.php" method="buildTableOfContents"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MeetingPackageService.php" method="buildTableOfContents"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MeetingSeriesService.php" method="expandPattern"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MeetingSeriesService.php" method="expandPattern"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/MeetingSeriesService.php" method="expandPattern"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/MeetingSeriesService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/MeetingSeriesService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MeetingSeriesService.php" method="generateSeries"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MeetingSeriesService.php" method="generateSeries"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/MeetingSeriesService.php" method="generateSeries"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MeetingService.php" method="transition"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MeetingService.php" method="transition"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/MeetingService.php" method="transition"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/MeetingService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/MeetingService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/MemberImportService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MinutesAuthorizationService.php" method="canInitiateSigning"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MinutesAuthorizationService.php" method="canInitiateSigning"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/MinutesDocumentService.php" method="generate"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/MinutesDocumentService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/MinutesDocumentService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MinutesDocumentService.php" method="resolveContent"/>
-  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Service/MinutesDocumentService.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/MinutesDraftService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/MinutesDraftService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/MinutesDraftService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MinutesDraftService.php" method="assemblePrompt"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/MinutesGenerationService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/MinutesGenerationService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MinutesGenerationService.php" method="transition"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MinutesGenerationService.php" method="transition"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/MinutesGenerationService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MinutesGenerationService.php" method="renderTemplate"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MinutesGenerationService.php" method="renderTemplate"/>
@@ -217,110 +80,40 @@
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MotionCoauthorService.php" method="detectParagraphConflict"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MotionCoauthorService.php" method="detectParagraphConflict"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/MotionService.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Service/MotionService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MotionService.php" method="transitionLifecycle"/>
   <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/MotionService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/MotionService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MotionService.php" method="requestCoSignature"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/MotionService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MotionService.php" method="amendmentReferencesMotion"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MotionService.php" method="detectConflicts"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MotionService.php" method="detectConflicts"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/MotionService.php" method="detectConflicts"/>
   <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Service/MotionService.php"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/MotionService.php" method="forwardMotion"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/MultilingualReconciliationService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MultilingualReconciliationService.php" method="queue"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MultilingualReconciliationService.php" method="queue"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MultilingualReconciliationService.php" method="processQueue"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/MultilingualReconciliationService.php" method="processQueue"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/MultilingualReconciliationService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/NotificationPreferenceService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/OpenCatalogiPublisher.php" method="publish"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/OpenCatalogiPublisher.php"/>
   <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Service/OriPublicationService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/OriPublicationService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/ParticipationLifecycleService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/ParticipationPublicationService.php"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/ParticipationPublicationService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/ParticipationPublicationService.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/ProcessTemplateService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/ProcessTemplateService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ProcessTemplateService.php" method="validateStateMachine"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/ProcessTemplateService.php" method="validateStateMachine"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/ProcessTemplateService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/ProofPackageService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ProofPackageService.php" method="renderMarkdown"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/ProofPackageService.php" method="renderMarkdown"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/ProofPackageService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ProxyVoteService.php" method="register"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/ProxyVoteService.php" method="register"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/PublicationEligibilityService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/PublicationPayloadService.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Service/PublicationService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/PublicationService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/PublicationService.php"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/PublicationService.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Service/PublicationService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/PublicationService.php" method="extractId"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/QuorumVerificationService.php" method="getAttendanceReport"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/QuorumVerificationService.php" method="getAttendanceReport"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ReactionIntakeService.php" method="submitReaction"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/ReactionIntakeService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/ReactionIntakeService.php"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/RegulatorExportService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/RegulatorExportService.php" method="generate"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/RegulatorExportService.php" method="generate"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/RegulatorExportService.php" method="generate"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/RegulatorExportService.php"/>
-  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Service/RegulatorExportService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/SettingsService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/SettingsService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/SettingsService.php" method="loadConfiguration"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/SettingsService.php" method="loadConfiguration"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/SettingsService.php" method="loadConfiguration"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/TranscriptionService.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Service/TranscriptionService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/TranscriptionService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/TranscriptionService.php" method="buildTimeline"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/TranscriptionService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/TranscriptionSourceResolver.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingBehaviourService.php" method="getStats"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingBehaviourService.php" method="getStats"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/VotingBehaviourService.php" method="getStats"/>
-  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/VotingDeadlineReminderService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/VotingDeadlineReminderService.php"/>
-  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Service/VotingDeadlineReminderService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingDeadlineReminderService.php" method="findRoundsNeedingReminder"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingDeadlineReminderService.php" method="resolveParticipantUserIds"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingDeadlineReminderService.php" method="resolveParticipantUserIds"/>
-  <violation rule="PHPMD\Rule\Design\LongClass" file="lib/Service/VotingService.php"/>
-  <violation rule="PHPMD\Rule\Design\TooManyMethods" file="lib/Service/VotingService.php"/>
-  <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="lib/Service/VotingService.php"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/VotingService.php"/>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Service/VotingService.php"/>
   <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/VotingService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="openVotingRound"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="openVotingRound"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/VotingService.php" method="openVotingRound"/>
-  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Service/VotingService.php" method="openVotingRound"/>
   <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/VotingService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="assertAmendmentOrdering"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="assertAmendmentOrdering"/>
-  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/VotingService.php" method="assertAmendmentOrdering"/>
-  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/VotingService.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="resolveMeetingIdForRound"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="resolveMeetingIdForRound"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="notifyVotingOpened"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="castVote"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="castVote"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/VotingService.php" method="castVote"/>
+  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/VotingService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/VotingService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="closeVotingRound"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="closeVotingRound"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/VotingService.php" method="closeVotingRound"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="computeResult"/>
-  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="computeResult"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="tallyResults"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="grantProxy"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="grantProxy"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="getPublicState"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="getPublicState"/>
-  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Settings/AdminSettings.php"/>
+  <violation rule="PHPMD\Rule\Design\LongClass" file="lib/Service/VotingService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/VotingService.php" method="saveShowOfHandsTally"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/VotingService.php" method="saveShowOfHandsTally"/>
 </phpmd-baseline>
