@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\PublicationConfigService;
 use OCA\Decidesk\Service\SettingsService;
 use OCA\Decidesk\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
