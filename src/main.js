@@ -22,6 +22,7 @@ import bundledManifest from './manifest.json'
 import menuLayout from './menu-layout.json'
 import registry from './registry.js'
 import { initializeStores } from './store/store.js'
+import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
 import '@conduction/nextcloud-vue/css/index.css'
@@ -50,6 +51,14 @@ Vue.use(VueRouter)
 installIntegrationRegistry()
 registerBuiltinIntegrations()
 registerLeafIntegrations()
+
+// decidesk's FIRST own integration leaf — "Besluitvorming" (decisions).
+// Surfaces decidesk proposals / advice / decisions linked to ANY host
+// object (canonically a procest case) as a sidebar tab + detail-page
+// widget. Generic: reads the host object identity from the registry
+// context, never hard-codes the consumer. Uses the load-order-safe queue
+// stub so it registers even if decidesk's bundle loads before OR's.
+registerDecisionsLeaf()
 
 // Register library-side icon set + lib translations once at bootstrap.
 registerIcons()
