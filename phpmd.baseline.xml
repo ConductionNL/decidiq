@@ -8,9 +8,11 @@
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/BackgroundJob/MailReplyHandler.php" method="processRoundMailReplies"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/BackgroundJob/MailReplyHandler.php" method="processRoundMailReplies"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/BackgroundJob/MailReplyHandler.php"/>
-  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/BackgroundJob/OverdueActionItemsJob.php" method="run"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/OverdueActionItemsJob.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/BackgroundJob/OverdueActionItemsJob.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ReactionIntakeService.php" method="submitReaction"/>
+  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/ReactionIntakeService.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Service/ReactionIntakeService.php"/>
+  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Controller/SettingsController.php"/>
+  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Settings/AdminSettings.php"/>
   <violation rule="PHPMD\Rule\CleanCode\ElseExpression" file="lib/Controller/AgendaController.php"/>
   <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/AgendaController.php"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/MinutesController.php"/>

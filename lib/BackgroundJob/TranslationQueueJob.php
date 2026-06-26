@@ -84,9 +84,9 @@ class TranslationQueueJob extends TimedJob
             $this->logger->info(
                 sprintf(
                     'Decidesk: TranslationQueueJob finished — processed %d (%d completed, %d failed)',
-                    (int) ($result['processed'] ?? 0),
-                    (int) ($result['completed'] ?? 0),
-                    (int) ($result['failed'] ?? 0)
+                    $result['processed'],
+                    $result['completed'],
+                    $result['failed']
                 )
             );
         } catch (\Throwable $e) {

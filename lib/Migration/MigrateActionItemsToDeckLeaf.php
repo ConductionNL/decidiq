@@ -50,7 +50,7 @@ class MigrateActionItemsToDeckLeaf implements IRepairStep
      */
     public function getName(): string
     {
-        return 'Migrate legacy Decidesk Task/Delegation objects to VTODO action items (deferred to per-user follow-up)';
+        return 'Migrate legacy Decidesk Task/Delegation objects to Deck-leaf VTODO action items (deferred to per-user follow-up)';
     }//end getName()
 
     /**
