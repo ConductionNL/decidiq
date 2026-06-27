@@ -251,3 +251,5 @@ All dependencies (PHP and JavaScript) are automatically checked against an appro
 ## Authors
 
 Built by [Conduction](https://conduction.nl) — open-source software for Dutch government and public sector organizations.
+
+<!-- verify node fix decidesk -->
