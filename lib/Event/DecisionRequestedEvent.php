@@ -91,6 +91,8 @@ class DecisionRequestedEvent extends Event
      * Get the consumer app that raised the decision.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSourceApp(): string
     {
@@ -101,6 +103,8 @@ class DecisionRequestedEvent extends Event
      * Get the OpenRegister register of the originating object.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSubjectRegister(): string
     {
@@ -111,6 +115,8 @@ class DecisionRequestedEvent extends Event
      * Get the OpenRegister schema of the originating object.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSubjectSchema(): string
     {
@@ -121,6 +127,8 @@ class DecisionRequestedEvent extends Event
      * Get the OpenRegister id of the originating object.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSubjectId(): string
     {
@@ -131,6 +139,8 @@ class DecisionRequestedEvent extends Event
      * Get the human display label for the subject.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSubjectLabel(): string
     {
@@ -141,6 +151,8 @@ class DecisionRequestedEvent extends Event
      * Get the requested decision type.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getDecisionType(): string
     {
@@ -151,6 +163,8 @@ class DecisionRequestedEvent extends Event
      * Get the Nextcloud UID of the requesting user.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getActorId(): string
     {
@@ -161,6 +175,8 @@ class DecisionRequestedEvent extends Event
      * Get the additional decision body payload.
      *
      * @return array<string, mixed>
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getPayload(): array
     {
@@ -171,6 +187,8 @@ class DecisionRequestedEvent extends Event
      * Get the consumer's own external reference.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getExternalReference(): string
     {
@@ -181,6 +199,8 @@ class DecisionRequestedEvent extends Event
      * Get the correlation id echoed on the conclusion event.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getCorrelationId(): string
     {
@@ -191,6 +211,8 @@ class DecisionRequestedEvent extends Event
      * Get the id of the Decision decidesk created or matched (result slot).
      *
      * @return string|null Null until decidesk's listener has handled the event.
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getDecisionId(): ?string
     {
@@ -203,6 +225,8 @@ class DecisionRequestedEvent extends Event
      * @param string $decisionId The created/matched Decision id
      *
      * @return void
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function setDecisionId(string $decisionId): void
     {
@@ -213,6 +237,8 @@ class DecisionRequestedEvent extends Event
      * Whether decidesk's listener handled this request.
      *
      * @return bool
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function isHandled(): bool
     {
@@ -225,6 +251,8 @@ class DecisionRequestedEvent extends Event
      * @param bool $handled True when decidesk created/matched a Decision
      *
      * @return void
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function setHandled(bool $handled): void
     {

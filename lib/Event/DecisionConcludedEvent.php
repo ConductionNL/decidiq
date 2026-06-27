@@ -92,6 +92,8 @@ class DecisionConcludedEvent extends Event
      * @param string               $correlationId Correlation id from the request event
      *
      * @return self
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public static function fromEnvelope(
         array $envelope,
@@ -121,6 +123,8 @@ class DecisionConcludedEvent extends Event
      * Get the concluded Decision id.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getDecisionId(): string
     {
@@ -131,6 +135,8 @@ class DecisionConcludedEvent extends Event
      * Get the Decision type.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getDecisionType(): string
     {
@@ -141,6 +147,8 @@ class DecisionConcludedEvent extends Event
      * Get the derived outcome status (approved|rejected|withdrawn|pending).
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getStatus(): string
     {
@@ -151,6 +159,8 @@ class DecisionConcludedEvent extends Event
      * Get the raw decision outcome (e.g. adopted|rejected).
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getOutcome(): string
     {
@@ -161,6 +171,8 @@ class DecisionConcludedEvent extends Event
      * Whether a signature stage resolved.
      *
      * @return bool
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function isSigned(): bool
     {
@@ -171,6 +183,8 @@ class DecisionConcludedEvent extends Event
      * Get the signing reference, when signed.
      *
      * @return string|null
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSigningReference(): ?string
     {
@@ -181,6 +195,8 @@ class DecisionConcludedEvent extends Event
      * Get the resolved signers list.
      *
      * @return array<int, mixed>
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSigners(): array
     {
@@ -191,6 +207,8 @@ class DecisionConcludedEvent extends Event
      * Get when the decision concluded.
      *
      * @return string|null
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getDecidedAt(): ?string
     {
@@ -201,6 +219,8 @@ class DecisionConcludedEvent extends Event
      * Get the consumer app that raised the decision.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSourceApp(): string
     {
@@ -211,6 +231,8 @@ class DecisionConcludedEvent extends Event
      * Get the OpenRegister register of the originating object.
      *
      * @return string|null
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSubjectRegister(): ?string
     {
@@ -221,6 +243,8 @@ class DecisionConcludedEvent extends Event
      * Get the OpenRegister schema of the originating object.
      *
      * @return string|null
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSubjectSchema(): ?string
     {
@@ -231,6 +255,8 @@ class DecisionConcludedEvent extends Event
      * Get the OpenRegister id of the originating object.
      *
      * @return string|null
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getSubjectId(): ?string
     {
@@ -241,6 +267,8 @@ class DecisionConcludedEvent extends Event
      * Get the consumer's own external reference.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getExternalReference(): string
     {
@@ -251,6 +279,8 @@ class DecisionConcludedEvent extends Event
      * Get the correlation id from the request event.
      *
      * @return string
+     *
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      */
     public function getCorrelationId(): string
     {

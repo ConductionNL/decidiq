@@ -38,6 +38,8 @@ use Throwable;
 
 /**
  * Write path (create/update/delete) for VTODO-backed action items.
+ *
+ * @spec openspec/changes/action-items-vtodo-deck-reconcile/specs/action-item-board-via-deck-leaf/spec.md
  */
 class ActionItemWriter
 {

@@ -33,6 +33,8 @@ use OCP\IUserSession;
 
 /**
  * Create / update / delete action items as CalDAV VTODOs.
+ *
+ * @spec openspec/changes/action-items-vtodo-deck-reconcile/specs/action-item-board-via-deck-leaf/spec.md
  */
 class ActionItemController extends Controller
 {
