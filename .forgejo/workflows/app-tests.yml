@@ -63,6 +63,8 @@ jobs:
       - name: Install composer deps
         # edgedesign/phpqa (require-dev) pulls ext-xsl, absent from ci-php:8.3.
         # The unit suite never touches phpqa, so ignore that platform req.
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_COMPOSER_TOKEN }}"}}'
         run: composer install --no-interaction --no-progress --prefer-dist --ignore-platform-req=ext-xsl
 
       - name: Run unit suite (phpunit-unit.xml)
@@ -123,6 +125,8 @@ jobs:
             || echo "coverage driver: ABSENT (ratchet will no-op)"
 
       - name: Install composer deps
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_COMPOSER_TOKEN }}"}}'
         run: composer install --no-interaction --no-progress --prefer-dist --ignore-platform-req=ext-xsl
 
       - name: Run unit suite WITH coverage (clover)
