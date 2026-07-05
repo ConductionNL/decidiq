@@ -46,6 +46,7 @@
         "title": "Person",
         "description": "An individual person who participates in governance. Popolo: Person. Identity only — organisational role/relationship lives on Membership (ADR-001 §2). Replaces the flat Participant.",
         "type": "object",
+        "x-schema-org": "schema:Person",
         "x-openregister": {
           "schemaType": "foaf:Person",
           "active": true,
@@ -4185,6 +4186,7 @@
         "title": "DigitalDocument",
         "description": "Schema.org DigitalDocument for document metadata",
         "type": "object",
+        "x-schema-org": "schema:DigitalDocument",
         "x-openregister": {
           "schemaType": "schema:DigitalDocument",
           "active": true,
@@ -4249,6 +4251,7 @@
         "title": "MonetaryAmount",
         "description": "Schema.org MonetaryAmount for monetary values",
         "type": "object",
+        "x-schema-org": "schema:MonetaryAmount",
         "x-openregister": {
           "schemaType": "schema:MonetaryAmount",
           "active": true,
@@ -4282,6 +4285,7 @@
         "title": "Offer",
         "description": "Schema.org Offer for offer/quote data",
         "type": "object",
+        "x-schema-org": "schema:Offer",
         "x-openregister": {
           "schemaType": "schema:Offer",
           "active": true,
@@ -4339,6 +4343,7 @@
         "title": "Order",
         "description": "Schema.org Order for purchase order data",
         "type": "object",
+        "x-schema-org": "schema:Order",
         "x-openregister": {
           "schemaType": "schema:Order",
           "active": true,
@@ -4405,6 +4410,7 @@
         "title": "Product",
         "description": "Schema.org Product for product/service data",
         "type": "object",
+        "x-schema-org": "schema:Product",
         "x-openregister": {
           "schemaType": "schema:Product",
           "active": true,
@@ -4472,6 +4478,7 @@
         "title": "Report",
         "description": "Schema.org Report for report metadata",
         "type": "object",
+        "x-schema-org": "schema:Report",
         "x-openregister": {
           "schemaType": "schema:Report",
           "active": true,
@@ -4605,6 +4612,7 @@
         "title": "CitizenPanel",
         "description": "A structured citizen advisory group with defined membership, term, and scope (p3-citizen-participation). Modelled as schema:Organization with classification 'citizen-panel' per Popolo.",
         "type": "object",
+        "x-schema-org": "schema:Organization",
         "x-openregister": {
           "schemaType": "schema:Organization",
           "active": true,
@@ -4688,6 +4696,7 @@
         "title": "ParticipatoryBudget",
         "description": "A participatory budgeting round in which citizens propose projects and allocate funds (p3-citizen-participation). Modelled as schema:Grant for compatibility with funding-transparency vocabularies.",
         "type": "object",
+        "x-schema-org": "schema:Grant",
         "x-openregister": {
           "schemaType": "schema:Grant",
           "active": true,
@@ -6076,6 +6085,7 @@
         "title": "PublicationRecord",
         "description": "Bookkeeping record for a single public-publication action (publish-decisions-via-opencatalogi). Tracks which source governance object was published, the derived immutable payload object that received publicatiedatum, the OpenCatalogi catalog publication reference, and the withdraw/rectify lifecycle. Anonymous read of published data happens exclusively through OR's RBAC published-predicate (public-group authorization.read matching publicatiedatum <= $now) / OpenCatalogi — NOT through any app-local route. Maps schema:PublicationEvent.",
         "type": "object",
+        "x-schema-org": "schema:PublicationEvent",
         "x-openregister": {
           "schemaType": "schema:PublicationEvent",
           "active": true,
