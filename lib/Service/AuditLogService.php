@@ -450,21 +450,64 @@ class AuditLogService
      * Resolve the previousHash for a new entry by inspecting the most recent
      * audit log row. Returns GENESIS_HASH when the log is empty.
      *
+     * Uses `loadLastEntry()` — a query bounded to a single row — instead of
+     * loading the whole chain (up to 10,000 rows) just to read its tail. This
+     * is the hot write path invoked on every governance action; `verify()`
+     * and `export()` still use `loadChain()` because they legitimately need
+     * the full ordered chain.
+     *
      * @param object $objectService OpenRegister ObjectService instance
+     *
+     * @spec openspec/changes/audit-log-chain-tail-hash/tasks.md#task-2
      *
      * @return string
      */
     private function resolvePreviousHash(object $objectService): string
     {
-        $chain = $this->loadChain(objectService: $objectService);
-        if ($chain === []) {
+        $last = $this->loadLastEntry(objectService: $objectService);
+        if ($last === null) {
             return self::GENESIS_HASH;
         }
 
-        $last = end($chain);
         return (string) ($last['currentHash'] ?? self::GENESIS_HASH);
 
     }//end resolvePreviousHash()
+
+    /**
+     * Load only the single most-recent `audit-trail` row (by `timestamp`),
+     * without loading the rest of the chain. Returns null when the log is
+     * empty.
+     *
+     * @param object $objectService OpenRegister ObjectService instance
+     *
+     * @spec openspec/changes/audit-log-chain-tail-hash/tasks.md#task-1
+     *
+     * @return array<string, mixed>|null
+     */
+    private function loadLastEntry(object $objectService): ?array
+    {
+        $rows = $objectService->findAll(
+            [
+                'register' => 'decidesk',
+                'schema'   => 'audit-trail',
+                'order'    => ['timestamp' => 'DESC'],
+                'limit'    => 1,
+            ]
+        );
+
+        foreach ((array) $rows as $row) {
+            if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+                return (array) $row->jsonSerialize();
+            }
+
+            if (is_array($row) === true) {
+                return $row;
+            }
+        }
+
+        return null;
+
+    }//end loadLastEntry()
 
     /**
      * Load the full audit log chain ordered by timestamp ASC. Returns a list of
