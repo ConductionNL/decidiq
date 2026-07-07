@@ -1338,6 +1338,53 @@ class Application extends App implements IBootstrap
             }
         );
 
+        // Board self-evaluation (board-self-evaluation).
+        $context->registerService(
+            \OCA\Decidesk\Service\BoardEvaluationScoreService::class,
+            static function ($c): \OCA\Decidesk\Service\BoardEvaluationScoreService {
+                return new \OCA\Decidesk\Service\BoardEvaluationScoreService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Service\BoardEvaluationResponseService::class,
+            static function ($c): \OCA\Decidesk\Service\BoardEvaluationResponseService {
+                return new \OCA\Decidesk\Service\BoardEvaluationResponseService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    appConfig: $c->get(\OCP\IAppConfig::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Service\BoardEvaluationReportService::class,
+            static function ($c): \OCA\Decidesk\Service\BoardEvaluationReportService {
+                return new \OCA\Decidesk\Service\BoardEvaluationReportService(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\Decidesk\Controller\BoardEvaluationController::class,
+            static function ($c): \OCA\Decidesk\Controller\BoardEvaluationController {
+                return new \OCA\Decidesk\Controller\BoardEvaluationController(
+                    request: $c->get(\OCP\IRequest::class),
+                    responseService: $c->get(\OCA\Decidesk\Service\BoardEvaluationResponseService::class),
+                    scoreService: $c->get(\OCA\Decidesk\Service\BoardEvaluationScoreService::class),
+                    reportService: $c->get(\OCA\Decidesk\Service\BoardEvaluationReportService::class),
+                    publicationService: $c->get(\OCA\Decidesk\Service\ParticipationPublicationService::class),
+                    votingService: $c->get(\OCA\Decidesk\Service\VotingService::class),
+                    userSession: $c->get(\OCP\IUserSession::class),
+                );
+            }
+        );
+
     }//end registerPhase6Bindings()
 
     /**

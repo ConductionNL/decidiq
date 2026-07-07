@@ -183,6 +183,13 @@ return \OCA\OpenRegister\AppHost\Routes::standard(
         ['name' => 'proxyVote#suspend',  'url' => '/api/proxies/{id}/suspend',  'verb' => 'PUT'],
         ['name' => 'proxyVote#revoke',   'url' => '/api/proxies/{id}',          'verb' => 'DELETE'],
 
+        // Board self-evaluation (board-self-evaluation).
+        // @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md
+        ['name' => 'boardEvaluation#respond', 'url' => '/api/board-evaluations/{id}/respond', 'verb' => 'POST'],
+        ['name' => 'boardEvaluation#close',   'url' => '/api/board-evaluations/{id}/close',   'verb' => 'POST'],
+        ['name' => 'boardEvaluation#publish', 'url' => '/api/board-evaluations/{id}/publish', 'verb' => 'POST'],
+        ['name' => 'boardEvaluation#report',  'url' => '/api/board-evaluations/{id}/report',  'verb' => 'POST'],
+
         // Governance reporting (task-5.4).
         ['name' => 'governanceReport#generate', 'url' => '/api/governance-reports',                       'verb' => 'POST'],
         ['name' => 'governanceReport#index',    'url' => '/api/governance-reports',                       'verb' => 'GET'],

@@ -13,8 +13,10 @@
  * BoardVote, BoardMinutes, BoardMaterial, BoardAuditLogEntry) were retired by
  * retire-board-portal. DecisionStage (decision-route-and-stages) plus the
  * popolo decision-maker schemas (Person, Membership, Post, ContactDetail) and
- * the publication / transcript schemas were added downstream. These tests
- * assert the resulting unified 34-schema model.
+ * the publication / transcript schemas were added downstream.
+ * board-self-evaluation added EvaluationTemplate, BoardEvaluation and
+ * EvaluationResponse. These tests assert the resulting unified 37-schema
+ * model.
  *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit
@@ -98,7 +100,9 @@ class RegisterJsonTest extends TestCase
      * decision-route-and-stages added DecisionStage; popolo-decision-makers
      * added Person, Membership, Post and ContactDetail; the publication +
      * transcript work added ConsultationReaction, Transcript, PublicationPayload
-     * and PublicationRecord. The register now defines exactly 34 schemas.
+     * and PublicationRecord. board-self-evaluation added EvaluationTemplate,
+     * BoardEvaluation and EvaluationResponse. The register now defines
+     * exactly 37 schemas.
      *
      * @return void
      *
@@ -152,12 +156,16 @@ class RegisterJsonTest extends TestCase
             // Publication pipeline (publish-decisions-via-opencatalogi).
             'PublicationPayload',
             'PublicationRecord',
+            // Board self-evaluation (board-self-evaluation).
+            'EvaluationTemplate',
+            'BoardEvaluation',
+            'EvaluationResponse',
         ];
 
         self::assertCount(
-            expectedCount: 34,
+            expectedCount: 37,
             haystack: $this->schemas,
-            message: 'Register must contain exactly 34 schemas (unified Decision supertype model, board portal retired)'
+            message: 'Register must contain exactly 37 schemas (unified Decision supertype model, board portal retired, board-self-evaluation added)'
         );
 
         foreach ($expected as $name) {

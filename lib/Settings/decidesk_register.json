@@ -6445,6 +6445,599 @@
           "register": "decidesk",
           "schema": "PublicationPayload"
         }
+      },
+      "EvaluationTemplate": {
+        "slug": "evaluation-template",
+        "icon": "FormatListChecks",
+        "version": "0.1.0",
+        "title": "EvaluationTemplate",
+        "description": "A reusable, dimension-organised question set for a board self-evaluation (board-self-evaluation). Templates are editable and reusable across GovernanceBody objects and evaluation cycles.",
+        "type": "object",
+        "x-schema-org": "schema:CreativeWork",
+        "x-openregister": {
+          "schemaType": "schema:CreativeWork",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "questions"
+        ],
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string",
+            "description": "Template name.",
+            "example": "Board effectiveness self-evaluation (NL Corporate Governance Code)"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string",
+            "description": "Purpose and intended use of the template."
+          },
+          "dimensions": {
+            "title": "Dimensions",
+            "type": "array",
+            "description": "Board-effectiveness dimensions this template's questions are organised by.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "strategy-and-oversight",
+                "board-composition",
+                "board-dynamics",
+                "information-quality",
+                "chair-effectiveness"
+              ]
+            },
+            "example": [
+              "strategy-and-oversight",
+              "board-composition",
+              "board-dynamics",
+              "information-quality",
+              "chair-effectiveness"
+            ]
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "array",
+            "description": "Ordered question set. Each question declares the dimension it measures, its prompt, and its type (likert or free-text). Reusable across bodies and cycles.",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "dimension",
+                "prompt",
+                "type"
+              ],
+              "properties": {
+                "id": {
+                  "title": "Question id",
+                  "type": "string",
+                  "description": "Stable slug referenced by EvaluationResponse.answers[].questionId (survives template edits that reorder questions).",
+                  "example": "q-strategy-likert"
+                },
+                "dimension": {
+                  "title": "Dimension",
+                  "type": "string",
+                  "description": "Effectiveness dimension this question measures.",
+                  "enum": [
+                    "strategy-and-oversight",
+                    "board-composition",
+                    "board-dynamics",
+                    "information-quality",
+                    "chair-effectiveness"
+                  ]
+                },
+                "prompt": {
+                  "title": "Prompt",
+                  "type": "string",
+                  "description": "The question text shown to the responding member."
+                },
+                "type": {
+                  "title": "Type",
+                  "type": "string",
+                  "description": "Answer type.",
+                  "enum": [
+                    "likert",
+                    "free-text"
+                  ],
+                  "example": "likert"
+                },
+                "scaleMin": {
+                  "title": "Scale minimum",
+                  "type": "integer",
+                  "description": "Lower bound of the Likert scale (type=likert only).",
+                  "default": 1,
+                  "example": 1
+                },
+                "scaleMax": {
+                  "title": "Scale maximum",
+                  "type": "integer",
+                  "description": "Upper bound of the Likert scale (type=likert only).",
+                  "default": 5,
+                  "example": 5
+                }
+              }
+            }
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationTemplate",
+              "slug": "template-bestuurlijke-effectiviteit-nl-cgc"
+            },
+            "title": "Board effectiveness self-evaluation (NL Corporate Governance Code)",
+            "description": "Default reusable annual board self-evaluation (zelfevaluatie) covering the five standard effectiveness dimensions. Editable per body.",
+            "dimensions": [
+              "strategy-and-oversight",
+              "board-composition",
+              "board-dynamics",
+              "information-quality",
+              "chair-effectiveness"
+            ],
+            "questions": [
+              {
+                "id": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "prompt": "The board sets clear strategic direction and exercises effective oversight of management.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-strategy-text",
+                "dimension": "strategy-and-oversight",
+                "prompt": "What would most improve the board's strategic oversight?",
+                "type": "free-text"
+              },
+              {
+                "id": "q-composition-likert",
+                "dimension": "board-composition",
+                "prompt": "The board's composition (skills, diversity, independence) matches the organisation's needs.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-composition-text",
+                "dimension": "board-composition",
+                "prompt": "What skills or perspectives is the board missing?",
+                "type": "free-text"
+              },
+              {
+                "id": "q-dynamics-likert",
+                "dimension": "board-dynamics",
+                "prompt": "Board discussions are open, constructive, and every member's voice is heard.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-dynamics-text",
+                "dimension": "board-dynamics",
+                "prompt": "Describe one dynamic that helps or hinders the board's functioning.",
+                "type": "free-text"
+              },
+              {
+                "id": "q-information-likert",
+                "dimension": "information-quality",
+                "prompt": "The board receives timely, complete, and understandable information ahead of meetings.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-information-text",
+                "dimension": "information-quality",
+                "prompt": "What information gap most affects the board's decision-making?",
+                "type": "free-text"
+              },
+              {
+                "id": "q-chair-likert",
+                "dimension": "chair-effectiveness",
+                "prompt": "The chair runs meetings effectively and ensures balanced participation.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-chair-text",
+                "dimension": "chair-effectiveness",
+                "prompt": "What is one suggestion for the chair?",
+                "type": "free-text"
+              }
+            ]
+          }
+        ]
+      },
+      "BoardEvaluation": {
+        "slug": "board-evaluation",
+        "icon": "ChartBoxOutline",
+        "version": "0.1.0",
+        "title": "BoardEvaluation",
+        "description": "One board self-evaluation cycle for a GovernanceBody (board-self-evaluation): anonymous member responses scored per-dimension and overall, materialised as scoreSummary on close, optionally published as an aggregate-only summary (raw responses are never published).",
+        "type": "object",
+        "x-schema-org": "schema:Action",
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "publicatiedatum": {
+                  "$lte": "$now"
+                }
+              }
+            },
+            "authenticated"
+          ]
+        },
+        "required": [
+          "cycleLabel",
+          "lifecycle"
+        ],
+        "properties": {
+          "cycleLabel": {
+            "title": "Cycle label",
+            "type": "string",
+            "description": "Human label for the evaluation cycle (e.g. a year), so past cycles remain distinguishable for trend comparison.",
+            "example": "2026"
+          },
+          "lifecycle": {
+            "title": "Lifecycle",
+            "type": "string",
+            "description": "Evaluation cycle lifecycle: draft (roster/template being set) -> open (members submit anonymous responses) -> closed (scoring runs, scoreSummary materialised) -> published (optional; aggregate enters the public window). Per REQ-EVAL-006 / consume-or-rbac-authorization, only the body's chair or secretary may write this property.",
+            "enum": [
+              "draft",
+              "open",
+              "closed",
+              "published"
+            ],
+            "default": "draft",
+            "example": "draft",
+            "authorization": {
+              "update": [
+                {
+                  "group": "authenticated",
+                  "match": {
+                    "chairUserId": "$userId"
+                  }
+                },
+                {
+                  "group": "authenticated",
+                  "match": {
+                    "secretaryUserId": "$userId"
+                  }
+                }
+              ]
+            }
+          },
+          "openedAt": {
+            "title": "Opened at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the cycle was opened for responses."
+          },
+          "closedAt": {
+            "title": "Closed at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the cycle was closed and scoring materialised."
+          },
+          "invitedMemberCount": {
+            "title": "Invited member count",
+            "type": "integer",
+            "description": "Count of invited members (mirrors invitedParticipantIds length).",
+            "example": 7
+          },
+          "respondedCount": {
+            "title": "Responded count",
+            "type": "integer",
+            "description": "Count of members who have submitted a response so far (mirrors respondedParticipantIds length). Tracked independently of response content so completion never de-anonymises an answer.",
+            "example": 4
+          },
+          "minRespondentThreshold": {
+            "title": "Minimum respondent threshold",
+            "type": "integer",
+            "description": "Below this respondent count, per-dimension and free-text breakdowns are suppressed in scoreSummary (and thus never published) to prevent de-anonymisation by inference on a small body.",
+            "default": 3,
+            "example": 3
+          },
+          "invitedParticipantIds": {
+            "title": "Invited participants (roster)",
+            "type": "array",
+            "description": "Participant UUIDs invited to this cycle. Completion-tracking roster ONLY — never linked to EvaluationResponse content, so non-responders can be reminded without de-anonymising any answer.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "respondedParticipantIds": {
+            "title": "Responded participants (completion)",
+            "type": "array",
+            "description": "Participant UUIDs who have submitted a response. Set-membership only (has X responded, yes/no) — carries no link to which EvaluationResponse belongs to which member.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "chairUserId": {
+            "title": "Chair Nextcloud user id",
+            "type": "string",
+            "description": "Denormalised Nextcloud UID of the body's chair at cycle-creation time, consumed only by the lifecycle property's OpenRegister RBAC update rule (consume-or-rbac-authorization) so opening/closing a cycle is enforced by OR, not an app-local authorization service."
+          },
+          "secretaryUserId": {
+            "title": "Secretary Nextcloud user id",
+            "type": "string",
+            "description": "Denormalised Nextcloud UID of the body's secretary at cycle-creation time, consumed only by the lifecycle property's OpenRegister RBAC update rule."
+          },
+          "scoreSummary": {
+            "title": "Score summary",
+            "type": "string",
+            "description": "JSON-encoded governance-specific scoring result (BoardEvaluationScoreService, REQ-AN-LEAF-002): overallScore always present; dimensionScores and themes are set to null and suppressed=true when respondedCount is below minRespondentThreshold, so no breakdown ever exists to leak — even internally, even to an admin. This is the one field exposed publicly (via publicatiedatum) when the body opts to publish; raw EvaluationResponse objects are never published."
+          },
+          "publicatiedatum": {
+            "title": "Publication date",
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Publication date (WOO/governance transparency). When set in the past, scoreSummary (aggregate-only, already threshold-suppressed) is anonymously readable via the public-group RBAC rule (publicatiedatum <= $now). Set by ParticipationPublicationService::publishEvaluationResults() on publish opt-in."
+          },
+          "depublicatiedatum": {
+            "title": "Depublication date",
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Depublication date. When set in the past, the published summary is withdrawn from public access."
+          }
+        },
+        "x-openregister-relations": {
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          },
+          "template": {
+            "register": "decidesk",
+            "schema": "EvaluationTemplate",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "BoardEvaluation",
+              "slug": "evaluatie-rvc-waterschap-amstel-2025"
+            },
+            "cycleLabel": "2025",
+            "lifecycle": "closed",
+            "openedAt": "2025-11-01T09:00:00Z",
+            "closedAt": "2025-12-20T17:00:00Z",
+            "invitedMemberCount": 3,
+            "respondedCount": 2,
+            "minRespondentThreshold": 3,
+            "invitedParticipantIds": [
+              "jan-de-vries",
+              "femke-halsema",
+              "marie-janssen"
+            ],
+            "respondedParticipantIds": [
+              "jan-de-vries",
+              "femke-halsema"
+            ],
+            "chairUserId": "femke.halsema",
+            "secretaryUserId": "jan.devries",
+            "scoreSummary": "{\"overallScore\":3.6,\"respondentCount\":2,\"invitedMemberCount\":3,\"minRespondentThreshold\":3,\"thresholdMet\":false,\"suppressed\":true,\"dimensionScores\":null,\"themes\":null,\"computedAt\":\"2025-12-20T17:05:00Z\"}",
+            "governanceBody": "rvc-waterschap-amstel",
+            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "BoardEvaluation",
+              "slug": "evaluatie-acme-rvc-2026"
+            },
+            "cycleLabel": "2026",
+            "lifecycle": "open",
+            "openedAt": "2026-06-01T09:00:00Z",
+            "invitedMemberCount": 5,
+            "respondedCount": 2,
+            "minRespondentThreshold": 3,
+            "invitedParticipantIds": [
+              "acme-lid-1",
+              "acme-lid-2",
+              "acme-lid-3",
+              "acme-lid-4",
+              "acme-lid-5"
+            ],
+            "respondedParticipantIds": [
+              "acme-lid-1",
+              "acme-lid-2"
+            ],
+            "chairUserId": "acme.chair",
+            "secretaryUserId": "acme.secretary",
+            "governanceBody": "raad-van-commissarissen-acme-bv",
+            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
+          }
+        ]
+      },
+      "EvaluationResponse": {
+        "slug": "evaluation-response",
+        "icon": "CheckboxMarkedOutline",
+        "version": "0.1.0",
+        "title": "EvaluationResponse",
+        "description": "One member's anonymous submission to a BoardEvaluation cycle (board-self-evaluation). Carries NO member relation and no participant identity anywhere in its content — anonymity is inherited from the existing secret-ballot mechanism (opaque HMAC dedup token only, same as VotingService's secret-round voterToken). Completion is tracked separately on BoardEvaluation.respondedParticipantIds, never here.",
+        "type": "object",
+        "x-schema-org": "schema:Action",
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "answers"
+        ],
+        "properties": {
+          "answers": {
+            "title": "Answers",
+            "type": "array",
+            "description": "One entry per answered question. No member identity anywhere in this array or object.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "questionId": {
+                  "title": "Question id",
+                  "type": "string",
+                  "description": "References EvaluationTemplate.questions[].id."
+                },
+                "dimension": {
+                  "title": "Dimension",
+                  "type": "string",
+                  "description": "Denormalised from the template question, for scoring convenience."
+                },
+                "likertValue": {
+                  "title": "Likert value",
+                  "type": "integer",
+                  "description": "Answer value for a likert question (within the question's scaleMin/scaleMax)."
+                },
+                "freeText": {
+                  "title": "Free text",
+                  "type": "string",
+                  "description": "Answer text for a free-text question."
+                }
+              }
+            }
+          },
+          "submittedAt": {
+            "title": "Submitted at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the response was submitted."
+          },
+          "responseToken": {
+            "title": "Response token",
+            "type": "string",
+            "description": "Opaque HMAC(participantId + ':' + evaluationId, server-side secret) dedup token — reuses the same secret-ballot mechanism VotingService uses for secret VotingRounds (app config key 'voter_token_secret'). One-way: cannot be inverted to recover the participant id without the server-side secret. Used only for idempotent one-response-per-member enforcement, never for read display or identity resolution."
+          }
+        },
+        "x-openregister-relations": {
+          "boardEvaluation": {
+            "register": "decidesk",
+            "schema": "BoardEvaluation",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationResponse",
+              "slug": "reactie-evaluatie-rvc-waterschap-amstel-2025-a"
+            },
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 4
+              },
+              {
+                "questionId": "q-strategy-text",
+                "dimension": "strategy-and-oversight",
+                "freeText": "More time for scenario discussion ahead of budget decisions."
+              },
+              {
+                "questionId": "q-chair-likert",
+                "dimension": "chair-effectiveness",
+                "likertValue": 3
+              }
+            ],
+            "submittedAt": "2025-12-05T10:12:00Z",
+            "responseToken": "8f2b6a1e9d3c4f5a7b6e8d1c2a3f4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a",
+            "boardEvaluation": "evaluatie-rvc-waterschap-amstel-2025"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationResponse",
+              "slug": "reactie-evaluatie-rvc-waterschap-amstel-2025-b"
+            },
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 4
+              },
+              {
+                "questionId": "q-composition-likert",
+                "dimension": "board-composition",
+                "likertValue": 3
+              },
+              {
+                "questionId": "q-chair-likert",
+                "dimension": "chair-effectiveness",
+                "likertValue": 4
+              }
+            ],
+            "submittedAt": "2025-12-08T14:40:00Z",
+            "responseToken": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
+            "boardEvaluation": "evaluatie-rvc-waterschap-amstel-2025"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationResponse",
+              "slug": "reactie-evaluatie-acme-rvc-2026-a"
+            },
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 5
+              },
+              {
+                "questionId": "q-dynamics-text",
+                "dimension": "board-dynamics",
+                "freeText": "The board is respectful but could challenge management more."
+              }
+            ],
+            "submittedAt": "2026-06-10T09:30:00Z",
+            "responseToken": "3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d",
+            "boardEvaluation": "evaluatie-acme-rvc-2026"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationResponse",
+              "slug": "reactie-evaluatie-acme-rvc-2026-b"
+            },
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 3
+              },
+              {
+                "questionId": "q-information-likert",
+                "dimension": "information-quality",
+                "likertValue": 3
+              }
+            ],
+            "submittedAt": "2026-06-11T11:05:00Z",
+            "responseToken": "5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f",
+            "boardEvaluation": "evaluatie-acme-rvc-2026"
+          }
+        ]
       }
     }
   }

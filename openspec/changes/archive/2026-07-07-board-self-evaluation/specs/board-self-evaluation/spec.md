@@ -21,6 +21,8 @@ The entity SHALL be stored as an OpenRegister object (no app-owned table).
 - **THEN** both cycles exist as distinct `BoardEvaluation` objects on the body
 - **AND** the 2025 scores remain readable for trend comparison.
 
+@e2e exclude two-cycle coexistence is a data-model invariant (two OpenRegister objects on the same body), not a distinct UI flow; covered by RegisterJsonTest's seed assertions and exercised implicitly whenever the e2e board-evaluation-workflow spec creates a second cycle on a body that already has a closed one.
+
 ### Requirement: REQ-EVAL-002 Reusable questionnaire template organised by effectiveness dimensions
 The system SHALL provide an `EvaluationTemplate` OpenRegister object holding a question set organised
 by board-effectiveness `dimensions` (such as strategy-and-oversight, board-composition,
@@ -34,10 +36,14 @@ bodies and cycles, and one editable default template SHALL be available as seed 
 - **THEN** each question declares a `dimension` and a `type` of `likert` or `free-text`
 - **AND** the same template can be selected by more than one body/cycle.
 
+@e2e exclude schema-shape assertion (every question declares dimension+type), not a UI flow; covered by the register JSON structure itself and exercised implicitly by the e2e board-evaluation-workflow spec, which reads real template questions to drive the respond flow.
+
 #### Scenario: A default template ships as seed
 - **GIVEN** a fresh install
 - **WHEN** a body starts its first evaluation
 - **THEN** at least one reusable default EvaluationTemplate is available to select and edit.
+
+@e2e exclude fresh-install seed-data presence is a deployment/import-time invariant, not a runtime UI flow; the e2e board-evaluation-workflow spec seeds and uses a template directly rather than asserting on install-time seed presence.
 
 ### Requirement: REQ-EVAL-003 Responses are anonymous and untraceable to the member
 Member responses SHALL be collected so the response content is NOT traceable to the responding
@@ -108,6 +114,8 @@ rather than an app-local authorization service.
 - **WHEN** each runs a self-evaluation
 - **THEN** both use the same `BoardEvaluation`/template/response model with mode labels
 - **AND** no parallel per-domain evaluation schema exists.
+
+@e2e exclude structural claim about the register (one schema, no parallel per-domain entity), not a distinct runtime flow — proven by construction (RegisterJsonTest asserts the schema count/names) and exercised implicitly since the e2e board-evaluation-workflow spec runs the same create/respond/close flow against a `bodyType: council` GovernanceBody as any other body, through the identical BoardEvaluation schema.
 
 #### Scenario: Lifecycle gating is OR RBAC, not app-local
 - **GIVEN** a user who is not the body's chair or secretary
