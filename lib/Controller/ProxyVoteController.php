@@ -29,6 +29,7 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -36,6 +37,7 @@ use OCP\IUserSession;
  * REST controller for proxy votes.
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
  */
 class ProxyVoteController extends Controller
 {
@@ -47,14 +49,67 @@ class ProxyVoteController extends Controller
      * @param IRequest         $request      The HTTP request
      * @param ProxyVoteService $proxyService Proxy service
      * @param IUserSession     $userSession  User session
+     * @param IGroupManager    $groupManager Group manager (for admin bypass on the authorization guard)
      */
     public function __construct(
         IRequest $request,
         private readonly ProxyVoteService $proxyService,
         private readonly IUserSession $userSession,
+        private readonly IGroupManager $groupManager,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
+
+    /**
+     * Resolve the caller's UID for the authorization guard: null when the
+     * caller is a Nextcloud admin (admin bypass, mirroring
+     * `MotionCoauthorController`'s `$accessUid` convention), the UID otherwise.
+     *
+     * @return string|null
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+     */
+    private function resolveCallerUid(): ?string
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return null;
+        }
+
+        $uid = $user->getUID();
+        if ($this->groupManager->isAdmin($uid) === true) {
+            return null;
+        }
+
+        return $uid;
+
+    }//end resolveCallerUid()
+
+    /**
+     * Map a service result to a JSONResponse, promoting authorization
+     * failures (service message prefixed `Forbidden:`) to `403 Forbidden`
+     * with a static message instead of the generic `422` that
+     * `respondFromResult()` would otherwise return.
+     *
+     * @param array<string, mixed> $result      The service result
+     * @param string               $payloadKey  Key of the success-side payload
+     * @param int                  $successCode HTTP code to return on success
+     *
+     * @return JSONResponse
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+     */
+    private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode=Http::STATUS_OK): JSONResponse
+    {
+        if (($result['success'] ?? false) === false
+            && stripos((string) ($result['message'] ?? ''), 'Forbidden:') === 0
+        ) {
+            return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+        }
+
+        return $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
+
+    }//end respondFromAuthorizedResult()
 
     /**
      * Register a proxy.
@@ -88,8 +143,10 @@ class ProxyVoteController extends Controller
             'expiresAt' => (string) $this->request->getParam('expiresAt', ''),
         ];
 
-        return $this->respondFromResult(
-            result: $this->proxyService->register($meetingId, $grantorId, $holderId, $extra),
+        $callerUid = $this->resolveCallerUid();
+
+        return $this->respondFromAuthorizedResult(
+            result: $this->proxyService->register($meetingId, $grantorId, $holderId, $extra, $callerUid),
             payloadKey: 'proxy',
             successCode: Http::STATUS_CREATED
         );
@@ -157,9 +214,10 @@ class ProxyVoteController extends Controller
             return $auth;
         }
 
-        $actor = $this->userSession->getUser()?->getUID();
-        return $this->respondFromResult(
-            result: $this->proxyService->suspend($id, (string) $actor),
+        $actor     = (string) $this->userSession->getUser()?->getUID();
+        $callerUid = $this->resolveCallerUid();
+        return $this->respondFromAuthorizedResult(
+            result: $this->proxyService->suspend($id, $actor, $callerUid),
             payloadKey: 'proxy'
         );
 
@@ -184,9 +242,10 @@ class ProxyVoteController extends Controller
             return $auth;
         }
 
-        $actor = $this->userSession->getUser()?->getUID();
-        return $this->respondFromResult(
-            result: $this->proxyService->revoke($id, (string) $actor),
+        $actor     = (string) $this->userSession->getUser()?->getUID();
+        $callerUid = $this->resolveCallerUid();
+        return $this->respondFromAuthorizedResult(
+            result: $this->proxyService->revoke($id, $actor, $callerUid),
             payloadKey: 'proxy'
         );
 
