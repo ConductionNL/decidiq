@@ -165,19 +165,13 @@
 					}
 				],
 				"_relatedCollectionsNote": "Reactions (the consultation's submissions) are related through OpenRegister (PublicConsultation.reactions one-to-many <-> ConsultationReaction.consultation many-to-one) and render as a table on the main detail body — moved off the former Reactions sidebar tab. Hub-wide pending moderation still uses ConsultationReactionsTab on the Moderation queue.",
-				"sidebarTabs": [
-					{
-						"id": "audit",
-						"label": "Audit trail",
-						"icon": "icon-history",
-						"widgets": [
-							{
-								"type": "audit-trail"
-							}
-						],
-						"order": 90
-					}
-				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "component": "CnAuditTrailTab" }
+					]
+				},
 				"documentationUrl": "https://decidesk.conduction.nl"
 			}
 		},
@@ -238,19 +232,13 @@
 					{ "id": "5", "widgetId": "budget-files", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 4 },
 					{ "id": "6", "widgetId": "budget-proposals", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 6 }
 				],
-				"sidebarTabs": [
-					{
-						"id": "audit",
-						"label": "Audit trail",
-						"icon": "icon-history",
-						"widgets": [
-							{
-								"type": "audit-trail"
-							}
-						],
-						"order": 90
-					}
-				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "component": "CnAuditTrailTab" }
+					]
+				},
 				"documentationUrl": "https://decidesk.conduction.nl"
 			}
 		},
