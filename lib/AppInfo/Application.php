@@ -972,6 +972,42 @@ class Application extends App implements IBootstrap
             listener: \OCA\Decidesk\Listener\MeetingFolderListener::class
         );
 
+        // Governance role -> OR RBAC scope projection
+        // (consume-or-rbac-authorization, REQ-RBAC-001): keep each body's
+        // chair/signatory scopes in sync on Participant/Membership writes.
+        $context->registerService(
+            \OCA\Decidesk\Service\GovernanceRoleScopeProjector::class,
+            static function ($c): \OCA\Decidesk\Service\GovernanceRoleScopeProjector {
+                return new \OCA\Decidesk\Service\GovernanceRoleScopeProjector(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
+                    userManager: $c->get(\OCP\IUserManager::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerService(
+            \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class,
+            static function ($c): \OCA\Decidesk\Listener\GovernanceRoleProjectionListener {
+                return new \OCA\Decidesk\Listener\GovernanceRoleProjectionListener(
+                    projector: $c->get(\OCA\Decidesk\Service\GovernanceRoleScopeProjector::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerEventListener(
+            event: ObjectCreatedEvent::class,
+            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class
+        );
+        $context->registerEventListener(
+            event: ObjectUpdatedEvent::class,
+            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class
+        );
+        $context->registerEventListener(
+            event: \OCA\OpenRegister\Event\ObjectDeletedEvent::class,
+            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class
+        );
+
         // Meeting transcription + AI-assisted draft minutes
         // (meeting-transcription-ai-minutes): thin orchestration over the NC
         // SpeechToText + TaskProcessing provider abstractions. All provider
@@ -1174,11 +1210,15 @@ class Application extends App implements IBootstrap
             }
         );
 
+        // GovernanceScopeGuard consumes the OpenRegister-projected per-body
+        // signatory/chair scopes (consume-or-rbac-authorization). It replaces
+        // the retired app-local MinutesAuthorizationService.
         $context->registerService(
-            \OCA\Decidesk\Service\MinutesAuthorizationService::class,
-            static function ($c): \OCA\Decidesk\Service\MinutesAuthorizationService {
-                return new \OCA\Decidesk\Service\MinutesAuthorizationService(
+            \OCA\Decidesk\Service\GovernanceScopeGuard::class,
+            static function ($c): \OCA\Decidesk\Service\GovernanceScopeGuard {
+                return new \OCA\Decidesk\Service\GovernanceScopeGuard(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }
@@ -1191,7 +1231,7 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     signatureService: $c->get(\OCA\Decidesk\Service\IEIDASSignatureService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
-                    authService: $c->get(\OCA\Decidesk\Service\MinutesAuthorizationService::class),
+                    scopeGuard: $c->get(\OCA\Decidesk\Service\GovernanceScopeGuard::class),
                 );
             }
         );

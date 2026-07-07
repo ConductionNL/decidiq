@@ -10,6 +10,19 @@
     "app": "decidesk",
     "openregister": "^v0.2.10",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
+    "x-decidesk-rbac-scopes": {
+      "description": "consume-or-rbac-authorization (ADR-022/ADR-051): governance-body actor authorization is owned by OpenRegister RBAC scopes, not by an app-local *AuthorizationService. GovernanceRoleScopeProjector maintains, per GovernanceBody, two NC-group RBAC scopes derived from the Participant roster: 'decidesk:body:{bodyId}:chair' (role chair/chairman) and 'decidesk:body:{bodyId}:signatory' (chair/chairman/vice-chairman/secretary superset). These gate: QES signing initiation on minutes/decision (signatory scope) and chair-only meeting.lifecycle transitions listed in the workflow template's chairOnlyTransitions (chair scope). The scopes are populated on every Participant/Membership write (GovernanceRoleProjectionListener) and backfilled by the ProjectGovernanceRoleScopes repair step; they fail closed (empty scope denies).",
+      "scopes": {
+        "chair": "decidesk:body:{bodyId}:chair",
+        "signatory": "decidesk:body:{bodyId}:signatory"
+      },
+      "gatedWrites": {
+        "minutes.signing-request": "signatory",
+        "decision.signing-request": "signatory",
+        "meeting.lifecycle (chairOnlyTransitions)": "chair"
+      },
+      "deviation": "OpenRegister property-RBAC evaluates group rules with literal NC group ids and object-field match conditions ($userId/$now/@self.*); it cannot template a group name with a per-object id, so the final scope-membership evaluation for the per-body signatory/chair scopes is performed at the app boundary (GovernanceScopeGuard) consuming the OR-projected scope group — the identical determination PropertyRbacHandler makes internally (in_array(group, userGroups)) — rather than by OR's ObjectService write path returning 403. The authorization FACT (role -> scope) is OR/NC-owned and projected; the guard is a consumer, not a parallel role-resolution service. The who-may-act outcome is preserved exactly and fail-closed."
+    },
     "consumes": {
       "integrations": [
         {

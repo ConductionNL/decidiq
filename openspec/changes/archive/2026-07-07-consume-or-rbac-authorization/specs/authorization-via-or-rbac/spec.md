@@ -17,17 +17,23 @@ closed (an unresolved or empty scope denies rather than over-grants).
 - **THEN** that member is present in both `decidesk:body:{bodyId}:chair` and
   `decidesk:body:{bodyId}:signatory`.
 
+@e2e exclude backend role→scope projection with no distinct UI flow; the scope-group membership is maintained by GovernanceRoleScopeProjector on a roster write and is unit-proven in GovernanceRoleScopeProjectorTest (chair→both scopes).
+
 #### Scenario: Secretary is a signatory but not a chair
 - **GIVEN** a GovernanceBody
 - **WHEN** a member is given the role `secretary`
 - **THEN** that member is present in `decidesk:body:{bodyId}:signatory`
 - **AND** that member is NOT present in `decidesk:body:{bodyId}:chair`.
 
+@e2e exclude backend projection set-membership assertion with no distinct UI flow; unit-proven in GovernanceRoleScopeProjectorTest (secretary→signatory-only).
+
 #### Scenario: Removing a role reconciles the scopes idempotently
 - **GIVEN** a member currently in a body's chair scope
 - **WHEN** that member's chair role is removed and the projection runs (or re-runs)
 - **THEN** the member is absent from both scopes
 - **AND** re-running the projection produces no further change.
+
+@e2e exclude backend idempotent-reconcile invariant with no distinct UI flow; unit-proven in GovernanceRoleScopeProjectorTest (removal reconciles + re-run is a no-op).
 
 ### Requirement: REQ-RBAC-002 Signatory authorization is an OpenRegister RBAC rule, not an app-local service
 Initiating a qualified e-signature (QES) on a Minutes record (and on a resolution `decision`) SHALL
@@ -52,6 +58,8 @@ decidesk OpenRegister objects SHALL remain.
 - **GIVEN** the decidesk worktree after this change
 - **WHEN** `lint-or-abstraction-anti-patterns.sh` runs
 - **THEN** it reports no `consume-or-rbac-fleet-wide` finding for decidesk.
+
+@e2e exclude build-time lint-gate assertion, not a runtime UI flow; verified by running lint-or-abstraction-anti-patterns.sh (reports clean; no *AuthorizationService/*PermissionService remains under lib/).
 
 ### Requirement: REQ-RBAC-003 Chair-only lifecycle transitions are enforced by OpenRegister property RBAC
 Chair-only meeting-lifecycle transitions SHALL be enforced by an OpenRegister property-RBAC rule that
@@ -106,3 +114,5 @@ caller as "check skipped".
 - **WHEN** OpenRegister evaluates the RBAC rule
 - **THEN** the write is denied (403)
 - **AND** the attempt is never treated as authorized.
+
+@e2e exclude fail-closed edge (unresolvable body scope) with no distinct UI flow; unit-proven in GovernanceScopeGuardTest (fails closed when the body is unresolvable / on OR error) and MeetingServiceTest (chair-only transition denied when the governanceBody cannot be resolved).
