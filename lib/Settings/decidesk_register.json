@@ -5912,7 +5912,7 @@
             "description": "UUID of the board member or participant declaring the conflict of interest.",
             "type": "string",
             "format": "uuid",
-            "$ref": "BoardMember"
+            "$ref": "Participant"
           },
           "agendaItem": {
             "title": "Agenda item",
