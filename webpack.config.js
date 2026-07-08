@@ -42,7 +42,7 @@ webpackConfig.entry = {
 // nextcloud-vue source path (used when iterating on an unmerged nc-vue branch).
 const localLib = process.env.CN_NEXTCLOUD_VUE_SRC
 	|| path.resolve(__dirname, '../nextcloud-vue/src')
-const useLocalLib = fs.existsSync(localLib)
+const useLocalLib = process.env.USE_LOCAL_LIB !== 'false' && fs.existsSync(localLib)
 
 webpackConfig.resolve = {
 	extensions: ['.vue', '.js'],
