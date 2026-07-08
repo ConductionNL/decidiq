@@ -37,6 +37,16 @@ webpackConfig.entry = {
 	},
 }
 
+// Resolve async (lazy) chunk URLs relative to the entry script's own location
+// at runtime, instead of the base config's fixed publicPath. CnPageRenderer
+// loads page components (e.g. CnDashboardPage) via defineAsyncComponent, so each
+// lands in its own chunk. On installs that serve this app from /custom_apps/
+// (rather than the virtual /apps/ path the base publicPath assumes) the fixed
+// path 404s and the page renders blank. 'auto' derives the base from
+// document.currentScript (decidesk-main.js under /custom_apps/decidesk/js/), so
+// the chunks load from the same directory the entry did.
+webpackConfig.output = { ...(webpackConfig.output || {}), publicPath: 'auto' }
+
 // Use local source when available (monorepo dev), otherwise fall back to npm package.
 // CN_NEXTCLOUD_VUE_SRC env override lets a sibling worktree pin a specific
 // nextcloud-vue source path (used when iterating on an unmerged nc-vue branch).
