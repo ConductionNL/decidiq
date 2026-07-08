@@ -122,18 +122,26 @@
             "type": "string",
             "description": "Corporate-governance extension (beyond Popolo): officeholder nationality, surfaced in mode=corp",
             "example": "NL"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "memberships": {
-            "register": "decidesk",
-            "schema": "Membership",
-            "cardinality": "one-to-many"
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Membership"
+            },
+            "title": "Memberships",
+            "description": "References to the Membership objects held by this person (one-to-many)."
           },
           "contactDetails": {
-            "register": "decidesk",
-            "schema": "ContactDetail",
-            "cardinality": "one-to-many"
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "ContactDetail"
+            },
+            "title": "Contact details",
+            "description": "References to the ContactDetail objects for this person (one-to-many)."
           }
         },
         "x-openregister-seeds": [
@@ -254,13 +262,13 @@
             "type": "string",
             "format": "date-time",
             "description": "When the post was abolished"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody this post belongs to (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -381,23 +389,28 @@
               "type": "string"
             },
             "description": "Corporate-governance extension (beyond Popolo): nevenfuncties / other positions, mode=corp"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "person": {
-            "register": "decidesk",
-            "schema": "Person",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "title": "Person",
+            "description": "Reference to the Person this membership belongs to (many-to-one)."
           },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody this membership is in (many-to-one)."
           },
           "post": {
-            "register": "decidesk",
-            "schema": "Post",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Post",
+            "x-relation-filter": { "governanceBody": "@object.governanceBody" },
+            "title": "Post",
+            "description": "Reference to the Post held under this membership (many-to-one). The picker is scoped to posts of the membership's own governance body."
           }
         },
         "x-openregister-seeds": [
@@ -558,18 +571,20 @@
             "type": "string",
             "format": "date-time",
             "description": "End of validity (Popolo: valid_until)"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "person": {
-            "register": "decidesk",
-            "schema": "Person",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "title": "Person",
+            "description": "Reference to the Person this contact detail belongs to (many-to-one)."
           },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody this contact detail belongs to (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -946,6 +961,8 @@
           },
           "governanceBody": {
             "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
             "title": "Body",
             "description": "The governance body or team this meeting belongs to. Materialises the governanceBody relation as a real property so per-body meeting filters and the participant-count aggregations (which filter on @self.governanceBody) resolve.",
             "order": 6,
@@ -1114,13 +1131,6 @@
             "type": "number",
             "description": "Total meeting cost in EUR, computed server-side on close from elapsed time x attendee count x the governance body's hourlyRate (meeting-efficiency). Schema.org MonetaryAmount value.",
             "readOnly": true
-          }
-        },
-        "x-openregister-relations": {
-          "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
           }
         },
         "x-openregister-aggregations": {
@@ -1424,13 +1434,13 @@
               "remote"
             ],
             "example": "in-person"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody this participant belongs to (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -1572,13 +1582,13 @@
             "type": "string",
             "description": "UUID of the parent AgendaItem when this item is a nested sub-item (e.g. committee reports grouped under one heading). Null/absent for top-level items.",
             "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
+            "title": "Meeting",
+            "description": "Reference to the Meeting this agenda item belongs to (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -1790,13 +1800,12 @@
             "type": "integer",
             "description": "Computed calculation base the threshold was evaluated against at tally time (for+against, plus abstentions under abstentionHandling=count).",
             "example": 19
-          }
-        },
-        "x-openregister-relations": {
+          },
           "decisionStage": {
-            "register": "decidesk",
-            "schema": "DecisionStage",
-            "cardinality": "many-to-one",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "DecisionStage",
+            "title": "Decision stage",
             "description": "The DecisionStage of method=vote that this VotingRound resolves. Retargeted from the retired motion schema (C5 decision-methods D1). The stage's outcome is derived declaratively from this round's result."
           }
         },
@@ -1947,18 +1956,20 @@
               "unknown"
             ],
             "example": "in-person"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "votingRound": {
-            "register": "decidesk",
-            "schema": "VotingRound",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "VotingRound",
+            "title": "Voting round",
+            "description": "Reference to the VotingRound this vote was cast in (many-to-one)."
           },
           "participant": {
-            "register": "decidesk",
-            "schema": "Participant",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Participant",
+            "title": "Participant",
+            "description": "Reference to the Participant who cast this vote (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -2497,6 +2508,94 @@
             "title": "External reference",
             "type": ["string", "null"],
             "description": "Consumer's own reference for idempotency and ledger linking. The create-decision endpoint is idempotent on (sourceApp, subjectRegister, subjectSchema, subjectId, externalReference) (REQ-DCDH-002)."
+          },
+          "amends": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Amends",
+            "description": "This decision modifies that decision. Used by decisionType=amendment to point at its parent motion decision (replaces the retired Amendment → Motion relation); more generally the legislative 'amends another decision' modification (Akoma Ntoso eId akn:amendment / ORI 'wijzigt'). Informational for effective-status purposes — an amended decision remains in force, just modified (design D1)."
+          },
+          "offer": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Offer"
+            },
+            "title": "Offers",
+            "description": "Contract attachment: offers/quotes related to a decisionType=contract decision (ADR-005)."
+          },
+          "order": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Order"
+            },
+            "title": "Orders",
+            "description": "Contract attachment: purchase orders related to a decisionType=contract decision (ADR-005)."
+          },
+          "product": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Product"
+            },
+            "title": "Products",
+            "description": "Contract attachment: products/services related to a decisionType=contract decision (ADR-005)."
+          },
+          "route": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "DecisionStage"
+            },
+            "x-relation-filter": { "decision": "@objectId" },
+            "title": "Route",
+            "description": "The ordered route of DecisionStage objects that this Decision travels. Empty when no staged route is configured; a stageless Decision is valid. The inverse relation (DecisionStage → Decision) is stored on DecisionStage.decision."
+          },
+          "supersedes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Decision"
+            },
+            "title": "Supersedes",
+            "description": "Decisions that this decision supersedes (replaces in their entirety) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted supersedes becomes effectiveStatus=superseded (design D1/D2). Maps to Akoma Ntoso akn:replacement / ORI 'vervangt' / schema.org supersededBy (inverse)."
+          },
+          "repeals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Decision"
+            },
+            "title": "Repeals",
+            "description": "Decisions that this decision repeals (revokes / nullifies) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted repeals becomes effectiveStatus=repealed (precedence over superseded; design D1/D2). Maps to Akoma Ntoso akn:repeal / ORI 'trekt in'."
+          },
+          "implements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Decision"
+            },
+            "title": "Implements",
+            "description": "Decisions that this decision implements / gives effect to (e.g. an executive decision implementing a council framework) — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:implementation / ORI 'geeft uitvoering aan'."
+          },
+          "refersTo": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Decision"
+            },
+            "title": "Refers to",
+            "description": "Decisions this decision merely references / relates to without modifying — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:cites / ORI 'verwijst naar' / schema.org isRelatedTo."
           }
         },
         "x-openregister-lifecycle": {
@@ -2563,62 +2662,6 @@
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031). The proven 7-state flow draft → proposed → deliberating → voting → decided → enacted → archived is retained from decision-state-machine-v1; a terminal 'withdrawn' state is added, reachable from any non-terminal state before 'enacted' (design D2 + resolved deferred question). lifecycle is orthogonal to 'outcome' (voting result) and 'isPublished' (citizen visibility)."
-        },
-        "x-openregister-relations": {
-          "amends": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one",
-            "description": "This decision modifies that decision. Used by decisionType=amendment to point at its parent motion decision (replaces the retired Amendment → Motion relation); more generally the legislative 'amends another decision' modification (Akoma Ntoso eId akn:amendment / ORI 'wijzigt'). Informational for effective-status purposes — an amended decision remains in force, just modified (design D1)."
-          },
-          "offer": {
-            "register": "decidesk",
-            "schema": "Offer",
-            "cardinality": "one-to-many",
-            "description": "Contract attachment: offers/quotes related to a decisionType=contract decision (ADR-005)."
-          },
-          "order": {
-            "register": "decidesk",
-            "schema": "Order",
-            "cardinality": "one-to-many",
-            "description": "Contract attachment: purchase orders related to a decisionType=contract decision (ADR-005)."
-          },
-          "product": {
-            "register": "decidesk",
-            "schema": "Product",
-            "cardinality": "one-to-many",
-            "description": "Contract attachment: products/services related to a decisionType=contract decision (ADR-005)."
-          },
-          "route": {
-            "register": "decidesk",
-            "schema": "DecisionStage",
-            "cardinality": "one-to-many",
-            "description": "The ordered route of DecisionStage objects that this Decision travels. Empty when no staged route is configured; a stageless Decision is valid. The inverse relation (DecisionStage → Decision) is stored on DecisionStage.decision."
-          },
-          "supersedes": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "one-to-many",
-            "description": "Decisions that this decision supersedes (replaces in their entirety) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted supersedes becomes effectiveStatus=superseded (design D1/D2). Maps to Akoma Ntoso akn:replacement / ORI 'vervangt' / schema.org supersededBy (inverse)."
-          },
-          "repeals": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "one-to-many",
-            "description": "Decisions that this decision repeals (revokes / nullifies) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted repeals becomes effectiveStatus=repealed (precedence over superseded; design D1/D2). Maps to Akoma Ntoso akn:repeal / ORI 'trekt in'."
-          },
-          "implements": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "one-to-many",
-            "description": "Decisions that this decision implements / gives effect to (e.g. an executive decision implementing a council framework) — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:implementation / ORI 'geeft uitvoering aan'."
-          },
-          "refersTo": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "one-to-many",
-            "description": "Decisions this decision merely references / relates to without modifying — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:cites / ORI 'verwijst naar' / schema.org isRelatedTo."
-          }
         },
         "x-openregister-aggregations": {
           "stageCount": {
@@ -3118,6 +3161,49 @@
             "description": "Free text recorded by the stage owner at decision time — e.g. reasoning, conditions, or dissenting remarks.",
             "nullable": true,
             "example": "Unaniem advies uitgebracht na bespreking in commissie."
+          },
+          "decision": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Decision",
+            "description": "The parent Decision this stage belongs to. Required: every stage must be owned by exactly one Decision."
+          },
+          "assignedPerson": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "title": "Assigned person",
+            "description": "Individual decision-maker for this stage. Populate when decisionMakerType=person; leave null when decisionMakerType=body. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
+          },
+          "assignedBody": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Assigned body",
+            "description": "Group decision-maker for this stage. Populate when decisionMakerType=body; leave null when decisionMakerType=person. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
+          },
+          "votingRound": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "VotingRound",
+            "x-relation-filter": { "decisionStage": "@objectId" },
+            "title": "Voting round",
+            "description": "The VotingRound that resolves this stage. Required when method=vote; the stage outcome is derived declaratively from VotingRound.result (C5 D2/D4). Leave null for method≠vote. Vote sub-variants (secret/personal/general) are configured on the VotingRound (isSecret, votingMethod) rather than by expanding the method enum (C5 D1)."
+          },
+          "registeredBy": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "title": "Registered by",
+            "description": "The chair who recorded the outcome directly for this stage. Required when method=chair-register; leave null for other methods. The chair sets outcome + decidedAt directly; registeredBy records who (C5 D2)."
+          },
+          "signedDocument": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "DigitalDocument",
+            "title": "Signed document",
+            "description": "The signed DigitalDocument produced for this stage. Required when method=signature; leave null for other methods. Signatories are read from the related Minutes.signedBy. EIDASSignatureService resolves this stage (sets outcome=adopted + decidedAt) when eIDAS signing completes (C5 D2/D3/D5)."
           }
         },
         "x-openregister-lifecycle": {
@@ -3152,44 +3238,6 @@
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031 / design D4). Terminal states 'decided' and 'skipped' mirror the route-progress aggregation on Decision: a stage is resolved when it reaches either terminal state. The 'active' state marks the currentStage (derived declaratively on Decision via x-openregister-calculations)."
-        },
-        "x-openregister-relations": {
-          "decision": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one",
-            "description": "The parent Decision this stage belongs to. Required: every stage must be owned by exactly one Decision."
-          },
-          "assignedPerson": {
-            "register": "decidesk",
-            "schema": "Person",
-            "cardinality": "many-to-one",
-            "description": "Individual decision-maker for this stage. Populate when decisionMakerType=person; leave null when decisionMakerType=body. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
-          },
-          "assignedBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one",
-            "description": "Group decision-maker for this stage. Populate when decisionMakerType=body; leave null when decisionMakerType=person. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
-          },
-          "votingRound": {
-            "register": "decidesk",
-            "schema": "VotingRound",
-            "cardinality": "many-to-one",
-            "description": "The VotingRound that resolves this stage. Required when method=vote; the stage outcome is derived declaratively from VotingRound.result (C5 D2/D4). Leave null for method≠vote. Vote sub-variants (secret/personal/general) are configured on the VotingRound (isSecret, votingMethod) rather than by expanding the method enum (C5 D1)."
-          },
-          "registeredBy": {
-            "register": "decidesk",
-            "schema": "Person",
-            "cardinality": "many-to-one",
-            "description": "The chair who recorded the outcome directly for this stage. Required when method=chair-register; leave null for other methods. The chair sets outcome + decidedAt directly; registeredBy records who (C5 D2)."
-          },
-          "signedDocument": {
-            "register": "decidesk",
-            "schema": "DigitalDocument",
-            "cardinality": "many-to-one",
-            "description": "The signed DigitalDocument produced for this stage. Required when method=signature; leave null for other methods. Signatories are read from the related Minutes.signedBy. EIDASSignatureService resolves this stage (sets outcome=adopted + decidedAt) when eIDAS signing completes (C5 D2/D3/D5)."
-          }
         },
         "x-openregister-calculations": {
           "outcome": {
@@ -3505,18 +3553,20 @@
             "type": "string",
             "format": "date-time",
             "description": "Completion timestamp"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "decision": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Decision",
+            "description": "Reference to the Decision this action item stems from (many-to-one)."
           },
           "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
+            "title": "Meeting",
+            "description": "Reference to the Meeting this action item stems from (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -3834,13 +3884,13 @@
                 }
               }
             }
-          }
-        },
-        "x-openregister-relations": {
+          },
           "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "one-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
+            "title": "Meeting",
+            "description": "Reference to the Meeting these minutes document (one-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -4182,13 +4232,13 @@
             ],
             "default": "active",
             "example": "active"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "one-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
+            "title": "Meeting",
+            "description": "Reference to the Meeting this transcript records (one-to-one)."
           }
         }
       },
@@ -4598,23 +4648,27 @@
             "title": "Notes",
             "type": "string",
             "description": "Optional citizen-supplied reasoning attached to the vote (may be published with consent)."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "motion": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Motion",
+            "description": "Reference to the Decision (motion) this citizen vote concerns (many-to-one)."
           },
           "proposal": {
-            "register": "decidesk",
-            "schema": "BudgetProposal",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "BudgetProposal",
+            "title": "Proposal",
+            "description": "Reference to the BudgetProposal this citizen vote concerns (many-to-one)."
           },
           "citizenPanel": {
-            "register": "decidesk",
-            "schema": "CitizenPanel",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "CitizenPanel",
+            "title": "Citizen panel",
+            "description": "Reference to the CitizenPanel this citizen vote was cast within (many-to-one)."
           }
         }
       },
@@ -4692,13 +4746,13 @@
             "title": "Created by",
             "type": "string",
             "description": "Nextcloud UID of the staff member who created the panel."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody that owns this citizen panel (many-to-one)."
           }
         }
       },
@@ -4812,13 +4866,13 @@
             "title": "Results summary",
             "type": "string",
             "description": "JSON-encoded, PII-free result summary (ranked proposals + greedy allocation + participation count) attached when results are published; publicatiedatum is set alongside it so the public-group RBAC rule makes the object anonymously readable. Carries aggregate vote counts only, never voter identities."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody that owns this participatory budget (many-to-one)."
           }
         }
       },
@@ -4928,13 +4982,13 @@
             "description": "Citizen vote tally against.",
             "default": 0,
             "example": 0
-          }
-        },
-        "x-openregister-relations": {
+          },
           "participatoryBudget": {
-            "register": "decidesk",
-            "schema": "ParticipatoryBudget",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "ParticipatoryBudget",
+            "title": "Participatory budget",
+            "description": "Reference to the ParticipatoryBudget this proposal belongs to (many-to-one)."
           }
         }
       },
@@ -5176,6 +5230,30 @@
             "type": "string",
             "format": "date-time",
             "description": "consultationType=participatory-budget: deadline for citizens to vote on proposals."
+          },
+          "governanceBody": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody that owns this public consultation (many-to-one)."
+          },
+          "decision": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Decision",
+            "description": "Reference to the Decision this consultation informs (many-to-one)."
+          },
+          "reactions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "ConsultationReaction"
+            },
+            "title": "Reactions",
+            "description": "References to the ConsultationReaction objects submitted to this consultation (one-to-many)."
           }
         },
         "x-openregister-lifecycle": {
@@ -5218,23 +5296,6 @@
             "results-published": [],
             "report-published": [],
             "awarded": []
-          }
-        },
-        "x-openregister-relations": {
-          "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
-          },
-          "decision": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one"
-          },
-          "reactions": {
-            "register": "decidesk",
-            "schema": "ConsultationReaction",
-            "cardinality": "one-to-many"
           }
         }
       },
@@ -5364,13 +5425,13 @@
             "title": "Proposal amount",
             "type": "number",
             "description": "consultationType=participatory-budget: requested amount for this budget proposal."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "consultation": {
-            "register": "decidesk",
-            "schema": "PublicConsultation",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "PublicConsultation",
+            "title": "Consultation",
+            "description": "Reference to the PublicConsultation this reaction was submitted to (many-to-one)."
           }
         }
       },
@@ -5438,13 +5499,13 @@
             "description": "Number of posts in the thread.",
             "default": 0,
             "example": 0
-          }
-        },
-        "x-openregister-relations": {
+          },
           "motion": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Motion",
+            "description": "Reference to the Decision (motion) this deliberation concerns (many-to-one)."
           }
         }
       },
@@ -5696,11 +5757,15 @@
           "meeting": {
             "title": "Meeting",
             "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
             "description": "UUID of the linked Meeting object"
           },
           "participant": {
             "title": "Participant",
             "type": "string",
+            "format": "uuid",
+            "$ref": "Participant",
             "description": "UUID of the linked Participant object"
           },
           "speeches": {
@@ -5771,18 +5836,6 @@
                 }
               ]
             }
-          }
-        },
-        "x-openregister-relations": {
-          "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "many-to-one"
-          },
-          "participant": {
-            "register": "decidesk",
-            "schema": "Participant",
-            "cardinality": "many-to-one"
           }
         },
         "x-openregister-seeds": [
@@ -5879,7 +5932,9 @@
           "boardMember": {
             "title": "Board member",
             "description": "UUID of the board member or participant declaring the conflict of interest.",
-            "type": "string"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Participant"
           },
           "agendaItem": {
             "title": "Agenda item",
@@ -5928,13 +5983,6 @@
             "description": "Timestamp when the conflict of interest was declared.",
             "type": "string",
             "format": "date-time"
-          }
-        },
-        "x-openregister-relations": {
-          "boardMember": {
-            "register": "decidesk",
-            "schema": "BoardMember",
-            "cardinality": "many-to-one"
           }
         },
         "x-openregister-seeds": [
