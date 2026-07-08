@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
+use OCA\Decidesk\Service\GovernanceScopeGuard;
 use OCA\Decidesk\Service\MeetingCostService;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\WorkflowService;
@@ -94,6 +95,13 @@ class MeetingServiceTest extends TestCase
     private MeetingCostService&MockObject $meetingCostService;
 
     /**
+     * Mock GovernanceScopeGuard (consumes the OR-projected chair scope).
+     *
+     * @var GovernanceScopeGuard&MockObject
+     */
+    private GovernanceScopeGuard&MockObject $scopeGuard;
+
+    /**
      * Set up test fixtures.
      *
      * Default workflow mocks permit all transitions (operations domain semantics)
@@ -111,6 +119,7 @@ class MeetingServiceTest extends TestCase
         $this->workflowService = $this->createMock(originalClassName: WorkflowService::class);
         $this->transitionGuard    = $this->createMock(originalClassName: MeetingTransitionGuard::class);
         $this->meetingCostService = $this->createMock(originalClassName: MeetingCostService::class);
+        $this->scopeGuard         = $this->createMock(originalClassName: GovernanceScopeGuard::class);
 
         $this->container->method('get')
             ->with('OCA\OpenRegister\Service\ObjectService')
@@ -122,6 +131,7 @@ class MeetingServiceTest extends TestCase
             workflowService: $this->workflowService,
             transitionGuard: $this->transitionGuard,
             meetingCostService: $this->meetingCostService,
+            scopeGuard: $this->scopeGuard,
         );
 
     }//end setUp()
@@ -132,15 +142,20 @@ class MeetingServiceTest extends TestCase
      * @param string      $lifecycle The lifecycle state to set on the mock entity
      * @param string      $domain    The governance domain (default: 'operations')
      * @param string|null $chair     The Nextcloud UID of the meeting chair (default: null)
+     * @param string|null $body      The GovernanceBody UUID relation (default: null)
      *
      * @return ObjectEntity&MockObject
      */
-    private function buildMockEntity(string $lifecycle, string $domain='operations', ?string $chair=null): ObjectEntity&MockObject
+    private function buildMockEntity(string $lifecycle, string $domain='operations', ?string $chair=null, ?string $body=null): ObjectEntity&MockObject
     {
         $entity = $this->createMock(originalClassName: ObjectEntity::class);
         $data   = ['lifecycle' => $lifecycle, 'domain' => $domain];
         if ($chair !== null) {
             $data['chair'] = $chair;
+        }
+
+        if ($body !== null) {
+            $data['governanceBody'] = $body;
         }
 
         $entity->method('getObject')->willReturn($data);
@@ -359,6 +374,7 @@ class MeetingServiceTest extends TestCase
             workflowService: $workflowService,
             transitionGuard: $transitionGuard,
             meetingCostService: $this->meetingCostService,
+            scopeGuard: $this->scopeGuard,
         );
 
         $result = $service->transition(meetingId: $uuid, action: 'pause');
@@ -379,21 +395,10 @@ class MeetingServiceTest extends TestCase
     public function testChairOnlyTransitionBlockedWithoutChairRole(): void
     {
         $uuid   = 'aaaaaaaa-0000-0000-0000-000000000011';
-        // chair = 'participant-uuid-chair' (a Participant UUID, not a NC UID).
-        $entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', chair: 'participant-uuid-chair');
+        $bodyId = 'body-uuid-1';
+        $entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', body: $bodyId);
 
-        // The service calls find() twice: once for the meeting, once for the Participant lookup.
-        // Participant find returns null (not found) so chairNcUserId stays null → comparison fails → 403.
-        $this->objectService->expects($this->any())
-            ->method('find')
-            ->willReturnCallback(function ($id) use ($uuid, $entity) {
-                if ($id === $uuid) {
-                    return $entity;
-                }
-
-                // Participant lookup returns null: chair NC UID cannot be resolved.
-                return null;
-            });
+        $this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
 
         $workflowService = $this->createMock(originalClassName: WorkflowService::class);
         $workflowService->method('isTransitionAllowed')->willReturn(true);
@@ -401,12 +406,19 @@ class MeetingServiceTest extends TestCase
 
         $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
+        // Caller is NOT in the body's OR-projected chair scope → OR RBAC denies.
+        $scopeGuard = $this->createMock(originalClassName: GovernanceScopeGuard::class);
+        $scopeGuard->method('isInBodyScope')
+            ->with('uid-other-user', $bodyId, GovernanceScopeGuard::SCOPE_CHAIR)
+            ->willReturn(false);
+
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
             transitionGuard: $transitionGuard,
             meetingCostService: $this->meetingCostService,
+            scopeGuard: $scopeGuard,
         );
 
         // Caller is NOT the chair.
@@ -417,6 +429,51 @@ class MeetingServiceTest extends TestCase
         self::assertStringContainsString(needle: 'chair', haystack: $result['message']);
 
     }//end testChairOnlyTransitionBlockedWithoutChairRole()
+
+    /**
+     * Test that a chair-only transition is blocked when the body scope cannot be
+     * resolved (fail-closed): a chair-only transition on a meeting with no
+     * resolvable GovernanceBody is denied regardless of caller.
+     *
+     * @spec openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-005-fail-closed-authorization-is-preserved-end-to-end
+     *
+     * @return void
+     */
+    public function testChairOnlyTransitionFailsClosedWhenBodyUnresolved(): void
+    {
+        $uuid   = 'aaaaaaaa-0000-0000-0000-00000000001a';
+        // No governanceBody relation → resolveBodyId() returns null → deny.
+        $entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative');
+
+        $this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+
+        $workflowService = $this->createMock(originalClassName: WorkflowService::class);
+        $workflowService->method('isTransitionAllowed')->willReturn(true);
+        $workflowService->method('requiresChairAuthorization')->willReturn(true);
+
+        $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
+
+        // The scope guard must not even be consulted with a null body — but if it
+        // were, it would also deny. Assert the transition is refused.
+        $scopeGuard = $this->createMock(originalClassName: GovernanceScopeGuard::class);
+        $scopeGuard->method('isInBodyScope')->willReturn(false);
+
+        $service = new MeetingService(
+            container: $this->container,
+            logger: $this->logger,
+            workflowService: $workflowService,
+            transitionGuard: $transitionGuard,
+            meetingCostService: $this->meetingCostService,
+            scopeGuard: $scopeGuard,
+        );
+
+        $result = $service->transition(meetingId: $uuid, action: 'adjourn', currentUserId: 'uid-chair');
+
+        self::assertFalse(condition: $result['success']);
+        self::assertNull(actual: $result['meeting']);
+        self::assertStringContainsString(needle: 'chair', haystack: $result['message']);
+
+    }//end testChairOnlyTransitionFailsClosedWhenBodyUnresolved()
 
     /**
      * Test that a chair-only transition succeeds when the caller IS the chair.
@@ -430,11 +487,12 @@ class MeetingServiceTest extends TestCase
         $this->markTestSkipped(message: 'See https://codeberg.org/Conduction/decidesk/issues/90 — real ObjectService loads instead of stub.');
 
         $uuid          = 'aaaaaaaa-0000-0000-0000-000000000012';
-        $entity        = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', chair: 'uid-chair');
-        $updatedEntity = $this->buildMockEntity(lifecycle: 'adjourned', domain: 'legislative', chair: 'uid-chair');
+        $bodyId        = 'body-uuid-2';
+        $entity        = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', body: $bodyId);
+        $updatedEntity = $this->buildMockEntity(lifecycle: 'adjourned', domain: 'legislative', body: $bodyId);
 
         $this->objectService->method('find')->willReturn($entity);
-        $this->objectService->method('updateFromArray')->willReturn($updatedEntity);
+        $this->objectService->method('saveObject')->willReturn($updatedEntity);
 
         $workflowService = $this->createMock(originalClassName: WorkflowService::class);
         $workflowService->method('isTransitionAllowed')->willReturn(true);
@@ -442,12 +500,19 @@ class MeetingServiceTest extends TestCase
 
         $transitionGuard = $this->createMock(originalClassName: MeetingTransitionGuard::class);
 
+        // Caller IS in the body's OR-projected chair scope → OR RBAC allows.
+        $scopeGuard = $this->createMock(originalClassName: GovernanceScopeGuard::class);
+        $scopeGuard->method('isInBodyScope')
+            ->with('uid-chair', $bodyId, GovernanceScopeGuard::SCOPE_CHAIR)
+            ->willReturn(true);
+
         $service = new MeetingService(
             container: $this->container,
             logger: $this->logger,
             workflowService: $workflowService,
             transitionGuard: $transitionGuard,
             meetingCostService: $this->meetingCostService,
+            scopeGuard: $scopeGuard,
         );
 
         // Caller IS the chair.
@@ -489,6 +554,7 @@ class MeetingServiceTest extends TestCase
             workflowService: $workflowService,
             transitionGuard: $transitionGuard,
             meetingCostService: $this->meetingCostService,
+            scopeGuard: $this->scopeGuard,
         );
 
         $result = $service->transition(meetingId: $uuid, action: 'open');

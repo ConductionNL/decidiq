@@ -55,6 +55,11 @@ const TYPE_TO_SETTINGS_KEY = {
 	// settings key exists, so this falls back to the literal slug
 	// `publication-record`, matching the schema slug in decidesk_register.json.
 	'publication-record': 'publicationRecordSchema',
+	// board-self-evaluation: no settings key exists for these new schemas, so
+	// each falls back to its literal slug, matching decidesk_register.json.
+	'board-evaluation': 'boardEvaluationSchema',
+	'evaluation-template': 'evaluationTemplateSchema',
+	'evaluation-response': 'evaluationResponseSchema',
 }
 
 /**

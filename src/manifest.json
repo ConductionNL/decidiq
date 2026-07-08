@@ -310,7 +310,8 @@
 					{ "id": "body-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "body-template", "type": "custom", "component": "GovernanceBodyTemplateTab", "title": "Process template", "icon": "Sitemap" },
 					{ "id": "body-efficiency", "type": "custom", "component": "GovernanceBodyEfficiencyTab", "title": "Efficiency", "icon": "ChartBar" },
-					{ "id": "body-retention", "type": "custom", "component": "GovernanceBodyRetentionTab", "title": "Recording retention", "icon": "ShieldCheckOutline" }
+					{ "id": "body-retention", "type": "custom", "component": "GovernanceBodyRetentionTab", "title": "Recording retention", "icon": "ShieldCheckOutline" },
+					{ "id": "body-evaluations", "type": "custom", "component": "GovernanceBodyEvaluationsTab", "title": "Self-evaluation", "icon": "ClipboardCheckOutline" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "body-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
@@ -319,7 +320,8 @@
 					{ "id": "4", "widgetId": "body-files", "gridX": 0, "gridY": 10, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "5", "widgetId": "body-template", "gridX": 0, "gridY": 14, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "6", "widgetId": "body-efficiency", "gridX": 6, "gridY": 14, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "7", "widgetId": "body-retention", "gridX": 0, "gridY": 19, "gridWidth": 12, "gridHeight": 4 }
+					{ "id": "7", "widgetId": "body-retention", "gridX": 0, "gridY": 19, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "8", "widgetId": "body-evaluations", "gridX": 0, "gridY": 23, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,

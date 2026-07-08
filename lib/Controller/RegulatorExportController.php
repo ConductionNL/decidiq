@@ -43,6 +43,8 @@ use OCP\IUserSession;
  */
 class RegulatorExportController extends Controller
 {
+    use RequiresOrAdmin;
+
     use GovernanceControllerTrait;
 
     /**
@@ -192,23 +194,6 @@ class RegulatorExportController extends Controller
 
     }//end index()
 
-    /**
-     * Reject the caller with 401/403 when they are not a Nextcloud admin.
-     *
-     * @return JSONResponse|null
-     */
-    private function requireAdmin(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(['message' => 'Administrator role required.'], Http::STATUS_FORBIDDEN);
-        }
-
-        return null;
-
-    }//end requireAdmin()
+    // Admin guard requireAdmin() comes from the shared RequiresOrAdmin trait
+    // (consume-or-rbac-authorization, REQ-RBAC-004).
 }//end class

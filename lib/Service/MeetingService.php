@@ -68,6 +68,7 @@ class MeetingService
      * @param WorkflowService        $workflowService    Domain-specific transition rules and chair-only gates
      * @param MeetingTransitionGuard $transitionGuard    Reads quorumMet field for the open transition
      * @param MeetingCostService     $meetingCostService Computes the final meetingCost stamped on close (meeting-efficiency)
+     * @param GovernanceScopeGuard   $scopeGuard         Consumes the OR-projected chair scope for chair-only transitions
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
      * @spec openspec/changes/spec/tasks.md#task-1
@@ -79,6 +80,7 @@ class MeetingService
         private readonly WorkflowService $workflowService,
         private readonly MeetingTransitionGuard $transitionGuard,
         private readonly MeetingCostService $meetingCostService,
+        private readonly GovernanceScopeGuard $scopeGuard,
     ) {
     }//end __construct()
 
@@ -160,27 +162,6 @@ class MeetingService
             $currentLifecycle = $meetingData['lifecycle'] ?? 'draft';
             $domain           = $meetingData['domain'] ?? 'operations';
 
-            // $meetingData['chair'] is the Participant UUID (not a NC UID).
-            // Resolve the Participant object to get the linked Nextcloud user ID.
-            $chairParticipantId = $meetingData['chair'] ?? null;
-            $chairNcUserId      = null;
-            if ($chairParticipantId !== null) {
-                $chairParticipant = $objectService->find(
-                    id: $chairParticipantId,
-                    register: 'decidesk',
-                    schema: 'participant'
-                );
-                if ($chairParticipant !== null) {
-                    $chairData     = $chairParticipant->jsonSerialize();
-                    $chairNcUserId = $chairData['nextcloudUserId'] ?? ($chairData['owner'] ?? null);
-                } else {
-                    $this->logger->warning(
-                        'Decidesk MeetingService: chair participant not found',
-                        ['meetingId' => $meetingId, 'chairParticipantId' => $chairParticipantId]
-                    );
-                }
-            }
-
             if (in_array(needle: $currentLifecycle, haystack: $transition['from'], strict: true) === false) {
                 return [
                     'success' => false,
@@ -201,11 +182,18 @@ class MeetingService
             }
 
             // Chair-only transition enforcement (OWASP A01:2021 — broken access control).
-            // requiresChairAuthorization() returns true when the transition is restricted
-            // to the meeting chair (e.g. legislative:opened→adjourned).
-            // Comparison is NC UID vs NC UID (resolved above from Participant record).
+            // requiresChairAuthorization() is process configuration: it returns true
+            // when "$from:$to" is in the workflow template's chairOnlyTransitions. The
+            // actor decision is then made by consuming the OpenRegister-projected chair
+            // scope for the owning body (consume-or-rbac-authorization) — replacing the
+            // former NC-UID-vs-chair comparison. Fail-closed: an unresolved body or an
+            // empty chair scope denies.
             if ($this->workflowService->requiresChairAuthorization(domain: $domain, from: $currentLifecycle, to: $transition['to']) === true) {
-                if ($currentUserId === null || $currentUserId !== $chairNcUserId) {
+                $bodyId = $this->resolveBodyId(meetingData: $meetingData);
+                if ($currentUserId === null
+                    || $bodyId === null
+                    || $this->scopeGuard->isInBodyScope($currentUserId, $bodyId, GovernanceScopeGuard::SCOPE_CHAIR) === false
+                ) {
                     return [
                         'success' => false,
                         'meeting' => null,
@@ -292,6 +280,49 @@ class MeetingService
         }//end try
 
     }//end transition()
+
+    /**
+     * Extract the owning GovernanceBody UUID from a serialised meeting object
+     * (relations map or a direct governanceBody property). Used only to select
+     * the chair scope to consult for chair-only transitions.
+     *
+     * @param array<string, mixed> $meetingData Current meeting object
+     *
+     * @return string|null
+     *
+     * @spec openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-003-chair-only-lifecycle-transitions-are-enforced-by-openregister-property-rbac
+     */
+    private function resolveBodyId(array $meetingData): ?string
+    {
+        $candidates = [];
+
+        $relations = ($meetingData['relations'] ?? []);
+        if (is_array($relations) === true) {
+            foreach (['governanceBody', 'GovernanceBody'] as $key) {
+                if (isset($relations[$key]) === true) {
+                    $candidates[] = $relations[$key];
+                }
+            }
+        }
+
+        foreach (['governanceBody', 'GovernanceBody'] as $key) {
+            if (isset($meetingData[$key]) === true) {
+                $candidates[] = $meetingData[$key];
+            }
+        }
+
+        foreach ($candidates as $value) {
+            if (is_array($value) === true) {
+                $value = ($value['id'] ?? ($value[0] ?? null));
+            }
+
+            if (is_string($value) === true && $value !== '') {
+                return $value;
+            }
+        }
+
+        return null;
+    }//end resolveBodyId()
 
     /**
      * Build the additive meeting-efficiency patch for a lifecycle transition.

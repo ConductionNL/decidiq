@@ -40,8 +40,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
 **Ondersteuning:** Voor ondersteuning, neem contact op via support@conduction.nl.
     ]]></description>
-    <version>0.3.10</version>
-    <licence>agpl</licence>
+    <version>0.3.11</version>
+    <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidesk</namespace>
     <documentation>
@@ -58,36 +58,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <screenshot>https://codeberg.org/Conduction/decidesk/raw/branch/main/img/app-store.svg</screenshot>
 
     <dependencies>
-        <nextcloud min-version="28" max-version="34"/>
         <php min-version="8.3"/>
         <!-- App dependency (not expressible in app-info.xsd): OpenRegister
              (data layer for meetings/motions/decisions; src/manifest.json "dependencies": ["openregister"]).
              Optional runtime dependency: OpenConnector (eIDAS QES e-sign Source), Docudesk (signing + AI minutes),
              OpenCatalogi (decision publication) — all resolved lazily via the DI container and degrade gracefully
              when absent. -->
+        <nextcloud min-version="28" max-version="34"/>
     </dependencies>
-
-    <navigations>
-        <navigation>
-            <id>decidesk</id>
-            <name>Decidesk</name>
-            <route>decidesk.dashboard.page</route>
-            <icon>app.svg</icon>
-        </navigation>
-    </navigations>
-
-    <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
-    <activity>
-        <settings>
-            <setting>OCA\Decidesk\Activity\GovernanceSetting</setting>
-        </settings>
-        <filters>
-            <filter>OCA\Decidesk\Activity\GovernanceFilter</filter>
-        </filters>
-        <providers>
-            <provider>OCA\Decidesk\Activity\DecideskProvider</provider>
-        </providers>
-    </activity>
 
     <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
     <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
@@ -104,15 +82,16 @@ Vrij en open source onder de EUPL-1.2-licentie.
     </background-jobs>
 
     <repair-steps>
-        <install>
-            <step>OCA\Decidesk\Repair\InitializeSettings</step>
-        </install>
         <post-migration>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>
             <step>OCA\Decidesk\Migration\MigrateEmailLinksToRegistry</step>
             <step>OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf</step>
             <step>OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf</step>
+            <step>OCA\Decidesk\Migration\ProjectGovernanceRoleScopes</step>
         </post-migration>
+        <install>
+            <step>OCA\Decidesk\Repair\InitializeSettings</step>
+        </install>
     </repair-steps>
 
     <settings>
@@ -122,4 +101,26 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <personal>OCA\Decidesk\Settings\PersonalSettings</personal>
         <personal-section>OCA\Decidesk\Sections\PersonalSection</personal-section>
     </settings>
+
+    <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
+    <activity>
+        <settings>
+            <setting>OCA\Decidesk\Activity\GovernanceSetting</setting>
+        </settings>
+        <filters>
+            <filter>OCA\Decidesk\Activity\GovernanceFilter</filter>
+        </filters>
+        <providers>
+            <provider>OCA\Decidesk\Activity\DecideskProvider</provider>
+        </providers>
+    </activity>
+
+    <navigations>
+        <navigation>
+            <id>decidesk</id>
+            <name>Decidesk</name>
+            <route>decidesk.dashboard.page</route>
+            <icon>app.svg</icon>
+        </navigation>
+    </navigations>
 </info>

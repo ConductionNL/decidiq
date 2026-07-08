@@ -212,6 +212,75 @@ class ParticipationPublicationService
     }//end publishBudgetResults()
 
     /**
+     * Publish (set publicatiedatum on) a closed BoardEvaluation's aggregate
+     * scoreSummary (board-self-evaluation, REQ-EVAL-005). Reuses this
+     * service's generic publishSummary() — the same mechanism as
+     * publishBudgetResults()/publishConsultationResults() — instead of a new
+     * publication pathway. Raw EvaluationResponse objects are never touched
+     * or exposed by this method; scoreSummary is already threshold-suppressed
+     * by BoardEvaluationScoreService before it ever reaches this call.
+     *
+     * @param string $evaluationId The BoardEvaluation UUID.
+     *
+     * @return array<string, mixed> Publication result (see publishSummary()).
+     *
+     * @throws \RuntimeException When the evaluation is not found or not closed.
+     *
+     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+     */
+    public function publishEvaluationResults(string $evaluationId): array
+    {
+        $objectService = $this->objectService();
+        $entity        = $objectService->find(id: $evaluationId, register: 'decidesk', schema: 'board-evaluation');
+        if ($entity === null) {
+            throw new \RuntimeException("BoardEvaluation {$evaluationId} not found");
+        }
+
+        $evaluation = $entity->jsonSerialize();
+        if (in_array((string) ($evaluation['lifecycle'] ?? ''), ['closed', 'published'], true) === false) {
+            throw new \RuntimeException('Only a closed evaluation may be published');
+        }
+
+        $raw     = (string) ($evaluation['scoreSummary'] ?? '');
+        $decoded = null;
+        if ($raw !== '') {
+            $decoded = json_decode($raw, true);
+        }
+
+        $scoreSummary = [];
+        if (is_array($decoded) === true) {
+            $scoreSummary = $decoded;
+        }
+
+        $summary = [
+            'summaryType'     => 'board-evaluation-results',
+            'title'           => sprintf('Board evaluation %s', (string) ($evaluation['cycleLabel'] ?? '')),
+            'cycleLabel'      => (string) ($evaluation['cycleLabel'] ?? ''),
+            // Aggregate-only: overallScore + (already-suppressed) breakdowns.
+            // No participant identity, no raw EvaluationResponse, ever.
+            'overallScore'    => $scoreSummary['overallScore'] ?? null,
+            'respondentCount' => $scoreSummary['respondentCount'] ?? ($evaluation['respondedCount'] ?? 0),
+            'dimensionScores' => $scoreSummary['dimensionScores'] ?? null,
+            'themes'          => $scoreSummary['themes'] ?? null,
+            'suppressed'      => $scoreSummary['suppressed'] ?? true,
+            'sourceId'        => $evaluationId,
+            'generatedAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+        ];
+
+        // Mark the evaluation as published.
+        $evaluation['lifecycle'] = 'published';
+
+        return $this->publishSummary(
+            summary: $summary,
+            sourceSchema: 'board-evaluation',
+            sourceId: $evaluationId,
+            governanceBodyId: $this->resolveGovernanceBodyId(object: $evaluation),
+            sourceObject: $evaluation
+        );
+
+    }//end publishEvaluationResults()
+
+    /**
      * Build a PII-free digest of approved reactions for a consultation.
      *
      * Returns ONLY the reaction body (and submittedAt) — never submitterId,

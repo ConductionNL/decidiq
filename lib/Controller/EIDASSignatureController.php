@@ -28,7 +28,7 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\IEIDASSignatureService;
-use OCA\Decidesk\Service\MinutesAuthorizationService;
+use OCA\Decidesk\Service\GovernanceScopeGuard;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -48,16 +48,16 @@ class EIDASSignatureController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest                    $request          HTTP request
-     * @param IEIDASSignatureService      $signatureService eIDAS adapter
-     * @param IUserSession                $userSession      User session
-     * @param MinutesAuthorizationService $authService      Per-member guard for the QES signing flow (R-4)
+     * @param IRequest               $request          HTTP request
+     * @param IEIDASSignatureService $signatureService eIDAS adapter
+     * @param IUserSession           $userSession      User session
+     * @param GovernanceScopeGuard   $scopeGuard       Consumes the OR-projected signatory scope (R-4)
      */
     public function __construct(
         IRequest $request,
         private readonly IEIDASSignatureService $signatureService,
         private readonly IUserSession $userSession,
-        private readonly MinutesAuthorizationService $authService,
+        private readonly GovernanceScopeGuard $scopeGuard,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -81,11 +81,12 @@ class EIDASSignatureController extends Controller
             return $auth;
         }
 
-        // R-4 guard: only chair, vice-chair, or secretary on the linked
-        // GovernanceBody may initiate a QES signing request. Without this,
-        // any authed user can spam any Minutes UUID with a signing flow.
+        // R-4 guard: only members of the linked GovernanceBody's OR-projected
+        // signatory scope (chair/chairman/vice-chairman/secretary) may initiate
+        // a QES signing request. Enforcement consumes the OpenRegister-owned
+        // scope (consume-or-rbac-authorization); fail-closed.
         $userId = (string) $this->userSession->getUser()->getUID();
-        if ($this->authService->canInitiateSigning(userId: $userId, minutesId: $minutesId) === false) {
+        if ($this->scopeGuard->canInitiateSigning(userId: $userId, minutesId: $minutesId) === false) {
             return new JSONResponse(
                 ['message' => 'You are not authorised to initiate a signing request for these minutes.'],
                 Http::STATUS_FORBIDDEN
