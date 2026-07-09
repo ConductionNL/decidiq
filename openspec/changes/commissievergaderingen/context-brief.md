@@ -185,7 +185,7 @@ Een bewuste keuze in deze spec is om verschillende commissie-typen via één Com
 - **opencatalogi**: publicatie van publieke commissie-stukken als openbare catalogus met TOOI-metadata
 - **openconnector**: synchronisatie naar iBabs of Notubiz voor gemeenten in transitie; ook synchronisatie met agenda-systemen (Outlook, Google Calendar)
 - **openregister**: alle entiteiten leven op openregister schemas; audit-trail voor toegang besloten stukken
-- **mydash**: dashboards voor griffie met commissie-activiteit per periode, attendance-trends, advies-naar-raad ratio
+- **launchpad**: dashboards voor griffie met commissie-activiteit per periode, attendance-trends, advies-naar-raad ratio
 - **openklant**: insprekers kunnen via openklant zich aanmelden en hun contactgegevens beheren met privacy-controle
 - **docudesk eIDAS**: handtekeningen op vastgestelde commissie-verslagen voor formele juridische status
 

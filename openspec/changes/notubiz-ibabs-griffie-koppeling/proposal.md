@@ -13,7 +13,7 @@ Decidesk wil het democratisch besluitvormingsproces openen via een open datamode
 
 1. **Griffie blijft in haar workflow.** Haar bestaande tool is normatief voor officiële processen.
 2. **Raadsleden krijgen beter UX.** Via decidesk: betere consultatie- en participatie-interface.
-3. **Open data direct beschikbaar.** Voor burgers, hergebruik via mydash dashboards, opencatalogi inzichten, docudesk PDF-publicatie.
+3. **Open data direct beschikbaar.** Voor burgers, hergebruik via launchpad dashboards, opencatalogi inzichten, docudesk PDF-publicatie.
 4. **Exit-optie zonder data-verlies.** Over 2–5 jaar kan de gemeente NOTUBIZ/iBabs uitfaseren.
 
 Deze spec definieert de bidirectional synchronisatie: lezen van alle vergadering-gerelateerde objecten (agenda, vergaderstukken, aanwezigheid, stemming, besluiten, moties, amendementen, schriftelijke vragen, fracties), schrijven terug van decidesk-gegenereerde inzichten (samenvattingen, transcript-links, participatie-signalen), en conflict-resolutie bij gelijktijdige bewerkingen.

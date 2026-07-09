@@ -89,7 +89,7 @@ De spec adresseert drie pijnpunten uit griffies-interviews:
 - `opentalk`: Livestream van openbare commissievergaderingen met tijdcode-koppeling
 - `opencatalogi`: Publicatie van publieke commissie-stukken als TOOI-catalogus
 - `openconnector`: Synchronisatie naar iBabs/Notubiz; agenda-sync naar Outlook/Google
-- `mydash`: Dashboards voor griffie (commissie-activiteit, attendance-trends, advies-ratio)
+- `launchpad`: Dashboards voor griffie (commissie-activiteit, attendance-trends, advies-ratio)
 - `openklant`: Inspraak-aanmeldingen via openklant contactgegevens-beheer
 
 ## Out of Scope
@@ -99,5 +99,5 @@ De spec adresseert drie pijnpunten uit griffies-interviews:
 - Livestream-onderbreking bij besloten zitting (opentalk-specifiek, volgt in p3)
 - PDF-watermarking voor besloten stukken (docudesk-integratie volgt in p3)
 - Automatische kalender-sync (openconnector volgt in p3)
-- Dashboard-rendering (mydash volgt in p3)
+- Dashboard-rendering (launchpad volgt in p3)
 - Per-role tool visibility voor MCP tools (v2)
