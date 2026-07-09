@@ -302,7 +302,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "governance-body",
-				"_note": "Governance body (council, committee, board) — the standing organiser that owns meetings, members and a process template. Bespoke layout: body details lead (mandate, quorum rule, voting default, term dates, hourly rate) 8-wide with the Members roster surfaced right (member management is the daily task on a body), then the body's meetings as a full-width object-list so a clerk sees the meeting cadence at a glance, a Documents leaf for charters/standing orders, and the Process template / Efficiency analytics / Recording retention specialist surfaces below (moved out of the sidebar per the audit-only sidebar rule; each is a rarer, second-tier task so they sit lower on the page). Sidebar is audit-trail only.",
+				"_note": "Governance body (council, committee, board) — the standing organiser that owns meetings, members and a process template. Bespoke layout: body details lead (mandate, quorum rule, voting default, term dates, hourly rate) 8-wide with the Members roster surfaced right (member management is the daily task on a body), then the body's meetings as a full-width object-list so a clerk sees the meeting cadence at a glance, a Documents leaf for charters/standing orders, and the Process template / Efficiency analytics / Recording retention specialist surfaces below (moved out of the sidebar per the audit-only sidebar rule; each is a rarer, second-tier task so they sit lower on the page). Sidebar is audit-trail only. AUDIT FIX: `body-data` shows all 11 GovernanceBody fields at 2 columns — ceil(11/2)=6 rows left zero spare row for the card's own title/header, clipping the bottom field row; bumped to gridHeight 7 and the column below (`body-members` + the rest of the left-column stack) recomputed to stay flush. A shared-lib fix for this header-row accounting is coming for the general case; this is the blatant-undersizing exception called out for this page.",
 				"widgets": [
 					{ "id": "body-data", "type": "data", "title": "Body details", "icon": "OfficeBuilding", "content": { "columns": 2 } },
 					{ "id": "body-members", "type": "custom", "component": "GovernanceBodyMembersTab", "title": "Members", "icon": "AccountGroup" },
@@ -314,14 +314,14 @@
 					{ "id": "body-evaluations", "type": "custom", "component": "GovernanceBodyEvaluationsTab", "title": "Self-evaluation", "icon": "ClipboardCheckOutline" }
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "body-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "body-members", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 10 },
-					{ "id": "3", "widgetId": "body-meetings", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 4 },
-					{ "id": "4", "widgetId": "body-files", "gridX": 0, "gridY": 10, "gridWidth": 12, "gridHeight": 4 },
-					{ "id": "5", "widgetId": "body-template", "gridX": 0, "gridY": 14, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "6", "widgetId": "body-efficiency", "gridX": 6, "gridY": 14, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "7", "widgetId": "body-retention", "gridX": 0, "gridY": 19, "gridWidth": 12, "gridHeight": 4 },
-					{ "id": "8", "widgetId": "body-evaluations", "gridX": 0, "gridY": 23, "gridWidth": 12, "gridHeight": 5 }
+					{ "id": "1", "widgetId": "body-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 7 },
+					{ "id": "2", "widgetId": "body-members", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 11 },
+					{ "id": "3", "widgetId": "body-meetings", "gridX": 0, "gridY": 7, "gridWidth": 8, "gridHeight": 4 },
+					{ "id": "4", "widgetId": "body-files", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "5", "widgetId": "body-template", "gridX": 0, "gridY": 15, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "6", "widgetId": "body-efficiency", "gridX": 6, "gridY": 15, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "7", "widgetId": "body-retention", "gridX": 0, "gridY": 20, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "8", "widgetId": "body-evaluations", "gridX": 0, "gridY": 24, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -367,10 +367,11 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "meeting",
-				"_note": "Meeting — the operational hub of the app: the event that runs an agenda, gathers participants, produces minutes and decisions. Bespoke meeting-workspace layout: meeting fields split field-scoped (ADR-062 rule 3) into Planning (type, body, schedule, location, mode, chair, quorum, series, submission deadline — everything set BEFORE the meeting runs) 8-wide, and a thin Outcome strip below it (lifecycle, opened/closed timestamps, actual cost — everything only known AFTER/DURING the meeting) so neither widget clips or leaves dead cells; the live Participants roster stands right of both (who is expected/attending is the first thing a clerk checks); the ordered Agenda (agenda-item children keyed on `meeting`) sits full-width as the working document; Decisions taken and Minutes drafted render below as the meeting's outputs; a Documents leaf holds packets/attachments; the Votes aggregate and Publication actions render below the files (post-meeting outputs), with the lower-frequency Recurring series and Transcription surfaces at the bottom. No comms leaf on the body (the meeting schema declares no email/calendar/talk linkedType; calendar/Talk stay in the Integrations surface). Sidebar is audit-trail only.",
+				"_note": "Meeting — the operational hub of the app: the event that runs an agenda, gathers participants, produces minutes and decisions. Bespoke meeting-workspace layout: meeting fields split field-scoped (ADR-062 rule 3) into Planning (type, body, schedule, location, mode, chair, quorum, series, submission deadline — everything set BEFORE the meeting runs) 8-wide, and a thin Outcome strip below it (lifecycle, opened/closed timestamps, actual cost — everything only known AFTER/DURING the meeting) so neither widget clips or leaves dead cells; a Meeting stats KPI card and the live Participants roster stand right of both (who is expected/attending is the first thing a clerk checks); the ordered Agenda (agenda-item children keyed on `meeting`) sits full-width as the working document; Decisions taken and Minutes drafted render below as the meeting's outputs; a Documents leaf holds packets/attachments; the Votes aggregate and Publication actions render below the files (post-meeting outputs), with the lower-frequency Recurring series and Transcription surfaces at the bottom. No comms leaf on the body (the meeting schema declares no email/calendar/talk linkedType; calendar/Talk stay in the Integrations surface). Sidebar is audit-trail only. AUDIT FIX (visual-audit follow-ups): every `type:\"custom\"` widget on this page (participants/agenda/decisions/minutes/votes/publication/series/transcription) resolved to the CnDetailPage 'unavailable placeholder' because the page had no top-level `slots` map wiring `widget-<id>` to its registry component name (the ADR-062-rule pattern the manifest-v2 schema validator only enforces on `type:\"dashboard\"` pages) — that silent gap, not a data problem, produced the empty right column and the dead band above Documents; the `slots` block below fixes it. The new `meeting-stats` KPI card counts agenda items and action items via their real `meeting` FK property (verified in lib/Settings/decidesk_register.json); Decision carries NO `meeting` FK in the schema (only AgendaItem and ActionItem do) so a meeting-scoped Decisions count is not addable declaratively and is intentionally omitted. Participant likewise carries no `meeting` FK (only `governanceBody`) so no participants object-list collection is added — the existing MeetingParticipantsTab custom widget (now rendering, since it's wired via `slots`) covers the roster via its own `meetings`-array-based fetch.",
 				"widgets": [
 					{ "id": "meeting-planning", "type": "data", "title": "Planning", "icon": "Calendar", "content": { "columns": 2, "include": ["title", "meetingType", "governanceBody", "scheduledDate", "endDate", "location", "meetingMode", "virtualLocation", "eventAttendanceMode", "chair", "quorumRequired", "isPublic", "series", "seriesPattern", "submissionDeadline"] } },
 					{ "id": "meeting-outcome", "type": "data", "title": "Outcome", "icon": "CheckCircleOutline", "content": { "columns": 2, "include": ["lifecycle", "openedAt", "closedAt", "meetingCost"] } },
+					{ "id": "meeting-stats", "type": "stats-block", "title": "Meeting stats", "icon": "ChartBar", "content": { "entries": [ { "title": "Agenda items", "icon": "ClipboardList", "register": "decidesk", "schema": "agenda-item", "metric": "count", "filter": { "meeting": "@objectId" } }, { "title": "Action items", "icon": "CheckCircleOutline", "register": "decidesk", "schema": "action-item", "metric": "count", "filter": { "meeting": "@objectId" } } ] } },
 					{ "id": "meeting-participants", "type": "custom", "component": "MeetingParticipantsTab", "title": "Participants", "icon": "AccountGroup" },
 					{ "id": "meeting-agenda", "type": "custom", "component": "MeetingAgendaTab", "title": "Agenda", "icon": "ClipboardList" },
 					{ "id": "meeting-decisions", "type": "custom", "component": "MeetingDecisionsTab", "title": "Decisions", "icon": "ScaleBalance" },
@@ -383,7 +384,8 @@
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "meeting-planning", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
-					{ "id": "2", "widgetId": "meeting-participants", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 11 },
+					{ "id": "2", "widgetId": "meeting-stats", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 3 },
+					{ "id": "12", "widgetId": "meeting-participants", "gridX": 8, "gridY": 3, "gridWidth": 4, "gridHeight": 8 },
 					{ "id": "3", "widgetId": "meeting-outcome", "gridX": 0, "gridY": 8, "gridWidth": 8, "gridHeight": 3 },
 					{ "id": "4", "widgetId": "meeting-agenda", "gridX": 0, "gridY": 11, "gridWidth": 8, "gridHeight": 6 },
 					{ "id": "5", "widgetId": "meeting-decisions", "gridX": 0, "gridY": 17, "gridWidth": 6, "gridHeight": 5 },
@@ -402,6 +404,16 @@
 					]
 				},
 				"documentationUrl": "https://decidesk.conduction.nl"
+			},
+			"slots": {
+				"widget-meeting-participants": "MeetingParticipantsTab",
+				"widget-meeting-agenda": "MeetingAgendaTab",
+				"widget-meeting-decisions": "MeetingDecisionsTab",
+				"widget-meeting-minutes": "MeetingMinutesTab",
+				"widget-meeting-votes": "MeetingVotesTab",
+				"widget-meeting-publication": "AgendaPublicationTab",
+				"widget-meeting-series": "MeetingSeriesTab",
+				"widget-meeting-transcription": "MeetingTranscriptionTab"
 			}
 		},
 		{
@@ -532,16 +544,16 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "participant",
-				"_note": "Participant — a person archetype (name, role, party, email, voting weight, attendance, linked Nextcloud user, join/leave dates). Bespoke person layout: contact/role details lead 8-wide with Related right (the meetings, votes and decisions this person is linked to across the register); a Documents leaf holds credentials/mandate letters. Deliberately NO Email or Calendar body leaf: the participant schema declares no email/calendar linkedType (the email address is a plain data field, and correspondence lives on the meeting/decision integration surfaces, not per-participant), so per the comms-leaf hard rule they are omitted. Audit trail stays a sidebar tab.",
+				"_note": "Participant — a person archetype (name, role, party, email, voting weight, attendance, linked Nextcloud user, join/leave dates). Bespoke person layout: contact/role details lead 8-wide with Related right (the meetings, votes and decisions this person is linked to across the register); a Documents leaf holds credentials/mandate letters. Deliberately NO Email or Calendar body leaf: the participant schema declares no email/calendar linkedType (the email address is a plain data field, and correspondence lives on the meeting/decision integration surfaces, not per-participant), so per the comms-leaf hard rule they are omitted. Audit trail stays a sidebar tab. AUDIT FIX: `participant-data` shows all 11 Participant fields at 2 columns — ceil(11/2)=6 rows left zero spare row for the card's own title/header, clipping the bottom field row; bumped to gridHeight 7 and the column below/right recomputed to stay flush.",
 				"widgets": [
 					{ "id": "participant-data", "type": "data", "title": "Participant", "icon": "AccountBoxOutline", "content": { "columns": 2 } },
 					{ "id": "participant-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
 					{ "id": "participant-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" }
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "participant-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "participant-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 10 },
-					{ "id": "3", "widgetId": "participant-files", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 4 }
+					{ "id": "1", "widgetId": "participant-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 7 },
+					{ "id": "2", "widgetId": "participant-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 11 },
+					{ "id": "3", "widgetId": "participant-files", "gridX": 0, "gridY": 7, "gridWidth": 8, "gridHeight": 4 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -600,16 +612,16 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "agenda-item",
-				"_note": "Agenda item — one ordered line of a meeting's agenda (type, order number, estimated/actual duration, description, recurrence, parent item). Bespoke layout: item details lead 8-wide with a Documents leaf right for the supporting stukken (memo, annex) that back the item; the Motions tabled under this item (AgendaMotionsTab — decisions of decisionType=motion keyed on `agendaItem`) render full-width below because debating/voting motions is the whole point of an agenda item. Audit trail stays a sidebar tab; email/files linking lives on the dedicated AgendaItemIntegrations surface.",
+				"_note": "Agenda item — one ordered line of a meeting's agenda (type, order number, estimated/actual duration, description, recurrence, parent item). Bespoke layout: item details lead 8-wide with a Documents leaf right for the supporting stukken (memo, annex) that back the item; the Motions tabled under this item (AgendaMotionsTab — decisions of decisionType=motion keyed on `agendaItem`) render full-width below because debating/voting motions is the whole point of an agenda item. Audit trail stays a sidebar tab; email/files linking lives on the dedicated AgendaItemIntegrations surface. AUDIT FIX: `agenda-data` shows all 10 AgendaItem fields at 2 columns — ceil(10/2)=5 rows left zero spare row for the card's own title/header, clipping the bottom field row; bumped to gridHeight 6 (and `agenda-files` matched to stay level in the same row) with `agenda-motions` recomputed to stay flush below.",
 				"widgets": [
 					{ "id": "agenda-data", "type": "data", "title": "Agenda item", "icon": "ClipboardList", "content": { "columns": 2 } },
 					{ "id": "agenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" }
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "agenda-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
-					{ "id": "2", "widgetId": "agenda-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "3", "widgetId": "agenda-motions", "gridX": 0, "gridY": 5, "gridWidth": 12, "gridHeight": 6 }
+					{ "id": "1", "widgetId": "agenda-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "agenda-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
+					{ "id": "3", "widgetId": "agenda-motions", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 6 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -725,7 +737,7 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
-				"_note": "Amendment — a proposed text change to a parent motion (a Decision of decisionType=amendment): proposed text, proposer, parent motion reference, voting order. `amend-data` scopes `content.include` to the 7 amendment-relevant decision fields (ADR-062 rule 3), same polymorphic-schema rationale as Motion. Bespoke amendment layout: the visual Text-changes diff against the parent motion (AmendmentDiffTab) is the reason this record exists, so it leads full-width; the amendment's own metadata (proposer, lifecycle, order) sits 8-wide below with the Parent motion link (AmendmentParentMotionTab) right so a clerk can jump back to the motion being amended. Audit trail stays a sidebar tab. No comms leaf — the amendment schema declares none; discussion happens on the parent motion.",
+				"_note": "Amendment — a proposed text change to a parent motion (a Decision of decisionType=amendment): proposed text, proposer, parent motion reference, voting order. `amend-data` scopes `content.include` to the 7 amendment-relevant decision fields (ADR-062 rule 3), same polymorphic-schema rationale as Motion. Bespoke amendment layout: the visual Text-changes diff against the parent motion (AmendmentDiffTab) is the reason this record exists, so it leads full-width; the amendment's own metadata (proposer, lifecycle, order) sits 8-wide below with the Parent motion link (AmendmentParentMotionTab) right so a clerk can jump back to the motion being amended. Audit trail stays a sidebar tab. No comms leaf — the amendment schema declares none; discussion happens on the parent motion. AUDIT FIX: the ~280px hole previously visible ABOVE the first (visibly-rendering) card was the full-width `amend-diff` cell (gridY 0-6) rendering CnDetailPage's 'unavailable placeholder' — this page had no top-level `slots` map wiring `widget-amend-diff`/`widget-amend-parent` to their registry component names, so both `type:\"custom\"` widgets rendered blank while still reserving their declared grid rows. The `slots` block below fixes it; content now starts at gridY 0 as declared.",
 				"widgets": [
 					{ "id": "amend-diff", "type": "custom", "component": "AmendmentDiffTab", "title": "Text changes", "icon": "FileSign" },
 					{ "id": "amend-data", "type": "data", "title": "Amendment", "icon": "FileSign", "content": { "columns": 2, "include": ["title", "text", "proposedText", "proposer", "lifecycle", "submittedAt", "votingOrder"] } },
@@ -744,6 +756,10 @@
 					]
 				},
 				"documentationUrl": "https://decidesk.conduction.nl"
+			},
+			"slots": {
+				"widget-amend-diff": "AmendmentDiffTab",
+				"widget-amend-parent": "AmendmentParentMotionTab"
 			}
 		},
 		{
@@ -992,62 +1008,6 @@
 			}
 		},
 		{
-			"id": "Workspaces",
-			"route": "/workspaces",
-			"type": "index",
-			"title": "Workspaces",
-			"config": {
-				"register": "decidesk",
-				"schema": "collaboration-workspace",
-				"columns": [
-					"name",
-					"type",
-					{
-						"key": "accessLevel",
-						"label": "Access",
-						"widget": "badge"
-					},
-					"createdAt"
-				],
-				"sidebar": {
-					"enabled": true,
-					"showMetadata": true
-				},
-				"documentationUrl": "https://decidesk.conduction.nl"
-			}
-		},
-		{
-			"id": "WorkspaceDetail",
-			"route": "/workspaces/:id",
-			"type": "detail",
-			"title": "Workspace",
-			"config": {
-				"register": "decidesk",
-				"schema": "collaboration-workspace",
-				"_note": "Collaboration workspace — a bounded faction/committee/task-group space (name, type, access level, created date). Per migrate-workspaces-to-collectives-leaf (ADR-022) the in-app WorkspaceService/CollaborationWorkspace store was retired: the real collaboration surface is a Nextcloud Collective bound through the ADR-019 registry, so the Collectives leaf leads the body (this is the whole point of the workspace) alongside a Files leaf for shared documents, with workspace metadata and Related below. The Collectives leaf is a declared, registry-bound integration for this entity, so it belongs on the body; the registry hides it gracefully when the Collectives app is absent. Audit trail stays a sidebar tab.",
-				"widgets": [
-					{ "id": "ws-collectives", "type": "integration", "integrationId": "collectives", "title": "Collective", "icon": "AccountGroup" },
-					{ "id": "ws-files", "type": "integration", "integrationId": "files", "title": "Files", "icon": "FolderOutline" },
-					{ "id": "ws-data", "type": "data", "title": "Workspace", "icon": "FolderOutline", "content": { "columns": 2 } },
-					{ "id": "ws-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
-				],
-				"layout": [
-					{ "id": "1", "widgetId": "ws-collectives", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "ws-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "ws-data", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 4 },
-					{ "id": "4", "widgetId": "ws-related", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 4 }
-				],
-				"sidebar": {
-					"enabled": true,
-					"showMetadata": true,
-					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
-					]
-				},
-				"documentationUrl": "https://decidesk.conduction.nl"
-			}
-		},
-		{
 			"id": "Engagement",
 			"route": "/engagement",
 			"type": "index",
@@ -1197,7 +1157,7 @@
 												},
 												{
 													"slug": "collaboration-workspace",
-													"label": "Collaboration Workspaces"
+													"label": "Collaboration Workspaces (archived — read-only)"
 												}
 											]
 										}
