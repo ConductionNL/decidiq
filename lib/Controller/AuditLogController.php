@@ -46,6 +46,8 @@ use OCP\IUserSession;
  */
 class AuditLogController extends Controller
 {
+    use RequiresOrAdmin;
+
     use GovernanceControllerTrait;
 
     /**
@@ -167,23 +169,6 @@ class AuditLogController extends Controller
 
     }//end export()
 
-    /**
-     * Return 401 / 403 when the caller is not an admin; null otherwise.
-     *
-     * @return JSONResponse|null
-     */
-    private function requireAdmin(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        if ($this->groupManager->isAdmin($user->getUID()) === false) {
-            return new JSONResponse(['message' => 'Administrator role required.'], Http::STATUS_FORBIDDEN);
-        }
-
-        return null;
-
-    }//end requireAdmin()
+    // Admin guard requireAdmin() comes from the shared RequiresOrAdmin trait
+    // (consume-or-rbac-authorization, REQ-RBAC-004).
 }//end class

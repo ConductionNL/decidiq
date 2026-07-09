@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Settings;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\PublicationConfigService;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;

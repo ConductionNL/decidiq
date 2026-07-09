@@ -44,6 +44,7 @@ import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
 import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
+import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvaluationsTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
 import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
@@ -162,6 +163,10 @@ export default {
 	// trend, agenda completion, speaking distribution, cost trend and time
 	// allocation accuracy, all computed client-side from OR objects.
 	GovernanceBodyEfficiencyTab: page(GovernanceBodyEfficiencyTab),
+	// Board self-evaluation results/respond tab (board-self-evaluation):
+	// anonymous respond flow, per-dimension/overall score bars with
+	// small-body suppression, and close/publish/report actions.
+	GovernanceBodyEvaluationsTab: page(GovernanceBodyEvaluationsTab),
 	MeetingAgendaTab: page(MeetingAgendaTab),
 	MeetingParticipantsTab: page(MeetingParticipantsTab),
 	// Recurring-series generation (meeting-agenda-gaps-v1): pattern form,

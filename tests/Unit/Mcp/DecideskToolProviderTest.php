@@ -679,15 +679,39 @@ class DecideskToolProviderTest extends TestCase
 
         $meeting       = $this->makeMeeting($this->meetingUuid, 'opened', 'alice');
         $meetingEntity = $this->makeObjectEntityMock($meeting);
-        $objectService = $this->mockObjectService(meetingEntity: $meetingEntity);
 
-        // The action item is now written as the canonical VTODO ActionItem via
-        // ObjectService (the retired TaskService no longer mediates the write).
-        $savedActionItem = $this->makeObjectEntityMock(
-            ['uuid' => 'action-item-uuid-1', 'title' => 'Write test plan', 'taskStatus' => 'open']
+        // Build an ObjectService mock that returns the meeting entity on find().
+        $objectService = $this->createMock(ObjectService::class);
+        $objectService->method('find')->willReturn($meetingEntity);
+        $objectService->method('findAll')->willReturn([]);
+
+        // The action item is now written via ActionItemWriter::create()
+        // (the action-item schema is a read-only VTODO projection; direct
+        // ObjectService::saveObject is bypassed in favour of TaskService).
+        $savedActionItemArray = [
+            'uid'        => 'action-item-uuid-1',
+            'title'      => 'Write test plan',
+            'taskStatus' => 'open',
+        ];
+        $writerMock = $this->getMockBuilder(\OCA\Decidesk\Service\ActionItemWriter::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $writerMock->method('create')->willReturn($savedActionItemArray);
+
+        // Wire the container to return the correct service for each key.
+        $this->container->method('get')->willReturnCallback(
+            function (string $id) use ($objectService, $writerMock) {
+                if ($id === 'OCA\OpenRegister\Service\ObjectService') {
+                    return $objectService;
+                }
+
+                if ($id === \OCA\Decidesk\Service\ActionItemWriter::class) {
+                    return $writerMock;
+                }
+
+                throw new \RuntimeException("Unexpected container::get('{$id}')");
+            }
         );
-        $objectService->expects(self::once())->method('saveObject')
-            ->willReturn($savedActionItem);
 
         $result = $this->provider->invokeTool(
             'decidesk.addActionItem',

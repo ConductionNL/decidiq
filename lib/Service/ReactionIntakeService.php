@@ -221,9 +221,61 @@ class ReactionIntakeService
 
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
 
+        // Increment the parent consultation's submissionCount when a reaction is
+        // approved (pre-moderation: reactions start as pending and only count
+        // toward the public total once a moderator approves them).
+        $this->incrementConsultationSubmissionCount(reaction: $reaction, objectService: $objectService);
+
         return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
     }//end approveReaction()
+
+    /**
+     * Increment the parent consultation's submissionCount by 1.
+     *
+     * Resolves the consultation id from the reaction's relations array,
+     * fetches the consultation, bumps its submissionCount, and saves it.
+     * Failures are swallowed (log-only) so a missing relation never breaks
+     * the moderation flow.
+     *
+     * @param array<string,mixed>                     $reaction      The approved reaction.
+     * @param \OCA\OpenRegister\Service\ObjectService $objectService The OR object service.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     */
+    private function incrementConsultationSubmissionCount(array $reaction, mixed $objectService): void
+    {
+        $relations      = $reaction['relations'] ?? [];
+        $consultationId = null;
+        foreach ((array) $relations as $rel) {
+            if (is_array($rel) === true && (($rel['schema'] ?? '') === 'public-consultation') && isset($rel['id']) === true) {
+                $consultationId = (string) $rel['id'];
+                break;
+            }
+        }
+
+        if ($consultationId === null) {
+            return;
+        }
+
+        try {
+            $consultationEntity = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
+            if ($consultationEntity === null) {
+                return;
+            }
+
+            $consultation = $consultationEntity->jsonSerialize();
+            $consultation['submissionCount'] = ((int) ($consultation['submissionCount'] ?? 0)) + 1;
+            $objectService->saveObject(register: 'decidesk', schema: 'public-consultation', object: $consultation);
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'ReactionIntakeService: could not increment consultation submissionCount: '.$e->getMessage()
+            );
+        }//end try
+
+    }//end incrementConsultationSubmissionCount()
 
     /**
      * Reject a pending reaction (staff action).

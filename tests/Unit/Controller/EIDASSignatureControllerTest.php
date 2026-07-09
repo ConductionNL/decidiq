@@ -22,8 +22,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\EIDASSignatureController;
+use OCA\Decidesk\Service\GovernanceScopeGuard;
 use OCA\Decidesk\Service\IEIDASSignatureService;
-use OCA\Decidesk\Service\MinutesAuthorizationService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
@@ -45,7 +45,7 @@ class EIDASSignatureControllerTest extends TestCase
      * @param IEIDASSignatureService $service       The eIDAS adapter double
      * @param array<string, mixed>   $requestParams Params returned by IRequest
      * @param bool                   $authenticated Whether the session has a user
-     * @param bool                   $authorised    Whether the auth guard allows the caller (R-4)
+     * @param bool                   $authorised    Whether the OR-projected signatory scope allows the caller (R-4)
      *
      * @return EIDASSignatureController
      */
@@ -72,10 +72,10 @@ class EIDASSignatureControllerTest extends TestCase
             $session->method('getUser')->willReturn(null);
         }
 
-        $authService = $this->createMock(MinutesAuthorizationService::class);
-        $authService->method('canInitiateSigning')->willReturn($authorised);
+        $scopeGuard = $this->createMock(GovernanceScopeGuard::class);
+        $scopeGuard->method('canInitiateSigning')->willReturn($authorised);
 
-        return new EIDASSignatureController($request, $service, $session, $authService);
+        return new EIDASSignatureController($request, $service, $session, $scopeGuard);
 
     }//end makeController()
 

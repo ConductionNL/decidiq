@@ -27,14 +27,32 @@ webpackConfig.entry = {
 		import: path.join(__dirname, 'src', 'personal.js'),
 		filename: appId + '-personal.js',
 	},
+	// Global integration-leaf bootstrap loaded on EVERY Nextcloud page via
+	// Util::addInitScript (ADR-019). Registers the "Besluitvorming" decisions
+	// leaf so it surfaces on host objects (e.g. a procest case) without the
+	// full decidesk app bundle.
+	integrationInit: {
+		import: path.join(__dirname, 'src', 'integration-init.js'),
+		filename: appId + '-integration-init.js',
+	},
 }
+
+// Resolve async (lazy) chunk URLs relative to the entry script's own location
+// at runtime, instead of the base config's fixed publicPath. CnPageRenderer
+// loads page components (e.g. CnDashboardPage) via defineAsyncComponent, so each
+// lands in its own chunk. On installs that serve this app from /custom_apps/
+// (rather than the virtual /apps/ path the base publicPath assumes) the fixed
+// path 404s and the page renders blank. 'auto' derives the base from
+// document.currentScript (decidesk-main.js under /custom_apps/decidesk/js/), so
+// the chunks load from the same directory the entry did.
+webpackConfig.output = { ...(webpackConfig.output || {}), publicPath: 'auto' }
 
 // Use local source when available (monorepo dev), otherwise fall back to npm package.
 // CN_NEXTCLOUD_VUE_SRC env override lets a sibling worktree pin a specific
 // nextcloud-vue source path (used when iterating on an unmerged nc-vue branch).
 const localLib = process.env.CN_NEXTCLOUD_VUE_SRC
 	|| path.resolve(__dirname, '../nextcloud-vue/src')
-const useLocalLib = fs.existsSync(localLib)
+const useLocalLib = process.env.USE_LOCAL_LIB !== 'false' && fs.existsSync(localLib)
 
 webpackConfig.resolve = {
 	extensions: ['.vue', '.js'],

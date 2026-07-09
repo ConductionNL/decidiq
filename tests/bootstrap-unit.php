@@ -18,9 +18,23 @@ define('PHPUNIT_RUN', 1);
 
 // Include Composer's autoloader and register OCP namespace for standalone test runs.
 $autoloader = require __DIR__.'/../vendor/autoload.php';
-if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
-    $autoloader->addPsr4('OCP\\', __DIR__.'/../vendor/nextcloud/ocp/OCP/');
-    $autoloader->addPsr4('NCU\\', __DIR__.'/../vendor/nextcloud/ocp/NCU/');
+
+// Register OCP\ and NCU\ namespaces.
+// vendor/nextcloud/ocp/OCP is a symlink to the live NC server (/var/www/html/lib/public)
+// that resolves on a deployed instance but is broken in the bare php:8.3-cli CI container.
+// In CI we fall back to vendor/nextcloud/ocp/OCP.bak which holds the shipped stubs.
+// This MUST happen before any class_exists() call that may trigger autoloading of
+// stub classes that extend OCP\EventDispatcher\Event etc.
+$ocpDir    = __DIR__.'/../vendor/nextcloud/ocp/OCP';
+$ocpBakDir = __DIR__.'/../vendor/nextcloud/ocp/OCP.bak';
+$ncuDir    = __DIR__.'/../vendor/nextcloud/ocp/NCU';
+if (is_dir($ocpDir) === true) {
+    $autoloader->addPsr4('OCP\\', $ocpDir.'/');
+    $autoloader->addPsr4('NCU\\', $ncuDir.'/');
+} elseif (is_dir($ocpBakDir) === true) {
+    // CI environment — broken symlink, use the shipped backup stubs.
+    $autoloader->addPsr4('OCP\\', $ocpBakDir.'/');
+    $autoloader->addPsr4('NCU\\', $ncuDir.'/');
 }
 
 // Bootstrap Nextcloud when a full server environment is available.

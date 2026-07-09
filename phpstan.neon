@@ -15,6 +15,13 @@ parameters:
         - vendor-bin
         # Apps that ship a verbatim template snapshot under lib/Resources/template/ (e.g. openbuild).
         - lib/Resources/template
+        # These controllers extend OpenRegister AppHost base controllers that are only
+        # available at runtime (dynamic app loading). PHPStan cannot resolve the parent
+        # class during static analysis; the inheritance chain is guarded by runtime
+        # app-availability checks in Application::register().
+        - lib/Controller/DashboardController.php
+        - lib/Controller/HealthController.php
+        - lib/Controller/MetricsController.php
     scanDirectories:
         - vendor/nextcloud/ocp
     reportUnmatchedIgnoredErrors: false

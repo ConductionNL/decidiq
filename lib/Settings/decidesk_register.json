@@ -10,6 +10,19 @@
     "app": "decidesk",
     "openregister": "^v0.2.10",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
+    "x-decidesk-rbac-scopes": {
+      "description": "consume-or-rbac-authorization (ADR-022/ADR-051): governance-body actor authorization is owned by OpenRegister RBAC scopes, not by an app-local *AuthorizationService. GovernanceRoleScopeProjector maintains, per GovernanceBody, two NC-group RBAC scopes derived from the Participant roster: 'decidesk:body:{bodyId}:chair' (role chair/chairman) and 'decidesk:body:{bodyId}:signatory' (chair/chairman/vice-chairman/secretary superset). These gate: QES signing initiation on minutes/decision (signatory scope) and chair-only meeting.lifecycle transitions listed in the workflow template's chairOnlyTransitions (chair scope). The scopes are populated on every Participant/Membership write (GovernanceRoleProjectionListener) and backfilled by the ProjectGovernanceRoleScopes repair step; they fail closed (empty scope denies).",
+      "scopes": {
+        "chair": "decidesk:body:{bodyId}:chair",
+        "signatory": "decidesk:body:{bodyId}:signatory"
+      },
+      "gatedWrites": {
+        "minutes.signing-request": "signatory",
+        "decision.signing-request": "signatory",
+        "meeting.lifecycle (chairOnlyTransitions)": "chair"
+      },
+      "deviation": "OpenRegister property-RBAC evaluates group rules with literal NC group ids and object-field match conditions ($userId/$now/@self.*); it cannot template a group name with a per-object id, so the final scope-membership evaluation for the per-body signatory/chair scopes is performed at the app boundary (GovernanceScopeGuard) consuming the OR-projected scope group — the identical determination PropertyRbacHandler makes internally (in_array(group, userGroups)) — rather than by OR's ObjectService write path returning 403. The authorization FACT (role -> scope) is OR/NC-owned and projected; the guard is a consumer, not a parallel role-resolution service. The who-may-act outcome is preserved exactly and fail-closed."
+    },
     "consumes": {
       "integrations": [
         {
@@ -46,6 +59,7 @@
         "title": "Person",
         "description": "An individual person who participates in governance. Popolo: Person. Identity only — organisational role/relationship lives on Membership (ADR-001 §2). Replaces the flat Participant.",
         "type": "object",
+        "x-schema-org": "schema:Person",
         "x-openregister": {
           "schemaType": "foaf:Person",
           "active": true,
@@ -58,59 +72,76 @@
         ],
         "properties": {
           "name": {
+            "title": "Full name",
             "type": "string",
             "description": "Full name (Popolo: name)",
             "example": "Femke Halsema"
           },
           "familyName": {
+            "title": "Family name",
             "type": "string",
             "description": "Family name (Popolo: family_name)",
             "example": "Halsema"
           },
           "givenName": {
+            "title": "Given name",
             "type": "string",
             "description": "Given name (Popolo: given_name)",
             "example": "Femke"
           },
           "gender": {
+            "title": "Gender",
             "type": "string",
             "description": "Gender (Popolo: gender)",
             "example": "female"
           },
           "birthDate": {
+            "title": "Date of birth",
             "type": "string",
             "format": "date",
             "description": "Date of birth (Popolo: birth_date)"
           },
           "image": {
+            "title": "Photo",
             "type": "string",
             "description": "URL to photo (Popolo: image)"
           },
           "biography": {
+            "title": "Biography",
             "type": "string",
             "description": "Short bio (Popolo: biography)"
           },
           "email": {
+            "title": "Email",
             "type": "string",
             "format": "email",
             "description": "Primary email (convenience field, full contacts via ContactDetail)"
           },
           "nationality": {
+            "title": "Nationality",
             "type": "string",
             "description": "Corporate-governance extension (beyond Popolo): officeholder nationality, surfaced in mode=corp",
             "example": "NL"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "memberships": {
-            "register": "decidesk",
-            "schema": "Membership",
-            "cardinality": "one-to-many"
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Membership"
+            },
+            "title": "Memberships",
+            "description": "References to the Membership objects held by this person (one-to-many)."
           },
           "contactDetails": {
-            "register": "decidesk",
-            "schema": "ContactDetail",
-            "cardinality": "one-to-many"
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "ContactDetail"
+            },
+            "title": "Contact details",
+            "description": "References to the ContactDetail objects for this person (one-to-many)."
           }
         },
         "x-openregister-seeds": [
@@ -202,11 +233,13 @@
         ],
         "properties": {
           "label": {
+            "title": "Position title",
             "type": "string",
             "description": "Position title (Popolo: label)",
             "example": "Voorzitter gemeenteraad"
           },
           "role": {
+            "title": "Role",
             "type": "string",
             "description": "Role type (Popolo: role)",
             "enum": [
@@ -219,21 +252,23 @@
             "example": "chair"
           },
           "startDate": {
+            "title": "Start date",
             "type": "string",
             "format": "date-time",
             "description": "When the post was created"
           },
           "endDate": {
+            "title": "End date",
             "type": "string",
             "format": "date-time",
             "description": "When the post was abolished"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody this post belongs to (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -291,6 +326,7 @@
         ],
         "properties": {
           "role": {
+            "title": "Role",
             "type": "string",
             "description": "Role in the organization (Popolo: role)",
             "enum": [
@@ -305,32 +341,38 @@
             "example": "member"
           },
           "label": {
+            "title": "Label",
             "type": "string",
             "description": "Descriptive label for the membership (carries corporate-governance wording in mode=corp, e.g. 'Voorzitter RvC')",
             "example": "Voorzitter raad"
           },
           "startDate": {
+            "title": "Start date",
             "type": "string",
             "format": "date-time",
             "description": "When the membership started (Popolo: start_date)"
           },
           "endDate": {
+            "title": "End date",
             "type": "string",
             "format": "date-time",
             "description": "When the membership ended, null if active (Popolo: end_date)"
           },
           "votingWeight": {
+            "title": "Voting weight",
             "type": "number",
             "description": "Vote weight for this membership, default 1",
             "default": 1,
             "example": 1
           },
           "party": {
+            "title": "Party",
             "type": "string",
             "description": "Political party or faction (Popolo: on_behalf_of)",
             "example": "GroenLinks"
           },
           "independenceStatus": {
+            "title": "Independence status",
             "type": "string",
             "description": "Corporate-governance extension (beyond Popolo, MCCG): board-member independence, mode=corp",
             "enum": [
@@ -341,28 +383,34 @@
             "example": "independent"
           },
           "otherPositions": {
+            "title": "Other positions",
             "type": "array",
             "items": {
               "type": "string"
             },
             "description": "Corporate-governance extension (beyond Popolo): nevenfuncties / other positions, mode=corp"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "person": {
-            "register": "decidesk",
-            "schema": "Person",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "title": "Person",
+            "description": "Reference to the Person this membership belongs to (many-to-one)."
           },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody this membership is in (many-to-one)."
           },
           "post": {
-            "register": "decidesk",
-            "schema": "Post",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Post",
+            "x-relation-filter": { "governanceBody": "@object.governanceBody" },
+            "title": "Post",
+            "description": "Reference to the Post held under this membership (many-to-one). The picker is scoped to posts of the membership's own governance body."
           }
         },
         "x-openregister-seeds": [
@@ -482,6 +530,7 @@
         ],
         "properties": {
           "type": {
+            "title": "Channel type",
             "type": "string",
             "description": "Channel type (Popolo: type)",
             "enum": [
@@ -495,40 +544,47 @@
             "example": "email"
           },
           "value": {
+            "title": "Value",
             "type": "string",
             "description": "Contact value e.g. email address (Popolo: value)",
             "example": "f.halsema@amsterdam.nl"
           },
           "label": {
+            "title": "Label",
             "type": "string",
             "description": "Human-readable label (Popolo: label)",
             "example": "Werk"
           },
           "note": {
+            "title": "Note",
             "type": "string",
             "description": "Usage note (Popolo: note)"
           },
           "validFrom": {
+            "title": "Valid from",
             "type": "string",
             "format": "date-time",
             "description": "Start of validity (Popolo: valid_from)"
           },
           "validUntil": {
+            "title": "Valid until",
             "type": "string",
             "format": "date-time",
             "description": "End of validity (Popolo: valid_until)"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "person": {
-            "register": "decidesk",
-            "schema": "Person",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "title": "Person",
+            "description": "Reference to the Person this contact detail belongs to (many-to-one)."
           },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody this contact detail belongs to (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -588,11 +644,13 @@
         ],
         "properties": {
           "name": {
+            "title": "Name",
             "type": "string",
             "description": "Body name",
             "example": "Gemeenteraad Westerkwartier"
           },
           "bodyType": {
+            "title": "Body type",
             "type": "string",
             "description": "Type of governance body",
             "enum": [
@@ -607,40 +665,48 @@
             "example": "legislative"
           },
           "domain": {
+            "title": "Domain",
             "type": "string",
             "description": "Governance domain preset",
             "example": "municipal"
           },
           "workflowTemplate": {
+            "title": "Workflow template",
             "type": "string",
             "description": "State machine workflow config"
           },
           "quorumRule": {
+            "title": "Quorum rule",
             "type": "string",
             "description": "Quorum calculation method",
             "example": "majority"
           },
           "votingDefault": {
+            "title": "Default voting method",
             "type": "string",
             "description": "Default voting method",
             "example": "for-against-abstain"
           },
           "termStart": {
+            "title": "Term start",
             "type": "string",
             "format": "date-time",
             "description": "Current term start"
           },
           "termEnd": {
+            "title": "Term end",
             "type": "string",
             "format": "date-time",
             "description": "Current term end"
           },
           "hourlyRate": {
+            "title": "Hourly rate",
             "type": "number",
             "description": "Average hourly rate in EUR per attendee, used by the meeting cost calculator (meeting-efficiency). Schema.org MonetaryAmount value; currency is EUR.",
             "example": 75
           },
           "transcriptRetentionPolicy": {
+            "title": "Transcript retention policy",
             "type": "string",
             "description": "Per-body retention policy for meeting recordings and raw transcripts after the meeting's minutes are approved (meeting-transcription). 'keep' retains everything; 'delete-recording' removes only the audio recording; 'delete-both' removes the recording and the raw transcript file. Enforced by the TranscriptRetentionJob.",
             "enum": [
@@ -652,6 +718,7 @@
             "example": "delete-both"
           },
           "transcriptRetentionDays": {
+            "title": "Transcript retention days",
             "type": "integer",
             "description": "Number of days after minutes approval before the retention policy is enforced for this body's recordings/transcripts (meeting-transcription). Default 30.",
             "default": 30,
@@ -853,7 +920,7 @@
         },
         "slug": "meeting",
         "icon": "CalendarClock",
-        "version": "0.5.0",
+        "version": "0.6.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -873,13 +940,16 @@
         ],
         "properties": {
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Meeting title",
             "example": "Raadsvergadering 10 april 2025"
           },
           "meetingType": {
+            "title": "Meeting type",
+            "description": "The kind of meeting (e.g. regular, committee, public hearing).",
+            "order": 4,
             "type": "string",
-            "description": "Type of meeting",
             "enum": [
               "regular",
               "extraordinary",
@@ -889,24 +959,43 @@
             ],
             "example": "regular"
           },
-          "scheduledDate": {
+          "governanceBody": {
             "type": "string",
-            "format": "date-time",
-            "description": "Start date and time"
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Body",
+            "description": "The governance body or team this meeting belongs to. Materialises the governanceBody relation as a real property so per-body meeting filters and the participant-count aggregations (which filter on @self.governanceBody) resolve.",
+            "order": 6,
+            "x-openregister": {
+              "schemaType": "schema:organizer"
+            }
+          },
+          "scheduledDate": {
+            "title": "Start date",
+            "description": "Date and time the meeting starts.",
+            "order": 1,
+            "type": "string",
+            "format": "date-time"
           },
           "endDate": {
+            "title": "End date",
+            "description": "Date and time the meeting ends.",
+            "order": 2,
             "type": "string",
-            "format": "date-time",
-            "description": "End date and time"
+            "format": "date-time"
           },
           "location": {
+            "title": "Location",
+            "description": "Physical address or video-conference link for the meeting.",
+            "order": 3,
             "type": "string",
-            "description": "Physical location or video link",
             "example": "Raadzaal, Gemeentehuis Leek"
           },
           "meetingMode": {
+            "title": "Attendance mode",
+            "description": "How participants attend: in person, digital, or hybrid.",
+            "order": 5,
             "type": "string",
-            "description": "Meeting mode",
             "enum": [
               "in-person",
               "digital",
@@ -915,8 +1004,9 @@
             "example": "in-person"
           },
           "lifecycle": {
+            "title": "Status",
+            "description": "Lifecycle state of the meeting.",
             "type": "string",
-            "description": "Meeting lifecycle state",
             "enum": [
               "draft",
               "scheduled",
@@ -928,19 +1018,23 @@
             "example": "draft"
           },
           "quorumRequired": {
+            "title": "Quorum override",
+            "description": "Optional per-meeting override of the minimum participants required. Defaults to the meeting type's quorum.",
             "type": "integer",
-            "description": "Minimum participants for valid meeting",
             "example": 19
           },
           "series": {
+            "title": "Series",
             "type": "string",
             "description": "Meeting series identifier"
           },
           "seriesPattern": {
+            "title": "Recurrence pattern",
             "type": "object",
             "description": "Recurrence pattern stored on the series template meeting (meeting-series REQ-MSR-001). Expanded into individual meeting instances by MeetingSeriesService.",
             "properties": {
               "frequency": {
+                "title": "Frequency",
                 "type": "string",
                 "enum": [
                   "daily",
@@ -950,16 +1044,19 @@
                 "description": "Recurrence frequency"
               },
               "interval": {
+                "title": "Interval",
                 "type": "integer",
                 "description": "Step between occurrences in frequency units (>= 1)",
                 "example": 1
               },
               "until": {
+                "title": "Until",
                 "type": "string",
                 "format": "date",
                 "description": "Inclusive end date of the series"
               },
               "exceptions": {
+                "title": "Exceptions",
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -970,8 +1067,9 @@
             }
           },
           "eventAttendanceMode": {
+            "title": "Attendance mode (schema.org)",
+            "description": "Schema.org attendance mode, derived from the attendance mode field; not edited directly.",
             "type": "string",
-            "description": "Schema.org attendance mode of the event (offline / online / mixed)",
             "enum": [
               "schema:OfflineEventAttendanceMode",
               "schema:OnlineEventAttendanceMode",
@@ -980,53 +1078,59 @@
             "example": "schema:OfflineEventAttendanceMode",
             "x-openregister": {
               "schemaType": "schema:eventAttendanceMode"
-            }
+            },
+            "readOnly": true,
+            "visible": false
           },
           "virtualLocation": {
+            "title": "Video-conference link",
+            "description": "Deprecated — use Location. Hidden from the form; retained for existing data.",
             "type": "string",
             "format": "uri",
-            "description": "Video conference / virtual participation URL for online and hybrid meetings",
             "example": "https://meet.example.org/alv-2026",
             "x-openregister": {
               "schemaType": "schema:VirtualLocation"
-            }
+            },
+            "visible": false
           },
           "chair": {
+            "title": "Chair",
             "type": "string",
             "description": "UUID of the Participant who chairs this meeting. Resolved to the Participant record in MCP and minutes generation; the chair field on the Participant (role=chair) applies to the governance body broadly, while this field overrides the chair for this specific meeting.",
             "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
           },
           "isPublic": {
+            "title": "Public",
             "type": "boolean",
             "description": "Staff INTENT flag (publish-decisions-via-opencatalogi): marks that this meeting is intended for public visibility. It is a precondition for AGENDA publication eligibility (true + convocation sent), NOT itself a publication action — anonymous visibility happens only when staff explicitly publish the derived agenda payload via the public-publication flow. When true, the agenda (if published), recordings, and approved minutes become eligible for citizen visibility.",
             "default": false,
             "example": false
           },
           "submissionDeadline": {
+            "title": "Submission deadline",
             "type": "string",
             "format": "date-time",
             "description": "Deadline for submitting motions and amendments for this meeting (motion-amendment spec). Empty = no deadline. Motion/amendment creations after this moment are rejected server-side by the SubmissionDeadlineListener."
           },
           "openedAt": {
+            "title": "Opened at",
             "type": "string",
             "format": "date-time",
-            "description": "Timestamp of the first 'open' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency). Basis for the live cost calculator and duration analytics."
+            "description": "Timestamp of the first 'open' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency). Basis for the live cost calculator and duration analytics.",
+            "readOnly": true
           },
           "closedAt": {
+            "title": "Closed at",
             "type": "string",
             "format": "date-time",
-            "description": "Timestamp of the 'close' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency)."
+            "description": "Timestamp of the 'close' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency).",
+            "readOnly": true
           },
           "meetingCost": {
+            "title": "Meeting cost",
             "type": "number",
-            "description": "Total meeting cost in EUR, computed server-side on close from elapsed time x attendee count x the governance body's hourlyRate (meeting-efficiency). Schema.org MonetaryAmount value."
-          }
-        },
-        "x-openregister-relations": {
-          "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "description": "Total meeting cost in EUR, computed server-side on close from elapsed time x attendee count x the governance body's hourlyRate (meeting-efficiency). Schema.org MonetaryAmount value.",
+            "readOnly": true
           }
         },
         "x-openregister-aggregations": {
@@ -1254,11 +1358,13 @@
         ],
         "properties": {
           "displayName": {
+            "title": "Display name",
             "type": "string",
             "description": "Display name",
             "example": "Roos de Vries"
           },
           "role": {
+            "title": "Role",
             "type": "string",
             "description": "Role within the governance body",
             "enum": [
@@ -1272,36 +1378,43 @@
             "example": "member"
           },
           "party": {
+            "title": "Party",
             "type": "string",
             "description": "Political party or faction",
             "example": "GroenLinks"
           },
           "email": {
+            "title": "Email",
             "type": "string",
             "format": "email",
             "description": "Contact email"
           },
           "joinedAt": {
+            "title": "Joined at",
             "type": "string",
             "format": "date-time",
             "description": "When they joined the body"
           },
           "leftAt": {
+            "title": "Left at",
             "type": "string",
             "format": "date-time",
             "description": "When they left (null = active)"
           },
           "votingWeight": {
+            "title": "Voting weight",
             "type": "number",
             "description": "Vote weight (default 1)",
             "example": 1
           },
           "nextcloudUserId": {
+            "title": "Nextcloud user",
             "type": "string",
             "description": "The Nextcloud user ID (login name / UID) of the Nextcloud user who represents this participant. Used by VotingService::resolveParticipantUuid() to find the Participant record for the currently logged-in user, enabling vote-casting, proxy delegation, and vote-link personalisation. Must be set when the participant has a corresponding Nextcloud account.",
             "example": "jdoe"
           },
           "attendanceStatus": {
+            "title": "Attendance status",
             "type": "string",
             "description": "Attendance status for the current or most recent meeting",
             "enum": [
@@ -1313,6 +1426,7 @@
             "example": "present"
           },
           "participantType": {
+            "title": "Attendance mode",
             "type": "string",
             "description": "Attendance mode for the current or most recent meeting — stamped on votes as castAs (remote-vote session annotation, voting-system spec).",
             "enum": [
@@ -1320,13 +1434,13 @@
               "remote"
             ],
             "example": "in-person"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody this participant belongs to (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -1414,11 +1528,13 @@
         ],
         "properties": {
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Agenda item title",
             "example": "Opening en mededelingen"
           },
           "itemType": {
+            "title": "Item type",
             "type": "string",
             "description": "Type of agenda item",
             "enum": [
@@ -1429,43 +1545,50 @@
             "example": "informational"
           },
           "orderNumber": {
+            "title": "Order",
             "type": "integer",
             "description": "Position on the agenda",
             "example": 1
           },
           "estimatedDuration": {
+            "title": "Estimated duration",
             "type": "integer",
             "description": "Estimated minutes",
             "example": 10
           },
           "actualDuration": {
+            "title": "Actual duration",
             "type": "integer",
             "description": "Actual minutes spent"
           },
           "pausedDuration": {
+            "title": "Paused duration",
             "type": "integer",
             "description": "Minutes the agenda-item timer was paused for procedural interruptions, recorded separately from actualDuration (meeting-efficiency)"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Detailed description"
           },
           "isRecurring": {
+            "title": "Recurring",
             "type": "boolean",
             "description": "Appears on every meeting",
             "example": false
           },
           "parentItem": {
+            "title": "Parent item",
             "type": "string",
             "description": "UUID of the parent AgendaItem when this item is a nested sub-item (e.g. committee reports grouped under one heading). Null/absent for top-level items.",
             "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
+            "title": "Meeting",
+            "description": "Reference to the Meeting this agenda item belongs to (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -1550,6 +1673,7 @@
         ],
         "properties": {
           "votingMethod": {
+            "title": "Voting method",
             "type": "string",
             "description": "Method used for voting",
             "enum": [
@@ -1561,25 +1685,30 @@
             "example": "for-against-abstain"
           },
           "isSecret": {
+            "title": "Secret ballot",
             "type": "boolean",
             "description": "Secret ballot",
             "example": false
           },
           "openedAt": {
+            "title": "Opened at",
             "type": "string",
             "format": "date-time",
             "description": "When voting opened"
           },
           "closedAt": {
+            "title": "Closed at",
             "type": "string",
             "format": "date-time",
             "description": "When voting closed"
           },
           "quorumMet": {
+            "title": "Quorum met",
             "type": "boolean",
             "description": "Was quorum met"
           },
           "result": {
+            "title": "Result",
             "type": "string",
             "description": "Voting result",
             "enum": [
@@ -1590,31 +1719,37 @@
             ]
           },
           "votesFor": {
+            "title": "Votes for",
             "type": "integer",
             "description": "Count of votes for",
             "example": 28
           },
           "votesAgainst": {
+            "title": "Votes against",
             "type": "integer",
             "description": "Count of votes against",
             "example": 3
           },
           "votesAbstain": {
+            "title": "Abstentions",
             "type": "integer",
             "description": "Count of abstentions",
             "example": 2
           },
           "votingDeadline": {
+            "title": "Voting deadline",
             "type": "string",
             "format": "date-time",
             "description": "Optional deadline by which votes must be cast. Drives the 24-hour pre-deadline reminder notification (nextcloud-integration spec)."
           },
           "deadlineReminderSentAt": {
+            "title": "Deadline reminder sent at",
             "type": "string",
             "format": "date-time",
             "description": "Server-side marker set when the 24-hour deadline reminder has been sent (prevents duplicate reminders)."
           },
           "voteThreshold": {
+            "title": "Vote threshold",
             "type": "string",
             "description": "Majority rule applied when tallying this round (mirrors Resolution.voteThreshold). Default simple-majority.",
             "enum": [
@@ -1626,6 +1761,7 @@
             "example": "simple-majority"
           },
           "abstentionHandling": {
+            "title": "Abstention handling",
             "type": "string",
             "description": "Whether abstentions are excluded from the calculation base (default) or counted toward it, making thresholds harder.",
             "enum": [
@@ -1635,6 +1771,7 @@
             "example": "exclude"
           },
           "tieBreakRule": {
+            "title": "Tie-break rule",
             "type": "string",
             "description": "Configured tie-breaking rule for a simple-majority tie: rejected (default, motion fails), chair-decides (chair resolves via casting vote), or revote (round may be reopened once).",
             "enum": [
@@ -1645,6 +1782,7 @@
             "example": "rejected"
           },
           "chairCastingVote": {
+            "title": "Chair casting vote",
             "type": "string",
             "description": "The chair's explicit casting vote resolving a tie under tieBreakRule=chair-decides (audit trail).",
             "enum": [
@@ -1653,20 +1791,21 @@
             ]
           },
           "revoteOfRound": {
+            "title": "Revote of round",
             "type": "string",
             "description": "UUID of the tied round this round is the single permitted revote of (tieBreakRule=revote)."
           },
           "voteBase": {
+            "title": "Vote base",
             "type": "integer",
             "description": "Computed calculation base the threshold was evaluated against at tally time (for+against, plus abstentions under abstentionHandling=count).",
             "example": 19
-          }
-        },
-        "x-openregister-relations": {
+          },
           "decisionStage": {
-            "register": "decidesk",
-            "schema": "DecisionStage",
-            "cardinality": "many-to-one",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "DecisionStage",
+            "title": "Decision stage",
             "description": "The DecisionStage of method=vote that this VotingRound resolves. Retargeted from the retired motion schema (C5 decision-methods D1). The stage's outcome is derived declaratively from this round's result."
           }
         },
@@ -1779,6 +1918,7 @@
         ],
         "properties": {
           "value": {
+            "title": "Vote",
             "type": "string",
             "description": "Vote value",
             "enum": [
@@ -1789,21 +1929,25 @@
             "example": "for"
           },
           "weight": {
+            "title": "Vote weight",
             "type": "number",
             "description": "Vote weight (for weighted voting)",
             "example": 1
           },
           "isProxy": {
+            "title": "Proxy vote",
             "type": "boolean",
             "description": "Cast via proxy delegation",
             "example": false
           },
           "castAt": {
+            "title": "Cast at",
             "type": "string",
             "format": "date-time",
             "description": "When the vote was cast"
           },
           "castAs": {
+            "title": "Cast as",
             "type": "string",
             "description": "Honest recording of the caster's attendance mode at cast time (from Participant.participantType; unknown when unresolvable). No session verification is performed.",
             "enum": [
@@ -1812,18 +1956,20 @@
               "unknown"
             ],
             "example": "in-person"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "votingRound": {
-            "register": "decidesk",
-            "schema": "VotingRound",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "VotingRound",
+            "title": "Voting round",
+            "description": "Reference to the VotingRound this vote was cast in (many-to-one)."
           },
           "participant": {
-            "register": "decidesk",
-            "schema": "Participant",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Participant",
+            "title": "Participant",
+            "description": "Reference to the Participant who cast this vote (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -2106,6 +2252,7 @@
         ],
         "properties": {
           "decisionType": {
+            "title": "Decision type",
             "type": "string",
             "description": "Discriminator selecting the kind of governance decision (ADR-005). Drives progressive disclosure of the type-specific field groups in the form. Per-type required fields (e.g. proposer for motion; resolutionNumber + voteThreshold for resolution; the amends relation for amendment) are enforced in the form/spec, not in this JSON-schema required[].",
             "enum": [
@@ -2124,20 +2271,24 @@
             "example": "motion"
           },
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Decision title",
             "example": "Vaststelling Programmabegroting 2026"
           },
           "text": {
+            "title": "Text",
             "type": "string",
             "description": "Decision text"
           },
           "decisionDate": {
+            "title": "Decision date",
             "type": "string",
             "format": "date-time",
             "description": "When the decision was made"
           },
           "outcome": {
+            "title": "Outcome",
             "type": "string",
             "description": "Decision outcome",
             "enum": [
@@ -2147,6 +2298,7 @@
             "example": "adopted"
           },
           "isPublished": {
+            "title": "Publication state",
             "type": "string",
             "description": "Publication state controlling citizen visibility. FLOW-OWNED (publish-decisions-via-opencatalogi): this field is a DERIVED OUTPUT of the public-publication flow — set to 'public' on publish, reset to 'internal' on withdraw — and is REJECTED when written directly through an OR object update outside that flow (PublicationEligibilityService::guardDirectPublicationWrite). 'internal' = staff-only; 'public' = published via the OR published-predicate / OpenCatalogi surface; 'confidential' = restricted access.",
             "enum": [
@@ -2158,16 +2310,19 @@
             "example": "public"
           },
           "publishedAt": {
+            "title": "Published at",
             "type": "string",
             "format": "date-time",
             "description": "Publication timestamp. FLOW-OWNED (publish-decisions-via-opencatalogi): stamped by the publication flow on publish and cleared on withdraw; rejected on direct client writes alongside isPublished."
           },
           "legalBasis": {
+            "title": "Legal basis",
             "type": "string",
             "description": "Legal article or regulation",
             "example": "Gemeentewet art. 189"
           },
           "lifecycle": {
+            "title": "Status",
             "type": "string",
             "description": "Decision state-machine lifecycle (guarded transition map: draft → proposed → deliberating → voting → decided → enacted → archived, plus a terminal 'withdrawn' reachable from any non-terminal state before 'enacted'). The declarative transition map lives in x-openregister-lifecycle. Orthogonal to 'outcome' (the voting result, set when reaching 'decided') and 'isPublished' (citizen visibility of the record, p3-citizen-participation).",
             "enum": [
@@ -2184,11 +2339,13 @@
             "example": "deliberating"
           },
           "enactedAt": {
+            "title": "Enacted at",
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the decision entered the 'enacted' lifecycle state (set server-side by the enact transition)."
           },
           "motionType": {
+            "title": "Motion type",
             "type": "string",
             "description": "Revealed when decisionType=motion. Type of motion (folded from the retired Motion schema).",
             "enum": [
@@ -2200,11 +2357,13 @@
             "example": "motion"
           },
           "proposer": {
+            "title": "Proposer",
             "type": "string",
             "description": "Revealed when decisionType is motion, amendment or resolution. Name of the proposer (folded from Motion/Amendment/Resolution). Required for a motion decision (enforced in the form).",
             "example": "Roos de Vries"
           },
           "coSigners": {
+            "title": "Co-signers",
             "type": "array",
             "description": "Revealed when decisionType=motion. List of co-signers (folded from the retired Motion schema).",
             "items": {
@@ -2216,17 +2375,20 @@
             ]
           },
           "submittedAt": {
+            "title": "Submitted at",
             "type": "string",
             "format": "date-time",
             "description": "Revealed when decisionType is motion or amendment. Submission timestamp (folded from Motion/Amendment)."
           },
           "citizenVotingAllowed": {
+            "title": "Citizen voting allowed",
             "type": "boolean",
             "description": "Revealed when decisionType=motion. Whether citizens can participate in voting on this decision (p3-citizen-participation, folded from the retired Motion schema).",
             "default": false,
             "example": false
           },
           "citizenVotingMethod": {
+            "title": "Citizen voting method",
             "type": "string",
             "description": "Revealed when decisionType=motion. Voting method rendered in the citizen voting UI (folded from the retired Motion schema). Only meaningful when citizenVotingAllowed is true.",
             "enum": [
@@ -2238,18 +2400,22 @@
             "example": "simple"
           },
           "proposedText": {
+            "title": "Proposed text",
             "type": "string",
             "description": "Revealed when decisionType=amendment. Full proposed replacement text for the affected passage, diffed against the parent decision text in the amendment diff view (folded from the retired Amendment schema)."
           },
           "votingOrder": {
+            "title": "Voting order",
             "type": "integer",
             "description": "Revealed when decisionType=amendment. Chair-assigned voting position among a motion's amendments (1 = voted first, most far-reaching). Folded from the retired Amendment schema."
           },
           "resolutionNumber": {
+            "title": "Resolution number",
             "type": "string",
             "description": "Revealed when decisionType=resolution. Resolution number, format R-{year}-{seq} (folded from the retired Resolution schema). Required for a resolution decision (enforced in the form)."
           },
           "resolutionType": {
+            "title": "Resolution type",
             "type": "string",
             "description": "Revealed when decisionType=resolution. Resolution classification (renamed from Resolution.type to avoid collision with decisionType; folded from the retired Resolution schema).",
             "enum": [
@@ -2265,6 +2431,7 @@
             ]
           },
           "voteType": {
+            "title": "Vote type",
             "type": "string",
             "description": "Revealed when decisionType=resolution. How the vote was conducted (folded from the retired Resolution schema).",
             "enum": [
@@ -2275,6 +2442,7 @@
             ]
           },
           "voteThreshold": {
+            "title": "Vote threshold",
             "type": "string",
             "description": "Revealed when decisionType=resolution. Majority rule applied when tallying (folded from the retired Resolution schema). Required for a resolution decision (enforced in the form).",
             "enum": [
@@ -2285,50 +2453,149 @@
             ]
           },
           "fullText": {
+            "title": "Full text",
             "type": "string",
             "description": "Revealed when decisionType=resolution. Full resolution text (rich-text / HTML; folded from the retired Resolution schema)."
           },
           "background": {
+            "title": "Background",
             "type": "string",
             "description": "Revealed when decisionType=resolution. Background / motivation (rich-text; folded from the retired Resolution schema)."
           },
           "adoptionDate": {
+            "title": "Adoption date",
             "type": "string",
             "format": "date-time",
             "description": "Revealed when decisionType=resolution. Date the resolution was adopted (folded from the retired Resolution schema)."
           },
           "effectiveDate": {
+            "title": "Effective date",
             "type": "string",
             "format": "date",
             "description": "Revealed when decisionType=resolution. Date the resolution takes effect (folded from the retired Resolution schema)."
           },
           "sourceApp": {
+            "title": "Source app",
             "type": ["string", "null"],
             "description": "The fleet app that raised this Decision via the integration hub (ADR-019 provenance). Populated by external app delegates; null for internally-created decisions."
           },
           "subjectRegister": {
+            "title": "Subject register",
             "type": ["string", "null"],
             "description": "OpenRegister register of the originating object in the consuming app (provenance, REQ-DCDH-001)."
           },
           "subjectSchema": {
+            "title": "Subject schema",
             "type": ["string", "null"],
             "description": "OpenRegister schema of the originating object (provenance, REQ-DCDH-001)."
           },
           "subjectId": {
+            "title": "Subject",
             "type": ["string", "null"],
             "description": "UUID of the originating object in the consuming app (the back-reference, REQ-DCDH-001)."
           },
           "subjectLabel": {
+            "title": "Subject label",
             "type": ["string", "null"],
             "description": "Human-readable label for the originating object shown in decidesk list/detail (e.g. 'Lease contract 2027 — pand X', REQ-DCDH-001)."
           },
           "outcomeCallbackUrl": {
+            "title": "Outcome callback URL",
             "type": ["string", "null"],
             "description": "Optional registry-validated callback URL for push delivery of the outcome. Validated against the ADR-019 integration registry consumer entry — arbitrary URLs are rejected (anti-SSRF, REQ-DCDH-004)."
           },
           "externalReference": {
+            "title": "External reference",
             "type": ["string", "null"],
             "description": "Consumer's own reference for idempotency and ledger linking. The create-decision endpoint is idempotent on (sourceApp, subjectRegister, subjectSchema, subjectId, externalReference) (REQ-DCDH-002)."
+          },
+          "amends": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Amends",
+            "description": "This decision modifies that decision. Used by decisionType=amendment to point at its parent motion decision (replaces the retired Amendment → Motion relation); more generally the legislative 'amends another decision' modification (Akoma Ntoso eId akn:amendment / ORI 'wijzigt'). Informational for effective-status purposes — an amended decision remains in force, just modified (design D1)."
+          },
+          "offer": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Offer"
+            },
+            "title": "Offers",
+            "description": "Contract attachment: offers/quotes related to a decisionType=contract decision (ADR-005)."
+          },
+          "order": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Order"
+            },
+            "title": "Orders",
+            "description": "Contract attachment: purchase orders related to a decisionType=contract decision (ADR-005)."
+          },
+          "product": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Product"
+            },
+            "title": "Products",
+            "description": "Contract attachment: products/services related to a decisionType=contract decision (ADR-005)."
+          },
+          "route": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "DecisionStage"
+            },
+            "x-relation-filter": { "decision": "@objectId" },
+            "title": "Route",
+            "description": "The ordered route of DecisionStage objects that this Decision travels. Empty when no staged route is configured; a stageless Decision is valid. The inverse relation (DecisionStage → Decision) is stored on DecisionStage.decision."
+          },
+          "supersedes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Decision"
+            },
+            "title": "Supersedes",
+            "description": "Decisions that this decision supersedes (replaces in their entirety) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted supersedes becomes effectiveStatus=superseded (design D1/D2). Maps to Akoma Ntoso akn:replacement / ORI 'vervangt' / schema.org supersededBy (inverse)."
+          },
+          "repeals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Decision"
+            },
+            "title": "Repeals",
+            "description": "Decisions that this decision repeals (revokes / nullifies) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted repeals becomes effectiveStatus=repealed (precedence over superseded; design D1/D2). Maps to Akoma Ntoso akn:repeal / ORI 'trekt in'."
+          },
+          "implements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Decision"
+            },
+            "title": "Implements",
+            "description": "Decisions that this decision implements / gives effect to (e.g. an executive decision implementing a council framework) — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:implementation / ORI 'geeft uitvoering aan'."
+          },
+          "refersTo": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "Decision"
+            },
+            "title": "Refers to",
+            "description": "Decisions this decision merely references / relates to without modifying — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:cites / ORI 'verwijst naar' / schema.org isRelatedTo."
           }
         },
         "x-openregister-lifecycle": {
@@ -2395,62 +2662,6 @@
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031). The proven 7-state flow draft → proposed → deliberating → voting → decided → enacted → archived is retained from decision-state-machine-v1; a terminal 'withdrawn' state is added, reachable from any non-terminal state before 'enacted' (design D2 + resolved deferred question). lifecycle is orthogonal to 'outcome' (voting result) and 'isPublished' (citizen visibility)."
-        },
-        "x-openregister-relations": {
-          "amends": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one",
-            "description": "This decision modifies that decision. Used by decisionType=amendment to point at its parent motion decision (replaces the retired Amendment → Motion relation); more generally the legislative 'amends another decision' modification (Akoma Ntoso eId akn:amendment / ORI 'wijzigt'). Informational for effective-status purposes — an amended decision remains in force, just modified (design D1)."
-          },
-          "offer": {
-            "register": "decidesk",
-            "schema": "Offer",
-            "cardinality": "one-to-many",
-            "description": "Contract attachment: offers/quotes related to a decisionType=contract decision (ADR-005)."
-          },
-          "order": {
-            "register": "decidesk",
-            "schema": "Order",
-            "cardinality": "one-to-many",
-            "description": "Contract attachment: purchase orders related to a decisionType=contract decision (ADR-005)."
-          },
-          "product": {
-            "register": "decidesk",
-            "schema": "Product",
-            "cardinality": "one-to-many",
-            "description": "Contract attachment: products/services related to a decisionType=contract decision (ADR-005)."
-          },
-          "route": {
-            "register": "decidesk",
-            "schema": "DecisionStage",
-            "cardinality": "one-to-many",
-            "description": "The ordered route of DecisionStage objects that this Decision travels. Empty when no staged route is configured; a stageless Decision is valid. The inverse relation (DecisionStage → Decision) is stored on DecisionStage.decision."
-          },
-          "supersedes": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "one-to-many",
-            "description": "Decisions that this decision supersedes (replaces in their entirety) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted supersedes becomes effectiveStatus=superseded (design D1/D2). Maps to Akoma Ntoso akn:replacement / ORI 'vervangt' / schema.org supersededBy (inverse)."
-          },
-          "repeals": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "one-to-many",
-            "description": "Decisions that this decision repeals (revokes / nullifies) — array of Decision references. Effect-bearing: a decision targeted by a decided/enacted repeals becomes effectiveStatus=repealed (precedence over superseded; design D1/D2). Maps to Akoma Ntoso akn:repeal / ORI 'trekt in'."
-          },
-          "implements": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "one-to-many",
-            "description": "Decisions that this decision implements / gives effect to (e.g. an executive decision implementing a council framework) — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:implementation / ORI 'geeft uitvoering aan'."
-          },
-          "refersTo": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "one-to-many",
-            "description": "Decisions this decision merely references / relates to without modifying — array of Decision references. Informational; does not affect effective-status. Maps to Akoma Ntoso akn:cites / ORI 'verwijst naar' / schema.org isRelatedTo."
-          }
         },
         "x-openregister-aggregations": {
           "stageCount": {
@@ -2860,12 +3071,14 @@
         ],
         "properties": {
           "sequence": {
+            "title": "Sequence",
             "type": "integer",
             "description": "1-based ordinal position of this stage in the decision route. Stages are processed in ascending sequence order.",
             "minimum": 1,
             "example": 1
           },
           "stageType": {
+            "title": "Stage type",
             "type": "string",
             "description": "Functional type of this stage — determines the role it plays in the route.",
             "enum": [
@@ -2877,6 +3090,7 @@
             "example": "decisive"
           },
           "status": {
+            "title": "Status",
             "type": "string",
             "description": "Lifecycle state of the stage. Carries x-openregister-lifecycle transitions (ADR-031): pending → active → decided; pending → skipped; active → skipped. 'decided' and 'skipped' are terminal.",
             "enum": [
@@ -2889,6 +3103,7 @@
             "example": "pending"
           },
           "outcome": {
+            "title": "Outcome",
             "type": "string",
             "description": "Decision outcome recorded when status=decided. Null when status is pending/active/skipped.",
             "enum": [
@@ -2903,6 +3118,7 @@
             "example": "adopted"
           },
           "decidedAt": {
+            "title": "Decided at",
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the stage reached status=decided. Null when status is not decided.",
@@ -2910,6 +3126,7 @@
             "example": "2026-03-20T14:00:00Z"
           },
           "method": {
+            "title": "Method",
             "type": "string",
             "description": "Method by which the stage is resolved. Coarse enum — the vote sub-variants (secret/personal/general) are configured on the linked VotingRound, not via additional method values (C5 decision-methods D1). The mechanism relation required by the active method MUST be populated: vote⇒votingRound, chair-register⇒registeredBy, signature⇒signedDocument; advice and manual require no mechanism relation (C5 D2 validation note). Defaults to manual.",
             "enum": [
@@ -2923,6 +3140,7 @@
             "example": "vote"
           },
           "decisionMakerType": {
+            "title": "Decision-maker type",
             "type": "string",
             "description": "Discriminator indicating whether the assignee is an individual person (person) or a governance body (body). Must be consistent with exactly one of assignedPerson or assignedBody being populated.",
             "enum": [
@@ -2932,15 +3150,60 @@
             "example": "body"
           },
           "label": {
+            "title": "Label",
             "type": "string",
             "description": "Human-readable label for the stage, displayed in the route timeline.",
             "example": "Advies raadscommissie"
           },
           "note": {
+            "title": "Note",
             "type": "string",
             "description": "Free text recorded by the stage owner at decision time — e.g. reasoning, conditions, or dissenting remarks.",
             "nullable": true,
             "example": "Unaniem advies uitgebracht na bespreking in commissie."
+          },
+          "decision": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Decision",
+            "description": "The parent Decision this stage belongs to. Required: every stage must be owned by exactly one Decision."
+          },
+          "assignedPerson": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "title": "Assigned person",
+            "description": "Individual decision-maker for this stage. Populate when decisionMakerType=person; leave null when decisionMakerType=body. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
+          },
+          "assignedBody": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Assigned body",
+            "description": "Group decision-maker for this stage. Populate when decisionMakerType=body; leave null when decisionMakerType=person. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
+          },
+          "votingRound": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "VotingRound",
+            "x-relation-filter": { "decisionStage": "@objectId" },
+            "title": "Voting round",
+            "description": "The VotingRound that resolves this stage. Required when method=vote; the stage outcome is derived declaratively from VotingRound.result (C5 D2/D4). Leave null for method≠vote. Vote sub-variants (secret/personal/general) are configured on the VotingRound (isSecret, votingMethod) rather than by expanding the method enum (C5 D1)."
+          },
+          "registeredBy": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "title": "Registered by",
+            "description": "The chair who recorded the outcome directly for this stage. Required when method=chair-register; leave null for other methods. The chair sets outcome + decidedAt directly; registeredBy records who (C5 D2)."
+          },
+          "signedDocument": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "DigitalDocument",
+            "title": "Signed document",
+            "description": "The signed DigitalDocument produced for this stage. Required when method=signature; leave null for other methods. Signatories are read from the related Minutes.signedBy. EIDASSignatureService resolves this stage (sets outcome=adopted + decidedAt) when eIDAS signing completes (C5 D2/D3/D5)."
           }
         },
         "x-openregister-lifecycle": {
@@ -2975,44 +3238,6 @@
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031 / design D4). Terminal states 'decided' and 'skipped' mirror the route-progress aggregation on Decision: a stage is resolved when it reaches either terminal state. The 'active' state marks the currentStage (derived declaratively on Decision via x-openregister-calculations)."
-        },
-        "x-openregister-relations": {
-          "decision": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one",
-            "description": "The parent Decision this stage belongs to. Required: every stage must be owned by exactly one Decision."
-          },
-          "assignedPerson": {
-            "register": "decidesk",
-            "schema": "Person",
-            "cardinality": "many-to-one",
-            "description": "Individual decision-maker for this stage. Populate when decisionMakerType=person; leave null when decisionMakerType=body. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
-          },
-          "assignedBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one",
-            "description": "Group decision-maker for this stage. Populate when decisionMakerType=body; leave null when decisionMakerType=person. Exactly one of assignedPerson/assignedBody must be populated, consistent with the decisionMakerType discriminator (design D2)."
-          },
-          "votingRound": {
-            "register": "decidesk",
-            "schema": "VotingRound",
-            "cardinality": "many-to-one",
-            "description": "The VotingRound that resolves this stage. Required when method=vote; the stage outcome is derived declaratively from VotingRound.result (C5 D2/D4). Leave null for method≠vote. Vote sub-variants (secret/personal/general) are configured on the VotingRound (isSecret, votingMethod) rather than by expanding the method enum (C5 D1)."
-          },
-          "registeredBy": {
-            "register": "decidesk",
-            "schema": "Person",
-            "cardinality": "many-to-one",
-            "description": "The chair who recorded the outcome directly for this stage. Required when method=chair-register; leave null for other methods. The chair sets outcome + decidedAt directly; registeredBy records who (C5 D2)."
-          },
-          "signedDocument": {
-            "register": "decidesk",
-            "schema": "DigitalDocument",
-            "cardinality": "many-to-one",
-            "description": "The signed DigitalDocument produced for this stage. Required when method=signature; leave null for other methods. Signatories are read from the related Minutes.signedBy. EIDASSignatureService resolves this stage (sets outcome=adopted + decidedAt) when eIDAS signing completes (C5 D2/D3/D5)."
-          }
         },
         "x-openregister-calculations": {
           "outcome": {
@@ -3289,25 +3514,30 @@
         ],
         "properties": {
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Task title",
             "example": "Plan van aanpak zonnepanelen opstellen"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Task details"
           },
           "assignee": {
+            "title": "Assignee",
             "type": "string",
             "description": "Assigned participant",
             "example": "Wethouder Duurzaamheid"
           },
           "dueDate": {
+            "title": "Due date",
             "type": "string",
             "format": "date-time",
             "description": "Due date"
           },
           "taskStatus": {
+            "title": "Status",
             "type": "string",
             "description": "Current task status",
             "enum": [
@@ -3319,21 +3549,24 @@
             "example": "open"
           },
           "completedAt": {
+            "title": "Completed at",
             "type": "string",
             "format": "date-time",
             "description": "Completion timestamp"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "decision": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Decision",
+            "description": "Reference to the Decision this action item stems from (many-to-one)."
           },
           "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
+            "title": "Meeting",
+            "description": "Reference to the Meeting this action item stems from (many-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -3456,11 +3689,13 @@
         ],
         "properties": {
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Minutes title",
             "example": "Notulen Raadsvergadering 10 april 2025"
           },
           "lifecycle": {
+            "title": "Status",
             "type": "string",
             "description": "Minutes lifecycle state",
             "enum": [
@@ -3473,15 +3708,18 @@
             "example": "draft"
           },
           "content": {
+            "title": "Content",
             "type": "string",
             "description": "Full minutes text"
           },
           "approvedAt": {
+            "title": "Approved at",
             "type": "string",
             "format": "date-time",
             "description": "Approval timestamp"
           },
           "signedBy": {
+            "title": "Signed by",
             "type": "array",
             "description": "Digital signers (chair + secretary)",
             "items": {
@@ -3493,25 +3731,30 @@
             ]
           },
           "version": {
+            "title": "Version",
             "type": "integer",
             "description": "Revision number",
             "example": 1
           },
           "itemNotes": {
+            "title": "Agenda-item notes",
             "type": "array",
             "description": "Per-agenda-item notes captured live during the meeting (minutes-ui-v1)",
             "items": {
               "type": "object",
               "properties": {
                 "agendaItem": {
+                  "title": "Agenda item",
                   "type": "string",
                   "description": "UUID of the agenda item the notes belong to"
                 },
                 "notes": {
+                  "title": "Notes",
                   "type": "string",
                   "description": "Discussion notes for the agenda item"
                 },
                 "decisions": {
+                  "title": "Decisions",
                   "type": "string",
                   "description": "Decisions recorded for the agenda item"
                 }
@@ -3519,28 +3762,34 @@
             }
           },
           "corrections": {
+            "title": "Corrections",
             "type": "array",
             "description": "Correction suggestions submitted by meeting participants during review (minutes-ui-v1)",
             "items": {
               "type": "object",
               "properties": {
                 "id": {
+                  "title": "Correction ID",
                   "type": "string",
                   "description": "Correction identifier"
                 },
                 "author": {
+                  "title": "Author",
                   "type": "string",
                   "description": "Nextcloud UID of the suggesting participant (server-attributed)"
                 },
                 "authorName": {
+                  "title": "Author name",
                   "type": "string",
                   "description": "Display name of the suggesting participant"
                 },
                 "text": {
+                  "title": "Correction",
                   "type": "string",
                   "description": "The suggested correction"
                 },
                 "status": {
+                  "title": "Status",
                   "type": "string",
                   "enum": [
                     "proposed",
@@ -3550,15 +3799,18 @@
                   "description": "Resolution status of the suggestion"
                 },
                 "createdAt": {
+                  "title": "Submitted at",
                   "type": "string",
                   "format": "date-time",
                   "description": "Submission timestamp"
                 },
                 "resolvedBy": {
+                  "title": "Resolved by",
                   "type": "string",
                   "description": "Nextcloud UID of the chair/secretary who resolved the suggestion"
                 },
                 "resolvedAt": {
+                  "title": "Resolved at",
                   "type": "string",
                   "format": "date-time",
                   "description": "Resolution timestamp"
@@ -3567,24 +3819,29 @@
             }
           },
           "reviewComments": {
+            "title": "Review comments",
             "type": "array",
             "description": "Review decisions with comments, e.g. reject-with-comment history (minutes-ui-v1)",
             "items": {
               "type": "object",
               "properties": {
                 "action": {
+                  "title": "Review action",
                   "type": "string",
                   "description": "Review action taken (e.g. rejected)"
                 },
                 "comment": {
+                  "title": "Comment",
                   "type": "string",
                   "description": "Reviewer comment"
                 },
                 "author": {
+                  "title": "Author",
                   "type": "string",
                   "description": "Nextcloud UID of the reviewer (server-attributed)"
                 },
                 "createdAt": {
+                  "title": "Review timestamp",
                   "type": "string",
                   "format": "date-time",
                   "description": "Review timestamp"
@@ -3593,41 +3850,47 @@
             }
           },
           "generatedDocuments": {
+            "title": "Generated documents",
             "type": "array",
             "description": "Documents generated from these minutes and persisted to the meeting folder (minutes-ui-v1)",
             "items": {
               "type": "object",
               "properties": {
                 "path": {
+                  "title": "File path",
                   "type": "string",
                   "description": "Path of the persisted file in the OpenRegister Files storage"
                 },
                 "format": {
+                  "title": "Format",
                   "type": "string",
                   "description": "Produced format (markdown or pdf)"
                 },
                 "generatedAt": {
+                  "title": "Generated at",
                   "type": "string",
                   "format": "date-time",
                   "description": "Generation timestamp"
                 },
                 "generatedBy": {
+                  "title": "Generated by",
                   "type": "string",
                   "description": "Display name of the generating user (server-attributed)"
                 },
                 "docudesk": {
+                  "title": "Rendered by Docudesk",
                   "type": "boolean",
                   "description": "Whether Docudesk rendered the document (false = markdown fallback)"
                 }
               }
             }
-          }
-        },
-        "x-openregister-relations": {
+          },
           "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "one-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
+            "title": "Meeting",
+            "description": "Reference to the Meeting these minutes document (one-to-one)."
           }
         },
         "x-openregister-seeds": [
@@ -3821,11 +4084,13 @@
         ],
         "properties": {
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Human-readable transcript title (defaults to the meeting title)",
             "example": "Transcriptie Raadsvergadering 10 april 2025"
           },
           "sourceType": {
+            "title": "Source type",
             "type": "string",
             "description": "Origin of the transcription source",
             "enum": [
@@ -3835,24 +4100,29 @@
             "example": "uploaded-file"
           },
           "sourceFilePath": {
+            "title": "Source file path",
             "type": "string",
             "description": "Path of the source audio/recording file in the meeting's NC Files folder. A file reference only; audio content is never stored on this object.",
             "example": "Decidesk/Gemeenteraad Amsterdam/2025-04-10 Raadsvergadering/recording.mp3"
           },
           "transcriptFilePath": {
+            "title": "Transcript file path",
             "type": "string",
             "description": "Path of the produced plain-text transcript file in the meeting's NC Files folder (written when status reaches 'done')."
           },
           "providerId": {
+            "title": "Provider",
             "type": "string",
             "description": "Identifier of the SpeechToText provider that produced (or will produce) the transcript. Empty until a provider is selected/run."
           },
           "language": {
+            "title": "Language",
             "type": "string",
             "description": "BCP-47 language hint for the transcription (best-effort; providers may auto-detect)",
             "example": "nl"
           },
           "status": {
+            "title": "Status",
             "type": "string",
             "description": "Transcription lifecycle state",
             "enum": [
@@ -3865,18 +4135,22 @@
             "example": "pending"
           },
           "failureReason": {
+            "title": "Failure reason",
             "type": "string",
             "description": "Human-readable failure reason, set when status is 'failed'."
           },
           "consent": {
+            "title": "Consent",
             "type": "object",
             "description": "Consent confirmation recorded before any transcription job is accepted (AVG/GDPR). The chair or secretary confirms participants were informed of the recording. Transcription is refused server-side without this record.",
             "properties": {
               "confirmedBy": {
+                "title": "Confirmed by",
                 "type": "string",
                 "description": "Nextcloud UID of the chair/secretary who confirmed consent (server-attributed)"
               },
               "confirmedAt": {
+                "title": "Confirmed at",
                 "type": "string",
                 "format": "date-time",
                 "description": "Consent confirmation timestamp"
@@ -3884,28 +4158,34 @@
             }
           },
           "segments": {
+            "title": "Segments",
             "type": "array",
             "description": "Timestamped transcript segments. Speaker labels are the provider's neutral labels (e.g. 'Speaker 1') and are NEVER mapped to participant identities.",
             "items": {
               "type": "object",
               "properties": {
                 "startTime": {
+                  "title": "Start time",
                   "type": "number",
                   "description": "Segment start offset in seconds from the start of the recording"
                 },
                 "endTime": {
+                  "title": "End time",
                   "type": "number",
                   "description": "Segment end offset in seconds from the start of the recording"
                 },
                 "speakerLabel": {
+                  "title": "Speaker label",
                   "type": "string",
                   "description": "Neutral provider speaker label, e.g. 'Speaker 1' (no participant identity mapping)"
                 },
                 "agendaItem": {
+                  "title": "Agenda item",
                   "type": "string",
                   "description": "UUID of the agenda item this segment aligns to, derived from the conduct timeline. Absent/empty when the segment falls outside any agenda item's window (unassigned)."
                 },
                 "text": {
+                  "title": "Text",
                   "type": "string",
                   "description": "Transcribed text for this segment"
                 }
@@ -3913,23 +4193,28 @@
             }
           },
           "alignedAt": {
+            "title": "Aligned at",
             "type": "string",
             "format": "date-time",
             "description": "Timestamp of the most recent agenda-alignment derivation. Alignment is a pure re-runnable derivation over stored data; correcting the timeline re-aligns without re-transcribing."
           },
           "draftGeneration": {
+            "title": "Draft generation",
             "type": "object",
             "description": "Provenance of the AI-assisted draft minutes generated from this transcript (meeting-transcription / resolution-minutes). The draft itself is written into the minute-taking template; this records what was generated and when. Never auto-approves or publishes anything.",
             "properties": {
               "aiGenerated": {
+                "title": "AI generated",
                 "type": "boolean",
                 "description": "Whether an AI-generated draft was produced from this transcript"
               },
               "providerId": {
+                "title": "Provider",
                 "type": "string",
                 "description": "Identifier of the TaskProcessing/AI provider that produced the draft"
               },
               "generatedAt": {
+                "title": "Generated at",
                 "type": "string",
                 "format": "date-time",
                 "description": "Draft generation timestamp"
@@ -3937,6 +4222,7 @@
             }
           },
           "retentionState": {
+            "title": "Retention state",
             "type": "string",
             "description": "Retention state of this transcript's files, set by the TranscriptRetentionJob after minutes approval per the body's policy.",
             "enum": [
@@ -3946,13 +4232,13 @@
             ],
             "default": "active",
             "example": "active"
-          }
-        },
-        "x-openregister-relations": {
+          },
           "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "one-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
+            "title": "Meeting",
+            "description": "Reference to the Meeting this transcript records (one-to-one)."
           }
         }
       },
@@ -3963,6 +4249,7 @@
         "title": "DigitalDocument",
         "description": "Schema.org DigitalDocument for document metadata",
         "type": "object",
+        "x-schema-org": "schema:DigitalDocument",
         "x-openregister": {
           "schemaType": "schema:DigitalDocument",
           "active": true,
@@ -3976,25 +4263,30 @@
         ],
         "properties": {
           "name": {
+            "title": "Name",
             "type": "string",
             "description": "Document name/title",
             "example": "Raadsvoorstel Begroting 2026"
           },
           "documentType": {
+            "title": "Document type",
             "type": "string",
             "description": "Document type (contract, tender, report, etc.)",
             "example": "report"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Document description"
           },
           "encodingFormat": {
+            "title": "Encoding format",
             "type": "string",
             "description": "MIME type (application/pdf, etc.)",
             "example": "application/pdf"
           },
           "contentSize": {
+            "title": "File size",
             "type": "string",
             "description": "File size",
             "example": "2.4 MB"
@@ -4022,6 +4314,7 @@
         "title": "MonetaryAmount",
         "description": "Schema.org MonetaryAmount for monetary values",
         "type": "object",
+        "x-schema-org": "schema:MonetaryAmount",
         "x-openregister": {
           "schemaType": "schema:MonetaryAmount",
           "active": true,
@@ -4035,11 +4328,13 @@
         ],
         "properties": {
           "value": {
+            "title": "Value",
             "type": "number",
             "description": "Numeric value",
             "example": 50000
           },
           "currency": {
+            "title": "Currency",
             "type": "string",
             "description": "ISO 4217 currency code",
             "example": "EUR"
@@ -4053,6 +4348,7 @@
         "title": "Offer",
         "description": "Schema.org Offer for offer/quote data",
         "type": "object",
+        "x-schema-org": "schema:Offer",
         "x-openregister": {
           "schemaType": "schema:Offer",
           "active": true,
@@ -4067,31 +4363,37 @@
         ],
         "properties": {
           "name": {
+            "title": "Name",
             "type": "string",
             "description": "Offer/quote name",
             "example": "AV-installatie raadzaal"
           },
           "price": {
+            "title": "Price",
             "type": "number",
             "description": "Offered price",
             "example": 25000
           },
           "priceCurrency": {
+            "title": "Currency",
             "type": "string",
             "description": "Currency",
             "example": "EUR"
           },
           "validFrom": {
+            "title": "Valid from",
             "type": "string",
             "format": "date-time",
             "description": "Offer valid from"
           },
           "validThrough": {
+            "title": "Valid until",
             "type": "string",
             "format": "date-time",
             "description": "Offer valid until"
           },
           "availability": {
+            "title": "Availability",
             "type": "string",
             "description": "Availability status"
           }
@@ -4104,6 +4406,7 @@
         "title": "Order",
         "description": "Schema.org Order for purchase order data",
         "type": "object",
+        "x-schema-org": "schema:Order",
         "x-openregister": {
           "schemaType": "schema:Order",
           "active": true,
@@ -4120,36 +4423,43 @@
         ],
         "properties": {
           "orderNumber": {
+            "title": "Order number",
             "type": "string",
             "description": "Purchase order number",
             "example": "PO-2025-0042"
           },
           "orderDate": {
+            "title": "Order date",
             "type": "string",
             "format": "date-time",
             "description": "Date of order"
           },
           "orderStatus": {
+            "title": "Status",
             "type": "string",
             "description": "Order status",
             "example": "pending"
           },
           "totalPrice": {
+            "title": "Total price",
             "type": "number",
             "description": "Total order amount",
             "example": 15000
           },
           "currency": {
+            "title": "Currency",
             "type": "string",
             "description": "ISO 4217 currency code",
             "example": "EUR"
           },
           "deliveryDate": {
+            "title": "Delivery date",
             "type": "string",
             "format": "date-time",
             "description": "Expected delivery date"
           },
           "paymentTerms": {
+            "title": "Payment terms",
             "type": "string",
             "description": "Payment terms (e.g., NET30)",
             "example": "NET30"
@@ -4163,6 +4473,7 @@
         "title": "Product",
         "description": "Schema.org Product for product/service data",
         "type": "object",
+        "x-schema-org": "schema:Product",
         "x-openregister": {
           "schemaType": "schema:Product",
           "active": true,
@@ -4177,38 +4488,46 @@
         ],
         "properties": {
           "name": {
+            "title": "Name",
             "type": "string",
             "description": "Product name",
             "example": "Vergadermicrofoon Shure MX"
           },
           "sku": {
+            "title": "SKU",
             "type": "string",
             "description": "Stock keeping unit"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Product description"
           },
           "category": {
+            "title": "Category",
             "type": "string",
             "description": "Product category",
             "example": "AV Equipment"
           },
           "unitPrice": {
+            "title": "Unit price",
             "type": "number",
             "description": "Unit price",
             "example": 450
           },
           "currency": {
+            "title": "Currency",
             "type": "string",
             "description": "ISO 4217 currency code",
             "example": "EUR"
           },
           "unitCode": {
+            "title": "Unit of measure",
             "type": "string",
             "description": "Unit of measure (UN/CEFACT)"
           },
           "taxRate": {
+            "title": "Tax rate",
             "type": "number",
             "description": "Applicable tax rate percentage",
             "example": 21
@@ -4222,6 +4541,7 @@
         "title": "Report",
         "description": "Schema.org Report for report metadata",
         "type": "object",
+        "x-schema-org": "schema:Report",
         "x-openregister": {
           "schemaType": "schema:Report",
           "active": true,
@@ -4235,21 +4555,25 @@
         ],
         "properties": {
           "name": {
+            "title": "Title",
             "type": "string",
             "description": "Report title",
             "example": "Jaarverslag 2024"
           },
           "reportType": {
+            "title": "Report type",
             "type": "string",
             "description": "Report type (financial, compliance, etc.)",
             "example": "financial"
           },
           "period": {
+            "title": "Period",
             "type": "string",
             "description": "Reporting period",
             "example": "2025-Q1"
           },
           "generatedAt": {
+            "title": "Generated at",
             "type": "string",
             "format": "date-time",
             "description": "When the report was generated"
@@ -4277,61 +4601,74 @@
         ],
         "properties": {
           "voteValue": {
+            "title": "Vote",
             "description": "Citizen vote value. For simple voting a string ('voor' | 'tegen' | 'onthoud'); for ranked voting an ordered array of option identifiers; for weighted voting a numeric weight or weight-map serialised as string.",
             "example": "voor"
           },
           "voterId": {
+            "title": "Voter",
             "type": "string",
             "description": "Stable identifier for the citizen voter (Nextcloud UID or pseudonymous hash for anonymous referenda)."
           },
           "motionId": {
+            "title": "Motion",
             "type": "string",
             "description": "UUID of the Motion this vote applies to (omitted for budget-proposal advisory votes)."
           },
           "proposalId": {
+            "title": "Proposal",
             "type": "string",
             "description": "UUID of the BudgetProposal this advisory vote applies to (citizen-participation). Mutually exclusive with motionId."
           },
           "citizenPanelId": {
+            "title": "Citizen panel",
             "type": "string",
             "description": "Optional UUID of the CitizenPanel the voter represents; omitted for individual citizen votes."
           },
           "weight": {
+            "title": "Vote weight",
             "type": "number",
             "description": "Vote weight (for weighted voting; defaults to 1 for simple voting).",
             "example": 1
           },
           "isProxy": {
+            "title": "Proxy vote",
             "type": "boolean",
             "description": "Cast via proxy delegation.",
             "default": false,
             "example": false
           },
           "castAt": {
+            "title": "Cast at",
             "type": "string",
             "format": "date-time",
             "description": "When the vote was cast."
           },
           "notes": {
+            "title": "Notes",
             "type": "string",
             "description": "Optional citizen-supplied reasoning attached to the vote (may be published with consent)."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "motion": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Motion",
+            "description": "Reference to the Decision (motion) this citizen vote concerns (many-to-one)."
           },
           "proposal": {
-            "register": "decidesk",
-            "schema": "BudgetProposal",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "BudgetProposal",
+            "title": "Proposal",
+            "description": "Reference to the BudgetProposal this citizen vote concerns (many-to-one)."
           },
           "citizenPanel": {
-            "register": "decidesk",
-            "schema": "CitizenPanel",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "CitizenPanel",
+            "title": "Citizen panel",
+            "description": "Reference to the CitizenPanel this citizen vote was cast within (many-to-one)."
           }
         }
       },
@@ -4342,6 +4679,7 @@
         "title": "CitizenPanel",
         "description": "A structured citizen advisory group with defined membership, term, and scope (p3-citizen-participation). Modelled as schema:Organization with classification 'citizen-panel' per Popolo.",
         "type": "object",
+        "x-schema-org": "schema:Organization",
         "x-openregister": {
           "schemaType": "schema:Organization",
           "active": true,
@@ -4356,35 +4694,42 @@
         ],
         "properties": {
           "name": {
+            "title": "Name",
             "type": "string",
             "description": "Panel name.",
             "example": "Burgerpanel Duurzaamheid Westerkwartier"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Public description of the panel's purpose and remit."
           },
           "scope": {
+            "title": "Scope",
             "type": "string",
             "description": "Subject-matter scope of the panel.",
             "example": "Klimaat en energie"
           },
           "memberCount": {
+            "title": "Member count",
             "type": "integer",
             "description": "Current number of confirmed panel members.",
             "example": 12
           },
           "termStart": {
+            "title": "Term start",
             "type": "string",
             "format": "date",
             "description": "Term start date."
           },
           "termEnd": {
+            "title": "Term end",
             "type": "string",
             "format": "date",
             "description": "Term end date."
           },
           "statusLifecycle": {
+            "title": "Status",
             "type": "string",
             "description": "Panel lifecycle state.",
             "enum": [
@@ -4398,15 +4743,16 @@
             "example": "active"
           },
           "createdBy": {
+            "title": "Created by",
             "type": "string",
             "description": "Nextcloud UID of the staff member who created the panel."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody that owns this citizen panel (many-to-one)."
           }
         }
       },
@@ -4417,6 +4763,7 @@
         "title": "ParticipatoryBudget",
         "description": "A participatory budgeting round in which citizens propose projects and allocate funds (p3-citizen-participation). Modelled as schema:Grant for compatibility with funding-transparency vocabularies.",
         "type": "object",
+        "x-schema-org": "schema:Grant",
         "x-openregister": {
           "schemaType": "schema:Grant",
           "active": true,
@@ -4445,48 +4792,57 @@
         ],
         "properties": {
           "publicatiedatum": {
+            "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "description": "Publication date (WOO/DIWOO). When set in the past, the PII-free resultsSummary is anonymously readable via the public-group RBAC rule (publicatiedatum <= $now). Set by ParticipationPublicationService on publish."
           },
           "depublicatiedatum": {
+            "title": "Depublication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "description": "Depublication date (WOO/DIWOO). When set in the past, the results are withdrawn from public access."
           },
           "name": {
+            "title": "Name",
             "type": "string",
             "description": "Budget round name.",
             "example": "Buurtbudget Westerkwartier 2026"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Public description of the budget round."
           },
           "totalAmount": {
+            "title": "Total amount",
             "type": "number",
             "description": "Total amount available for allocation.",
             "example": 250000
           },
           "currency": {
+            "title": "Currency",
             "type": "string",
             "description": "ISO 4217 currency code.",
             "default": "EUR",
             "example": "EUR"
           },
           "submissionDeadline": {
+            "title": "Submission deadline",
             "type": "string",
             "format": "date-time",
             "description": "Deadline for submitting BudgetProposal entries."
           },
           "votingDeadline": {
+            "title": "Voting deadline",
             "type": "string",
             "format": "date-time",
             "description": "Deadline for citizens to vote on proposals."
           },
           "status": {
+            "title": "Status",
             "type": "string",
             "description": "Budget round lifecycle.",
             "enum": [
@@ -4500,21 +4856,23 @@
             "example": "submission"
           },
           "resultsPublished": {
+            "title": "Results published",
             "type": "boolean",
             "description": "Whether final allocation results are visible to citizens.",
             "default": false,
             "example": false
           },
           "resultsSummary": {
+            "title": "Results summary",
             "type": "string",
             "description": "JSON-encoded, PII-free result summary (ranked proposals + greedy allocation + participation count) attached when results are published; publicatiedatum is set alongside it so the public-group RBAC rule makes the object anonymously readable. Carries aggregate vote counts only, never voter identities."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody that owns this participatory budget (many-to-one)."
           }
         }
       },
@@ -4570,29 +4928,35 @@
         ],
         "properties": {
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Proposal title.",
             "example": "Speeltuin Dorpstuin renoveren"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Full proposal description."
           },
           "requestedAmount": {
+            "title": "Requested amount",
             "type": "number",
             "description": "Amount requested for this proposal.",
             "example": 25000
           },
           "submitter": {
+            "title": "Submitter",
             "type": "string",
             "description": "Nextcloud UID or pseudonymous identifier of the citizen submitter."
           },
           "category": {
+            "title": "Category",
             "type": "string",
             "description": "Proposal category (e.g. infrastructure, social, sport).",
             "example": "infrastructure"
           },
           "status": {
+            "title": "Status",
             "type": "string",
             "description": "Proposal lifecycle.",
             "enum": [
@@ -4606,23 +4970,25 @@
             "example": "submitted"
           },
           "votesFor": {
+            "title": "Votes for",
             "type": "integer",
             "description": "Citizen vote tally in favour.",
             "default": 0,
             "example": 0
           },
           "votesAgainst": {
+            "title": "Votes against",
             "type": "integer",
             "description": "Citizen vote tally against.",
             "default": 0,
             "example": 0
-          }
-        },
-        "x-openregister-relations": {
+          },
           "participatoryBudget": {
-            "register": "decidesk",
-            "schema": "ParticipatoryBudget",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "ParticipatoryBudget",
+            "title": "Participatory budget",
+            "description": "Reference to the ParticipatoryBudget this proposal belongs to (many-to-one)."
           }
         }
       },
@@ -4690,42 +5056,50 @@
         ],
         "properties": {
           "publicatiedatum": {
+            "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "description": "Publication date (WOO/DIWOO). When set in the past, the PII-free resultsSummary is anonymously readable via the public-group RBAC rule (publicatiedatum <= $now). Set by ParticipationPublicationService on publish."
           },
           "depublicatiedatum": {
+            "title": "Depublication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "description": "Depublication date (WOO/DIWOO). When set in the past, the results are withdrawn from public access."
           },
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Consultation title.",
             "example": "Consultatie ontwerp-omgevingsvisie 2026"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Public description of the consultation purpose and process."
           },
           "relatedDecision": {
+            "title": "Related decision",
             "type": "string",
             "description": "Optional UUID of the related Decision."
           },
           "submissionDeadline": {
+            "title": "Submission deadline",
             "type": "string",
             "format": "date-time",
             "description": "Deadline for citizens to submit feedback."
           },
           "feedbackRequired": {
+            "title": "Feedback required",
             "type": "boolean",
             "description": "Whether feedback is mandatory before the consultation can close.",
             "default": false,
             "example": false
           },
           "consultationType": {
+            "title": "Consultation type",
             "type": "string",
             "description": "Engagement supertype discriminator. Drives the type quick-filter on the Consultations hub and the per-type vocabulary, fields, and lifecycle. Rows without a value are treated as 'citizen-participation'.",
             "enum": [
@@ -4740,6 +5114,7 @@
             "example": "citizen-participation"
           },
           "status": {
+            "title": "Status",
             "type": "string",
             "description": "Consultation lifecycle (per-type; declared in x-openregister-lifecycle). Union of all type states: citizen-participation (draft → open → closed → results-published), market-consultation (… → report-published), tender (draft → published → questions → submission → evaluation → awarded), idea-box (draft → open → closed), participatory-budget (draft → proposals-open → voting → closed → results-published). Legacy value 'summarised' (v0.1.0) was renamed to 'results-published' in v0.2.0.",
             "enum": [
@@ -4761,12 +5136,14 @@
             "example": "open"
           },
           "anonymousReactionsAllowed": {
+            "title": "Anonymous reactions allowed",
             "type": "boolean",
             "description": "When true, unauthenticated citizens may submit reactions on this open consultation via the public intake endpoint (always pre-moderated). Default false: only authenticated Nextcloud accounts may react.",
             "default": false,
             "example": false
           },
           "moderationPolicy": {
+            "title": "Moderation policy",
             "type": "string",
             "description": "Moderation policy for reactions. 'pre-moderation' (default): every reaction enters the queue as pending and must be approved before it counts. 'post-moderation': authenticated reactions auto-approve; anonymous reactions are ALWAYS pre-moderated regardless of this value.",
             "enum": [
@@ -4777,68 +5154,106 @@
             "example": "pre-moderation"
           },
           "resultsSummary": {
+            "title": "Results summary",
             "type": "string",
             "description": "JSON-encoded, PII-free result summary (approved-reaction digest + staff response) attached when results are published; publicatiedatum is set alongside it so the public-group RBAC rule makes the object anonymously readable."
           },
           "marketScope": {
+            "title": "Market scope",
             "type": "string",
             "description": "consultationType=market-consultation: scope/subject of the market consultation (what input is sought from the market)."
           },
           "referenceNumber": {
+            "title": "Reference number",
             "type": "string",
             "description": "consultationType=tender: public tender reference/notice number."
           },
           "estimatedValue": {
+            "title": "Estimated value",
             "type": "number",
             "description": "consultationType=tender: estimated contract value."
           },
           "currency": {
+            "title": "Currency",
             "type": "string",
             "description": "consultationType in {tender, participatory-budget}: ISO 4217 currency code.",
             "default": "EUR",
             "example": "EUR"
           },
           "awardCriteria": {
+            "title": "Award criteria",
             "type": "string",
             "description": "consultationType=tender: award criteria description (e.g. MEAT / lowest price)."
           },
           "questionDeadline": {
+            "title": "Question deadline",
             "type": "string",
             "format": "date-time",
             "description": "consultationType=tender: deadline for bidder questions (questions phase)."
           },
           "awardedTo": {
+            "title": "Awarded to",
             "type": "string",
             "description": "consultationType=tender: the winning party recorded when the award decision is made (status=awarded). Decidesk owns publish/manage/award only; authoring is procest and bidding is pipelinq."
           },
           "procestProcessRef": {
+            "title": "Procest process reference",
             "type": "string",
             "description": "consultationType=tender: optional reference (UUID/URL) to the procest process that authored this tender."
           },
           "votingEnabled": {
+            "title": "Voting enabled",
             "type": "boolean",
             "description": "consultationType=idea-box: whether ideas (reactions) can be voted on.",
             "default": false,
             "example": false
           },
           "budgetCeiling": {
+            "title": "Budget ceiling",
             "type": "number",
             "description": "consultationType=participatory-budget: total amount available for allocation across proposals."
           },
           "votingMethod": {
+            "title": "Voting method",
             "type": "string",
             "description": "consultationType=participatory-budget: how citizens allocate the budget (e.g. approval, points, knapsack).",
             "example": "approval"
           },
           "proposalDeadline": {
+            "title": "Proposal deadline",
             "type": "string",
             "format": "date-time",
             "description": "consultationType=participatory-budget: deadline for submitting budget proposals."
           },
           "votingDeadline": {
+            "title": "Voting deadline",
             "type": "string",
             "format": "date-time",
             "description": "consultationType=participatory-budget: deadline for citizens to vote on proposals."
+          },
+          "governanceBody": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "title": "Governance body",
+            "description": "Reference to the GovernanceBody that owns this public consultation (many-to-one)."
+          },
+          "decision": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Decision",
+            "description": "Reference to the Decision this consultation informs (many-to-one)."
+          },
+          "reactions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "ConsultationReaction"
+            },
+            "title": "Reactions",
+            "description": "References to the ConsultationReaction objects submitted to this consultation (one-to-many)."
           }
         },
         "x-openregister-lifecycle": {
@@ -4881,23 +5296,6 @@
             "results-published": [],
             "report-published": [],
             "awarded": []
-          }
-        },
-        "x-openregister-relations": {
-          "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
-          },
-          "decision": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one"
-          },
-          "reactions": {
-            "register": "decidesk",
-            "schema": "ConsultationReaction",
-            "cardinality": "one-to-many"
           }
         }
       },
@@ -4965,22 +5363,26 @@
         ],
         "properties": {
           "publicatiedatum": {
+            "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "description": "Publication date (WOO/DIWOO). Set by a moderator opt-in (publishReaction) on an approved reaction; the public-group RBAC rule then makes the reaction anonymously readable while publicatiedatum <= $now AND moderationStatus is approved."
           },
           "depublicatiedatum": {
+            "title": "Depublication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "description": "Depublication date (WOO/DIWOO). When set in the past, the reaction is withdrawn from public access."
           },
           "body": {
+            "title": "Reaction",
             "type": "string",
             "description": "The reaction text supplied by the citizen. Server-side size-capped."
           },
           "moderationStatus": {
+            "title": "Moderation status",
             "type": "string",
             "description": "Moderation state. Reactions enter as 'pending'; only 'approved' reactions are counted in the consultation's reactions relation and may be published.",
             "enum": [
@@ -4992,38 +5394,44 @@
             "example": "pending"
           },
           "submitterId": {
+            "title": "Submitter",
             "type": "string",
             "description": "Nextcloud UID for authenticated submissions, or an opaque pseudonymous token for anonymous submissions. Never a name, email, or other contact detail."
           },
           "submittedAt": {
+            "title": "Submitted at",
             "type": "string",
             "format": "date-time",
             "description": "When the reaction was submitted."
           },
           "moderationReason": {
+            "title": "Moderation reason",
             "type": "string",
             "description": "Optional staff-supplied reason recorded on approval or rejection."
           },
           "voteCount": {
+            "title": "Vote count",
             "type": "integer",
             "description": "Idea-box and participatory-budget voting: number of citizen votes this reaction (idea / budget proposal) has received.",
             "default": 0,
             "example": 0
           },
           "proposalTitle": {
+            "title": "Proposal title",
             "type": "string",
             "description": "consultationType=participatory-budget: short title of the budget proposal (when this reaction is a budget proposal)."
           },
           "proposalAmount": {
+            "title": "Proposal amount",
             "type": "number",
             "description": "consultationType=participatory-budget: requested amount for this budget proposal."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "consultation": {
-            "register": "decidesk",
-            "schema": "PublicConsultation",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "PublicConsultation",
+            "title": "Consultation",
+            "description": "Reference to the PublicConsultation this reaction was submitted to (many-to-one)."
           }
         }
       },
@@ -5047,18 +5455,22 @@
         ],
         "properties": {
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Deliberation title."
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Topic description and discussion guidelines."
           },
           "relatedMotion": {
+            "title": "Related motion",
             "type": "string",
             "description": "Optional UUID of the Motion under deliberation."
           },
           "discussionStatus": {
+            "title": "Status",
             "type": "string",
             "description": "Discussion lifecycle.",
             "enum": [
@@ -5071,26 +5483,29 @@
             "example": "open"
           },
           "moderator": {
+            "title": "Moderator",
             "type": "string",
             "description": "Nextcloud UID of the staff moderator."
           },
           "createdAt": {
+            "title": "Created at",
             "type": "string",
             "format": "date-time",
             "description": "When the deliberation was opened."
           },
           "postsCount": {
+            "title": "Posts count",
             "type": "integer",
             "description": "Number of posts in the thread.",
             "default": 0,
             "example": 0
-          }
-        },
-        "x-openregister-relations": {
+          },
           "motion": {
-            "register": "decidesk",
-            "schema": "Decision",
-            "cardinality": "many-to-one"
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "title": "Motion",
+            "description": "Reference to the Decision (motion) this deliberation concerns (many-to-one)."
           }
         }
       },
@@ -5116,10 +5531,12 @@
         ],
         "properties": {
           "recipientId": {
+            "title": "Recipient",
             "type": "string",
             "description": "Nextcloud UID or stable pseudonymous identifier of the recipient."
           },
           "type": {
+            "title": "Type",
             "type": "string",
             "description": "Notification event type.",
             "enum": [
@@ -5135,14 +5552,17 @@
             "example": "vote-opened"
           },
           "subject": {
+            "title": "Subject",
             "type": "string",
             "description": "Short subject line for email or push delivery."
           },
           "content": {
+            "title": "Content",
             "type": "string",
             "description": "Notification body (plain text or localised key)."
           },
           "channel": {
+            "title": "Channel",
             "type": "string",
             "description": "Delivery channel.",
             "enum": [
@@ -5153,6 +5573,7 @@
             "example": "email"
           },
           "status": {
+            "title": "Status",
             "type": "string",
             "description": "Delivery state.",
             "enum": [
@@ -5168,11 +5589,13 @@
             "example": "pending"
           },
           "sentAt": {
+            "title": "Sent at",
             "type": "string",
             "format": "date-time",
             "description": "When the notification was sent."
           },
           "readAt": {
+            "title": "Read at",
             "type": "string",
             "format": "date-time",
             "description": "When the citizen read the in-app notification."
@@ -5198,40 +5621,48 @@
         ],
         "properties": {
           "person": {
+            "title": "Person",
             "type": "string",
             "description": "Nextcloud UID (or participant UUID) of the user these preferences belong to."
           },
           "meetingCreated": {
+            "title": "Meeting created",
             "type": "boolean",
             "description": "Notify when a meeting is scheduled.",
             "default": true
           },
           "votingOpened": {
+            "title": "Voting opened",
             "type": "boolean",
             "description": "Notify when a vote is pending (voting round opened).",
             "default": true
           },
           "decisionPublished": {
+            "title": "Decision published",
             "type": "boolean",
             "description": "Notify when a decision is published.",
             "default": true
           },
           "taskAssigned": {
+            "title": "Task assigned",
             "type": "boolean",
             "description": "Notify when an action item is assigned.",
             "default": true
           },
           "commentMention": {
+            "title": "Comment mention",
             "type": "boolean",
             "description": "Notify when mentioned in a comment.",
             "default": true
           },
           "meetingReminder": {
+            "title": "Meeting reminder",
             "type": "boolean",
             "description": "Send Decidesk meeting reminders (calendar reminders are independent).",
             "default": true
           },
           "reminderTimes": {
+            "title": "Reminder times",
             "type": "array",
             "description": "When to send meeting reminders before the meeting starts. Default: 24 hours and 1 hour before.",
             "items": {
@@ -5250,6 +5681,7 @@
             ]
           },
           "deliveryMethod": {
+            "title": "Delivery method",
             "type": "string",
             "description": "Delivery channels for Decidesk notifications.",
             "enum": [
@@ -5261,29 +5693,35 @@
             "example": "both"
           },
           "delegate": {
+            "title": "Delegate",
             "type": "string",
             "description": "Nextcloud UID of the delegate who receives this user's notifications during the absence period. Delegation never grants voting rights (a formal proxy/volmacht is required for voting)."
           },
           "delegationFrom": {
+            "title": "Delegation from",
             "type": "string",
             "format": "date",
             "description": "First day (inclusive) of the absence delegation period."
           },
           "delegationUntil": {
+            "title": "Delegation until",
             "type": "string",
             "format": "date",
             "description": "Last day (inclusive) of the absence delegation period; the delegation expires automatically after this date."
           },
           "governanceEmail": {
+            "title": "Governance email",
             "type": "string",
             "format": "email",
             "description": "Preferred e-mail address for governance communications (convocations, minutes, reminders). Empty = Nextcloud account email."
           },
           "urgentPhone": {
+            "title": "Urgent phone",
             "type": "string",
             "description": "Phone number for urgent governance matters (stored for secretariat use)."
           },
           "communicationLanguage": {
+            "title": "Communication language",
             "type": "string",
             "description": "Preferred language for governance communications. Empty = Nextcloud locale.",
             "enum": [
@@ -5317,14 +5755,21 @@
         ],
         "properties": {
           "meeting": {
+            "title": "Meeting",
             "type": "string",
+            "format": "uuid",
+            "$ref": "Meeting",
             "description": "UUID of the linked Meeting object"
           },
           "participant": {
+            "title": "Participant",
             "type": "string",
+            "format": "uuid",
+            "$ref": "Participant",
             "description": "UUID of the linked Participant object"
           },
           "speeches": {
+            "title": "Speeches",
             "type": "array",
             "description": "Speech events recorded for this participant",
             "items": {
@@ -5332,6 +5777,7 @@
             }
           },
           "questionsRaised": {
+            "title": "Questions raised",
             "type": "array",
             "description": "Questions raised by this participant",
             "items": {
@@ -5339,6 +5785,7 @@
             }
           },
           "topicsSuggested": {
+            "title": "Topics suggested",
             "type": "array",
             "description": "Topics suggested by this participant",
             "items": {
@@ -5346,10 +5793,12 @@
             }
           },
           "speakingDuration": {
+            "title": "Speaking duration",
             "type": "integer",
             "description": "Total speaking duration in seconds"
           },
           "engagementScore": {
+            "title": "Engagement score",
             "type": "integer",
             "description": "Governance-specific engagement score (0–100), computed in-app by EngagementService.calculateScore() and stored on each capture"
           }
@@ -5387,18 +5836,6 @@
                 }
               ]
             }
-          }
-        },
-        "x-openregister-relations": {
-          "meeting": {
-            "register": "decidesk",
-            "schema": "Meeting",
-            "cardinality": "many-to-one"
-          },
-          "participant": {
-            "register": "decidesk",
-            "schema": "Participant",
-            "cardinality": "many-to-one"
           }
         },
         "x-openregister-seeds": [
@@ -5493,13 +5930,20 @@
         ],
         "properties": {
           "boardMember": {
-            "type": "string"
+            "title": "Board member",
+            "description": "UUID of the board member or participant declaring the conflict of interest.",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Participant"
           },
           "agendaItem": {
+            "title": "Agenda item",
             "type": "string",
             "description": "Optional UUID of the agenda item / resolution"
           },
           "declarationType": {
+            "title": "Declaration type",
+            "description": "The kind of interest declared (e.g. financial, personal, professional).",
             "type": "string",
             "enum": [
               "financial-interest",
@@ -5510,9 +5954,13 @@
             ]
           },
           "description": {
+            "title": "Description",
+            "description": "Free-text description of the declared conflict of interest.",
             "type": "string"
           },
           "severity": {
+            "title": "Severity",
+            "description": "Assessed severity of the conflict, driving the required mitigating action.",
             "type": "string",
             "enum": [
               "material",
@@ -5520,6 +5968,8 @@
             ]
           },
           "actionTaken": {
+            "title": "Action taken",
+            "description": "The mitigating action taken in response to the declaration (e.g. recusal, abstention).",
             "type": "string",
             "enum": [
               "recused-from-discussion",
@@ -5529,15 +5979,10 @@
             ]
           },
           "declarationTimestamp": {
+            "title": "Declared at",
+            "description": "Timestamp when the conflict of interest was declared.",
             "type": "string",
             "format": "date-time"
-          }
-        },
-        "x-openregister-relations": {
-          "boardMember": {
-            "register": "decidesk",
-            "schema": "BoardMember",
-            "cardinality": "many-to-one"
           }
         },
         "x-openregister-seeds": [
@@ -5701,6 +6146,7 @@
         "title": "PublicationRecord",
         "description": "Bookkeeping record for a single public-publication action (publish-decisions-via-opencatalogi). Tracks which source governance object was published, the derived immutable payload object that received publicatiedatum, the OpenCatalogi catalog publication reference, and the withdraw/rectify lifecycle. Anonymous read of published data happens exclusively through OR's RBAC published-predicate (public-group authorization.read matching publicatiedatum <= $now) / OpenCatalogi — NOT through any app-local route. Maps schema:PublicationEvent.",
         "type": "object",
+        "x-schema-org": "schema:PublicationEvent",
         "x-openregister": {
           "schemaType": "schema:PublicationEvent",
           "active": true,
@@ -5720,6 +6166,7 @@
         ],
         "properties": {
           "sourceType": {
+            "title": "Source type",
             "type": "string",
             "description": "The kind of governance output published.",
             "enum": [
@@ -5730,32 +6177,38 @@
             "example": "decision"
           },
           "sourceObject": {
+            "title": "Source object",
             "type": "string",
             "description": "UUID of the live source object (Decision / Meeting / Minutes) this publication derives from.",
             "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
           },
           "sourceTitle": {
+            "title": "Source title",
             "type": "string",
             "description": "Denormalised title of the source object for notification templating and the published overview list.",
             "example": "Vaststelling Programmabegroting 2026"
           },
           "governanceBody": {
+            "title": "Body",
             "type": "string",
             "description": "UUID of the GovernanceBody the source belongs to. Drives the per-body target catalog and policy lookup.",
             "example": "gemeenteraad-amsterdam"
           },
           "payloadObject": {
+            "title": "Payload object",
             "type": "string",
             "description": "UUID of the derived immutable PublicationPayload object that carries publicatiedatum. Never the live source object.",
             "example": "f1e2d3c4-b5a6-9870-fedc-ba0987654321"
           },
           "payloadVersion": {
+            "title": "Payload version",
             "type": "integer",
             "description": "Monotonic payload version. Incremented on rectify; never edited in place.",
             "default": 1,
             "example": 1
           },
           "oriType": {
+            "title": "ORI type",
             "type": "string",
             "description": "OpenRaadsinformatie record type of the payload.",
             "enum": [
@@ -5766,16 +6219,19 @@
             "example": "Besluit"
           },
           "catalogPublication": {
+            "title": "Catalog publication",
             "type": "string",
             "description": "Reference (UUID/URI) of the OpenCatalogi publication object created for this payload, when OpenCatalogi is installed and a target catalog is configured. Empty when degraded.",
             "example": ""
           },
           "targetCatalog": {
+            "title": "Target catalog",
             "type": "string",
             "description": "The OpenCatalogi catalog the payload was routed into for the governance body.",
             "example": "openbesluitvorming-amsterdam"
           },
           "status": {
+            "title": "Status",
             "type": "string",
             "description": "Publication lifecycle status.",
             "enum": [
@@ -5787,6 +6243,7 @@
             "example": "published"
           },
           "catalogRetractionStatus": {
+            "title": "Catalog retraction status",
             "type": "string",
             "description": "Tracks the OpenCatalogi retraction on withdraw. 'pending' means the local predicate was cleared but the catalog retraction call failed and must be retried — staff see the failure, never a false success.",
             "enum": [
@@ -5798,29 +6255,35 @@
             "example": "none"
           },
           "publishedBy": {
+            "title": "Published by",
             "type": "string",
             "description": "Nextcloud UID of the staff member who published.",
             "example": "j.bakker"
           },
           "publishedAt": {
+            "title": "Published at",
             "type": "string",
             "format": "date-time",
             "description": "Publication timestamp."
           },
           "withdrawnBy": {
+            "title": "Withdrawn by",
             "type": "string",
             "description": "Nextcloud UID of the staff member who withdrew the publication."
           },
           "withdrawnAt": {
+            "title": "Withdrawn at",
             "type": "string",
             "format": "date-time",
             "description": "Withdraw timestamp."
           },
           "withdrawReason": {
+            "title": "Withdraw reason",
             "type": "string",
             "description": "Mandatory reason recorded on withdraw (WOO correction duty)."
           },
           "rectifiesVersion": {
+            "title": "Rectifies version",
             "type": "integer",
             "description": "When this record is a rectification, the payloadVersion of the prior publication it corrects and supersedes.",
             "example": 1
@@ -5864,18 +6327,21 @@
         ],
         "properties": {
           "publicatiedatum": {
+            "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "description": "Publication date (WOO/DIWOO). When set to a date in the past, this payload is live and anonymously readable through the OpenRegister published-predicate (public-group RBAC rule publicatiedatum <= $now). Set by PublicationService on publish; never written by clients."
           },
           "depublicatiedatum": {
+            "title": "Depublication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "description": "Depublication date (WOO/DIWOO). When set and in the past, this payload is withdrawn from public access. A future value schedules automatic depublication via the OpenRegister published-predicate. Set by PublicationService on withdraw."
           },
           "oriType": {
+            "title": "ORI type",
             "type": "string",
             "description": "OpenRaadsinformatie record type — interprets the payload ORI-compatibly.",
             "enum": [
@@ -5886,89 +6352,113 @@
             "example": "Besluit"
           },
           "schemaOrgType": {
+            "title": "Schema.org type",
             "type": "string",
             "description": "schema.org annotation matching the ORI type (ChooseAction / Event / CreativeWork).",
             "example": "ChooseAction"
           },
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Public title of the published output.",
             "example": "Vaststelling Programmabegroting 2026"
           },
           "bodyName": {
+            "title": "Body name",
             "type": "string",
             "description": "Display name of the governance body (no UID).",
             "example": "Gemeenteraad Amsterdam"
           },
           "payloadVersion": {
+            "title": "Payload version",
             "type": "integer",
             "description": "Version of this payload (mirrors the PublicationRecord).",
             "default": 1,
             "example": 1
           },
           "text": {
+            "title": "Decision text",
             "type": "string",
             "description": "Decision text (Besluit). ORI: besluittekst.",
             "example": "De raad besluit de Programmabegroting 2026 vast te stellen."
           },
           "outcome": {
+            "title": "Outcome",
             "type": "string",
             "description": "Decision outcome (Besluit). ORI: uitslag.",
             "example": "adopted"
           },
           "decisionDate": {
+            "title": "Decision date",
             "type": "string",
             "format": "date-time",
             "description": "Date the decision was made (Besluit). ORI: besluitdatum."
           },
           "legalBasis": {
+            "title": "Legal basis",
             "type": "string",
             "description": "Legal article or regulation (Besluit). ORI: juridischeGrondslag.",
             "example": "Gemeentewet art. 189"
           },
           "voteTotals": {
+            "title": "Vote totals",
             "type": "object",
             "description": "Aggregate vote tally ONLY — for/against/abstain counts. NEVER per-member votes or voter identities (Besluit).",
             "properties": {
               "for": {
+                "title": "Votes for",
+                "description": "Aggregate count of votes in favour.",
                 "type": "integer",
                 "example": 23
               },
               "against": {
+                "title": "Votes against",
+                "description": "Aggregate count of votes against.",
                 "type": "integer",
                 "example": 12
               },
               "abstain": {
+                "title": "Abstentions",
+                "description": "Aggregate count of abstentions.",
                 "type": "integer",
                 "example": 2
               }
             }
           },
           "meetingDate": {
+            "title": "Meeting date",
             "type": "string",
             "format": "date-time",
             "description": "Meeting start date (Vergadering). ORI: startdatum."
           },
           "meetingType": {
+            "title": "Meeting type",
             "type": "string",
             "description": "Meeting type (Vergadering).",
             "example": "regular"
           },
           "agendaItems": {
+            "title": "Agenda items",
             "type": "array",
             "description": "Ordered, non-confidential agenda items (Vergadering → AgendaPunt). Confidential items and their document references are stripped during construction and never appear here.",
             "items": {
               "type": "object",
               "properties": {
                 "oriType": {
+                  "title": "ORI type",
+                  "description": "OpenRaadsinformatie record type of the agenda item.",
                   "type": "string",
                   "example": "AgendaPunt"
                 },
                 "order": {
+                  "title": "Order",
+                  "description": "Position of the agenda item on the agenda.",
                   "type": "integer",
                   "example": 1
                 },
                 "title": {
+                  "title": "Title",
+                  "description": "Public title of the agenda item.",
                   "type": "string",
                   "example": "Vaststellen notulen"
                 }
@@ -5976,14 +6466,18 @@
             }
           },
           "content": {
+            "title": "Minutes content",
             "type": "string",
             "description": "Approved minutes content (Verslag). ORI: tekst."
           },
           "attendance": {
+            "title": "Attendance",
             "type": "object",
             "description": "Attendance rendered per the body's policy (Verslag) — either aggregate counts or names of role-holders only, never NC UIDs or contact details.",
             "properties": {
               "policy": {
+                "title": "Policy",
+                "description": "Attendance-rendering policy applied (aggregate counts or named role-holders).",
                 "type": "string",
                 "enum": [
                   "counts",
@@ -5992,10 +6486,14 @@
                 "example": "counts"
               },
               "presentCount": {
+                "title": "Present count",
+                "description": "Number of attendees present, used when the policy renders aggregate counts.",
                 "type": "integer",
                 "example": 31
               },
               "roleHolders": {
+                "title": "Role-holders",
+                "description": "Named role-holders rendered when the body's policy discloses individual attendance.",
                 "type": "array",
                 "items": {
                   "type": "string"
@@ -6008,6 +6506,599 @@
           "register": "decidesk",
           "schema": "PublicationPayload"
         }
+      },
+      "EvaluationTemplate": {
+        "slug": "evaluation-template",
+        "icon": "FormatListChecks",
+        "version": "0.1.0",
+        "title": "EvaluationTemplate",
+        "description": "A reusable, dimension-organised question set for a board self-evaluation (board-self-evaluation). Templates are editable and reusable across GovernanceBody objects and evaluation cycles.",
+        "type": "object",
+        "x-schema-org": "schema:CreativeWork",
+        "x-openregister": {
+          "schemaType": "schema:CreativeWork",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "required": [
+          "title",
+          "questions"
+        ],
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string",
+            "description": "Template name.",
+            "example": "Board effectiveness self-evaluation (NL Corporate Governance Code)"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string",
+            "description": "Purpose and intended use of the template."
+          },
+          "dimensions": {
+            "title": "Dimensions",
+            "type": "array",
+            "description": "Board-effectiveness dimensions this template's questions are organised by.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "strategy-and-oversight",
+                "board-composition",
+                "board-dynamics",
+                "information-quality",
+                "chair-effectiveness"
+              ]
+            },
+            "example": [
+              "strategy-and-oversight",
+              "board-composition",
+              "board-dynamics",
+              "information-quality",
+              "chair-effectiveness"
+            ]
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "array",
+            "description": "Ordered question set. Each question declares the dimension it measures, its prompt, and its type (likert or free-text). Reusable across bodies and cycles.",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "dimension",
+                "prompt",
+                "type"
+              ],
+              "properties": {
+                "id": {
+                  "title": "Question id",
+                  "type": "string",
+                  "description": "Stable slug referenced by EvaluationResponse.answers[].questionId (survives template edits that reorder questions).",
+                  "example": "q-strategy-likert"
+                },
+                "dimension": {
+                  "title": "Dimension",
+                  "type": "string",
+                  "description": "Effectiveness dimension this question measures.",
+                  "enum": [
+                    "strategy-and-oversight",
+                    "board-composition",
+                    "board-dynamics",
+                    "information-quality",
+                    "chair-effectiveness"
+                  ]
+                },
+                "prompt": {
+                  "title": "Prompt",
+                  "type": "string",
+                  "description": "The question text shown to the responding member."
+                },
+                "type": {
+                  "title": "Type",
+                  "type": "string",
+                  "description": "Answer type.",
+                  "enum": [
+                    "likert",
+                    "free-text"
+                  ],
+                  "example": "likert"
+                },
+                "scaleMin": {
+                  "title": "Scale minimum",
+                  "type": "integer",
+                  "description": "Lower bound of the Likert scale (type=likert only).",
+                  "default": 1,
+                  "example": 1
+                },
+                "scaleMax": {
+                  "title": "Scale maximum",
+                  "type": "integer",
+                  "description": "Upper bound of the Likert scale (type=likert only).",
+                  "default": 5,
+                  "example": 5
+                }
+              }
+            }
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationTemplate",
+              "slug": "template-bestuurlijke-effectiviteit-nl-cgc"
+            },
+            "title": "Board effectiveness self-evaluation (NL Corporate Governance Code)",
+            "description": "Default reusable annual board self-evaluation (zelfevaluatie) covering the five standard effectiveness dimensions. Editable per body.",
+            "dimensions": [
+              "strategy-and-oversight",
+              "board-composition",
+              "board-dynamics",
+              "information-quality",
+              "chair-effectiveness"
+            ],
+            "questions": [
+              {
+                "id": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "prompt": "The board sets clear strategic direction and exercises effective oversight of management.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-strategy-text",
+                "dimension": "strategy-and-oversight",
+                "prompt": "What would most improve the board's strategic oversight?",
+                "type": "free-text"
+              },
+              {
+                "id": "q-composition-likert",
+                "dimension": "board-composition",
+                "prompt": "The board's composition (skills, diversity, independence) matches the organisation's needs.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-composition-text",
+                "dimension": "board-composition",
+                "prompt": "What skills or perspectives is the board missing?",
+                "type": "free-text"
+              },
+              {
+                "id": "q-dynamics-likert",
+                "dimension": "board-dynamics",
+                "prompt": "Board discussions are open, constructive, and every member's voice is heard.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-dynamics-text",
+                "dimension": "board-dynamics",
+                "prompt": "Describe one dynamic that helps or hinders the board's functioning.",
+                "type": "free-text"
+              },
+              {
+                "id": "q-information-likert",
+                "dimension": "information-quality",
+                "prompt": "The board receives timely, complete, and understandable information ahead of meetings.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-information-text",
+                "dimension": "information-quality",
+                "prompt": "What information gap most affects the board's decision-making?",
+                "type": "free-text"
+              },
+              {
+                "id": "q-chair-likert",
+                "dimension": "chair-effectiveness",
+                "prompt": "The chair runs meetings effectively and ensures balanced participation.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-chair-text",
+                "dimension": "chair-effectiveness",
+                "prompt": "What is one suggestion for the chair?",
+                "type": "free-text"
+              }
+            ]
+          }
+        ]
+      },
+      "BoardEvaluation": {
+        "slug": "board-evaluation",
+        "icon": "ChartBoxOutline",
+        "version": "0.1.0",
+        "title": "BoardEvaluation",
+        "description": "One board self-evaluation cycle for a GovernanceBody (board-self-evaluation): anonymous member responses scored per-dimension and overall, materialised as scoreSummary on close, optionally published as an aggregate-only summary (raw responses are never published).",
+        "type": "object",
+        "x-schema-org": "schema:Action",
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "publicatiedatum": {
+                  "$lte": "$now"
+                }
+              }
+            },
+            "authenticated"
+          ]
+        },
+        "required": [
+          "cycleLabel",
+          "lifecycle"
+        ],
+        "properties": {
+          "cycleLabel": {
+            "title": "Cycle label",
+            "type": "string",
+            "description": "Human label for the evaluation cycle (e.g. a year), so past cycles remain distinguishable for trend comparison.",
+            "example": "2026"
+          },
+          "lifecycle": {
+            "title": "Lifecycle",
+            "type": "string",
+            "description": "Evaluation cycle lifecycle: draft (roster/template being set) -> open (members submit anonymous responses) -> closed (scoring runs, scoreSummary materialised) -> published (optional; aggregate enters the public window). Per REQ-EVAL-006 / consume-or-rbac-authorization, only the body's chair or secretary may write this property.",
+            "enum": [
+              "draft",
+              "open",
+              "closed",
+              "published"
+            ],
+            "default": "draft",
+            "example": "draft",
+            "authorization": {
+              "update": [
+                {
+                  "group": "authenticated",
+                  "match": {
+                    "chairUserId": "$userId"
+                  }
+                },
+                {
+                  "group": "authenticated",
+                  "match": {
+                    "secretaryUserId": "$userId"
+                  }
+                }
+              ]
+            }
+          },
+          "openedAt": {
+            "title": "Opened at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the cycle was opened for responses."
+          },
+          "closedAt": {
+            "title": "Closed at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the cycle was closed and scoring materialised."
+          },
+          "invitedMemberCount": {
+            "title": "Invited member count",
+            "type": "integer",
+            "description": "Count of invited members (mirrors invitedParticipantIds length).",
+            "example": 7
+          },
+          "respondedCount": {
+            "title": "Responded count",
+            "type": "integer",
+            "description": "Count of members who have submitted a response so far (mirrors respondedParticipantIds length). Tracked independently of response content so completion never de-anonymises an answer.",
+            "example": 4
+          },
+          "minRespondentThreshold": {
+            "title": "Minimum respondent threshold",
+            "type": "integer",
+            "description": "Below this respondent count, per-dimension and free-text breakdowns are suppressed in scoreSummary (and thus never published) to prevent de-anonymisation by inference on a small body.",
+            "default": 3,
+            "example": 3
+          },
+          "invitedParticipantIds": {
+            "title": "Invited participants (roster)",
+            "type": "array",
+            "description": "Participant UUIDs invited to this cycle. Completion-tracking roster ONLY — never linked to EvaluationResponse content, so non-responders can be reminded without de-anonymising any answer.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "respondedParticipantIds": {
+            "title": "Responded participants (completion)",
+            "type": "array",
+            "description": "Participant UUIDs who have submitted a response. Set-membership only (has X responded, yes/no) — carries no link to which EvaluationResponse belongs to which member.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "chairUserId": {
+            "title": "Chair Nextcloud user id",
+            "type": "string",
+            "description": "Denormalised Nextcloud UID of the body's chair at cycle-creation time, consumed only by the lifecycle property's OpenRegister RBAC update rule (consume-or-rbac-authorization) so opening/closing a cycle is enforced by OR, not an app-local authorization service."
+          },
+          "secretaryUserId": {
+            "title": "Secretary Nextcloud user id",
+            "type": "string",
+            "description": "Denormalised Nextcloud UID of the body's secretary at cycle-creation time, consumed only by the lifecycle property's OpenRegister RBAC update rule."
+          },
+          "scoreSummary": {
+            "title": "Score summary",
+            "type": "string",
+            "description": "JSON-encoded governance-specific scoring result (BoardEvaluationScoreService, REQ-AN-LEAF-002): overallScore always present; dimensionScores and themes are set to null and suppressed=true when respondedCount is below minRespondentThreshold, so no breakdown ever exists to leak — even internally, even to an admin. This is the one field exposed publicly (via publicatiedatum) when the body opts to publish; raw EvaluationResponse objects are never published."
+          },
+          "publicatiedatum": {
+            "title": "Publication date",
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Publication date (WOO/governance transparency). When set in the past, scoreSummary (aggregate-only, already threshold-suppressed) is anonymously readable via the public-group RBAC rule (publicatiedatum <= $now). Set by ParticipationPublicationService::publishEvaluationResults() on publish opt-in."
+          },
+          "depublicatiedatum": {
+            "title": "Depublication date",
+            "type": "string",
+            "format": "date-time",
+            "facetable": true,
+            "description": "Depublication date. When set in the past, the published summary is withdrawn from public access."
+          }
+        },
+        "x-openregister-relations": {
+          "governanceBody": {
+            "register": "decidesk",
+            "schema": "GovernanceBody",
+            "cardinality": "many-to-one"
+          },
+          "template": {
+            "register": "decidesk",
+            "schema": "EvaluationTemplate",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "BoardEvaluation",
+              "slug": "evaluatie-rvc-waterschap-amstel-2025"
+            },
+            "cycleLabel": "2025",
+            "lifecycle": "closed",
+            "openedAt": "2025-11-01T09:00:00Z",
+            "closedAt": "2025-12-20T17:00:00Z",
+            "invitedMemberCount": 3,
+            "respondedCount": 2,
+            "minRespondentThreshold": 3,
+            "invitedParticipantIds": [
+              "jan-de-vries",
+              "femke-halsema",
+              "marie-janssen"
+            ],
+            "respondedParticipantIds": [
+              "jan-de-vries",
+              "femke-halsema"
+            ],
+            "chairUserId": "femke.halsema",
+            "secretaryUserId": "jan.devries",
+            "scoreSummary": "{\"overallScore\":3.6,\"respondentCount\":2,\"invitedMemberCount\":3,\"minRespondentThreshold\":3,\"thresholdMet\":false,\"suppressed\":true,\"dimensionScores\":null,\"themes\":null,\"computedAt\":\"2025-12-20T17:05:00Z\"}",
+            "governanceBody": "rvc-waterschap-amstel",
+            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "BoardEvaluation",
+              "slug": "evaluatie-acme-rvc-2026"
+            },
+            "cycleLabel": "2026",
+            "lifecycle": "open",
+            "openedAt": "2026-06-01T09:00:00Z",
+            "invitedMemberCount": 5,
+            "respondedCount": 2,
+            "minRespondentThreshold": 3,
+            "invitedParticipantIds": [
+              "acme-lid-1",
+              "acme-lid-2",
+              "acme-lid-3",
+              "acme-lid-4",
+              "acme-lid-5"
+            ],
+            "respondedParticipantIds": [
+              "acme-lid-1",
+              "acme-lid-2"
+            ],
+            "chairUserId": "acme.chair",
+            "secretaryUserId": "acme.secretary",
+            "governanceBody": "raad-van-commissarissen-acme-bv",
+            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
+          }
+        ]
+      },
+      "EvaluationResponse": {
+        "slug": "evaluation-response",
+        "icon": "CheckboxMarkedOutline",
+        "version": "0.1.0",
+        "title": "EvaluationResponse",
+        "description": "One member's anonymous submission to a BoardEvaluation cycle (board-self-evaluation). Carries NO member relation and no participant identity anywhere in its content — anonymity is inherited from the existing secret-ballot mechanism (opaque HMAC dedup token only, same as VotingService's secret-round voterToken). Completion is tracked separately on BoardEvaluation.respondedParticipantIds, never here.",
+        "type": "object",
+        "x-schema-org": "schema:Action",
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "answers"
+        ],
+        "properties": {
+          "answers": {
+            "title": "Answers",
+            "type": "array",
+            "description": "One entry per answered question. No member identity anywhere in this array or object.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "questionId": {
+                  "title": "Question id",
+                  "type": "string",
+                  "description": "References EvaluationTemplate.questions[].id."
+                },
+                "dimension": {
+                  "title": "Dimension",
+                  "type": "string",
+                  "description": "Denormalised from the template question, for scoring convenience."
+                },
+                "likertValue": {
+                  "title": "Likert value",
+                  "type": "integer",
+                  "description": "Answer value for a likert question (within the question's scaleMin/scaleMax)."
+                },
+                "freeText": {
+                  "title": "Free text",
+                  "type": "string",
+                  "description": "Answer text for a free-text question."
+                }
+              }
+            }
+          },
+          "submittedAt": {
+            "title": "Submitted at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the response was submitted."
+          },
+          "responseToken": {
+            "title": "Response token",
+            "type": "string",
+            "description": "Opaque HMAC(participantId + ':' + evaluationId, server-side secret) dedup token — reuses the same secret-ballot mechanism VotingService uses for secret VotingRounds (app config key 'voter_token_secret'). One-way: cannot be inverted to recover the participant id without the server-side secret. Used only for idempotent one-response-per-member enforcement, never for read display or identity resolution."
+          }
+        },
+        "x-openregister-relations": {
+          "boardEvaluation": {
+            "register": "decidesk",
+            "schema": "BoardEvaluation",
+            "cardinality": "many-to-one"
+          }
+        },
+        "x-openregister-seeds": [
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationResponse",
+              "slug": "reactie-evaluatie-rvc-waterschap-amstel-2025-a"
+            },
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 4
+              },
+              {
+                "questionId": "q-strategy-text",
+                "dimension": "strategy-and-oversight",
+                "freeText": "More time for scenario discussion ahead of budget decisions."
+              },
+              {
+                "questionId": "q-chair-likert",
+                "dimension": "chair-effectiveness",
+                "likertValue": 3
+              }
+            ],
+            "submittedAt": "2025-12-05T10:12:00Z",
+            "responseToken": "8f2b6a1e9d3c4f5a7b6e8d1c2a3f4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a",
+            "boardEvaluation": "evaluatie-rvc-waterschap-amstel-2025"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationResponse",
+              "slug": "reactie-evaluatie-rvc-waterschap-amstel-2025-b"
+            },
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 4
+              },
+              {
+                "questionId": "q-composition-likert",
+                "dimension": "board-composition",
+                "likertValue": 3
+              },
+              {
+                "questionId": "q-chair-likert",
+                "dimension": "chair-effectiveness",
+                "likertValue": 4
+              }
+            ],
+            "submittedAt": "2025-12-08T14:40:00Z",
+            "responseToken": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
+            "boardEvaluation": "evaluatie-rvc-waterschap-amstel-2025"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationResponse",
+              "slug": "reactie-evaluatie-acme-rvc-2026-a"
+            },
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 5
+              },
+              {
+                "questionId": "q-dynamics-text",
+                "dimension": "board-dynamics",
+                "freeText": "The board is respectful but could challenge management more."
+              }
+            ],
+            "submittedAt": "2026-06-10T09:30:00Z",
+            "responseToken": "3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d",
+            "boardEvaluation": "evaluatie-acme-rvc-2026"
+          },
+          {
+            "@self": {
+              "register": "decidesk",
+              "schema": "EvaluationResponse",
+              "slug": "reactie-evaluatie-acme-rvc-2026-b"
+            },
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 3
+              },
+              {
+                "questionId": "q-information-likert",
+                "dimension": "information-quality",
+                "likertValue": 3
+              }
+            ],
+            "submittedAt": "2026-06-11T11:05:00Z",
+            "responseToken": "5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f",
+            "boardEvaluation": "evaluatie-acme-rvc-2026"
+          }
+        ]
       }
     }
   }

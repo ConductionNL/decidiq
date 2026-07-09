@@ -62,11 +62,13 @@ class OverdueActionItemsJob extends TimedJob
      * No-op: overdue ActionItems are derived at read time (dueDate < now), not
      * written — the action-item schema is a read-only VTODO projection.
      *
-     * @param mixed $argument Not used; required by TimedJob.
+     * @param mixed $argument Not used; required by TimedJob contract.
      *
      * @return void
      *
      * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-overdue
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameters)
      */
     protected function run(mixed $argument): void
     {
