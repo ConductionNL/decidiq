@@ -121,10 +121,10 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "public-consultation",
-				"_note": "Public consultation — the citizen/market engagement supertype (typed by consultationType: citizen-participation, market-consultation, tender, idea-box, participatory-budget), 28 fields across 5 sub-types. `consult-data` excludes market/tender-only (marketScope, referenceNumber, estimatedValue, currency, awardCriteria, questionDeadline, awardedTo), budget-only (votingEnabled, budgetCeiling, votingMethod, proposalDeadline, votingDeadline) and relation/system fields already shown elsewhere (relatedDecision, governanceBody, decision, reactions, procestProcessRef), leaving the 12 fields common across every consultation type (ADR-062 rule 3). The former standalone Reactions-count `stat` widget is now a `stats-block` card (ADR-062 rule 2), moved top-right beside the core data widget instead of floating below the reactions table. Bespoke consultation layout: consultation details lead 8-wide with the stats-block + a Documents leaf stacked right; the incoming Reactions/submissions (ConsultationReaction keyed on the consultation via OR relation) render full-width below as the object-list (`allowCreate:false` — citizens submit through the public Participation surface, staff never hand-create a reaction here) — reading and moderating what citizens submit is the core task — followed by Related. No comms leaf on the body: the public-consultation schema declares no email/calendar linkedType (citizens interact through the public Participation surface and moderation queue, not per-record correspondence). Audit trail stays a sidebar tab. The existing relatedCollections table is preserved.",
+				"_note": "Public consultation — the citizen/market engagement supertype (typed by consultationType: citizen-participation, market-consultation, tender, idea-box, participatory-budget), 28 fields across 5 sub-types. `consult-data` excludes market/tender-only (marketScope, referenceNumber, estimatedValue, currency, awardCriteria, questionDeadline, awardedTo), budget-only (votingEnabled, budgetCeiling, votingMethod, proposalDeadline, votingDeadline) and relation/system fields already shown elsewhere (relatedDecision, governanceBody, decision, reactions, procestProcessRef), leaving the 12 fields common across every consultation type (ADR-062 rule 3). The former standalone Reactions-count `stat` widget is now a `stats-block` card (ADR-062 rule 2), moved top-right beside the core data widget instead of floating below the reactions table. Bespoke consultation layout: consultation details lead 8-wide with the stats-block + a Documents leaf stacked right; the incoming Reactions/submissions (ConsultationReaction keyed on the consultation via OR relation) render full-width below as the object-list (`allowCreate:false` — citizens submit through the public Participation surface, staff never hand-create a reaction here) — reading and moderating what citizens submit is the core task — followed by Related. No comms leaf on the body: the public-consultation schema declares no email/calendar linkedType (citizens interact through the public Participation surface and moderation queue, not per-record correspondence). Audit trail stays a sidebar tab. The legacy uncarded `relatedCollections` table (duplicate of consult-reactions, raw camelCase columns, own +Add) has been removed — consult-reactions is the single carded reactions surface. The `consult-stats` KPI counts via `consultation` (the schema's actual FK property on ConsultationReaction), not the `_relations.public-consultation` dot-path the object-list search endpoint understands but the aggregation endpoint's flat filter lookup does not.",
 				"widgets": [
 					{ "id": "consult-data", "type": "data", "title": "Consultation", "icon": "MessageTextOutline", "content": { "columns": 2, "exclude": ["marketScope", "referenceNumber", "estimatedValue", "currency", "awardCriteria", "questionDeadline", "awardedTo", "votingEnabled", "budgetCeiling", "votingMethod", "proposalDeadline", "votingDeadline", "relatedDecision", "governanceBody", "decision", "reactions", "procestProcessRef"] } },
-					{ "id": "consult-stats", "type": "stats-block", "title": "Reactions", "icon": "ChartBar", "content": { "entries": [ { "title": "Reactions", "icon": "MessageTextOutline", "register": "decidesk", "schema": "consultation-reaction", "metric": "count", "filter": { "_relations.public-consultation": "@objectId" } } ] } },
+					{ "id": "consult-stats", "type": "stats-block", "title": "Reactions", "icon": "ChartBar", "content": { "entries": [ { "title": "Reactions", "icon": "MessageTextOutline", "register": "decidesk", "schema": "consultation-reaction", "metric": "count", "filter": { "consultation": "@objectId" } } ] } },
 					{ "id": "consult-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "consult-reactions", "type": "object-list", "title": "Reactions", "icon": "MessageTextOutline", "content": { "register": "decidesk", "schema": "consultation-reaction", "filter": { "_relations.public-consultation": "@objectId" }, "sort": { "field": "submittedAt", "dir": "desc" }, "columns": [ { "key": "body", "label": "Reaction" }, { "key": "moderationStatus", "label": "Status", "widget": "badge" }, { "key": "submitterId", "label": "Submitter" }, { "key": "submittedAt", "label": "Submitted" } ], "limit": 25, "allowCreate": false, "emptyText": "No reactions submitted yet — citizens submit through the public Participation surface." } },
 					{ "id": "consult-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
@@ -136,35 +136,6 @@
 					{ "id": "4", "widgetId": "consult-reactions", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "5", "widgetId": "consult-related", "gridX": 0, "gridY": 12, "gridWidth": 12, "gridHeight": 3 }
 				],
-				"relatedCollections": [
-					{
-						"title": "Reactions",
-						"register": "decidesk",
-						"schema": "consultation-reaction",
-						"filter": {
-							"_relations.public-consultation": "@objectId"
-						},
-						"columns": [
-							{
-								"key": "body",
-								"label": "Reaction"
-							},
-							{
-								"key": "moderationStatus",
-								"label": "Status",
-								"widget": "badge"
-							},
-							"submitterId",
-							"submittedAt"
-						],
-						"sort": {
-							"key": "submittedAt",
-							"order": "desc"
-						},
-						"limit": 50
-					}
-				],
-				"_relatedCollectionsNote": "Reactions (the consultation's submissions) are related through OpenRegister (PublicConsultation.reactions one-to-many <-> ConsultationReaction.consultation many-to-one) and render as a table on the main detail body — moved off the former Reactions sidebar tab. Hub-wide pending moderation still uses ConsultationReactionsTab on the Moderation queue.",
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
