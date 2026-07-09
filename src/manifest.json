@@ -1008,62 +1008,6 @@
 			}
 		},
 		{
-			"id": "Workspaces",
-			"route": "/workspaces",
-			"type": "index",
-			"title": "Workspaces",
-			"config": {
-				"register": "decidesk",
-				"schema": "collaboration-workspace",
-				"columns": [
-					"name",
-					"type",
-					{
-						"key": "accessLevel",
-						"label": "Access",
-						"widget": "badge"
-					},
-					"createdAt"
-				],
-				"sidebar": {
-					"enabled": true,
-					"showMetadata": true
-				},
-				"documentationUrl": "https://decidesk.conduction.nl"
-			}
-		},
-		{
-			"id": "WorkspaceDetail",
-			"route": "/workspaces/:id",
-			"type": "detail",
-			"title": "Workspace",
-			"config": {
-				"register": "decidesk",
-				"schema": "collaboration-workspace",
-				"_note": "Collaboration workspace — a bounded faction/committee/task-group space (name, type, access level, created date). Per migrate-workspaces-to-collectives-leaf (ADR-022) the in-app WorkspaceService/CollaborationWorkspace store was retired: the real collaboration surface is a Nextcloud Collective bound through the ADR-019 registry, so the Collectives leaf leads the body (this is the whole point of the workspace) alongside a Files leaf for shared documents, with workspace metadata and Related below. The Collectives leaf is a declared, registry-bound integration for this entity, so it belongs on the body; the registry hides it gracefully when the Collectives app is absent. Audit trail stays a sidebar tab.",
-				"widgets": [
-					{ "id": "ws-collectives", "type": "integration", "integrationId": "collectives", "title": "Collective", "icon": "AccountGroup" },
-					{ "id": "ws-files", "type": "integration", "integrationId": "files", "title": "Files", "icon": "FolderOutline" },
-					{ "id": "ws-data", "type": "data", "title": "Workspace", "icon": "FolderOutline", "content": { "columns": 2 } },
-					{ "id": "ws-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
-				],
-				"layout": [
-					{ "id": "1", "widgetId": "ws-collectives", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "ws-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "ws-data", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 4 },
-					{ "id": "4", "widgetId": "ws-related", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 4 }
-				],
-				"sidebar": {
-					"enabled": true,
-					"showMetadata": true,
-					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
-					]
-				},
-				"documentationUrl": "https://decidesk.conduction.nl"
-			}
-		},
-		{
 			"id": "Engagement",
 			"route": "/engagement",
 			"type": "index",
@@ -1213,7 +1157,7 @@
 												},
 												{
 													"slug": "collaboration-workspace",
-													"label": "Collaboration Workspaces"
+													"label": "Collaboration Workspaces (archived — read-only)"
 												}
 											]
 										}
