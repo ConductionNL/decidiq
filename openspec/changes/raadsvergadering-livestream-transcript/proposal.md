@@ -135,7 +135,7 @@ Alle bestaande decidesk-specs (`p2-meeting-management`, `p2-motion-and-voting`, 
 - **openconnector** — provides NOTUBIZ/iBabs adapters; publishes events for livestream and microphone data
 - **openregister** — hosts schema definitions; provides full-text search
 - **docudesk** — can embed transcript-excerpt in PDF export
-- **launchpad** — KPIs: transcript count, confidence scores, correction time
+- **mydash** — KPIs: transcript count, confidence scores, correction time
 
 ## Acceptance Criteria
 

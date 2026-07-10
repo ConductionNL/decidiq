@@ -32,7 +32,7 @@ DecideDesk models council lifecycle (raadsperiode), participants (raadsleden), g
 - Kiesraad election-result import (separate integration change).
 - Fraction-portaal internal workspace (later phase).
 - Schriftelijke vraag college-response workflow (docudesk owns responses).
-- Commissie seat reallocation UI (launchpad owns commission workflow).
+- Commissie seat reallocation UI (mydash owns commission workflow).
 
 ## Decisions
 
