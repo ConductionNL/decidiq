@@ -104,8 +104,8 @@ import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import { CnDetailCard, CnStatusBadge, CnFormDialog } from '@conduction/nextcloud-vue'
 import {
-	DECISION_TYPE,
-	ensureDecisionStore,
+	listHostDecisions,
+	createHostDecision,
 	decisionBucket,
 	isProposal,
 	objId,
@@ -328,12 +328,7 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const store = ensureDecisionStore()
-				const items = await store.fetchCollection(DECISION_TYPE, {
-					subjectId: this.hostObjectId,
-					_limit: 100,
-				})
-				this.decisions = Array.isArray(items) ? items : []
+				this.decisions = await listHostDecisions(this.hostObjectId, 100)
 			} catch (e) {
 				this.error = e?.message || t('decidesk', 'Could not load decision-making.')
 			} finally {
@@ -349,8 +344,7 @@ export default {
 			this.creating = true
 			this.error = ''
 			try {
-				const store = ensureDecisionStore()
-				await store.saveObject(DECISION_TYPE, {
+				await createHostDecision({
 					title: formData.title || t('decidesk', 'Proposal'),
 					text: formData.text || '',
 					decisionType: formData.decisionType || 'motion',

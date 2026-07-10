@@ -17,7 +17,8 @@
 // object's UUID in `subjectId`; this leaf lists decisions filtered on
 // `subjectId == objectId`. No new schema field is needed.
 
-import { useObjectStore } from '../store/store.js'
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
 
 /**
  * The decidesk logical object type backing the leaf. Registered against
@@ -51,19 +52,51 @@ export const KIND_GROUPS = {
 export const PROPOSAL_LIFECYCLE = ['draft', 'proposed', 'deliberating', 'voting']
 
 /**
- * Ensure the `decision` type is registered on decidesk's shared object
- * store, then return the store instance. Idempotent — safe to call on
- * every render. The decidesk register/schema slugs default to
- * `decidesk` / `decision`; a future settings-driven override can be
- * threaded here if a deployment renames them.
+ * OpenRegister objects endpoint for decidesk `decision` objects.
  *
- * @return {object} The booted decidesk object store.
+ * @return {string} The resolved `/apps/openregister/api/objects/decidesk/decision` URL.
  */
-export function ensureDecisionStore() {
-	const store = useObjectStore()
-	// registerObjectType overwrites idempotently with the same payload.
-	store.registerObjectType(DECISION_TYPE, 'decision', 'decidesk')
-	return store
+function decisionsUrl() {
+	return generateUrl('/apps/openregister/api/objects/{register}/{schema}', { register: 'decidesk', schema: 'decision' })
+}
+
+/**
+ * List decidesk decisions linked to a host object, via the shared
+ * OpenRegister objects API — NOT a Pinia store.
+ *
+ * The leaf is rendered inline on ANY app's detail page (a pipelinq lead, a
+ * procest case, …). It therefore must not depend on decidesk's own Pinia
+ * object store: that store lives in decidesk's bundle and its `getActivePinia`
+ * is not the host app's active Pinia, so `useObjectStore()` threw
+ * `reading '_s' of undefined` when hosted in a foreign app (ADR-019: an
+ * integration leaf must be host-agnostic). A direct API call needs no store.
+ *
+ * @param {string} subjectId The host object's UUID (`subjectId` filter).
+ * @param {number} [limit]   Max rows (default 100).
+ *
+ * @return {Promise<object[]>} The decision objects, or `[]`.
+ */
+export async function listHostDecisions(subjectId, limit = 100) {
+	if (!subjectId) return []
+	const res = await axios.get(decisionsUrl(), { params: { subjectId, _limit: limit } })
+	const data = res && res.data
+	if (Array.isArray(data)) return data
+	if (data && Array.isArray(data.results)) return data.results
+	return []
+}
+
+/**
+ * Create a decidesk decision pre-linked to a host object, via the shared
+ * OpenRegister objects API (see {@link listHostDecisions} for why not a store).
+ *
+ * @param {object} payload The decision object to persist (already carrying the
+ *                         `subject*` back-reference fields).
+ *
+ * @return {Promise<object|null>} The created object, or null.
+ */
+export async function createHostDecision(payload) {
+	const res = await axios.post(decisionsUrl(), payload)
+	return (res && res.data) || null
 }
 
 /**
