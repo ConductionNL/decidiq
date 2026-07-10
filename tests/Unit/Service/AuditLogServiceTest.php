@@ -58,7 +58,28 @@ class AuditLogServiceTest extends TestCase
         $objectService = $this->createMock(ObjectService::class);
         $objectService->method('findAll')->willReturnCallback(
             static function (array $config) use (&$existing): array {
-                return $existing;
+                // Honour 'order' (timestamp ASC/DESC, stable for ties per PHP 8
+                // sort stability) and 'limit' so tests can assert on the bounded
+                // "last row only" query path introduced by
+                // audit-log-chain-tail-hash, without disturbing the existing
+                // whole-chain ASC callers (verify/export/query).
+                $rows = $existing;
+                usort(
+                    $rows,
+                    static function (array $a, array $b): int {
+                        return strcmp((string) ($a['timestamp'] ?? ''), (string) ($b['timestamp'] ?? ''));
+                    }
+                );
+
+                if (strtoupper((string) ($config['order']['timestamp'] ?? 'ASC')) === 'DESC') {
+                    $rows = array_reverse($rows);
+                }
+
+                if (($config['limit'] ?? null) !== null) {
+                    $rows = array_slice($rows, 0, (int) $config['limit']);
+                }
+
+                return $rows;
             }
         );
         $objectService->method('saveObject')->willReturnCallback(
@@ -233,6 +254,138 @@ class AuditLogServiceTest extends TestCase
         $this->assertSame(1, $result['count']);
 
     }//end testExportCsvIncludesHeader()
+
+
+    /**
+     * append() produces an unbroken hash chain across 3+ sequential calls,
+     * using the bounded "last row only" query path (not a full-chain load).
+     *
+     * @spec openspec/changes/audit-log-chain-tail-hash/tasks.md#task-2
+     *
+     * @return void
+     */
+    public function testAppendProducesUnbrokenChainAcrossSequentialCalls(): void
+    {
+        $existing = [];
+        $saved    = [];
+        $service  = $this->makeService($existing, $saved);
+
+        $service->append(actor: 'alice', action: 'vote', objectUids: ['res-1']);
+        $service->append(actor: 'bob', action: 'signature', objectUids: ['min-1']);
+        $service->append(actor: 'carol', action: 'material-access', objectUids: ['doc-1']);
+
+        $this->assertCount(3, $saved);
+        $this->assertSame(AuditLogService::GENESIS_HASH, $saved[0]['previousHash']);
+        $this->assertSame($saved[0]['currentHash'], $saved[1]['previousHash']);
+        $this->assertSame($saved[1]['currentHash'], $saved[2]['previousHash']);
+
+    }//end testAppendProducesUnbrokenChainAcrossSequentialCalls()
+
+
+    /**
+     * Regression: with more than 1 row already on the chain, append() resolves
+     * the TRUE last row's hash (by timestamp) — not an arbitrary row and not a
+     * row selected by array position. Guards against a future re-introduction
+     * of an unbounded/truncated query.
+     *
+     * @spec openspec/changes/audit-log-chain-tail-hash/tasks.md#task-2
+     *
+     * @return void
+     */
+    public function testAppendResolvesTrueLastRowFromMultiRowChain(): void
+    {
+        $existing = [
+            ['id' => 'row-0', 'timestamp' => '2026-01-01T00:00:00Z', 'actorUuid' => 'alice', 'action' => 'vote', 'objectUids' => ['r1'], 'previousHash' => AuditLogService::GENESIS_HASH, 'currentHash' => str_repeat('0', 64)],
+            ['id' => 'row-1', 'timestamp' => '2026-01-02T00:00:00Z', 'actorUuid' => 'bob', 'action' => 'vote', 'objectUids' => ['r1'], 'previousHash' => str_repeat('0', 64), 'currentHash' => str_repeat('1', 64)],
+            ['id' => 'row-2', 'timestamp' => '2026-01-03T00:00:00Z', 'actorUuid' => 'carol', 'action' => 'vote', 'objectUids' => ['r1'], 'previousHash' => str_repeat('1', 64), 'currentHash' => str_repeat('2', 64)],
+            ['id' => 'row-3', 'timestamp' => '2026-01-04T00:00:00Z', 'actorUuid' => 'dave', 'action' => 'vote', 'objectUids' => ['r1'], 'previousHash' => str_repeat('2', 64), 'currentHash' => str_repeat('3', 64)],
+            ['id' => 'row-4', 'timestamp' => '2026-01-05T00:00:00Z', 'actorUuid' => 'eve', 'action' => 'vote', 'objectUids' => ['r1'], 'previousHash' => str_repeat('3', 64), 'currentHash' => str_repeat('4', 64)],
+        ];
+        $saved   = [];
+        $service = $this->makeService($existing, $saved);
+
+        $result = $service->append(actor: 'frank', action: 'vote', objectUids: ['r1']);
+
+        $this->assertTrue($result['success']);
+        $this->assertSame(
+            str_repeat('4', 64),
+            $saved[0]['previousHash'],
+            'previousHash must be sourced from the true last row (row-4), not an arbitrary/first row'
+        );
+
+    }//end testAppendResolvesTrueLastRowFromMultiRowChain()
+
+
+    /**
+     * append() resolving previousHash issues a bounded (limit: 1) findAll()
+     * query rather than an unbounded/whole-chain query.
+     *
+     * @spec openspec/changes/audit-log-chain-tail-hash/specs/audit-trail-integrity/spec.md#requirement-req-alci-001-resolving-the-previous-hash-must-not-load-the-whole-chain
+     *
+     * @return void
+     */
+    public function testResolvePreviousHashIssuesBoundedQuery(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $existing      = [
+            ['id' => 'row-0', 'timestamp' => '2026-01-01T00:00:00Z', 'actorUuid' => 'alice', 'action' => 'vote', 'objectUids' => ['r1'], 'previousHash' => AuditLogService::GENESIS_HASH, 'currentHash' => str_repeat('a', 64)],
+        ];
+        $observedLimits = [];
+        $objectService  = $this->createMock(ObjectService::class);
+        $objectService->method('findAll')->willReturnCallback(
+            function (array $config) use (&$existing, &$observedLimits): array {
+                $observedLimits[] = ($config['limit'] ?? null);
+                if (($config['limit'] ?? null) === 1) {
+                    return array_slice($existing, -1);
+                }
+
+                return $existing;
+            }
+        );
+        $objectService->method('saveObject')->willReturnCallback(
+            function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null) use (&$existing): ObjectEntity {
+                $row        = array_merge(['id' => 'row-'.count($existing)], $object);
+                $existing[] = $row;
+                $entity     = $this->createMock(ObjectEntity::class);
+                $entity->method('jsonSerialize')->willReturn($row);
+                return $entity;
+            }
+        );
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('get')->willReturn($objectService);
+
+        $service = new AuditLogService($container, $logger);
+        $result  = $service->append(actor: 'bob', action: 'vote', objectUids: ['r1']);
+
+        $this->assertTrue($result['success']);
+        $this->assertContains(1, $observedLimits, 'resolvePreviousHash() must issue a findAll() call bounded to limit: 1');
+        $this->assertNotContains(10000, $observedLimits, 'resolvePreviousHash() must not issue the whole-chain (limit: 10000) query');
+
+    }//end testResolvePreviousHashIssuesBoundedQuery()
+
+
+    /**
+     * loadLastEntry() (exercised indirectly via resolvePreviousHash()) returns
+     * null for an empty chain, resolving to GENESIS_HASH.
+     *
+     * @spec openspec/changes/audit-log-chain-tail-hash/tasks.md#task-1
+     *
+     * @return void
+     */
+    public function testAppendFromEmptyChainStillUsesGenesisViaBoundedQuery(): void
+    {
+        $existing = [];
+        $saved    = [];
+        $service  = $this->makeService($existing, $saved);
+
+        $result = $service->append(actor: 'alice', action: 'vote', objectUids: ['r1']);
+
+        $this->assertTrue($result['success']);
+        $this->assertSame(AuditLogService::GENESIS_HASH, $saved[0]['previousHash']);
+
+    }//end testAppendFromEmptyChainStillUsesGenesisViaBoundedQuery()
 
 
 }//end class

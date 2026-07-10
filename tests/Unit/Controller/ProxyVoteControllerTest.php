@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\ProxyVoteController;
 use OCA\Decidesk\Service\ProxyVoteService;
 use OCP\AppFramework\Http;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -36,19 +37,22 @@ use PHPUnit\Framework\TestCase;
  */
 class ProxyVoteControllerTest extends TestCase
 {
-
-
     /**
      * Build a controller wired to the supplied service and params.
      *
      * @param ProxyVoteService     $service       Service double
      * @param array<string, mixed> $requestParams Params returned by IRequest
      * @param bool                 $authenticated Whether session has a user
+     * @param bool                 $isAdmin       Whether the authenticated user is a Nextcloud admin
      *
      * @return ProxyVoteController
      */
-    private function makeController(ProxyVoteService $service, array $requestParams=[], bool $authenticated=true): ProxyVoteController
-    {
+    private function makeController(
+        ProxyVoteService $service,
+        array $requestParams=[],
+        bool $authenticated=true,
+        bool $isAdmin=false
+    ): ProxyVoteController {
         $request = $this->createMock(IRequest::class);
         $request->method('getParams')->willReturn($requestParams);
         $request->method('getParam')->willReturnCallback(
@@ -66,10 +70,12 @@ class ProxyVoteControllerTest extends TestCase
             $session->method('getUser')->willReturn(null);
         }
 
-        return new ProxyVoteController($request, $service, $session);
+        $groupManager = $this->createMock(IGroupManager::class);
+        $groupManager->method('isAdmin')->willReturn($isAdmin);
+
+        return new ProxyVoteController($request, $service, $session, $groupManager);
 
     }//end makeController()
-
 
     /**
      * register requires authentication.
@@ -86,7 +92,6 @@ class ProxyVoteControllerTest extends TestCase
 
     }//end testRegisterRequiresAuth()
 
-
     /**
      * register rejects missing fields.
      *
@@ -102,7 +107,6 @@ class ProxyVoteControllerTest extends TestCase
 
     }//end testRegisterRejectsMissingFields()
 
-
     /**
      * register returns 201 on success.
      *
@@ -112,7 +116,7 @@ class ProxyVoteControllerTest extends TestCase
     {
         $service = $this->createMock(ProxyVoteService::class);
         $service->expects($this->once())->method('register')
-            ->with('m-1', 'g-1', 'h-1', $this->anything())
+            ->with('m-1', 'g-1', 'h-1', $this->anything(), 'alice')
             ->willReturn(['success' => true, 'proxy' => ['id' => 'p-1'], 'message' => 'ok']);
 
         $controller = $this->makeController(
@@ -125,6 +129,56 @@ class ProxyVoteControllerTest extends TestCase
 
     }//end testRegisterReturns201OnSuccess()
 
+    /**
+     * register forwards a null callerUid for admin callers (admin bypass).
+     *
+     * @return void
+     */
+    public function testRegisterForwardsNullCallerUidForAdmin(): void
+    {
+        $service = $this->createMock(ProxyVoteService::class);
+        $service->expects($this->once())->method('register')
+            ->with('m-1', 'g-1', 'h-1', $this->anything(), null)
+            ->willReturn(['success' => true, 'proxy' => ['id' => 'p-1'], 'message' => 'ok']);
+
+        $controller = $this->makeController(
+            $service,
+            requestParams: ['meetingId' => 'm-1', 'grantorId' => 'g-1', 'holderId' => 'h-1'],
+            isAdmin: true
+        );
+
+        $response = $controller->register();
+        $this->assertSame(Http::STATUS_CREATED, $response->getStatus());
+
+    }//end testRegisterForwardsNullCallerUidForAdmin()
+
+    /**
+     * register() maps a Forbidden: service message to 403, not the generic 422.
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
+     *
+     * @return void
+     */
+    public function testRegisterMapsForbiddenMessageTo403(): void
+    {
+        $service = $this->createMock(ProxyVoteService::class);
+        $service->method('register')->willReturn(
+            [
+                'success' => false,
+                'proxy'   => null,
+                'message' => 'Forbidden: only the grantor, a chair/clerk of the meeting, or an admin may register this proxy.',
+            ]
+        );
+
+        $controller = $this->makeController(
+            $service,
+            requestParams: ['meetingId' => 'm-1', 'grantorId' => 'g-1', 'holderId' => 'h-1']
+        );
+
+        $response = $controller->register();
+        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+
+    }//end testRegisterMapsForbiddenMessageTo403()
 
     /**
      * index requires meetingId.
@@ -140,7 +194,6 @@ class ProxyVoteControllerTest extends TestCase
         $this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
 
     }//end testIndexRequiresMeetingId()
-
 
     /**
      * index returns results from the service.
@@ -166,7 +219,6 @@ class ProxyVoteControllerTest extends TestCase
 
     }//end testIndexReturnsResults()
 
-
     /**
      * suspend delegates to the service and returns 200 on success.
      *
@@ -176,7 +228,7 @@ class ProxyVoteControllerTest extends TestCase
     {
         $service = $this->createMock(ProxyVoteService::class);
         $service->expects($this->once())->method('suspend')
-            ->with('p-1', 'alice')
+            ->with('p-1', 'alice', 'alice')
             ->willReturn(['success' => true, 'proxy' => ['id' => 'p-1', 'proxyStatus' => 'suspended'], 'message' => 'ok']);
 
         $controller = $this->makeController($service);
@@ -186,6 +238,30 @@ class ProxyVoteControllerTest extends TestCase
 
     }//end testSuspendDelegates()
 
+    /**
+     * suspend() maps a Forbidden: service message to 403 (unrelated-caller IDOR guard).
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+     *
+     * @return void
+     */
+    public function testSuspendMapsForbiddenMessageTo403(): void
+    {
+        $service = $this->createMock(ProxyVoteService::class);
+        $service->method('suspend')->willReturn(
+            [
+                'success' => false,
+                'proxy'   => null,
+                'message' => "Forbidden: only the proxy's grantor, its holder, a chair/clerk of the meeting, or an admin may change its status.",
+            ]
+        );
+
+        $controller = $this->makeController($service);
+        $response   = $controller->suspend('p-1');
+
+        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+
+    }//end testSuspendMapsForbiddenMessageTo403()
 
     /**
      * revoke delegates to the service and returns 200 on success.
@@ -196,7 +272,7 @@ class ProxyVoteControllerTest extends TestCase
     {
         $service = $this->createMock(ProxyVoteService::class);
         $service->expects($this->once())->method('revoke')
-            ->with('p-1', 'alice')
+            ->with('p-1', 'alice', 'alice')
             ->willReturn(['success' => true, 'proxy' => ['id' => 'p-1', 'proxyStatus' => 'revoked'], 'message' => 'ok']);
 
         $controller = $this->makeController($service);
@@ -205,6 +281,4 @@ class ProxyVoteControllerTest extends TestCase
         $this->assertSame(Http::STATUS_OK, $response->getStatus());
 
     }//end testRevokeDelegates()
-
-
 }//end class

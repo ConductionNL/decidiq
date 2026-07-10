@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AuditLogService;
+use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProxyVoteService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
@@ -37,7 +38,6 @@ use Psr\Log\LoggerInterface;
 class ProxyVoteServiceTest extends TestCase
 {
 
-
     /**
      * Tracker for audit log calls.
      *
@@ -45,32 +45,56 @@ class ProxyVoteServiceTest extends TestCase
      */
     private \ArrayObject $auditCalls;
 
-
     /**
      * Build a service wired to in-memory rows.
      *
-     * @param array<int, array<string, mixed>> &$rows       Existing rows
-     * @param array<int, array<string, mixed>> &$saved      Captured saves
-     * @param int                              $maxProxies  Configured max_proxies_per_holder app config value
-     * @param bool                             $findAllFail When true the ObjectService::findAll() call throws (fail-closed path)
+     * @param array<int, array<string, mixed>>  &$rows           Existing rows
+     * @param array<int, array<string, mixed>>  &$saved          Captured saves
+     * @param int                               $maxProxies      Configured max_proxies_per_holder app config value
+     * @param bool                              $findAllFail     When true the ObjectService::findAll() call throws (fail-closed path)
+     * @param array<int, array<string, string>> $participants    Fixture `participant` rows: ['uuid' => .., 'nextcloudUserId' => ..]
+     * @param array<string, array<int, string>> $chairsByMeeting Map of meetingId => Nextcloud UIDs holding chair/secretary role
      *
      * @return ProxyVoteService
      */
-    private function makeService(array &$rows, array &$saved, int $maxProxies=2, bool $findAllFail=false): ProxyVoteService
-    {
-        $rowsRef       = &$rows;
-        $savedRef      = &$saved;
-        $objectService = $this->createMock(ObjectService::class);
+    private function makeService(
+        array &$rows,
+        array &$saved,
+        int $maxProxies=2,
+        bool $findAllFail=false,
+        array $participants=[],
+        array $chairsByMeeting=[]
+    ): ProxyVoteService {
+        $rowsRef         = &$rows;
+        $savedRef        = &$saved;
+        $participantsRef = $participants;
+        $objectService   = $this->createMock(ObjectService::class);
         $objectService->method('findAll')->willReturnCallback(
-            static function (array $config) use (&$rowsRef, $findAllFail): array {
+            function (array $config) use (&$rowsRef, $findAllFail, $participantsRef): array {
                 if ($findAllFail === true) {
                     throw new \RuntimeException('OpenRegister unavailable');
+                }
+
+                $filters = ($config['filters'] ?? []);
+                if (array_key_exists('nextcloudUserId', $filters) === true) {
+                    $out = [];
+                    foreach ($participantsRef as $participant) {
+                        if (($participant['nextcloudUserId'] ?? null) !== $filters['nextcloudUserId']) {
+                            continue;
+                        }
+
+                        $entity = $this->createMock(ObjectEntity::class);
+                        $entity->method('jsonSerialize')->willReturn($participant);
+                        $out[] = $entity;
+                    }
+
+                    return $out;
                 }
 
                 $out = [];
                 foreach ($rowsRef as $row) {
                     $matches = true;
-                    foreach (($config['filters'] ?? []) as $k => $v) {
+                    foreach ($filters as $k => $v) {
                         if (($row[$k] ?? null) !== $v) {
                             $matches = false;
                             break;
@@ -118,7 +142,7 @@ class ProxyVoteServiceTest extends TestCase
 
                 $row       = array_merge(['id' => 'proxy-'.count($rowsRef)], $object);
                 $rowsRef[] = $row;
-                $entity = $this->createMock(ObjectEntity::class);
+                $entity    = $this->createMock(ObjectEntity::class);
                 $entity->method('jsonSerialize')->willReturn($row);
                 $entity->method('getObject')->willReturn($row);
                 return $entity;
@@ -164,14 +188,21 @@ class ProxyVoteServiceTest extends TestCase
             }
         );
 
+        $participantResolver = $this->createMock(ParticipantResolver::class);
+        $participantResolver->method('hasRole')->willReturnCallback(
+            static function (string $meetingId, string $nextcloudUid, array $roles) use ($chairsByMeeting): bool {
+                return in_array($nextcloudUid, ($chairsByMeeting[$meetingId] ?? []), true);
+            }
+        );
+
         return new ProxyVoteService(
             container: $container,
             logger: $this->createMock(LoggerInterface::class),
-            auditLogService: $audit
+            auditLogService: $audit,
+            participantResolver: $participantResolver,
         );
 
     }//end makeService()
-
 
     /**
      * register validates required fields.
@@ -190,7 +221,6 @@ class ProxyVoteServiceTest extends TestCase
 
     }//end testRegisterRequiresFields()
 
-
     /**
      * register rejects grantor == holder.
      *
@@ -207,7 +237,6 @@ class ProxyVoteServiceTest extends TestCase
         $this->assertStringContainsString('must differ', $result['message']);
 
     }//end testRegisterRejectsSelfProxy()
-
 
     /**
      * register stores a pending-approval row and audits proxy-created.
@@ -232,7 +261,6 @@ class ProxyVoteServiceTest extends TestCase
 
     }//end testRegisterStoresPendingAndAuditsCreated()
 
-
     /**
      * suspend transitions proxyStatus to 'suspended' and does NOT audit
      * proxy-revoked.
@@ -241,7 +269,7 @@ class ProxyVoteServiceTest extends TestCase
      */
     public function testSuspendTransitionsWithoutRevokeAudit(): void
     {
-        $rows = [
+        $rows  = [
             [
                 'id'               => 'p-1',
                 'meetingKoppeling' => 'm-1',
@@ -258,12 +286,11 @@ class ProxyVoteServiceTest extends TestCase
         $this->assertTrue($result['success']);
         $this->assertSame('suspended', end($saved)['proxyStatus']);
 
-        $calls = $this->auditCalls->getArrayCopy();
+        $calls       = $this->auditCalls->getArrayCopy();
         $revokeCalls = array_filter($calls, static fn(array $c): bool => $c['action'] === 'proxy-revoked');
         $this->assertCount(0, $revokeCalls);
 
     }//end testSuspendTransitionsWithoutRevokeAudit()
-
 
     /**
      * revoke transitions proxyStatus to 'revoked' and audits.
@@ -272,7 +299,7 @@ class ProxyVoteServiceTest extends TestCase
      */
     public function testRevokeTransitionsAndAudits(): void
     {
-        $rows = [
+        $rows  = [
             [
                 'id'               => 'p-1',
                 'meetingKoppeling' => 'm-1',
@@ -289,7 +316,7 @@ class ProxyVoteServiceTest extends TestCase
         $this->assertTrue($result['success']);
         $this->assertSame('revoked', end($saved)['proxyStatus']);
 
-        $calls = $this->auditCalls->getArrayCopy();
+        $calls       = $this->auditCalls->getArrayCopy();
         $revokeCalls = array_values(
             array_filter($calls, static fn(array $c): bool => $c['action'] === 'proxy-revoked')
         );
@@ -297,7 +324,6 @@ class ProxyVoteServiceTest extends TestCase
         $this->assertSame('alice', $revokeCalls[0]['actor']);
 
     }//end testRevokeTransitionsAndAudits()
-
 
     /**
      * transition rejects unknown statuses.
@@ -316,7 +342,6 @@ class ProxyVoteServiceTest extends TestCase
 
     }//end testTransitionRejectsUnknownStatus()
 
-
     /**
      * forMeeting returns rows for the meeting, optionally filtered by status.
      *
@@ -324,7 +349,7 @@ class ProxyVoteServiceTest extends TestCase
      */
     public function testForMeetingReturnsRowsAndFilters(): void
     {
-        $rows = [
+        $rows  = [
             ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'proxyStatus' => 'active'],
             ['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'proxyStatus' => 'revoked'],
             ['id' => 'p-3', 'meetingKoppeling' => 'm-2', 'proxyStatus' => 'active'],
@@ -341,7 +366,6 @@ class ProxyVoteServiceTest extends TestCase
 
     }//end testForMeetingReturnsRowsAndFilters()
 
-
     /**
      * register rejects a holder who already holds the maximum number of ACTIVE
      * proxies in the meeting (per-member proxy limit, default 2).
@@ -352,7 +376,7 @@ class ProxyVoteServiceTest extends TestCase
      */
     public function testRegisterRejectsHolderAtProxyCap(): void
     {
-        $rows = [
+        $rows  = [
             ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
             ['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
         ];
@@ -367,7 +391,6 @@ class ProxyVoteServiceTest extends TestCase
 
     }//end testRegisterRejectsHolderAtProxyCap()
 
-
     /**
      * Non-active proxies (revoked/suspended/pending) and other meetings/holders
      * do not count toward the cap.
@@ -378,7 +401,7 @@ class ProxyVoteServiceTest extends TestCase
      */
     public function testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder(): void
     {
-        $rows = [
+        $rows  = [
             ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
             ['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'revoked'],
             ['id' => 'p-3', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-3', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'suspended'],
@@ -396,7 +419,6 @@ class ProxyVoteServiceTest extends TestCase
 
     }//end testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder()
 
-
     /**
      * The cap is configurable via app config decidesk/max_proxies_per_holder.
      *
@@ -406,7 +428,7 @@ class ProxyVoteServiceTest extends TestCase
      */
     public function testRegisterCapIsConfigurable(): void
     {
-        $rows = [
+        $rows  = [
             ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
             ['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
         ];
@@ -430,7 +452,6 @@ class ProxyVoteServiceTest extends TestCase
 
     }//end testRegisterCapIsConfigurable()
 
-
     /**
      * Fail closed: when existing proxies cannot be counted, registration is rejected.
      *
@@ -452,5 +473,186 @@ class ProxyVoteServiceTest extends TestCase
 
     }//end testRegisterFailsClosedWhenProxyCountUnavailable()
 
+    /**
+     * register() allows self-grantor registration when callerUid resolves to grantorId.
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
+     *
+     * @return void
+     */
+    public function testRegisterAllowsSelfGrantor(): void
+    {
+        $rows  = [];
+        $saved = [];
+        $svc   = $this->makeService(
+            $rows,
+            $saved,
+            participants: [['uuid' => 'g-1', 'nextcloudUserId' => 'alice']]
+        );
 
+        $result = $svc->register('m-1', 'g-1', 'h-1', callerUid: 'alice');
+        $this->assertTrue($result['success']);
+
+    }//end testRegisterAllowsSelfGrantor()
+
+    /**
+     * register() allows a chair to register a proxy on behalf of two other members.
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
+     *
+     * @return void
+     */
+    public function testRegisterAllowsChairOnBehalfOfOthers(): void
+    {
+        $rows  = [];
+        $saved = [];
+        $svc   = $this->makeService(
+            $rows,
+            $saved,
+            participants: [
+                ['uuid' => 'g-1', 'nextcloudUserId' => 'alice'],
+                ['uuid' => 'h-1', 'nextcloudUserId' => 'bob'],
+            ],
+            chairsByMeeting: ['m-1' => ['chair-carol']]
+        );
+
+        $result = $svc->register('m-1', 'g-1', 'h-1', callerUid: 'chair-carol');
+        $this->assertTrue($result['success']);
+
+    }//end testRegisterAllowsChairOnBehalfOfOthers()
+
+    /**
+     * register() rejects an unrelated authenticated user with a Forbidden message.
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
+     *
+     * @return void
+     */
+    public function testRegisterRejectsUnrelatedCaller(): void
+    {
+        $rows  = [];
+        $saved = [];
+        $svc   = $this->makeService(
+            $rows,
+            $saved,
+            participants: [
+                ['uuid' => 'g-1', 'nextcloudUserId' => 'alice'],
+                ['uuid' => 'h-1', 'nextcloudUserId' => 'bob'],
+                ['uuid' => 'c-1', 'nextcloudUserId' => 'carol'],
+            ]
+        );
+
+        $result = $svc->register('m-1', 'g-1', 'h-1', callerUid: 'carol');
+        $this->assertFalse($result['success']);
+        $this->assertStringStartsWith('Forbidden:', $result['message']);
+        $this->assertCount(0, $saved, 'No proxy row may be written for an unauthorized caller');
+
+    }//end testRegisterRejectsUnrelatedCaller()
+
+    /**
+     * register() allows a null callerUid (admin bypass convention).
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
+     *
+     * @return void
+     */
+    public function testRegisterAllowsAdminBypassViaNullCallerUid(): void
+    {
+        $rows  = [];
+        $saved = [];
+        $svc   = $this->makeService($rows, $saved);
+
+        $result = $svc->register('m-1', 'g-1', 'h-1', callerUid: null);
+        $this->assertTrue($result['success']);
+
+    }//end testRegisterAllowsAdminBypassViaNullCallerUid()
+
+    /**
+     * suspend()/revoke() allow the proxy's grantor or holder to transition it.
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+     *
+     * @return void
+     */
+    public function testRevokeAllowsGrantorAndSuspendAllowsHolder(): void
+    {
+        $rows  = [
+            ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+            ['id' => 'p-2', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-2', 'holderKoppeling' => 'h-2', 'proxyStatus' => 'active'],
+        ];
+        $saved = [];
+        $svc   = $this->makeService(
+            $rows,
+            $saved,
+            participants: [
+                ['uuid' => 'g-1', 'nextcloudUserId' => 'alice'],
+                ['uuid' => 'h-2', 'nextcloudUserId' => 'bob'],
+            ]
+        );
+
+        $revokeResult = $svc->revoke('p-1', 'alice', callerUid: 'alice');
+        $this->assertTrue($revokeResult['success'], 'Grantor may revoke their own proxy');
+
+        $suspendResult = $svc->suspend('p-2', 'bob', callerUid: 'bob');
+        $this->assertTrue($suspendResult['success'], 'Holder may suspend a proxy held on their behalf');
+
+    }//end testRevokeAllowsGrantorAndSuspendAllowsHolder()
+
+    /**
+     * suspend()/revoke() reject an unrelated authenticated user (IDOR guard),
+     * leaving the proxy's status unchanged.
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+     *
+     * @return void
+     */
+    public function testRevokeRejectsUnrelatedCallerAndLeavesStatusUnchanged(): void
+    {
+        $rows  = [
+            ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+        ];
+        $saved = [];
+        $svc   = $this->makeService(
+            $rows,
+            $saved,
+            participants: [
+                ['uuid' => 'g-1', 'nextcloudUserId' => 'alice'],
+                ['uuid' => 'h-1', 'nextcloudUserId' => 'bob'],
+                ['uuid' => 'c-1', 'nextcloudUserId' => 'carol'],
+            ]
+        );
+
+        $result = $svc->revoke('p-1', 'carol', callerUid: 'carol');
+
+        $this->assertFalse($result['success']);
+        $this->assertStringStartsWith('Forbidden:', $result['message']);
+        $this->assertSame('active', $rows[0]['proxyStatus'], 'Unrelated caller must not change the proxy status');
+        $this->assertCount(0, $saved, 'No save may occur for an unauthorized transition');
+
+    }//end testRevokeRejectsUnrelatedCallerAndLeavesStatusUnchanged()
+
+    /**
+     * suspend()/revoke() allow a chair/clerk of the meeting to transition
+     * a proxy they are not a party to.
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+     *
+     * @return void
+     */
+    public function testSuspendAllowsChairOfMeeting(): void
+    {
+        $rows  = [
+            ['id' => 'p-1', 'meetingKoppeling' => 'm-1', 'grantorKoppeling' => 'g-1', 'holderKoppeling' => 'h-1', 'proxyStatus' => 'active'],
+        ];
+        $saved = [];
+        $svc   = $this->makeService(
+            $rows,
+            $saved,
+            chairsByMeeting: ['m-1' => ['chair-carol']]
+        );
+
+        $result = $svc->suspend('p-1', 'chair-carol', callerUid: 'chair-carol');
+        $this->assertTrue($result['success']);
+
+    }//end testSuspendAllowsChairOfMeeting()
 }//end class

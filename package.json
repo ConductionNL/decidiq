@@ -22,7 +22,8 @@
     "test:e2e": "playwright test",
     "test:e2e:docs": "playwright test --project docs-capture",
     "test:l10n": "node tests/l10n/check-l10n.js",
-    "test:l10n:write": "node tests/l10n/check-l10n.js --write"
+    "test:l10n:write": "node tests/l10n/check-l10n.js --write",
+    "test:l10n:parity": "node tests/l10n/check-l10n-parity.js"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"
