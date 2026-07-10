@@ -177,7 +177,7 @@ Een MotieGroep optionele koppeling maakt het mogelijk samenhangende moties (bv a
 - **openconnector**: synchronisatie naar iBabs of GemeenteOplossingen voor gemeenten in transitiefase, met bi-directionele sync zodat raadsleden zowel oude als nieuwe tool kunnen gebruiken
 - **opencatalogi**: publicatie van openbare moties als publieke catalogus met TOOI-trefwoorden en OWMS-metadata
 - **openregister**: alle data leeft op openregister schemas; gebruikt audit-trail van openregister voor immutable stem-historie
-- **launchpad**: dashboard widgets voor openstaande moties per portefeuillehouder, fractie-stemgedrag-grafieken, raadsperiode-statistieken
+- **mydash**: dashboard widgets voor openstaande moties per portefeuillehouder, fractie-stemgedrag-grafieken, raadsperiode-statistieken
 - **opentalk**: livestream-deeplinks naar stemmoment per motie in vergader-opname
 - **openklant**: koppeling tussen schriftelijke vraag van inwoner en eventuele motie die daaruit voortvloeit
 

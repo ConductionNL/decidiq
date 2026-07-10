@@ -209,7 +209,7 @@ De spec scheidt nadrukkelijk vier concepten die in legacy-systemen vaak verward 
 - **openconnector**: synchronisatie met Kiesraad voor verkiezingsuitslagen (sZNL2-format), met landelijke partij-registers, met KvK voor partij-rechtspersoon-controle
 - **opencatalogi**: publicatie van openbaar fractie-register, nevenfuncties-register, en schriftelijke-vragen-archief als publieke catalogus
 - **openregister**: alle entiteiten leven op openregister schemas; nevenfuncties-historie als immutable log
-- **launchpad**: dashboards voor griffie met antwoord-termijn-bewaking, fractie-activiteit, fractie-vergoeding-besteding, afsplitsings-statistiek
+- **mydash**: dashboards voor griffie met antwoord-termijn-bewaking, fractie-activiteit, fractie-vergoeding-besteding, afsplitsings-statistiek
 - **opentalk**: communicatie binnen fractie via beveiligde chat-kanalen, mogelijk gekoppeld aan fractie-portaal
 - **openklant**: koppeling tussen vragen van inwoners en schriftelijke vragen die daaruit voortvloeien
 - **openbuilt**: fractie-portaal kan als low-code applicatie worden uitgebreid met fractie-specifieke workflows

@@ -33,7 +33,7 @@ Decidesk base levert basismodel Meeting (plenaire raadsvergaderingen), AgendaIte
 - Audio/video-opname en -livestream (opentalk-integratie volgt)
 - PDF-rendering van verslagen (docudesk-integratie volgt)
 - Automatische kalender-sync (openconnector volgt)
-- Dashboard-rendering (launchpad volgt)
+- Dashboard-rendering (mydash volgt)
 - Multi-tenant commissie-sharing (common pattern later)
 
 ## Decisions

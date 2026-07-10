@@ -228,7 +228,7 @@ The system MUST provide an operational dashboard and alert thresholds for sync h
 #### Scenario: Conflict queue health
 - **GIVEN** the number of open SyncConflicts exceeds 25
 - **WHEN** the health-check runs
-- **THEN** the overall connector-status MUST become `degraded`; this MUST be visible in launchpad and the admin panel
+- **THEN** the overall connector-status MUST become `degraded`; this MUST be visible in mydash and the admin panel
 
 ---
 
