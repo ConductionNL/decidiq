@@ -101,6 +101,15 @@ webpackConfig.plugins = [
 webpackConfig.resolve.alias['@nextcloud/dialogs/style.css$'] = path.resolve(__dirname, 'node_modules/@nextcloud/dialogs/dist/style.css')
 webpackConfig.resolve.alias['@nextcloud/dialogs'] = path.resolve(__dirname, 'node_modules/@nextcloud/dialogs')
 
+// dialogs v6 drags in a FilePicker chunk that imports node's `path`, and webpack 5 no
+// longer auto-polyfills node core modules — without this the bundle fails to emit with
+// "Can't resolve 'path'". This app only uses the toast APIs (showError/showSuccess), so
+// the FilePicker code path never runs and an empty module is safe.
+webpackConfig.resolve.fallback = {
+	...(webpackConfig.resolve.fallback || {}),
+	path: false,
+}
+
 // @nextcloud/axios is pinned to ~2.5.2 (via package.json overrides) which still
 // declares both `import` and `require` exports conditions, so the package can
 // be required from @nextcloud/vue's CJS bundle without webpack 5 tripping on
