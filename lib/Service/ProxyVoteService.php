@@ -73,16 +73,122 @@ class ProxyVoteService
     /**
      * Constructor.
      *
-     * @param ContainerInterface $container       DI container
-     * @param LoggerInterface    $logger          Logger
-     * @param AuditLogService    $auditLogService Audit log dependency
+     * @param ContainerInterface  $container           DI container
+     * @param LoggerInterface     $logger              Logger
+     * @param AuditLogService     $auditLogService     Audit log dependency
+     * @param ParticipantResolver $participantResolver Resolves chair/clerk role membership for the authorization guard
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly AuditLogService $auditLogService,
+        private readonly ParticipantResolver $participantResolver,
     ) {
     }//end __construct()
+
+    /**
+     * Resolve the OpenRegister participant UUID linked to a Nextcloud user ID.
+     *
+     * Returns null when no participant record is linked to this user (mirrors
+     * `MotionCoauthorService::resolveParticipantUuid()`).
+     *
+     * @param string $nextcloudUid Nextcloud UID
+     *
+     * @return string|null
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-1
+     */
+    private function resolveParticipantUuid(string $nextcloudUid): ?string
+    {
+        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('participant');
+        $entities = $objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+
+        foreach ($entities as $participantEntity) {
+            $participant = $participantEntity->jsonSerialize();
+            return ($participant['uuid'] ?? $participant['id'] ?? null);
+        }
+
+        return null;
+
+    }//end resolveParticipantUuid()
+
+    /**
+     * Whether a Nextcloud UID holds a chair or clerk (secretary) role on the
+     * given meeting's GovernanceBody. Reuses `ParticipantResolver::hasRole()`
+     * rather than duplicating role-resolution logic (same convention used by
+     * `LiveMeetingController::requireChairOrAdmin()`).
+     *
+     * @param string $meetingId Meeting UUID
+     * @param string $uid       Nextcloud UID to check
+     *
+     * @return bool
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-1
+     */
+    private function isChairOrClerk(string $meetingId, string $uid): bool
+    {
+        return $this->participantResolver->hasRole(
+            meetingId: $meetingId,
+            nextcloudUid: $uid,
+            roles: ['chair', 'secretary']
+        );
+
+    }//end isChairOrClerk()
+
+    /**
+     * Authorize a proxy registration: the caller must be the grantor (self-delegation),
+     * a chair/clerk of the meeting's GovernanceBody, or an admin (admin bypass is
+     * signalled by the caller passing `$callerUid = null`, mirroring
+     * `MotionCoauthorController`'s convention).
+     *
+     * @param string $meetingId UUID of the meeting
+     * @param string $grantorId UUID of the granting participant
+     * @param string $callerUid Nextcloud UID of the caller
+     *
+     * @return bool
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+     */
+    private function isAuthorizedToRegister(string $meetingId, string $grantorId, string $callerUid): bool
+    {
+        $callerParticipantUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+        if ($callerParticipantUuid !== null && $callerParticipantUuid === $grantorId) {
+            return true;
+        }
+
+        return $this->isChairOrClerk(meetingId: $meetingId, uid: $callerUid);
+
+    }//end isAuthorizedToRegister()
+
+    /**
+     * Authorize a proxy transition (suspend/revoke): the caller must be the
+     * proxy's grantor, the proxy's holder, a chair/clerk of the meeting's
+     * GovernanceBody, or an admin (`$callerUid = null`).
+     *
+     * @param array<string, mixed> $proxy     Serialised proxy row (grantorKoppeling/holderKoppeling/meetingKoppeling)
+     * @param string               $callerUid Nextcloud UID of the caller
+     *
+     * @return bool
+     *
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
+     */
+    private function isAuthorizedForTransition(array $proxy, string $callerUid): bool
+    {
+        $callerParticipantUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+        $grantorId = ($proxy['grantorKoppeling'] ?? null);
+        $holderId  = ($proxy['holderKoppeling'] ?? null);
+        if ($callerParticipantUuid !== null
+            && ($callerParticipantUuid === $grantorId || $callerParticipantUuid === $holderId)
+        ) {
+            return true;
+        }
+
+        $meetingId = (string) ($proxy['meetingKoppeling'] ?? '');
+        return $this->isChairOrClerk(meetingId: $meetingId, uid: $callerUid);
+
+    }//end isAuthorizedForTransition()
 
     /**
      * Register a proxy. The grantor (a board member) delegates their vote on
@@ -99,13 +205,17 @@ class ProxyVoteService
      * @param string               $grantorId UUID of the granting board member
      * @param string               $holderId  UUID of the receiving board member
      * @param array<string, mixed> $extra     Optional fields: scope, expiresAt
+     * @param string|null          $callerUid Nextcloud UID of the caller; null bypasses the
+     *                                        authorization check (admin path, mirroring
+     *                                        `MotionCoauthorController`'s convention)
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
      * @spec openspec/specs/voting-system/spec.md
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
      *
      * @return array{success: bool, proxy: array|null, message: string}
      */
-    public function register(string $meetingId, string $grantorId, string $holderId, array $extra=[]): array
+    public function register(string $meetingId, string $grantorId, string $holderId, array $extra=[], ?string $callerUid=null): array
     {
         if ($meetingId === '' || $grantorId === '' || $holderId === '') {
             return [
@@ -120,6 +230,14 @@ class ProxyVoteService
                 'success' => false,
                 'proxy'   => null,
                 'message' => 'Grantor and holder must differ.',
+            ];
+        }
+
+        if ($callerUid !== null && $this->isAuthorizedToRegister(meetingId: $meetingId, grantorId: $grantorId, callerUid: $callerUid) === false) {
+            return [
+                'success' => false,
+                'proxy'   => null,
+                'message' => 'Forbidden: only the grantor, a chair/clerk of the meeting, or an admin may register this proxy.',
             ];
         }
 
@@ -297,15 +415,20 @@ class ProxyVoteService
      * Transition a proxy to a new status. Mirrors the change to the audit
      * log (proxy-created on `active`, proxy-revoked on `revoked`).
      *
-     * @param string $proxyId   UUID of the proxy row
-     * @param string $newStatus New status
-     * @param string $actor     UUID of the user driving the transition
+     * @param string      $proxyId   UUID of the proxy row
+     * @param string      $newStatus New status
+     * @param string      $actor     UUID of the user driving the transition (audit-log label)
+     * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the authorization
+     *                               check (admin path). NOT equivalent to `$actor` — deriving
+     *                               `$actor` for the audit log does not by itself authorize the
+     *                               mutation.
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
      *
      * @return array{success: bool, proxy: array|null, message: string}
      */
-    public function transition(string $proxyId, string $newStatus, string $actor): array
+    public function transition(string $proxyId, string $newStatus, string $actor, ?string $callerUid=null): array
     {
         if (in_array($newStatus, self::STATUSES, true) === false) {
             return [
@@ -333,6 +456,14 @@ class ProxyVoteService
             $current = (array) $entity->jsonSerialize();
             if (method_exists($entity, 'getObject') === true) {
                 $current = $entity->getObject();
+            }
+
+            if ($callerUid !== null && $this->isAuthorizedForTransition(proxy: $current, callerUid: $callerUid) === false) {
+                return [
+                    'success' => false,
+                    'proxy'   => null,
+                    'message' => 'Forbidden: only the proxy\'s grantor, its holder, a chair/clerk of the meeting, or an admin may change its status.',
+                ];
             }
 
             $previousStatus = (string) ($current['proxyStatus'] ?? '');
@@ -388,32 +519,36 @@ class ProxyVoteService
     /**
      * Convenience: suspend a proxy (e.g. grantor joins remotely).
      *
-     * @param string $proxyId UUID of the proxy
-     * @param string $actor   UUID of the user driving the transition
+     * @param string      $proxyId   UUID of the proxy
+     * @param string      $actor     UUID of the user driving the transition (audit-log label)
+     * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the authorization check
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
      *
      * @return array{success: bool, proxy: array|null, message: string}
      */
-    public function suspend(string $proxyId, string $actor): array
+    public function suspend(string $proxyId, string $actor, ?string $callerUid=null): array
     {
-        return $this->transition(proxyId: $proxyId, newStatus: 'suspended', actor: $actor);
+        return $this->transition(proxyId: $proxyId, newStatus: 'suspended', actor: $actor, callerUid: $callerUid);
 
     }//end suspend()
 
     /**
      * Convenience: revoke a proxy.
      *
-     * @param string $proxyId UUID of the proxy
-     * @param string $actor   UUID of the user driving the transition
+     * @param string      $proxyId   UUID of the proxy
+     * @param string      $actor     UUID of the user driving the transition (audit-log label)
+     * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the authorization check
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
      *
      * @return array{success: bool, proxy: array|null, message: string}
      */
-    public function revoke(string $proxyId, string $actor): array
+    public function revoke(string $proxyId, string $actor, ?string $callerUid=null): array
     {
-        return $this->transition(proxyId: $proxyId, newStatus: 'revoked', actor: $actor);
+        return $this->transition(proxyId: $proxyId, newStatus: 'revoked', actor: $actor, callerUid: $callerUid);
 
     }//end revoke()
 }//end class

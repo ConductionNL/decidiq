@@ -1259,6 +1259,7 @@ class Application extends App implements IBootstrap
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    participantResolver: $c->get(ParticipantResolver::class),
                 );
             }
         );
@@ -1270,6 +1271,7 @@ class Application extends App implements IBootstrap
                     request: $c->get(\OCP\IRequest::class),
                     proxyService: $c->get(\OCA\Decidesk\Service\ProxyVoteService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
+                    groupManager: $c->get(\OCP\IGroupManager::class),
                 );
             }
         );

@@ -15,7 +15,13 @@
 # Layers, and what gates today:
 #   • phpunit-unit             — HARD GATE. tests/Unit via phpunit-unit.xml
 #                                (standalone bootstrap, vendor OCP stubs, no NC).
-#   • l10n-check               — HARD GATE. tests/l10n/check-l10n.js drift guard.
+#   • l10n-check               — HARD GATE. tests/l10n/check-l10n.js drift guard,
+#                                plus tests/l10n/check-l10n-parity.js
+#                                (L10N_REQUIRED_LOCALES=nl) — the flagship nl
+#                                locale must carry a real translation for
+#                                every English source key, or the pipeline
+#                                fails instead of silently falling back to
+#                                English for that string.
 #   • frontend-unit            — HARD GATE. offline Vitest (tests/vitest/**).
 #   • phpunit-coverage-ratchet — HARD GATE. backend line-coverage ratchet.
 #   • frontend-coverage-ratchet— HARD GATE. frontend line-coverage ratchet.
@@ -84,6 +90,9 @@ jobs:
 
       - name: Assert every t() source string is in l10n/en.json
         run: node tests/l10n/check-l10n.js
+
+      - name: Assert the nl locale is at full translation parity with en.json
+        run: L10N_REQUIRED_LOCALES=nl node tests/l10n/check-l10n-parity.js
 
   # ---------------------------------------------------------------------------
   # HARD GATE 3 — frontend unit suite (Vitest, OFFLINE; no NC needed).
