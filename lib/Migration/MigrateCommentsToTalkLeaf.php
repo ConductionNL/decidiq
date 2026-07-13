@@ -168,7 +168,11 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
         try {
             $objectService->setRegister(self::REGISTER);
             $objectService->setSchema(self::LEGACY_SCHEMA);
-            $legacyComments = $objectService->findAll(limit: 1000);
+            // ObjectService::findAll() takes a single $config array — the
+            // named-argument form (limit:) threw "Unknown named parameter" and
+            // was swallowed by the catch below, so the migration always reported
+            // "nothing to migrate". Register/schema context is set above.
+            $legacyComments = $objectService->findAll(['limit' => 1000]);
         } catch (Throwable $e) {
             $output->info('No legacy Comment objects found — nothing to migrate.');
             $this->logger->info(

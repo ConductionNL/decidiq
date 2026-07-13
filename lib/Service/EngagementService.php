@@ -181,13 +181,18 @@ class EngagementService
             $objectService->setRegister('decidesk');
             $objectService->setSchema('engagement-record');
 
+            // ObjectService::findAll() takes a single $config array — the
+            // named-argument form (limit:/offset:/filters:) threw
+            // "Unknown named parameter" and was swallowed by the catch below.
             $results = $objectService->findAll(
-                limit: 1,
-                offset: 0,
-                filters: [
-                    'meeting'     => $meetingId,
-                    'participant' => $participant,
-                ],
+                [
+                    'filters' => [
+                        'meeting'     => $meetingId,
+                        'participant' => $participant,
+                    ],
+                    'limit'   => 1,
+                    'offset'  => 0,
+                ]
             );
         } catch (Throwable $e) {
             $this->logger->debug(
@@ -195,7 +200,7 @@ class EngagementService
                 ['error' => $e->getMessage()]
             );
             return null;
-        }
+        }//end try
 
         foreach ($results as $entity) {
             if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
@@ -227,10 +232,15 @@ class EngagementService
             $objectService->setRegister('decidesk');
             $objectService->setSchema('engagement-record');
 
+            // ObjectService::findAll() takes a single $config array — the
+            // named-argument form (limit:/offset:/filters:) threw
+            // "Unknown named parameter" and was swallowed by the catch below.
             $results = $objectService->findAll(
-                limit: 500,
-                offset: 0,
-                filters: ['meeting' => $meetingId],
+                [
+                    'filters' => ['meeting' => $meetingId],
+                    'limit'   => 500,
+                    'offset'  => 0,
+                ]
             );
         } catch (Throwable $e) {
             $this->logger->warning(
@@ -238,7 +248,7 @@ class EngagementService
                 ['meetingId' => $meetingId, 'error' => $e->getMessage()]
             );
             return [];
-        }
+        }//end try
 
         $out = [];
         foreach ($results as $entity) {

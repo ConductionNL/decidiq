@@ -148,10 +148,24 @@ class ApiController extends Controller
             return $this->errorResponse(message: 'Invalid pagination parameters', status: Http::STATUS_BAD_REQUEST);
         }
 
+        // ObjectService::findAll() takes a single $config array. The previous
+        // named-argument form (register:/schema:/params:) threw "Unknown named
+        // parameter" — and `params:` was never a real key at all — so every list
+        // request fell into the catch below and returned a 500. Register/schema
+        // are read from inside `filters`; limit/offset are top-level config keys.
         try {
             $objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
             $offset        = (($page - 1) * $limit);
-            $results       = $objectService->findAll(register: 'decidesk', schema: $schema, params: ['limit' => $limit, 'offset' => $offset]);
+            $results       = $objectService->findAll(
+                [
+                    'filters' => [
+                        'register' => 'decidesk',
+                        'schema'   => $schema,
+                    ],
+                    'limit'   => $limit,
+                    'offset'  => $offset,
+                ]
+            );
             $total         = 0;
             if (is_array($results) === true) {
                 $total = count($results);
@@ -161,7 +175,7 @@ class ApiController extends Controller
         } catch (Throwable $e) {
             $this->logger->error(message: 'ApiController index failed', context: ['resource' => $resource, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
 
         $response = new JSONResponse(
                 [

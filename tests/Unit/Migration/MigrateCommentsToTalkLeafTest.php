@@ -318,11 +318,15 @@ class MigrateCommentsToTalkLeafTest extends TestCase
             /**
              * FindAll throws — emulates a never-instantiated schema.
              *
-             * @param integer $limit Max results.
+             * Mirrors OpenRegister's real ObjectService::findAll(array $config)
+             * signature — a single config array, not the long-gone named-argument
+             * form (limit:).
+             *
+             * @param array $config Find-all config (filters/limit/offset).
              *
              * @return array<int,mixed>
              */
-            public function findAll(int $limit=100): array
+            public function findAll(array $config=[]): array
             {
                 throw new \RuntimeException('schema not found');
 
@@ -418,11 +422,15 @@ class MigrateCommentsToTalkLeafTest extends TestCase
             /**
              * Return the configured legacy comments.
              *
-             * @param integer $limit Max results.
+             * Mirrors OpenRegister's real ObjectService::findAll(array $config)
+             * signature — a single config array, not the long-gone named-argument
+             * form (limit:).
+             *
+             * @param array $config Find-all config (filters/limit/offset).
              *
              * @return array<int,array<string,mixed>>
              */
-            public function findAll(int $limit=100): array
+            public function findAll(array $config=[]): array
             {
                 return $this->legacyComments;
 

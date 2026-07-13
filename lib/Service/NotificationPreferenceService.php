@@ -102,10 +102,16 @@ class NotificationPreferenceService
             $objectService->setRegister('decidesk');
             $objectService->setSchema('notification-preference');
 
+            // ObjectService::findAll() takes a single $config array — the
+            // named-argument form (limit:/offset:/filters:) threw
+            // "Unknown named parameter" and was swallowed by the catch below,
+            // leaving this lookup permanently returning null.
             $results = $objectService->findAll(
-                limit: 1,
-                offset: 0,
-                filters: ['person' => $personId],
+                [
+                    'filters' => ['person' => $personId],
+                    'limit'   => 1,
+                    'offset'  => 0,
+                ]
             );
         } catch (\Throwable $e) {
             $this->logger->debug(
@@ -113,7 +119,7 @@ class NotificationPreferenceService
                 ['personId' => $personId, 'error' => $e->getMessage()]
             );
             return null;
-        }
+        }//end try
 
         foreach ($results as $entity) {
             if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {

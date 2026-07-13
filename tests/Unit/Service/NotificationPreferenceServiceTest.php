@@ -114,15 +114,20 @@ class NotificationPreferenceServiceTest extends TestCase
             /**
              * Filtered find-all returning the row for filters['person'].
              *
-             * @param int   $limit   Page size.
-             * @param int   $offset  Page offset.
-             * @param array $filters Field filters.
+             * Mirrors OpenRegister's real ObjectService::findAll(array $config)
+             * signature — a single config array carrying `filters`/`limit`/
+             * `offset`. The previous fake declared the long-gone named-argument
+             * form (limit:/offset:/filters:), so it happily accepted calls that
+             * throw "Unknown named parameter" against the real service.
+             *
+             * @param array $config Find-all config (filters/limit/offset).
              *
              * @return array<int, array<string, mixed>>
              */
-            public function findAll(int $limit=20, int $offset=0, array $filters=[]): array
+            public function findAll(array $config=[]): array
             {
-                $person = ($filters['person'] ?? '');
+                $filters = ($config['filters'] ?? []);
+                $person  = ($filters['person'] ?? '');
                 if (isset($this->rows[$person]) === true) {
                     return [$this->rows[$person]];
                 }
