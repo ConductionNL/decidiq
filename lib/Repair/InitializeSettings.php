@@ -87,8 +87,29 @@ class InitializeSettings implements IRepairStep
         // Ensure voter_token_secret is initialized exactly once, at install/upgrade time,
         // to prevent a concurrent first-call race in VotingService::voterTokenSecret().
         if ($this->appConfig->getValueString('decidesk', 'voter_token_secret', '') === '') {
-            $this->appConfig->setValueString('decidesk', 'voter_token_secret', bin2hex(random_bytes(32)));
+            // sensitive: true — this is the HMAC key that signs voting tokens and
+            // mail-reply links. Without the flag it is stored as an ordinary appconfig
+            // string, so it prints in cleartext in `occ config:list` and every support
+            // dump that feeds. Anyone who reads it can forge a vote.
+            $this->appConfig->setValueString(
+                'decidesk',
+                'voter_token_secret',
+                bin2hex(random_bytes(32)),
+                sensitive: true
+            );
             $output->info('Generated voter_token_secret for Decidesk.');
+        }
+
+        // Re-flag a token stored before this release: flagging the WRITE path only fixes
+        // new installs, and nobody regenerates the key. `updateSensitive()` re-encrypts
+        // the existing row at rest and redacts it from CLI output in place.
+        if ($this->appConfig->getValueString('decidesk', 'voter_token_secret', '') !== '') {
+            try {
+                $this->appConfig->updateSensitive('decidesk', 'voter_token_secret', true);
+            } catch (\Throwable $e) {
+                // Never fatal — leaving it as-is is the pre-existing state, not a regression.
+                $output->warning('Could not flag voter_token_secret as sensitive: '.$e->getMessage());
+            }
         }
 
         if ($this->settingsService->isOpenRegisterAvailable() === false) {
