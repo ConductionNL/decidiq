@@ -472,12 +472,19 @@ class EIDASSignatureService implements IEIDASSignatureService
             // Find any DecisionStage with method=signature whose signedDocument
             // points at this minutes record. Seeds and UI will wire the correct
             // DigitalDocument UUID; the service resolves the stage it finds.
+            // ObjectService::findAll() takes a single $config array — the
+            // named-argument form (register:/schema:/filters:) threw "Unknown
+            // named parameter" and was swallowed by the catch below, so the
+            // signature stage was never resolved. Register/schema are read from
+            // inside `filters`.
             $results = $objectService->findAll(
-                register: 'decidesk',
-                schema: 'decision-stage',
-                filters: [
-                    'method'         => 'signature',
-                    'signedDocument' => $minutesId,
+                [
+                    'filters' => [
+                        'register'       => 'decidesk',
+                        'schema'         => 'decision-stage',
+                        'method'         => 'signature',
+                        'signedDocument' => $minutesId,
+                    ],
                 ]
             );
 
