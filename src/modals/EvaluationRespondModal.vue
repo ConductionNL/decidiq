@@ -26,7 +26,10 @@
 			<div v-for="question in questions" :key="question.id" class="evaluation-respond__question">
 				<p class="evaluation-respond__prompt">{{ question.prompt }}</p>
 
-				<div v-if="question.type === 'likert'" class="evaluation-respond__likert" role="radiogroup" :aria-label="question.prompt">
+				<div v-if="question.type === 'likert'"
+					class="evaluation-respond__likert"
+					role="radiogroup"
+					:aria-label="question.prompt">
 					<NcButton
 						v-for="value in likertRange(question)"
 						:key="value"

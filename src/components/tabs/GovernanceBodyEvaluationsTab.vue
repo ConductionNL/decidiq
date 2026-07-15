@@ -48,7 +48,10 @@
 		</template>
 
 		<ul v-else class="evaluation-list" role="list">
-			<li v-for="evaluation in sortedEvaluations" :key="evaluation.id" class="evaluation-card" :data-testid="`evaluation-card-${evaluation.id}`">
+			<li v-for="evaluation in sortedEvaluations"
+				:key="evaluation.id"
+				class="evaluation-card"
+				:data-testid="`evaluation-card-${evaluation.id}`">
 				<div class="evaluation-card__header">
 					<strong>{{ evaluation.cycleLabel }}</strong>
 					<span class="evaluation-card__status">{{ evaluation.lifecycle }}</span>
@@ -104,7 +107,10 @@
 					</p>
 
 					<ul v-else class="efficiency-bars" role="list">
-						<li v-for="(score, dimension) in scoreSummaryFor(evaluation).dimensionScores" :key="dimension" class="efficiency-bars__row" role="listitem">
+						<li v-for="(score, dimension) in scoreSummaryFor(evaluation).dimensionScores"
+							:key="dimension"
+							class="efficiency-bars__row"
+							role="listitem">
 							<span class="efficiency-bars__label">{{ dimension }}</span>
 							<span class="efficiency-bars__track">
 								<span class="efficiency-bars__fill" :style="{ width: barWidth(score, 5) }" />
