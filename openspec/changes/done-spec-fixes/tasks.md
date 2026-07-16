@@ -1,0 +1,22 @@
+# Tasks: done-spec-fixes
+
+- [x] 1. Pull a fresh hydra worktree off origin/development (64aa367b — includes #113, #114)
+- [x] 2. Run the full un-blinded gate suite against a clean decidesk worktree
+- [x] 3. Work around hydra's `HYDRA_GATE_PR_BODY` unbound-variable abort to reach gates 50-57
+- [x] 4. Re-verify gate-6 original trio: `isTransitionAllowed` — genuinely wired
+- [x] 5. Re-verify gate-6 original trio: `requiresChairAuthorization` — genuinely wired, fail-closed
+- [x] 6. Re-verify gate-6 original trio: `validateQuorum` — supersession-checked, legitimately replaced
+- [x] 7. Hunt fabricated pass across lib/Service + lib/Lifecycle — none found (reported as such)
+- [x] 8. Verify every `x-openregister-*` key decidesk uses is in OR's ANNOTATION_VOCABULARY
+- [x] 9. Check lifecycle dialect for `initial` vs `initialState` drift — canonical, no drift
+- [x] 10. Find + fix notification trigger drift (`create` → `created`) on ConsultationReaction
+- [x] 11. Migrate BoardEvaluation + EvaluationResponse relations to canonical property-level `$ref`
+- [x] 12. Repoint the 2 pre-existing red tests at the canonical relation dialect
+- [x] 13. Handle to-many relations (`items.$ref`, e.g. Decision.route) in the repointed test
+- [x] 14. Add a guard test for OR's canonical notification trigger vocabulary
+- [x] 15. Add a guard test that the retired `x-openregister-relations` dialect cannot return
+- [x] 16. Bad-path proof: reintroduce both drifts and confirm each guard fails with a precise message
+- [x] 17. Bump `info.version` 0.6.0 → 0.6.1 so the corrected register is not skipped by the import gate
+- [x] 18. Establish the real test baseline from a pristine origin/development worktree (by test NAME)
+- [x] 19. Confirm 776 tests / 0 failures vs baseline 774 / 2 failures
+- [x] 20. File residuals (3 orphaned capabilities, unrouted settings#load, hydra + OR defects) on the umbrella issue
