@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -50,7 +50,7 @@ use OCP\IUserSession;
  * meeting's participant records — the no-admin-idor invariant. The guards fail
  * CLOSED for non-admins when the meeting cannot be resolved.
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
 class TranscriptionController extends Controller
 {
@@ -66,7 +66,7 @@ class TranscriptionController extends Controller
      * @param IUserSession         $userSession          Current user session.
      * @param IGroupManager        $groupManager         Group manager (admin check).
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function __construct(
         IRequest $request,
@@ -91,7 +91,7 @@ class TranscriptionController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     #[NoAdminRequired]
     public function sources(string $meetingId): JSONResponse
@@ -127,7 +127,7 @@ class TranscriptionController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     #[NoAdminRequired]
     public function attach(string $meetingId): JSONResponse
@@ -181,7 +181,7 @@ class TranscriptionController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     #[NoAdminRequired]
     public function transcribe(string $transcriptId): JSONResponse
@@ -220,7 +220,7 @@ class TranscriptionController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     #[NoAdminRequired]
     public function realign(string $transcriptId): JSONResponse
@@ -253,7 +253,7 @@ class TranscriptionController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     #[NoAdminRequired]
     public function generateDraft(string $transcriptId): JSONResponse
@@ -288,7 +288,7 @@ class TranscriptionController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     #[NoAdminRequired]
     public function retentionConfig(string $bodyId): JSONResponse
@@ -335,7 +335,7 @@ class TranscriptionController extends Controller
      *
      * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function requireStaffForMeeting(string $meetingId): ?JSONResponse
     {
@@ -373,7 +373,7 @@ class TranscriptionController extends Controller
      *
      * @return JSONResponse|null Null when authorised; a 401/403/404 response otherwise.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function requireStaffForTranscript(string $transcriptId): ?JSONResponse
     {
@@ -424,7 +424,7 @@ class TranscriptionController extends Controller
      *
      * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function requireStaffForBody(string $bodyId): ?JSONResponse
     {

@@ -202,7 +202,7 @@ export default {
 		 * Open the non-blocking publish prompt when the decision's governance
 		 * body is configured with the `prompt-on-transition` policy for decisions.
 		 *
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async maybePromptPublish() {
 			try {
@@ -232,7 +232,7 @@ export default {
 		 * Publish from the prompt — calls the same authoritative publish endpoint
 		 * as the Publication tab.
 		 *
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async promptPublish() {
 			this.publishPromptOpen = false

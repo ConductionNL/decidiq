@@ -290,7 +290,7 @@ class MeetingService
      *
      * @return string|null
      *
-     * @spec openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-003-chair-only-lifecycle-transitions-are-enforced-by-openregister-property-rbac
+     * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-003-chair-only-lifecycle-transitions-are-enforced-by-openregister-property-rbac
      */
     private function resolveBodyId(array $meetingData): ?string
     {

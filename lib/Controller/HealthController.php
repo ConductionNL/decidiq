@@ -26,7 +26,7 @@
  * SPDX-License-Identifier: EUPL-1.2.
  *
  * @spec openspec/changes/adopt-apphost/tasks.md#task-2.5
- * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
+ * @spec openspec/specs/apphost-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -53,7 +53,7 @@ use OCP\IRequest;
  * It holds its own references to the engine collaborators (the generic keeps
  * its copies private), injected via the constructor closure in Application.php.
  *
- * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
+ * @spec openspec/specs/apphost-adoption/spec.md
  */
 class HealthController extends GenericHealthController
 {

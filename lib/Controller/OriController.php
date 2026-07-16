@@ -158,7 +158,7 @@ class OriController extends Controller
      * @return JSONResponse JSON-LD list envelope or error
      *
      * @spec openspec/changes/p4-integration/tasks.md#task-11
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -274,7 +274,7 @@ class OriController extends Controller
      * @return JSONResponse The JSON-LD entity or error
      *
      * @spec openspec/changes/p4-integration/tasks.md#task-11
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -531,7 +531,7 @@ class OriController extends Controller
      *
      * @return bool True when the payload is currently publicly visible
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      */
     private function isPayloadLive(array $object): bool
     {

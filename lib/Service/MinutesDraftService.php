@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ use Psr\Log\LoggerInterface;
  * cross-checked against the recorded voting outcomes/decisions: matches link,
  * non-matches are flagged unverified.
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
 class MinutesDraftService
 {
@@ -54,7 +54,7 @@ class MinutesDraftService
      * @param ContainerInterface $container DI container (lazy OR + TaskProcessing).
      * @param LoggerInterface    $logger    The logger.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -69,7 +69,7 @@ class MinutesDraftService
      *
      * @return bool True when at least one TaskProcessing provider is registered.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function isProviderAvailable(): bool
     {
@@ -110,7 +110,7 @@ class MinutesDraftService
      * @throws MissingObjectException When the Transcript cannot be found.
      * @throws \DomainException       When no AI provider is available (code 503).
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function generate(string $transcriptId): array
     {
@@ -188,7 +188,7 @@ class MinutesDraftService
      *
      * @return array<int,array<string,mixed>> The draft sections.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function buildSections(
         array $segments,
@@ -274,7 +274,7 @@ class MinutesDraftService
      *
      * @return array<string,mixed> The section.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function buildSection(
         string $agendaItem,
@@ -314,7 +314,7 @@ class MinutesDraftService
      *
      * @return array<int,array<string,mixed>> Suggestions with match/unverified flags.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function crossCheck(string $summary, array $votingRounds, array $decisions): array
     {
@@ -371,7 +371,7 @@ class MinutesDraftService
      *
      * @return string The assembled prompt.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function assemblePrompt(string $title, array $segments, array $votes, array $decisions): string
     {
@@ -425,7 +425,7 @@ class MinutesDraftService
      *
      * @return string The provider output text (empty on failure).
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function runPrompt(string $prompt): string
     {
@@ -454,7 +454,7 @@ class MinutesDraftService
      *
      * @return string The provider id, or '' when not resolvable.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function preferredProviderId(): string
     {
@@ -480,7 +480,7 @@ class MinutesDraftService
      *
      * @return array<int,array<string,mixed>> Matching segments.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function segmentsForItem(array $segments, string $agendaItemId): array
     {
@@ -503,7 +503,7 @@ class MinutesDraftService
      *
      * @return array<int,array<string,mixed>> Matching records.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function recordForItem(array $records, string $agendaItemId): array
     {
@@ -535,7 +535,7 @@ class MinutesDraftService
      *
      * @return array<int,array<string,mixed>> Object data arrays.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function fetchRelated(string $meetingId, string $schema): array
     {
@@ -583,7 +583,7 @@ class MinutesDraftService
      *
      * @return array<string,mixed>|null The object data.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function fetchObject(string $id, string $schema): ?array
     {
@@ -609,7 +609,7 @@ class MinutesDraftService
      *
      * @return void
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function saveTranscript(array $transcript): void
     {
@@ -643,7 +643,7 @@ class MinutesDraftService
      *
      * @return string|null The meeting UUID.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function resolveMeetingId(array $transcript): ?string
     {

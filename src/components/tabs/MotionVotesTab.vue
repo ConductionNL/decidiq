@@ -83,7 +83,7 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
 				{ key: 'caster', label: this.t('decidesk', 'Voter') },
@@ -91,11 +91,11 @@ export default {
 				{ key: 'castAt', label: this.t('decidesk', 'Cast at') },
 			]
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		voteColors() {
 			return { for: 'success', against: 'error', abstain: 'default' }
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		roundColors() {
 			return { adopted: 'success', rejected: 'error', tied: 'warning' }
 		},
@@ -103,12 +103,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
 			handler() { this.refresh() },
 		},
 	},
 	methods: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -147,7 +147,7 @@ export default {
 		// Builds a per-id lookup once per refresh; falls back to the raw
 		// value (or "—") when a participant can't be resolved (deleted /
 		// not in this register).
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async hydrateCasters(votes) {
 			const ids = new Set()
 			for (const v of votes) {
@@ -176,7 +176,7 @@ export default {
 				this.casterById = Object.create(null)
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		casterDisplayName(row) {
 			const raw = row && (row.caster?.id || row.caster)
 			if (raw == null || raw === '') return '—'

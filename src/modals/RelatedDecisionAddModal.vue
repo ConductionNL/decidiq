@@ -9,7 +9,7 @@
  inline — the dialog stays open until the parent calls setError() / setSuccess().
  Lives in src/modals/ per the modal-isolation rule.
 
- @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md
+ @spec openspec/specs/relation-tab-ui/spec.md
 -->
 <template>
 	<NcDialog
@@ -83,7 +83,7 @@ export default {
 		}
 	},
 	methods: {
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async onSearch(query) {
 			this.searching = true
 			try {
@@ -94,7 +94,7 @@ export default {
 				this.searching = false
 			}
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		confirm() {
 			this.error = ''
 			this.busy = true

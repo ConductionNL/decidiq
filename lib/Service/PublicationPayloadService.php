@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -35,7 +35,7 @@ use Psr\Log\LoggerInterface;
  * payload declares its `oriType` and carries the ORI-mapped fields the specs
  * cite (Besluit / Vergadering+AgendaPunt / Verslag).
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 class PublicationPayloadService
 {
@@ -46,7 +46,7 @@ class PublicationPayloadService
      * @param LoggerInterface          $logger        Logger.
      * @param PublicationConfigService $configService Publication configuration.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -63,7 +63,7 @@ class PublicationPayloadService
      * @param string|null         $bodyId     UUID of the governance body (for policy lookup).
      * @param int                 $version    Payload version (incremented on rectify).
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array<string,mixed> The allow-list payload, ready to persist.
      */
@@ -88,7 +88,7 @@ class PublicationPayloadService
      * @param array<string,mixed> $source  Decision object data.
      * @param int                 $version Payload version.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array<string,mixed>
      */
@@ -115,7 +115,7 @@ class PublicationPayloadService
      * @param array<string,mixed> $source  Meeting object data.
      * @param int                 $version Payload version.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array<string,mixed>
      */
@@ -164,7 +164,7 @@ class PublicationPayloadService
      * @param string|null         $bodyId  UUID of the governance body.
      * @param int                 $version Payload version.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array<string,mixed>
      */
@@ -192,7 +192,7 @@ class PublicationPayloadService
      *
      * @param array<string,mixed> $source Decision object data.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array{for:int,against:int,abstain:int}
      */
@@ -219,7 +219,7 @@ class PublicationPayloadService
      * @param array<string,mixed> $source Minutes object data.
      * @param string              $policy 'counts' or 'role-holders'.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array<string,mixed>
      */
@@ -266,7 +266,7 @@ class PublicationPayloadService
      *
      * @param array<string,mixed> $meeting Meeting object data.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array<int,array<string,mixed>>
      */
@@ -311,7 +311,7 @@ class PublicationPayloadService
      *
      * @param array<string,mixed> $item Agenda item data.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return bool
      */
@@ -332,7 +332,7 @@ class PublicationPayloadService
      *
      * @param array<string,mixed> $source Source object data.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string
      */

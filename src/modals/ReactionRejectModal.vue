@@ -6,7 +6,7 @@
  (citizen-participation). The reason is mandatory — the server refuses a
  rejection without one; this dialog enforces the same rule client-side.
 
- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ @spec openspec/specs/citizen-participation/spec.md
 -->
 <template>
 	<NcDialog

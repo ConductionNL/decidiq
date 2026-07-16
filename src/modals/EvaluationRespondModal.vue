@@ -10,7 +10,7 @@
  via the `confirm` event so the anonymous-submission API call happens in one
  place (GovernanceBodyEvaluationsTab).
 
- @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+ @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
 -->
 <template>
 	<NcDialog
@@ -67,7 +67,7 @@
 import { NcButton, NcDialog, NcTextArea } from '@nextcloud/vue'
 
 /**
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+ * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
  */
 export default {
 	name: 'EvaluationRespondModal',
@@ -89,7 +89,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member */
+		/** @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member */
 		allLikertAnswered() {
 			return this.questions
 				.filter((q) => q.type === 'likert')

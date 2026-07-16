@@ -29,8 +29,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/public-publication/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -59,8 +59,8 @@ use Psr\Log\LoggerInterface;
  * the dependency-free isSchemaDenied/isFileDenied/assertPublishable helpers.
  * Both deny-lists live here as a single, testable home.
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/public-publication/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
 class PublicationEligibilityService
 {
@@ -137,7 +137,7 @@ class PublicationEligibilityService
      * @param ContainerInterface $container DI container (lazy ObjectService).
      * @param LoggerInterface    $logger    Logger.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -154,7 +154,7 @@ class PublicationEligibilityService
      * @param string              $schema     Source schema slug (decision|meeting|minutes|...).
      * @param array<string,mixed> $objectData The object payload (for discriminators).
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return bool True when publication must be structurally refused.
      */
@@ -197,7 +197,7 @@ class PublicationEligibilityService
      *
      * @return bool True when the schema can never be published.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function isSchemaDenied(string $schemaSlug): bool
     {
@@ -212,7 +212,7 @@ class PublicationEligibilityService
      *
      * @return bool True when the file can never be published.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function isFileDenied(string $fileName): bool
     {
@@ -250,7 +250,7 @@ class PublicationEligibilityService
      *
      * @throws \DomainException When the target is on the deny-list (code 422).
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function assertPublishable(string $schemaSlug, ?string $fileName=null): void
     {
@@ -280,7 +280,7 @@ class PublicationEligibilityService
      * @param string $sourceType One of decision|agenda|minutes.
      * @param string $sourceId   UUID of the source object.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @throws MissingObjectException When the source object does not exist.
      * @throws AccessDeniedException  When structurally denied or not yet eligible.
@@ -325,7 +325,7 @@ class PublicationEligibilityService
      * @param array<string,mixed> $stored   The currently-stored object data.
      * @param array<string,mixed> $incoming The incoming update payload.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/decision-management/spec.md
+     * @spec openspec/specs/decision-management/spec.md
      *
      * @throws AccessDeniedException When the incoming write changes a flow-owned field.
      *
@@ -354,7 +354,7 @@ class PublicationEligibilityService
      *
      * @param array<string,mixed> $data Decision object data.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @throws AccessDeniedException When not eligible.
      *
@@ -376,7 +376,7 @@ class PublicationEligibilityService
      *
      * @param array<string,mixed> $data Meeting object data.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @throws AccessDeniedException When not eligible.
      *
@@ -404,7 +404,7 @@ class PublicationEligibilityService
      *
      * @param array<string,mixed> $data Minutes object data.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @throws AccessDeniedException When not eligible.
      *
@@ -426,7 +426,7 @@ class PublicationEligibilityService
      *
      * @param string $sourceType One of decision|agenda|minutes.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string The schema slug.
      */
@@ -447,7 +447,7 @@ class PublicationEligibilityService
      * @param string $schema Schema slug.
      * @param string $id     Object UUID.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @throws MissingObjectException When the object does not exist.
      *

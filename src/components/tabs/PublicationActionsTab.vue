@@ -12,7 +12,7 @@
  NOT served by this app — it happens exclusively through OR's published-
  predicate / OpenCatalogi surface.
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
 	<div class="decidesk-tab decidesk-tab--publication" data-testid="publication-actions-tab">
@@ -139,15 +139,15 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		records_sorted() {
 			return [...this.records].sort((a, b) => (b.payloadVersion || 0) - (a.payloadVersion || 0))
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		activeRecord() {
 			return this.records_sorted.find(r => r.status === 'published') || null
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		history() {
 			return this.records_sorted
 		},
@@ -156,7 +156,7 @@ export default {
 		 * the Publish action is offered. The server remains authoritative.
 		 *
 		 * @return {boolean} Whether the object appears publishable.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		eligible() {
 			if (!this.source) return false
@@ -175,7 +175,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+			/** @spec openspec/specs/public-publication/spec.md */
 			handler() { this.refresh() },
 		},
 	},
@@ -185,7 +185,7 @@ export default {
 		 *
 		 * @param {string} status Record status.
 		 * @return {string} The translated label.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		statusLabel(status) {
 			const labels = {
@@ -200,7 +200,7 @@ export default {
 		 *
 		 * @param {string} code Warning code.
 		 * @return {string} The translated label.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		warningLabel(code) {
 			const labels = {
@@ -211,7 +211,7 @@ export default {
 			}
 			return labels[code] || code
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -235,7 +235,7 @@ export default {
 		 * Map the publication source type to the OR schema relation type.
 		 *
 		 * @return {string} The relation type slug.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		sourceSchemaType() {
 			return this.sourceType === 'agenda' ? 'meeting' : this.sourceType
@@ -246,7 +246,7 @@ export default {
 		 * @param {string} path Path under /apps/decidesk/api.
 		 * @param {object} body JSON body.
 		 * @return {Promise<object>} Parsed response body.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async callApi(path, body = {}) {
 			const response = await fetch(generateUrl(`/apps/decidesk/api${path}`), {
@@ -263,7 +263,7 @@ export default {
 			}
 			return data
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		async publish() {
 			this.working = true
 			this.error = ''
@@ -282,7 +282,7 @@ export default {
 		 * Withdraw the active publication with a mandatory reason.
 		 *
 		 * @param {string} reason The withdraw reason.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async confirmWithdraw(reason) {
 			this.withdrawModalOpen = false
@@ -304,7 +304,7 @@ export default {
 		 * Rectify the active publication (publish a corrected version).
 		 *
 		 * @param {string} reason Optional reason for the correction.
-		 * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		async confirmRectify(reason) {
 			this.rectifyModalOpen = false

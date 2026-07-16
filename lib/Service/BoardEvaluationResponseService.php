@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+ * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Anonymous response collection + completion tracking for a BoardEvaluation.
  *
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+ * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
  */
 class BoardEvaluationResponseService
 {
@@ -79,7 +79,7 @@ class BoardEvaluationResponseService
      *
      * @return array<string, mixed> {success: bool, message?: string, response?: array}
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
      */
     public function submitResponse(string $evaluationId, string $participantId, array $answers): array
     {
@@ -175,7 +175,7 @@ class BoardEvaluationResponseService
      *
      * @return string[] Participant UUIDs invited but not yet responded
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
      */
     public function nonResponders(array $evaluation): array
     {
@@ -196,7 +196,7 @@ class BoardEvaluationResponseService
      *
      * @return void
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
      */
     private function recordCompletion(array $evaluation, string $evaluationId, string $participantId): void
     {
@@ -231,7 +231,7 @@ class BoardEvaluationResponseService
      *
      * @return string 64-character hex token
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
      */
     private function responseToken(string $participantId, string $evaluationId): string
     {
@@ -247,7 +247,7 @@ class BoardEvaluationResponseService
      *
      * @return string 64-character hex secret
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
      */
     private function tokenSecret(): string
     {

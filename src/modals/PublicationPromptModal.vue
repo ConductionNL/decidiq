@@ -8,7 +8,7 @@
  Dismissal NEVER publishes — publication only happens via the explicit Publish
  button (which calls the same authoritative publish endpoint).
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
 	<NcDialog

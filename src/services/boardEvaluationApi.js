@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  *
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md
+ * @spec openspec/specs/board-self-evaluation/spec.md
  */
 
 import axios from '@nextcloud/axios'
@@ -27,7 +27,7 @@ const base = '/apps/decidesk/api/board-evaluations'
  * @param {string} evaluationId The BoardEvaluation UUID.
  * @param {Array<object>} answers Each: {questionId, dimension, likertValue?, freeText?}.
  * @return {Promise<object>} The created (anonymous) response.
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+ * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
  */
 export async function respondToEvaluation(evaluationId, answers) {
 	const { data } = await axios.post(generateUrl(`${base}/${evaluationId}/respond`), { answers })
@@ -39,7 +39,7 @@ export async function respondToEvaluation(evaluationId, answers) {
  *
  * @param {string} evaluationId The BoardEvaluation UUID.
  * @return {Promise<object>} The updated (closed) evaluation.
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+ * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
  */
 export async function closeEvaluation(evaluationId) {
 	const { data } = await axios.post(generateUrl(`${base}/${evaluationId}/close`))
@@ -52,7 +52,7 @@ export async function closeEvaluation(evaluationId) {
  *
  * @param {string} evaluationId The BoardEvaluation UUID.
  * @return {Promise<object>} The publication result.
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+ * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
  */
 export async function publishEvaluation(evaluationId) {
 	const { data } = await axios.post(generateUrl(`${base}/${evaluationId}/publish`))
@@ -65,7 +65,7 @@ export async function publishEvaluation(evaluationId) {
  *
  * @param {string} evaluationId The BoardEvaluation UUID.
  * @return {Promise<object>} {path, format, docudesk, note?}.
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+ * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
  */
 export async function generateEvaluationReport(evaluationId) {
 	const { data } = await axios.post(generateUrl(`${base}/${evaluationId}/report`))

@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -41,7 +41,7 @@ use Psr\Log\LoggerInterface;
  * derivation over stored data; safe to re-run (idempotent on already-purged
  * transcripts).
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
 class TranscriptRetentionJob extends TimedJob
 {
@@ -68,7 +68,7 @@ class TranscriptRetentionJob extends TimedJob
      * @param ContainerInterface $container DI container (lazy OR services).
      * @param LoggerInterface    $logger    The logger.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function __construct(
         ITimeFactory $time,
@@ -87,7 +87,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return void
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     protected function run(mixed $argument): void
     {
@@ -131,7 +131,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return string The resulting retention state.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function enforceForTranscript(object $objectService, array $transcript, \DateTimeImmutable $now): string
     {
@@ -217,7 +217,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return array{0:string,1:int} [policy, days].
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function resolveBodyPolicy(object $objectService, array $meeting): array
     {
@@ -257,7 +257,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return \DateTimeImmutable|null The approval time, or null when not approved.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function resolveMinutesApprovedAt(object $objectService, string $meetingId): ?\DateTimeImmutable
     {
@@ -303,7 +303,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return array<int,array<string,mixed>> Transcript objects.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function fetchActiveDoneTranscripts(object $objectService): array
     {
@@ -335,7 +335,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return bool True when the file was deleted.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function deleteFile(string $path): bool
     {
@@ -364,7 +364,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return void
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function appendAudit(string $meetingId, array $deleted, string $policy): void
     {
@@ -394,7 +394,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return array<string,mixed>|null The object data.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function fetchObject(object $objectService, string $id, string $schema): ?array
     {
@@ -419,7 +419,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return array<string,mixed> The object data.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function toArray(mixed $entity): array
     {
@@ -446,7 +446,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return string|null The meeting UUID.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function resolveMeetingId(array $transcript): ?string
     {
@@ -470,7 +470,7 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @return string|null The UUID.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function objectId(array $object): ?string
     {

@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
  *    best-effort via the Talk integration. Talk absence is NOT an error: the
  *    Files sources are still returned and the Talk family is simply empty.
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
 class TranscriptionSourceResolver
 {
@@ -68,7 +68,7 @@ class TranscriptionSourceResolver
      * @param LoggerInterface      $logger        The logger.
      * @param MeetingFolderService $folderService Meeting folder resolver.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -89,7 +89,7 @@ class TranscriptionSourceResolver
      *
      * @return array<int,array<string,string>> Candidate sources.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function listSources(array $meeting): array
     {
@@ -110,7 +110,7 @@ class TranscriptionSourceResolver
      *
      * @return array<int,array<string,string>> Uploaded-file sources.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function listMeetingFolderAudio(array $meeting): array
     {
@@ -172,7 +172,7 @@ class TranscriptionSourceResolver
      *
      * @return array<int,array<string,string>> Talk-recording sources.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function listTalkRecordings(array $meeting): array
     {
@@ -218,7 +218,7 @@ class TranscriptionSourceResolver
      *
      * @return bool True for recognised audio/recording files.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function isAudioFile(string $fileName): bool
     {

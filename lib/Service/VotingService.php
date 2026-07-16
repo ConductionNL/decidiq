@@ -2050,8 +2050,8 @@ class VotingService
      * @throws \RuntimeException         When the proposal is missing or a duplicate vote exists.
      * @throws \InvalidArgumentException When the value is not voor/tegen.
      *
-     * @spec openspec/changes/citizen-participation/specs/voting-system/spec.md
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/voting-system/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function applyAdvisoryTally(string $proposalId, string $voterId, string $value): array
     {
@@ -2122,7 +2122,7 @@ class VotingService
      *
      * @return array{votesFor:int,votesAgainst:int} The recomputed advisory tally.
      *
-     * @spec openspec/changes/citizen-participation/specs/voting-system/spec.md
+     * @spec openspec/specs/voting-system/spec.md
      */
     public function tallyAdvisoryProposal(string $proposalId): array
     {

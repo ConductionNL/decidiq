@@ -7,7 +7,7 @@
  surfaces in the consultation's reactions relation and becomes eligible for
  publication.
 
- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ @spec openspec/specs/citizen-participation/spec.md
 -->
 <template>
 	<NcDialog

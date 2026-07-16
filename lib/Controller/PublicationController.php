@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -45,7 +45,7 @@ use OCP\IUserSession;
  * non-admin caller must hold a chair/secretary role on the meeting linked to
  * the targeted governance object. Unauthenticated => 401, unauthorised => 403.
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 class PublicationController extends Controller
 {
@@ -59,7 +59,7 @@ class PublicationController extends Controller
      * @param IUserSession        $userSession         Current user session.
      * @param IGroupManager       $groupManager        Group manager for admin checks.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      */
     public function __construct(
         IRequest $request,
@@ -78,7 +78,7 @@ class PublicationController extends Controller
      * POST /api/publications
      * Body: { sourceType: decision|agenda|minutes, sourceId: <uuid> }
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return JSONResponse
      */
@@ -122,7 +122,7 @@ class PublicationController extends Controller
      *
      * @param string $recordId UUID of the PublicationRecord.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return JSONResponse
      */
@@ -165,7 +165,7 @@ class PublicationController extends Controller
      *
      * @param string $recordId UUID of the PublicationRecord to rectify.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return JSONResponse
      */
@@ -206,7 +206,7 @@ class PublicationController extends Controller
      * @param string $sourceType One of decision|agenda|minutes.
      * @param string $sourceId   UUID of the source object.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return JSONResponse|null Null when authorised; a 403 otherwise.
      */
@@ -236,7 +236,7 @@ class PublicationController extends Controller
      *
      * @param string $recordId UUID of the PublicationRecord.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return JSONResponse|null Null when authorised; a 403/404 otherwise.
      */
@@ -279,7 +279,7 @@ class PublicationController extends Controller
      * @param string $sourceType One of decision|agenda|minutes.
      * @param string $sourceId   UUID of the source object.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string|null
      */

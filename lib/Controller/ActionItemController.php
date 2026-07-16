@@ -16,7 +16,7 @@
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/specs/action-item-board-via-deck-leaf/spec.md
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ use OCP\IUserSession;
 /**
  * Create / update / delete action items as CalDAV VTODOs.
  *
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/specs/action-item-board-via-deck-leaf/spec.md
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
 class ActionItemController extends Controller
 {
