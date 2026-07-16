@@ -11,7 +11,7 @@
  to the in-app vue-router (admin-router gate). Initial config + policy enums
  arrive via IInitialState/loadState.
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
 	<div class="decidesk-pub-settings" data-testid="publication-settings">
@@ -113,7 +113,7 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		policyOptions() {
 			const labels = {
 				'manual-only': this.t('decidesk', 'Manual only'),
@@ -121,7 +121,7 @@ export default {
 			}
 			return this.policyEnums.map(v => ({ value: v, label: labels[v] || v }))
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		attendanceOptions() {
 			const labels = {
 				counts: this.t('decidesk', 'Counts only'),
@@ -135,7 +135,7 @@ export default {
 		await this.loadBodies()
 	},
 	methods: {
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		async loadBodies() {
 			this.loading = true
 			this.error = ''
@@ -162,7 +162,7 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md */
+		/** @spec openspec/specs/public-publication/spec.md */
 		async save() {
 			this.saving = true
 			this.saved = false

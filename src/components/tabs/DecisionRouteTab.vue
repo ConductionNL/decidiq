@@ -19,7 +19,7 @@
  We query decisions whose supersedes/repeals array contains this id, filter
  to lifecycle ∈ {decided, enacted}, precedence repealed > superseded.
 
- @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md
+ @spec openspec/specs/decision-route/spec.md
 -->
 <template>
 	<div class="decidesk-tab decidesk-tab--route" data-testid="decision-route-tab">
@@ -149,11 +149,11 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md */
+		/** @spec openspec/specs/decision-route/spec.md */
 		decidedCount() {
 			return this.stages.filter((s) => s.status === 'decided' || s.status === 'skipped').length
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md */
+		/** @spec openspec/specs/decision-route/spec.md */
 		currentStageObj() {
 			return this.stages.find((s) => this.isCurrent(s)) || null
 		},
@@ -195,12 +195,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md */
+			/** @spec openspec/specs/decision-route/spec.md */
 			handler() { this.refresh() },
 		},
 	},
 	methods: {
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md */
+		/** @spec openspec/specs/decision-route/spec.md */
 		isCurrent(stage) {
 			return !!this.currentStage && (stage.id === this.currentStage || stage.uuid === this.currentStage)
 		},
@@ -255,7 +255,7 @@ export default {
 			}
 			return labels[outcome] || outcome || ''
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md */
+		/** @spec openspec/specs/decision-route/spec.md */
 		makerName(stage) {
 			const ref = stage?.decisionMakerType === 'person' ? stage.assignedPerson : stage.assignedBody
 			if (!ref) return this.t('decidesk', 'Unassigned')
@@ -263,13 +263,13 @@ export default {
 			// Reference is an id we did not expand; show a stable fallback.
 			return this.t('decidesk', 'Decision maker')
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md */
+		/** @spec openspec/specs/decision-route/spec.md */
 		formatDate(value) {
 			if (!value) return ''
 			const d = new Date(value)
 			return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleDateString()
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md */
+		/** @spec openspec/specs/decision-route/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -304,7 +304,7 @@ export default {
 		 *
 		 * @param {object} decision The current decision object.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md
+		 * @spec openspec/specs/decision-route/spec.md
 		 */
 		async deriveEffectiveStatus(decision) {
 			const selfId = decision?.id || decision?.uuid || String(this.objectId)
@@ -329,7 +329,7 @@ export default {
 				this.effectingDecision = superseder
 			}
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md */
+		/** @spec openspec/specs/decision-route/spec.md */
 		async countOpenActionItems() {
 			try {
 				const store = ensureRelationType('action-item')
@@ -343,7 +343,7 @@ export default {
 				this.openActionItemCount = 0
 			}
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/decision-route/spec.md */
+		/** @spec openspec/specs/decision-route/spec.md */
 		openDecision(decision) {
 			const id = decision?.id || decision?.uuid
 			if (!id) return

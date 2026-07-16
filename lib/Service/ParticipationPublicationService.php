@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -45,7 +45,7 @@ use Psr\Log\LoggerInterface;
  * degrades gracefully when OpenCatalogi is absent (ADR-022 — no app-local public
  * read endpoint).
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 class ParticipationPublicationService
 {
@@ -60,7 +60,7 @@ class ParticipationPublicationService
      *
      * @return void
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -76,7 +76,7 @@ class ParticipationPublicationService
      *
      * @return object The ObjectService instance.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function objectService(): object
     {
@@ -92,7 +92,7 @@ class ParticipationPublicationService
      *
      * @return array<string, mixed> The persisted object as an array.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function normaliseSaved(mixed $saved, array $fallback): array
     {
@@ -122,7 +122,7 @@ class ParticipationPublicationService
      *
      * @throws \RuntimeException When the consultation is not found.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function publishConsultationResults(string $consultationId, string $staffResponse=''): array
     {
@@ -169,7 +169,7 @@ class ParticipationPublicationService
      *
      * @throws \RuntimeException When the round is not found.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function publishBudgetResults(string $budgetId): array
     {
@@ -226,7 +226,7 @@ class ParticipationPublicationService
      *
      * @throws \RuntimeException When the evaluation is not found or not closed.
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
      */
     public function publishEvaluationResults(string $evaluationId): array
     {
@@ -290,7 +290,7 @@ class ParticipationPublicationService
      *
      * @return array<int, array<string, string>> The reaction digest.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function buildReactionDigest(string $consultationId): array
     {
@@ -345,7 +345,7 @@ class ParticipationPublicationService
      *   openCatalogiInstalled: bool, openCatalogiRouted: bool, warning: ?string
      * }
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function publishSummary(
         array $summary,
@@ -424,7 +424,7 @@ class ParticipationPublicationService
      *
      * @throws \RuntimeException When the reaction is missing or not approved.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function publishReaction(string $reactionId): array
     {
@@ -452,7 +452,7 @@ class ParticipationPublicationService
      *
      * @return bool True when OpenCatalogi is available.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function isOpenCatalogiInstalled(): bool
     {
@@ -477,7 +477,7 @@ class ParticipationPublicationService
      *
      * @return bool True when a catalog publication was created.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function routeToOpenCatalogi(array $summary, ?string $governanceBodyId): bool
     {
@@ -525,7 +525,7 @@ class ParticipationPublicationService
      *
      * @return string|null The governance-body UUID, or null.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function resolveGovernanceBodyId(array $object): ?string
     {

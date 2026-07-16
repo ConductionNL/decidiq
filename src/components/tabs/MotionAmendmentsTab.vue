@@ -99,7 +99,7 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
 				{ key: 'title', label: this.t('decidesk', 'Title') },
@@ -107,7 +107,7 @@ export default {
 				{ key: 'lifecycle', label: this.t('decidesk', 'Status') },
 			]
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		lifecycleColors() {
 			return {
 				submitted: 'primary',
@@ -118,14 +118,14 @@ export default {
 				withdrawn: 'default',
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {
 			return [
 				{ label: this.t('decidesk', 'Edit'), icon: Pencil, handler: (row) => this.openEdit(row) },
 				{ label: this.t('decidesk', 'Delete'), icon: TrashCanOutline, destructive: true, handler: (row) => { this.deleteTarget = { ...row } } },
 			]
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		excludedFields() {
 			return ['id', 'uuid', 'parentMotion', 'created', 'updated']
 		},
@@ -133,12 +133,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
 			handler() { this.refresh() },
 		},
 	},
 	methods: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -158,21 +158,21 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
 			const store = ensureRelationType('amendment')
 			if (!this.amendmentSchema) this.amendmentSchema = await store.fetchSchema('amendment')
 			this.editTarget = null
 			this.formOpen = true
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openEdit(row) {
 			const store = ensureRelationType('amendment')
 			if (!this.amendmentSchema) this.amendmentSchema = await store.fetchSchema('amendment')
 			this.editTarget = { ...row }
 			this.formOpen = true
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async onConfirm(formData) {
 			const store = ensureRelationType('amendment')
 			try {
@@ -183,7 +183,7 @@ export default {
 				this.$refs.formDialog?.setResult({ error: e?.message || this.t('decidesk', 'Save failed.') })
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmDelete() {
 			const store = ensureRelationType('amendment')
 			try {

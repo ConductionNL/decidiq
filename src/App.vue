@@ -129,7 +129,7 @@ export default {
 		 * Active organisatie_modus from the settings store.
 		 * Defaults to DEFAULT_MODE ('gov') when not yet configured.
 		 *
-		 * @spec openspec/changes/ia-six-item-nav/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
+		 * @spec openspec/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
 		 * @return {string}
 		 */
 		organisatieModus() {
@@ -157,7 +157,7 @@ export default {
 		 * i18n key before calling t(). Falls back to the canonical key when
 		 * no mode-specific mapping exists (pass-through to standard l10n).
 		 *
-		 * @spec openspec/changes/ia-six-item-nav/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
+		 * @spec openspec/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
 		 * @param {string} key Canonical translation key.
 		 * @return {string} Translated string (or the key on miss).
 		 */

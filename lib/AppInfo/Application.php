@@ -739,7 +739,7 @@ class Application extends App implements IBootstrap
         // The alias key 'OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk' is the format
         // that OR's McpToolsService enumerates to discover per-app providers (design D3).
         // The interface ships in openregister PR #1466 (ai-chat-companion-orchestrator).
-        // @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-001.
+        // @spec openspec/specs/mcp-tools/spec.md
         $context->registerServiceAlias(
             'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk',
             DecideskToolProvider::class
@@ -847,7 +847,7 @@ class Application extends App implements IBootstrap
      * @param IRegistrationContext $context The registration context
      *
      * @spec openspec/changes/adopt-apphost/tasks.md#task-2
-     * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
+     * @spec openspec/specs/apphost-adoption/spec.md
      *
      * @return void
      */

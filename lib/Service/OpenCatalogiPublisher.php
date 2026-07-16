@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
  * fail honestly (returning '' / false) so the caller can mark the
  * PublicationRecord pending and warn staff — never a silent success.
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 class OpenCatalogiPublisher
 {
@@ -47,7 +47,7 @@ class OpenCatalogiPublisher
      * @param IAppManager        $appManager Detects OpenCatalogi presence.
      * @param LoggerInterface    $logger     Logger.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -63,7 +63,7 @@ class OpenCatalogiPublisher
      * @param string              $payloadId UUID of the published PublicationPayload object.
      * @param array<string,mixed> $payload   The payload data (for catalog metadata).
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string The catalog publication reference, or '' on failure/degrade.
      */
@@ -122,7 +122,7 @@ class OpenCatalogiPublisher
      * @param string $catalogId          Target catalog id (informational).
      * @param string $catalogPublication The catalog publication reference.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return bool True when retraction succeeded; false to mark pending + warn.
      *
@@ -160,7 +160,7 @@ class OpenCatalogiPublisher
     /**
      * Resolve OpenCatalogi's ObjectService, or null when unavailable.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return object|null
      */

@@ -7,7 +7,7 @@
  ConsultationReactionsTab with no objectId. The same component, scoped via
  objectId, is the per-consultation "Reactions" tab on the consultation detail.
 
- @spec openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md
+ @spec openspec/specs/p3-citizen-participation/spec.md
 -->
 <template>
 	<div class="moderation-queue" data-testid="moderation-queue-page">

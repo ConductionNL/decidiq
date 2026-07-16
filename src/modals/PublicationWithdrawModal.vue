@@ -6,7 +6,7 @@
  (publish-decisions-via-opencatalogi). The reason is mandatory — the server
  refuses a withdraw without one; this dialog enforces the same rule client-side.
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
 	<NcDialog

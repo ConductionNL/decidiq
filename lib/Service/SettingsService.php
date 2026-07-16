@@ -73,7 +73,7 @@ class SettingsService
         'organisation_retention_days',
         // Mode-aware label selection: gov|corp|assoc|ops|citizen.
         // Cosmetic UI hint only — drives no authorization decision.
-        // @spec openspec/changes/ia-six-item-nav/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting.
+        // @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
         'organisatie_modus',
         // Citizen-participation instance defaults.
         // @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md.
@@ -153,7 +153,7 @@ class SettingsService
         // Default schema slugs match the slugs defined in decidesk_register.json.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.
         // organisatie_modus defaults to 'gov' (government/municipal mode).
-        // @spec openspec/changes/ia-six-item-nav/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting.
+        // @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
         $defaults = [
             'minutesSchema'     => 'minutes',
             'decisionSchema'    => 'decision',

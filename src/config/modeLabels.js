@@ -11,7 +11,7 @@
 // C7 scope: wire the Bodies item across all 5 modes; scaffold remaining items
 // with their canonical English labels so a follow-up change only fills in rows.
 //
-// @spec openspec/changes/ia-six-item-nav/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
+// @spec openspec/specs/app-navigation/spec.md#requirement-req-nav-006-mode-aware-label-resolution-at-the-translate-chokepoint
 
 /**
  * Default organisatie_modus when none is configured.

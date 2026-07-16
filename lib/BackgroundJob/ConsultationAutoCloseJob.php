@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -35,7 +35,7 @@ use Psr\Log\LoggerInterface;
  * has passed. Reuses ParticipationLifecycleService::transitionConsultation so
  * the same state-machine guard applies as a staff-driven transition.
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 class ConsultationAutoCloseJob extends TimedJob
 {
@@ -57,7 +57,7 @@ class ConsultationAutoCloseJob extends TimedJob
      * @param ContainerInterface $container The DI container (lazy-loads services)
      * @param LoggerInterface    $logger    The logger
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function __construct(
         ITimeFactory $time,
@@ -75,7 +75,7 @@ class ConsultationAutoCloseJob extends TimedJob
      *
      * @return void
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     protected function run(mixed $argument): void
     {

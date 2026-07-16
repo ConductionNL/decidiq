@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -39,7 +39,7 @@ use OCP\EventDispatcher\Event;
  * handled) is written by decidesk's listener and read by the producer right
  * after dispatch — the standard NC request/response-over-the-bus pattern.
  *
- * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  */
 class DecisionRequestedEvent extends Event
 {
