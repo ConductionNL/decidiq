@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
  * - Authenticated + post-moderation -> approved (auto)
  * - Anonymous (only when enabled)   -> ALWAYS pending (pre-moderation), pseudonymous submitterId
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 class ReactionIntakeService
 {
@@ -56,7 +56,7 @@ class ReactionIntakeService
      *
      * @return void
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -71,7 +71,7 @@ class ReactionIntakeService
      *
      * @return object The ObjectService instance.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function objectService(): object
     {
@@ -87,7 +87,7 @@ class ReactionIntakeService
      *
      * @return array<string, mixed> The persisted object as an array.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function normaliseSaved(mixed $saved, array $fallback): array
     {
@@ -122,7 +122,7 @@ class ReactionIntakeService
      * @throws \RuntimeException         When the consultation is not found or closed.
      * @throws \InvalidArgumentException When the body is empty/oversized or anonymous intake is not enabled.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function submitReaction(string $consultationId, string $body, ?string $ncUid, ?string $clientSeed=null): array
     {
@@ -202,7 +202,7 @@ class ReactionIntakeService
      *
      * @throws \RuntimeException When the reaction is not found.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function approveReaction(string $reactionId, ?string $reason=null): array
     {
@@ -243,7 +243,7 @@ class ReactionIntakeService
      *
      * @return void
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function incrementConsultationSubmissionCount(array $reaction, mixed $objectService): void
     {
@@ -292,7 +292,7 @@ class ReactionIntakeService
      * @throws \RuntimeException         When the reaction is not found.
      * @throws \InvalidArgumentException When no reason is given.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function rejectReaction(string $reactionId, string $reason): array
     {
@@ -330,7 +330,7 @@ class ReactionIntakeService
      *
      * @return string A 'anon-' prefixed hex token.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function pseudonymousId(string $consultationId, string $seed): string
     {

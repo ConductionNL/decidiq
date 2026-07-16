@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md
+ * @spec openspec/specs/mcp-tools/spec.md
  */
 
 declare(strict_types=1);
@@ -53,7 +53,7 @@ use Psr\Log\LoggerInterface;
  *   NOT return true unconditionally and are NOT wrapped in catch(\Throwable).
  * - isAdmin() uses IGroupManager::isAdmin() (NC system admin) as the admin gate.
  *
- * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-001
+ * @spec openspec/specs/mcp-tools/spec.md
  */
 class DecideskToolProvider implements IMcpToolProvider
 {
@@ -188,7 +188,7 @@ class DecideskToolProvider implements IMcpToolProvider
      * @param LoggerInterface     $logger              The PSR-3 logger
      * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-008
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     public function __construct(
         private readonly MeetingService $meetingService,
@@ -205,7 +205,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return string "decidesk"
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-001
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     public function getAppId(): string
     {
@@ -221,7 +221,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return array<int, array<string, mixed>>
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-002
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     public function getTools(): array
     {
@@ -241,7 +241,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return array<string, mixed>
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-003
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     public function invokeTool(string $toolId, array $arguments): array
     {
@@ -274,7 +274,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return array<string, mixed>
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-008
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function handleListOpenActionItems(array $args): array
     {
@@ -401,7 +401,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return array<string, mixed>
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-008
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function handleListRecentMeetings(array $args): array
     {
@@ -517,8 +517,8 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return array<string, mixed>
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-003
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     * @spec openspec/specs/mcp-tools/spec.md
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function handleGetMeetingDetails(array $args): array
     {
@@ -701,7 +701,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return array<string, mixed>
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-005
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function handleStartMeeting(array $args): array
     {
@@ -815,7 +815,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return array<string, mixed>
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-008
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function handleAddActionItem(array $args): array
     {
@@ -979,7 +979,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return bool True when the string is UUID-shaped.
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function isValidUuid(string $candidate): bool
     {
@@ -1020,7 +1020,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter) $meetingUuid kept for symmetry with requireParticipantOrAdmin.
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function requireChairOrAdmin(string $meetingUuid, array $meeting, string $userId): bool
     {
@@ -1058,7 +1058,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter) $meetingUuid kept for symmetry and future logging.
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function requireParticipantOrAdmin(string $meetingUuid, array $meeting, string $userId): bool
     {
@@ -1088,7 +1088,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return bool True when the user is a system admin.
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function isAdmin(string $userId): bool
     {
@@ -1109,7 +1109,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return array<string>|null Set of meeting UUIDs, or null for unrestricted admin
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-004
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function getCallerMeetingUuids(string $userId): ?array
     {
@@ -1189,7 +1189,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return string The deep link path, e.g. /apps/decidesk/meetings/<uuid>.
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-006
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function buildDeepLink(string $type, string $uuid): string
     {
@@ -1217,7 +1217,7 @@ class DecideskToolProvider implements IMcpToolProvider
      *
      * @return array{truncated: array<int, array<string, mixed>>, totalCount: int, didTruncate: bool}
      *
-     * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-006
+     * @spec openspec/specs/mcp-tools/spec.md
      */
     private function truncateSources(array $sources): array
     {

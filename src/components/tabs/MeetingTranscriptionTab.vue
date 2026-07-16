@@ -11,7 +11,7 @@
  banner and per-section accept/edit/discard markers plus unverified-suggestion
  flags. Provider absence is shown as an explanation, never an error.
 
- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ @spec openspec/specs/meeting-transcription/spec.md
 -->
 <template>
 	<div class="decidesk-tab decidesk-tab--transcription" data-testid="meeting-transcription-tab">
@@ -200,11 +200,11 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		statusColors() {
 			return { pending: 'primary', processing: 'warning', done: 'success', failed: 'error' }
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		statusLabel() {
 			const map = {
 				pending: this.t('decidesk', 'Pending'),
@@ -214,7 +214,7 @@ export default {
 			}
 			return map[this.transcript?.status] || this.transcript?.status || ''
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		canTranscribe() {
 			return this.providerAvailable && this.transcript
 				&& ['pending', 'failed'].includes(this.transcript.status)
@@ -223,7 +223,7 @@ export default {
 		 * Segments grouped per agenda item, with an unassigned group last.
 		 *
 		 * @return {Array<object>} Ordered groups.
-		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+		 * @spec openspec/specs/meeting-transcription/spec.md
 		 */
 		groupedSegments() {
 			const segments = (this.transcript && this.transcript.segments) || []
@@ -254,7 +254,7 @@ export default {
 		objectId: { immediate: true, handler() { this.refresh() } },
 	},
 	methods: {
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.error = ''
@@ -274,7 +274,7 @@ export default {
 				this.loaded = true
 			}
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async loadExistingTranscript() {
 			try {
 				const store = ensureRelationType('transcript')
@@ -284,7 +284,7 @@ export default {
 				this.transcript = null
 			}
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async loadAgendaTitles() {
 			try {
 				const store = ensureRelationType('agenda-item')
@@ -300,17 +300,17 @@ export default {
 		 * Set the selected recording source.
 		 *
 		 * @param {object} value The selected source option.
-		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+		 * @spec openspec/specs/meeting-transcription/spec.md
 		 */
 		onSelectSource(value) {
 			this.selectedSource = value
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		openConsent() {
 			if (!this.selectedSource) return
 			this.consentOpen = true
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async attachWithConsent() {
 			this.consentOpen = false
 			if (!this.selectedSource) return
@@ -331,7 +331,7 @@ export default {
 				this.working = false
 			}
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async transcribe() {
 			if (!this.transcript) return
 			this.working = true
@@ -345,7 +345,7 @@ export default {
 				this.working = false
 			}
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async realign() {
 			if (!this.transcript) return
 			this.working = true
@@ -358,7 +358,7 @@ export default {
 				this.working = false
 			}
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async generateDraft() {
 			if (!this.transcript) return
 			this.working = true
@@ -379,7 +379,7 @@ export default {
 		 * Discard a generated section (removes its AI content + marker).
 		 *
 		 * @param {object} section The draft section.
-		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/resolution-minutes/spec.md
+		 * @spec openspec/specs/resolution-minutes/spec.md
 		 */
 		discardSection(section) {
 			section.discarded = true
@@ -388,12 +388,12 @@ export default {
 		 * Mark a generated section as edited by the secretary.
 		 *
 		 * @param {object} section The draft section.
-		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/resolution-minutes/spec.md
+		 * @spec openspec/specs/resolution-minutes/spec.md
 		 */
 		markEdited(section) {
 			section.edited = true
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		transcriptId() {
 			return this.transcript && (this.transcript.id || this.transcript.uuid)
 		},
@@ -404,7 +404,7 @@ export default {
 		 * @param {object} body JSON body.
 		 * @param {string} method HTTP method.
 		 * @return {Promise<object>} Parsed response.
-		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+		 * @spec openspec/specs/meeting-transcription/spec.md
 		 */
 		async callApi(path, body = {}, method = 'POST') {
 			const opts = {

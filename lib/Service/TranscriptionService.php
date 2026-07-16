@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -39,7 +39,7 @@ use Psr\Log\LoggerInterface;
  * and {@see self::isProviderAvailable()} reports false so the UI can hide the
  * transcribe action with an explanation.
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
 class TranscriptionService
 {
@@ -51,7 +51,7 @@ class TranscriptionService
      * @param TranscriptionSourceResolver $sourceResolver Candidate-source resolver.
      * @param MeetingFolderService        $folderService  Meeting folder + file writer.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -69,7 +69,7 @@ class TranscriptionService
      *
      * @return bool True when at least one SpeechToText provider is registered.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function isProviderAvailable(): bool
     {
@@ -106,7 +106,7 @@ class TranscriptionService
      *
      * @throws MissingObjectException When the meeting cannot be found.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function listSources(string $meetingId): array
     {
@@ -134,7 +134,7 @@ class TranscriptionService
      * @throws MissingObjectException    When the meeting cannot be found.
      * @throws \InvalidArgumentException When source type/path is invalid.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function attach(
         string $meetingId,
@@ -192,7 +192,7 @@ class TranscriptionService
      * @throws MissingObjectException    When the Transcript cannot be found.
      * @throws \DomainException          When consent is missing (code 422) or no provider (code 503).
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function submit(string $transcriptId): array
     {
@@ -228,7 +228,7 @@ class TranscriptionService
      *
      * @throws MissingObjectException When the Transcript cannot be found.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function process(string $transcriptId): array
     {
@@ -297,7 +297,7 @@ class TranscriptionService
      *
      * @return array<int,array<string,mixed>> Parsed segments.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function parseSegments(string $raw): array
     {
@@ -365,7 +365,7 @@ class TranscriptionService
      *
      * @throws MissingObjectException When the Transcript cannot be found.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function align(string $transcriptId): array
     {
@@ -401,7 +401,7 @@ class TranscriptionService
      *
      * @return array<int,array<string,mixed>> Aligned segments.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function alignSegments(array $segments, array $timeline): array
     {
@@ -442,7 +442,7 @@ class TranscriptionService
      *
      * @return array<int,array<string,mixed>> Ordered timeline windows.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function buildTimeline(string $meetingId): array
     {
@@ -506,7 +506,7 @@ class TranscriptionService
      *
      * @return array<string,mixed> The persisted failed Transcript.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function markFailed(array $transcript, string $reason): array
     {
@@ -524,7 +524,7 @@ class TranscriptionService
      *
      * @return string|null The written file path, or null on failure.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function writeTranscriptFile(array $transcript, array $segments): ?string
     {
@@ -575,7 +575,7 @@ class TranscriptionService
      *
      * @throws \RuntimeException When the file cannot be resolved.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function resolveSourceNode(string $path): \OCP\Files\File
     {
@@ -606,7 +606,7 @@ class TranscriptionService
      *
      * @throws MissingObjectException When not found.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function fetchMeeting(string $meetingId): array
     {
@@ -629,7 +629,7 @@ class TranscriptionService
      *
      * @throws MissingObjectException When not found.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function fetchTranscript(string $transcriptId): array
     {
@@ -650,7 +650,7 @@ class TranscriptionService
      *
      * @return array<int,array<string,mixed>> Agenda item objects.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function fetchAgendaItems(string $meetingId): array
     {
@@ -689,7 +689,7 @@ class TranscriptionService
      *
      * @return array<string,mixed> The persisted object.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function saveTranscript(array $transcript): array
     {
@@ -726,7 +726,7 @@ class TranscriptionService
      *
      * @return string|null The UUID.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function transcriptId(array $transcript): ?string
     {
@@ -746,7 +746,7 @@ class TranscriptionService
      *
      * @return string|null The meeting UUID, or null when not linked.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function resolveMeetingId(array $transcript): ?string
     {
@@ -770,7 +770,7 @@ class TranscriptionService
      *
      * @throws \RuntimeException When OpenRegister is not installed.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function getObjectService(): object
     {

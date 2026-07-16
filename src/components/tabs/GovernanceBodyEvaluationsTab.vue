@@ -14,7 +14,7 @@
  its "analytics leaf" surface in this codebase) with automatic small-body
  suppression, plus report-generation and opt-in publish actions.
 
- @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md
+ @spec openspec/specs/board-self-evaluation/spec.md
 -->
 <template>
 	<div class="decidesk-tab decidesk-tab--evaluations" data-testid="body-evaluations-tab">
@@ -143,7 +143,7 @@ import {
 } from '../../services/boardEvaluationApi.js'
 
 /**
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md
+ * @spec openspec/specs/board-self-evaluation/spec.md
  */
 export default {
 	name: 'GovernanceBodyEvaluationsTab',
@@ -170,11 +170,11 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-001-board-evaluation-cycle-bound-to-a-governance-body */
+		/** @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-001-board-evaluation-cycle-bound-to-a-governance-body */
 		sortedEvaluations() {
 			return [...this.evaluations].sort((a, b) => (b.cycleLabel || '').localeCompare(a.cycleLabel || ''))
 		},
-		/** @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-002-reusable-questionnaire-template-organised-by-effectiveness-dimensions */
+		/** @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-002-reusable-questionnaire-template-organised-by-effectiveness-dimensions */
 		activeTemplateQuestions() {
 			if (!this.activeEvaluation) return []
 			const template = this.templates.find((tpl) => tpl.id === this.activeEvaluation.template)
@@ -185,13 +185,13 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md */
+			/** @spec openspec/specs/board-self-evaluation/spec.md */
 			handler() { this.refresh() },
 		},
 	},
 
 	methods: {
-		/** @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md */
+		/** @spec openspec/specs/board-self-evaluation/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -245,7 +245,7 @@ export default {
 		 * secretaryUserId (consumed only by the register's lifecycle RBAC rule)
 		 * and the current roster onto invitedParticipantIds.
 		 *
-		 * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-001-board-evaluation-cycle-bound-to-a-governance-body
+		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-001-board-evaluation-cycle-bound-to-a-governance-body
 		 */
 		async startEvaluation() {
 			const template = this.templates[0]
@@ -276,7 +276,7 @@ export default {
 		},
 		/**
 		 * @param {object} evaluation The draft BoardEvaluation to open.
-		 * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-006-one-mode-adaptive-entity-across-governance-domains
+		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-006-one-mode-adaptive-entity-across-governance-domains
 		 */
 		async openEvaluation(evaluation) {
 			try {
@@ -298,7 +298,7 @@ export default {
 		},
 		/**
 		 * @param {Array<object>} answers The answers[] payload from the modal.
-		 * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
 		 */
 		async submitResponse(answers) {
 			this.showRespondModal = false
@@ -312,7 +312,7 @@ export default {
 		},
 		/**
 		 * @param {object} evaluation The open BoardEvaluation to close.
-		 * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
 		 */
 		async closeEvaluation(evaluation) {
 			try {
@@ -324,7 +324,7 @@ export default {
 		},
 		/**
 		 * @param {object} evaluation The closed BoardEvaluation to publish.
-		 * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
 		 */
 		async publishEvaluationResults(evaluation) {
 			try {
@@ -336,7 +336,7 @@ export default {
 		},
 		/**
 		 * @param {object} evaluation The closed/published BoardEvaluation.
-		 * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
 		 */
 		async generateReport(evaluation) {
 			try {

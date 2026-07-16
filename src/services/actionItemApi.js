@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  *
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/specs/action-item-board-via-deck-leaf/spec.md
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
 
 import axios from '@nextcloud/axios'

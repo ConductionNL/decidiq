@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 
 import axios from '@nextcloud/axios'
@@ -22,7 +22,7 @@ const base = '/apps/decidesk/api/participation'
  * @param {string} consultationId The consultation UUID.
  * @param {string} status The target status.
  * @return {Promise<object>} The updated consultation.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function transitionConsultation(consultationId, status) {
 	const { data } = await axios.post(generateUrl(`${base}/consultations/${consultationId}/transition`), { status })
@@ -35,7 +35,7 @@ export async function transitionConsultation(consultationId, status) {
  * @param {string} consultationId The consultation UUID.
  * @param {string} body The reaction text.
  * @return {Promise<object>} The created reaction.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function submitReaction(consultationId, body) {
 	const { data } = await axios.post(generateUrl(`${base}/consultations/${consultationId}/reactions`), { body })
@@ -48,7 +48,7 @@ export async function submitReaction(consultationId, body) {
  * @param {string} reactionId The reaction UUID.
  * @param {string} reason Optional moderation note.
  * @return {Promise<object>} The updated reaction.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function approveReaction(reactionId, reason = '') {
 	const { data } = await axios.post(generateUrl(`${base}/reactions/${reactionId}/approve`), { reason })
@@ -61,7 +61,7 @@ export async function approveReaction(reactionId, reason = '') {
  * @param {string} reactionId The reaction UUID.
  * @param {string} reason The rejection reason.
  * @return {Promise<object>} The updated reaction.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function rejectReaction(reactionId, reason) {
 	const { data } = await axios.post(generateUrl(`${base}/reactions/${reactionId}/reject`), { reason })
@@ -74,7 +74,7 @@ export async function rejectReaction(reactionId, reason) {
  * @param {string} consultationId The consultation UUID.
  * @param {string} staffResponse The staff response text.
  * @return {Promise<object>} The publication result.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function publishConsultationResults(consultationId, staffResponse = '') {
 	const { data } = await axios.post(generateUrl(`${base}/consultations/${consultationId}/publish`), { staffResponse })
@@ -87,7 +87,7 @@ export async function publishConsultationResults(consultationId, staffResponse =
  * @param {string} budgetId The round UUID.
  * @param {string} status The target status.
  * @return {Promise<object>} The updated round.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function transitionBudgetRound(budgetId, status) {
 	const { data } = await axios.post(generateUrl(`${base}/budgets/${budgetId}/transition`), { status })
@@ -100,7 +100,7 @@ export async function transitionBudgetRound(budgetId, status) {
  * @param {string} budgetId The round UUID.
  * @param {object} payload The proposal fields (title, description, amount, category).
  * @return {Promise<object>} The created proposal.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function submitProposal(budgetId, payload) {
 	const { data } = await axios.post(generateUrl(`${base}/budgets/${budgetId}/proposals`), payload)
@@ -113,7 +113,7 @@ export async function submitProposal(budgetId, payload) {
  * @param {string} proposalId The proposal UUID.
  * @param {boolean} approve True to validate, false to reject.
  * @return {Promise<object>} The updated proposal.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function validateProposal(proposalId, approve) {
 	const { data } = await axios.post(generateUrl(`${base}/proposals/${proposalId}/validate`), { approve })
@@ -126,7 +126,7 @@ export async function validateProposal(proposalId, approve) {
  * @param {string} proposalId The proposal UUID.
  * @param {string} value 'voor' | 'tegen'.
  * @return {Promise<object>} The vote + updated tally.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function castAdvisoryVote(proposalId, value) {
 	const { data } = await axios.post(generateUrl(`${base}/proposals/${proposalId}/vote`), { value })
@@ -138,7 +138,7 @@ export async function castAdvisoryVote(proposalId, value) {
  *
  * @param {string} budgetId The round UUID.
  * @return {Promise<object>} The publication result.
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 export async function publishBudgetResults(budgetId) {
 	const { data } = await axios.post(generateUrl(`${base}/budgets/${budgetId}/publish`), {})

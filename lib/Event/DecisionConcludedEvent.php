@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -38,7 +38,7 @@ use OCP\EventDispatcher\Event;
  * subject reference; consumers only read. The `status` value is the one
  * DERIVED by getOutcomeEnvelope() (no new state machine, ADR-031).
  *
- * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  */
 class DecisionConcludedEvent extends Event
 {

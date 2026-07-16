@@ -25,7 +25,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-004-the-duplicated-admin-guards-consume-openregister-s-admin-determination
+ * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-004-the-duplicated-admin-guards-consume-openregister-s-admin-determination
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -41,7 +41,7 @@ use OCP\AppFramework\Http\JSONResponse;
 /**
  * Shared admin guard consuming OpenRegister's admin determination.
  *
- * @spec openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-004-the-duplicated-admin-guards-consume-openregister-s-admin-determination
+ * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-004-the-duplicated-admin-guards-consume-openregister-s-admin-determination
  */
 trait RequiresOrAdmin
 {
@@ -53,7 +53,7 @@ trait RequiresOrAdmin
      *
      * @return JSONResponse|null
      *
-     * @spec openspec/changes/consume-or-rbac-authorization/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-004-the-duplicated-admin-guards-consume-openregister-s-admin-determination
+     * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-004-the-duplicated-admin-guards-consume-openregister-s-admin-determination
      */
     private function requireAdmin(): ?JSONResponse
     {

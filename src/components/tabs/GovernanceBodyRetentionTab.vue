@@ -12,7 +12,7 @@
  server-side. The default initial values come from server-provided initial
  state (loadState), not DOM data-attributes.
 
- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ @spec openspec/specs/meeting-transcription/spec.md
 -->
 <template>
 	<div class="decidesk-tab decidesk-tab--retention" data-testid="body-retention-tab">
@@ -80,7 +80,7 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		policyOptions() {
 			return [
 				{ id: 'keep', label: this.t('decidesk', 'Keep everything') },
@@ -97,7 +97,7 @@ export default {
 		 * Read default retention values from server-provided initial state.
 		 *
 		 * @return {{policy: string, days: number}} Defaults.
-		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+		 * @spec openspec/specs/meeting-transcription/spec.md
 		 */
 		readDefaults() {
 			let policy = 'delete-both'
@@ -110,7 +110,7 @@ export default {
 			}
 			return { policy, days }
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async load() {
 			if (!this.objectId) return
 			this.error = ''
@@ -130,12 +130,12 @@ export default {
 		 * Set the selected retention policy.
 		 *
 		 * @param {object} value The selected policy option.
-		 * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+		 * @spec openspec/specs/meeting-transcription/spec.md
 		 */
 		onPolicy(value) {
 			this.selectedPolicy = value
 		},
-		/** @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md */
+		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async save() {
 			if (!this.objectId || !this.selectedPolicy) return
 			this.saving = true

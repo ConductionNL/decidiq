@@ -11,7 +11,7 @@
  Reactions are read via useObjectStore (OpenRegister object API, ADR-022) and
  approved/rejected through the participation ACTION endpoints + dedicated modals.
 
- @spec openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md
+ @spec openspec/specs/p3-citizen-participation/spec.md
 -->
 <template>
 	<div class="consultation-reactions" data-testid="consultation-reactions-tab">

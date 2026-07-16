@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
  * tally implementation and citizen tallies stay separate from VotingRound
  * tallies.
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 class BudgetVotingService
 {
@@ -50,7 +50,7 @@ class BudgetVotingService
      *
      * @return void
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -65,7 +65,7 @@ class BudgetVotingService
      *
      * @return object The ObjectService instance.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function objectService(): object
     {
@@ -81,7 +81,7 @@ class BudgetVotingService
      *
      * @return array<string, mixed> The persisted object as an array.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function normaliseSaved(mixed $saved, array $fallback): array
     {
@@ -115,7 +115,7 @@ class BudgetVotingService
      * @throws \RuntimeException         When the round is missing or not accepting proposals.
      * @throws \InvalidArgumentException When the amount is invalid.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function submitProposal(
         string $budgetId,
@@ -187,7 +187,7 @@ class BudgetVotingService
      * @throws \RuntimeException         When the proposal is not found.
      * @throws \InvalidArgumentException When the proposal is not in 'submitted'.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function validateProposal(string $proposalId, bool $approve): array
     {
@@ -230,8 +230,8 @@ class BudgetVotingService
      * @throws \RuntimeException         When the proposal/round is missing, closed, or not validated.
      * @throws \InvalidArgumentException When the value is invalid.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
-     * @spec openspec/changes/citizen-participation/specs/voting-system/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
+     * @spec openspec/specs/voting-system/spec.md
      */
     public function castAdvisoryVote(string $proposalId, string $voterId, string $value): array
     {
@@ -276,7 +276,7 @@ class BudgetVotingService
      *
      * @throws \RuntimeException When the round is not found.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function calculateAllocation(string $budgetId): array
     {
@@ -354,7 +354,7 @@ class BudgetVotingService
      *
      * @return array<int, array<string, mixed>> The proposal objects.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function fetchValidatedProposals(string $budgetId): array
     {
@@ -388,7 +388,7 @@ class BudgetVotingService
      *
      * @return bool True when the proposal belongs to the round.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function relatesToBudget(array $proposal, string $budgetId): bool
     {
@@ -403,7 +403,7 @@ class BudgetVotingService
      *
      * @return string|null The round UUID, or null when unresolved.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function resolveBudgetId(array $proposal): ?string
     {

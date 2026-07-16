@@ -16,7 +16,7 @@
  no pass-through controller). Server validation (self-reference, cycle,
  authority) is surfaced inline in the add modal.
 
- @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md
+ @spec openspec/specs/relation-tab-ui/spec.md
 -->
 <template>
 	<div class="decidesk-tab decidesk-tab--related" data-testid="related-decisions-tab">
@@ -160,11 +160,11 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		typeOptions() {
 			return RELATION_TYPES.map((type) => ({ value: type, label: this.outgoingLabel(type) }))
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		outgoingGroups() {
 			return RELATION_TYPES.map((type) => ({
 				type,
@@ -172,7 +172,7 @@ export default {
 				rows: this.outgoing[type] || [],
 			}))
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		incomingGroups() {
 			return RELATION_TYPES.map((type) => ({
 				type,
@@ -187,7 +187,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
 			handler() { this.refresh() },
 		},
 	},
@@ -216,7 +216,7 @@ export default {
 			if (!ref) return ''
 			return typeof ref === 'object' ? (ref.id || ref.uuid || '') : ref
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			// Empty parent short-circuits without fetching (REQ-RTU-002).
 			if (!this.objectId) return
@@ -255,7 +255,7 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async searchDecisions(query) {
 			const store = ensureRelationType('decision')
 			const params = { _limit: 25 }
@@ -265,11 +265,11 @@ export default {
 			// Exclude self so the obvious self-reference cannot be picked.
 			return (results || []).filter((d) => (d.id || d.uuid) !== selfId)
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		openAdd() {
 			this.addOpen = true
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async onAddConfirm({ type, target }) {
 			const targetId = this.refId(target)
 			if (!targetId || !type) {
@@ -292,11 +292,11 @@ export default {
 				this.$refs.addModal?.setError(e?.message || this.t('decidesk', 'The server rejected this relation.'))
 			}
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		askRemove(type, row) {
 			this.removeTarget = { type, row }
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmRemove() {
 			const { type, row } = this.removeTarget
 			const rowId = row.id || row.uuid
@@ -313,7 +313,7 @@ export default {
 				this.$refs.removeDialog?.setResult({ error: e?.message || this.t('decidesk', 'Remove failed.') })
 			}
 		},
-		/** @spec openspec/changes/decision-detail-fullpicture/specs/relation-tab-ui/spec.md */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		openDecision(row) {
 			const id = row.id || row.uuid
 			if (!id) return

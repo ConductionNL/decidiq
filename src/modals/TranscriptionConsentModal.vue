@@ -8,7 +8,7 @@
  transcription source is attached. The server enforces the same precondition;
  this dialog captures the explicit confirmation.
 
- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ @spec openspec/specs/meeting-transcription/spec.md
 -->
 <template>
 	<NcDialog

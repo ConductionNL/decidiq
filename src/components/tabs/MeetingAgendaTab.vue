@@ -149,7 +149,7 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
 				{ key: 'orderNumber', label: this.t('decidesk', '#'), width: '60px' },
@@ -169,14 +169,14 @@ export default {
 			if (!this.packageResult?.path) return ''
 			return generateUrl('/apps/files') + '?dir=' + encodeURIComponent(this.packageResult.path)
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-2 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {
 			return [
 				{ label: this.t('decidesk', 'Edit'), icon: Pencil, handler: (row) => this.openEdit(row) },
 				{ label: this.t('decidesk', 'Delete'), icon: TrashCanOutline, destructive: true, handler: (row) => { this.deleteTarget = { ...row } } },
 			]
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		excludedFields() {
 			// Hide system / parent-link fields — we set `meeting` ourselves.
 			return ['id', 'uuid', 'meeting', 'created', 'updated']
@@ -185,7 +185,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
 			handler() { this.refresh() },
 		},
 	},
@@ -267,7 +267,7 @@ export default {
 				this.assembling = false
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
 			const store = ensureRelationType('agenda-item')
 			if (!this.agendaSchema) this.agendaSchema = await store.fetchSchema('agenda-item')
@@ -284,7 +284,7 @@ export default {
 			this.editTarget = item
 			this.formOpen = true
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async onConfirm(formData) {
 			const store = ensureRelationType('agenda-item')
 			try {
@@ -295,7 +295,7 @@ export default {
 				this.$refs.formDialog?.setResult({ error: e?.message || this.t('decidesk', 'Save failed.') })
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-1 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmDelete() {
 			const store = ensureRelationType('agenda-item')
 			try {

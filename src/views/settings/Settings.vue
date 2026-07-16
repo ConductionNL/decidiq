@@ -150,7 +150,7 @@
 		</CnSettingsSection>
 
 		<!-- Citizen-participation instance defaults -->
-		<!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
+		<!-- @spec openspec/specs/citizen-participation/spec.md -->
 		<CnSettingsSection
 			:name="t('decidesk', 'Citizen participation defaults')"
 			:description="t('decidesk', 'Defaults applied to new consultations and budget rounds. Staff can override per round.')">
@@ -252,7 +252,7 @@ export default {
 		currencyOptions() {
 			return ['EUR', 'USD', 'GBP', 'CHF']
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+		/** @spec openspec/specs/citizen-participation/spec.md */
 		moderationPolicyOptions() {
 			return [
 				{ id: 'pre-moderation', label: this.t('decidesk', 'Pre-moderation (approve before counting)') },
@@ -307,7 +307,7 @@ export default {
 			}
 			this.savingOrganisation = false
 		},
-		/** @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md */
+		/** @spec openspec/specs/citizen-participation/spec.md */
 		async saveParticipation() {
 			this.savingParticipation = true
 			const settingsStore = useSettingsStore()
