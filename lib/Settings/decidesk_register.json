@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.6.0"
+    "version": "0.6.1"
   },
   "x-openregister": {
     "type": "application",
@@ -5321,7 +5321,7 @@
         "x-openregister-notifications": {
           "reactionPendingModeration": {
             "trigger": {
-              "type": "create",
+              "type": "created",
               "filter": {
                 "moderationStatus": "pending"
               }
@@ -6608,18 +6608,20 @@
             "format": "date-time",
             "facetable": true,
             "description": "Depublication date. When set in the past, the published summary is withdrawn from public access."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "title": "Governance body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "description": "The governance body this evaluation cycle belongs to (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7): the retired x-openregister-relations block declared this relation but materialised no property, so the reference had nowhere to live and no engine read it."
           },
           "template": {
-            "register": "decidesk",
-            "schema": "EvaluationTemplate",
-            "cardinality": "many-to-one"
+            "title": "Evaluation template",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "EvaluationTemplate",
+            "description": "The evaluation template this cycle instantiates (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7)."
           }
         }
       },
@@ -6682,13 +6684,13 @@
             "title": "Response token",
             "type": "string",
             "description": "Opaque HMAC(participantId + ':' + evaluationId, server-side secret) dedup token — reuses the same secret-ballot mechanism VotingService uses for secret VotingRounds (app config key 'voter_token_secret'). One-way: cannot be inverted to recover the participant id without the server-side secret. Used only for idempotent one-response-per-member enforcement, never for read display or identity resolution."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "boardEvaluation": {
-            "register": "decidesk",
-            "schema": "BoardEvaluation",
-            "cardinality": "many-to-one"
+            "title": "Board evaluation",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "BoardEvaluation",
+            "description": "The evaluation cycle this response belongs to (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7). Links the response to the CYCLE only — never to a participant, preserving the secret-ballot guarantee."
           }
         }
       }

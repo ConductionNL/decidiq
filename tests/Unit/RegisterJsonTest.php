@@ -511,21 +511,38 @@ class RegisterJsonTest extends TestCase
             'Minutes'       => ['meeting'],
         ];
 
+        // The canonical relation dialect is a property-level `$ref` (ADR-062 rule 7); the bespoke
+        // per-schema `x-openregister-relations` block was retired 2026-07-08. This test asserted the
+        // retired block, so it went red when the core schemas were migrated and stayed red — while
+        // the two schemas that still carried the retired block (BoardEvaluation, EvaluationResponse)
+        // declared relations no engine read and materialised no property to hold them.
         foreach ($expectedRelations as $schemaName => $relations) {
-            $schemaRelations = ($this->schemas[$schemaName]['x-openregister-relations'] ?? []);
+            $properties = ($this->schemas[$schemaName]['properties'] ?? []);
             foreach ($relations as $relation) {
                 self::assertArrayHasKey(
                     key: $relation,
-                    array: $schemaRelations,
-                    message: "Schema '{$schemaName}' must have relation '{$relation}'"
+                    array: $properties,
+                    message: "Schema '{$schemaName}' must materialise relation '{$relation}' as a property"
                 );
-                self::assertSame(
-                    expected: 'decidesk',
-                    actual: $schemaRelations[$relation]['register'],
-                    message: "Relation '{$relation}' on '{$schemaName}' must target 'decidesk' register"
+                // To-one relations carry `$ref` on the property; to-many relations are an
+                // array whose `items` carries the `$ref` (e.g. Decision.route).
+                $ref = ($properties[$relation]['$ref'] ?? ($properties[$relation]['items']['$ref'] ?? ''));
+                self::assertNotEmpty(
+                    actual: $ref,
+                    message: "Relation '{$relation}' on '{$schemaName}' must be a property-level \$ref "
+                        .'(or items.$ref for to-many) per ADR-062 rule 7'
                 );
             }//end foreach
         }//end foreach
+
+        // Guard the retired dialect: it is inert, so a reintroduced block is a silent no-op.
+        foreach ($this->schemas as $schemaName => $schema) {
+            self::assertArrayNotHasKey(
+                key: 'x-openregister-relations',
+                array: $schema,
+                message: "Schema '{$schemaName}' uses the retired x-openregister-relations dialect (ADR-062 rule 7)"
+            );
+        }
 
         // ADR-005: no surviving relation may point at a removed schema.
         foreach ($this->schemas as $schemaName => $schema) {
@@ -604,12 +621,49 @@ class RegisterJsonTest extends TestCase
         self::assertArrayHasKey(key: 'questionCount', array: $calcs, message: 'questionCount calculation must exist');
         self::assertArrayHasKey(key: 'topicCount', array: $calcs, message: 'topicCount calculation must exist');
 
-        // Relations to Meeting and Participant must be declared.
-        $relations = ($schema['x-openregister-relations'] ?? []);
-        self::assertArrayHasKey(key: 'meeting', array: $relations);
-        self::assertArrayHasKey(key: 'participant', array: $relations);
+        // Relations to Meeting and Participant must be declared as canonical property-level
+        // $refs (ADR-062 rule 7), not the retired x-openregister-relations block.
+        self::assertNotEmpty(
+            actual: ($schema['properties']['meeting']['$ref'] ?? ''),
+            message: 'EngagementRecord.meeting must be a property-level $ref'
+        );
+        self::assertNotEmpty(
+            actual: ($schema['properties']['participant']['$ref'] ?? ''),
+            message: 'EngagementRecord.participant must be a property-level $ref'
+        );
 
     }//end testEngagementRecordSchemaExists()
+
+    /**
+     * Every declared notification trigger must use OpenRegister's canonical vocabulary.
+     *
+     * OpenRegister's NotificationAnnotationValidator::VALID_TRIGGERS accepts only
+     * created | updated | transition | scheduled | threshold | calculatedChange. A drifted
+     * value (e.g. 'create' for 'created') matches no dispatch branch, so the notification is
+     * inert — declared, reviewed, and never firing. Found live on ConsultationReaction.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/done-spec-fixes/specs/declarative-dialect-integrity/spec.md
+     */
+    public function testNotificationTriggersUseCanonicalVocabulary(): void
+    {
+        $validTriggers = ['created', 'updated', 'transition', 'scheduled', 'threshold', 'calculatedChange'];
+
+        foreach ($this->schemas as $schemaName => $schema) {
+            $notifications = ($schema['x-openregister-notifications'] ?? []);
+            foreach ($notifications as $notificationName => $spec) {
+                $triggerType = ($spec['trigger']['type'] ?? '');
+                self::assertContains(
+                    needle: $triggerType,
+                    haystack: $validTriggers,
+                    message: "Notification '{$notificationName}' on '{$schemaName}' declares trigger.type "
+                        ."'{$triggerType}', which is not in OpenRegister's VALID_TRIGGERS — it can never fire"
+                );
+            }
+        }
+
+    }//end testNotificationTriggersUseCanonicalVocabulary()
 
     /**
      * Test that Meeting schema aggregations include action-item and engagement metrics.
