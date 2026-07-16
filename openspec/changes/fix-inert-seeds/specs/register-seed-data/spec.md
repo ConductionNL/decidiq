@@ -38,8 +38,8 @@ merge and reach OpenRegister's importer, so a fragment is a first-class place to
 - AND those objects plant.
 
 ### Requirement: REQ-SEED-003 A corrected configuration is not skipped by the import version gate
-When decidesk changes its register configuration in a way that must reach existing installs,
-`info.version` in `decidesk_register.json` SHALL be bumped. OpenRegister's
+Decidesk SHALL bump `info.version` in `decidesk_register.json` whenever it changes its register
+configuration in a way that must reach existing installs. OpenRegister's
 `ImportHandler::importFromJson()` early-returns when the computed version is `<=` the stored version
 and the content hash is unchanged, and that return happens before seed import runs — so a corrected
 config with an unbumped version is itself inert.
