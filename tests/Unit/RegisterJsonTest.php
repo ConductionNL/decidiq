@@ -410,51 +410,81 @@ class RegisterJsonTest extends TestCase
      */
     public function testSeedDataPresent(): void
     {
-        $coreSchemas = [
-            'GovernanceBody',
-            'Meeting',
-            'Participant',
-            'AgendaItem',
-            'Decision',
-            'DecisionStage',
-            'VotingRound',
-            'Vote',
-            'ActionItem',
-            'Minutes',
+        // Seed data lives under the top-level `x-openregister.seedData.objects` map, keyed by
+        // schema SLUG. This is the only location OpenRegister's ImportHandler::importSeedData()
+        // reads. The former `x-openregister-seeds` schema annotation was out-of-vocabulary, so
+        // Schema::setConfiguration() dropped it and no seed ever planted (fix-inert-seeds).
+        $coreSchemaSlugs = [
+            'governance-body',
+            'meeting',
+            'participant',
+            'agenda-item',
+            'decision',
+            'decision-stage',
+            'voting-round',
+            'vote',
+            'action-item',
+            'minutes',
         ];
 
-        foreach ($coreSchemas as $name) {
-            $seeds = ($this->schemas[$name]['x-openregister-seeds'] ?? []);
+        $seedObjects = ($this->register['x-openregister']['seedData']['objects'] ?? []);
+        self::assertNotEmpty(
+            actual: $seedObjects,
+            message: 'Register must declare x-openregister.seedData.objects'
+        );
+
+        foreach ($coreSchemaSlugs as $slug) {
+            $seeds = ($seedObjects[$slug] ?? []);
             self::assertGreaterThanOrEqual(
                 expected: 3,
                 actual: count($seeds),
-                message: "Schema '{$name}' must have at least 3 seed objects"
+                message: "Schema '{$slug}' must have at least 3 seed objects"
             );
 
             foreach ($seeds as $seed) {
-                self::assertArrayHasKey(
+                // The importer takes register + schema from the import context, so a seed
+                // carries no @self envelope; its identity is a non-empty `slug` property.
+                self::assertArrayNotHasKey(
                     key: '@self',
                     array: $seed,
-                    message: "Seed in '{$name}' must have @self envelope"
-                );
-                self::assertSame(
-                    expected: 'decidesk',
-                    actual: $seed['@self']['register'],
-                    message: "Seed register must be 'decidesk'"
-                );
-                self::assertSame(
-                    expected: $name,
-                    actual: $seed['@self']['schema'],
-                    message: "Seed schema must match '{$name}'"
+                    message: "Seed in '{$slug}' must not carry an @self envelope under seedData"
                 );
                 self::assertNotEmpty(
-                    actual: $seed['@self']['slug'],
-                    message: 'Seed must have a non-empty slug'
+                    actual: ($seed['slug'] ?? ''),
+                    message: "Seed in '{$slug}' must have a non-empty slug"
                 );
             }//end foreach
         }//end foreach
 
     }//end testSeedDataPresent()
+
+    /**
+     * Guard the phantom: the out-of-vocabulary seed annotation must never come back.
+     *
+     * `x-openregister-seeds` (and its singular `x-openregister-seed`) are absent from
+     * OpenRegister's Schema::ANNOTATION_VOCABULARY, so setConfiguration() drops them
+     * silently — declarations survive review while planting nothing.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/fix-inert-seeds/specs/register-seed-data/spec.md
+     */
+    public function testNoOutOfVocabularySeedAnnotation(): void
+    {
+        $encoded = json_encode($this->register);
+
+        self::assertStringNotContainsString(
+            needle: 'x-openregister-seeds',
+            haystack: $encoded,
+            message: 'x-openregister-seeds is not in OpenRegister ANNOTATION_VOCABULARY and is dropped silently'
+        );
+        self::assertStringNotContainsString(
+            needle: 'x-openregister-seed"',
+            haystack: $encoded,
+            message: 'x-openregister-seed is not in OpenRegister ANNOTATION_VOCABULARY and is dropped silently'
+        );
+
+    }//end testNoOutOfVocabularySeedAnnotation()
 
     /**
      * Test that relations are declared with x-openregister-relations.
@@ -481,21 +511,38 @@ class RegisterJsonTest extends TestCase
             'Minutes'       => ['meeting'],
         ];
 
+        // The canonical relation dialect is a property-level `$ref` (ADR-062 rule 7); the bespoke
+        // per-schema `x-openregister-relations` block was retired 2026-07-08. This test asserted the
+        // retired block, so it went red when the core schemas were migrated and stayed red — while
+        // the two schemas that still carried the retired block (BoardEvaluation, EvaluationResponse)
+        // declared relations no engine read and materialised no property to hold them.
         foreach ($expectedRelations as $schemaName => $relations) {
-            $schemaRelations = ($this->schemas[$schemaName]['x-openregister-relations'] ?? []);
+            $properties = ($this->schemas[$schemaName]['properties'] ?? []);
             foreach ($relations as $relation) {
                 self::assertArrayHasKey(
                     key: $relation,
-                    array: $schemaRelations,
-                    message: "Schema '{$schemaName}' must have relation '{$relation}'"
+                    array: $properties,
+                    message: "Schema '{$schemaName}' must materialise relation '{$relation}' as a property"
                 );
-                self::assertSame(
-                    expected: 'decidesk',
-                    actual: $schemaRelations[$relation]['register'],
-                    message: "Relation '{$relation}' on '{$schemaName}' must target 'decidesk' register"
+                // To-one relations carry `$ref` on the property; to-many relations are an
+                // array whose `items` carries the `$ref` (e.g. Decision.route).
+                $ref = ($properties[$relation]['$ref'] ?? ($properties[$relation]['items']['$ref'] ?? ''));
+                self::assertNotEmpty(
+                    actual: $ref,
+                    message: "Relation '{$relation}' on '{$schemaName}' must be a property-level \$ref "
+                        .'(or items.$ref for to-many) per ADR-062 rule 7'
                 );
             }//end foreach
         }//end foreach
+
+        // Guard the retired dialect: it is inert, so a reintroduced block is a silent no-op.
+        foreach ($this->schemas as $schemaName => $schema) {
+            self::assertArrayNotHasKey(
+                key: 'x-openregister-relations',
+                array: $schema,
+                message: "Schema '{$schemaName}' uses the retired x-openregister-relations dialect (ADR-062 rule 7)"
+            );
+        }
 
         // ADR-005: no surviving relation may point at a removed schema.
         foreach ($this->schemas as $schemaName => $schema) {
@@ -574,12 +621,49 @@ class RegisterJsonTest extends TestCase
         self::assertArrayHasKey(key: 'questionCount', array: $calcs, message: 'questionCount calculation must exist');
         self::assertArrayHasKey(key: 'topicCount', array: $calcs, message: 'topicCount calculation must exist');
 
-        // Relations to Meeting and Participant must be declared.
-        $relations = ($schema['x-openregister-relations'] ?? []);
-        self::assertArrayHasKey(key: 'meeting', array: $relations);
-        self::assertArrayHasKey(key: 'participant', array: $relations);
+        // Relations to Meeting and Participant must be declared as canonical property-level
+        // $refs (ADR-062 rule 7), not the retired x-openregister-relations block.
+        self::assertNotEmpty(
+            actual: ($schema['properties']['meeting']['$ref'] ?? ''),
+            message: 'EngagementRecord.meeting must be a property-level $ref'
+        );
+        self::assertNotEmpty(
+            actual: ($schema['properties']['participant']['$ref'] ?? ''),
+            message: 'EngagementRecord.participant must be a property-level $ref'
+        );
 
     }//end testEngagementRecordSchemaExists()
+
+    /**
+     * Every declared notification trigger must use OpenRegister's canonical vocabulary.
+     *
+     * OpenRegister's NotificationAnnotationValidator::VALID_TRIGGERS accepts only
+     * created | updated | transition | scheduled | threshold | calculatedChange. A drifted
+     * value (e.g. 'create' for 'created') matches no dispatch branch, so the notification is
+     * inert — declared, reviewed, and never firing. Found live on ConsultationReaction.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/done-spec-fixes/specs/declarative-dialect-integrity/spec.md
+     */
+    public function testNotificationTriggersUseCanonicalVocabulary(): void
+    {
+        $validTriggers = ['created', 'updated', 'transition', 'scheduled', 'threshold', 'calculatedChange'];
+
+        foreach ($this->schemas as $schemaName => $schema) {
+            $notifications = ($schema['x-openregister-notifications'] ?? []);
+            foreach ($notifications as $notificationName => $spec) {
+                $triggerType = ($spec['trigger']['type'] ?? '');
+                self::assertContains(
+                    needle: $triggerType,
+                    haystack: $validTriggers,
+                    message: "Notification '{$notificationName}' on '{$schemaName}' declares trigger.type "
+                        ."'{$triggerType}', which is not in OpenRegister's VALID_TRIGGERS — it can never fire"
+                );
+            }
+        }
+
+    }//end testNotificationTriggersUseCanonicalVocabulary()
 
     /**
      * Test that Meeting schema aggregations include action-item and engagement metrics.
@@ -630,7 +714,8 @@ class RegisterJsonTest extends TestCase
      */
     public function testEngagementRecordHasSeedData(): void
     {
-        $seeds = ($this->schemas['EngagementRecord']['x-openregister-seeds'] ?? []);
+        // Keyed by schema slug under the seedData map — the location the importer reads.
+        $seeds = ($this->register['x-openregister']['seedData']['objects']['engagement-record'] ?? []);
         self::assertGreaterThanOrEqual(
             expected: 3,
             actual: count($seeds),
@@ -638,9 +723,10 @@ class RegisterJsonTest extends TestCase
         );
 
         foreach ($seeds as $seed) {
-            self::assertArrayHasKey(key: '@self', array: $seed, message: 'Seed must have @self envelope');
-            self::assertSame(expected: 'decidesk', actual: $seed['@self']['register']);
-            self::assertSame(expected: 'EngagementRecord', actual: $seed['@self']['schema']);
+            self::assertNotEmpty(
+                actual: ($seed['slug'] ?? ''),
+                message: 'EngagementRecord seed must have a non-empty slug'
+            );
         }
 
     }//end testEngagementRecordHasSeedData()

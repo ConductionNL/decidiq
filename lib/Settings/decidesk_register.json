@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidesk Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
-    "version": "0.5.1"
+    "version": "0.6.1"
   },
   "x-openregister": {
     "type": "application",
@@ -47,6 +47,1324 @@
           "gracefulDegradation": "registry hides the Talk tab when the Talk app is absent; detail pages remain usable"
         }
       ]
+    },
+    "seedData": {
+      "description": "Demonstration seed objects for governance bodies, meetings, decisions, voting, and evaluations. Planted by OpenRegister via the x-openregister.seedData import path (ImportHandler::importSeedData).",
+      "objects": {
+        "person": [
+          {
+            "slug": "femke-halsema",
+            "name": "Femke Halsema",
+            "givenName": "Femke",
+            "familyName": "Halsema",
+            "gender": "female",
+            "email": "f.halsema@amsterdam.nl",
+            "biography": "Burgemeester van Amsterdam, voorzitter van de gemeenteraad."
+          },
+          {
+            "slug": "marie-janssen",
+            "name": "Marie Janssen",
+            "givenName": "Marie",
+            "familyName": "Janssen",
+            "gender": "female",
+            "email": "m.janssen@amsterdam.nl",
+            "biography": "Raadslid en lid van de VNG-ledenraad."
+          },
+          {
+            "slug": "jan-de-vries",
+            "name": "Jan de Vries",
+            "givenName": "Jan",
+            "familyName": "de Vries",
+            "gender": "male",
+            "email": "j.devries@waterschap.nl",
+            "biography": "Secretaris / griffier."
+          },
+          {
+            "slug": "janneke-de-bruin",
+            "name": "Janneke de Bruin",
+            "givenName": "Janneke",
+            "familyName": "de Bruin",
+            "gender": "female",
+            "email": "j.debruin@acme.example",
+            "biography": "Voorzitter Raad van Commissarissen.",
+            "nationality": "NL"
+          },
+          {
+            "slug": "mark-van-den-berg",
+            "name": "Mark van den Berg",
+            "givenName": "Mark",
+            "familyName": "van den Berg",
+            "gender": "male",
+            "email": "m.vandenberg@acme.example",
+            "biography": "Lid Raad van Bestuur.",
+            "nationality": "NL"
+          }
+        ],
+        "post": [
+          {
+            "slug": "post-voorzitter-amsterdam",
+            "label": "Voorzitter gemeenteraad",
+            "role": "chair",
+            "startDate": "2018-05-30T00:00:00Z",
+            "governanceBody": "gemeenteraad-amsterdam"
+          },
+          {
+            "slug": "post-griffier-amsterdam",
+            "label": "Raadsgriffier",
+            "role": "secretary",
+            "startDate": "2021-01-15T00:00:00Z",
+            "governanceBody": "gemeenteraad-amsterdam"
+          },
+          {
+            "slug": "post-voorzitter-rvc",
+            "label": "Voorzitter RvC",
+            "role": "chair",
+            "startDate": "2022-04-01T00:00:00Z",
+            "governanceBody": "rvc-waterschap-amstel"
+          }
+        ],
+        "membership": [
+          {
+            "slug": "m-femke-amsterdam",
+            "role": "chair",
+            "label": "Voorzitter raad",
+            "party": "GroenLinks",
+            "votingWeight": 1,
+            "startDate": "2018-05-30T00:00:00Z",
+            "person": "femke-halsema",
+            "governanceBody": "gemeenteraad-amsterdam",
+            "post": "post-voorzitter-amsterdam"
+          },
+          {
+            "slug": "m-marie-amsterdam",
+            "role": "member",
+            "label": "Raadslid",
+            "party": "D66",
+            "votingWeight": 1,
+            "startDate": "2022-03-16T00:00:00Z",
+            "person": "marie-janssen",
+            "governanceBody": "gemeenteraad-amsterdam"
+          },
+          {
+            "slug": "m-jan-amstel",
+            "role": "secretary",
+            "label": "Raadsgriffier",
+            "votingWeight": 0,
+            "startDate": "2021-01-15T00:00:00Z",
+            "person": "jan-de-vries",
+            "governanceBody": "rvc-waterschap-amstel",
+            "post": "post-griffier-amsterdam"
+          },
+          {
+            "slug": "m-janneke-rvc",
+            "role": "chair",
+            "label": "Voorzitter RvC",
+            "votingWeight": 1,
+            "startDate": "2022-04-01T00:00:00Z",
+            "endDate": "2026-04-01T00:00:00Z",
+            "independenceStatus": "independent",
+            "otherPositions": [
+              "RvC Stedin (vice-voorzitter)",
+              "Bestuur Stichting Concertgebouw"
+            ],
+            "person": "janneke-de-bruin",
+            "governanceBody": "rvc-waterschap-amstel",
+            "post": "post-voorzitter-rvc"
+          },
+          {
+            "slug": "m-mark-rvb",
+            "role": "member",
+            "label": "Lid RvB",
+            "votingWeight": 1,
+            "startDate": "2020-01-01T00:00:00Z",
+            "endDate": "2025-12-31T00:00:00Z",
+            "independenceStatus": "non-independent",
+            "otherPositions": [
+              "Bestuur Branchevereniging Tech NL"
+            ],
+            "person": "mark-van-den-berg",
+            "governanceBody": "rvc-waterschap-amstel"
+          },
+          {
+            "slug": "m-marie-vng",
+            "role": "member",
+            "label": "Lid ledenraad",
+            "votingWeight": 1,
+            "startDate": "2024-01-01T00:00:00Z",
+            "person": "marie-janssen",
+            "governanceBody": "ledenraad-vng"
+          }
+        ],
+        "contact-detail": [
+          {
+            "slug": "cd-femke-email",
+            "type": "email",
+            "value": "f.halsema@amsterdam.nl",
+            "label": "Werk",
+            "person": "femke-halsema"
+          },
+          {
+            "slug": "cd-femke-phone",
+            "type": "phone",
+            "value": "+31 20 624 1111",
+            "label": "Bestuurssecretariaat",
+            "person": "femke-halsema"
+          },
+          {
+            "slug": "cd-amsterdam-address",
+            "type": "address",
+            "value": "Amstel 1, Amsterdam",
+            "label": "Stadhuis",
+            "governanceBody": "gemeenteraad-amsterdam"
+          }
+        ],
+        "governance-body": [
+          {
+            "slug": "gemeenteraad-amsterdam",
+            "name": "Gemeenteraad Amsterdam",
+            "bodyType": "legislative",
+            "domain": "municipality",
+            "votingDefault": "for-against-abstain",
+            "termStart": "2022-03-16T00:00:00Z",
+            "termEnd": "2026-03-15T00:00:00Z"
+          },
+          {
+            "slug": "rvc-waterschap-amstel",
+            "name": "Raad van Commissarissen Waterschap Amstel, Gooi en Vecht",
+            "bodyType": "corporate-board",
+            "domain": "water-authority",
+            "votingDefault": "for-against-abstain",
+            "termStart": "2023-01-01T00:00:00Z",
+            "termEnd": "2026-12-31T00:00:00Z"
+          },
+          {
+            "slug": "directieteam-gemeente-utrecht",
+            "name": "Directieteam Gemeente Utrecht",
+            "bodyType": "operational",
+            "domain": "municipality",
+            "votingDefault": "show-of-hands"
+          },
+          {
+            "slug": "ledenraad-vng",
+            "name": "Ledenraad VNG",
+            "bodyType": "association",
+            "domain": "association",
+            "votingDefault": "for-against-abstain",
+            "termStart": "2024-01-01T00:00:00Z",
+            "termEnd": "2025-12-31T00:00:00Z"
+          },
+          {
+            "slug": "auditcommissie-provincie-nh",
+            "name": "Auditcommissie Provincie Noord-Holland",
+            "bodyType": "legislative",
+            "domain": "province",
+            "votingDefault": "for-against-abstain"
+          },
+          {
+            "slug": "raad-van-commissarissen-acme-bv",
+            "name": "Raad van Commissarissen ACME B.V.",
+            "bodyType": "supervisory-board",
+            "domain": "corporate",
+            "votingDefault": "for-against-abstain",
+            "termStart": "2024-01-01T00:00:00Z",
+            "termEnd": "2027-12-31T00:00:00Z"
+          },
+          {
+            "slug": "managementteam-acme-bv",
+            "name": "Managementteam ACME B.V.",
+            "bodyType": "operational",
+            "domain": "corporate",
+            "votingDefault": "show-of-hands"
+          },
+          {
+            "slug": "raad-van-bestuur-acme-bv",
+            "name": "Raad van Bestuur ACME B.V.",
+            "bodyType": "executive-board",
+            "domain": "corporate",
+            "votingDefault": "for-against-abstain",
+            "termStart": "2024-01-01T00:00:00Z",
+            "termEnd": "2028-12-31T00:00:00Z"
+          }
+        ],
+        "meeting": [
+          {
+            "slug": "raadsvergadering-2025-01-15",
+            "title": "Raadsvergadering 15 januari 2025",
+            "meetingType": "regular",
+            "scheduledDate": "2025-01-15T19:30:00Z",
+            "endDate": "2025-01-15T23:00:00Z",
+            "location": "Stadhuis Amsterdam, Raadzaal",
+            "meetingMode": "hybrid",
+            "lifecycle": "closed"
+          },
+          {
+            "slug": "rvc-vergadering-q1-2025",
+            "title": "RvC Vergadering Q1 2025 — Waterschap",
+            "meetingType": "regular",
+            "scheduledDate": "2025-02-05T10:00:00Z",
+            "endDate": "2025-02-05T13:00:00Z",
+            "location": "Waternet Kantoor, Amstel 1",
+            "meetingMode": "in-person",
+            "lifecycle": "closed"
+          },
+          {
+            "slug": "directieoverleg-2025-04-14",
+            "title": "Directieoverleg week 16 — Gemeente Utrecht",
+            "meetingType": "regular",
+            "scheduledDate": "2025-04-14T09:00:00Z",
+            "endDate": "2025-04-14T11:00:00Z",
+            "location": "Stadskantoor Utrecht, Kamer 3.12",
+            "meetingMode": "hybrid",
+            "lifecycle": "draft"
+          },
+          {
+            "slug": "ledenvergadering-vng-voorjaar-2025",
+            "title": "Algemene Ledenvergadering VNG — Voorjaar 2025",
+            "meetingType": "public hearing",
+            "scheduledDate": "2025-06-18T13:00:00Z",
+            "endDate": "2025-06-18T17:00:00Z",
+            "location": "World Forum Den Haag",
+            "meetingMode": "in-person",
+            "lifecycle": "scheduled",
+            "quorumRequired": 50
+          },
+          {
+            "slug": "rvc-vergadering-2025-q2",
+            "title": "RvC-vergadering Q2 2025",
+            "meetingType": "regular",
+            "scheduledDate": "2025-04-17T14:00:00Z",
+            "endDate": "2025-04-17T16:30:00Z",
+            "location": "ACME B.V. hoofdkantoor, bestuurskamer",
+            "meetingMode": "hybrid",
+            "lifecycle": "closed"
+          }
+        ],
+        "participant": [
+          {
+            "slug": "femke-halsema",
+            "displayName": "Femke Halsema",
+            "role": "chair",
+            "email": "f.halsema@amsterdam.nl",
+            "joinedAt": "2018-05-30T00:00:00Z",
+            "votingWeight": 1
+          },
+          {
+            "slug": "jan-de-vries",
+            "displayName": "Jan de Vries",
+            "role": "secretary",
+            "email": "j.devries@waterschap.nl",
+            "joinedAt": "2021-01-15T00:00:00Z",
+            "votingWeight": 1
+          },
+          {
+            "slug": "marie-janssen",
+            "displayName": "Marie Janssen",
+            "role": "member",
+            "party": "D66",
+            "email": "m.janssen@amsterdam.nl",
+            "joinedAt": "2022-03-16T00:00:00Z",
+            "votingWeight": 1
+          },
+          {
+            "slug": "pieter-bakker",
+            "displayName": "Pieter Bakker",
+            "role": "chair",
+            "email": "p.bakker@utrecht.nl",
+            "joinedAt": "2020-06-01T00:00:00Z",
+            "votingWeight": 1
+          },
+          {
+            "slug": "ans-rutten",
+            "displayName": "Ans Rutten",
+            "role": "observer",
+            "email": "a.rutten@vng.nl",
+            "joinedAt": "2024-01-10T00:00:00Z",
+            "votingWeight": 0
+          }
+        ],
+        "agenda-item": [
+          {
+            "slug": "opening-raad-2025-01-15",
+            "title": "Opening vergadering",
+            "itemType": "informational",
+            "orderNumber": 1,
+            "estimatedDuration": 5
+          },
+          {
+            "slug": "notulen-2024-12-18",
+            "title": "Vaststellen notulen vergadering 18 december 2024",
+            "itemType": "decision",
+            "orderNumber": 2,
+            "estimatedDuration": 10,
+            "isRecurring": true
+          },
+          {
+            "slug": "jaarrekening-2024",
+            "title": "Jaarrekening 2024 — ter goedkeuring",
+            "itemType": "decision",
+            "orderNumber": 3,
+            "estimatedDuration": 45,
+            "description": "Bespreking en vaststelling van de jaarrekening over het boekjaar 2024"
+          },
+          {
+            "slug": "begroting-2026-bespreking",
+            "title": "Kadernota begroting 2026",
+            "itemType": "discussion",
+            "orderNumber": 4,
+            "estimatedDuration": 60,
+            "description": "Eerste bespreking van de financiële kaders voor begrotingsjaar 2026"
+          },
+          {
+            "slug": "rondvraag",
+            "title": "Rondvraag",
+            "itemType": "informational",
+            "orderNumber": 99,
+            "estimatedDuration": 10,
+            "isRecurring": true
+          }
+        ],
+        "voting-round": [
+          {
+            "slug": "stemming-motie-duurzaamheid-2025",
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "2025-04-10T21:00:00Z",
+            "closedAt": "2025-04-10T21:05:00Z",
+            "quorumMet": true,
+            "result": "adopted",
+            "votesFor": 28,
+            "votesAgainst": 3,
+            "votesAbstain": 2
+          },
+          {
+            "slug": "stemming-begroting-2026",
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "2025-04-10T21:30:00Z",
+            "closedAt": "2025-04-10T21:38:00Z",
+            "quorumMet": true,
+            "result": "adopted",
+            "votesFor": 25,
+            "votesAgainst": 6,
+            "votesAbstain": 2
+          },
+          {
+            "slug": "stemming-amendement-a",
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "2025-04-10T20:55:00Z",
+            "closedAt": "2025-04-10T21:00:00Z",
+            "quorumMet": true,
+            "result": "rejected",
+            "votesFor": 11,
+            "votesAgainst": 20,
+            "votesAbstain": 2
+          },
+          {
+            "slug": "stemming-begroting-2027-gemeenteraad",
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "2026-04-15T21:00:00Z",
+            "closedAt": "2026-04-15T21:15:00Z",
+            "quorumMet": true,
+            "result": "adopted",
+            "votesFor": 28,
+            "votesAgainst": 3,
+            "votesAbstain": 2,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "decisionStage": "stage-begroting-2027-3-dec"
+          },
+          {
+            "slug": "stemming-investering-acme-rvb-geheim",
+            "votingMethod": "for-against-abstain",
+            "isSecret": true,
+            "openedAt": "2026-04-18T15:00:00Z",
+            "closedAt": "2026-04-18T15:20:00Z",
+            "quorumMet": true,
+            "result": "adopted",
+            "votesFor": 3,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "decisionStage": "stage-investering-acme-2-dec"
+          }
+        ],
+        "vote": [
+          {
+            "slug": "stem-devries-motie-duurzaamheid",
+            "value": "for",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2025-04-10T21:01:00Z"
+          },
+          {
+            "slug": "stem-bakker-motie-duurzaamheid",
+            "value": "against",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2025-04-10T21:02:00Z"
+          },
+          {
+            "slug": "stem-elamrani-begroting-2026",
+            "value": "for",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2025-04-10T21:31:00Z"
+          },
+          {
+            "slug": "stem-proxy-vandam-begroting",
+            "value": "for",
+            "weight": 1,
+            "isProxy": true,
+            "castAt": "2025-04-10T21:32:00Z"
+          },
+          {
+            "slug": "stem-femke-begroting-2027",
+            "value": "for",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2026-04-15T21:05:00Z",
+            "castAs": "in-person",
+            "votingRound": "stemming-begroting-2027-gemeenteraad",
+            "participant": "femke-halsema"
+          },
+          {
+            "slug": "stem-marie-begroting-2027",
+            "value": "for",
+            "weight": 1,
+            "isProxy": false,
+            "castAt": "2026-04-15T21:06:00Z",
+            "castAs": "in-person",
+            "votingRound": "stemming-begroting-2027-gemeenteraad",
+            "participant": "marie-janssen"
+          }
+        ],
+        "decision": [
+          {
+            "slug": "besluit-begroting-2026",
+            "decisionType": "meeting-outcome",
+            "title": "Vaststelling Programmabegroting 2026",
+            "text": "De gemeenteraad van Westerkwartier stelt de programmabegroting 2026 vast.",
+            "decisionDate": "2025-04-10T21:38:00Z",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "publishedAt": "2025-04-11T09:00:00Z",
+            "legalBasis": "Gemeentewet art. 189",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-04-11T09:00:00Z"
+          },
+          {
+            "slug": "besluit-duurzaamheid-2025",
+            "decisionType": "meeting-outcome",
+            "title": "Motie Duurzaamheid aangenomen",
+            "text": "De raad verzoekt het college een plan van aanpak zonnepanelen te presenteren voor 1 januari 2026.",
+            "decisionDate": "2025-04-10T21:05:00Z",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "publishedAt": "2025-04-11T09:00:00Z",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-04-11T09:00:00Z"
+          },
+          {
+            "slug": "besluit-bestemmingsplan-groningen-noord",
+            "decisionType": "meeting-outcome",
+            "title": "Vaststelling bestemmingsplan Groningen-Noord",
+            "text": "De raad stelt het bestemmingsplan Groningen-Noord ongewijzigd vast.",
+            "decisionDate": "2025-03-27T20:45:00Z",
+            "outcome": "adopted",
+            "isPublished": "internal",
+            "legalBasis": "Wet ruimtelijke ordening art. 3.1",
+            "lifecycle": "decided"
+          },
+          {
+            "slug": "besluit-woningbouwplan-oost",
+            "decisionType": "meeting-outcome",
+            "title": "Vaststelling Woningbouwplan Oost 2025-2030",
+            "text": "De gemeenteraad van Westerkwartier stelt het Woningbouwplan Oost 2025-2030 vast en machtigt het college tot uitvoering conform bijgaande planning en budgettering.",
+            "decisionDate": "2025-03-20T21:15:00Z",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "publishedAt": "2025-03-21T09:00:00Z",
+            "legalBasis": "Wet ruimtelijke ordening art. 3.1",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-03-21T09:00:00Z"
+          },
+          {
+            "slug": "besluit-duurzaamheidsagenda-2026",
+            "decisionType": "meeting-outcome",
+            "title": "Vaststelling Duurzaamheidsagenda 2026",
+            "text": "De raad stelt de Duurzaamheidsagenda Westerkwartier 2026 vast en stelt €200.000 beschikbaar voor uitvoering van de daarin opgenomen maatregelen.",
+            "decisionDate": "2025-03-20T20:45:00Z",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "publishedAt": "2025-03-21T09:00:00Z",
+            "legalBasis": "Gemeentewet art. 147",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-03-21T09:00:00Z"
+          },
+          {
+            "slug": "besluit-bezwaar-kapvergunning",
+            "decisionType": "meeting-outcome",
+            "title": "Besluit op bezwaar kapvergunning Dorpsstraat 12",
+            "text": "De gemeenteraad verklaart het bezwaar van de bewonersvereniging gegrond en herroept de verleende kapvergunning voor de eik aan Dorpsstraat 12.",
+            "decisionDate": "2025-04-01T14:30:00Z",
+            "outcome": "adopted",
+            "isPublished": "confidential",
+            "legalBasis": "Algemene wet bestuursrecht art. 7:11",
+            "lifecycle": "decided"
+          },
+          {
+            "slug": "besluit-amendement-cultuursubsidie-afgewezen",
+            "decisionType": "meeting-outcome",
+            "title": "Amendement verhoging cultuursubsidie — niet aanvaard",
+            "text": "Het amendement tot verhoging van het cultuursubsidiebudget 2026 met €75.000 wordt niet aanvaard.",
+            "decisionDate": "2025-04-10T21:00:00Z",
+            "outcome": "rejected",
+            "isPublished": "internal",
+            "lifecycle": "decided"
+          },
+          {
+            "slug": "besluit-fusie-dorpsraden",
+            "decisionType": "meeting-outcome",
+            "title": "Instemming fusie dorpsraden Noord en Oost per 1 januari 2026",
+            "text": "De raad stemt in met de samenvoeging van dorpsraad Noord en dorpsraad Oost tot één dorpsraad Noord-Oost, ingaande 1 januari 2026.",
+            "decisionDate": "2025-04-10T20:30:00Z",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "publishedAt": "2025-04-11T08:30:00Z",
+            "lifecycle": "enacted",
+            "enactedAt": "2025-04-11T08:30:00Z"
+          },
+          {
+            "slug": "motie-duurzaamheid-2025",
+            "decisionType": "motion",
+            "title": "Motie Duurzaamheid: zonnepanelen op gemeentelijke daken",
+            "text": "De raad verzoekt het college om voor 1 januari 2026 een concreet plan van aanpak op te stellen voor de plaatsing van zonnepanelen op alle gemeentelijke daken, inclusief een kostenraming en tijdlijn.",
+            "motionType": "motie",
+            "proposer": "Roos de Vries",
+            "lifecycle": "decided",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "submittedAt": "2025-04-10T19:00:00Z",
+            "decisionDate": "2025-04-10T21:10:00Z"
+          },
+          {
+            "slug": "motie-woonlasten-2025",
+            "decisionType": "motion",
+            "title": "Motie Woonlasten verlagen",
+            "motionType": "motie",
+            "proposer": "Jan de Boer",
+            "lifecycle": "voting",
+            "outcome": "pending",
+            "isPublished": "public"
+          },
+          {
+            "slug": "amendement-cultuursubsidie",
+            "decisionType": "amendment",
+            "title": "Amendement Cultuursubsidie verhogen",
+            "proposer": "Fatima El-Amrani",
+            "proposedText": "Verhoog post 6.1 met €50.000",
+            "lifecycle": "decided",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "amends": "motie-duurzaamheid-2025"
+          },
+          {
+            "slug": "r-2025-001-goedkeuring-jaarrekening",
+            "decisionType": "resolution",
+            "title": "Goedkeuring jaarrekening 2024",
+            "text": "De RvC verleent goedkeuring aan de jaarrekening 2024.",
+            "resolutionNumber": "R-2025-001",
+            "voteType": "open",
+            "voteThreshold": "simple-majority",
+            "legalBasis": "art. 2:101 BW",
+            "lifecycle": "enacted",
+            "outcome": "adopted",
+            "isPublished": "internal"
+          },
+          {
+            "slug": "r-2025-002-benoeming-cfo",
+            "decisionType": "resolution",
+            "title": "Benoeming CFO",
+            "resolutionNumber": "R-2025-002",
+            "voteType": "secret",
+            "voteThreshold": "simple-majority",
+            "lifecycle": "enacted",
+            "outcome": "adopted",
+            "isPublished": "confidential"
+          },
+          {
+            "slug": "contract-schoonmaak-2026",
+            "decisionType": "contract",
+            "title": "Gunning schoonmaakcontract 2026",
+            "text": "Het MT gunt het schoonmaakcontract aan Leverancier X.",
+            "legalBasis": "Aanbestedingswet 2012",
+            "lifecycle": "decided",
+            "outcome": "adopted",
+            "isPublished": "confidential"
+          },
+          {
+            "slug": "besluit-benoeming-penningmeester",
+            "decisionType": "appointment",
+            "title": "Benoeming penningmeester",
+            "lifecycle": "enacted",
+            "outcome": "adopted",
+            "isPublished": "internal"
+          },
+          {
+            "slug": "mt-go-nogo-zonnepark",
+            "decisionType": "management-point",
+            "title": "Go/No-go zonnepark fase 2",
+            "lifecycle": "decided",
+            "outcome": "adopted",
+            "isPublished": "internal"
+          },
+          {
+            "slug": "beleid-thuiswerkregeling",
+            "decisionType": "policy",
+            "title": "Vaststelling thuiswerkregeling",
+            "lifecycle": "enacted",
+            "outcome": "adopted",
+            "isPublished": "public"
+          },
+          {
+            "slug": "besluit-begroting-2027",
+            "decisionType": "meeting-outcome",
+            "title": "Vaststelling Programmabegroting 2027",
+            "text": "De gemeenteraad stelt de programmabegroting 2027 vast conform het raadsvoorstel van het college.",
+            "decisionDate": "2026-04-15T19:30:00Z",
+            "outcome": "adopted",
+            "isPublished": "public",
+            "legalBasis": "Gemeentewet art. 189",
+            "lifecycle": "enacted",
+            "enactedAt": "2026-04-16T09:00:00Z",
+            "supersedes": [
+              "besluit-begroting-2026"
+            ],
+            "route": [
+              "stage-begroting-2027-1-prep",
+              "stage-begroting-2027-2-adv",
+              "stage-begroting-2027-3-dec"
+            ]
+          },
+          {
+            "slug": "besluit-investering-acme",
+            "decisionType": "management-point",
+            "title": "Investeringsbesluit Datacenteruitbreiding ACME B.V.",
+            "text": "Het MT besluit tot investering in uitbreiding van het datacentercapaciteit met €2,4M conform de goedgekeurde businesscase.",
+            "decisionDate": "2026-05-01T10:00:00Z",
+            "outcome": "adopted",
+            "isPublished": "confidential",
+            "lifecycle": "decided",
+            "route": [
+              "stage-investering-acme-1-prep",
+              "stage-investering-acme-2-dec",
+              "stage-investering-acme-3-rat"
+            ]
+          }
+        ],
+        "decision-stage": [
+          {
+            "slug": "stage-begroting-2027-1-prep",
+            "sequence": 1,
+            "stageType": "preparatory",
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-03-02T14:00:00Z",
+            "method": "manual",
+            "decisionMakerType": "body",
+            "label": "Voorbereiding & vaststelling concept",
+            "note": "Concept vastgesteld door het directieteam. Doorgestuurd naar de commissie.",
+            "decision": "besluit-begroting-2027",
+            "assignedBody": "directieteam-gemeente-utrecht"
+          },
+          {
+            "slug": "stage-begroting-2027-2-adv",
+            "sequence": 2,
+            "stageType": "advisory",
+            "status": "decided",
+            "outcome": "advised",
+            "decidedAt": "2026-03-20T17:30:00Z",
+            "method": "advice",
+            "decisionMakerType": "person",
+            "label": "Advies raadscommissie",
+            "note": "Commissie adviseert de raad de begroting ongewijzigd vast te stellen.",
+            "decision": "besluit-begroting-2027",
+            "assignedPerson": "femke-halsema"
+          },
+          {
+            "slug": "stage-begroting-2027-3-dec",
+            "sequence": 3,
+            "stageType": "decisive",
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-04-15T21:30:00Z",
+            "method": "vote",
+            "decisionMakerType": "body",
+            "label": "Besluit gemeenteraad",
+            "decision": "besluit-begroting-2027",
+            "assignedBody": "gemeenteraad-amsterdam",
+            "votingRound": "stemming-begroting-2027-gemeenteraad"
+          },
+          {
+            "slug": "stage-investering-acme-1-prep",
+            "sequence": 1,
+            "stageType": "preparatory",
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-04-05T11:00:00Z",
+            "method": "chair-register",
+            "decisionMakerType": "body",
+            "label": "MT-voorbereiding investering",
+            "note": "Businesscase goedgekeurd door MT-voorzitter.",
+            "decision": "besluit-investering-acme",
+            "assignedBody": "managementteam-acme-bv",
+            "registeredBy": "mark-van-den-berg"
+          },
+          {
+            "slug": "stage-investering-acme-2-dec",
+            "sequence": 2,
+            "stageType": "decisive",
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-04-18T15:30:00Z",
+            "method": "vote",
+            "decisionMakerType": "body",
+            "label": "Besluit Raad van Bestuur",
+            "note": "Investeringsbesluit aangenomen — geheime stemming, unanime uitkomst.",
+            "decision": "besluit-investering-acme",
+            "assignedBody": "raad-van-bestuur-acme-bv",
+            "votingRound": "stemming-investering-acme-rvb-geheim"
+          },
+          {
+            "slug": "stage-investering-acme-3-rat",
+            "sequence": 3,
+            "stageType": "ratifying",
+            "status": "decided",
+            "outcome": "adopted",
+            "decidedAt": "2026-05-01T09:15:00Z",
+            "method": "signature",
+            "decisionMakerType": "body",
+            "label": "Goedkeuring Raad van Commissarissen — eIDAS ondertekening",
+            "note": "RvC-besluit bekrachtigd via QES-handtekeningen. Notulen ondertekend door voorzitter en secretaris.",
+            "decision": "besluit-investering-acme",
+            "assignedBody": "raad-van-commissarissen-acme-bv",
+            "signedDocument": "notulen-rvc-investering-acme-signed"
+          }
+        ],
+        "action-item": [
+          {
+            "slug": "actie-plan-zonnepanelen",
+            "title": "Plan van aanpak zonnepanelen gemeentelijke gebouwen opstellen",
+            "description": "College presenteert plan voor 1 januari 2026 conform aangenomen motie.",
+            "assignee": "Wethouder Duurzaamheid",
+            "dueDate": "2026-01-01T00:00:00Z",
+            "taskStatus": "open"
+          },
+          {
+            "slug": "actie-communicatie-begroting-2026",
+            "title": "Begroting 2026 communiceren naar inwoners",
+            "assignee": "Communicatieafdeling",
+            "dueDate": "2025-05-01T00:00:00Z",
+            "taskStatus": "completed",
+            "completedAt": "2025-04-25T14:30:00Z"
+          },
+          {
+            "slug": "actie-bestemmingsplan-publiceren",
+            "title": "Bestemmingsplan Groningen-Noord publiceren op ruimtelijkeplannen.nl",
+            "assignee": "Ruimtelijke Ordening",
+            "dueDate": "2025-04-10T00:00:00Z",
+            "taskStatus": "overdue"
+          },
+          {
+            "slug": "actie-woningbouw-uitvoeringsplan",
+            "title": "Uitvoeringsplan Woningbouwplan Oost opstellen",
+            "description": "College stelt uitvoeringsplan op inclusief fasering, budgetten en planning.",
+            "assignee": "Wethouder Wonen",
+            "dueDate": "2025-07-01T00:00:00Z",
+            "taskStatus": "in-progress"
+          },
+          {
+            "slug": "actie-duurzaamheid-offerteverzoek",
+            "title": "Offerteverzoek zonnepanelen gemeentelijke gebouwen uitzetten",
+            "description": "Inkoopteam vraagt offertes op bij minimaal 3 leveranciers conform gemeentelijk aanbestedingsbeleid.",
+            "assignee": "Inkoopcoördinator",
+            "dueDate": "2025-05-15T00:00:00Z",
+            "taskStatus": "completed",
+            "completedAt": "2025-05-10T16:00:00Z"
+          },
+          {
+            "slug": "actie-notulen-distribueren",
+            "title": "Definitieve notulen raadsvergadering 20 maart distribueren",
+            "description": "Griffier verstuurt vastgestelde notulen aan alle raadsleden en publiceert op gemeentelijke website.",
+            "assignee": "Griffier",
+            "dueDate": "2025-04-11T00:00:00Z",
+            "taskStatus": "completed",
+            "completedAt": "2025-04-11T09:30:00Z"
+          },
+          {
+            "slug": "actie-besluiten-ori-publicatie",
+            "title": "Besluiten raadsvergadering publiceren via ORI-koppeling",
+            "description": "Informatiemanager controleert ORI-export en bevestigt succesvolle aanlevering bij PLOOI.",
+            "assignee": "Informatiemanager",
+            "dueDate": "2025-03-22T00:00:00Z",
+            "taskStatus": "overdue"
+          },
+          {
+            "slug": "actie-fusie-dorpsraden-convenant",
+            "title": "Convenant fusie dorpsraden Noord en Oost opstellen en laten ondertekenen",
+            "description": "Gemeentelijke contactpersoon stelt convenant op in samenspraak met beide dorpsraden.",
+            "assignee": "Beleidsmedewerker Participatie",
+            "dueDate": "2025-10-01T00:00:00Z",
+            "taskStatus": "open"
+          }
+        ],
+        "minutes": [
+          {
+            "slug": "notulen-raad-2025-04-10",
+            "title": "Notulen Raadsvergadering 10 april 2025",
+            "lifecycle": "approved",
+            "content": "De vergadering wordt geopend door de voorzitter om 19:30 uur...",
+            "approvedAt": "2025-05-08T19:45:00Z",
+            "signedBy": [
+              "Roos de Vries",
+              "Jan Bakker"
+            ],
+            "version": 2
+          },
+          {
+            "slug": "notulen-commissie-ruimte-2025-03-04",
+            "title": "Notulen Commissievergadering Ruimte & Wonen 4 maart 2025",
+            "lifecycle": "signed",
+            "content": "De commissievergadering Ruimte & Wonen wordt geopend...",
+            "approvedAt": "2025-04-01T10:00:00Z",
+            "signedBy": [
+              "Henk Bakker"
+            ],
+            "version": 1
+          },
+          {
+            "slug": "notulen-ab-waterschap-2025-02-13",
+            "title": "Notulen AB Waterschap Aa en Maas 13 februari 2025",
+            "lifecycle": "draft",
+            "version": 1
+          },
+          {
+            "slug": "notulen-raad-2025-03-20",
+            "title": "Notulen Gemeenteraadsvergadering 20 maart 2025",
+            "lifecycle": "published",
+            "content": "De vergadering wordt geopend door de voorzitter om 19:30 uur. Aanwezig: 33 van 37 raadsleden. Punt 5 — Woningbouwplan Oost 2025-2030: na bespreking wordt het plan aangenomen met 30 stemmen voor en 3 tegen.",
+            "approvedAt": "2025-04-10T19:45:00Z",
+            "signedBy": [
+              "Roos de Vries",
+              "Jan Bakker"
+            ],
+            "version": 2
+          },
+          {
+            "slug": "notulen-commissie-wonen-2025-04-01",
+            "title": "Notulen Commissievergadering Wonen & Ruimte 1 april 2025",
+            "lifecycle": "signed",
+            "content": "Aanvang: 19:00 uur. Voorzitter: Henk Bakker. Commissieleden aanwezig: 7 van 9. Agendapunt 2 — bestemmingsplan Groningen-Noord: de commissie adviseert de raad het plan ongewijzigd vast te stellen.",
+            "approvedAt": "2025-04-15T10:00:00Z",
+            "signedBy": [
+              "Henk Bakker"
+            ],
+            "version": 1
+          },
+          {
+            "slug": "notulen-ab-waterschap-2025-04-10",
+            "title": "Notulen Vergadering Algemeen Bestuur Waterschap Aa en Maas 10 april 2025",
+            "lifecycle": "review",
+            "content": "Concept-verslag ter vaststelling. De vergadering van het Algemeen Bestuur wordt geopend door de dijkgraaf om 14:00 uur.",
+            "version": 1
+          },
+          {
+            "slug": "notulen-directieoverleg-2025-04-14",
+            "title": "Verslag Directieoverleg Gemeente Utrecht 14 april 2025",
+            "lifecycle": "draft",
+            "version": 1
+          },
+          {
+            "slug": "notulen-rvc-2025-q2",
+            "title": "Notulen RvC-vergadering Q2 2025",
+            "lifecycle": "approved",
+            "content": "De voorzitter van de Raad van Commissarissen opent de vergadering om 14:00 uur...",
+            "approvedAt": "2025-05-15T10:00:00Z",
+            "signedBy": [
+              "Voorzitter RvC",
+              "Secretaris"
+            ],
+            "version": 1
+          }
+        ],
+        "digital-document": [
+          {
+            "slug": "notulen-rvc-investering-acme-signed",
+            "name": "Ondertekende notulen RvC — Investeringsbesluit Datacenteruitbreiding ACME B.V.",
+            "documentType": "signed-minutes",
+            "description": "QES-ondertekende notulen van de RvC-vergadering betreffende het investeringsbesluit datacenteruitbreiding. Ondertekend door voorzitter en secretaris via eIDAS-gekwalificeerde elektronische handtekening.",
+            "encodingFormat": "application/pdf",
+            "contentSize": "1.2 MB"
+          }
+        ],
+        "engagement-record": [
+          {
+            "slug": "engagement-raadsvergadering-jan-de-boer",
+            "meeting": "raadsvergadering-2025-01-15",
+            "participant": "jan-de-boer",
+            "speeches": [
+              {
+                "duration": 180
+              }
+            ],
+            "questionsRaised": [
+              {
+                "text": "Vraag over begroting"
+              }
+            ],
+            "topicsSuggested": [],
+            "speakingDuration": 180,
+            "engagementScore": 15
+          },
+          {
+            "slug": "engagement-raadsvergadering-fatima",
+            "meeting": "raadsvergadering-2025-01-15",
+            "participant": "fatima-el-idrissi",
+            "speeches": [
+              {
+                "duration": 300
+              },
+              {
+                "duration": 120
+              }
+            ],
+            "questionsRaised": [
+              {
+                "text": "Vraag over klimaatbeleid"
+              }
+            ],
+            "topicsSuggested": [
+              {
+                "title": "Woningbouw versnellen"
+              }
+            ],
+            "speakingDuration": 420,
+            "engagementScore": 32
+          },
+          {
+            "slug": "engagement-rvc-q1-pieter",
+            "meeting": "rvc-vergadering-q1-2025",
+            "participant": "pieter-van-den-berg",
+            "speeches": [],
+            "questionsRaised": [],
+            "topicsSuggested": [
+              {
+                "title": "Duurzaamheidsrapportage"
+              }
+            ],
+            "speakingDuration": 0,
+            "engagementScore": 6
+          }
+        ],
+        "conflict-of-interest": [
+          {
+            "slug": "coi-ben-r002",
+            "boardMember": "ben-okonkwo-rvc-acme",
+            "agendaItem": "r-2025-002-appointment-cfo",
+            "declarationType": "personal-relationship",
+            "description": "Familierelatie met kandidaat-CFO.",
+            "severity": "material",
+            "actionTaken": "recused-from-vote",
+            "declarationTimestamp": "2025-03-12T16:50:00Z"
+          },
+          {
+            "slug": "coi-petra-r005",
+            "boardMember": "petra-jansen-rvc-acme",
+            "agendaItem": "r-2025-005-policy-procurement",
+            "declarationType": "competing-business",
+            "description": "Bestuurslid bij Stichting Procurement Excellence.",
+            "severity": "non-material",
+            "actionTaken": "disclosed-and-participated",
+            "declarationTimestamp": "2025-03-12T17:10:00Z"
+          },
+          {
+            "slug": "coi-mark-r003",
+            "boardMember": "mark-van-den-berg-rvb-acme",
+            "agendaItem": "r-2025-003-financial-acquisition",
+            "declarationType": "financial-interest",
+            "description": "Indirect aandelenbelang in target via family-trust (<1%).",
+            "severity": "non-material",
+            "actionTaken": "disclosed-and-participated",
+            "declarationTimestamp": "2025-04-22T17:45:00Z"
+          },
+          {
+            "slug": "coi-sandra-r004",
+            "boardMember": "sandra-yilmaz-rvb-acme",
+            "declarationType": "prior-involvement",
+            "description": "Eerder consultancy-werk voor ESG-adviseur die de strategie heeft opgesteld.",
+            "severity": "non-material",
+            "actionTaken": "no-action-needed",
+            "declarationTimestamp": "2025-04-22T17:30:00Z"
+          },
+          {
+            "slug": "coi-david-r008",
+            "boardMember": "david-cohen-audit-noord",
+            "agendaItem": "r-2025-008-audit-charter",
+            "declarationType": "none",
+            "actionTaken": "no-action-needed",
+            "declarationTimestamp": "2025-06-04T10:05:00Z"
+          },
+          {
+            "slug": "coi-rachid-q3",
+            "boardMember": "rachid-el-amrani-audit-noord",
+            "declarationType": "competing-business",
+            "description": "Tweede bestuursfunctie bij vergelijkbare wooncorporatie.",
+            "severity": "material",
+            "actionTaken": "recused-from-discussion",
+            "declarationTimestamp": "2025-06-04T10:10:00Z"
+          },
+          {
+            "slug": "coi-hannah-r002",
+            "boardMember": "hannah-stein-rvc-acme",
+            "agendaItem": "r-2025-002-appointment-cfo",
+            "declarationType": "none",
+            "actionTaken": "no-action-needed",
+            "declarationTimestamp": "2025-03-12T16:48:00Z"
+          },
+          {
+            "slug": "coi-klaas-strategy",
+            "boardMember": "klaas-mulder-rvc-acme",
+            "declarationType": "prior-involvement",
+            "description": "Voormalig CEO van strategieadviseur die de strategiedag faciliteert.",
+            "severity": "non-material",
+            "actionTaken": "disclosed-and-participated",
+            "declarationTimestamp": "2025-09-18T09:05:00Z"
+          }
+        ],
+        "evaluation-template": [
+          {
+            "slug": "template-bestuurlijke-effectiviteit-nl-cgc",
+            "title": "Board effectiveness self-evaluation (NL Corporate Governance Code)",
+            "description": "Default reusable annual board self-evaluation (zelfevaluatie) covering the five standard effectiveness dimensions. Editable per body.",
+            "dimensions": [
+              "strategy-and-oversight",
+              "board-composition",
+              "board-dynamics",
+              "information-quality",
+              "chair-effectiveness"
+            ],
+            "questions": [
+              {
+                "id": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "prompt": "The board sets clear strategic direction and exercises effective oversight of management.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-strategy-text",
+                "dimension": "strategy-and-oversight",
+                "prompt": "What would most improve the board's strategic oversight?",
+                "type": "free-text"
+              },
+              {
+                "id": "q-composition-likert",
+                "dimension": "board-composition",
+                "prompt": "The board's composition (skills, diversity, independence) matches the organisation's needs.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-composition-text",
+                "dimension": "board-composition",
+                "prompt": "What skills or perspectives is the board missing?",
+                "type": "free-text"
+              },
+              {
+                "id": "q-dynamics-likert",
+                "dimension": "board-dynamics",
+                "prompt": "Board discussions are open, constructive, and every member's voice is heard.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-dynamics-text",
+                "dimension": "board-dynamics",
+                "prompt": "Describe one dynamic that helps or hinders the board's functioning.",
+                "type": "free-text"
+              },
+              {
+                "id": "q-information-likert",
+                "dimension": "information-quality",
+                "prompt": "The board receives timely, complete, and understandable information ahead of meetings.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-information-text",
+                "dimension": "information-quality",
+                "prompt": "What information gap most affects the board's decision-making?",
+                "type": "free-text"
+              },
+              {
+                "id": "q-chair-likert",
+                "dimension": "chair-effectiveness",
+                "prompt": "The chair runs meetings effectively and ensures balanced participation.",
+                "type": "likert",
+                "scaleMin": 1,
+                "scaleMax": 5
+              },
+              {
+                "id": "q-chair-text",
+                "dimension": "chair-effectiveness",
+                "prompt": "What is one suggestion for the chair?",
+                "type": "free-text"
+              }
+            ]
+          }
+        ],
+        "board-evaluation": [
+          {
+            "slug": "evaluatie-rvc-waterschap-amstel-2025",
+            "cycleLabel": "2025",
+            "lifecycle": "closed",
+            "openedAt": "2025-11-01T09:00:00Z",
+            "closedAt": "2025-12-20T17:00:00Z",
+            "invitedMemberCount": 3,
+            "respondedCount": 2,
+            "minRespondentThreshold": 3,
+            "invitedParticipantIds": [
+              "jan-de-vries",
+              "femke-halsema",
+              "marie-janssen"
+            ],
+            "respondedParticipantIds": [
+              "jan-de-vries",
+              "femke-halsema"
+            ],
+            "chairUserId": "femke.halsema",
+            "secretaryUserId": "jan.devries",
+            "scoreSummary": "{\"overallScore\":3.6,\"respondentCount\":2,\"invitedMemberCount\":3,\"minRespondentThreshold\":3,\"thresholdMet\":false,\"suppressed\":true,\"dimensionScores\":null,\"themes\":null,\"computedAt\":\"2025-12-20T17:05:00Z\"}",
+            "governanceBody": "rvc-waterschap-amstel",
+            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
+          },
+          {
+            "slug": "evaluatie-acme-rvc-2026",
+            "cycleLabel": "2026",
+            "lifecycle": "open",
+            "openedAt": "2026-06-01T09:00:00Z",
+            "invitedMemberCount": 5,
+            "respondedCount": 2,
+            "minRespondentThreshold": 3,
+            "invitedParticipantIds": [
+              "acme-lid-1",
+              "acme-lid-2",
+              "acme-lid-3",
+              "acme-lid-4",
+              "acme-lid-5"
+            ],
+            "respondedParticipantIds": [
+              "acme-lid-1",
+              "acme-lid-2"
+            ],
+            "chairUserId": "acme.chair",
+            "secretaryUserId": "acme.secretary",
+            "governanceBody": "raad-van-commissarissen-acme-bv",
+            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
+          }
+        ],
+        "evaluation-response": [
+          {
+            "slug": "reactie-evaluatie-rvc-waterschap-amstel-2025-a",
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 4
+              },
+              {
+                "questionId": "q-strategy-text",
+                "dimension": "strategy-and-oversight",
+                "freeText": "More time for scenario discussion ahead of budget decisions."
+              },
+              {
+                "questionId": "q-chair-likert",
+                "dimension": "chair-effectiveness",
+                "likertValue": 3
+              }
+            ],
+            "submittedAt": "2025-12-05T10:12:00Z",
+            "responseToken": "8f2b6a1e9d3c4f5a7b6e8d1c2a3f4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a",
+            "boardEvaluation": "evaluatie-rvc-waterschap-amstel-2025"
+          },
+          {
+            "slug": "reactie-evaluatie-rvc-waterschap-amstel-2025-b",
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 4
+              },
+              {
+                "questionId": "q-composition-likert",
+                "dimension": "board-composition",
+                "likertValue": 3
+              },
+              {
+                "questionId": "q-chair-likert",
+                "dimension": "chair-effectiveness",
+                "likertValue": 4
+              }
+            ],
+            "submittedAt": "2025-12-08T14:40:00Z",
+            "responseToken": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
+            "boardEvaluation": "evaluatie-rvc-waterschap-amstel-2025"
+          },
+          {
+            "slug": "reactie-evaluatie-acme-rvc-2026-a",
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 5
+              },
+              {
+                "questionId": "q-dynamics-text",
+                "dimension": "board-dynamics",
+                "freeText": "The board is respectful but could challenge management more."
+              }
+            ],
+            "submittedAt": "2026-06-10T09:30:00Z",
+            "responseToken": "3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d",
+            "boardEvaluation": "evaluatie-acme-rvc-2026"
+          },
+          {
+            "slug": "reactie-evaluatie-acme-rvc-2026-b",
+            "answers": [
+              {
+                "questionId": "q-strategy-likert",
+                "dimension": "strategy-and-oversight",
+                "likertValue": 3
+              },
+              {
+                "questionId": "q-information-likert",
+                "dimension": "information-quality",
+                "likertValue": 3
+              }
+            ],
+            "submittedAt": "2026-06-11T11:05:00Z",
+            "responseToken": "5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f",
+            "boardEvaluation": "evaluatie-acme-rvc-2026"
+          }
+        ]
+      }
     }
   },
   "paths": {},
@@ -143,76 +1461,7 @@
             "title": "Contact details",
             "description": "References to the ContactDetail objects for this person (one-to-many)."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Person",
-              "slug": "femke-halsema"
-            },
-            "name": "Femke Halsema",
-            "givenName": "Femke",
-            "familyName": "Halsema",
-            "gender": "female",
-            "email": "f.halsema@amsterdam.nl",
-            "biography": "Burgemeester van Amsterdam, voorzitter van de gemeenteraad."
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Person",
-              "slug": "marie-janssen"
-            },
-            "name": "Marie Janssen",
-            "givenName": "Marie",
-            "familyName": "Janssen",
-            "gender": "female",
-            "email": "m.janssen@amsterdam.nl",
-            "biography": "Raadslid en lid van de VNG-ledenraad."
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Person",
-              "slug": "jan-de-vries"
-            },
-            "name": "Jan de Vries",
-            "givenName": "Jan",
-            "familyName": "de Vries",
-            "gender": "male",
-            "email": "j.devries@waterschap.nl",
-            "biography": "Secretaris / griffier."
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Person",
-              "slug": "janneke-de-bruin"
-            },
-            "name": "Janneke de Bruin",
-            "givenName": "Janneke",
-            "familyName": "de Bruin",
-            "gender": "female",
-            "email": "j.debruin@acme.example",
-            "biography": "Voorzitter Raad van Commissarissen.",
-            "nationality": "NL"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Person",
-              "slug": "mark-van-den-berg"
-            },
-            "name": "Mark van den Berg",
-            "givenName": "Mark",
-            "familyName": "van den Berg",
-            "gender": "male",
-            "email": "m.vandenberg@acme.example",
-            "biography": "Lid Raad van Bestuur.",
-            "nationality": "NL"
-          }
-        ]
+        }
       },
       "Post": {
         "slug": "post",
@@ -270,42 +1519,7 @@
             "title": "Governance body",
             "description": "Reference to the GovernanceBody this post belongs to (many-to-one)."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Post",
-              "slug": "post-voorzitter-amsterdam"
-            },
-            "label": "Voorzitter gemeenteraad",
-            "role": "chair",
-            "startDate": "2018-05-30T00:00:00Z",
-            "governanceBody": "gemeenteraad-amsterdam"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Post",
-              "slug": "post-griffier-amsterdam"
-            },
-            "label": "Raadsgriffier",
-            "role": "secretary",
-            "startDate": "2021-01-15T00:00:00Z",
-            "governanceBody": "gemeenteraad-amsterdam"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Post",
-              "slug": "post-voorzitter-rvc"
-            },
-            "label": "Voorzitter RvC",
-            "role": "chair",
-            "startDate": "2022-04-01T00:00:00Z",
-            "governanceBody": "rvc-waterschap-amstel"
-          }
-        ]
+        }
       },
       "Membership": {
         "slug": "membership",
@@ -408,107 +1622,13 @@
             "type": "string",
             "format": "uuid",
             "$ref": "Post",
-            "x-relation-filter": { "governanceBody": "@object.governanceBody" },
+            "x-relation-filter": {
+              "governanceBody": "@object.governanceBody"
+            },
             "title": "Post",
             "description": "Reference to the Post held under this membership (many-to-one). The picker is scoped to posts of the membership's own governance body."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Membership",
-              "slug": "m-femke-amsterdam"
-            },
-            "role": "chair",
-            "label": "Voorzitter raad",
-            "party": "GroenLinks",
-            "votingWeight": 1,
-            "startDate": "2018-05-30T00:00:00Z",
-            "person": "femke-halsema",
-            "governanceBody": "gemeenteraad-amsterdam",
-            "post": "post-voorzitter-amsterdam"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Membership",
-              "slug": "m-marie-amsterdam"
-            },
-            "role": "member",
-            "label": "Raadslid",
-            "party": "D66",
-            "votingWeight": 1,
-            "startDate": "2022-03-16T00:00:00Z",
-            "person": "marie-janssen",
-            "governanceBody": "gemeenteraad-amsterdam"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Membership",
-              "slug": "m-jan-amstel"
-            },
-            "role": "secretary",
-            "label": "Raadsgriffier",
-            "votingWeight": 0,
-            "startDate": "2021-01-15T00:00:00Z",
-            "person": "jan-de-vries",
-            "governanceBody": "rvc-waterschap-amstel",
-            "post": "post-griffier-amsterdam"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Membership",
-              "slug": "m-janneke-rvc"
-            },
-            "role": "chair",
-            "label": "Voorzitter RvC",
-            "votingWeight": 1,
-            "startDate": "2022-04-01T00:00:00Z",
-            "endDate": "2026-04-01T00:00:00Z",
-            "independenceStatus": "independent",
-            "otherPositions": [
-              "RvC Stedin (vice-voorzitter)",
-              "Bestuur Stichting Concertgebouw"
-            ],
-            "person": "janneke-de-bruin",
-            "governanceBody": "rvc-waterschap-amstel",
-            "post": "post-voorzitter-rvc"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Membership",
-              "slug": "m-mark-rvb"
-            },
-            "role": "member",
-            "label": "Lid RvB",
-            "votingWeight": 1,
-            "startDate": "2020-01-01T00:00:00Z",
-            "endDate": "2025-12-31T00:00:00Z",
-            "independenceStatus": "non-independent",
-            "otherPositions": [
-              "Bestuur Branchevereniging Tech NL"
-            ],
-            "person": "mark-van-den-berg",
-            "governanceBody": "rvc-waterschap-amstel"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Membership",
-              "slug": "m-marie-vng"
-            },
-            "role": "member",
-            "label": "Lid ledenraad",
-            "votingWeight": 1,
-            "startDate": "2024-01-01T00:00:00Z",
-            "person": "marie-janssen",
-            "governanceBody": "ledenraad-vng"
-          }
-        ]
+        }
       },
       "ContactDetail": {
         "slug": "contact-detail",
@@ -586,42 +1706,7 @@
             "title": "Governance body",
             "description": "Reference to the GovernanceBody this contact detail belongs to (many-to-one)."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ContactDetail",
-              "slug": "cd-femke-email"
-            },
-            "type": "email",
-            "value": "f.halsema@amsterdam.nl",
-            "label": "Werk",
-            "person": "femke-halsema"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ContactDetail",
-              "slug": "cd-femke-phone"
-            },
-            "type": "phone",
-            "value": "+31 20 624 1111",
-            "label": "Bestuurssecretariaat",
-            "person": "femke-halsema"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ContactDetail",
-              "slug": "cd-amsterdam-address"
-            },
-            "type": "address",
-            "value": "Amstel 1, Amsterdam",
-            "label": "Stadhuis",
-            "governanceBody": "gemeenteraad-amsterdam"
-          }
-        ]
+        }
       },
       "GovernanceBody": {
         "slug": "governance-body",
@@ -724,107 +1809,7 @@
             "default": 30,
             "example": 30
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "GovernanceBody",
-              "slug": "gemeenteraad-amsterdam"
-            },
-            "name": "Gemeenteraad Amsterdam",
-            "bodyType": "legislative",
-            "domain": "municipality",
-            "votingDefault": "for-against-abstain",
-            "termStart": "2022-03-16T00:00:00Z",
-            "termEnd": "2026-03-15T00:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "GovernanceBody",
-              "slug": "rvc-waterschap-amstel"
-            },
-            "name": "Raad van Commissarissen Waterschap Amstel, Gooi en Vecht",
-            "bodyType": "corporate-board",
-            "domain": "water-authority",
-            "votingDefault": "for-against-abstain",
-            "termStart": "2023-01-01T00:00:00Z",
-            "termEnd": "2026-12-31T00:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "GovernanceBody",
-              "slug": "directieteam-gemeente-utrecht"
-            },
-            "name": "Directieteam Gemeente Utrecht",
-            "bodyType": "operational",
-            "domain": "municipality",
-            "votingDefault": "show-of-hands"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "GovernanceBody",
-              "slug": "ledenraad-vng"
-            },
-            "name": "Ledenraad VNG",
-            "bodyType": "association",
-            "domain": "association",
-            "votingDefault": "for-against-abstain",
-            "termStart": "2024-01-01T00:00:00Z",
-            "termEnd": "2025-12-31T00:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "GovernanceBody",
-              "slug": "auditcommissie-provincie-nh"
-            },
-            "name": "Auditcommissie Provincie Noord-Holland",
-            "bodyType": "legislative",
-            "domain": "province",
-            "votingDefault": "for-against-abstain"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "GovernanceBody",
-              "slug": "raad-van-commissarissen-acme-bv"
-            },
-            "name": "Raad van Commissarissen ACME B.V.",
-            "bodyType": "supervisory-board",
-            "domain": "corporate",
-            "votingDefault": "for-against-abstain",
-            "termStart": "2024-01-01T00:00:00Z",
-            "termEnd": "2027-12-31T00:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "GovernanceBody",
-              "slug": "managementteam-acme-bv"
-            },
-            "name": "Managementteam ACME B.V.",
-            "bodyType": "operational",
-            "domain": "corporate",
-            "votingDefault": "show-of-hands"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "GovernanceBody",
-              "slug": "raad-van-bestuur-acme-bv"
-            },
-            "name": "Raad van Bestuur ACME B.V.",
-            "bodyType": "executive-board",
-            "domain": "corporate",
-            "votingDefault": "for-against-abstain",
-            "termStart": "2024-01-01T00:00:00Z",
-            "termEnd": "2028-12-31T00:00:00Z"
-          }
-        ]
+        }
       },
       "Meeting": {
         "x-openregister-notifications": {
@@ -1263,80 +2248,7 @@
               ]
             }
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Meeting",
-              "slug": "raadsvergadering-2025-01-15"
-            },
-            "title": "Raadsvergadering 15 januari 2025",
-            "meetingType": "regular",
-            "scheduledDate": "2025-01-15T19:30:00Z",
-            "endDate": "2025-01-15T23:00:00Z",
-            "location": "Stadhuis Amsterdam, Raadzaal",
-            "meetingMode": "hybrid",
-            "lifecycle": "closed"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Meeting",
-              "slug": "rvc-vergadering-q1-2025"
-            },
-            "title": "RvC Vergadering Q1 2025 — Waterschap",
-            "meetingType": "regular",
-            "scheduledDate": "2025-02-05T10:00:00Z",
-            "endDate": "2025-02-05T13:00:00Z",
-            "location": "Waternet Kantoor, Amstel 1",
-            "meetingMode": "in-person",
-            "lifecycle": "closed"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Meeting",
-              "slug": "directieoverleg-2025-04-14"
-            },
-            "title": "Directieoverleg week 16 — Gemeente Utrecht",
-            "meetingType": "regular",
-            "scheduledDate": "2025-04-14T09:00:00Z",
-            "endDate": "2025-04-14T11:00:00Z",
-            "location": "Stadskantoor Utrecht, Kamer 3.12",
-            "meetingMode": "hybrid",
-            "lifecycle": "draft"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Meeting",
-              "slug": "ledenvergadering-vng-voorjaar-2025"
-            },
-            "title": "Algemene Ledenvergadering VNG — Voorjaar 2025",
-            "meetingType": "public hearing",
-            "scheduledDate": "2025-06-18T13:00:00Z",
-            "endDate": "2025-06-18T17:00:00Z",
-            "location": "World Forum Den Haag",
-            "meetingMode": "in-person",
-            "lifecycle": "scheduled",
-            "quorumRequired": 50
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Meeting",
-              "slug": "rvc-vergadering-2025-q2"
-            },
-            "title": "RvC-vergadering Q2 2025",
-            "meetingType": "regular",
-            "scheduledDate": "2025-04-17T14:00:00Z",
-            "endDate": "2025-04-17T16:30:00Z",
-            "location": "ACME B.V. hoofdkantoor, bestuurskamer",
-            "meetingMode": "hybrid",
-            "lifecycle": "closed"
-          }
-        ]
+        }
       },
       "Participant": {
         "slug": "participant",
@@ -1442,70 +2354,7 @@
             "title": "Governance body",
             "description": "Reference to the GovernanceBody this participant belongs to (many-to-one)."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Participant",
-              "slug": "femke-halsema"
-            },
-            "displayName": "Femke Halsema",
-            "role": "chair",
-            "email": "f.halsema@amsterdam.nl",
-            "joinedAt": "2018-05-30T00:00:00Z",
-            "votingWeight": 1
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Participant",
-              "slug": "jan-de-vries"
-            },
-            "displayName": "Jan de Vries",
-            "role": "secretary",
-            "email": "j.devries@waterschap.nl",
-            "joinedAt": "2021-01-15T00:00:00Z",
-            "votingWeight": 1
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Participant",
-              "slug": "marie-janssen"
-            },
-            "displayName": "Marie Janssen",
-            "role": "member",
-            "party": "D66",
-            "email": "m.janssen@amsterdam.nl",
-            "joinedAt": "2022-03-16T00:00:00Z",
-            "votingWeight": 1
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Participant",
-              "slug": "pieter-bakker"
-            },
-            "displayName": "Pieter Bakker",
-            "role": "chair",
-            "email": "p.bakker@utrecht.nl",
-            "joinedAt": "2020-06-01T00:00:00Z",
-            "votingWeight": 1
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Participant",
-              "slug": "ans-rutten"
-            },
-            "displayName": "Ans Rutten",
-            "role": "observer",
-            "email": "a.rutten@vng.nl",
-            "joinedAt": "2024-01-10T00:00:00Z",
-            "votingWeight": 0
-          }
-        ]
+        }
       },
       "AgendaItem": {
         "slug": "agenda-item",
@@ -1590,68 +2439,7 @@
             "title": "Meeting",
             "description": "Reference to the Meeting this agenda item belongs to (many-to-one)."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "AgendaItem",
-              "slug": "opening-raad-2025-01-15"
-            },
-            "title": "Opening vergadering",
-            "itemType": "informational",
-            "orderNumber": 1,
-            "estimatedDuration": 5
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "AgendaItem",
-              "slug": "notulen-2024-12-18"
-            },
-            "title": "Vaststellen notulen vergadering 18 december 2024",
-            "itemType": "decision",
-            "orderNumber": 2,
-            "estimatedDuration": 10,
-            "isRecurring": true
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "AgendaItem",
-              "slug": "jaarrekening-2024"
-            },
-            "title": "Jaarrekening 2024 — ter goedkeuring",
-            "itemType": "decision",
-            "orderNumber": 3,
-            "estimatedDuration": 45,
-            "description": "Bespreking en vaststelling van de jaarrekening over het boekjaar 2024"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "AgendaItem",
-              "slug": "begroting-2026-bespreking"
-            },
-            "title": "Kadernota begroting 2026",
-            "itemType": "discussion",
-            "orderNumber": 4,
-            "estimatedDuration": 60,
-            "description": "Eerste bespreking van de financiële kaders voor begrotingsjaar 2026"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "AgendaItem",
-              "slug": "rondvraag"
-            },
-            "title": "Rondvraag",
-            "itemType": "informational",
-            "orderNumber": 99,
-            "estimatedDuration": 10,
-            "isRecurring": true
-          }
-        ]
+        }
       },
       "VotingRound": {
         "slug": "voting-round",
@@ -1808,95 +2596,7 @@
             "title": "Decision stage",
             "description": "The DecisionStage of method=vote that this VotingRound resolves. Retargeted from the retired motion schema (C5 decision-methods D1). The stage's outcome is derived declaratively from this round's result."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "VotingRound",
-              "slug": "stemming-motie-duurzaamheid-2025"
-            },
-            "votingMethod": "for-against-abstain",
-            "isSecret": false,
-            "openedAt": "2025-04-10T21:00:00Z",
-            "closedAt": "2025-04-10T21:05:00Z",
-            "quorumMet": true,
-            "result": "adopted",
-            "votesFor": 28,
-            "votesAgainst": 3,
-            "votesAbstain": 2
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "VotingRound",
-              "slug": "stemming-begroting-2026"
-            },
-            "votingMethod": "for-against-abstain",
-            "isSecret": false,
-            "openedAt": "2025-04-10T21:30:00Z",
-            "closedAt": "2025-04-10T21:38:00Z",
-            "quorumMet": true,
-            "result": "adopted",
-            "votesFor": 25,
-            "votesAgainst": 6,
-            "votesAbstain": 2
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "VotingRound",
-              "slug": "stemming-amendement-a"
-            },
-            "votingMethod": "for-against-abstain",
-            "isSecret": false,
-            "openedAt": "2025-04-10T20:55:00Z",
-            "closedAt": "2025-04-10T21:00:00Z",
-            "quorumMet": true,
-            "result": "rejected",
-            "votesFor": 11,
-            "votesAgainst": 20,
-            "votesAbstain": 2
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "VotingRound",
-              "slug": "stemming-begroting-2027-gemeenteraad"
-            },
-            "votingMethod": "for-against-abstain",
-            "isSecret": false,
-            "openedAt": "2026-04-15T21:00:00Z",
-            "closedAt": "2026-04-15T21:15:00Z",
-            "quorumMet": true,
-            "result": "adopted",
-            "votesFor": 28,
-            "votesAgainst": 3,
-            "votesAbstain": 2,
-            "voteThreshold": "simple-majority",
-            "abstentionHandling": "exclude",
-            "decisionStage": "stage-begroting-2027-3-dec"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "VotingRound",
-              "slug": "stemming-investering-acme-rvb-geheim"
-            },
-            "votingMethod": "for-against-abstain",
-            "isSecret": true,
-            "openedAt": "2026-04-18T15:00:00Z",
-            "closedAt": "2026-04-18T15:20:00Z",
-            "quorumMet": true,
-            "result": "adopted",
-            "votesFor": 3,
-            "votesAgainst": 0,
-            "votesAbstain": 0,
-            "voteThreshold": "simple-majority",
-            "abstentionHandling": "exclude",
-            "decisionStage": "stage-investering-acme-2-dec"
-          }
-        ]
+        }
       },
       "Vote": {
         "slug": "vote",
@@ -1971,81 +2671,7 @@
             "title": "Participant",
             "description": "Reference to the Participant who cast this vote (many-to-one)."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Vote",
-              "slug": "stem-devries-motie-duurzaamheid"
-            },
-            "value": "for",
-            "weight": 1,
-            "isProxy": false,
-            "castAt": "2025-04-10T21:01:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Vote",
-              "slug": "stem-bakker-motie-duurzaamheid"
-            },
-            "value": "against",
-            "weight": 1,
-            "isProxy": false,
-            "castAt": "2025-04-10T21:02:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Vote",
-              "slug": "stem-elamrani-begroting-2026"
-            },
-            "value": "for",
-            "weight": 1,
-            "isProxy": false,
-            "castAt": "2025-04-10T21:31:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Vote",
-              "slug": "stem-proxy-vandam-begroting"
-            },
-            "value": "for",
-            "weight": 1,
-            "isProxy": true,
-            "castAt": "2025-04-10T21:32:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Vote",
-              "slug": "stem-femke-begroting-2027"
-            },
-            "value": "for",
-            "weight": 1,
-            "isProxy": false,
-            "castAt": "2026-04-15T21:05:00Z",
-            "castAs": "in-person",
-            "votingRound": "stemming-begroting-2027-gemeenteraad",
-            "participant": "femke-halsema"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Vote",
-              "slug": "stem-marie-begroting-2027"
-            },
-            "value": "for",
-            "weight": 1,
-            "isProxy": false,
-            "castAt": "2026-04-15T21:06:00Z",
-            "castAs": "in-person",
-            "votingRound": "stemming-begroting-2027-gemeenteraad",
-            "participant": "marie-janssen"
-          }
-        ]
+        }
       },
       "Decision": {
         "x-openregister-notifications": {
@@ -2168,7 +2794,11 @@
               "condition": {
                 "field": "lifecycle",
                 "operator": "in",
-                "value": ["decided", "enacted", "withdrawn"]
+                "value": [
+                  "decided",
+                  "enacted",
+                  "withdrawn"
+                ]
               }
             },
             "enabled": true,
@@ -2476,37 +3106,58 @@
           },
           "sourceApp": {
             "title": "Source app",
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The fleet app that raised this Decision via the integration hub (ADR-019 provenance). Populated by external app delegates; null for internally-created decisions."
           },
           "subjectRegister": {
             "title": "Subject register",
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "OpenRegister register of the originating object in the consuming app (provenance, REQ-DCDH-001)."
           },
           "subjectSchema": {
             "title": "Subject schema",
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "OpenRegister schema of the originating object (provenance, REQ-DCDH-001)."
           },
           "subjectId": {
             "title": "Subject",
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "UUID of the originating object in the consuming app (the back-reference, REQ-DCDH-001)."
           },
           "subjectLabel": {
             "title": "Subject label",
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Human-readable label for the originating object shown in decidesk list/detail (e.g. 'Lease contract 2027 — pand X', REQ-DCDH-001)."
           },
           "outcomeCallbackUrl": {
             "title": "Outcome callback URL",
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Optional registry-validated callback URL for push delivery of the outcome. Validated against the ADR-019 integration registry consumer entry — arbitrary URLs are rejected (anti-SSRF, REQ-DCDH-004)."
           },
           "externalReference": {
             "title": "External reference",
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Consumer's own reference for idempotency and ledger linking. The create-decision endpoint is idempotent on (sourceApp, subjectRegister, subjectSchema, subjectId, externalReference) (REQ-DCDH-002)."
           },
           "amends": {
@@ -2553,7 +3204,9 @@
               "format": "uuid",
               "$ref": "DecisionStage"
             },
-            "x-relation-filter": { "decision": "@objectId" },
+            "x-relation-filter": {
+              "decision": "@objectId"
+            },
             "title": "Route",
             "description": "The ordered route of DecisionStage objects that this Decision travels. Empty when no staged route is configured; a stageless Decision is valid. The inverse relation (DecisionStage → Decision) is stored on DecisionStage.decision."
           },
@@ -2746,307 +3399,7 @@
             }
           }
         },
-        "x-decidesk-effectiveStatus-note": "DESIGN D2 — effectiveStatus is NOT a declarative calculation. OpenRegister's CalculationEvaluator (openregister/lib/Service/Calculation/CalculationEvaluator.php) supports only scalar/arithmetic/date operators (prop, and, or, eq/ne/lt/lte/gt/gte, +, -, *, /, %, concat, if, now, diffDays, formatDate, dateDiff) — it has NO inverse/reverse-relation operator. The inbound 'which decided/enacted decision supersedes/repeals this one' lookup cannot be expressed as a materialised calculation. Per design D2 fallback, effectiveStatus is derived CLIENT-SIDE in RelatedDecisionsTab.vue + DecisionRouteTab.vue: query decisions whose supersedes/repeals array contains this id, filter to lifecycle in {decided, enacted}, precedence repealed > superseded > lifecycle.",
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-begroting-2026"
-            },
-            "decisionType": "meeting-outcome",
-            "title": "Vaststelling Programmabegroting 2026",
-            "text": "De gemeenteraad van Westerkwartier stelt de programmabegroting 2026 vast.",
-            "decisionDate": "2025-04-10T21:38:00Z",
-            "outcome": "adopted",
-            "isPublished": "public",
-            "publishedAt": "2025-04-11T09:00:00Z",
-            "legalBasis": "Gemeentewet art. 189",
-            "lifecycle": "enacted",
-            "enactedAt": "2025-04-11T09:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-duurzaamheid-2025"
-            },
-            "decisionType": "meeting-outcome",
-            "title": "Motie Duurzaamheid aangenomen",
-            "text": "De raad verzoekt het college een plan van aanpak zonnepanelen te presenteren voor 1 januari 2026.",
-            "decisionDate": "2025-04-10T21:05:00Z",
-            "outcome": "adopted",
-            "isPublished": "public",
-            "publishedAt": "2025-04-11T09:00:00Z",
-            "lifecycle": "enacted",
-            "enactedAt": "2025-04-11T09:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-bestemmingsplan-groningen-noord"
-            },
-            "decisionType": "meeting-outcome",
-            "title": "Vaststelling bestemmingsplan Groningen-Noord",
-            "text": "De raad stelt het bestemmingsplan Groningen-Noord ongewijzigd vast.",
-            "decisionDate": "2025-03-27T20:45:00Z",
-            "outcome": "adopted",
-            "isPublished": "internal",
-            "legalBasis": "Wet ruimtelijke ordening art. 3.1",
-            "lifecycle": "decided"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-woningbouwplan-oost"
-            },
-            "decisionType": "meeting-outcome",
-            "title": "Vaststelling Woningbouwplan Oost 2025-2030",
-            "text": "De gemeenteraad van Westerkwartier stelt het Woningbouwplan Oost 2025-2030 vast en machtigt het college tot uitvoering conform bijgaande planning en budgettering.",
-            "decisionDate": "2025-03-20T21:15:00Z",
-            "outcome": "adopted",
-            "isPublished": "public",
-            "publishedAt": "2025-03-21T09:00:00Z",
-            "legalBasis": "Wet ruimtelijke ordening art. 3.1",
-            "lifecycle": "enacted",
-            "enactedAt": "2025-03-21T09:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-duurzaamheidsagenda-2026"
-            },
-            "decisionType": "meeting-outcome",
-            "title": "Vaststelling Duurzaamheidsagenda 2026",
-            "text": "De raad stelt de Duurzaamheidsagenda Westerkwartier 2026 vast en stelt €200.000 beschikbaar voor uitvoering van de daarin opgenomen maatregelen.",
-            "decisionDate": "2025-03-20T20:45:00Z",
-            "outcome": "adopted",
-            "isPublished": "public",
-            "publishedAt": "2025-03-21T09:00:00Z",
-            "legalBasis": "Gemeentewet art. 147",
-            "lifecycle": "enacted",
-            "enactedAt": "2025-03-21T09:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-bezwaar-kapvergunning"
-            },
-            "decisionType": "meeting-outcome",
-            "title": "Besluit op bezwaar kapvergunning Dorpsstraat 12",
-            "text": "De gemeenteraad verklaart het bezwaar van de bewonersvereniging gegrond en herroept de verleende kapvergunning voor de eik aan Dorpsstraat 12.",
-            "decisionDate": "2025-04-01T14:30:00Z",
-            "outcome": "adopted",
-            "isPublished": "confidential",
-            "legalBasis": "Algemene wet bestuursrecht art. 7:11",
-            "lifecycle": "decided"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-amendement-cultuursubsidie-afgewezen"
-            },
-            "decisionType": "meeting-outcome",
-            "title": "Amendement verhoging cultuursubsidie — niet aanvaard",
-            "text": "Het amendement tot verhoging van het cultuursubsidiebudget 2026 met €75.000 wordt niet aanvaard.",
-            "decisionDate": "2025-04-10T21:00:00Z",
-            "outcome": "rejected",
-            "isPublished": "internal",
-            "lifecycle": "decided"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-fusie-dorpsraden"
-            },
-            "decisionType": "meeting-outcome",
-            "title": "Instemming fusie dorpsraden Noord en Oost per 1 januari 2026",
-            "text": "De raad stemt in met de samenvoeging van dorpsraad Noord en dorpsraad Oost tot één dorpsraad Noord-Oost, ingaande 1 januari 2026.",
-            "decisionDate": "2025-04-10T20:30:00Z",
-            "outcome": "adopted",
-            "isPublished": "public",
-            "publishedAt": "2025-04-11T08:30:00Z",
-            "lifecycle": "enacted",
-            "enactedAt": "2025-04-11T08:30:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "motie-duurzaamheid-2025"
-            },
-            "decisionType": "motion",
-            "title": "Motie Duurzaamheid: zonnepanelen op gemeentelijke daken",
-            "text": "De raad verzoekt het college om voor 1 januari 2026 een concreet plan van aanpak op te stellen voor de plaatsing van zonnepanelen op alle gemeentelijke daken, inclusief een kostenraming en tijdlijn.",
-            "motionType": "motie",
-            "proposer": "Roos de Vries",
-            "lifecycle": "decided",
-            "outcome": "adopted",
-            "isPublished": "public",
-            "submittedAt": "2025-04-10T19:00:00Z",
-            "decisionDate": "2025-04-10T21:10:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "motie-woonlasten-2025"
-            },
-            "decisionType": "motion",
-            "title": "Motie Woonlasten verlagen",
-            "motionType": "motie",
-            "proposer": "Jan de Boer",
-            "lifecycle": "voting",
-            "outcome": "pending",
-            "isPublished": "public"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "amendement-cultuursubsidie"
-            },
-            "decisionType": "amendment",
-            "title": "Amendement Cultuursubsidie verhogen",
-            "proposer": "Fatima El-Amrani",
-            "proposedText": "Verhoog post 6.1 met €50.000",
-            "lifecycle": "decided",
-            "outcome": "adopted",
-            "isPublished": "public",
-            "amends": "motie-duurzaamheid-2025"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "r-2025-001-goedkeuring-jaarrekening"
-            },
-            "decisionType": "resolution",
-            "title": "Goedkeuring jaarrekening 2024",
-            "text": "De RvC verleent goedkeuring aan de jaarrekening 2024.",
-            "resolutionNumber": "R-2025-001",
-            "voteType": "open",
-            "voteThreshold": "simple-majority",
-            "legalBasis": "art. 2:101 BW",
-            "lifecycle": "enacted",
-            "outcome": "adopted",
-            "isPublished": "internal"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "r-2025-002-benoeming-cfo"
-            },
-            "decisionType": "resolution",
-            "title": "Benoeming CFO",
-            "resolutionNumber": "R-2025-002",
-            "voteType": "secret",
-            "voteThreshold": "simple-majority",
-            "lifecycle": "enacted",
-            "outcome": "adopted",
-            "isPublished": "confidential"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "contract-schoonmaak-2026"
-            },
-            "decisionType": "contract",
-            "title": "Gunning schoonmaakcontract 2026",
-            "text": "Het MT gunt het schoonmaakcontract aan Leverancier X.",
-            "legalBasis": "Aanbestedingswet 2012",
-            "lifecycle": "decided",
-            "outcome": "adopted",
-            "isPublished": "confidential"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-benoeming-penningmeester"
-            },
-            "decisionType": "appointment",
-            "title": "Benoeming penningmeester",
-            "lifecycle": "enacted",
-            "outcome": "adopted",
-            "isPublished": "internal"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "mt-go-nogo-zonnepark"
-            },
-            "decisionType": "management-point",
-            "title": "Go/No-go zonnepark fase 2",
-            "lifecycle": "decided",
-            "outcome": "adopted",
-            "isPublished": "internal"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "beleid-thuiswerkregeling"
-            },
-            "decisionType": "policy",
-            "title": "Vaststelling thuiswerkregeling",
-            "lifecycle": "enacted",
-            "outcome": "adopted",
-            "isPublished": "public"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-begroting-2027"
-            },
-            "decisionType": "meeting-outcome",
-            "title": "Vaststelling Programmabegroting 2027",
-            "text": "De gemeenteraad stelt de programmabegroting 2027 vast conform het raadsvoorstel van het college.",
-            "decisionDate": "2026-04-15T19:30:00Z",
-            "outcome": "adopted",
-            "isPublished": "public",
-            "legalBasis": "Gemeentewet art. 189",
-            "lifecycle": "enacted",
-            "enactedAt": "2026-04-16T09:00:00Z",
-            "supersedes": [
-              "besluit-begroting-2026"
-            ],
-            "route": [
-              "stage-begroting-2027-1-prep",
-              "stage-begroting-2027-2-adv",
-              "stage-begroting-2027-3-dec"
-            ]
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Decision",
-              "slug": "besluit-investering-acme"
-            },
-            "decisionType": "management-point",
-            "title": "Investeringsbesluit Datacenteruitbreiding ACME B.V.",
-            "text": "Het MT besluit tot investering in uitbreiding van het datacentercapaciteit met €2,4M conform de goedgekeurde businesscase.",
-            "decisionDate": "2026-05-01T10:00:00Z",
-            "outcome": "adopted",
-            "isPublished": "confidential",
-            "lifecycle": "decided",
-            "route": [
-              "stage-investering-acme-1-prep",
-              "stage-investering-acme-2-dec",
-              "stage-investering-acme-3-rat"
-            ]
-          }
-        ]
+        "x-decidesk-effectiveStatus-note": "DESIGN D2 — effectiveStatus is NOT a declarative calculation. OpenRegister's CalculationEvaluator (openregister/lib/Service/Calculation/CalculationEvaluator.php) supports only scalar/arithmetic/date operators (prop, and, or, eq/ne/lt/lte/gt/gte, +, -, *, /, %, concat, if, now, diffDays, formatDate, dateDiff) — it has NO inverse/reverse-relation operator. The inbound 'which decided/enacted decision supersedes/repeals this one' lookup cannot be expressed as a materialised calculation. Per design D2 fallback, effectiveStatus is derived CLIENT-SIDE in RelatedDecisionsTab.vue + DecisionRouteTab.vue: query decisions whose supersedes/repeals array contains this id, filter to lifecycle in {decided, enacted}, precedence repealed > superseded > lifecycle."
       },
       "DecisionStage": {
         "slug": "decision-stage",
@@ -3187,7 +3540,9 @@
             "type": "string",
             "format": "uuid",
             "$ref": "VotingRound",
-            "x-relation-filter": { "decisionStage": "@objectId" },
+            "x-relation-filter": {
+              "decisionStage": "@objectId"
+            },
             "title": "Voting round",
             "description": "The VotingRound that resolves this stage. Required when method=vote; the stage outcome is derived declaratively from VotingRound.result (C5 D2/D4). Leave null for method≠vote. Vote sub-variants (secret/personal/general) are configured on the VotingRound (isSecret, votingMethod) rather than by expanding the method enum (C5 D1)."
           },
@@ -3282,120 +3637,7 @@
               ]
             }
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "DecisionStage",
-              "slug": "stage-begroting-2027-1-prep"
-            },
-            "sequence": 1,
-            "stageType": "preparatory",
-            "status": "decided",
-            "outcome": "adopted",
-            "decidedAt": "2026-03-02T14:00:00Z",
-            "method": "manual",
-            "decisionMakerType": "body",
-            "label": "Voorbereiding & vaststelling concept",
-            "note": "Concept vastgesteld door het directieteam. Doorgestuurd naar de commissie.",
-            "decision": "besluit-begroting-2027",
-            "assignedBody": "directieteam-gemeente-utrecht"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "DecisionStage",
-              "slug": "stage-begroting-2027-2-adv"
-            },
-            "sequence": 2,
-            "stageType": "advisory",
-            "status": "decided",
-            "outcome": "advised",
-            "decidedAt": "2026-03-20T17:30:00Z",
-            "method": "advice",
-            "decisionMakerType": "person",
-            "label": "Advies raadscommissie",
-            "note": "Commissie adviseert de raad de begroting ongewijzigd vast te stellen.",
-            "decision": "besluit-begroting-2027",
-            "assignedPerson": "femke-halsema"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "DecisionStage",
-              "slug": "stage-begroting-2027-3-dec"
-            },
-            "sequence": 3,
-            "stageType": "decisive",
-            "status": "decided",
-            "outcome": "adopted",
-            "decidedAt": "2026-04-15T21:30:00Z",
-            "method": "vote",
-            "decisionMakerType": "body",
-            "label": "Besluit gemeenteraad",
-            "decision": "besluit-begroting-2027",
-            "assignedBody": "gemeenteraad-amsterdam",
-            "votingRound": "stemming-begroting-2027-gemeenteraad"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "DecisionStage",
-              "slug": "stage-investering-acme-1-prep"
-            },
-            "sequence": 1,
-            "stageType": "preparatory",
-            "status": "decided",
-            "outcome": "adopted",
-            "decidedAt": "2026-04-05T11:00:00Z",
-            "method": "chair-register",
-            "decisionMakerType": "body",
-            "label": "MT-voorbereiding investering",
-            "note": "Businesscase goedgekeurd door MT-voorzitter.",
-            "decision": "besluit-investering-acme",
-            "assignedBody": "managementteam-acme-bv",
-            "registeredBy": "mark-van-den-berg"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "DecisionStage",
-              "slug": "stage-investering-acme-2-dec"
-            },
-            "sequence": 2,
-            "stageType": "decisive",
-            "status": "decided",
-            "outcome": "adopted",
-            "decidedAt": "2026-04-18T15:30:00Z",
-            "method": "vote",
-            "decisionMakerType": "body",
-            "label": "Besluit Raad van Bestuur",
-            "note": "Investeringsbesluit aangenomen — geheime stemming, unanime uitkomst.",
-            "decision": "besluit-investering-acme",
-            "assignedBody": "raad-van-bestuur-acme-bv",
-            "votingRound": "stemming-investering-acme-rvb-geheim"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "DecisionStage",
-              "slug": "stage-investering-acme-3-rat"
-            },
-            "sequence": 3,
-            "stageType": "ratifying",
-            "status": "decided",
-            "outcome": "adopted",
-            "decidedAt": "2026-05-01T09:15:00Z",
-            "method": "signature",
-            "decisionMakerType": "body",
-            "label": "Goedkeuring Raad van Commissarissen — eIDAS ondertekening",
-            "note": "RvC-besluit bekrachtigd via QES-handtekeningen. Notulen ondertekend door voorzitter en secretaris.",
-            "decision": "besluit-investering-acme",
-            "assignedBody": "raad-van-commissarissen-acme-bv",
-            "signedDocument": "notulen-rvc-investering-acme-signed"
-          }
-        ]
+        }
       },
       "ActionItem": {
         "x-openregister-notifications": {
@@ -3568,106 +3810,7 @@
             "title": "Meeting",
             "description": "Reference to the Meeting this action item stems from (many-to-one)."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ActionItem",
-              "slug": "actie-plan-zonnepanelen"
-            },
-            "title": "Plan van aanpak zonnepanelen gemeentelijke gebouwen opstellen",
-            "description": "College presenteert plan voor 1 januari 2026 conform aangenomen motie.",
-            "assignee": "Wethouder Duurzaamheid",
-            "dueDate": "2026-01-01T00:00:00Z",
-            "taskStatus": "open"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ActionItem",
-              "slug": "actie-communicatie-begroting-2026"
-            },
-            "title": "Begroting 2026 communiceren naar inwoners",
-            "assignee": "Communicatieafdeling",
-            "dueDate": "2025-05-01T00:00:00Z",
-            "taskStatus": "completed",
-            "completedAt": "2025-04-25T14:30:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ActionItem",
-              "slug": "actie-bestemmingsplan-publiceren"
-            },
-            "title": "Bestemmingsplan Groningen-Noord publiceren op ruimtelijkeplannen.nl",
-            "assignee": "Ruimtelijke Ordening",
-            "dueDate": "2025-04-10T00:00:00Z",
-            "taskStatus": "overdue"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ActionItem",
-              "slug": "actie-woningbouw-uitvoeringsplan"
-            },
-            "title": "Uitvoeringsplan Woningbouwplan Oost opstellen",
-            "description": "College stelt uitvoeringsplan op inclusief fasering, budgetten en planning.",
-            "assignee": "Wethouder Wonen",
-            "dueDate": "2025-07-01T00:00:00Z",
-            "taskStatus": "in-progress"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ActionItem",
-              "slug": "actie-duurzaamheid-offerteverzoek"
-            },
-            "title": "Offerteverzoek zonnepanelen gemeentelijke gebouwen uitzetten",
-            "description": "Inkoopteam vraagt offertes op bij minimaal 3 leveranciers conform gemeentelijk aanbestedingsbeleid.",
-            "assignee": "Inkoopcoördinator",
-            "dueDate": "2025-05-15T00:00:00Z",
-            "taskStatus": "completed",
-            "completedAt": "2025-05-10T16:00:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ActionItem",
-              "slug": "actie-notulen-distribueren"
-            },
-            "title": "Definitieve notulen raadsvergadering 20 maart distribueren",
-            "description": "Griffier verstuurt vastgestelde notulen aan alle raadsleden en publiceert op gemeentelijke website.",
-            "assignee": "Griffier",
-            "dueDate": "2025-04-11T00:00:00Z",
-            "taskStatus": "completed",
-            "completedAt": "2025-04-11T09:30:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ActionItem",
-              "slug": "actie-besluiten-ori-publicatie"
-            },
-            "title": "Besluiten raadsvergadering publiceren via ORI-koppeling",
-            "description": "Informatiemanager controleert ORI-export en bevestigt succesvolle aanlevering bij PLOOI.",
-            "assignee": "Informatiemanager",
-            "dueDate": "2025-03-22T00:00:00Z",
-            "taskStatus": "overdue"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ActionItem",
-              "slug": "actie-fusie-dorpsraden-convenant"
-            },
-            "title": "Convenant fusie dorpsraden Noord en Oost opstellen en laten ondertekenen",
-            "description": "Gemeentelijke contactpersoon stelt convenant op in samenspraak met beide dorpsraden.",
-            "assignee": "Beleidsmedewerker Participatie",
-            "dueDate": "2025-10-01T00:00:00Z",
-            "taskStatus": "open"
-          }
-        ]
+        }
       },
       "Minutes": {
         "slug": "minutes",
@@ -3892,118 +4035,7 @@
             "title": "Meeting",
             "description": "Reference to the Meeting these minutes document (one-to-one)."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Minutes",
-              "slug": "notulen-raad-2025-04-10"
-            },
-            "title": "Notulen Raadsvergadering 10 april 2025",
-            "lifecycle": "approved",
-            "content": "De vergadering wordt geopend door de voorzitter om 19:30 uur...",
-            "approvedAt": "2025-05-08T19:45:00Z",
-            "signedBy": [
-              "Roos de Vries",
-              "Jan Bakker"
-            ],
-            "version": 2
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Minutes",
-              "slug": "notulen-commissie-ruimte-2025-03-04"
-            },
-            "title": "Notulen Commissievergadering Ruimte & Wonen 4 maart 2025",
-            "lifecycle": "signed",
-            "content": "De commissievergadering Ruimte & Wonen wordt geopend...",
-            "approvedAt": "2025-04-01T10:00:00Z",
-            "signedBy": [
-              "Henk Bakker"
-            ],
-            "version": 1
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Minutes",
-              "slug": "notulen-ab-waterschap-2025-02-13"
-            },
-            "title": "Notulen AB Waterschap Aa en Maas 13 februari 2025",
-            "lifecycle": "draft",
-            "version": 1
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Minutes",
-              "slug": "notulen-raad-2025-03-20"
-            },
-            "title": "Notulen Gemeenteraadsvergadering 20 maart 2025",
-            "lifecycle": "published",
-            "content": "De vergadering wordt geopend door de voorzitter om 19:30 uur. Aanwezig: 33 van 37 raadsleden. Punt 5 — Woningbouwplan Oost 2025-2030: na bespreking wordt het plan aangenomen met 30 stemmen voor en 3 tegen.",
-            "approvedAt": "2025-04-10T19:45:00Z",
-            "signedBy": [
-              "Roos de Vries",
-              "Jan Bakker"
-            ],
-            "version": 2
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Minutes",
-              "slug": "notulen-commissie-wonen-2025-04-01"
-            },
-            "title": "Notulen Commissievergadering Wonen & Ruimte 1 april 2025",
-            "lifecycle": "signed",
-            "content": "Aanvang: 19:00 uur. Voorzitter: Henk Bakker. Commissieleden aanwezig: 7 van 9. Agendapunt 2 — bestemmingsplan Groningen-Noord: de commissie adviseert de raad het plan ongewijzigd vast te stellen.",
-            "approvedAt": "2025-04-15T10:00:00Z",
-            "signedBy": [
-              "Henk Bakker"
-            ],
-            "version": 1
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Minutes",
-              "slug": "notulen-ab-waterschap-2025-04-10"
-            },
-            "title": "Notulen Vergadering Algemeen Bestuur Waterschap Aa en Maas 10 april 2025",
-            "lifecycle": "review",
-            "content": "Concept-verslag ter vaststelling. De vergadering van het Algemeen Bestuur wordt geopend door de dijkgraaf om 14:00 uur.",
-            "version": 1
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Minutes",
-              "slug": "notulen-directieoverleg-2025-04-14"
-            },
-            "title": "Verslag Directieoverleg Gemeente Utrecht 14 april 2025",
-            "lifecycle": "draft",
-            "version": 1
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "Minutes",
-              "slug": "notulen-rvc-2025-q2"
-            },
-            "title": "Notulen RvC-vergadering Q2 2025",
-            "lifecycle": "approved",
-            "content": "De voorzitter van de Raad van Commissarissen opent de vergadering om 14:00 uur...",
-            "approvedAt": "2025-05-15T10:00:00Z",
-            "signedBy": [
-              "Voorzitter RvC",
-              "Secretaris"
-            ],
-            "version": 1
-          }
-        ]
+        }
       },
       "Transcript": {
         "x-openregister-notifications": {
@@ -4291,21 +4323,7 @@
             "description": "File size",
             "example": "2.4 MB"
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "DigitalDocument",
-              "slug": "notulen-rvc-investering-acme-signed"
-            },
-            "name": "Ondertekende notulen RvC — Investeringsbesluit Datacenteruitbreiding ACME B.V.",
-            "documentType": "signed-minutes",
-            "description": "QES-ondertekende notulen van de RvC-vergadering betreffende het investeringsbesluit datacenteruitbreiding. Ondertekend door voorzitter en secretaris via eIDAS-gekwalificeerde elektronische handtekening.",
-            "encodingFormat": "application/pdf",
-            "contentSize": "1.2 MB"
-          }
-        ]
+        }
       },
       "MonetaryAmount": {
         "slug": "monetary-amount",
@@ -5303,7 +5321,7 @@
         "x-openregister-notifications": {
           "reactionPendingModeration": {
             "trigger": {
-              "type": "create",
+              "type": "created",
               "filter": {
                 "moderationStatus": "pending"
               }
@@ -5837,78 +5855,7 @@
               ]
             }
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "EngagementRecord",
-              "slug": "engagement-raadsvergadering-jan-de-boer"
-            },
-            "meeting": "raadsvergadering-2025-01-15",
-            "participant": "jan-de-boer",
-            "speeches": [
-              {
-                "duration": 180
-              }
-            ],
-            "questionsRaised": [
-              {
-                "text": "Vraag over begroting"
-              }
-            ],
-            "topicsSuggested": [],
-            "speakingDuration": 180,
-            "engagementScore": 15
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "EngagementRecord",
-              "slug": "engagement-raadsvergadering-fatima"
-            },
-            "meeting": "raadsvergadering-2025-01-15",
-            "participant": "fatima-el-idrissi",
-            "speeches": [
-              {
-                "duration": 300
-              },
-              {
-                "duration": 120
-              }
-            ],
-            "questionsRaised": [
-              {
-                "text": "Vraag over klimaatbeleid"
-              }
-            ],
-            "topicsSuggested": [
-              {
-                "title": "Woningbouw versnellen"
-              }
-            ],
-            "speakingDuration": 420,
-            "engagementScore": 32
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "EngagementRecord",
-              "slug": "engagement-rvc-q1-pieter"
-            },
-            "meeting": "rvc-vergadering-q1-2025",
-            "participant": "pieter-van-den-berg",
-            "speeches": [],
-            "questionsRaised": [],
-            "topicsSuggested": [
-              {
-                "title": "Duurzaamheidsrapportage"
-              }
-            ],
-            "speakingDuration": 0,
-            "engagementScore": 6
-          }
-        ]
+        }
       },
       "ConflictOfInterest": {
         "slug": "conflict-of-interest",
@@ -5984,114 +5931,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ConflictOfInterest",
-              "slug": "coi-ben-r002"
-            },
-            "boardMember": "ben-okonkwo-rvc-acme",
-            "agendaItem": "r-2025-002-appointment-cfo",
-            "declarationType": "personal-relationship",
-            "description": "Familierelatie met kandidaat-CFO.",
-            "severity": "material",
-            "actionTaken": "recused-from-vote",
-            "declarationTimestamp": "2025-03-12T16:50:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ConflictOfInterest",
-              "slug": "coi-petra-r005"
-            },
-            "boardMember": "petra-jansen-rvc-acme",
-            "agendaItem": "r-2025-005-policy-procurement",
-            "declarationType": "competing-business",
-            "description": "Bestuurslid bij Stichting Procurement Excellence.",
-            "severity": "non-material",
-            "actionTaken": "disclosed-and-participated",
-            "declarationTimestamp": "2025-03-12T17:10:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ConflictOfInterest",
-              "slug": "coi-mark-r003"
-            },
-            "boardMember": "mark-van-den-berg-rvb-acme",
-            "agendaItem": "r-2025-003-financial-acquisition",
-            "declarationType": "financial-interest",
-            "description": "Indirect aandelenbelang in target via family-trust (<1%).",
-            "severity": "non-material",
-            "actionTaken": "disclosed-and-participated",
-            "declarationTimestamp": "2025-04-22T17:45:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ConflictOfInterest",
-              "slug": "coi-sandra-r004"
-            },
-            "boardMember": "sandra-yilmaz-rvb-acme",
-            "declarationType": "prior-involvement",
-            "description": "Eerder consultancy-werk voor ESG-adviseur die de strategie heeft opgesteld.",
-            "severity": "non-material",
-            "actionTaken": "no-action-needed",
-            "declarationTimestamp": "2025-04-22T17:30:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ConflictOfInterest",
-              "slug": "coi-david-r008"
-            },
-            "boardMember": "david-cohen-audit-noord",
-            "agendaItem": "r-2025-008-audit-charter",
-            "declarationType": "none",
-            "actionTaken": "no-action-needed",
-            "declarationTimestamp": "2025-06-04T10:05:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ConflictOfInterest",
-              "slug": "coi-rachid-q3"
-            },
-            "boardMember": "rachid-el-amrani-audit-noord",
-            "declarationType": "competing-business",
-            "description": "Tweede bestuursfunctie bij vergelijkbare wooncorporatie.",
-            "severity": "material",
-            "actionTaken": "recused-from-discussion",
-            "declarationTimestamp": "2025-06-04T10:10:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ConflictOfInterest",
-              "slug": "coi-hannah-r002"
-            },
-            "boardMember": "hannah-stein-rvc-acme",
-            "agendaItem": "r-2025-002-appointment-cfo",
-            "declarationType": "none",
-            "actionTaken": "no-action-needed",
-            "declarationTimestamp": "2025-03-12T16:48:00Z"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "ConflictOfInterest",
-              "slug": "coi-klaas-strategy"
-            },
-            "boardMember": "klaas-mulder-rvc-acme",
-            "declarationType": "prior-involvement",
-            "description": "Voormalig CEO van strategieadviseur die de strategiedag faciliteert.",
-            "severity": "non-material",
-            "actionTaken": "disclosed-and-participated",
-            "declarationTimestamp": "2025-09-18T09:05:00Z"
-          }
-        ]
+        }
       },
       "PublicationRecord": {
         "x-openregister-notifications": {
@@ -6623,97 +6463,7 @@
               }
             }
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "EvaluationTemplate",
-              "slug": "template-bestuurlijke-effectiviteit-nl-cgc"
-            },
-            "title": "Board effectiveness self-evaluation (NL Corporate Governance Code)",
-            "description": "Default reusable annual board self-evaluation (zelfevaluatie) covering the five standard effectiveness dimensions. Editable per body.",
-            "dimensions": [
-              "strategy-and-oversight",
-              "board-composition",
-              "board-dynamics",
-              "information-quality",
-              "chair-effectiveness"
-            ],
-            "questions": [
-              {
-                "id": "q-strategy-likert",
-                "dimension": "strategy-and-oversight",
-                "prompt": "The board sets clear strategic direction and exercises effective oversight of management.",
-                "type": "likert",
-                "scaleMin": 1,
-                "scaleMax": 5
-              },
-              {
-                "id": "q-strategy-text",
-                "dimension": "strategy-and-oversight",
-                "prompt": "What would most improve the board's strategic oversight?",
-                "type": "free-text"
-              },
-              {
-                "id": "q-composition-likert",
-                "dimension": "board-composition",
-                "prompt": "The board's composition (skills, diversity, independence) matches the organisation's needs.",
-                "type": "likert",
-                "scaleMin": 1,
-                "scaleMax": 5
-              },
-              {
-                "id": "q-composition-text",
-                "dimension": "board-composition",
-                "prompt": "What skills or perspectives is the board missing?",
-                "type": "free-text"
-              },
-              {
-                "id": "q-dynamics-likert",
-                "dimension": "board-dynamics",
-                "prompt": "Board discussions are open, constructive, and every member's voice is heard.",
-                "type": "likert",
-                "scaleMin": 1,
-                "scaleMax": 5
-              },
-              {
-                "id": "q-dynamics-text",
-                "dimension": "board-dynamics",
-                "prompt": "Describe one dynamic that helps or hinders the board's functioning.",
-                "type": "free-text"
-              },
-              {
-                "id": "q-information-likert",
-                "dimension": "information-quality",
-                "prompt": "The board receives timely, complete, and understandable information ahead of meetings.",
-                "type": "likert",
-                "scaleMin": 1,
-                "scaleMax": 5
-              },
-              {
-                "id": "q-information-text",
-                "dimension": "information-quality",
-                "prompt": "What information gap most affects the board's decision-making?",
-                "type": "free-text"
-              },
-              {
-                "id": "q-chair-likert",
-                "dimension": "chair-effectiveness",
-                "prompt": "The chair runs meetings effectively and ensures balanced participation.",
-                "type": "likert",
-                "scaleMin": 1,
-                "scaleMax": 5
-              },
-              {
-                "id": "q-chair-text",
-                "dimension": "chair-effectiveness",
-                "prompt": "What is one suggestion for the chair?",
-                "type": "free-text"
-              }
-            ]
-          }
-        ]
+        }
       },
       "BoardEvaluation": {
         "slug": "board-evaluation",
@@ -6858,78 +6608,22 @@
             "format": "date-time",
             "facetable": true,
             "description": "Depublication date. When set in the past, the published summary is withdrawn from public access."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "governanceBody": {
-            "register": "decidesk",
-            "schema": "GovernanceBody",
-            "cardinality": "many-to-one"
+            "title": "Governance body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "GovernanceBody",
+            "description": "The governance body this evaluation cycle belongs to (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7): the retired x-openregister-relations block declared this relation but materialised no property, so the reference had nowhere to live and no engine read it."
           },
           "template": {
-            "register": "decidesk",
-            "schema": "EvaluationTemplate",
-            "cardinality": "many-to-one"
+            "title": "Evaluation template",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "EvaluationTemplate",
+            "description": "The evaluation template this cycle instantiates (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7)."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "BoardEvaluation",
-              "slug": "evaluatie-rvc-waterschap-amstel-2025"
-            },
-            "cycleLabel": "2025",
-            "lifecycle": "closed",
-            "openedAt": "2025-11-01T09:00:00Z",
-            "closedAt": "2025-12-20T17:00:00Z",
-            "invitedMemberCount": 3,
-            "respondedCount": 2,
-            "minRespondentThreshold": 3,
-            "invitedParticipantIds": [
-              "jan-de-vries",
-              "femke-halsema",
-              "marie-janssen"
-            ],
-            "respondedParticipantIds": [
-              "jan-de-vries",
-              "femke-halsema"
-            ],
-            "chairUserId": "femke.halsema",
-            "secretaryUserId": "jan.devries",
-            "scoreSummary": "{\"overallScore\":3.6,\"respondentCount\":2,\"invitedMemberCount\":3,\"minRespondentThreshold\":3,\"thresholdMet\":false,\"suppressed\":true,\"dimensionScores\":null,\"themes\":null,\"computedAt\":\"2025-12-20T17:05:00Z\"}",
-            "governanceBody": "rvc-waterschap-amstel",
-            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "BoardEvaluation",
-              "slug": "evaluatie-acme-rvc-2026"
-            },
-            "cycleLabel": "2026",
-            "lifecycle": "open",
-            "openedAt": "2026-06-01T09:00:00Z",
-            "invitedMemberCount": 5,
-            "respondedCount": 2,
-            "minRespondentThreshold": 3,
-            "invitedParticipantIds": [
-              "acme-lid-1",
-              "acme-lid-2",
-              "acme-lid-3",
-              "acme-lid-4",
-              "acme-lid-5"
-            ],
-            "respondedParticipantIds": [
-              "acme-lid-1",
-              "acme-lid-2"
-            ],
-            "chairUserId": "acme.chair",
-            "secretaryUserId": "acme.secretary",
-            "governanceBody": "raad-van-commissarissen-acme-bv",
-            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
-          }
-        ]
+        }
       },
       "EvaluationResponse": {
         "slug": "evaluation-response",
@@ -6990,115 +6684,15 @@
             "title": "Response token",
             "type": "string",
             "description": "Opaque HMAC(participantId + ':' + evaluationId, server-side secret) dedup token — reuses the same secret-ballot mechanism VotingService uses for secret VotingRounds (app config key 'voter_token_secret'). One-way: cannot be inverted to recover the participant id without the server-side secret. Used only for idempotent one-response-per-member enforcement, never for read display or identity resolution."
-          }
-        },
-        "x-openregister-relations": {
+          },
           "boardEvaluation": {
-            "register": "decidesk",
-            "schema": "BoardEvaluation",
-            "cardinality": "many-to-one"
+            "title": "Board evaluation",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "BoardEvaluation",
+            "description": "The evaluation cycle this response belongs to (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7). Links the response to the CYCLE only — never to a participant, preserving the secret-ballot guarantee."
           }
-        },
-        "x-openregister-seeds": [
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "EvaluationResponse",
-              "slug": "reactie-evaluatie-rvc-waterschap-amstel-2025-a"
-            },
-            "answers": [
-              {
-                "questionId": "q-strategy-likert",
-                "dimension": "strategy-and-oversight",
-                "likertValue": 4
-              },
-              {
-                "questionId": "q-strategy-text",
-                "dimension": "strategy-and-oversight",
-                "freeText": "More time for scenario discussion ahead of budget decisions."
-              },
-              {
-                "questionId": "q-chair-likert",
-                "dimension": "chair-effectiveness",
-                "likertValue": 3
-              }
-            ],
-            "submittedAt": "2025-12-05T10:12:00Z",
-            "responseToken": "8f2b6a1e9d3c4f5a7b6e8d1c2a3f4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a",
-            "boardEvaluation": "evaluatie-rvc-waterschap-amstel-2025"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "EvaluationResponse",
-              "slug": "reactie-evaluatie-rvc-waterschap-amstel-2025-b"
-            },
-            "answers": [
-              {
-                "questionId": "q-strategy-likert",
-                "dimension": "strategy-and-oversight",
-                "likertValue": 4
-              },
-              {
-                "questionId": "q-composition-likert",
-                "dimension": "board-composition",
-                "likertValue": 3
-              },
-              {
-                "questionId": "q-chair-likert",
-                "dimension": "chair-effectiveness",
-                "likertValue": 4
-              }
-            ],
-            "submittedAt": "2025-12-08T14:40:00Z",
-            "responseToken": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
-            "boardEvaluation": "evaluatie-rvc-waterschap-amstel-2025"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "EvaluationResponse",
-              "slug": "reactie-evaluatie-acme-rvc-2026-a"
-            },
-            "answers": [
-              {
-                "questionId": "q-strategy-likert",
-                "dimension": "strategy-and-oversight",
-                "likertValue": 5
-              },
-              {
-                "questionId": "q-dynamics-text",
-                "dimension": "board-dynamics",
-                "freeText": "The board is respectful but could challenge management more."
-              }
-            ],
-            "submittedAt": "2026-06-10T09:30:00Z",
-            "responseToken": "3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d",
-            "boardEvaluation": "evaluatie-acme-rvc-2026"
-          },
-          {
-            "@self": {
-              "register": "decidesk",
-              "schema": "EvaluationResponse",
-              "slug": "reactie-evaluatie-acme-rvc-2026-b"
-            },
-            "answers": [
-              {
-                "questionId": "q-strategy-likert",
-                "dimension": "strategy-and-oversight",
-                "likertValue": 3
-              },
-              {
-                "questionId": "q-information-likert",
-                "dimension": "information-quality",
-                "likertValue": 3
-              }
-            ],
-            "submittedAt": "2026-06-11T11:05:00Z",
-            "responseToken": "5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f",
-            "boardEvaluation": "evaluatie-acme-rvc-2026"
-          }
-        ]
+        }
       }
     }
   }

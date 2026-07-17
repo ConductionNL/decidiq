@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+ * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -37,7 +37,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Computes and materialises the `scoreSummary` on a BoardEvaluation.
  *
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+ * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
  */
 class BoardEvaluationScoreService
 {
@@ -119,7 +119,7 @@ class BoardEvaluationScoreService
      *   computedAt: string
      * }
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
      */
     public function computeScoreSummary(
         array $responses,
@@ -168,7 +168,7 @@ class BoardEvaluationScoreService
      *
      * @return array<string, mixed> {success: bool, message?: string, evaluation?: array}
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
      */
     public function closeCycle(string $evaluationId): array
     {
@@ -241,7 +241,7 @@ class BoardEvaluationScoreService
      *
      * @return array{0: array<string,float>, 1: float|null} [dimensionScores, overallScore]
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
      */
     private function computeDimensionScores(array $responses): array
     {
@@ -300,7 +300,7 @@ class BoardEvaluationScoreService
      *
      * @return array<string, array<int, array{word: string, count: int}>>
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
      */
     private function computeThemes(array $responses): array
     {

@@ -27,7 +27,7 @@
  * SPDX-License-Identifier: EUPL-1.2.
  *
  * @spec openspec/changes/adopt-apphost/tasks.md#task-2.1
- * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
+ * @spec openspec/specs/apphost-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -43,7 +43,7 @@ use OCP\IRequest;
 /**
  * Admin-only Prometheus metrics endpoint — delegates to the AppHost generic.
  *
- * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
+ * @spec openspec/specs/apphost-adoption/spec.md
  */
 class MetricsController extends GenericMetricsController
 {

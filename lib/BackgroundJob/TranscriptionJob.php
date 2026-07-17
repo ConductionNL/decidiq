@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
  * against provider absence and provider errors (failure is a first-class
  * stored state, not an uncaught exception).
  *
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
 class TranscriptionJob extends QueuedJob
 {
@@ -49,7 +49,7 @@ class TranscriptionJob extends QueuedJob
      * @param TranscriptionService $transcriptionService The transcription orchestration service.
      * @param LoggerInterface      $logger               The logger.
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function __construct(
         ITimeFactory $time,
@@ -67,7 +67,7 @@ class TranscriptionJob extends QueuedJob
      *
      * @return void
      *
-     * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+     * @spec openspec/specs/meeting-transcription/spec.md
      */
     protected function run(mixed $argument): void
     {

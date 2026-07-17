@@ -135,7 +135,7 @@ class SettingsController extends Controller
      * Returned to authenticated staff so the publish/withdraw UI can resolve
      * each body's target catalog and policy. Read-only; safe for any authed user.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return JSONResponse
      */
@@ -154,7 +154,7 @@ class SettingsController extends Controller
      *
      * Admin-only via the AuthorizedAdminSetting attribute. Body: { config: { <bodyId>: { catalog, policy, attendance } } }.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return JSONResponse
      */

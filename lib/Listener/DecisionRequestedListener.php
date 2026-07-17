@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -48,7 +48,7 @@ use Psr\Log\LoggerInterface;
  *
  * @implements IEventListener<Event>
  *
- * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  */
 class DecisionRequestedListener implements IEventListener
 {
@@ -77,7 +77,7 @@ class DecisionRequestedListener implements IEventListener
      *
      * @param Event $event The dispatched event
      *
-     * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      *
      * @return void
      */
@@ -144,7 +144,7 @@ class DecisionRequestedListener implements IEventListener
      *
      * @param DecisionRequestedEvent $event The request event
      *
-     * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      *
      * @return array<string, mixed>
      */

@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -32,7 +32,7 @@ use OCP\IAppConfig;
  * bespoke tables (ADR-022). The config blob shape is:
  *   { "<bodyId>": { "catalog": "<id>", "policy": { "decision": "manual-only"|"prompt-on-transition", ... }, "attendance": "counts"|"role-holders" } }
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 class PublicationConfigService
 {
@@ -62,7 +62,7 @@ class PublicationConfigService
      *
      * @param IAppConfig $appConfig App configuration store.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      */
     public function __construct(
         private readonly IAppConfig $appConfig,
@@ -72,7 +72,7 @@ class PublicationConfigService
     /**
      * Read the full publication configuration blob.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array<string,mixed> Map of bodyId => body config.
      */
@@ -97,7 +97,7 @@ class PublicationConfigService
      *
      * @param string $bodyId UUID of the GovernanceBody.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array{catalog:string,policy:array<string,string>,attendance:string}
      */
@@ -130,7 +130,7 @@ class PublicationConfigService
      * @param string $bodyId     UUID of the GovernanceBody.
      * @param string $sourceType One of decision|agenda|minutes.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string 'manual-only' (default) or 'prompt-on-transition'.
      */
@@ -154,7 +154,7 @@ class PublicationConfigService
      *
      * @param array<string,mixed> $config Map of bodyId => body config.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array<string,mixed> The normalised, persisted config.
      */

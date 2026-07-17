@@ -81,7 +81,7 @@ export default {
 		}
 	},
 	computed: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		parentMotionId() {
 			// ADR-005: parent motion is referenced via the folded `amends` field.
 			const ref = this.amendment?.amends ?? this.amendment?.parentMotion
@@ -89,7 +89,7 @@ export default {
 			if (typeof ref === 'object') return ref.id || ref.uuid || ''
 			return ref
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		propertyItems() {
 			if (!this.motion) return []
 			return [
@@ -104,12 +104,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
 			handler() { this.refresh() },
 		},
 	},
 	methods: {
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -128,7 +128,7 @@ export default {
 				this.loading = false
 			}
 		},
-		/** @spec openspec/changes/retrofit-2026-05-25-relation-tab-ui/tasks.md#task-4 */
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		openParent() {
 			if (!this.parentMotionId) return
 			this.$router.push({ name: 'MotionDetail', params: { id: this.parentMotionId } })

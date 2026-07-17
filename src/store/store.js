@@ -24,8 +24,8 @@
 // sidebar in the same Pinia tree can't collide on the default
 // `'conduction-objects'` id.
 //
-// @spec openspec/changes/decidesk-store-migration/specs/decidesk-store-migration/spec.md#REQ-DSM-1
-// @spec openspec/changes/decidesk-store-migration/specs/decidesk-store-migration/spec.md#REQ-DSM-2
+// @spec openspec/specs/decidesk-store-migration/spec.md
+// @spec openspec/specs/decidesk-store-migration/spec.md
 
 import { generateUrl } from '@nextcloud/router'
 import { createObjectStore, liveUpdatesPlugin } from '@conduction/nextcloud-vue'
@@ -54,7 +54,7 @@ export const useObjectStore = createObjectStore('decidesk-objects', {
  *
  * @return {Promise<{settingsStore: object, objectStore: object}>}
  *
- * @spec openspec/changes/decidesk-store-migration/specs/decidesk-store-migration/spec.md#REQ-DSM-3
+ * @spec openspec/specs/decidesk-store-migration/spec.md
  */
 export async function initializeStores() {
 	const settingsStore = useSettingsStore()

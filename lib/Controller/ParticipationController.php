@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -54,7 +54,7 @@ use Psr\Log\LoggerInterface;
  * available to authenticated users and — only when the consultation opts in —
  * to anonymous clients through a single brute-force-throttled public endpoint.
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 class ParticipationController extends Controller
 {
@@ -73,7 +73,7 @@ class ParticipationController extends Controller
      *
      * @return void
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function __construct(
         IRequest $request,
@@ -99,7 +99,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse|null A response on failure, null when authorized.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function requireStaff(): ?JSONResponse
     {
@@ -132,7 +132,7 @@ class ParticipationController extends Controller
      *
      * @return int The HTTP status.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function statusForException(\Throwable $e): int
     {
@@ -152,7 +152,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function transitionConsultation(string $consultationId, string $status): JSONResponse
@@ -179,7 +179,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function transitionBudgetRound(string $budgetId, string $status): JSONResponse
@@ -211,7 +211,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function submitReaction(string $consultationId, string $body=''): JSONResponse
@@ -248,7 +248,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -289,7 +289,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function anonIntakeRejection(string $message): JSONResponse
     {
@@ -311,7 +311,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function approveReaction(string $reactionId, string $reason=''): JSONResponse
@@ -343,7 +343,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function rejectReaction(string $reactionId, string $reason=''): JSONResponse
@@ -377,7 +377,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function submitProposal(string $budgetId, string $title='', string $description='', float $amount=0, string $category=''): JSONResponse
@@ -411,7 +411,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function validateProposal(string $proposalId, bool $approve=true): JSONResponse
@@ -442,7 +442,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function castAdvisoryVote(string $proposalId, string $value=''): JSONResponse
@@ -469,7 +469,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function publishConsultationResults(string $consultationId, string $staffResponse=''): JSONResponse
@@ -495,7 +495,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function publishBudgetResults(string $budgetId): JSONResponse
@@ -521,7 +521,7 @@ class ParticipationController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     #[NoAdminRequired]
     public function publishReaction(string $reactionId): JSONResponse

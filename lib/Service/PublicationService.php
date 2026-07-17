@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -43,7 +43,7 @@ use Psr\Log\LoggerInterface;
  * gracefully with a staff-visible warning. It shares OriPublicationService's
  * graceful-degrade posture.
  *
- * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ * @spec openspec/specs/public-publication/spec.md
  */
 class PublicationService
 {
@@ -59,7 +59,7 @@ class PublicationService
      * @param OpenCatalogiPublisher         $catalogPublisher OpenCatalogi catalog routing.
      * @param AuditLogService               $auditLogService  Immutable audit trail.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -86,7 +86,7 @@ class PublicationService
      * @param string $sourceId   UUID of the source object.
      * @param string $actorId    Nextcloud UID of the publishing staff member.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return array<string,mixed> { record, warnings[] }
      */
@@ -170,7 +170,7 @@ class PublicationService
      * @param string $actorId  Nextcloud UID of the withdrawing staff member.
      * @param string $reason   Mandatory withdraw reason.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @throws \InvalidArgumentException When the reason is empty.
      * @throws MissingObjectException    When the record does not exist.
@@ -241,7 +241,7 @@ class PublicationService
      * @param string $actorId  Nextcloud UID of the rectifying staff member.
      * @param string $reason   Reason recorded against the withdrawn prior version.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @throws MissingObjectException When the prior record does not exist.
      *
@@ -329,7 +329,7 @@ class PublicationService
      *
      * @param string $payloadId UUID of the PublicationPayload object.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return void
      */
@@ -362,7 +362,7 @@ class PublicationService
      *
      * @param array<string,mixed> $payload The allow-list payload.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string The created payload object UUID.
      */
@@ -381,7 +381,7 @@ class PublicationService
      * @param array<string,mixed> $record The record data.
      * @param string|null         $uuid   Existing UUID for an update, null to create.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string The record object UUID.
      */
@@ -404,7 +404,7 @@ class PublicationService
      *
      * @param string $recordId The record UUID.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @throws MissingObjectException When the record does not exist.
      *
@@ -431,7 +431,7 @@ class PublicationService
      * @param array<string,mixed>|null $source     Resolved source data (re-fetched when null).
      * @param bool                     $published  Whether the source becomes published.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/decision-management/spec.md
+     * @spec openspec/specs/decision-management/spec.md
      *
      * @return void
      */
@@ -478,7 +478,7 @@ class PublicationService
      * @param string[] $objectUids Touched object UUIDs.
      * @param array    $payload    Structured detail.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/decision-management/spec.md
+     * @spec openspec/specs/decision-management/spec.md
      *
      * @return void
      */
@@ -502,7 +502,7 @@ class PublicationService
      * @param string              $sourceType One of decision|agenda|minutes.
      * @param array<string,mixed> $source     The source object data.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string|null
      */
@@ -524,7 +524,7 @@ class PublicationService
     /**
      * Determine whether OpenCatalogi is installed.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return bool
      */
@@ -539,7 +539,7 @@ class PublicationService
      *
      * @param mixed $saved The save result.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string
      */
@@ -576,7 +576,7 @@ class PublicationService
     /**
      * Current UTC timestamp in ATOM format.
      *
-     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     * @spec openspec/specs/public-publication/spec.md
      *
      * @return string
      */

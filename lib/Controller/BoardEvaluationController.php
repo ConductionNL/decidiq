@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md
+ * @spec openspec/specs/board-self-evaluation/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ use OCP\IUserSession;
 /**
  * REST controller for the board self-evaluation workflow.
  *
- * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md
+ * @spec openspec/specs/board-self-evaluation/spec.md
  */
 class BoardEvaluationController extends Controller
 {
@@ -81,7 +81,7 @@ class BoardEvaluationController extends Controller
      *
      * @param string $id UUID of the BoardEvaluation
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
      *
      * @return JSONResponse
      */
@@ -129,7 +129,7 @@ class BoardEvaluationController extends Controller
      *
      * @param string $id UUID of the BoardEvaluation
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
      *
      * @return JSONResponse
      */
@@ -154,7 +154,7 @@ class BoardEvaluationController extends Controller
      *
      * @param string $id UUID of the BoardEvaluation
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
      *
      * @return JSONResponse
      */
@@ -181,7 +181,7 @@ class BoardEvaluationController extends Controller
      *
      * @param string $id UUID of the BoardEvaluation
      *
-     * @spec openspec/changes/board-self-evaluation/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
      *
      * @return JSONResponse
      */

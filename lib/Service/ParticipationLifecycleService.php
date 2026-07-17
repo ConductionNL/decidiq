@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -37,7 +37,7 @@ use Psr\Log\LoggerInterface;
  * every intake/vote operation INDEPENDENT of the stored status, so a stale
  * status can never re-open a closed window.
  *
- * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+ * @spec openspec/specs/citizen-participation/spec.md
  */
 class ParticipationLifecycleService
 {
@@ -75,7 +75,7 @@ class ParticipationLifecycleService
      *
      * @return void
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -88,7 +88,7 @@ class ParticipationLifecycleService
      *
      * @return object The ObjectService instance
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function objectService(): object
     {
@@ -104,7 +104,7 @@ class ParticipationLifecycleService
      *
      * @return array<string, mixed> The persisted object as an array.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function normaliseSaved(mixed $saved, array $fallback): array
     {
@@ -133,7 +133,7 @@ class ParticipationLifecycleService
      *
      * @return string The normalised status value.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function normaliseConsultationStatus(string $status): string
     {
@@ -160,7 +160,7 @@ class ParticipationLifecycleService
      * @throws \RuntimeException         When the consultation is not found.
      * @throws \InvalidArgumentException When the transition is illegal (fail closed).
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function transitionConsultation(string $consultationId, string $newStatus): array
     {
@@ -206,7 +206,7 @@ class ParticipationLifecycleService
      * @throws \RuntimeException         When the round is not found.
      * @throws \InvalidArgumentException When the transition is illegal (fail closed).
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function transitionBudgetRound(string $budgetId, string $newStatus): array
     {
@@ -245,7 +245,7 @@ class ParticipationLifecycleService
      *
      * @throws \InvalidArgumentException When the transition is not permitted.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function assertTransitionAllowed(string $current, string $target, array $transitions, string $label): void
     {
@@ -273,7 +273,7 @@ class ParticipationLifecycleService
      *
      * @return bool True when submissions are accepted.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function consultationAcceptsSubmissions(array $consultation): bool
     {
@@ -293,7 +293,7 @@ class ParticipationLifecycleService
      *
      * @return bool True when proposal submission is open.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function budgetAcceptsProposals(array $round): bool
     {
@@ -312,7 +312,7 @@ class ParticipationLifecycleService
      *
      * @return bool True when the voting window is open.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     public function budgetAcceptsVotes(array $round): bool
     {
@@ -334,7 +334,7 @@ class ParticipationLifecycleService
      *
      * @return bool True when the deadline has not passed.
      *
-     * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
+     * @spec openspec/specs/citizen-participation/spec.md
      */
     private function deadlineInFuture(mixed $value): bool
     {

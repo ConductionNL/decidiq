@@ -7,7 +7,7 @@
  version and withdraws the old one in the same operation; published payloads are
  never edited in place.
 
- @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+ @spec openspec/specs/public-publication/spec.md
 -->
 <template>
 	<NcDialog

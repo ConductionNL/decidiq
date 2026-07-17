@@ -179,7 +179,7 @@ class DecisionLifecycleService
      * @param string      $comment       Optional transition comment recorded in the audit entry
      *
      * @spec openspec/specs/decision-management/spec.md
-     * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      *
      * @return array{success: bool, decision: array|null, message: string}
      */
@@ -396,7 +396,7 @@ class DecisionLifecycleService
      * @param string               $decisionId UUID of the transitioned decision
      * @param string               $newState   The post-transition lifecycle state
      *
-     * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+     * @spec openspec/specs/decidesk-decision-events/spec.md
      *
      * @return void
      */
