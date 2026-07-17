@@ -1,5 +1,7 @@
 ---
-status: done
+status: in-progress
+openspec-changes:
+  - urgent-decision-procedure
 status-note: |
   2026-06-13 process-config-v1 — 4/4 requirements built. Process templates are
   OpenRegister `processTemplate` objects (ADR-037 fragment) with a structured

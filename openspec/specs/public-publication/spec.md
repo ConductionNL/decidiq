@@ -1,5 +1,7 @@
 ---
-status: done
+status: in-progress
+openspec-changes:
+  - toezeggingen-ingekomen-stukken
 ---
 
 # public-publication Specification
