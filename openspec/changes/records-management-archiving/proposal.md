@@ -6,78 +6,87 @@ kind: code
 
 ## Summary
 
-Add a records-management and Archiefwet archiving lifecycle to decidesk: archival dossiers assembled per meeting/decision, MDTO metadata on all archivable objects (extending the pattern the resolution-minutes spec already mandates for minutes), retention schedules per Selectielijst gemeenten 2020 mapped onto OpenRegister's object-level `_retention` abstraction, MDTO-compliant transfer (overbrenging) export packages delivered to a DMS/zaaksysteem/e-depot via OpenConnector, an authorized destruction workflow ending in a verifiable vernietigingsverklaring, a declarative archive-completeness/compliance dashboard, and security classification labels on archival records.
+Give decidesk an Archiefwet archiving lifecycle by **consuming OpenRegister's shipped records-management stack**, not by rebuilding it. OpenRegister already implements retention resolution, Selectielijst storage, MDTO serialization, SIP packaging, e-depot transfer, destruction with dual approval and legal holds, and the `verklaring_van_vernietiging` certificate. Decidesk adds only what OR genuinely lacks: the **archival dossier** (an aggregate unit per meeting/decision route — OR has none), a **compliance dashboard** (OR's is spec-only), a **security-classification** label aligned to OR's confidentiality ordinal, **Selectielijst 2020 seed data** shipped as OR `SelectionList` objects, and **rendering** of OR's destruction certificate to PDF.
 
 ## Motivation
 
-This is the #1 unresolved market gap for decidesk with zero current coverage. RIS vendor contracts contractually exclude archiving responsibility; archivists regard iBabs as an information-exchange tool, not an archive (its one-time export webservice to a DMS/zaaksysteem is a paid extra, ~EUR 1,950, single unverified source). Municipalities do not know whether the systems they purchased meet statutory archiving duties despite GIBIT. The intelligence DB lists the unresolved must-features: api-based-records-management-integration (demand 1317), destruction-verification-and-compliance-reporting (1170), council-document-archive (913), auto-archive-council-decisions (755), records-management-compliance-dashboard (632), archive-talk-conversations (497), verify-archive-completeness (490), national-archives-compliance (423), security-classification-labels-on-records (274). The Archiefwet 2021 tightens the transfer deadline to 10 years and expands scope. Decidesk already produces the formal record (approved minutes, enacted decisions with hash-chained audit, proof packages) but has no dossier formation, no retention schedule, no transfer, and no destruction accountability — the exact gap every competitor leaves open.
+This is the #1 unresolved market gap for decidesk with zero current coverage. RIS vendor contracts contractually exclude archiving responsibility; archivists regard iBabs as an information-exchange tool, not an archive (its one-time export webservice to a DMS/zaaksysteem is a paid extra, ~EUR 1,950, single unverified source). Municipalities do not know whether the systems they purchased meet statutory archiving duties despite GIBIT. The intelligence DB lists the unresolved must-features: api-based-records-management-integration (demand 1317), destruction-verification-and-compliance-reporting (1170), council-document-archive (913), auto-archive-council-decisions (755), records-management-compliance-dashboard (632), archive-talk-conversations (497), verify-archive-completeness (490), national-archives-compliance (423), security-classification-labels-on-records (274). The Archiefwet 2021 tightens the transfer deadline to 10 years and expands scope. Decidesk already produces the formal record (approved minutes, enacted decisions with hash-chained audit, proof packages) but has no dossier formation — the one missing link between decidesk's records and OR's archiving engine.
+
+An earlier draft of this change assumed decidesk had to build dossier assembly, MDTO mapping, Selectielijst retention rules, transfer packages, a destruction workflow, the verklaring, and the dashboard, consuming only OR's `_retention`/`_tmlo` columns. **That premise was wrong** (verified against openregister `ebedbdd5a`), and it also rested on two impossible field names. This proposal corrects it: the vast majority of that surface already exists upstream, and duplicating it would violate ADR-022 and create a second, divergent Archiefwet implementation.
 
 ## Affected Projects
 
-- [ ] Project: `decidesk` — new OR schemas (ArchivalDossier, RetentionRule, TransferPackage, DestructionList), MDTO/classification properties on existing archivable schemas, declarative lifecycle/aggregations/notifications in `lib/Settings/decidesk_register.json`, TransferPackageService + DestructionService + ArchiveConnectorService (imperative exceptions), compliance-dashboard manifest fragment, seed data, docs, tests.
-- [ ] Project: `openconnector` — consumed only (a configured Source per archive target, same lazy-lookup pattern as the existing `eidas-qes` e-sign Source). No openconnector code changes expected.
-- [ ] Project: `openregister` — consumed only: object-level `_retention` and `_tmlo` columns, retention-aware `deleteObject` (soft delete), audit trail. No OR changes; decidesk never reimplements storage (ADR-022).
+- [ ] Project: `decidesk` — one new OR schema (ArchivalDossier), one service (ArchivalDossierService), two endpoints (assemble/close), an additive `securityClassification` property, a compliance-dashboard manifest fragment, Selectielijst 2020 seeds as OR `SelectionList` objects, docs, tests.
+- [ ] Project: `openregister` — consumed only: `RetentionService`, `Archival/*`, `Edepot/*`, `SelectionList`, `DestructionList`, archival + e-depot routes. No OR changes in this change; genuinely-missing upstream capabilities are recorded as **proposed OR follow-ups** (see spec) rather than built here.
+- [ ] Project: `openconnector` — consumed transitively via OR's `Transport/OpenConnectorTransport`. No decidesk-side connector code, no openconnector changes.
+- [ ] Project: `docudesk` — consumed only: PDF rendering of the verklaring, markdown fallback.
 
 ## Scope
 
 ### In Scope
 
-1. **ArchivalDossier assembly** per meeting/decision: bundle minutes, decisions, motions (decisionType-typed decisions), votes, and attachments into one coherent archival unit with its own lifecycle (`forming → closed → transferred | destroyed`).
-2. **MDTO metadata mapping** for all archivable objects — dossier-level MDTO record plus per-item MDTO derivation at export time, extending the MDTO commitment the resolution-minutes spec already carries.
-3. **Retention schedules** per Selectielijst gemeenten 2020: RetentionRule objects (category, retention period, trigger event) applied to dossiers; the resolved schedule is written to OR's `_retention` on the dossier's member objects.
-4. **Transfer (overbrenging) export packages**: MDTO-compliant sidecar metadata + documents, generated as a TransferPackage and delivered via API export to DMS/zaaksysteem/e-depot through OpenConnector. Decidesk only produces the package and calls the connector.
-5. **Destruction workflow**: proposal list (vernietigingslijst) → authorization → execution via OR retention-aware deletion → destruction verification report (vernietigingsverklaring) retained permanently.
-6. **Archive-completeness / compliance dashboard**: declarative `x-openregister-aggregations` + dashboard widget where possible; shows dossiers overdue for transfer, unassigned retention categories, completeness gaps.
-7. **Security classification labels** on archival records (openbaar / intern / vertrouwelijk / geheim), respected by transfer and publication surfaces.
+1. **ArchivalDossier assembly** per meeting/decision: bundle minutes, decisions, motions, votes, and attachments into one archival unit with lifecycle `forming → closed → transferred | destroyed`. OR has no aggregate unit — this is decidesk's.
+2. **Dossier-level MDTO through OR fields**: populate the dossier's OR `tmlo` / `retention` fields so OR's `MdtoXmlGenerator` emits its MDTO record. No decidesk MDTO mapping table, serializer, or item-level derivation.
+3. **Selectielijst 2020 seeds as OR `SelectionList` objects** + the archivable schemas' `archive.classificatie`, so `RetentionService::applyArchivalMetadata()` resolves nominatie / bewaartermijn / archiefactiedatum via `ArchiefactiedatumCalculator`. Decidesk computes no dates.
+4. **Transfer by consumption**: create an OR transfer list over the dossier's member UUIDs (`TransferListService`); OR's `EdepotTransferService` + `SipPackageBuilder` + `OpenConnectorTransport` package and deliver.
+5. **Destruction by consumption**: OR's destruction lists, approval routes, dual-approval rule, legal holds, and `DestructionCheckJob` / `DestructionExecutionJob`. The dossier reflects the outcome.
+6. **Verklaring rendering**: fetch OR's `verklaring_van_vernietiging` certificate and render it (Docudesk PDF, markdown fallback), persisted permanently.
+7. **Archive-completeness / compliance dashboard**: declarative aggregations + manifest widgets, reading OR's `retention.archiefactiedatum` / `retention.archiefstatus`. OR's equivalent is spec-only.
+8. **Security classification labels**, documented as a subset of OR's `VERTROUWELIJKHEIDAANDUIDING_LEVELS`.
 
 ### Out of Scope
 
-- Being an e-depot ourselves — decidesk hands packages to the archive system of record.
+- **Anything OpenRegister already ships**: retention resolution, Selectielijst entity, MDTO serialization, SIP/BagIt packaging, e-depot transport, destruction execution, legal holds, dual approval, the destruction certificate. Consumed, never reimplemented (ADR-022).
+- Being an e-depot ourselves — OR hands packages to the archive system of record.
+- Changes to OpenRegister, OpenConnector, or Docudesk code. Verified upstream gaps are filed as proposed OR follow-ups.
 - Archiving Talk conversations (intelligence-DB demand 497) — deferred; the dossier model leaves room for a future `talk-export` member kind.
 - Physical records / paper archives.
-- Changes to OpenRegister or OpenConnector code.
 
 ## Approach
 
-Declarative-first per ADR-031: the four new schemas live in `lib/Settings/decidesk_register.json` with `x-openregister-lifecycle` (dossier and destruction-list state machines), `x-openregister-aggregations` (compliance counters), `x-openregister-notifications` (transfer-deadline and destruction-authorization notices), and `x-openregister-relations`. Imperative PHP is limited to three justified exceptions: package generation (document/sidecar production), the OpenConnector delivery call (external integration, lazy source lookup like `EIDASSignatureService`), and destruction execution (scheduled bulk OR deletions + verklaring generation). The dashboard ships as an ADR-037 `src/manifest.d/` fragment. Details in design.md.
+Consumption-first, then declarative-first (ADR-031). The single new schema `ArchivalDossier` lives in `lib/Settings/decidesk_register.json` (via an ADR-037 fragment) with `x-openregister-lifecycle`, `x-openregister-aggregations` (compliance counters), `x-openregister-notifications` (transfer-deadline notices), and `x-openregister-relations`. Imperative PHP shrinks to **one** justified exception: `ArchivalDossierService` (cross-schema enumeration + override-gated close). The former TransferPackageService, ArchiveConnectorService, and DestructionService are all deleted from scope — OR owns those. The dashboard ships as an ADR-037 `src/manifest.d/` fragment. Details in design.md.
 
 ## New Dependencies
 
-None. OpenConnector remains an optional runtime dependency (already declared for eIDAS QES); a new archive-export Source slug is configuration, not code.
+None. OpenRegister is already a hard dependency. OpenConnector is reached transitively through OR's transport layer, so decidesk gains no connector dependency at all.
 
 ## Impact
 
-- `lib/Settings/decidesk_register.json` — 4 new schemas; `mdto` + `securityClassification` properties added additively to Minutes, Decision, Meeting, DigitalDocument; new declarative lifecycle/aggregation/notification/relation blocks.
-- `lib/Service/` — new TransferPackageService, DestructionService, ArchiveConnectorService (+ log-fallback), extension of seed/settings wiring.
-- `lib/BackgroundJob/` — retention/transfer-deadline sweep job (pattern: TranscriptRetentionJob).
+- `lib/Settings/decidesk_register.json` (+ ADR-037 fragment) — **1** new schema (ArchivalDossier); additive `securityClassification` property on Minutes/Decision/Meeting/DigitalDocument; `archive` config (`enabled`, `classificatie`) on archivable schemas; declarative lifecycle/aggregation/notification/relation blocks; Selectielijst 2020 seeds as OR `SelectionList` objects.
+- `lib/Service/` — **1** new service: `ArchivalDossierService`. `PublicationEligibilityService` gains one structural classification check.
+- `lib/Controller/` — `ArchivalDossierController` with **2** endpoints (assemble, close).
 - `src/manifest.d/records-management.json` — ArchivalDossiers index/detail pages, compliance dashboard widgets, menu entries.
 - `openspec/specs/` — new `records-management-archiving` capability spec; terminology aligned with resolution-minutes (MDTO), public-publication (derived payloads, RBAC), decision-management (lifecycle `archived`).
+- No background job (OR's `DestructionCheckJob` already sweeps), no migrations, no app tables.
 
 ## Cross-Project Dependencies
 
-- **OpenRegister** (hard, existing): `_retention`/`_tmlo` object columns, retention-aware `deleteObject`, audit trail, declarative dialects.
-- **OpenConnector** (soft, existing): delivery of TransferPackages to DMS/zaaksysteem/e-depot; graceful degradation when absent (package still produced and downloadable, delivery marked pending).
-- **Docudesk** (soft, existing): PDF rendering of the vernietigingsverklaring; markdown fallback per the established minutes pattern.
+- **OpenRegister** (hard, existing): `RetentionService::applyArchivalMetadata()`, `Archival/{DestructionService,LegalHoldService,ArchiefactiedatumCalculator}`, `Edepot/{TransferListService,EdepotTransferService,SipPackageBuilder,MdtoXmlGenerator,Transport/*}`, `Db/{SelectionList,DestructionList}`, archival + e-depot routes, the persisted `retention` / `tmlo` fields, audit trail.
+- **OpenConnector** (transitive, existing): reached only through OR's `Transport/OpenConnectorTransport`; decidesk holds no connector code.
+- **Docudesk** (soft, existing): PDF rendering of the verklaring; markdown fallback per the established minutes pattern.
 
 ## Risks
 
 ### Risk 1: Irreversible destruction executed on the wrong objects
-**Severity:** High — **Mitigation:** two-step human authorization (proposer ≠ authorizer), enumerated object list frozen at proposal time, execution through OR's retention-aware soft delete (never hard purge from decidesk), permanent vernietigingsverklaring listing exactly what was destroyed.
+**Severity:** High — **Mitigation:** decidesk does not destroy anything. Destruction is OR's: OR freezes the approved enumeration, enforces dual approval (`DestructionService` rejects a second approval by the same archivist), re-checks legal holds immediately before each delete, and emits the permanent certificate. Decidesk's exposure is limited to which member UUIDs a dossier enumerates — hence the frozen member list on close.
 
-### Risk 2: MDTO mapping declared compliant but rejected by the receiving e-depot
-**Severity:** Medium — **Mitigation:** MDTO sidecar validated against the MDTO XSD/JSON schema at package-build time; package status `failed-validation` blocks delivery; per-target mapping quirks live in OpenConnector configuration, not decidesk code.
+### Risk 2: Duplicating OpenRegister and drifting from it
+**Severity:** High — **Mitigation:** the risk this rewrite exists to close. Every archiving concern that OR ships is out of scope by name (see Scope); the spec carries a "What OpenRegister already provides" table with file citations; verified upstream gaps become proposed OR follow-ups, never decidesk workarounds.
 
-### Risk 3: Retention resolution disagrees with OR's `_retention` semantics
-**Severity:** Medium — **Mitigation:** decidesk only writes `_retention` through OR's public API abstraction (ADR-022); the compliance dashboard surfaces mismatches instead of auto-correcting; seed data includes both permanent-retention (V) and destruction (B) Selectielijst categories.
+### Risk 3: Targeting the wrong OR field
+**Severity:** Medium — **Mitigation:** `_retention` is a **transient, read-only** view from the `x-openregister-archival` TTL mechanism and cannot be written; the Archiefwet block is the persisted `retention` field and the MDTO field is `tmlo` (`_tmlo` does not exist). The spec states this explicitly, and also that `x-openregister-archival` is a log-rotation TTL mechanism that cannot express waardering, Selectielijst categories, or an approval-gated route — so nobody targets it later. Verified against a live OR instance, never fakes.
 
 ### Risk 4: Dossier assembly misses records (completeness gap)
-**Severity:** Medium — **Mitigation:** completeness check is declarative aggregation over the meeting's known artefacts (minutes approved? decisions enacted? votes present?) surfaced on the dashboard; transfer of an incomplete dossier requires an explicit staff override with reason.
+**Severity:** Medium — **Mitigation:** completeness check is a declarative aggregation over the meeting's known artefacts (minutes approved? decisions enacted? votes present?) surfaced on the dashboard; closing an incomplete dossier requires an explicit staff override with a stored reason.
+
+### Risk 5: MDTO output rejected by the receiving e-depot
+**Severity:** Low (owned upstream) — **Mitigation:** MDTO serialization and SIP validation are OR's. Decidesk's only duty is populating `tmlo` / `retention`. Per-target quirks live in OR/OpenConnector configuration.
 
 ## Rollback Strategy
 
-All schema additions are additive (new schemas, new optional properties) — reverting the register import removes the new schemas without touching existing objects. Services and background jobs are new classes wired in `Application.php`; reverting the code PR disables the feature. Destruction executions already performed cannot be rolled back by design (that is the legal point of a vernietigingsverklaring); transfer packages already delivered remain at the receiving archive.
+Additive: one new schema plus optional properties — reverting the register import removes the schema without touching existing objects. `ArchivalDossierService` is a new class wired in `Application.php`; reverting the code PR disables the feature. No OR state is created by decidesk beyond dossiers and the transfer/destruction lists that OR owns and can manage independently.
 
 ## Open Questions
 
-- Which MDTO serialization does the first pilot target require (MDTO-XML vs MDTO-JSON)? Provisional: generate MDTO-XML sidecars (the National Archives reference format) with the mapping table structured so JSON can be added later.
-- Should retention categories be editable per municipality or shipped read-only from Selectielijst 2020? Provisional: shipped as seed objects, editable by admins (municipalities apply local hotspots/exceptions).
+- Can `end-of-council-term` retention be expressed via OR's `eigenschap` afleidingswijze (a materialised term-end date on the dossier), or does it warrant a first-class OR trigger? Provisional: use `eigenschap`; file the OR follow-up.
+- Should Selectielijst `SelectionList` rows be editable per municipality or shipped read-only? Provisional: shipped as editable seeds (municipalities apply local hotspots/exceptions) — consistent with `SelectionList` carrying an `organisation` field.
