@@ -178,22 +178,6 @@
           "searchable": true,
           "mailEnabled": false
         },
-        "x-openregister-relations": {
-          "sharedBody": {
-            "localField": "sharedBody",
-            "relatedSchema": "GovernanceBody",
-            "relatedField": "id",
-            "cardinality": "many-to-one",
-            "description": "The shared GovernanceBody (gemeenschappelijke regeling / joint body) this participation is in."
-          },
-          "participant": {
-            "localField": "participant",
-            "relatedSchema": "GovernanceBody",
-            "relatedField": "id",
-            "cardinality": "many-to-one",
-            "description": "The participating GovernanceBody (municipal council / organisation) that holds this participation."
-          }
-        },
         "required": [
           "sharedBody",
           "participant"
@@ -304,29 +288,6 @@
             }
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-SGB-004). Canonical dialect (keyword 'initial', never 'initialState'/'states'-only/'default'). concept -> geopend -> verwerking -> afgerond, plus concept -> ingetrokken and geopend -> ingetrokken; afgerond and ingetrokken terminal. The concept -> geopend transition is the fan-out point (ZienswijzerondeService::openRonde generates the per-participant zienswijzen). Transitions outside this map are rejected by OpenRegister; no app-side state machine."
-        },
-        "x-openregister-relations": {
-          "sharedBody": {
-            "localField": "sharedBody",
-            "relatedSchema": "GovernanceBody",
-            "relatedField": "id",
-            "cardinality": "many-to-one",
-            "description": "The shared GovernanceBody opening the ronde."
-          },
-          "cyclusStap": {
-            "localField": "cyclusStap",
-            "relatedSchema": "CyclusStap",
-            "relatedField": "id",
-            "cardinality": "many-to-one",
-            "description": "Optional soft reference to the pc-cyclus CyclusStap the ontwerpbegroting belongs to (nullable; either change lands first)."
-          },
-          "decision": {
-            "localField": "decision",
-            "relatedSchema": "Decision",
-            "relatedField": "id",
-            "cardinality": "many-to-one",
-            "description": "Optional reference to the shared body's vaststellingsbesluit after processing."
-          }
         },
         "required": [
           "title",
@@ -554,29 +515,6 @@
               "en": "Reminder: zienswijze past deadline - {{title}}"
             },
             "_note": "REQ-SGB-009 (2): overdue rappel. intervalSec 604800 (weekly) is PROVISIONAL. Filters non-terminal status so no rappel fires for a terminal zienswijze. Same window-semantics caveat as zienswijzeRappelBeforeDeadline."
-          }
-        },
-        "x-openregister-relations": {
-          "ronde": {
-            "localField": "ronde",
-            "relatedSchema": "Zienswijzeronde",
-            "relatedField": "id",
-            "cardinality": "many-to-one",
-            "description": "The Zienswijzeronde this zienswijze belongs to."
-          },
-          "participant": {
-            "localField": "participant",
-            "relatedSchema": "GovernanceBody",
-            "relatedField": "id",
-            "cardinality": "many-to-one",
-            "description": "The participating GovernanceBody whose zienswijze this is."
-          },
-          "decision": {
-            "localField": "decision",
-            "relatedSchema": "Decision",
-            "relatedField": "id",
-            "cardinality": "many-to-one",
-            "description": "Optional reference to the participant council's raadsbesluit adopting the zienswijze."
           }
         },
         "required": [

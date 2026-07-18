@@ -268,33 +268,6 @@
           ],
           "_note": "Declarative guarded transition map (ADR-031, REQ-EMB-001). Canonical dialect verbatim from the existing Decision schema (keyword 'initial', never 'initialState'/'default' — the silently-ignored drift dialect). opgelegd -> bekrachtigd -> opgeheven with the direct opgelegd -> opgeheven shortcut; opgeheven is terminal. LIMITATION: the map cannot itself restrict opgelegd -> opgeheven to grounds where requiresBekrachtiging is false (a transition guard cannot dereference the referenced GeheimhoudingGrond) — that conditional is a save-time check in the imperative GeheimhoudingService (REQ-EMB-001 scenario 'Lifecycle transitions are guarded declaratively' covers the map; the ground-conditional is the service's job). The app does NOT implement an imperative state machine for the transition map."
         },
-        "x-openregister-aggregations": {
-          "awaitingBekrachtigingCount": {
-            "metric": "count",
-            "schema": "Geheimhouding",
-            "filter": {
-              "imposedByBody": "@self.imposedByBody",
-              "lifecycle": "opgelegd"
-            }
-          },
-          "bekrachtigdCount": {
-            "metric": "count",
-            "schema": "Geheimhouding",
-            "filter": {
-              "imposedByBody": "@self.imposedByBody",
-              "lifecycle": "bekrachtigd"
-            }
-          },
-          "opgehevenCount": {
-            "metric": "count",
-            "schema": "Geheimhouding",
-            "filter": {
-              "imposedByBody": "@self.imposedByBody",
-              "lifecycle": "opgeheven"
-            }
-          },
-          "_note": "Declarative counters for the geheimhoudingenregister overview per body (REQ-EMB-006), scoped by @self.imposedByBody exactly like the Meeting/Participant aggregation precedent. DIALECT GAP (honest): the aggregation filter DSL is equality-only, so it cannot express 'active = opgelegd + bekrachtigd' as a single counter (consume awaitingBekrachtigingCount + bekrachtigdCount) nor 'overdue' (bekrachtigingDeadline < now) — the overdue awaiting-bekrachtiging KPI needs a time predicate the aggregation filter does not support; that KPI is computed in the manifest/register-overview layer over the deadline field. opgehevenCount approximates the opgeheven-awaiting-publication counter (publication-eligibility is restored imperatively on opheffing)."
-        },
         "x-openregister-notifications": {
           "geheimhoudingBekrachtigingDue": {
             "trigger": {

@@ -13,21 +13,65 @@
             "initialState": "draft",
             "stateMachine": {
               "states": [
-                { "name": "draft" },
-                { "name": "proposed" },
-                { "name": "deliberating" },
-                { "name": "voting" },
-                { "name": "decided" },
-                { "name": "enacted" },
-                { "name": "archived" }
+                {
+                  "name": "draft"
+                },
+                {
+                  "name": "proposed"
+                },
+                {
+                  "name": "deliberating"
+                },
+                {
+                  "name": "voting"
+                },
+                {
+                  "name": "decided"
+                },
+                {
+                  "name": "enacted"
+                },
+                {
+                  "name": "archived"
+                }
               ],
               "transitions": [
-                { "name": "propose", "from": "draft", "to": "proposed" },
-                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
-                { "name": "openVoting", "from": "deliberating", "to": "voting", "chairOnly": true, "guards": ["quorum_met", "all_amendments_resolved"] },
-                { "name": "decide", "from": "voting", "to": "decided", "chairOnly": true },
-                { "name": "enact", "from": "decided", "to": "enacted" },
-                { "name": "archive", "from": "enacted", "to": "archived" }
+                {
+                  "name": "propose",
+                  "from": "draft",
+                  "to": "proposed"
+                },
+                {
+                  "name": "deliberate",
+                  "from": "proposed",
+                  "to": "deliberating"
+                },
+                {
+                  "name": "openVoting",
+                  "from": "deliberating",
+                  "to": "voting",
+                  "chairOnly": true,
+                  "guards": [
+                    "quorum_met",
+                    "all_amendments_resolved"
+                  ]
+                },
+                {
+                  "name": "decide",
+                  "from": "voting",
+                  "to": "decided",
+                  "chairOnly": true
+                },
+                {
+                  "name": "enact",
+                  "from": "decided",
+                  "to": "enacted"
+                },
+                {
+                  "name": "archive",
+                  "from": "enacted",
+                  "to": "archived"
+                }
               ]
             },
             "votingRule": {
@@ -39,9 +83,14 @@
             "quorumRule": "More than half of the seats occupied (Gemeentewet art. 20)",
             "allowDecideWithoutVote": false,
             "urgencyPolicy": {
-              "allowedTriggerRoles": ["chair"],
+              "allowedTriggerRoles": [
+                "chair"
+              ],
               "minimumNoticeFloorHours": 24,
-              "responseDeadlineHours": { "min": 12, "max": 96 },
+              "responseDeadlineHours": {
+                "min": 12,
+                "max": 96
+              },
               "ratificationRequired": true,
               "ratifyingBody": "gemeenteraad-amsterdam"
             }
@@ -55,21 +104,63 @@
             "initialState": "draft",
             "stateMachine": {
               "states": [
-                { "name": "draft" },
-                { "name": "proposed" },
-                { "name": "deliberating" },
-                { "name": "voting" },
-                { "name": "decided" },
-                { "name": "enacted" },
-                { "name": "archived" }
+                {
+                  "name": "draft"
+                },
+                {
+                  "name": "proposed"
+                },
+                {
+                  "name": "deliberating"
+                },
+                {
+                  "name": "voting"
+                },
+                {
+                  "name": "decided"
+                },
+                {
+                  "name": "enacted"
+                },
+                {
+                  "name": "archived"
+                }
               ],
               "transitions": [
-                { "name": "propose", "from": "draft", "to": "proposed" },
-                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
-                { "name": "openVoting", "from": "deliberating", "to": "voting", "chairOnly": true, "guards": ["quorum_met"] },
-                { "name": "decide", "from": "voting", "to": "decided" },
-                { "name": "enact", "from": "decided", "to": "enacted" },
-                { "name": "archive", "from": "enacted", "to": "archived" }
+                {
+                  "name": "propose",
+                  "from": "draft",
+                  "to": "proposed"
+                },
+                {
+                  "name": "deliberate",
+                  "from": "proposed",
+                  "to": "deliberating"
+                },
+                {
+                  "name": "openVoting",
+                  "from": "deliberating",
+                  "to": "voting",
+                  "chairOnly": true,
+                  "guards": [
+                    "quorum_met"
+                  ]
+                },
+                {
+                  "name": "decide",
+                  "from": "voting",
+                  "to": "decided"
+                },
+                {
+                  "name": "enact",
+                  "from": "decided",
+                  "to": "enacted"
+                },
+                {
+                  "name": "archive",
+                  "from": "enacted",
+                  "to": "archived"
+                }
               ]
             },
             "votingRule": {
@@ -81,9 +172,15 @@
             "quorumRule": "Quorum per the articles of association",
             "allowDecideWithoutVote": false,
             "urgencyPolicy": {
-              "allowedTriggerRoles": ["chair", "secretary"],
+              "allowedTriggerRoles": [
+                "chair",
+                "secretary"
+              ],
               "minimumNoticeFloorHours": 12,
-              "responseDeadlineHours": { "min": 4, "max": 72 },
+              "responseDeadlineHours": {
+                "min": 4,
+                "max": 72
+              },
               "ratificationRequired": true,
               "ratifyingBody": "raad-van-commissarissen-acme-bv"
             }
@@ -127,42 +224,6 @@
             "example": "2026-06-02T09:15:00+02:00"
           }
         },
-        "x-openregister-aggregations": {
-          "ratifyingOpenStageCount": {
-            "metric": "count",
-            "schema": "DecisionStage",
-            "filter": {
-              "decision": "@self.id",
-              "stageType": "ratifying",
-              "status": {
-                "notIn": ["decided", "skipped"]
-              }
-            }
-          }
-        },
-        "x-openregister-calculations": {
-          "awaitingRatification": {
-            "type": "boolean",
-            "materialise": true,
-            "description": "Declarative derivation (ADR-031, decision-management delta): true if and only if isUrgent is true AND at least one related DecisionStage has stageType=ratifying with a non-terminal status (neither decided nor skipped). Mirrors the existing routeComplete/currentStage pattern (gt over a materialised count aggregation); list, detail, and dashboard KPI read the materialised field and never recompute it (no N+1). FALLBACK (design-sanctioned, risk row): if OR's calculation/aggregation dialect cannot evaluate the ratifying-open count over related stages at import, the field is derived client-side from the same route query the timeline tab makes and stays read-only server-side — same posture decision-management already specs for effectiveStatus.",
-            "expression": {
-              "and": [
-                {
-                  "eq": [
-                    { "prop": "isUrgent" },
-                    true
-                  ]
-                },
-                {
-                  "gt": [
-                    { "prop": "ratifyingOpenStageCount" },
-                    0
-                  ]
-                }
-              ]
-            }
-          }
-        },
         "x-openregister-notifications": {
           "urgentDecisionDeclared": {
             "trigger": {
@@ -174,7 +235,9 @@
               }
             },
             "enabled": true,
-            "channels": ["nc-notification"],
+            "channels": [
+              "nc-notification"
+            ],
             "recipients": [
               {
                 "kind": "object-acl",
@@ -182,7 +245,9 @@
               },
               {
                 "kind": "groups",
-                "groups": ["decidesk-members"]
+                "groups": [
+                  "decidesk-members"
+                ]
               }
             ],
             "subject": {
@@ -200,7 +265,9 @@
               }
             },
             "enabled": true,
-            "channels": ["nc-notification"],
+            "channels": [
+              "nc-notification"
+            ],
             "recipients": [
               {
                 "kind": "object-acl",
@@ -208,7 +275,9 @@
               },
               {
                 "kind": "groups",
-                "groups": ["decidesk-members"]
+                "groups": [
+                  "decidesk-members"
+                ]
               }
             ],
             "subject": {
