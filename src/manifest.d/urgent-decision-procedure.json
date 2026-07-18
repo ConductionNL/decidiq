@@ -1,0 +1,48 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Urgent-decision-procedure (spoedbesluiten) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). DECLARATIVE CORE ONLY: a single index page listing urgent decisions (isUrgent=true) with quick filters on awaitingRatification, the pre-filtered list the dashboard KPI navigates to (Task 7 / REQ-006). Schema ref BY SLUG (decision), never the PascalCase key Decision. The declare-urgency dialog, the 'urgent — awaiting ratification' detail banner, the list-row badge, and the dashboard KPI stat widget are IMPERATIVE Vue (src/dialogs, src/components, dashboard) wired by Task 7 — this fragment adds no Dashboard widget because mergePages replaces a same-id page wholesale (a fragment cannot add one widget to Dashboard without duplicating it, same constraint as toezeggingen). Detail navigation reuses the existing DecisionDetail page.",
+	"_spec": "openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi",
+	"menu": [
+		{
+			"id": "UrgentDecisions",
+			"label": "Urgent decisions",
+			"icon": "AlertOctagonOutline",
+			"route": "UrgentDecisions",
+			"order": 75
+		}
+	],
+	"pages": [
+		{
+			"id": "UrgentDecisions",
+			"route": "/urgent-decisions",
+			"type": "index",
+			"title": "Urgent decisions",
+			"_note": "spec: openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi",
+			"config": {
+				"register": "decidesk",
+				"schema": "decision",
+				"_note": "Urgent-decisions list (REQ-006). Default-filtered to isUrgent=true; quick filters split awaiting-ratification vs ratified via the materialised awaitingRatification calculation (no per-row N+1 — resolved as a pure OR list query). The awaitingRatification and lifecycle columns render as badges (icon + text, CSS variables — never colour alone). The view action navigates to the existing DecisionDetail page. CSV export via the shared ExportService + CnMassExportDialog.",
+				"filter": { "isUrgent": true },
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": false,
+				"quickFilters": [
+					{ "label": "All urgent", "filter": { "isUrgent": true }, "default": true },
+					{ "label": "Awaiting ratification", "filter": { "isUrgent": true, "awaitingRatification": true } },
+					{ "label": "Ratified", "filter": { "isUrgent": true, "awaitingRatification": false } }
+				],
+				"columns": [
+					{ "key": "title", "label": "Decision", "widget": "link" },
+					{ "key": "urgencyDeclaredAt", "label": "Declared" },
+					{ "key": "awaitingRatification", "label": "Awaiting ratification", "widget": "badge" },
+					{ "key": "lifecycle", "label": "Lifecycle", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "DecisionDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		}
+	]
+}

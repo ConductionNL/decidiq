@@ -1745,7 +1745,10 @@
               "operational",
               "citizen-panel",
               "supervisory-board",
-              "executive-board"
+              "executive-board",
+              "advisory-body",
+              "works-council",
+              "shared-body"
             ],
             "example": "legislative"
           },
