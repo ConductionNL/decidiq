@@ -3106,58 +3106,44 @@
           },
           "sourceApp": {
             "title": "Source app",
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": "string",
+            "nullable": true,
             "description": "The fleet app that raised this Decision via the integration hub (ADR-019 provenance). Populated by external app delegates; null for internally-created decisions."
           },
           "subjectRegister": {
             "title": "Subject register",
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": "string",
+            "nullable": true,
             "description": "OpenRegister register of the originating object in the consuming app (provenance, REQ-DCDH-001)."
           },
           "subjectSchema": {
             "title": "Subject schema",
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": "string",
+            "nullable": true,
             "description": "OpenRegister schema of the originating object (provenance, REQ-DCDH-001)."
           },
           "subjectId": {
             "title": "Subject",
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": "string",
+            "nullable": true,
             "description": "UUID of the originating object in the consuming app (the back-reference, REQ-DCDH-001)."
           },
           "subjectLabel": {
             "title": "Subject label",
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": "string",
+            "nullable": true,
             "description": "Human-readable label for the originating object shown in decidesk list/detail (e.g. 'Lease contract 2027 — pand X', REQ-DCDH-001)."
           },
           "outcomeCallbackUrl": {
             "title": "Outcome callback URL",
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": "string",
+            "nullable": true,
             "description": "Optional registry-validated callback URL for push delivery of the outcome. Validated against the ADR-019 integration registry consumer entry — arbitrary URLs are rejected (anti-SSRF, REQ-DCDH-004)."
           },
           "externalReference": {
             "title": "External reference",
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": "string",
+            "nullable": true,
             "description": "Consumer's own reference for idempotency and ledger linking. The create-decision endpoint is idempotent on (sourceApp, subjectRegister, subjectSchema, subjectId, externalReference) (REQ-DCDH-002)."
           },
           "amends": {
