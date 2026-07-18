@@ -1,0 +1,312 @@
+{
+  "x-openregister": {
+    "seedData": {
+      "description": "Urgent-decision-procedure register fragment (ADR-037 additive pattern; OpenSpec change urgent-decision-procedure). Declarative core ONLY: additive urgency fields on the existing Decision schema (isUrgent, urgencyReason, urgencyDeclaredBy, urgencyDeclaredAt) plus the awaitingRatification derivation and two notification rules, additive shortened-notice deviation fields on Meeting, and a per-template urgencyPolicy object on ProcessTemplate. The urgency-trigger guard (who may set isUrgent), ratification-stage orchestration, expedited-round mechanics, and the declare/banner/badge/KPI UI are IMPERATIVE and live in the change's Service/Controller/Vue tasks (design.md seams A/B + Task 7) — out of this declarative fragment. Seeds here are two urgency-enabled CUSTOM process templates (municipal + corporate), because the built-in templates in 43-process-config-v1.json are read-only (design D5). NOTE (app-wide limitation, consistent with sibling fragments 45/54/55): relation refs stored as slugs (urgencyPolicy.ratifyingBody -> governance-body) may not resolve on detail pages until the register import maps them to UUIDs.",
+      "objects": {
+        "process-template": [
+          {
+            "slug": "municipal-council-urgent",
+            "name": "Municipal Council (urgency-enabled)",
+            "description": "Municipal council (gemeenteraad) process template with the urgent-decision procedure enabled: college spoedbesluit routed to a mandatory ratification stage at the next regular raadsvergadering (design seed table, municipal column).",
+            "context": "legislative",
+            "builtIn": false,
+            "initialState": "draft",
+            "stateMachine": {
+              "states": [
+                { "name": "draft" },
+                { "name": "proposed" },
+                { "name": "deliberating" },
+                { "name": "voting" },
+                { "name": "decided" },
+                { "name": "enacted" },
+                { "name": "archived" }
+              ],
+              "transitions": [
+                { "name": "propose", "from": "draft", "to": "proposed" },
+                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
+                { "name": "openVoting", "from": "deliberating", "to": "voting", "chairOnly": true, "guards": ["quorum_met", "all_amendments_resolved"] },
+                { "name": "decide", "from": "voting", "to": "decided", "chairOnly": true },
+                { "name": "enact", "from": "decided", "to": "enacted" },
+                { "name": "archive", "from": "enacted", "to": "archived" }
+              ]
+            },
+            "votingRule": {
+              "voteThreshold": "simple-majority",
+              "abstentionHandling": "exclude",
+              "tieBreakRule": "rejected"
+            },
+            "quorumRequired": true,
+            "quorumRule": "More than half of the seats occupied (Gemeentewet art. 20)",
+            "allowDecideWithoutVote": false,
+            "urgencyPolicy": {
+              "allowedTriggerRoles": ["chair"],
+              "minimumNoticeFloorHours": 24,
+              "responseDeadlineHours": { "min": 12, "max": 96 },
+              "ratificationRequired": true,
+              "ratifyingBody": "gemeenteraad-amsterdam"
+            }
+          },
+          {
+            "slug": "corporate-board-urgent",
+            "name": "Corporate Board (urgency-enabled)",
+            "description": "Corporate management board (RvB) process template with the urgent-decision procedure enabled: urgent resolution decided via an expedited 24h written round, ratified by the Raad van Commissarissen (design seed table, corporate column).",
+            "context": "corporate",
+            "builtIn": false,
+            "initialState": "draft",
+            "stateMachine": {
+              "states": [
+                { "name": "draft" },
+                { "name": "proposed" },
+                { "name": "deliberating" },
+                { "name": "voting" },
+                { "name": "decided" },
+                { "name": "enacted" },
+                { "name": "archived" }
+              ],
+              "transitions": [
+                { "name": "propose", "from": "draft", "to": "proposed" },
+                { "name": "deliberate", "from": "proposed", "to": "deliberating" },
+                { "name": "openVoting", "from": "deliberating", "to": "voting", "chairOnly": true, "guards": ["quorum_met"] },
+                { "name": "decide", "from": "voting", "to": "decided" },
+                { "name": "enact", "from": "decided", "to": "enacted" },
+                { "name": "archive", "from": "enacted", "to": "archived" }
+              ]
+            },
+            "votingRule": {
+              "voteThreshold": "simple-majority",
+              "abstentionHandling": "exclude",
+              "tieBreakRule": "chair-decides"
+            },
+            "quorumRequired": true,
+            "quorumRule": "Quorum per the articles of association",
+            "allowDecideWithoutVote": false,
+            "urgencyPolicy": {
+              "allowedTriggerRoles": ["chair", "secretary"],
+              "minimumNoticeFloorHours": 12,
+              "responseDeadlineHours": { "min": 4, "max": 72 },
+              "ratificationRequired": true,
+              "ratifyingBody": "raad-van-commissarissen-acme-bv"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Decision": {
+        "slug": "decision",
+        "version": "0.8.0",
+        "description": "Additive delta (ADR-037 fragment-located additive pattern; OpenSpec urgent-decision-procedure). This fragment merges ONLY the four optional urgency properties (isUrgent, urgencyReason, urgencyDeclaredBy, urgencyDeclaredAt), one ratifying-stage aggregation, the awaitingRatification calculation, and two notification rules onto the existing decision schema. It adds NO required field and modifies NO existing property, aggregation, calculation, or notification — the register deep-merge (SettingsService::deepMergeConfig) unions these by key with the base schema, so decisions created before this change stay valid and the existing x-openregister-lifecycle transition map is untouched (urgency is orthogonal to lifecycle, exactly like isPublished). Version bumped to 0.8.0 (the sibling governing-documents fragment sets 0.7.0; ONE fragment wins the scalar version — this one uses the higher number). CONDITIONAL/GUARDED RULES are SAVE-TIME imperative, NOT schema constraints (no allOf/anyOf/oneOf in an OR register schema): urgencyReason is required when isUrgent is true (enforced by the trigger flow); the urgency fields are writable ONLY through the guarded urgency-trigger endpoint and rejected on direct object update (same posture as isPublished); every write path carries the urgency fields forward (saveObject is PUT-semantic). See design.md seams A/B and Task 3.",
+        "properties": {
+          "isUrgent": {
+            "title": "Urgent",
+            "type": "boolean",
+            "facetable": true,
+            "default": false,
+            "description": "Whether this decision has been declared urgent (spoedbesluit). Orthogonal to lifecycle/outcome/isPublished — no lifecycle state or transition is added. Additive optional field. Server-guarded: settable ONLY through the guarded urgency-trigger flow (UrgencyTriggerGuard, imperative seam A), rejected on a direct object update — the same field-guard posture as isPublished. Because saveObject is PUT-semantic, every decision write path MUST carry this forward.",
+            "example": true
+          },
+          "urgencyReason": {
+            "title": "Urgency reason",
+            "type": "string",
+            "description": "Free-text justification for the urgency declaration (the statutory/urgency basis, e.g. a Gemeentewet college spoedbevoegdheid or an articles-of-association urgent-resolution clause). CONDITIONALLY REQUIRED when isUrgent is true — enforced save-time by the trigger flow, not by a JSON Schema constraint (OR rejects allOf/anyOf/oneOf). Stored verbatim (length-validated on input, escaped on output). Defaults the emergency meeting's noticeDeviationReason.",
+            "example": "Acute opvangcrisis; eerstvolgende reguliere raadsvergadering is pas over drie weken (Gemeentewet-spoedbevoegdheid college)."
+          },
+          "urgencyDeclaredBy": {
+            "title": "Urgency declared by",
+            "type": "string",
+            "description": "Nextcloud user id of the actor who declared the urgency (resolved and stored by the trigger guard). Not a Person/participant reference — a uid string for audit attribution; no kind:field notification recipient references it (recipient rule).",
+            "example": "burgemeester"
+          },
+          "urgencyDeclaredAt": {
+            "title": "Urgency declared at",
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp at which the urgency was declared (set by the trigger flow). Additive optional field.",
+            "example": "2026-06-02T09:15:00+02:00"
+          }
+        },
+        "x-openregister-aggregations": {
+          "ratifyingOpenStageCount": {
+            "metric": "count",
+            "schema": "DecisionStage",
+            "filter": {
+              "decision": "@self.id",
+              "stageType": "ratifying",
+              "status": {
+                "notIn": ["decided", "skipped"]
+              }
+            }
+          }
+        },
+        "x-openregister-calculations": {
+          "awaitingRatification": {
+            "type": "boolean",
+            "materialise": true,
+            "description": "Declarative derivation (ADR-031, decision-management delta): true if and only if isUrgent is true AND at least one related DecisionStage has stageType=ratifying with a non-terminal status (neither decided nor skipped). Mirrors the existing routeComplete/currentStage pattern (gt over a materialised count aggregation); list, detail, and dashboard KPI read the materialised field and never recompute it (no N+1). FALLBACK (design-sanctioned, risk row): if OR's calculation/aggregation dialect cannot evaluate the ratifying-open count over related stages at import, the field is derived client-side from the same route query the timeline tab makes and stays read-only server-side — same posture decision-management already specs for effectiveStatus.",
+            "expression": {
+              "and": [
+                {
+                  "eq": [
+                    { "prop": "isUrgent" },
+                    true
+                  ]
+                },
+                {
+                  "gt": [
+                    { "prop": "ratifyingOpenStageCount" },
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "x-openregister-notifications": {
+          "urgentDecisionDeclared": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "isUrgent",
+                "operator": "equals",
+                "value": true
+              }
+            },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": ["decidesk-members"]
+              }
+            ],
+            "subject": {
+              "nl": "Spoedbesluit: {{title}}",
+              "en": "Urgent decision: {{title}}"
+            },
+            "_note": "decidesk-notifications delta (urgent-decision-procedure). Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a condition on isUrgent equals true, channels[], recipients[] via kind:object-acl (read) covering readers of the deciding and ratifying bodies + kind:groups (decidesk-members). kind:field is NOT used on any non-uid property (never urgencyDeclaredBy). A precise per-body-membership recipient form is deferred (same deferral posture as the base lifecycle-entered trigger). Decidesk dispatches no notification imperatively."
+          },
+          "urgentRatificationDue": {
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 86400,
+              "filter": {
+                "awaitingRatification": true
+              }
+            },
+            "enabled": true,
+            "channels": ["nc-notification"],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": ["decidesk-members"]
+              }
+            ],
+            "subject": {
+              "nl": "Bekrachtiging vereist: {{title}}",
+              "en": "Ratification due: {{title}}"
+            },
+            "_note": "decidesk-notifications delta (urgent-decision-procedure). Verified scheduled dialect (mirrors Meeting.meetingReminder): trigger.type 'scheduled', intervalSec 86400 (daily; >= 60), filter on the materialised awaitingRatification field equals true so reminders fire only while ratification is outstanding and stop once the ratifying stage is decided (awaitingRatification derives false). Recipients via kind:object-acl (read) + kind:groups (decidesk-members); no kind:field on any non-uid property."
+          }
+        }
+      },
+      "Meeting": {
+        "slug": "meeting",
+        "version": "0.7.0",
+        "description": "Additive delta (ADR-037; OpenSpec urgent-decision-procedure, meeting-management delta). Merges ONLY three optional shortened-notice deviation properties (shortenedNotice, actualNoticeHours, noticeDeviationReason) onto the existing meeting schema for emergency (meetingType=extraordinary) convocations linked to an urgent decision's expedited procedure. No required field is added and no existing property, lifecycle, or notification is modified. The existing convocation flow (per-recipient delivery tracking, notice arithmetic, 3-day warning) is unchanged; this only records a deliberate deviation. GUARDED RULES are SAVE-TIME imperative (BoardMeetingService, Task 6), NOT schema constraints: the deviation path is exclusive to extraordinary meetings; the send is rejected when actualNoticeHours is below the governing body's urgencyPolicy.minimumNoticeFloorHours; noticeDeviationReason is required when shortenedNotice is true (defaulting to the decision's urgencyReason).",
+        "properties": {
+          "shortenedNotice": {
+            "title": "Shortened notice",
+            "type": "boolean",
+            "facetable": true,
+            "default": false,
+            "description": "True when this extraordinary meeting's convocation was deliberately sent below the body's regular notice period (noticePeriodDays) for an urgent decision. Additive optional field; exclusive to meetingType=extraordinary (enforced save-time). The pre-send overdue hint (noticeRules) presents a recorded deviation as a deliberate shortened-notice state, not an error.",
+            "example": true
+          },
+          "actualNoticeHours": {
+            "title": "Actual notice (hours)",
+            "type": "integer",
+            "description": "The notice actually given, in hours, at convocation send time. Recorded on a shortened-notice deviation. The send is rejected save-time when this is below the governing body's urgencyPolicy.minimumNoticeFloorHours (Task 6, hour-granular floor sitting below the day-granular notice period).",
+            "example": 72
+          },
+          "noticeDeviationReason": {
+            "title": "Notice deviation reason",
+            "type": "string",
+            "description": "Reason the regular notice period could not be met. CONDITIONALLY REQUIRED when shortenedNotice is true (enforced save-time, not by a schema constraint), defaulting to the linked urgent decision's urgencyReason.",
+            "example": "Spoedbesluit noodopvang — reguliere oproeptermijn niet haalbaar."
+          }
+        }
+      },
+      "ProcessTemplate": {
+        "slug": "process-template",
+        "version": "0.2.0",
+        "description": "Additive delta (ADR-037; OpenSpec urgent-decision-procedure, process-configuration delta). Merges ONLY the optional urgencyPolicy object onto the existing process-template schema (defined in 43-process-config-v1.json) so each governance body configures whether and how the urgent procedure is available. Fail-closed posture: a template with NO urgencyPolicy makes the urgent procedure UNAVAILABLE for its bodies — never available-with-no-limits. Server-side template validation (ProcessTemplateService, Task 2) rejects an urgencyPolicy with empty allowedTriggerRoles, an unrecognised role token, min>max deadline bounds, or ratificationRequired=true without a resolvable ratifyingBody — SAVE-TIME imperative rules, NOT schema constraints (OR rejects allOf/anyOf/oneOf). Built-in templates stay read-only; urgency is enabled by duplicating and editing (see the two urgency-enabled custom seeds in this fragment).",
+        "properties": {
+          "urgencyPolicy": {
+            "title": "Urgency policy",
+            "type": "object",
+            "description": "Per-template urgent-decision-procedure policy. Absent = the urgent procedure is unavailable for bodies assigned this template (fail closed). Validated save-time (fail-closed, mirroring the existing transition-graph validation).",
+            "properties": {
+              "allowedTriggerRoles": {
+                "title": "Allowed trigger roles",
+                "type": "array",
+                "description": "Role tokens permitted to declare a decision urgent (e.g. chair, secretary, board-member). Must be non-empty and contain only recognised tokens (validated save-time). The trigger guard resolves the acting user against these roles and fails closed when none resolves.",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "minimumNoticeFloorHours": {
+                "title": "Minimum notice floor (hours)",
+                "type": "integer",
+                "description": "The shortest convocation notice, in hours, an emergency (extraordinary) meeting under this template may use. Integer >= 0. Sits below the day-granular noticePeriodDays without redefining it; a shortened-notice send below this floor is rejected.",
+                "example": 24
+              },
+              "responseDeadlineHours": {
+                "title": "Response deadline bounds (hours)",
+                "type": "object",
+                "description": "Inclusive bounds, in hours, on the expedited written-round response deadline. min > max is rejected save-time (HTTP 400 naming the inverted bounds). votingDeadline is date-time so hour granularity is lossless.",
+                "properties": {
+                  "min": {
+                    "title": "Minimum hours",
+                    "type": "integer",
+                    "description": "Shortest permitted expedited-round response deadline, in hours.",
+                    "example": 12
+                  },
+                  "max": {
+                    "title": "Maximum hours",
+                    "type": "integer",
+                    "description": "Longest permitted expedited-round response deadline, in hours.",
+                    "example": 96
+                  }
+                }
+              },
+              "ratificationRequired": {
+                "title": "Ratification required",
+                "type": "boolean",
+                "default": true,
+                "description": "Whether an urgent decision under this template must be routed to a mandatory ratifying stage. When true, ratifyingBody must resolve (else the save is rejected).",
+                "example": true
+              },
+              "ratifyingBody": {
+                "title": "Ratifying body",
+                "type": "string",
+                "format": "uuid",
+                "$ref": "GovernanceBody",
+                "description": "Reference to the GovernanceBody that ratifies an urgent decision (overridable at trigger time). Required when ratificationRequired is true (validated save-time). Seed refs are stored by slug and mapped to UUID at import."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

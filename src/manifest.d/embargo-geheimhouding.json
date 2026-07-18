@@ -1,0 +1,144 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Embargo & geheimhouding (DECLARATIVE CORE) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for the geheimhoudingenregister and the configurable grounds list; schema refs BY SLUG (geheimhouding / geheimhouding-grond), never PascalCase. The geheimhoudingenregister index is the per-body overview (REQ-EMB-006). The awaiting-bekrachtiging KPI reads the declarative awaitingBekrachtigingCount aggregation; the OVERDUE narrowing (bekrachtigingDeadline < now) is computed in this view over the deadline column, because the aggregation filter DSL is equality-only (see fragment 65 aggregations _note). OUT-OF-CORE (imperative, not in this fragment): the impose/bekrachtig/opheffen dialogs (src/dialogs/*), the Dashboard stat widgets (mergePages replaces a same-id page wholesale, so a fragment cannot add a widget to the base Dashboard page without duplicating it), and the workflow action buttons wired to GeheimhoudingController routes.",
+	"_spec": "openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md",
+	"menu": [
+		{
+			"id": "Geheimhoudingen",
+			"label": "Confidentiality register",
+			"icon": "icon-password",
+			"route": "Geheimhoudingen",
+			"order": 78
+		},
+		{
+			"id": "GeheimhoudingGronden",
+			"label": "Confidentiality grounds",
+			"icon": "icon-category-auth",
+			"route": "GeheimhoudingGronden",
+			"order": 79
+		}
+	],
+	"pages": [
+		{
+			"id": "Geheimhoudingen",
+			"route": "/geheimhoudingen",
+			"type": "index",
+			"title": "Confidentiality register",
+			"_note": "spec: openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md (REQ-EMB-006). Geheimhoudingenregister index — the per-body overview. Columns scope/ground/imposedBy/imposedByBody/imposedAt/lifecycle/bekrachtigingDeadline; quick filters on lifecycle. The awaiting-bekrachtiging workload is this index filtered to lifecycle=opgelegd; overdue (bekrachtigingDeadline in the past) is read off the deadline column (the declarative awaitingBekrachtigingCount aggregation counts opgelegd per body; the overdue narrowing needs a time predicate the aggregation filter cannot express). Geheimhouding records are authenticated-only (never public / ORI), so no public predicate applies.",
+			"config": {
+				"register": "decidesk",
+				"schema": "geheimhouding",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Imposed", "filter": { "lifecycle": "opgelegd" } },
+					{ "label": "Confirmed", "filter": { "lifecycle": "bekrachtigd" } },
+					{ "label": "Lifted", "filter": { "lifecycle": "opgeheven" } }
+				],
+				"columns": [
+					{ "key": "scope", "label": "Scope", "widget": "badge" },
+					{ "key": "ground", "label": "Ground" },
+					{ "key": "imposedBy", "label": "Imposed by" },
+					{ "key": "imposedByBody", "label": "Body" },
+					{ "key": "imposedAt", "label": "Imposed at" },
+					{ "key": "bekrachtigingDeadline", "label": "Bekrachtiging deadline" },
+					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "GeheimhoudingDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "GeheimhoudingDetail",
+			"route": "/geheimhoudingen/:id",
+			"type": "detail",
+			"title": "Confidentiality",
+			"_note": "spec: openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md (REQ-EMB-006 / REQ-EMB-007). GeheimhoudingDetail. Record data leads 8-wide (scope + target reference, imposedBy/imposedByBody/imposedAt, bekrachtiging + opheffing fields when set); the resolved ground (citation incl. legacyCitation), imposedByBody, target, bekrachtigingsbesluit and opheffingsbesluit render as resolved references in the data + Related widgets. Audit trail is a sidebar tab (REQ-EMB-007: the per-geheimhouding view-audit list of stukken under geheimhouding is queryable here for griffie/staff — the audit logging itself is imperative and out of this declarative fragment). The impose/bekrachtig/opheffen action buttons (wired to GeheimhoudingController) are the imperative tail and are NOT declared here.",
+			"config": {
+				"register": "decidesk",
+				"schema": "geheimhouding",
+				"widgets": [
+					{ "id": "geheimhouding-data", "type": "data", "title": "Confidentiality", "icon": "ShieldLockOutline", "content": { "columns": 2 } },
+					{ "id": "geheimhouding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "geheimhouding-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "geheimhouding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "GeheimhoudingGronden",
+			"route": "/geheimhoudingsgronden",
+			"type": "index",
+			"title": "Confidentiality grounds",
+			"_note": "spec: openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md (REQ-EMB-002). Configurable grounds list — grounds are admin-editable DATA (add/edit/deactivate). Columns name/citation/legacyCitation/category/requiresBekrachtiging/active; quick filters on category and active. Deactivated grounds stay listed (and resolvable on old records) but the app-side ground picker excludes them for new geheimhoudingen (not expressible as a schema constraint).",
+			"config": {
+				"register": "decidesk",
+				"schema": "geheimhouding-grond",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Active", "filter": { "active": true } },
+					{ "label": "Gemeentewet", "filter": { "category": "gemeentewet" } },
+					{ "label": "Woo absolute", "filter": { "category": "woo-absoluut" } },
+					{ "label": "Woo relative", "filter": { "category": "woo-relatief" } },
+					{ "label": "Other", "filter": { "category": "overig" } }
+				],
+				"columns": [
+					{ "key": "name", "label": "Name", "widget": "link" },
+					{ "key": "citation", "label": "Citation" },
+					{ "key": "legacyCitation", "label": "Legacy citation" },
+					{ "key": "category", "label": "Category", "widget": "badge" },
+					{ "key": "requiresBekrachtiging", "label": "Requires confirmation", "widget": "boolean" },
+					{ "key": "active", "label": "Active", "widget": "boolean" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "GeheimhoudingGrondDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "GeheimhoudingGrondDetail",
+			"route": "/geheimhoudingsgronden/:id",
+			"type": "detail",
+			"title": "Confidentiality ground",
+			"_note": "spec: openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md (REQ-EMB-002). GeheimhoudingGrondDetail. Ground data (name, citation, legacyCitation, category, requiresBekrachtiging, description, builtIn, active). Editable by administrators; deactivating a ground keeps it resolvable on existing geheimhoudingen.",
+			"config": {
+				"register": "decidesk",
+				"schema": "geheimhouding-grond",
+				"widgets": [
+					{ "id": "geheimhouding-grond-data", "type": "data", "title": "Confidentiality ground", "icon": "ScaleBalance", "content": { "columns": 2 } }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "geheimhouding-grond-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 6 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		}
+	]
+}
