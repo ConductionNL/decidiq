@@ -149,6 +149,13 @@
 						"content": { "label": "Open action items", "icon": "ClipboardList", "valueColor": "#c7860c", "route": { "name": "ActionItems", "query": { "taskStatus": ["open", "in-progress"] } }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "action-item", "metric": "count", "filter": { "taskStatus": ["open", "in-progress"], "dueDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
 					},
 					{
+						"id": "open-toezeggingen-overdue",
+						"type": "stat",
+						"title": "Commitments over deadline",
+						"_note": "REQ-007 / design D6. Counts non-terminal toezeggingen (lifecycle open/in-uitvoering) whose deadline is past, and deep-links to the Toezeggingen index pre-filtered to the same non-terminal set. The overdue cut uses the PROVISIONAL relative token deadline.lt=@now, which D6 flags as unverified against nc-vue's widget source resolver. FALLBACK if the token is unsupported: drop the deadline clause so the KPI counts non-terminal toezeggingen and the overdue cut happens on the pre-filtered index — documented here so it is never a silent wrong count. A layout entry is appended at the bottom band of config.layout; final top-row placement is a UI-validation call.",
+						"content": { "label": "Commitments over deadline", "icon": "AlertOutline", "valueColor": "#c7860c", "route": { "name": "Toezeggingen", "query": { "lifecycle": ["open", "in-uitvoering"] } }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "toezegging", "metric": "count", "filter": { "lifecycle": ["open", "in-uitvoering"], "deadline": { "lt": "@now" } } } }
+					},
+					{
 						"id": "upcoming-meetings-list",
 						"type": "object-list",
 						"title": "Upcoming meetings",
@@ -278,6 +285,16 @@
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
+					},
+					{
+						"id": "10",
+						"widgetId": "open-toezeggingen-overdue",
+						"gridX": 0,
+						"gridY": 14,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"documentationUrl": "https://decidesk.conduction.nl"
