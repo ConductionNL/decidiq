@@ -1,0 +1,422 @@
+{
+  "x-openregister": {
+    "seedData": {
+      "description": "Seed objects for the governing-documents register (constitutive/internal governing documents — statuten, reglement van orde, splitsingsakte). Objects grouped by schema slug (governing-document, governing-document-versie), plus one new governance-body (vve-parkstaete) and two enacting Decisions merged additively into the existing decision seed set. References resolve by slug against existing decidesk seed objects (governance-body ledenraad-vng and gemeenteraad-amsterdam from decidesk_register.json; the two same-fragment Decisions for the amendment versions' vastgesteldDoor). Chain: statuten-vng carries v1 (vervangen, constitutive — no vastgesteldDoor, notarial-deed metadata documents its origin) → v2 (in-werking, traced to besluit-statutenwijziging-vng-2021) to demonstrate in-force resolution (REQ-GDR-004) and seal-on-effective immutability (REQ-GDR-003); statuten-vng has isPublic=true so the public predicate is demonstrable on a fresh install (REQ-GDR-007). reglement-van-orde-gemeenteraad-amsterdam has one vastgesteld-by-decision version (rvo-amsterdam-v1, traced to besluit-vaststelling-rvo-amsterdam). splitsingsakte-vve-parkstaete has one constitutive notarial version (no decision link). The statutenwijziging Decision carries a citesGoverningDocuments entry (document statuten-vng, artikel 'art. 20') so the citation UI is demoable on install (REQ-GDR-005). NOTE (app-wide limitation, consistent with sibling fragments 45/54): relation refs stored as slugs may not resolve on detail pages until the register import maps them to UUIDs.",
+      "objects": {
+        "governance-body": [
+          {
+            "slug": "vve-parkstaete",
+            "name": "VvE Parkstaete",
+            "bodyType": "association",
+            "domain": "association",
+            "workflowTemplate": "association",
+            "votingDefault": "for-against-abstain"
+          }
+        ],
+        "governing-document": [
+          {
+            "slug": "statuten-vng",
+            "type": "statuten",
+            "citeertitel": "Statuten Vereniging van Nederlandse Gemeenten",
+            "omschrijving": "Statuten van de vereniging (BW 2:27), constitutief bij notariële akte en gewijzigd bij besluit tot statutenwijziging van de ledenraad.",
+            "governingBody": "ledenraad-vng",
+            "isPublic": true,
+            "status": "geldend"
+          },
+          {
+            "slug": "reglement-van-orde-gemeenteraad-amsterdam",
+            "type": "reglement-van-orde",
+            "citeertitel": "Reglement van orde gemeenteraad Amsterdam",
+            "omschrijving": "Reglement van orde van de gemeenteraad (Gemeentewet art. 16), vastgesteld bij raadsbesluit.",
+            "governingBody": "gemeenteraad-amsterdam",
+            "isPublic": false,
+            "status": "geldend"
+          },
+          {
+            "slug": "splitsingsakte-vve-parkstaete",
+            "type": "splitsingsakte",
+            "citeertitel": "Splitsingsakte VvE Parkstaete",
+            "omschrijving": "Splitsingsakte (BW 5:111), constitutief bij notariële akte; geen verband met een besluit.",
+            "governingBody": "vve-parkstaete",
+            "isPublic": false,
+            "status": "geldend"
+          }
+        ],
+        "governing-document-versie": [
+          {
+            "slug": "statuten-vng-v1",
+            "document": "statuten-vng",
+            "versienummer": 1,
+            "inwerkingtreding": "1990-05-01",
+            "toelichting": "Constitutieve versie bij oprichting van de vereniging; opgericht bij notariële akte, geen verband met een besluit in decidesk.",
+            "aktedatum": "1990-04-12",
+            "notaris": "mr. C. van Dam",
+            "status": "vervangen"
+          },
+          {
+            "slug": "statuten-vng-v2",
+            "document": "statuten-vng",
+            "versienummer": 2,
+            "vastgesteldDoor": "besluit-statutenwijziging-vng-2021",
+            "inwerkingtreding": "2022-01-01",
+            "toelichting": "Statutenwijziging 2021: aanpassing van de bevoegdheden van de ledenraad (art. 20).",
+            "aktedatum": "2021-12-15",
+            "notaris": "mr. A. de Wit",
+            "status": "in-werking"
+          },
+          {
+            "slug": "rvo-amsterdam-v1",
+            "document": "reglement-van-orde-gemeenteraad-amsterdam",
+            "versienummer": 1,
+            "vastgesteldDoor": "besluit-vaststelling-rvo-amsterdam",
+            "inwerkingtreding": "2023-03-01",
+            "toelichting": "Vaststelling van het reglement van orde door de gemeenteraad.",
+            "status": "in-werking"
+          },
+          {
+            "slug": "splitsingsakte-parkstaete-v1",
+            "document": "splitsingsakte-vve-parkstaete",
+            "versienummer": 1,
+            "inwerkingtreding": "2005-06-01",
+            "toelichting": "Constitutieve splitsingsakte bij notariële akte; geen verband met een besluit.",
+            "aktedatum": "2005-05-20",
+            "notaris": "mr. B. Jansen",
+            "status": "in-werking"
+          }
+        ],
+        "decision": [
+          {
+            "slug": "besluit-statutenwijziging-vng-2021",
+            "decisionType": "resolution",
+            "title": "Besluit statutenwijziging VNG 2021",
+            "text": "Besluit van de ledenraad van de Vereniging van Nederlandse Gemeenten tot wijziging van de statuten (BW 2:43), in het bijzonder de bevoegdheden van de ledenraad in art. 20.",
+            "decisionDate": "2021-12-15",
+            "outcome": "adopted",
+            "citesGoverningDocuments": [
+              {
+                "document": "statuten-vng",
+                "artikel": "art. 20"
+              }
+            ]
+          },
+          {
+            "slug": "besluit-vaststelling-rvo-amsterdam",
+            "decisionType": "resolution",
+            "title": "Besluit vaststelling reglement van orde gemeenteraad Amsterdam",
+            "text": "Besluit van de gemeenteraad van Amsterdam tot vaststelling van het reglement van orde (Gemeentewet art. 16).",
+            "decisionDate": "2023-03-01",
+            "outcome": "adopted"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GoverningDocument": {
+        "slug": "governing-document",
+        "icon": "FileDocumentOutline",
+        "version": "0.1.0",
+        "title": "GoverningDocument",
+        "description": "A governing document (Schema.org DigitalDocument, Akoma Ntoso doc work level): an organisation's own constitutive or internal governing document — statuten, huishoudelijk reglement, reglement van orde, directiestatuut, splitsingsakte. Owned by a GovernanceBody, with a geldend → vervallen lifecycle (drafting happens at version level via concept versions, so no document-level draft state). Versions are GoverningDocumentVersie objects (the Akoma Ntoso expression level). BOUNDARY (design): this register owns private-law / internal constitutive documents and carries NO CVDR identifier, NO DROP/STOP delivery, and NO bekendmaking field — public-law regelingen with publication machinery belong to the verordeningenregister capability. CONDITIONAL RULE (REQ-GDR-004, enforced save-time by GoverningDocumentConsolidationService, not by a schema constraint): a version may be sealed to in-werking only when its inwerkingtreding is after the latest already-sealed version's, so in-force resolution is deterministic.",
+        "type": "object",
+        "x-schema-org": "schema:DigitalDocument",
+        "x-openregister": {
+          "schemaType": "schema:DigitalDocument",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "x-openregister-lifecycle": {
+          "field": "status",
+          "initial": "geldend",
+          "states": [
+            "geldend",
+            "vervallen"
+          ],
+          "terminal": [
+            "vervallen"
+          ],
+          "transitions": [
+            {
+              "from": "geldend",
+              "to": "vervallen"
+            }
+          ],
+          "_note": "Declarative guarded transition map (ADR-031, REQ-GDR-001). Canonical dialect (keyword 'initial', never 'initialState'/'default'). geldend initial, vervallen terminal; the only transition is geldend → vervallen. Transitions outside this map are rejected by OpenRegister; decidesk implements no parallel state machine. Drafting is a version-level concern (GoverningDocumentVersie concept state), so there is deliberately no document-level draft/concept state."
+        },
+        "authorization": {
+          "read": [
+            {
+              "group": "public",
+              "match": {
+                "isPublic": true
+              }
+            },
+            "authenticated"
+          ],
+          "_note": "REQ-GDR-007: internal (member) by default; public read only when the isPublic predicate on the live object is true — the same predicate-on-live-object posture as the decision isPublished field. The document object carries only non-PII metadata (type, citeertitel, omschrijving, governingBody, isPublic, status), so exposing the whole live object is safe. The notaris name, toelichting, and concept versions live on GoverningDocumentVersie, which carries no public authorization (member-only). DIALECT GAP (imperative, out of declarative scope): the server-side eligibility rule 'no public exposure unless a sealed current version exists' and the derived public view of the sealed version's inwerkingtreding + consolidated text are enforced by the published-predicate surface / consolidation service, not by this declarative predicate."
+        },
+        "required": [
+          "type",
+          "citeertitel",
+          "governingBody",
+          "status"
+        ],
+        "properties": {
+          "type": {
+            "title": "Type",
+            "type": "string",
+            "facetable": true,
+            "description": "The kind of governing document. Required.",
+            "enum": [
+              "statuten",
+              "huishoudelijk-reglement",
+              "reglement-van-orde",
+              "directiestatuut",
+              "splitsingsakte",
+              "other"
+            ],
+            "example": "statuten"
+          },
+          "citeertitel": {
+            "title": "Citeertitel",
+            "type": "string",
+            "description": "The document's citable name (citeertitel). Required.",
+            "example": "Statuten Vereniging van Nederlandse Gemeenten"
+          },
+          "omschrijving": {
+            "title": "Description",
+            "type": "string",
+            "description": "Optional description of the document."
+          },
+          "governingBody": {
+            "title": "Governing body",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "GovernanceBody",
+            "description": "Required reference to the owning GovernanceBody (the vereniging, raad, VvE, or board whose document this is)."
+          },
+          "isPublic": {
+            "title": "Public",
+            "type": "boolean",
+            "facetable": true,
+            "default": false,
+            "description": "Predicate on the live object controlling public exposure (REQ-GDR-007). Default false = internal (member) only. When true, the OR published-predicate surface exposes only the citeertitel, type, governing body name, and the current sealed version's inwerkingtreding + consolidated text; concept versions, toelichting, and the notaris name are never exposed. Server-side eligibility additionally requires a sealed current version (imperative — see authorization._note)."
+          },
+          "status": {
+            "title": "Status",
+            "type": "string",
+            "facetable": true,
+            "description": "Document lifecycle status (declared in x-openregister-lifecycle, ADR-031): geldend → vervallen. vervallen is terminal.",
+            "enum": [
+              "geldend",
+              "vervallen"
+            ],
+            "example": "geldend"
+          }
+        }
+      },
+      "GoverningDocumentVersie": {
+        "slug": "governing-document-versie",
+        "icon": "FileDocumentMultipleOutline",
+        "version": "0.1.0",
+        "title": "GoverningDocumentVersie",
+        "description": "An immutable version (Akoma Ntoso expression level, mirroring the verordeningenregister RegelingVersie conventions) of a GoverningDocument. Carries the parent document reference, a per-document unique versienummer, the enacting Decision (vastgesteldDoor), inwerkingtreding / vervaldatum, a toelichting, optional notarial-deed metadata (aktedatum, notaris), and the consolidated text attached through OpenRegister's file abstraction (a File leaf, not a schema property). SEAL-ON-EFFECTIVE (REQ-GDR-003): when the version transitions to in-werking its versienummer, vastgesteldDoor, inwerkingtreding, notarial-deed metadata, and consolidated-text file reference become immutable, enforced server-side; corrections are made as a NEW version traced to its own rectification Decision, never by editing a sealed version. There is no declarative immutable-after-state dialect key, so the seal is a save-time server guard (imperative, out of declarative scope) keyed on the in-werking lifecycle state. CONDITIONAL TRACE RULE (REQ-GDR-002, enforced save-time by GoverningDocumentConsolidationService, not by a schema constraint — a cross-object conditional-required cannot be expressed in JSON Schema without composition keywords, which OR rejects): every version of a document that already has at least one sealed version MUST carry a resolvable vastgesteldDoor; only the first (constitutive/historical) version MAY omit it, in which case notarial-deed metadata or a toelichting documenting its origin SHOULD be recorded. versienummer MUST be a positive integer unique per document (uniqueness enforced save-time). inwerkingtreding MUST be set before the version is sealed to in-werking (activation-time requirement).",
+        "type": "object",
+        "x-schema-org": "schema:DigitalDocument",
+        "x-openregister": {
+          "schemaType": "schema:DigitalDocument",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true,
+          "mailEnabled": false
+        },
+        "x-openregister-lifecycle": {
+          "field": "status",
+          "initial": "concept",
+          "states": [
+            "concept",
+            "vastgesteld",
+            "in-werking",
+            "vervangen",
+            "vervallen"
+          ],
+          "terminal": [
+            "vervangen",
+            "vervallen"
+          ],
+          "transitions": [
+            {
+              "from": "concept",
+              "to": "vastgesteld"
+            },
+            {
+              "from": "vastgesteld",
+              "to": "in-werking"
+            },
+            {
+              "from": "in-werking",
+              "to": "vervangen"
+            },
+            {
+              "from": "in-werking",
+              "to": "vervallen"
+            }
+          ],
+          "_note": "Declarative guarded transition map (ADR-031, REQ-GDR-002/003). Canonical dialect (keyword 'initial', never 'initialState'/'default'). concept → vastgesteld → in-werking → vervangen | vervallen; vervangen and vervallen terminal. The in-werking transition is the seal point (REQ-GDR-003): the new-effective-version notification fires here and the immutability guard applies from here. A superseded version moves in-werking → vervangen when its successor takes force; a version withdrawn without a successor moves in-werking → vervallen. No app-side state machine."
+        },
+        "x-openregister-notifications": {
+          "newEffectiveVersion": {
+            "trigger": {
+              "type": "updated",
+              "filter": {
+                "status": "in-werking"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Nieuwe geldende versie: {{title}}",
+              "en": "New effective version: {{title}}"
+            },
+            "_note": "REQ-GDR-008: notify members of the owning governance body's organisation when a version takes effect. Canonical x-openregister-notifications dialect (ADR-031), verified keys only: trigger.type 'updated' with a filter on the lifecycle state field (status equals in-werking), channels[], recipients[] via kind:object-acl (read) + kind:groups (decidesk-members) — kind:field is NOT used on any non-uid property. Fires ONLY on the in-werking transition (not on concept → vastgesteld). Decidesk dispatches no notification imperatively."
+          }
+        },
+        "required": [
+          "document",
+          "versienummer",
+          "status"
+        ],
+        "properties": {
+          "document": {
+            "title": "Document",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "GoverningDocument",
+            "description": "Required reference to the parent GoverningDocument this version belongs to."
+          },
+          "versienummer": {
+            "title": "Version number",
+            "type": "integer",
+            "facetable": true,
+            "description": "Positive integer version number, unique per document (uniqueness enforced save-time, not by a schema constraint). Required.",
+            "example": 2
+          },
+          "vastgesteldDoor": {
+            "title": "Enacted by",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "description": "Reference to the Decision that enacted this version (besluit tot statutenwijziging, vaststellingsbesluit, ALV-besluit). CONDITIONALLY REQUIRED (REQ-GDR-002): mandatory for every version of a document that already has at least one sealed version; only the first (constitutive/historical) version MAY omit it. This cross-object conditional-required cannot be expressed as a JSON Schema constraint (no anyOf/allOf/oneOf in an OR register schema), so it is enforced at save time by GoverningDocumentConsolidationService."
+          },
+          "inwerkingtreding": {
+            "title": "Effective date",
+            "type": "string",
+            "format": "date",
+            "facetable": true,
+            "description": "Date on which this version takes effect. REQUIRED before the version is sealed to in-werking (activation-time requirement, enforced save-time — not a create-time schema requirement, so a concept version may exist briefly without it). Drives the in-force resolution (REQ-GDR-004): the version in force on date X is the one with the latest inwerkingtreding <= X whose state is in-werking or vervangen-after-X and whose vervaldatum (if set) is after X.",
+            "example": "2022-01-01"
+          },
+          "vervaldatum": {
+            "title": "Expiry date",
+            "type": "string",
+            "format": "date",
+            "facetable": true,
+            "description": "Optional date on which this version ceases to be in force. Empty means it stays in force until superseded by a later version.",
+            "example": "2030-01-01"
+          },
+          "toelichting": {
+            "title": "Explanatory note",
+            "type": "string",
+            "description": "Summary of what this version changes relative to the previous one; for a constitutive first version, documents its origin. Internal annotation — never exposed in the public payload (REQ-GDR-007)."
+          },
+          "aktedatum": {
+            "title": "Deed date",
+            "type": "string",
+            "format": "date",
+            "description": "Optional notarial-deed date, for notarially enacted documents (statuten, splitsingsakte). Plain metadata — no KNB/notary-system integration.",
+            "example": "2021-12-15"
+          },
+          "notaris": {
+            "title": "Notary",
+            "type": "string",
+            "description": "Optional notary name (name only) for notarially enacted documents. PII — structurally stripped from any public payload (REQ-GDR-007).",
+            "example": "mr. A. de Wit"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string",
+            "facetable": true,
+            "description": "Version lifecycle status (declared in x-openregister-lifecycle, ADR-031): concept → vastgesteld → in-werking → vervangen | vervallen. The in-werking transition seals the version (REQ-GDR-003) and fires the new-effective-version notification (REQ-GDR-008). vervangen and vervallen are terminal.",
+            "enum": [
+              "concept",
+              "vastgesteld",
+              "in-werking",
+              "vervangen",
+              "vervallen"
+            ],
+            "example": "in-werking"
+          }
+        }
+      },
+      "Decision": {
+        "slug": "decision",
+        "version": "0.7.0",
+        "description": "Additive delta (ADR-037 fragment-located additive pattern): this fragment merges only the optional citesGoverningDocuments property onto the existing decision schema. No required field is added and no existing property is modified, so decisions created before this change stay valid (REQ-GDR-005).",
+        "properties": {
+          "citesGoverningDocuments": {
+            "title": "Cited governing documents",
+            "type": "array",
+            "description": "Optional, additive (REQ-GDR-005): the canonical governing-document reference shape used by all consumers ({document, versie?, artikel?}). Lets a decision cite the governing-document article it is based on (e.g. a spoedbesluit citing the statuten article that permits urgency). The citation is assistive metadata: it MUST NOT block or gate any decision workflow, and it grants no read access to the cited document. The urgent-decision-procedure and vve-alv-pack siblings adopt this same shape; their wiring stays in those changes.",
+            "items": {
+              "type": "object",
+              "required": [
+                "document"
+              ],
+              "properties": {
+                "document": {
+                  "title": "Governing document",
+                  "type": "string",
+                  "format": "uuid",
+                  "$ref": "GoverningDocument",
+                  "description": "Required reference to the cited GoverningDocument."
+                },
+                "versie": {
+                  "title": "Governing document version",
+                  "type": "string",
+                  "format": "uuid",
+                  "$ref": "GoverningDocumentVersie",
+                  "description": "Optional reference to a specific sealed GoverningDocumentVersie. Omitted means 'the version in force at reading time' per the in-force resolution (REQ-GDR-004); a pinned versie gives the immutable-content guarantee (REQ-GDR-003)."
+                },
+                "artikel": {
+                  "title": "Article",
+                  "type": "string",
+                  "description": "Optional plain-string article reference, e.g. 'art. 14 lid 3'.",
+                  "example": "art. 20"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "P&C-cyclus (Planning & Control) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). PCCycli index + cyclus detail (year-view timeline) + step detail pages; schema refs BY SLUG (pc-cyclus / cyclus-stap), never PascalCase. The Dashboard 'P&C-stappen over deadline' stat widget lives in the base src/manifest.json (design D6: mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it). The cyclus-detail year-view timeline (design D7) is one custom widget; the plain step grid on the same page is the graceful-degradation fallback.",
+	"_spec": "openspec/changes/pc-cyclus/specs/pc-cyclus/spec.md",
+	"menu": [
+		{
+			"id": "PCCycli",
+			"label": "P&C cycles",
+			"icon": "icon-calendar-dark",
+			"route": "PCCycli",
+			"order": 52
+		}
+	],
+	"pages": [
+		{
+			"id": "PCCycli",
+			"route": "/pc-cycli",
+			"type": "index",
+			"title": "P&C cycles",
+			"_note": "spec: openspec/changes/pc-cyclus/specs/pc-cyclus/spec.md — REQ-PCC-009 PCCycli index. Columns name/year/governanceBody/progress; quick filters on year and governance body. Schema ref by slug (pc-cyclus).",
+			"config": {
+				"register": "decidesk",
+				"schema": "pc-cyclus",
+				"_note": "PCCycli list (REQ-PCC-009). Progress reads from the declarative completedStepCount/stepCount aggregations, never recomputed client-side.",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": true,
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "2026", "filter": { "year": 2026 } },
+					{ "label": "2027", "filter": { "year": 2027 } }
+				],
+				"columns": [
+					{ "key": "name", "label": "Name", "widget": "link" },
+					{ "key": "year", "label": "Year" },
+					{ "key": "governanceBody", "label": "Governance body" },
+					{ "key": "completedStepCount", "label": "Completed" },
+					{ "key": "stepCount", "label": "Steps" },
+					{ "key": "overdueStepCount", "label": "Overdue", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "PCCyclusDetail", "primary": true }
+				],
+				"showMassExport": true,
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "PCCyclusDetail",
+			"route": "/pc-cycli/:id",
+			"type": "detail",
+			"title": "P&C cycle",
+			"_note": "spec: openspec/changes/pc-cyclus/specs/pc-cyclus/spec.md — REQ-PCC-009 cyclus detail with a year-view timeline. Cyclus data leads; the step list renders as a plain related/grid fallback (graceful degradation, design D7). Progress from the declarative counters. Schema ref by slug (pc-cyclus).",
+			"config": {
+				"register": "decidesk",
+				"schema": "pc-cyclus",
+				"_note": "PCCyclusDetail (REQ-PCC-009). The year-view timeline is a custom widget shipped in src/ (design D7); the Related widget lists the child CyclusStap objects in sequence order as the degrade-gracefully fallback. Progress (completedStepCount of stepCount) and overdueStepCount read from the REQ-PCC-001 declarative aggregations, never recomputed. No meeting/agenda/decision is created here.",
+				"widgets": [
+					{ "id": "cyclus-data", "type": "data", "title": "P&C cycle", "icon": "CalendarMonthOutline", "content": { "columns": 2 } },
+					{ "id": "cyclus-steps", "type": "related", "title": "Steps", "icon": "CalendarCheckOutline" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "cyclus-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "2", "widgetId": "cyclus-steps", "gridX": 0, "gridY": 4, "gridWidth": 12, "gridHeight": 6 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		},
+		{
+			"id": "CyclusStapDetail",
+			"route": "/cyclus-stappen/:id",
+			"type": "detail",
+			"title": "P&C step",
+			"_note": "spec: openspec/changes/pc-cyclus/specs/pc-cyclus/spec.md — REQ-PCC-009 step detail. All step fields, document slots with their delivered files, and the behandeling links (agendaItem / decision) as navigable references. Schema ref by slug (cyclus-stap).",
+			"config": {
+				"register": "decidesk",
+				"schema": "cyclus-stap",
+				"_note": "CyclusStapDetail (REQ-PCC-003/007/009). Step data leads 8-wide; document slots and their delivered FileService files in the Files leaf; the linked cyclus/agendaItem/decision/besluitvormendOrgaan/behandelendeCommissie render as resolved references in the data + Related widgets. Status is declared in x-openregister-lifecycle. Audit trail is a sidebar tab.",
+				"widgets": [
+					{ "id": "stap-data", "type": "data", "title": "P&C step", "icon": "CalendarCheckOutline", "content": { "columns": 2 } },
+					{ "id": "stap-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "stap-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "stap-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "stap-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
+					{ "id": "3", "widgetId": "stap-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidesk.conduction.nl"
+			}
+		}
+	]
+}
