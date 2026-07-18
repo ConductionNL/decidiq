@@ -155,8 +155,7 @@
               }
             },
             "authenticated"
-          ],
-          "_note": "REQ-GDR-007: internal (member) by default; public read only when the isPublic predicate on the live object is true — the same predicate-on-live-object posture as the decision isPublished field. The document object carries only non-PII metadata (type, citeertitel, omschrijving, governingBody, isPublic, status), so exposing the whole live object is safe. The notaris name, toelichting, and concept versions live on GoverningDocumentVersie, which carries no public authorization (member-only). DIALECT GAP (imperative, out of declarative scope): the server-side eligibility rule 'no public exposure unless a sealed current version exists' and the derived public view of the sealed version's inwerkingtreding + consolidated text are enforced by the published-predicate surface / consolidation service, not by this declarative predicate."
+          ]
         },
         "required": [
           "type",

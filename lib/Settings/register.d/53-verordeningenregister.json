@@ -150,8 +150,7 @@
               }
             },
             "authenticated"
-          ],
-          "_note": "Public register of regelingen in force (REQ-VOR-005). Only status in-werking is anonymously readable; in-voorbereiding/vastgesteld/vervallen never appear in the public listing. Server-side eligibility via the OpenRegister published-predicate — no client-trusted check. A vervallen regeling drops out of the in-force listing while its historical versions stay resolvable via REQ-VOR-004."
+          ]
         },
         "required": [
           "type",
@@ -422,8 +421,7 @@
               }
             },
             "authenticated"
-          ],
-          "_note": "Public exposure of the current consolidated version (REQ-VOR-005). Only status in-werking (sealed) versions are anonymously readable through the published-predicate; concept/vastgesteld/vervangen/vervallen versions are structurally excluded so draft versions and their consolidated texts never leak (REQ-VOR-005 scenario 'Draft versions never leak')."
+          ]
         }
       },
       "RegelingExportPackage": {
