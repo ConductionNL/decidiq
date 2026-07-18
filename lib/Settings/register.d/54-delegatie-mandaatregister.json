@@ -225,41 +225,6 @@
           "geldigVanaf",
           "status"
         ],
-        "allOf": [
-          {
-            "anyOf": [
-              {
-                "required": [
-                  "delegans"
-                ]
-              },
-              {
-                "required": [
-                  "delegansOmschrijving"
-                ]
-              }
-            ]
-          },
-          {
-            "anyOf": [
-              {
-                "required": [
-                  "delegatarisBody"
-                ]
-              },
-              {
-                "required": [
-                  "delegatarisFunctie"
-                ]
-              },
-              {
-                "required": [
-                  "delegatarisPersoon"
-                ]
-              }
-            ]
-          }
-        ],
         "properties": {
           "type": {
             "title": "Type",
