@@ -19,6 +19,10 @@ define('PHPUNIT_RUN', 1);
 // Include Composer's autoloader.
 // Also register OCP namespace from vendor for standalone runs (no Nextcloud server present).
 $autoloader = require __DIR__.'/../vendor/autoload.php';
+// OpenRegister test stubs are registered here (test-time only), NOT via composer
+// autoload-dev — a dev-built vendor would otherwise bake these OCA\OpenRegister\*
+// stubs into the runtime classmap and shadow the real classes (openregister#2036).
+$autoloader->addPsr4('OCA\\OpenRegister\\', __DIR__.'/Stubs/');
 if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
     $autoloader->addPsr4('OCP\\', __DIR__.'/../vendor/nextcloud/ocp/OCP/');
     $autoloader->addPsr4('NCU\\', __DIR__.'/../vendor/nextcloud/ocp/NCU/');

@@ -19,6 +19,15 @@ define('PHPUNIT_RUN', 1);
 // Include Composer's autoloader and register OCP namespace for standalone test runs.
 $autoloader = require __DIR__.'/../vendor/autoload.php';
 
+// Register the OpenRegister test-stub namespace at test time ONLY. These stubs are
+// deliberately NOT registered via composer autoload-dev: a dev-built vendor bakes
+// autoload-dev into the runtime classmap, and OCA\OpenRegister\* stubs then shadow
+// the REAL OpenRegister classes instance-wide (see openregister#2036 / hermiq#21).
+// Registering here keeps them available for phpunit without ever entering the app's
+// runtime autoloader. Loading stays lazy, so OCP is fully registered before any stub
+// (which extends OCP\...\Event) is actually loaded.
+$autoloader->addPsr4('OCA\\OpenRegister\\', __DIR__.'/Stubs/');
+
 // Register OCP\ and NCU\ namespaces.
 // vendor/nextcloud/ocp/OCP is a symlink to the live NC server (/var/www/html/lib/public)
 // that resolves on a deployed instance but is broken in the bare php:8.3-cli CI container.
