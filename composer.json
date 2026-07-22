@@ -14,11 +14,6 @@
 			"OCA\\Decidesk\\": "lib/"
 		}
 	},
-	"autoload-dev": {
-		"psr-4": {
-			"OCA\\OpenRegister\\": "tests/Stubs/"
-		}
-	},
 	"require": {
 		"php": "^8.3"
 	},
