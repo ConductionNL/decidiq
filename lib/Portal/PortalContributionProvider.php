@@ -49,6 +49,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Portal;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+
 /**
  * Declares what an external portal subject may see and do in Decidesk.
  *
@@ -71,6 +74,7 @@ namespace OCA\Decidesk\Portal;
  * parent by the flat create vocabulary — see design.md "Deferred creates".
  *
  * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-citizen-create-actions/spec.md
  */
 class PortalContributionProvider
 {
@@ -166,95 +170,202 @@ class PortalContributionProvider
      * - `citizenNotifications` (`notification`, scope `recipientId`,
      *   `kind: 'inbox'`) — the citizen's own notification inbox.
      *
-     * `actions` is empty (both creates deferred) and `notifications` is empty
-     * (the manifest-level dispatch key, distinct from the inbox collection).
+     * `actions` carries two `type: create` entries (portal-citizen-create-actions,
+     * REQ-DKPCA-001/002/003/004), each `minTrust: low`:
+     *
+     * - `createReaction` (`consultation-reaction`) — client whitelist
+     *   `{consultation, body}`; the scope field `submitterId` is stamped from the
+     *   resolved subjectRef by portaliq's writer (never client-writable), and
+     *   `defaults` stamps the intake state `moderationStatus: 'pending'` plus
+     *   `submittedAt` (now) server-side, over the whitelist. `parentConstraint`
+     *   declares (and Decidesk's `PortalCreateOpenParentGuardListener` enforces,
+     *   fail-closed) that the parent `PublicConsultation` must be `status: 'open'`.
+     * - `createBudgetProposal` (`budget-proposal`) — client whitelist
+     *   `{participatoryBudget, title, description, requestedAmount, category}`;
+     *   scope field `submitter` is stamped from subjectRef; `defaults` stamps
+     *   `status: 'submitted'` (no `submittedAt` — the schema has none).
+     *   `parentConstraint` requires the parent `ParticipatoryBudget` to be
+     *   `status: 'submission'`.
+     *
+     * Neither whitelist EVER carries the scope field or a lifecycle/staff-only
+     * field (`moderationReason`, `publicatiedatum`, `depublicatiedatum`,
+     * `voteCount`, `votesFor`, `votesAgainst`) — closing the write-IDOR class
+     * filed as portaliq#16. Portaliq's shared create receiver (contract v2.2)
+     * consumes `scopeField` + `defaults`; it does not read `parentConstraint`, so
+     * the open-parent invariant is ALSO enforced server-side by Decidesk (see
+     * `PortalCreateOpenParentGuardListener`'s docblock for why identification is
+     * field-signature based rather than schema-slug based).
+     *
+     * `notifications` stays empty (the manifest-level dispatch key, distinct
+     * from the inbox collection).
      *
      * @return array<string, mixed> The citizen manifest.
      *
      * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+     * @spec openspec/specs/portal-citizen-create-actions/spec.md
      */
     private function citizenContribution(): array
     {
         return [
             'label'         => self::LABEL,
-            'collections'   => [
-                [
-                    'id'         => 'citizenReactions',
-                    'register'   => self::REGISTER,
-                    'schema'     => 'consultation-reaction',
-                    'scopeField' => 'submitterId',
-                    'label'      => 'My consultation reactions',
-                    'listable'   => true,
-                    'minTrust'   => 'low',
-                    'fields'     => [
-                        'body',
-                        'submittedAt',
-                        'moderationStatus',
-                        'voteCount',
-                        'proposalTitle',
-                        'proposalAmount',
-                    ],
-                ],
-                [
-                    'id'         => 'citizenVotes',
-                    'register'   => self::REGISTER,
-                    'schema'     => 'citizen-vote',
-                    'scopeField' => 'voterId',
-                    'label'      => 'My votes',
-                    'listable'   => true,
-                    'minTrust'   => 'low',
-                    'fields'     => [
-                        'voteValue',
-                        'motionId',
-                        'proposalId',
-                        'citizenPanelId',
-                        'weight',
-                        'isProxy',
-                        'castAt',
-                        'notes',
-                    ],
-                ],
-                [
-                    'id'         => 'citizenBudgetProposals',
-                    'register'   => self::REGISTER,
-                    'schema'     => 'budget-proposal',
-                    'scopeField' => 'submitter',
-                    'label'      => 'My budget proposals',
-                    'listable'   => true,
-                    'minTrust'   => 'low',
-                    'fields'     => [
-                        'title',
-                        'description',
-                        'requestedAmount',
-                        'category',
-                        'status',
-                        'votesFor',
-                        'votesAgainst',
-                    ],
-                ],
-                [
-                    'id'         => 'citizenNotifications',
-                    'register'   => self::REGISTER,
-                    'schema'     => 'notification',
-                    'scopeField' => 'recipientId',
-                    'kind'       => 'inbox',
-                    'label'      => 'My notifications',
-                    'listable'   => true,
-                    'minTrust'   => 'low',
-                    'fields'     => [
-                        'type',
-                        'subject',
-                        'content',
-                        'channel',
-                        'status',
-                        'sentAt',
-                        'readAt',
-                    ],
-                ],
-            ],
-            'actions'       => [],
+            'collections'   => $this->citizenCollections(),
+            'actions'       => $this->citizenActions(),
             'notifications' => [],
         ];
 
     }//end citizenContribution()
+
+    /**
+     * The four read/inbox collections on the `citizen` manifest (see
+     * {@see citizenContribution()} for the documented scoping/projection
+     * rationale).
+     *
+     * @return array<int, array<string, mixed>>
+     *
+     * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+     */
+    private function citizenCollections(): array
+    {
+        return [
+            [
+                'id'         => 'citizenReactions',
+                'register'   => self::REGISTER,
+                'schema'     => 'consultation-reaction',
+                'scopeField' => 'submitterId',
+                'label'      => 'My consultation reactions',
+                'listable'   => true,
+                'minTrust'   => 'low',
+                'fields'     => [
+                    'body',
+                    'submittedAt',
+                    'moderationStatus',
+                    'voteCount',
+                    'proposalTitle',
+                    'proposalAmount',
+                ],
+            ],
+            [
+                'id'         => 'citizenVotes',
+                'register'   => self::REGISTER,
+                'schema'     => 'citizen-vote',
+                'scopeField' => 'voterId',
+                'label'      => 'My votes',
+                'listable'   => true,
+                'minTrust'   => 'low',
+                'fields'     => [
+                    'voteValue',
+                    'motionId',
+                    'proposalId',
+                    'citizenPanelId',
+                    'weight',
+                    'isProxy',
+                    'castAt',
+                    'notes',
+                ],
+            ],
+            [
+                'id'         => 'citizenBudgetProposals',
+                'register'   => self::REGISTER,
+                'schema'     => 'budget-proposal',
+                'scopeField' => 'submitter',
+                'label'      => 'My budget proposals',
+                'listable'   => true,
+                'minTrust'   => 'low',
+                'fields'     => [
+                    'title',
+                    'description',
+                    'requestedAmount',
+                    'category',
+                    'status',
+                    'votesFor',
+                    'votesAgainst',
+                ],
+            ],
+            [
+                'id'         => 'citizenNotifications',
+                'register'   => self::REGISTER,
+                'schema'     => 'notification',
+                'scopeField' => 'recipientId',
+                'kind'       => 'inbox',
+                'label'      => 'My notifications',
+                'listable'   => true,
+                'minTrust'   => 'low',
+                'fields'     => [
+                    'type',
+                    'subject',
+                    'content',
+                    'channel',
+                    'status',
+                    'sentAt',
+                    'readAt',
+                ],
+            ],
+        ];
+
+    }//end citizenCollections()
+
+    /**
+     * The two `type: create` actions on the `citizen` manifest (see
+     * {@see citizenContribution()} for the documented whitelist/stamp/
+     * parentConstraint rationale, portal-citizen-create-actions
+     * REQ-DKPCA-001/002).
+     *
+     * @return array<int, array<string, mixed>>
+     *
+     * @spec openspec/specs/portal-citizen-create-actions/spec.md
+     */
+    private function citizenActions(): array
+    {
+        return [
+            [
+                'id'               => 'createReaction',
+                'type'             => 'create',
+                'label'            => 'React to this consultation',
+                'register'         => self::REGISTER,
+                'schema'           => 'consultation-reaction',
+                'scopeField'       => 'submitterId',
+                'minTrust'         => 'low',
+                'fields'           => [
+                    'consultation',
+                    'body',
+                ],
+                'defaults'         => [
+                    'moderationStatus' => 'pending',
+                    'submittedAt'      => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+                ],
+                'parentConstraint' => [
+                    'field'        => 'consultation',
+                    'parentSchema' => 'public-consultation',
+                    'statusField'  => 'status',
+                    'statusValue'  => 'open',
+                ],
+            ],
+            [
+                'id'               => 'createBudgetProposal',
+                'type'             => 'create',
+                'label'            => 'Submit a budget proposal',
+                'register'         => self::REGISTER,
+                'schema'           => 'budget-proposal',
+                'scopeField'       => 'submitter',
+                'minTrust'         => 'low',
+                'fields'           => [
+                    'participatoryBudget',
+                    'title',
+                    'description',
+                    'requestedAmount',
+                    'category',
+                ],
+                'defaults'         => [
+                    'status' => 'submitted',
+                ],
+                'parentConstraint' => [
+                    'field'        => 'participatoryBudget',
+                    'parentSchema' => 'participatory-budget',
+                    'statusField'  => 'status',
+                    'statusValue'  => 'submission',
+                ],
+            ],
+        ];
+
+    }//end citizenActions()
 }//end class
