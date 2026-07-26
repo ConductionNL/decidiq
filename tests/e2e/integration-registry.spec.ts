@@ -8,8 +8,9 @@
  *
  * Walks the user from an authenticated NC home → decidesk → meeting
  * integrations page → asserts:
- *   1. window.OCA.OpenRegister.integrations.list() exposes 24
- *      registered providers (5 built-ins + 1 xwiki + 18 leaves).
+ *   1. window.OCA.OpenRegister.integrations.list() exposes 29
+ *      registered providers (5 built-ins + 1 xwiki + 20 component
+ *      leaves + 3 renderMode:'mount' leaves).
  *   2. <CnObjectSidebar :use-registry="true"> mounts one tab per
  *      registered provider (DOM check on `[role="tab"]` inside the
  *      sidebar — 24 tabs total).
@@ -45,13 +46,25 @@ const LEAF_IDS = [
 	'openproject', 'bookmarks', 'collectives', 'maps', 'photos',
 	'activity', 'analytics', 'cospend', 'deck', 'flow',
 	'forms', 'polls', 'time-tracker',
+	// Added since the original 24-provider baseline (both render a
+	// tab + widget Vue component, i.e. renderMode:'component').
+	'field-inspection', 'version-history',
 ] as const
 
 const BUILTIN_IDS = ['files', 'notes', 'tags', 'tasks', 'audit-trail'] as const
 const EXTERNAL_IDS = ['xwiki'] as const
 
-const EXPECTED_IDS = [...BUILTIN_IDS, ...EXTERNAL_IDS, ...LEAF_IDS]
-const EXPECTED_COUNT = EXPECTED_IDS.length // 24
+/**
+ * Mount-mode / capability leaves: renderMode:'mount'. These register a
+ * provider but expose `mount()`/`unmount()` instead of a `tab` + `widget`
+ * Vue component (decidesk PR #360 flipped the OR decisions leaf to
+ * renderMode:'mount'). They therefore do NOT satisfy the tab+widget parity
+ * gate — the gate below asserts a `mount` function for them instead.
+ */
+const MOUNT_IDS = ['decidesk-decisions', 'hermiq-agent', 'sync-contract'] as const
+
+const EXPECTED_IDS = [...BUILTIN_IDS, ...EXTERNAL_IDS, ...LEAF_IDS, ...MOUNT_IDS]
+const EXPECTED_COUNT = EXPECTED_IDS.length // 29
 
 /**
  * Ensure an authenticated NC session.
@@ -177,7 +190,7 @@ test.describe('Integration registry — JS registration', () => {
 		await login(page)
 	})
 
-	test('window.OCA.OpenRegister.integrations.list() exposes 24 providers', async ({ page }) => {
+	test('window.OCA.OpenRegister.integrations.list() exposes 29 providers', async ({ page }) => {
 		await page.goto('/apps/decidesk/')
 		// Give the main bundle time to install the registry +
 		// register the leaves.
@@ -200,20 +213,28 @@ test.describe('Integration registry — JS registration', () => {
 		}
 	})
 
-	test('every leaf carries both tab + widget Vue components (parity gate)', async ({ page }) => {
+	test('every leaf carries its render surface (component ⇒ tab+widget, mount ⇒ mount fn)', async ({ page }) => {
 		await page.goto('/apps/decidesk/')
 		await waitForRegistry(page)
 
 		const providers = await page.evaluate(() => {
-			const reg = (window as Window & { OCA?: { OpenRegister?: { integrations?: { list?: () => Array<{ id: string, tab: unknown, widget: unknown }> } } } })
+			const reg = (window as Window & { OCA?: { OpenRegister?: { integrations?: { list?: () => Array<{ id: string, tab: unknown, widget: unknown, mount: unknown, renderMode?: string }> } } } })
 				.OCA?.OpenRegister?.integrations
-			return reg && reg.list ? reg.list().map((p) => ({ id: p.id, hasTab: !!p.tab, hasWidget: !!p.widget })) : []
+			return reg && reg.list
+				? reg.list().map((p) => ({ id: p.id, hasTab: !!p.tab, hasWidget: !!p.widget, hasMount: typeof p.mount === 'function', renderMode: p.renderMode }))
+				: []
 		})
 		test.skip(providers.length === 0, 'integration registry not initialised')
 
 		for (const p of providers) {
-			expect(p.hasTab, `${p.id}.tab`).toBe(true)
-			expect(p.hasWidget, `${p.id}.widget`).toBe(true)
+			if (p.renderMode === 'mount') {
+				// renderMode:'mount' leaves render via mount()/unmount(), not a
+				// tab + widget Vue component — assert the mount hook instead.
+				expect(p.hasMount, `${p.id}.mount (renderMode:'mount')`).toBe(true)
+			} else {
+				expect(p.hasTab, `${p.id}.tab`).toBe(true)
+				expect(p.hasWidget, `${p.id}.widget`).toBe(true)
+			}
 		}
 	})
 })

@@ -86,6 +86,10 @@ async function openVotingRoundTab(page: Page, motionId: string): Promise<boolean
 
 // @e2e openspec/specs/voting-system/spec.md#configure-voting-rules-when-opening-a-round
 test('open-round dialog offers threshold, abstention and tie-break selectors with the documented defaults', async ({ page }) => {
+	// Headroom: seeding (2 API creates) + navigation + the tab-detection waits
+	// can exceed the default 30s under shared-instance load, which would hard-fail
+	// the test before its defensive test.skip (deploy-mismatch) path completes.
+	test.setTimeout(90_000)
 	const api = await newApiContext()
 	let meetingId: string | null = null
 	let motionId: string | null = null
@@ -157,6 +161,7 @@ test('open-round dialog offers threshold, abstention and tie-break selectors wit
 
 // @e2e openspec/specs/voting-system/spec.md#display-active-rules-and-computed-base
 test('closed-round result shows the active rules and the computed base', async ({ page }) => {
+	test.setTimeout(90_000)
 	const api = await newApiContext()
 	let motionId: string | null = null
 	let roundId: string | null = null
@@ -207,6 +212,7 @@ test('closed-round result shows the active rules and the computed base', async (
 
 // @e2e openspec/specs/voting-system/spec.md#display-active-rules-and-computed-base
 test('live tally shows the active rules and the computed base while the round is open', async ({ page }) => {
+	test.setTimeout(90_000)
 	const api = await newApiContext()
 	let motionId: string | null = null
 	let roundId: string | null = null
