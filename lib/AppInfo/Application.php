@@ -739,7 +739,7 @@ class Application extends App implements IBootstrap
         // The alias key 'OCA\OpenRegister\Mcp\IMcpToolProvider::decidesk' is the format
         // that OR's McpToolsService enumerates to discover per-app providers (design D3).
         // The interface ships in openregister PR #1466 (ai-chat-companion-orchestrator).
-        // @spec openspec/specs/mcp-tools/spec.md
+        // @spec openspec/specs/mcp-tools/spec.md.
         $context->registerServiceAlias(
             'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::decidesk',
             DecideskToolProvider::class
@@ -1095,6 +1095,26 @@ class Application extends App implements IBootstrap
         $context->registerEventListener(
             event: ObjectCreatingEvent::class,
             listener: \OCA\Decidesk\Listener\SubmissionDeadlineListener::class
+        );
+
+        // Portal citizen create-actions open-parent guard
+        // (portal-citizen-create-actions, REQ-DKPCA-001/002): rejects a
+        // consultation-reaction/budget-proposal create whose parent
+        // consultation/budget round is not open, closing the gap left by
+        // portaliq's shared create receiver (which stamps scope + defaults
+        // but does not enforce a declared parentConstraint).
+        $context->registerService(
+            \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener::class,
+            static function ($c): \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener {
+                return new \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener(
+                    container: $c->get(\Psr\Container\ContainerInterface::class),
+                    logger: $c->get(\Psr\Log\LoggerInterface::class),
+                );
+            }
+        );
+        $context->registerEventListener(
+            event: ObjectCreatingEvent::class,
+            listener: \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener::class
         );
 
         // Voting deadline reminder sweep (hourly job in appinfo/info.xml).

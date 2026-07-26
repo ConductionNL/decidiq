@@ -141,7 +141,7 @@ final class PortalContributionProviderTest extends TestCase
 
         self::assertIsArray(actual: $manifest);
         self::assertSame(expected: 'Decidesk', actual: $manifest['label']);
-        self::assertSame(expected: [], actual: $manifest['actions'], message: 'No create/endpoint actions this wave');
+        self::assertCount(expectedCount: 2, haystack: $manifest['actions'], message: 'Exactly createReaction + createBudgetProposal this wave');
         self::assertSame(expected: [], actual: $manifest['notifications'], message: 'No manifest-level notification dispatch this wave');
 
         $byId = [];
@@ -227,6 +227,132 @@ final class PortalContributionProviderTest extends TestCase
     }//end testOnlyNotificationsCollectionIsInbox()
 
     /**
+     * The citizen manifest declares exactly `createReaction` and
+     * `createBudgetProposal`, both `type: create`, both `minTrust: low`
+     * (REQ-DKPCA-004).
+     *
+     * @return void
+     */
+    public function testCitizenManifestDeclaresExactlyTheTwoCreateActions(): void
+    {
+        $actionsById = $this->actionsById();
+
+        self::assertSame(
+            expected: ['createReaction', 'createBudgetProposal'],
+            actual: array_keys($actionsById),
+            message: 'Exactly the two documented citizen create actions, in order'
+        );
+
+        foreach ($actionsById as $action) {
+            self::assertSame(expected: 'create', actual: $action['type']);
+            self::assertSame(expected: 'low', actual: $action['minTrust'], message: 'Account-less participation is the point');
+            self::assertSame(expected: 'decidesk', actual: $action['register']);
+        }
+
+    }//end testCitizenManifestDeclaresExactlyTheTwoCreateActions()
+
+    /**
+     * `createReaction` (REQ-DKPCA-001): exact client whitelist, scope field +
+     * defaults stamp the intake state, parent constraint requires an open
+     * consultation.
+     *
+     * @return void
+     */
+    public function testCreateReactionActionShape(): void
+    {
+        $action = $this->actionsById()['createReaction'];
+
+        self::assertSame(expected: 'consultation-reaction', actual: $action['schema']);
+        self::assertSame(expected: 'submitterId', actual: $action['scopeField'], message: 'Scope is stamped from subjectRef, never client-writable');
+        self::assertSame(expected: ['consultation', 'body'], actual: $action['fields']);
+        self::assertSame(expected: 'pending', actual: $action['defaults']['moderationStatus']);
+        self::assertArrayHasKey(key: 'submittedAt', array: $action['defaults']);
+        self::assertNotSame(expected: '', actual: $action['defaults']['submittedAt']);
+
+        foreach (['submitterId', 'moderationStatus', 'moderationReason', 'publicatiedatum', 'depublicatiedatum', 'voteCount'] as $forbidden) {
+            self::assertNotContains(needle: $forbidden, haystack: $action['fields'], message: "createReaction must never client-whitelist {$forbidden}");
+        }
+
+        self::assertSame(
+            expected: [
+                'field'        => 'consultation',
+                'parentSchema' => 'public-consultation',
+                'statusField'  => 'status',
+                'statusValue'  => 'open',
+            ],
+            actual: $action['parentConstraint']
+        );
+
+    }//end testCreateReactionActionShape()
+
+    /**
+     * `createBudgetProposal` (REQ-DKPCA-002): exact client whitelist, scope
+     * field + defaults stamp the intake state (no `submittedAt` — the schema
+     * has none), parent constraint requires a submission-phase budget round.
+     *
+     * @return void
+     */
+    public function testCreateBudgetProposalActionShape(): void
+    {
+        $action = $this->actionsById()['createBudgetProposal'];
+
+        self::assertSame(expected: 'budget-proposal', actual: $action['schema']);
+        self::assertSame(expected: 'submitter', actual: $action['scopeField'], message: 'Scope is stamped from subjectRef, never client-writable');
+        self::assertSame(
+            expected: ['participatoryBudget', 'title', 'description', 'requestedAmount', 'category'],
+            actual: $action['fields']
+        );
+        self::assertSame(expected: ['status' => 'submitted'], actual: $action['defaults'], message: 'No submittedAt — budget-proposal has no such property');
+
+        foreach (['submitter', 'status', 'votesFor', 'votesAgainst'] as $forbidden) {
+            self::assertNotContains(needle: $forbidden, haystack: $action['fields'], message: "createBudgetProposal must never client-whitelist {$forbidden}");
+        }
+
+        self::assertSame(
+            expected: [
+                'field'        => 'participatoryBudget',
+                'parentSchema' => 'participatory-budget',
+                'statusField'  => 'status',
+                'statusValue'  => 'submission',
+            ],
+            actual: $action['parentConstraint']
+        );
+
+    }//end testCreateBudgetProposalActionShape()
+
+    /**
+     * Write-IDOR / lifecycle invariant (REQ-DKPCA-003): the scope field and
+     * every staff-only field are always in the server-side stamp
+     * (`scopeField`/`defaults`), never in either action's client whitelist —
+     * and a non-`citizen` audience still returns null.
+     *
+     * @return void
+     */
+    public function testScopeAndStaffFieldsAreNeverClientWhitelisted(): void
+    {
+        $staffOnly = ['moderationReason', 'publicatiedatum', 'depublicatiedatum', 'voteCount', 'votesFor', 'votesAgainst'];
+
+        foreach ($this->actionsById() as $actionId => $action) {
+            self::assertNotContains(
+                needle: $action['scopeField'],
+                haystack: $action['fields'],
+                message: "{$actionId}: scope field must never be client-writable"
+            );
+
+            foreach ($staffOnly as $forbidden) {
+                self::assertNotContains(
+                    needle: $forbidden,
+                    haystack: $action['fields'],
+                    message: "{$actionId}: staff-only field '{$forbidden}' must never be client-writable"
+                );
+            }
+        }
+
+        self::assertNull(actual: $this->provider->getContribution(['audience' => 'client']));
+
+    }//end testScopeAndStaffFieldsAreNeverClientWhitelisted()
+
+    /**
      * Register-drift pin: every scopeField and every projected field exists as a
      * property on the declared schema in the shipped register JSON at HEAD.
      *
@@ -260,6 +386,61 @@ final class PortalContributionProviderTest extends TestCase
     }//end testManifestMatchesShippedRegisterSchemas()
 
     /**
+     * Register-drift pin for the create actions (REQ-DKPCA-001/002, tasks.md
+     * T07): every whitelisted + stamped field exists on the shipped schema,
+     * and each parent schema's status enum includes the required open state.
+     *
+     * @return void
+     */
+    public function testCreateActionsMatchShippedRegisterSchemas(): void
+    {
+        $schemas = $this->schemasBySlug();
+
+        foreach ($this->actionsById() as $actionId => $action) {
+            $slug = $action['schema'];
+            self::assertArrayHasKey(key: $slug, array: $schemas, message: "Schema slug '{$slug}' must exist in the register");
+
+            $properties = ($schemas[$slug]['properties'] ?? []);
+
+            self::assertArrayHasKey(
+                key: $action['scopeField'],
+                array: $properties,
+                message: "{$actionId}: scopeField '{$action['scopeField']}' must exist on schema '{$slug}'"
+            );
+
+            foreach ($action['fields'] as $field) {
+                self::assertArrayHasKey(
+                    key: $field,
+                    array: $properties,
+                    message: "{$actionId}: whitelisted field '{$field}' must exist on schema '{$slug}'"
+                );
+            }
+
+            foreach (array_keys($action['defaults']) as $field) {
+                self::assertArrayHasKey(
+                    key: $field,
+                    array: $properties,
+                    message: "{$actionId}: stamped default field '{$field}' must exist on schema '{$slug}'"
+                );
+            }
+
+            $constraint    = $action['parentConstraint'];
+            $parentSlug    = $constraint['parentSchema'];
+            $parentSchema  = ($schemas[$parentSlug] ?? null);
+            self::assertNotNull(actual: $parentSchema, message: "Parent schema slug '{$parentSlug}' must exist in the register");
+
+            $statusProperty = ($parentSchema['properties'][$constraint['statusField']] ?? null);
+            self::assertIsArray(actual: $statusProperty, message: "Parent schema '{$parentSlug}' must declare a '{$constraint['statusField']}' property");
+            self::assertContains(
+                needle: $constraint['statusValue'],
+                haystack: ($statusProperty['enum'] ?? []),
+                message: "Parent schema '{$parentSlug}' status enum must include '{$constraint['statusValue']}'"
+            );
+        }//end foreach
+
+    }//end testCreateActionsMatchShippedRegisterSchemas()
+
+    /**
      * Resolve the citizen manifest's collections keyed by their id.
      *
      * @return array<string, array<string, mixed>>
@@ -275,6 +456,23 @@ final class PortalContributionProviderTest extends TestCase
         return $byId;
 
     }//end collectionsById()
+
+    /**
+     * Resolve the citizen manifest's create actions keyed by their id.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function actionsById(): array
+    {
+        $manifest = $this->provider->getContribution(self::CITIZEN_SUBJECT);
+        $byId     = [];
+        foreach (($manifest['actions'] ?? []) as $action) {
+            $byId[$action['id']] = $action;
+        }
+
+        return $byId;
+
+    }//end actionsById()
 
     /**
      * Build a map of schema slug => property-name => property, from the shipped
@@ -303,4 +501,32 @@ final class PortalContributionProviderTest extends TestCase
         return $bySlug;
 
     }//end schemaPropertiesBySlug()
+
+    /**
+     * Build a map of schema slug => full schema definition (properties + enum
+     * metadata), from the shipped register JSON at HEAD.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function schemasBySlug(): array
+    {
+        $path = __DIR__.'/../../../lib/Settings/decidesk_register.json';
+        $json = file_get_contents(filename: $path);
+        self::assertNotFalse(condition: $json, message: 'Register JSON file must exist');
+
+        $register = json_decode(json: $json, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR);
+
+        $bySlug = [];
+        foreach (($register['components']['schemas'] ?? []) as $schema) {
+            $slug = ($schema['slug'] ?? '');
+            if ($slug === '') {
+                continue;
+            }
+
+            $bySlug[$slug] = $schema;
+        }
+
+        return $bySlug;
+
+    }//end schemasBySlug()
 }//end class
