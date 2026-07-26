@@ -69,7 +69,7 @@
 			</p>
 
 			<NcButton
-				type="primary"
+				variant="primary"
 				native-type="submit"
 				data-testid="series-generate"
 				:disabled="generating || preview.error !== null || preview.dates.length === 0"

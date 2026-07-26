@@ -68,7 +68,7 @@
 
 		<div class="user-settings-section__actions">
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="saving || channelError"
 				data-testid="notification-preferences-save"
 				@click="save">

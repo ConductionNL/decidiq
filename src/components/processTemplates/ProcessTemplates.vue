@@ -15,7 +15,7 @@
 		:description="t('decidesk', 'Define the state machine, voting rule and quorum policy a governance body follows. Built-in templates are read-only but can be duplicated.')">
 		<div data-testid="process-templates">
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="process-template-create"
 				@click="openCreate">
 				{{ t('decidesk', 'Create template') }}
@@ -53,7 +53,7 @@
 						</NcButton>
 						<NcButton
 							v-if="!tpl.builtIn"
-							type="error"
+							variant="error"
 							:aria-label="t('decidesk', 'Delete')"
 							data-testid="process-template-delete"
 							@click="remove(tpl)">

@@ -29,7 +29,7 @@
 					{{ assembling ? t('decidesk', 'Assembling…') : t('decidesk', 'Assemble meeting package') }}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="agenda-add-item"
 					:aria-label="t('decidesk', 'Add agenda item')"
 					@click="openCreate">

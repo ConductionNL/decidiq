@@ -17,6 +17,7 @@
 // installed (the common case in decidesk's own pages, where main.js calls
 // installIntegrationRegistry() first), register() lands live.
 
+import { createApp } from 'vue'
 import { translate as t } from '@nextcloud/l10n'
 import CnDecisionsTab from './CnDecisionsTab.vue'
 import CnDecisionsWidget from './CnDecisionsWidget.vue'
@@ -28,6 +29,80 @@ import CnDecisionsWidget from './CnDecisionsWidget.vue'
  * @type {string}
  */
 export const DECISIONS_INTEGRATION_ID = 'decidesk-decisions'
+
+/**
+ * Per-element registry of the Vue 3 app instances this leaf has mounted, so
+ * `unmount(el)` can find and destroy the right one. Keyed by the host-owned DOM
+ * element — NOT by leaf id — because the same leaf may be mounted into several
+ * elements on one page at once (e.g. a sidebar tab AND a detail-page widget),
+ * each its own instance (openregister#2127, "keyed by el").
+ *
+ * @type {Map<Element, import('vue').App>}
+ */
+const mountedApps = new Map()
+
+/**
+ * Surfaces that render the per-object decisions WIDGET rather than the full tab.
+ * The host forwards `surface` on the mount props (CnLeafMountHost): the object
+ * sidebar tab carries a single-entity/blank surface (→ the tab), while the
+ * detail-page and dashboard widget grids carry these.
+ *
+ * @type {string[]}
+ */
+const WIDGET_SURFACES = ['detail-page', 'app-dashboard', 'user-dashboard']
+
+/**
+ * Pick the root component for a mount off the host-forwarded `surface`.
+ *
+ * @param {string} [surface] The render surface the host is mounting into.
+ * @return {object} The Vue component to root at the element.
+ */
+function componentForSurface(surface) {
+	return WIDGET_SURFACES.includes(surface) ? CnDecisionsWidget : CnDecisionsTab
+}
+
+/**
+ * Mount hand-off (renderMode 'mount', ADR-066 / openregister#2127). decidesk is
+ * Vue 3 while a consuming OpenBuild/OpenRegister host may be Vue 2.7. A Vue-3 SFC
+ * handed to the host is interpreted under the host's own (incompatible) runtime
+ * and renders blank. Instead the host hands us a bare, host-owned DOM element and
+ * we root decidesk's OWN Vue 3 app at it with the forwarded object context as
+ * root props, so each side runs its own framework across the neutral DOM
+ * boundary. Idempotent per element.
+ *
+ * @param {Element} el    Host-owned container element to root the app at.
+ * @param {object}  props Forwarded context: { register, schema, objectId, surface, integrationContext, … }.
+ * @return {void}
+ */
+function mount(el, props) {
+	if (el === undefined || el === null || mountedApps.has(el) === true) {
+		return
+	}
+	const app = createApp(componentForSurface(props && props.surface), { ...(props || {}) })
+	// Global t/n install contract (ADR-066): the tab/widget SFCs call
+	// `this.t(...)`. In the app bundle main.js installs these; the leaf mounts
+	// its own app instance, so install them here too.
+	app.config.globalProperties.t = t
+	app.mount(el)
+	mountedApps.set(el, app)
+}
+
+/**
+ * Teardown hand-off. Destroy the Vue 3 app instance rooted at `el` and release
+ * the map entry so a mount/unmount cycle leaks no instance. Guarded against a
+ * double-unmount and an unknown element.
+ *
+ * @param {Element} el The container element previously passed to `mount`.
+ * @return {void}
+ */
+function unmount(el) {
+	const app = mountedApps.get(el)
+	if (app === undefined) {
+		return
+	}
+	mountedApps.delete(el)
+	app.unmount()
+}
 
 /**
  * The integration descriptor for the "Besluitvorming" leaf.
@@ -46,8 +121,13 @@ export const decisionsLeafDescriptor = {
 	// AD-18 marker: a schema property carrying referenceType:'decision'
 	// renders this leaf's single-entity surface.
 	referenceType: 'decision',
-	tab: CnDecisionsTab,
-	widget: CnDecisionsWidget,
+	// Vue 3 leaf under a possibly-Vue-2.7 host: render via the DOM mount
+	// hand-off, not an SFC the host would interpret under its own runtime
+	// (openregister#2127). `mount`/`unmount` travel as a pair; no `tab`/`widget`
+	// in mount mode — the host routes tab-vs-widget through the surface prop.
+	renderMode: 'mount',
+	mount,
+	unmount,
 	defaultSize: { w: 4, h: 3 },
 }
 

@@ -35,10 +35,9 @@
 				:aria-label="t('decidesk', 'Minutes lifecycle')" />
 
 			<div class="decidesk-tab__actions" data-testid="minutes-approval-actions">
-				<template v-for="action in actions">
+				<template v-for="action in actions" :key="action.action">
 					<NcButton
-						:key="action.action"
-						:type="action.action === 'reject' ? 'error' : 'primary'"
+						:variant="action.action === 'reject' ? 'error' : 'primary'"
 						:data-testid="`minutes-action-${action.action}`"
 						:disabled="working"
 						@click="runAction(action)">
@@ -91,7 +90,7 @@
 						<div v-if="correction.status === 'proposed'" class="decidesk-tab__correction-actions">
 							<NcButton
 								size="small"
-								type="primary"
+								variant="primary"
 								:disabled="working"
 								:aria-label="t('decidesk', 'Accept correction')"
 								@click="resolveCorrection(correction, 'accepted')">

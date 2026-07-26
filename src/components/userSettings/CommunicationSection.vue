@@ -18,7 +18,7 @@
 
 		<div class="user-settings-section__field">
 			<NcTextField
-				:value.sync="governanceEmail"
+				v-model="governanceEmail"
 				:label="t('decidesk', 'Governance email')"
 				:placeholder="accountEmailPlaceholder"
 				type="email"
@@ -30,7 +30,7 @@
 
 		<div class="user-settings-section__field">
 			<NcTextField
-				:value.sync="urgentPhone"
+				v-model="urgentPhone"
 				:label="t('decidesk', 'Phone for urgent matters')"
 				type="tel"
 				data-testid="communication-phone" />
@@ -52,7 +52,7 @@
 
 		<div class="user-settings-section__actions">
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="saving || !!validationError"
 				data-testid="communication-save"
 				@click="save">

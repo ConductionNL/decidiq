@@ -52,7 +52,7 @@
 					:key="action.action"
 					:disabled="busy"
 					:data-testid="'lifecycle-action-' + action.action"
-					type="secondary"
+					variant="secondary"
 					@click="applyTransition(action.action)">
 					{{ actionLabel(action.action) }}
 					<span v-if="action.chairOnly" class="decidesk-lifecycle__chair-hint">

@@ -17,7 +17,7 @@
 		<template #default>
 			<p>{{ t('decidesk', 'Rectification publishes a corrected new version and withdraws the current one in a single operation. The new version references the version it corrects.') }}</p>
 			<NcTextArea
-				:value.sync="reason"
+				v-model="reason"
 				data-testid="publication-rectify-reason"
 				:label="t('decidesk', 'Reason for the correction (optional)')"
 				:placeholder="t('decidesk', 'e.g. Corrected vote totals')"
@@ -25,7 +25,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="publication-rectify-confirm"
 				@click="$emit('confirm', reason.trim())">
 				{{ t('decidesk', 'Rectify') }}

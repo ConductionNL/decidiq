@@ -33,7 +33,7 @@
 		<template v-else-if="!minutes">
 			<p>{{ t('decidesk', 'No draft minutes exist for this meeting yet.') }}</p>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="minutes-panel-start"
 				:disabled="creating"
 				:aria-label="t('decidesk', 'Start taking minutes')"
@@ -152,7 +152,7 @@ export default {
 		this.fetchMinutes()
 	},
 	/** @spec exclude lifecycle teardown; flushes the pending autosave so no live notes are lost */
-	beforeDestroy() {
+	beforeUnmount() {
 		this.autosaver?.flush()
 	},
 	methods: {

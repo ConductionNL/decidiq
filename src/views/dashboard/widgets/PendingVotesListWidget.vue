@@ -42,7 +42,7 @@
 						class="dashboard-list-widget__badge dashboard-list-widget__badge--urgent">
 						{{ t('decidesk', 'Urgent') }}
 					</span>
-					<NcButton type="primary" @click.stop="openVote(round)">
+					<NcButton variant="primary" @click.stop="openVote(round)">
 						{{ t('decidesk', 'Vote now') }}
 					</NcButton>
 				</div>
@@ -53,9 +53,7 @@
 
 <script>
 import { getCurrentUser } from '@nextcloud/auth'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { resolveParticipantId, pendingVotingRounds, isUrgent, countdownBucket } from './widgetLogic.js'

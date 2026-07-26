@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import { PiniaVuePlugin, setActivePinia } from 'pinia'
+import { createApp } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import { setActivePinia } from 'pinia'
 import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import {
@@ -33,9 +33,8 @@ import './assets/nl-design.css'
 // Global (unscoped) app styles
 import './assets/app.css'
 
-Vue.mixin({ methods: { t, n } })
-Vue.use(PiniaVuePlugin)
-Vue.use(VueRouter)
+// Vue 3 (ADR-066): global t/n install via app.config.globalProperties after
+// createApp (below), not Vue.mixin. pinia + router install via app.use.
 
 // Pluggable integration registry (ADR-019). Install the global registry
 // (draining any pre-mount `window.OCA.OpenRegister.integrations` queue),
@@ -121,13 +120,13 @@ function routesFromManifest(manifest) {
 		props: page.route.includes(':'),
 	}))
 	// Catch-all redirect to dashboard, preserving prior router behaviour.
-	routes.push({ path: '*', redirect: '/' })
+	// vue-router 4 syntax: the bare '*' catch-all became a named param matcher.
+	routes.push({ path: '/:pathMatch(.*)*', redirect: '/' })
 	return routes
 }
 
-const router = new VueRouter({
-	mode: 'history',
-	base: generateUrl('/apps/decidesk'),
+const router = createRouter({
+	history: createWebHistory(generateUrl('/apps/decidesk')),
 	routes: routesFromManifest(mergedManifest),
 })
 
@@ -141,7 +140,7 @@ const router = new VueRouter({
  * @spec openspec/specs/user-settings/spec.md
  */
 function applyDefaultViewPreference() {
-	if (router.currentRoute.path !== '/') {
+	if (router.currentRoute.value.path !== '/') {
 		return
 	}
 	const routesByPreference = { meetings: '/meetings', decisions: '/decisions' }
@@ -154,7 +153,7 @@ function applyDefaultViewPreference() {
 		.then((response) => (response.ok ? response.json() : null))
 		.then((data) => {
 			const target = routesByPreference[data?.value]
-			if (target && router.currentRoute.path === '/') {
+			if (target && router.currentRoute.value.path === '/') {
 				router.replace(target).catch(() => {})
 			}
 		})
@@ -191,13 +190,12 @@ const registryProp = { ...registry }
 // Activate the Pinia instance BEFORE initializeStores() runs.
 // initializeStores() calls `useObjectStore()` / `useSettingsStore()`
 // outside a Vue setup() context — Pinia's `useStore()` reads the
-// active pinia from a module-global, and `new Vue({ pinia })` is what
-// normally sets it via PiniaVuePlugin. But that happens AFTER this
-// async IIFE awaits, so any `useStore()` call here would hit
-// `getActivePinia()._s` against undefined and throw
-// "Cannot read properties of undefined (reading '_s')". Setting it
-// explicitly upfront is the idiomatic fix for boot-time store access
-// in Vue 2 + Pinia.
+// active pinia from a module-global, and `app.use(pinia)` is what
+// normally sets it. But that happens AFTER this async IIFE awaits, so
+// any `useStore()` call here would hit `getActivePinia()._s` against
+// undefined and throw "Cannot read properties of undefined (reading
+// '_s')". Setting it explicitly upfront is the idiomatic fix for
+// boot-time store access before the app is created (Vue 3 + Pinia).
 setActivePinia(pinia)
 
 ;(async () => {
@@ -205,8 +203,8 @@ setActivePinia(pinia)
 	// initializeStores() (which calls useObjectStore() outside any Vue
 	// component) throws "Cannot read properties of undefined (reading
 	// '_s')" because Pinia falls back to the active instance and there
-	// isn't one yet — Vue.use(PiniaVuePlugin) only auto-activates pinia
-	// when Vue itself uses it via `new Vue({ pinia })`.
+	// isn't one yet — `app.use(pinia)` only activates pinia once the app
+	// mounts, which happens after this IIFE awaits initializeStores().
 	setActivePinia(pinia)
 
 	try {
@@ -219,17 +217,32 @@ setActivePinia(pinia)
 		console.error('Boot: initializeStores() failed; mounting anyway', e)
 	}
 
-	new Vue({
-		pinia,
-		router,
-		render: (h) => h(App, {
-			props: {
-				manifest: mergedManifest,
-				registry: registryProp,
-				pageTypes: pageTypesProp,
-			},
-		}),
-	}).$mount('#content')
+	// Vue 3 (ADR-066): mount App as the root component directly and pass the
+	// bootstrap props as root props (second arg). decidesk's manifest is static
+	// (no backend /api/manifest delta), so App can receive it straight — no
+	// reactive wrapper render needed.
+	const app = createApp(App, {
+		manifest: mergedManifest,
+		registry: registryProp,
+		pageTypes: pageTypesProp,
+	})
+
+	// Surface any render/lifecycle error that Vue would otherwise swallow into a
+	// blank comment node — boot must never fail silently.
+	app.config.errorHandler = (err, instance, info) => {
+		// eslint-disable-next-line no-console
+		console.error('[decidesk] Vue error (' + info + '):', err)
+	}
+
+	// Vue 3 global install contract (ADR-066): t/n move from Vue.mixin to
+	// app.config.globalProperties so `this.t(...)` / `this.n(...)` keep working
+	// in Options-API components across the app.
+	app.config.globalProperties.t = t
+	app.config.globalProperties.n = n
+
+	app.use(pinia)
+	app.use(router)
+	app.mount('#content')
 
 	// Honour the user's default-view display preference (user-settings spec).
 	applyDefaultViewPreference()

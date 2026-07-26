@@ -51,7 +51,7 @@
 				{{ t('decidesk', 'No audio files found in this meeting\'s folder. Upload a recording to the meeting folder, then refresh.') }}
 			</p>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="transcription-attach"
 				:disabled="!selectedSource"
 				@click="openConsent">
@@ -67,7 +67,7 @@
 			</p>
 			<NcButton
 				v-if="canTranscribe"
-				type="secondary"
+				variant="secondary"
 				data-testid="transcription-transcribe"
 				:disabled="working"
 				@click="transcribe">
@@ -75,7 +75,7 @@
 			</NcButton>
 			<NcButton
 				v-if="transcript.status === 'done'"
-				type="tertiary"
+				variant="tertiary"
 				data-testid="transcription-realign"
 				:disabled="working"
 				@click="realign">
@@ -102,7 +102,7 @@
 		<!-- Generate draft (hidden without an AI provider). -->
 		<section v-if="transcript && transcript.status === 'done' && aiAvailable" class="decidesk-transcription__draft">
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="transcription-generate-draft"
 				:disabled="working"
 				@click="generateDraft">
@@ -133,7 +133,7 @@
 
 				<NcTextArea
 					v-if="!section.discarded"
-					:value.sync="section.summary"
+					v-model="section.summary"
 					:label="t('decidesk', 'Section summary')"
 					resize="vertical"
 					@update:value="markEdited(section)" />
@@ -157,7 +157,7 @@
 				</ul>
 
 				<div v-if="!section.discarded" class="decidesk-transcription__section-actions">
-					<NcButton type="tertiary" :data-testid="'draft-section-discard'" @click="discardSection(section)">
+					<NcButton variant="tertiary" :data-testid="'draft-section-discard'" @click="discardSection(section)">
 						{{ t('decidesk', 'Discard section') }}
 					</NcButton>
 				</div>

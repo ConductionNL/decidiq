@@ -28,14 +28,12 @@
 		</p>
 
 		<p v-else class="amendment-diff__body" data-testid="amendment-diff-body">
-			<template v-for="(segment, index) in segments">
+			<template v-for="(segment, index) in segments" :key="`segment-${index}`">
 				<ins v-if="segment.type === 'added'"
-					:key="`segment-${index}`"
 					class="amendment-diff__added">{{ segment.text }}</ins>
 				<del v-else-if="segment.type === 'removed'"
-					:key="`segment-${index}`"
 					class="amendment-diff__removed">{{ segment.text }}</del>
-				<span v-else :key="`segment-${index}`">{{ segment.text }}</span>
+				<span v-else>{{ segment.text }}</span>
 				<template v-if="index < segments.length - 1">{{ ' ' }}</template>
 			</template>
 		</p>

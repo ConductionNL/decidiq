@@ -48,7 +48,7 @@
 					</NcActionButton>
 				</NcActions>
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="body-members-add"
 					:aria-label="t('decidesk', 'Add member')"
 					@click="addDialogOpen = true">

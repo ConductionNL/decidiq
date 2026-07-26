@@ -9,7 +9,7 @@
 -->
 <template>
 	<div class="decidesk-quick-actions">
-		<NcButton type="primary" @click="startDecision">
+		<NcButton variant="primary" @click="startDecision">
 			<template #icon>
 				<Gavel :size="18" />
 			</template>
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
+import { NcButton } from '@nextcloud/vue'
 import Gavel from 'vue-material-design-icons/Gavel.vue'
 
 export default {

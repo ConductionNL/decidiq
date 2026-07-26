@@ -36,13 +36,13 @@
 				<p class="consultation-reactions__meta">{{ reaction.submittedAt }}</p>
 				<div class="consultation-reactions__actions">
 					<NcButton
-						type="success"
+						variant="success"
 						data-testid="consultation-reactions-approve"
 						@click="openApprove(reaction)">
 						{{ t('decidesk', 'Approve') }}
 					</NcButton>
 					<NcButton
-						type="error"
+						variant="error"
 						data-testid="consultation-reactions-reject"
 						@click="openReject(reaction)">
 						{{ t('decidesk', 'Reject') }}

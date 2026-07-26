@@ -28,7 +28,7 @@
 				{{ t('decidesk', 'This page is backed by the pluggable integration registry. The Discussion tab is provided by the Talk integration leaf — messages posted there are linked to this motion object and visible to all participants.') }}
 			</p>
 			<NcButton
-				type="tertiary"
+				variant="tertiary"
 				data-testid="motion-integrations-back"
 				:aria-label="t('decidesk', 'Back to motion')"
 				@click="$router.push({ name: 'MotionDetail', params: { id } })">

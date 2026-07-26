@@ -49,7 +49,7 @@
 			data-testid="effective-status-banner">
 			{{ effectiveStatusMessage }}
 			<NcButton
-				type="tertiary"
+				variant="tertiary"
 				class="decidesk-route__banner-link"
 				data-testid="effective-status-navigate"
 				:aria-label="t('decidesk', 'Open the decision that replaced this one')"

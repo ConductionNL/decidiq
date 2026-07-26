@@ -18,7 +18,7 @@
 			<p>{{ t('decidesk', 'This will set all {n} consent agenda items to "Adopted" (afgerond). Continue?', { n: count }) }}</p>
 		</template>
 		<template #actions>
-			<NcButton type="primary" :loading="processing" @click="$emit('confirm')">
+			<NcButton variant="primary" :loading="processing" @click="$emit('confirm')">
 				{{ t('decidesk', 'Confirm') }}
 			</NcButton>
 			<NcButton @click="$emit('close')">

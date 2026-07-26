@@ -47,8 +47,7 @@
 </template>
 
 <script>
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CommentCheckOutline from 'vue-material-design-icons/CommentCheckOutline.vue'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { groupMotionsByLifecycle, RUNNING_MOTION_LIFECYCLES } from './widgetLogic.js'

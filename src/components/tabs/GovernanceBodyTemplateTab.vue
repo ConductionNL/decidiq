@@ -56,7 +56,7 @@
 
 			<div class="decidesk-tab__footer">
 				<NcButton
-					type="primary"
+					variant="primary"
 					:disabled="saving"
 					data-testid="body-template-save"
 					@click="save">

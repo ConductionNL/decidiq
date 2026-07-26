@@ -35,7 +35,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="saving || !selectedRole"
 				data-testid="member-role-save"
 				@click="save">

@@ -49,8 +49,7 @@
 </template>
 
 <script>
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import CalendarBlankOutline from 'vue-material-design-icons/CalendarBlankOutline.vue'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { upcomingMeetings, isUrgent, countdownBucket } from './widgetLogic.js'

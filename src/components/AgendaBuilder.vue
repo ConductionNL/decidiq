@@ -64,13 +64,13 @@
 					<div class="agenda-builder__proposal-actions">
 						<NcButton
 							:aria-label="t('decidesk', 'Approve proposal {title}', { title: proposal.title })"
-							type="success"
+							variant="success"
 							@click="approveProposal(proposal)">
 							{{ t('decidesk', 'Approve') }}
 						</NcButton>
 						<NcButton
 							:aria-label="t('decidesk', 'Reject proposal {title}', { title: proposal.title })"
-							type="error"
+							variant="error"
 							@click="rejectProposal(proposal)">
 							{{ t('decidesk', 'Reject') }}
 						</NcButton>

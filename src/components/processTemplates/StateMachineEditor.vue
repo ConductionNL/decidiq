@@ -31,7 +31,7 @@
 				:aria-label="t('decidesk', 'State name')"
 				:placeholder="t('decidesk', 'State name')"
 				@input="emit">
-			<NcButton type="tertiary" :aria-label="t('decidesk', 'Remove state')" @click="removeState(i)">
+			<NcButton variant="tertiary" :aria-label="t('decidesk', 'Remove state')" @click="removeState(i)">
 				{{ t('decidesk', 'Remove') }}
 			</NcButton>
 		</div>
@@ -58,7 +58,7 @@
 				<input v-model="tr.chairOnly" type="checkbox" @change="emit">
 				{{ t('decidesk', 'Chair only') }}
 			</label>
-			<NcButton type="tertiary" :aria-label="t('decidesk', 'Remove transition')" @click="removeTransition(i)">
+			<NcButton variant="tertiary" :aria-label="t('decidesk', 'Remove transition')" @click="removeTransition(i)">
 				{{ t('decidesk', 'Remove') }}
 			</NcButton>
 		</div>

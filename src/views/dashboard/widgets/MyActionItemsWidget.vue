@@ -48,8 +48,7 @@
 
 <script>
 import { getCurrentUser } from '@nextcloud/auth'
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import ClipboardCheckOutline from 'vue-material-design-icons/ClipboardCheckOutline.vue'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { sortByDueDate, isOverdue } from './widgetLogic.js'

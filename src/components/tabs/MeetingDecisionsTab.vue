@@ -23,7 +23,7 @@
 				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
 			</h3>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="meeting-decisions-create"
 				:aria-label="t('decidesk', 'Create decision')"
 				:disabled="creating"
