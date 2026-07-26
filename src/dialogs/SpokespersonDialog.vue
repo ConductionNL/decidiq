@@ -31,7 +31,7 @@
 			</p>
 			<NcButton
 				v-if="hasSpokesperson"
-				type="error"
+				variant="error"
 				@click="$emit('remove')">
 				{{ t('decidesk', 'Remove spokesperson') }}
 			</NcButton>

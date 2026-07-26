@@ -20,7 +20,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="publication-prompt-publish"
 				@click="$emit('publish')">
 				{{ t('decidesk', 'Publish now') }}

@@ -25,7 +25,7 @@
 				</div>
 
 				<NcButton
-					type="primary"
+					variant="primary"
 					native-type="submit"
 					:disabled="saving">
 					{{ saving ? t('decidesk', 'Saving...') : t('decidesk', 'Save') }}
@@ -96,7 +96,7 @@
 				</div>
 
 				<NcButton
-					type="primary"
+					variant="primary"
 					native-type="submit"
 					data-testid="organisation-save"
 					:disabled="savingOrganisation">
@@ -121,7 +121,7 @@
 				</div>
 
 				<NcButton
-					type="primary"
+					variant="primary"
 					native-type="submit"
 					:disabled="savingOri">
 					{{ savingOri ? t('decidesk', 'Saving...') : t('decidesk', 'Save') }}
@@ -184,7 +184,7 @@
 						placeholder="5">
 				</div>
 				<NcButton
-					type="primary"
+					variant="primary"
 					native-type="submit"
 					data-testid="participation-save"
 					:disabled="savingParticipation">

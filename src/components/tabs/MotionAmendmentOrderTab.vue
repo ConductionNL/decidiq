@@ -60,7 +60,7 @@
 					</span>
 					<span class="amendment-order__actions">
 						<NcButton
-							type="tertiary"
+							variant="tertiary"
 							:aria-label="t('decidesk', 'Move amendment up')"
 							:disabled="busy || index === 0 || isDecided(row)"
 							:data-testid="`amendment-order-up-${index}`"
@@ -70,7 +70,7 @@
 							</template>
 						</NcButton>
 						<NcButton
-							type="tertiary"
+							variant="tertiary"
 							:aria-label="t('decidesk', 'Move amendment down')"
 							:disabled="busy || index === rows.length - 1 || isDecided(row)"
 							:data-testid="`amendment-order-down-${index}`"
@@ -85,7 +85,7 @@
 
 			<div class="amendment-order__footer">
 				<NcButton
-					type="secondary"
+					variant="secondary"
 					data-testid="amendment-order-suggest"
 					:disabled="busy"
 					:aria-label="t('decidesk', 'Suggest order, most far-reaching first')"
@@ -93,7 +93,7 @@
 					{{ t('decidesk', 'Suggest order') }}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="amendment-order-save"
 					:disabled="busy || !dirty"
 					:aria-label="t('decidesk', 'Save voting order')"

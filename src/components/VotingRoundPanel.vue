@@ -21,7 +21,7 @@
 			</p>
 			<NcButton
 				v-if="motionLifecycle === 'debating'"
-				type="primary"
+				variant="primary"
 				:disabled="!meetingId"
 				:title="!meetingId ? t('decidesk', 'No meeting linked — the voting round cannot be opened') : undefined"
 				@click="showOpenRoundDialog = true">
@@ -79,7 +79,7 @@
 					{{ openRoundError }}
 				</p>
 				<div class="decidesk-dialog-actions">
-					<NcButton type="primary" :disabled="openingRound" @click="openRound">
+					<NcButton variant="primary" :disabled="openingRound" @click="openRound">
 						{{ t('decidesk', 'Open') }}
 					</NcButton>
 					<NcButton @click="showOpenRoundDialog = false">
@@ -113,7 +113,7 @@
 					type="number"
 					min="0"
 					:aria-label="t('decidesk', 'Abstentions')">
-				<NcButton type="primary" @click="saveShowOfHands">
+				<NcButton variant="primary" @click="saveShowOfHands">
 					{{ t('decidesk', 'Save result') }}
 				</NcButton>
 			</div>
@@ -126,21 +126,21 @@
 					{{ t('decidesk', 'You are voting on behalf of: {name}', { name: activeProxy }) }}
 				</p>
 				<NcButton
-					type="primary"
+					variant="primary"
 					class="decidesk-vote-btn"
 					:aria-label="t('decidesk', 'Vote for')"
 					@click="castVote('for')">
 					{{ t('decidesk', 'For') }}
 				</NcButton>
 				<NcButton
-					type="error"
+					variant="error"
 					class="decidesk-vote-btn"
 					:aria-label="t('decidesk', 'Vote against')"
 					@click="castVote('against')">
 					{{ t('decidesk', 'Against') }}
 				</NcButton>
 				<NcButton
-					type="secondary"
+					variant="secondary"
 					class="decidesk-vote-btn"
 					:aria-label="t('decidesk', 'Abstain')"
 					@click="castVote('abstain')">
@@ -179,10 +179,10 @@
 			<!-- Proxy management — proxy grant/revoke is enforced by the backend -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7 -->
 			<div class="decidesk-proxy">
-				<NcButton v-if="!activeProxy" type="secondary" @click="showProxyDialog = true">
+				<NcButton v-if="!activeProxy" variant="secondary" @click="showProxyDialog = true">
 					{{ t('decidesk', 'Grant proxy') }}
 				</NcButton>
-				<NcButton v-if="activeProxy" type="error" @click="revokeProxy">
+				<NcButton v-if="activeProxy" variant="error" @click="revokeProxy">
 					{{ t('decidesk', 'Revoke proxy') }}
 				</NcButton>
 				<div v-if="showProxyDialog"
@@ -192,7 +192,7 @@
 					<h4>{{ t('decidesk', 'Grant proxy to') }}</h4>
 					<input v-model="proxyToId" type="text" :placeholder="t('decidesk', 'Participant UUID')">
 					<div class="decidesk-dialog-actions">
-						<NcButton type="primary" @click="grantProxy">
+						<NcButton variant="primary" @click="grantProxy">
 							{{ t('decidesk', 'Grant') }}
 						</NcButton>
 						<NcButton @click="showProxyDialog = false">
@@ -206,14 +206,14 @@
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 -->
 			<NcButton
 				v-if="isRoundOpen && isChairOrSecretary"
-				type="error"
+				variant="error"
 				@click="confirmCloseRound = true">
 				{{ t('decidesk', 'Close voting round') }}
 			</NcButton>
 			<div v-if="confirmCloseRound" class="decidesk-dialog" role="dialog">
 				<p>{{ t('decidesk', 'Close voting round? {notVoted} of {total} members have not voted yet.', { notVoted: participantCount - tallyTotal, total: participantCount }) }}</p>
 				<div class="decidesk-dialog-actions">
-					<NcButton type="error" @click="closeRound">
+					<NcButton variant="error" @click="closeRound">
 						{{ t('decidesk', 'Close') }}
 					</NcButton>
 					<NcButton @click="confirmCloseRound = false">
@@ -251,10 +251,10 @@
 					class="decidesk-chair-casting"
 					data-testid="chair-casting-controls">
 					<p>{{ t('decidesk', 'The vote is tied. As chair you must resolve it with a casting vote.') }}</p>
-					<NcButton type="primary" @click="castChairVote('for')">
+					<NcButton variant="primary" @click="castChairVote('for')">
 						{{ t('decidesk', 'Casting vote: for') }}
 					</NcButton>
-					<NcButton type="error" @click="castChairVote('against')">
+					<NcButton variant="error" @click="castChairVote('against')">
 						{{ t('decidesk', 'Casting vote: against') }}
 					</NcButton>
 					<p v-if="chairCastingError" class="decidesk-error" role="alert">
@@ -268,14 +268,14 @@
 					class="decidesk-revote"
 					data-testid="revote-controls">
 					<p>{{ t('decidesk', 'The vote is tied. The round may be reopened once for a revote.') }}</p>
-					<NcButton type="primary" @click="startRevote">
+					<NcButton variant="primary" @click="startRevote">
 						{{ t('decidesk', 'Reopen round (revote)') }}
 					</NcButton>
 				</div>
 
 				<NcButton
 					v-if="isChairOrSecretary"
-					type="secondary"
+					variant="secondary"
 					@click="publishToOri">
 					{{ t('decidesk', 'Publish to ORI') }}
 				</NcButton>
@@ -295,7 +295,7 @@
 					{{ openRoundError }}
 				</p>
 				<div class="decidesk-dialog-actions">
-					<NcButton type="primary" :disabled="openingRound" @click="openRound">
+					<NcButton variant="primary" :disabled="openingRound" @click="openRound">
 						{{ t('decidesk', 'Open') }}
 					</NcButton>
 					<NcButton @click="cancelRevote">
@@ -440,7 +440,7 @@ export default {
 		}, 5000)
 	},
 	/** @spec exclude lifecycle teardown; only clears the polling interval started in mounted() */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.pollInterval) {
 			clearInterval(this.pollInterval)
 		}

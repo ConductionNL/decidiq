@@ -25,7 +25,7 @@
 			</h3>
 			<div class="ai-deck-board__actions">
 				<NcButton
-					type="secondary"
+					variant="secondary"
 					data-testid="action-item-deck-sync"
 					:disabled="syncing || loading || !rows.length"
 					@click="sync">
@@ -36,7 +36,7 @@
 					{{ t('decidesk', 'Project to Deck') }}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="action-item-deck-add"
 					:aria-label="t('decidesk', 'Add action item')"
 					@click="openCreate">
@@ -76,7 +76,7 @@
 								{{ item.title || t('decidesk', 'Untitled') }}
 							</button>
 							<NcButton
-								type="tertiary-no-background"
+								variant="tertiary-no-background"
 								:aria-label="t('decidesk', 'Delete action item')"
 								@click="deleteTarget = { ...item }">
 								<template #icon>
@@ -332,11 +332,11 @@ export default {
 			const uid = itemUid(item)
 			const previous = item.taskStatus
 			// Optimistic update.
-			this.$set(item, 'taskStatus', newLane)
+			item.taskStatus = newLane
 			try {
 				await updateActionItem(uid, { taskStatus: newLane })
 			} catch (e) {
-				this.$set(item, 'taskStatus', previous)
+				item.taskStatus = previous
 				this.error = e?.message || this.t('decidesk', 'Could not update status.')
 			}
 		},

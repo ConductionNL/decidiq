@@ -39,7 +39,7 @@
 					:clearable="false"
 					label="label" />
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="minutes-document-generate"
 					:disabled="working"
 					@click="generateDocument">

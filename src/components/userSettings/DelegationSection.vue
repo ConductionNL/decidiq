@@ -58,7 +58,7 @@
 
 		<div class="user-settings-section__actions">
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="saving || !!validationError"
 				data-testid="delegation-save"
 				@click="save">
@@ -66,7 +66,7 @@
 			</NcButton>
 			<NcButton
 				v-if="hasDelegation"
-				type="tertiary"
+				variant="tertiary"
 				:disabled="saving"
 				data-testid="delegation-clear"
 				@click="clear">

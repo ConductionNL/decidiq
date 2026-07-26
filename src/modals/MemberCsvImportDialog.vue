@@ -68,7 +68,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="importing || importableCount === 0"
 				data-testid="csv-import-submit"
 				@click="runImport">

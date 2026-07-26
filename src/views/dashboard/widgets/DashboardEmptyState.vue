@@ -20,7 +20,7 @@
 			</template>
 			<template #action>
 				<div class="dashboard-empty__actions">
-					<NcButton type="primary" data-testid="dashboard-empty-setup" @click="goSettings">
+					<NcButton variant="primary" data-testid="dashboard-empty-setup" @click="goSettings">
 						{{ t('decidesk', 'Set Up Body') }}
 					</NcButton>
 					<NcButton data-testid="dashboard-empty-meeting" @click="goMeetings">
@@ -36,8 +36,7 @@
 </template>
 
 <script>
-import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
+import { NcButton, NcEmptyContent } from '@nextcloud/vue'
 import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
 
 export default {

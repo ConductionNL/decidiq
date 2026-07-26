@@ -107,7 +107,7 @@ export default {
 	},
 
 	/** @spec exclude lifecycle teardown; clears the render interval */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.intervalId) clearInterval(this.intervalId)
 	},
 }

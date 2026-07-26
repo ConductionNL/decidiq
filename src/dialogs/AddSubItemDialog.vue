@@ -38,7 +38,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="add-sub-item-confirm"
 				:disabled="!title"
 				@click="submit">

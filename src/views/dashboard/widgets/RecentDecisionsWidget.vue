@@ -52,8 +52,7 @@
 </template>
 
 <script>
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import GavelIcon from 'vue-material-design-icons/Gavel.vue'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'
 import { recentDecisions, outcomeBadge, publicationBadge } from './widgetLogic.js'

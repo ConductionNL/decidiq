@@ -43,10 +43,10 @@
 			type="number"
 			data-testid="retention-days"
 			:label="t('decidesk', 'Days after approval')"
-			:value.sync="days" />
+			v-model="days" />
 
 		<NcButton
-			type="primary"
+			variant="primary"
 			data-testid="retention-save"
 			:disabled="saving || !selectedPolicy"
 			@click="save">

@@ -53,7 +53,7 @@
 			<div class="decidesk-tab__actions" data-testid="publication-actions">
 				<NcButton
 					v-if="!activeRecord && eligible"
-					type="primary"
+					variant="primary"
 					data-testid="publication-publish"
 					:disabled="working"
 					@click="publish">
@@ -61,7 +61,7 @@
 				</NcButton>
 				<NcButton
 					v-if="activeRecord"
-					type="error"
+					variant="error"
 					data-testid="publication-withdraw"
 					:disabled="working"
 					@click="withdrawModalOpen = true">

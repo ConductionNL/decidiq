@@ -60,7 +60,7 @@
 				</ul>
 				<NcButton
 					v-if="isChair"
-					type="primary"
+					variant="primary"
 					data-testid="meeting-live-adopt-consent"
 					:loading="processingHamerstukken"
 					:aria-label="t('decidesk', 'Adopt all consent agenda items')"
@@ -172,7 +172,7 @@
 						role="listitem">
 						<NcButton
 							size="small"
-							:type="activeItemId === item.id ? 'primary' : 'secondary'"
+							:variant="activeItemId === item.id ? 'primary' : 'secondary'"
 							:aria-label="t('decidesk', 'Activate {title}', { title: item.title })"
 							:aria-pressed="activeItemId === item.id"
 							@click="activateItem(item)">
@@ -500,7 +500,7 @@ export default {
 	},
 
 	/** @spec exclude lifecycle teardown; only unsubscribes the live-update handles created in created() */
-	beforeDestroy() {
+	beforeUnmount() {
 		// Tear down all live-update subscriptions; refcount drops to 0 ->
 		// the underlying notify_push listener for each event key is removed.
 		for (const handle of this.liveSubs) {

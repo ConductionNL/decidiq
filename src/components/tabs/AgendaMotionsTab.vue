@@ -18,7 +18,7 @@
 				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
 			</h3>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="agenda-motions-add"
 				:aria-label="t('decidesk', 'Add motion')"
 				@click="openCreate">

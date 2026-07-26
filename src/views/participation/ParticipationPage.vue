@@ -40,12 +40,12 @@
 					<h4>{{ c.title }}</h4>
 					<p>{{ c.description }}</p>
 					<NcTextArea
-						:value.sync="reactionDrafts[c.id]"
+						v-model="reactionDrafts[c.id]"
 						data-testid="reaction-input"
 						:label="t('decidesk', 'Your reaction')"
 						resize="vertical" />
 					<NcButton
-						type="primary"
+						variant="primary"
 						data-testid="reaction-submit"
 						:disabled="!(reactionDrafts[c.id] || '').trim()"
 						@click="sendReaction(c)">
@@ -83,18 +83,18 @@
 						data-testid="proposal-form"
 						@submit.prevent="sendProposal(b)">
 						<NcTextField
-							:value.sync="proposalDrafts[b.id].title"
+							v-model="proposalDrafts[b.id].title"
 							:label="t('decidesk', 'Proposal title')" />
 						<NcTextArea
-							:value.sync="proposalDrafts[b.id].description"
+							v-model="proposalDrafts[b.id].description"
 							:label="t('decidesk', 'Description')"
 							resize="vertical" />
 						<NcTextField
 							type="number"
-							:value.sync="proposalDrafts[b.id].amount"
+							v-model="proposalDrafts[b.id].amount"
 							:label="t('decidesk', 'Requested amount')" />
 						<NcButton
-							type="primary"
+							variant="primary"
 							native-type="submit"
 							data-testid="proposal-submit"
 							:disabled="!(proposalDrafts[b.id].title || '').trim()">
@@ -114,10 +114,10 @@
 							data-testid="voting-card">
 							<span class="voting-card__title">{{ p.title }}</span>
 							<span class="voting-card__tally">{{ p.votesFor || 0 }} / {{ p.votesAgainst || 0 }}</span>
-							<NcButton type="success" data-testid="vote-voor" @click="vote(p, 'voor')">
+							<NcButton variant="success" data-testid="vote-voor" @click="vote(p, 'voor')">
 								{{ t('decidesk', 'For') }}
 							</NcButton>
-							<NcButton type="error" data-testid="vote-tegen" @click="vote(p, 'tegen')">
+							<NcButton variant="error" data-testid="vote-tegen" @click="vote(p, 'tegen')">
 								{{ t('decidesk', 'Against') }}
 							</NcButton>
 						</div>
@@ -208,13 +208,13 @@ export default {
 				const consultations = await store.fetchCollection('public-consultation', { status: 'open', _limit: 100 })
 				this.openConsultations = (Array.isArray(consultations) ? consultations : []).filter((c) => c.status === 'open')
 				for (const c of this.openConsultations) {
-					this.$set(this.reactionDrafts, c.id, '')
+					this.reactionDrafts[c.id] = ''
 				}
 
 				const rounds = await store.fetchCollection('participatory-budget', { _limit: 100 })
 				this.budgetRounds = (Array.isArray(rounds) ? rounds : []).filter((b) => ['submission', 'voting', 'closed'].includes(b.status))
 				for (const b of this.budgetRounds) {
-					this.$set(this.proposalDrafts, b.id, { title: '', description: '', amount: '' })
+					this.proposalDrafts[b.id] = { title: '', description: '', amount: '' }
 					if (b.status === 'voting') {
 						await this.loadVotable(b)
 					}
@@ -230,9 +230,9 @@ export default {
 			try {
 				const store = useObjectStore()
 				const proposals = await store.fetchCollection('budget-proposal', { status: 'validated', _limit: 200 })
-				this.$set(this.votableProposals, round.id, (Array.isArray(proposals) ? proposals : []).filter((p) => p.status === 'validated'))
+				this.votableProposals[round.id] = (Array.isArray(proposals) ? proposals : []).filter((p) => p.status === 'validated')
 			} catch (e) {
-				this.$set(this.votableProposals, round.id, [])
+				this.votableProposals[round.id] = []
 			}
 		},
 		/** @spec openspec/specs/citizen-participation/spec.md */
@@ -240,7 +240,7 @@ export default {
 			try {
 				await submitReaction(consultation.id, this.reactionDrafts[consultation.id])
 				showSuccess(t('decidesk', 'Your reaction was submitted for moderation'))
-				this.$set(this.reactionDrafts, consultation.id, '')
+				this.reactionDrafts[consultation.id] = ''
 			} catch (e) {
 				showError(this.apiError(e, t('decidesk', 'Could not submit your reaction')))
 			}
@@ -255,7 +255,7 @@ export default {
 					amount: Number(draft.amount) || 0,
 				})
 				showSuccess(t('decidesk', 'Proposal submitted'))
-				this.$set(this.proposalDrafts, round.id, { title: '', description: '', amount: '' })
+				this.proposalDrafts[round.id] = { title: '', description: '', amount: '' }
 			} catch (e) {
 				showError(this.apiError(e, t('decidesk', 'Could not submit your proposal')))
 			}

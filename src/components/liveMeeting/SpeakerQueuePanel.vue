@@ -28,7 +28,7 @@
 				<NcTextField
 					id="speaker-queue-limit"
 					type="number"
-					:value.sync="limitMinutes"
+					v-model="limitMinutes"
 					:label="t('decidesk', 'Speaking limit (min)')"
 					data-testid="speaker-queue-limit-input"
 					min="0" />
@@ -44,7 +44,7 @@
 				label="label"
 				data-testid="speaker-queue-add-select" />
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="!selectedParticipant"
 				data-testid="speaker-queue-add-button"
 				:aria-label="t('decidesk', 'Add to queue')"
@@ -92,7 +92,7 @@
 					<NcButton
 						v-else
 						size="small"
-						type="secondary"
+						variant="secondary"
 						data-testid="speaker-queue-stop"
 						:aria-label="t('decidesk', 'Stop {name}', { name: entry.displayName })"
 						@click="stop">
@@ -114,7 +114,7 @@
 					</NcButton>
 					<NcButton
 						size="small"
-						type="tertiary"
+						variant="tertiary"
 						data-testid="speaker-queue-remove"
 						:aria-label="t('decidesk', 'Remove {name} from queue', { name: entry.displayName })"
 						@click="remove(entry.participantId)">
@@ -187,7 +187,7 @@ export default {
 	},
 
 	/** @spec exclude lifecycle teardown; clears the render interval */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.intervalId) clearInterval(this.intervalId)
 	},
 

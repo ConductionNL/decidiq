@@ -16,7 +16,7 @@
 		<template #default>
 			<p>{{ t('decidesk', 'The reaction is retained for audit but never counts toward the consultation. A reason is required.') }}</p>
 			<NcTextArea
-				:value.sync="reason"
+				v-model="reason"
 				data-testid="reaction-reject-reason"
 				:label="t('decidesk', 'Rejection reason')"
 				:placeholder="t('decidesk', 'e.g. Off-topic or abusive')"
@@ -24,7 +24,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="error"
+				variant="error"
 				data-testid="reaction-reject-confirm"
 				:disabled="!reason.trim()"
 				@click="$emit('confirm', reason.trim())">

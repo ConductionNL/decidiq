@@ -31,7 +31,7 @@
 				{{ t('decidesk', 'This page is backed by the pluggable integration registry. When the Email integration is installed, an "Email" tab lets you link emails to this agenda item — the link is held by the registry, not an in-app email-link store.') }}
 			</p>
 			<NcButton
-				type="tertiary"
+				variant="tertiary"
 				data-testid="agenda-item-integrations-back"
 				:aria-label="t('decidesk', 'Back to agenda item')"
 				@click="$router.push({ name: 'AgendaItemDetail', params: { id } })">

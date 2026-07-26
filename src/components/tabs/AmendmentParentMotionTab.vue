@@ -43,7 +43,7 @@
 			<CnDetailGrid :items="propertyItems" />
 			<div class="decidesk-tab__cta">
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="amendment-parent-open"
 					:aria-label="t('decidesk', 'Open parent motion')"
 					@click="openParent">

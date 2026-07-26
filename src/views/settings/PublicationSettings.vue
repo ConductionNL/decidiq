@@ -79,7 +79,7 @@
 
 		<NcButton
 			v-if="bodies.length"
-			type="primary"
+			variant="primary"
 			data-testid="publication-settings-save"
 			:disabled="saving"
 			@click="save">

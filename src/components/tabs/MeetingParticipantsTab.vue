@@ -17,7 +17,7 @@
 				<span v-if="!loading" class="decidesk-tab__count">({{ rows.length }})</span>
 			</h3>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="meeting-participants-add"
 				:aria-label="t('decidesk', 'Add participant')"
 				@click="addDialogOpen = true">

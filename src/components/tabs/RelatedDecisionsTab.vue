@@ -25,7 +25,7 @@
 				{{ t('decidesk', 'Related decisions') }}
 			</h3>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="related-decisions-add"
 				:aria-label="t('decidesk', 'Add related decision')"
 				@click="openAdd">
@@ -75,7 +75,7 @@
 						</button>
 						<CnStatusBadge v-if="row.lifecycle" :label="row.lifecycle" :color-map="{}" />
 						<NcButton
-							type="tertiary"
+							variant="tertiary"
 							:aria-label="t('decidesk', 'Remove relation')"
 							:data-testid="'related-remove-' + (row.id || row.uuid)"
 							@click="askRemove(group.type, row)">

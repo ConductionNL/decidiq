@@ -33,7 +33,7 @@
 					<NcButton
 						v-for="value in likertRange(question)"
 						:key="value"
-						:type="answers[question.id] === value ? 'primary' : 'secondary'"
+						:variant="answers[question.id] === value ? 'primary' : 'secondary'"
 						:data-testid="`evaluation-respond-likert-${question.id}-${value}`"
 						@click="setLikert(question.id, value)">
 						{{ value }}
@@ -42,7 +42,7 @@
 
 				<NcTextArea
 					v-else
-					:value.sync="freeTexts[question.id]"
+					v-model="freeTexts[question.id]"
 					:label="question.prompt"
 					data-testid="evaluation-respond-freetext"
 					resize="vertical" />
@@ -50,7 +50,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="evaluation-respond-submit"
 				:disabled="!allLikertAnswered"
 				@click="submit">
@@ -116,7 +116,7 @@ export default {
 		 * @param {number} value The selected Likert value.
 		 */
 		setLikert(questionId, value) {
-			this.$set(this.answers, questionId, value)
+			this.answers[questionId] = value
 		},
 		/** Build the answers[] payload and emit confirm — no identity anywhere in it. */
 		submit() {

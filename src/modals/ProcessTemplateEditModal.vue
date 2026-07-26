@@ -84,7 +84,7 @@
 
 			<div class="modal-actions">
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="process-template-save"
 					:disabled="saving || !validation.valid || !form.name"
 					@click="save">

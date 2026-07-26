@@ -19,7 +19,7 @@
 		<template #default>
 			<div class="action-item-modal__form">
 				<NcTextField
-					:value.sync="title"
+					v-model="title"
 					data-testid="minutes-action-item-title"
 					:label="t('decidesk', 'Action item title')"
 					:placeholder="t('decidesk', 'e.g. Prepare budget proposal')" />
@@ -40,7 +40,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="minutes-action-item-save"
 				:disabled="saving || !title.trim()"
 				@click="save">

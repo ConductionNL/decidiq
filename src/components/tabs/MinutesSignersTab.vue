@@ -19,7 +19,7 @@
 				<span v-if="!loading" class="decidesk-tab__count">({{ signersWithName.length }})</span>
 			</h3>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="minutes-signers-add"
 				:aria-label="t('decidesk', 'Add signer')"
 				@click="addDialogOpen = true">
@@ -59,7 +59,7 @@
 		</CnDataTable>
 
 		<div v-if="canSignNow" class="decidesk-tab__cta">
-			<NcButton type="primary" @click="signNow">
+			<NcButton variant="primary" @click="signNow">
 				{{ t('decidesk', 'Sign now') }}
 			</NcButton>
 			<p v-if="signError" class="decidesk-tab__error" role="alert">

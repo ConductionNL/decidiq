@@ -40,8 +40,7 @@
 </template>
 
 <script>
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import { CnChartWidget } from '@conduction/nextcloud-vue'
 import ChartLine from 'vue-material-design-icons/ChartLine.vue'
 import dashboardRefreshMixin from './dashboardRefreshMixin.js'

@@ -49,7 +49,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="related-decision-add-confirm"
 				:disabled="busy || !selectedTarget || !selectedType"
 				@click="confirm">

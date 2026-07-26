@@ -17,14 +17,14 @@
 		<template #default>
 			<p>{{ t('decidesk', 'Approving counts this reaction toward the consultation and allows it to be published.') }}</p>
 			<NcTextArea
-				:value.sync="note"
+				v-model="note"
 				data-testid="reaction-approve-note"
 				:label="t('decidesk', 'Moderation note (optional)')"
 				resize="vertical" />
 		</template>
 		<template #actions>
 			<NcButton
-				type="success"
+				variant="success"
 				data-testid="reaction-approve-confirm"
 				@click="$emit('confirm', note.trim())">
 				{{ t('decidesk', 'Approve') }}

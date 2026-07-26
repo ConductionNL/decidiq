@@ -41,7 +41,7 @@
 		<div v-if="isChair" class="agenda-timer__controls">
 			<NcButton
 				v-if="!started"
-				type="primary"
+				variant="primary"
 				data-testid="agenda-item-timer-start"
 				:aria-label="t('decidesk', 'Start timer')"
 				@click="start">
@@ -77,7 +77,7 @@
 					{{ t('decidesk', 'Extend 10 min') }}
 				</NcButton>
 				<NcButton
-					type="secondary"
+					variant="secondary"
 					:loading="closing"
 					data-testid="agenda-item-timer-close"
 					:aria-label="t('decidesk', 'Close agenda item')"
@@ -181,7 +181,7 @@ export default {
 	},
 
 	/** @spec exclude lifecycle teardown; clears the render interval */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.intervalId) clearInterval(this.intervalId)
 	},
 

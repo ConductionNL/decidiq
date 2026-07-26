@@ -59,7 +59,7 @@
 
 		<div class="user-settings-section__actions">
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="saving"
 				data-testid="display-preferences-save"
 				@click="save">

@@ -20,7 +20,7 @@
 				{{ t('decidesk', 'Attaching a recording for transcription requires confirming that all participants were informed that the meeting was recorded (AVG/GDPR). The recording and raw transcript stay restricted to this governance body and are never published.') }}
 			</p>
 			<NcCheckboxRadioSwitch
-				:checked.sync="confirmed"
+				v-model="confirmed"
 				data-testid="transcription-consent-checkbox"
 				type="checkbox">
 				{{ t('decidesk', 'I confirm participants were informed of the recording.') }}
@@ -28,7 +28,7 @@
 		</template>
 		<template #actions>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="transcription-consent-confirm"
 				:disabled="!confirmed"
 				@click="$emit('confirm')">
