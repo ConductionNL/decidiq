@@ -106,6 +106,29 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 		)
 	}
 
+	// Suppress the first-visit onboarding walkthrough for the whole suite.
+	//
+	// CnAppRoot (nc-vue v2) auto-starts the `first-visit` tour whenever the
+	// per-origin localStorage key `cn-walkthrough-seen:<appId>` is empty
+	// (see CnWalkthrough autoStartTour: `trigger === 'first-visit' && !seenVersion`).
+	// The tour paints a full-viewport `cn-walkthrough__dim` overlay that
+	// intercepts every click, so `getByRole('link', …).click()` navigation
+	// times out and ~40 specs cascade-fail.
+	//
+	// We visit the app once and seed that key with a version far above any
+	// manifest version. Playwright's storageState captures per-origin
+	// localStorage, so every spec that reuses this storage state starts with
+	// the walkthrough already marked as seen — no occ, no API, CI-safe and
+	// self-contained.
+	await page.goto('/apps/decidesk/')
+	await page.evaluate(() => {
+		try {
+			window.localStorage.setItem('cn-walkthrough-seen:decidesk', '9999.0.0')
+		} catch (e) {
+			// Non-fatal: private mode / no storage.
+		}
+	})
+
 	await context.storageState({ path: STORAGE_STATE })
 	await browser.close()
 }

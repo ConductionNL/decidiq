@@ -49,9 +49,14 @@ test('Add Meeting dialog opens with required fields', async ({ page }) => {
 	const dialog = page.getByRole('dialog')
 	// location field (text input for physical location / video link)
 	await expect(dialog.getByRole('textbox', { name: 'location' })).toBeVisible()
-	// meetingMode and meetingType labels are shown inside the dialog
-	await expect(dialog.getByText('meetingMode *', { exact: false })).toBeVisible()
-	await expect(dialog.getByText('meetingType *', { exact: false })).toBeVisible()
+	// meetingMode and meetingType labels are shown inside the dialog.
+	// The schema-driven form renders the property *titles* (schema-title
+	// i18n), not the raw property names: meetingMode → "Attendance mode",
+	// meetingType → "Meeting type".
+	// exact match on the required-field label (rendered with a trailing " *")
+	// so we hit the <label> and not the other nodes that contain the words.
+	await expect(dialog.getByText('Attendance mode *', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Meeting type *', { exact: true })).toBeVisible()
 
 	// Create button is present (disabled until required fields filled)
 	await expect(page.getByRole('button', { name: 'Create' })).toBeVisible()

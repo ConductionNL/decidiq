@@ -35,7 +35,9 @@ test('Action items: app-scoped nav lands on the index with its real content', as
 	await appNavClick(page, 'ActionItems')
 
 	await expect(page).toHaveURL(/\/apps\/decidesk\/.*action-items/)
-	await expect(page.getByRole('heading', { name: 'Action items', exact: true })).toBeVisible()
+	// NOTE: the migrated CnIndexPage (nc-vue v2) no longer renders a page-title
+	// heading inside <main>; the real index surface is the object-list table +
+	// "Showing N of N" + primary CTA, which is what we assert below.
 	await expect(page.getByTestId('cn-object-list-table')).toBeVisible()
 	await expect(page.getByText('Showing', { exact: false }).first()).toBeVisible()
 	await expect(page.getByRole('button', { name: 'Add ActionItem' })).toBeVisible()

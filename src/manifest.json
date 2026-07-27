@@ -334,6 +334,13 @@
 			"id": "GovernanceBodyDetail",
 			"route": "/governance-bodies/:id",
 			"type": "detail",
+			"slots": {
+				"widget-body-members": "GovernanceBodyMembersTab",
+				"widget-body-template": "GovernanceBodyTemplateTab",
+				"widget-body-efficiency": "GovernanceBodyEfficiencyTab",
+				"widget-body-retention": "GovernanceBodyRetentionTab",
+				"widget-body-evaluations": "GovernanceBodyEvaluationsTab"
+			},
 			"title": "Governance body",
 			"config": {
 				"register": "decidesk",
@@ -646,6 +653,9 @@
 			"id": "AgendaItemDetail",
 			"route": "/agenda-items/:id",
 			"type": "detail",
+			"slots": {
+				"widget-agenda-motions": "AgendaMotionsTab"
+			},
 			"title": "Agenda item",
 			"config": {
 				"register": "decidesk",
@@ -717,6 +727,12 @@
 			"id": "MotionDetail",
 			"route": "/motions/:id",
 			"type": "detail",
+			"slots": {
+				"widget-motion-amendments": "MotionAmendmentsTab",
+				"widget-motion-votes": "MotionVotesTab",
+				"widget-motion-amendment-order": "MotionAmendmentOrderTab",
+				"widget-motion-voting-round": "MotionVotingRoundTab"
+			},
 			"title": "Motion",
 			"config": {
 				"register": "decidesk",
@@ -825,6 +841,12 @@
 			"id": "MinutesDetail",
 			"route": "/minutes/:id",
 			"type": "detail",
+			"slots": {
+				"widget-minutes-approval": "MinutesApprovalTab",
+				"widget-minutes-documents": "MinutesDocumentTab",
+				"widget-minutes-signers": "MinutesSignersTab",
+				"widget-minutes-publication": "MinutesPublicationTab"
+			},
 			"title": "Minutes detail",
 			"config": {
 				"register": "decidesk",
@@ -954,6 +976,14 @@
 			"id": "DecisionDetail",
 			"route": "/decisions/:id",
 			"type": "detail",
+			"slots": {
+				"widget-decision-lifecycle": "DecisionLifecycleTab",
+				"widget-decision-actions": "ActionItemsSurface",
+				"widget-decision-related": "RelatedDecisionsTab",
+				"widget-decision-route": "DecisionRouteTab",
+				"widget-decision-voting": "DecisionVotingTab",
+				"widget-decision-publication": "DecisionPublicationTab"
+			},
 			"title": "Decision",
 			"config": {
 				"register": "decidesk",

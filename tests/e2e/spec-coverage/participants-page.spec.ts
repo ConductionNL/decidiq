@@ -30,7 +30,8 @@ test('Participants: index renders heading, object-list table and Add CTA', async
 	await dismissSupportDialog(page)
 
 	await expect(page).toHaveURL(/\/apps\/decidesk\/.*participants/)
-	await expect(page.getByRole('heading', { name: 'Participants', exact: true })).toBeVisible()
+	// NOTE: the migrated CnIndexPage (nc-vue v2) no longer renders a page-title
+	// heading inside <main>; assert the real index surface instead.
 	await expect(page.getByTestId('cn-object-list-table')).toBeVisible()
 	await expect(page.getByText('Showing', { exact: false }).first()).toBeVisible()
 	await expect(page.getByRole('button', { name: 'Add Participant' })).toBeVisible()
