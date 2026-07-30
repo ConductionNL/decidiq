@@ -6,7 +6,7 @@
 		{
 			"id": "GoverningDocuments",
 			"label": "Governing documents",
-			"icon": "icon-files",
+			"icon": "FileDocumentMultipleOutline",
 			"route": "GoverningDocuments",
 			"order": 53
 		}

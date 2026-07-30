@@ -6,14 +6,14 @@
 		{
 			"id": "Toezeggingen",
 			"label": "Commitments",
-			"icon": "icon-checkmark",
+			"icon": "Check",
 			"route": "Toezeggingen",
 			"order": 45
 		},
 		{
 			"id": "IngekomenStukken",
 			"label": "Incoming documents",
-			"icon": "icon-comment",
+			"icon": "FileDocumentMultipleOutline",
 			"route": "IngekomenStukken",
 			"order": 50
 		}
@@ -130,7 +130,7 @@
 				"schema": "ingekomen-stuk",
 				"_note": "IngekomenStukDetail (REQ-006). Document data leads 8-wide; the routing advice/decision, the linked listAgendaItem/targetAgendaItem and their meeting, and directedTo render as resolved references in the data + Related widgets. Files leaf for the scanned letter/petition PDF. Audit trail is a sidebar tab (REQ-006).",
 				"widgets": [
-					{ "id": "stuk-data", "type": "data", "title": "Incoming document", "icon": "EmailReceiveOutline", "content": { "columns": 2 } },
+					{ "id": "stuk-data", "type": "data", "title": "Incoming document", "icon": "EmailArrowLeftOutline", "content": { "columns": 2 } },
 					{ "id": "stuk-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "stuk-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],

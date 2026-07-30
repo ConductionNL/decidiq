@@ -2863,7 +2863,7 @@
           }
         },
         "slug": "decision",
-        "icon": "GavelOutline",
+        "icon": "Gavel",
         "version": "0.6.0",
         "title": "Decision",
         "description": "The universal governance-decision supertype (ADR-005). A single schema for every decision outcome — motion, amendment, resolution, contract, appointment, management point, policy and generic meeting outcome — distinguished by the required decisionType discriminator. Type-specific fields are folded in and revealed via progressive disclosure keyed on decisionType (ADR-006).",
@@ -4589,7 +4589,7 @@
       },
       "CitizenVote": {
         "slug": "citizen-vote",
-        "icon": "AccountVoiceOutline",
+        "icon": "AccountVoice",
         "version": "0.2.0",
         "title": "CitizenVote",
         "description": "A vote cast by a citizen, either on a motion (citizenVotingAllowed) or — in citizen-participation advisory mode — on a validated BudgetProposal. Distinct from staff Vote entities tied to a VotingRound; advisory citizen tallies are kept strictly separate from statutory VotingRound tallies. Version 0.2.0 added the proposalId field + proposal relation and relaxed motionId from required (a vote targets EITHER a motion OR a proposal).",
@@ -4765,7 +4765,7 @@
       },
       "ParticipatoryBudget": {
         "slug": "participatory-budget",
-        "icon": "CurrencyEurOutline",
+        "icon": "CurrencyEur",
         "version": "0.1.0",
         "title": "ParticipatoryBudget",
         "description": "A participatory budgeting round in which citizens propose projects and allocate funds (p3-citizen-participation). Modelled as schema:Grant for compatibility with funding-transparency vocabularies.",

@@ -6,28 +6,28 @@
 		{
 			"id": "VveDecisionTemplates",
 			"label": "VvE decision templates",
-			"icon": "icon-category",
+			"icon": "FileReplaceOutline",
 			"route": "VveDecisionTemplates",
 			"order": 71
 		},
 		{
 			"id": "ModelreglementPresets",
 			"label": "Modelreglement presets",
-			"icon": "icon-projects",
+			"icon": "BriefcaseOutline",
 			"route": "ModelreglementPresets",
 			"order": 72
 		},
 		{
 			"id": "VveConfigurations",
 			"label": "VvE configuration",
-			"icon": "icon-settings-dark",
+			"icon": "CogOutline",
 			"route": "VveConfigurations",
 			"order": 73
 		},
 		{
 			"id": "KascommissieVerklaringen",
 			"label": "Kascommissie verklaringen",
-			"icon": "icon-checkmark",
+			"icon": "Check",
 			"route": "KascommissieVerklaringen",
 			"order": 74
 		}
@@ -69,7 +69,7 @@
 				"schema": "vve-decision-template",
 				"_note": "Schema ref by slug (vve-decision-template), never PascalCase.",
 				"widgets": [
-					{ "id": "template-data", "type": "data", "title": "Decision template", "icon": "GavelOutline", "content": { "columns": 2 } }
+					{ "id": "template-data", "type": "data", "title": "Decision template", "icon": "Gavel", "content": { "columns": 2 } }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "template-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 8 }

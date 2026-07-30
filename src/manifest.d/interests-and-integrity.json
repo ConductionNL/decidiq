@@ -5,21 +5,21 @@
 		{
 			"id": "MyDeclarations",
 			"label": "My declarations",
-			"icon": "icon-user",
+			"icon": "ReceiptOutline",
 			"route": "MyDeclarations",
 			"order": 55
 		},
 		{
 			"id": "Nevenfuncties",
 			"label": "Other positions",
-			"icon": "icon-category-organization",
+			"icon": "Domain",
 			"route": "Nevenfuncties",
 			"order": 60
 		},
 		{
 			"id": "Geschenken",
 			"label": "Gifts",
-			"icon": "icon-star",
+			"icon": "Star",
 			"route": "Geschenken",
 			"order": 65
 		}

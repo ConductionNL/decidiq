@@ -83,7 +83,7 @@
     "schemas": {
       "ProxyAuthorization": {
         "slug": "proxyAuthorization",
-        "icon": "FileSignOutline",
+        "icon": "FileSign",
         "version": "0.1.0",
         "title": "ProxyAuthorization",
         "description": "A signed machtiging instrument (Schema.org AuthorizeAction over a DigitalDocument) evidencing that an absent member (grantor) authorized another member (holder) to cast their proxy vote for a meeting. It is a sibling of the proxy row on the unified vote schema, never a replacement: the vote row stays the ballot machinery (proxy-voting REQ-PRX-001/002, the REQ-BPV guard, cap counting) and back-references its instrument via the nullable authorizationRef property; this object owns the evidentiary lifecycle (generated -> getekend | geweigerd, plus a later signed revocation act). Signature status (signatureStatus) is a declarative guarded state machine (x-openregister-lifecycle, ADR-031): getekend is writable ONLY from a signing-provider completion through the reused eIDAS/docudesk seam (decidesk-contract-decision-hub REQ-DCDH-005) — decidesk never marks a machtiging signed on its own authority (no signature theatre; fail closed when no provider). The machtiging document, the signing/countersigning orchestration, the revocation signing act, and the per-meeting proxy register are IMPERATIVE (ProxyAuthorizationService reusing the REQ-DCDH-005 seam and the resolution-minutes markdown-fallback pattern) — out of declarative scope. All widget/filter/manifest sources reference this schema by its slug proxyAuthorization, never a PascalCase key.",

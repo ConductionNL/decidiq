@@ -6,14 +6,14 @@
 		{
 			"id": "MondelingeVragen",
 			"label": "Oral questions",
-			"icon": "icon-comment",
+			"icon": "CommentOutline",
 			"route": "MondelingeVragen",
 			"order": 49
 		},
 		{
 			"id": "Interpellaties",
 			"label": "Interpellations",
-			"icon": "icon-comment",
+			"icon": "CommentOutline",
 			"route": "Interpellaties",
 			"order": 56
 		}

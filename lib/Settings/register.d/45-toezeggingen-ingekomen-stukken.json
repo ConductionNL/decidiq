@@ -387,7 +387,7 @@
       },
       "IngekomenStuk": {
         "slug": "ingekomen-stuk",
-        "icon": "EmailReceiveOutline",
+        "icon": "EmailArrowLeftOutline",
         "version": "0.1.0",
         "title": "IngekomenStuk",
         "description": "An incoming document registered by the council griffie (letter from a resident or organisation, college submission, petition, invitation): a griffie routing advice per document, placement on the 'Lijst ingekomen stukken' AgendaItem of the next council meeting, bulk council confirmation via the hamerstuk flow, follow-up status tracking, and WOO-aware public publication in which natural-person senders are anonymised. The LIVE object is never public (a sender may be a natural person, WOO/AVG); public exposure runs exclusively through the derived immutable PublicationPayload (design D4/D7). Files attach via the existing Files leaf.",

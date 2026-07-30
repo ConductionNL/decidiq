@@ -6,7 +6,7 @@
 		{
 			"id": "Regelingen",
 			"label": "Regulations",
-			"icon": "icon-category-office",
+			"icon": "OfficeBuilding",
 			"route": "Regelingen",
 			"order": 46
 		}

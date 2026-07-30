@@ -6,7 +6,7 @@
 		{
 			"id": "PCCycli",
 			"label": "P&C cycles",
-			"icon": "icon-calendar-dark",
+			"icon": "Calendar",
 			"route": "PCCycli",
 			"order": 52
 		}

@@ -21,6 +21,7 @@ import App from './App.vue'
 import bundledManifest from './manifest.json'
 import menuLayout from './menu-layout.json'
 import registry from './registry.js'
+import appIcons from './icons.js'
 import { initializeStores } from './store/store.js'
 import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 
@@ -61,7 +62,7 @@ registerLeafIntegrations()
 registerDecisionsLeaf()
 
 // Register library-side icon set + lib translations once at bootstrap.
-registerIcons()
+registerIcons(appIcons)
 try {
 	registerTranslations()
 } catch (e) {

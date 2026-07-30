@@ -5,7 +5,7 @@
 		{
 			"id": "Bevoegdheidstoedelingen",
 			"label": "Delegations & mandates",
-			"icon": "icon-settings",
+			"icon": "Cog",
 			"route": "Bevoegdheidstoedelingen",
 			"order": 54
 		}

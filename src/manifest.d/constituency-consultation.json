@@ -6,7 +6,7 @@
 		{
 			"id": "Raadplegingen",
 			"label": "Consultations",
-			"icon": "icon-comment",
+			"icon": "CommentQuestionOutline",
 			"route": "Raadplegingen",
 			"order": 48
 		}

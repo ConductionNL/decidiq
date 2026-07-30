@@ -6,14 +6,14 @@
 		{
 			"id": "Geheimhoudingen",
 			"label": "Confidentiality register",
-			"icon": "icon-password",
+			"icon": "DatabaseOutline",
 			"route": "Geheimhoudingen",
 			"order": 78
 		},
 		{
 			"id": "GeheimhoudingGronden",
 			"label": "Confidentiality grounds",
-			"icon": "icon-category-auth",
+			"icon": "FileLockOutline",
 			"route": "GeheimhoudingGronden",
 			"order": 79
 		}
