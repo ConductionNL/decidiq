@@ -629,7 +629,7 @@
 					{
 						"id": "view",
 						"label": "View",
-						"icon": "icon-toggle",
+						"icon": "EyeOutline",
 						"handler": "navigate",
 						"route": "AgendaItemDetail",
 						"primary": true
@@ -637,7 +637,7 @@
 					{
 						"id": "integrations",
 						"label": "Integrations",
-						"icon": "icon-mail",
+						"icon": "Api",
 						"handler": "navigate",
 						"route": "AgendaItemIntegrations"
 					}
@@ -703,7 +703,7 @@
 					{
 						"id": "view",
 						"label": "View",
-						"icon": "icon-toggle",
+						"icon": "EyeOutline",
 						"handler": "navigate",
 						"route": "MotionDetail",
 						"primary": true
@@ -711,7 +711,7 @@
 					{
 						"id": "integrations",
 						"label": "Discussion",
-						"icon": "icon-comment",
+						"icon": "CommentOutline",
 						"handler": "navigate",
 						"route": "MotionIntegrations"
 					}
@@ -892,7 +892,7 @@
 					},
 					{
 						"label": "Motions",
-						"icon": "icon-comment",
+						"icon": "Gavel",
 						"filter": {
 							"decisionType": "motion"
 						},
@@ -944,7 +944,7 @@
 					{
 						"id": "view",
 						"label": "View",
-						"icon": "icon-toggle",
+						"icon": "EyeOutline",
 						"handler": "navigate",
 						"route": "DecisionDetail",
 						"primary": true
@@ -952,14 +952,14 @@
 					{
 						"id": "integrations",
 						"label": "Integrations",
-						"icon": "icon-mail",
+						"icon": "Api",
 						"handler": "navigate",
 						"route": "DecisionIntegrations"
 					},
 					{
 						"id": "publish",
 						"label": "Publish",
-						"icon": "icon-upload",
+						"icon": "CloudUploadOutline",
 						"handler": "emit",
 						"permission": "decidesk.decision.publish",
 						"confirm": true
