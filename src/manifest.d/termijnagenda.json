@@ -5,7 +5,7 @@
 		{
 			"id": "Termijnagenda",
 			"label": "Long-term agenda",
-			"icon": "icon-calendar",
+			"icon": "CalendarTextOutline",
 			"route": "Termijnagenda",
 			"order": 55
 		}

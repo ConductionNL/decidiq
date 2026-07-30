@@ -6,7 +6,7 @@
 		{
 			"id": "WorTrajecten",
 			"label": "Works-council consultations",
-			"icon": "icon-comment",
+			"icon": "CommentQuestionOutline",
 			"route": "WorTrajecten",
 			"order": 47
 		}

@@ -6,7 +6,7 @@
 		{
 			"id": "UrgentDecisions",
 			"label": "Urgent decisions",
-			"icon": "AlertOctagonOutline",
+			"icon": "Gavel",
 			"route": "UrgentDecisions",
 			"order": 75
 		}

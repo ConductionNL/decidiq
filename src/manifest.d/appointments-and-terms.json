@@ -6,21 +6,21 @@
 		{
 			"id": "Voordrachten",
 			"label": "Nominations",
-			"icon": "icon-user",
+			"icon": "Account",
 			"route": "Voordrachten",
 			"order": 55
 		},
 		{
 			"id": "Roosters",
 			"label": "Retirement schedules",
-			"icon": "icon-calendar-dark",
+			"icon": "Calendar",
 			"route": "Roosters",
 			"order": 60
 		},
 		{
 			"id": "Termijnregelingen",
 			"label": "Term rules",
-			"icon": "icon-settings",
+			"icon": "Cog",
 			"route": "Termijnregelingen",
 			"order": 65
 		}

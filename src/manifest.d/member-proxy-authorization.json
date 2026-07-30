@@ -6,7 +6,7 @@
 		{
 			"id": "ProxyAuthorizations",
 			"label": "Proxy authorizations",
-			"icon": "icon-user",
+			"icon": "ShieldKeyOutline",
 			"route": "ProxyAuthorizations",
 			"order": 71
 		}
@@ -55,7 +55,7 @@
 				"schema": "proxyAuthorization",
 				"_note": "ProxyAuthorizationDetail (REQ-MPA-001/003/004/007). The data widget leads 8-wide with grantor/holder/meeting/signatureStatus and, where present, countersignStatus and the revocation act (revokedAt + revocationSignatureStatus). The sign (grantor-only) and countersign (holder-only) actions ride the existing REQ-BPV guard on the ProxyVoteController surface and are wired imperatively by the page/service tasks — getekend is reachable only from a signing-provider completion (REQ-MPA-003, no signature theatre), never from this UI. The Related widget surfaces the linked proxy row on the vote schema (authorizationRef back-reference); the machtiging document (REQ-MPA-002 honest markdown fallback) attaches via the Files leaf. Audit trail is a sidebar tab.",
 				"widgets": [
-					{ "id": "authorization-data", "type": "data", "title": "Proxy authorization", "icon": "FileSignOutline", "content": { "columns": 2 } },
+					{ "id": "authorization-data", "type": "data", "title": "Proxy authorization", "icon": "FileSign", "content": { "columns": 2 } },
 					{ "id": "authorization-files", "type": "integration", "integrationId": "files", "title": "Machtiging document", "icon": "FolderOutline" },
 					{ "id": "authorization-related", "type": "related", "title": "Proxy row & meeting", "icon": "LinkVariant" }
 				],

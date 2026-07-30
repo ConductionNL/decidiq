@@ -5,7 +5,7 @@
 		{
 			"id": "UserSettingsMenu",
 			"label": "Personal settings",
-			"icon": "icon-user",
+			"icon": "CogOutline",
 			"route": "UserSettings",
 			"section": "settings",
 			"order": 98

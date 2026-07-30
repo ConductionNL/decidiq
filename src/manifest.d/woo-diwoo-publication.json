@@ -6,7 +6,7 @@
 		{
 			"id": "WooDiwoo",
 			"label": "Woo / DiWoo mappings",
-			"icon": "icon-category",
+			"icon": "SwapHorizontal",
 			"route": "WooCategorieMappings",
 			"order": 71
 		}

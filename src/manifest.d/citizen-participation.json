@@ -6,14 +6,14 @@
 		{
 			"id": "Consultations",
 			"label": "Consultations",
-			"icon": "icon-comment",
+			"icon": "CommentQuestionOutline",
 			"route": "Consultations",
 			"order": 66
 		},
 		{
 			"id": "ModerationQueue",
 			"label": "Moderation queue",
-			"icon": "icon-checkmark",
+			"icon": "TrayFull",
 			"route": "ModerationQueue",
 			"order": 68
 		}

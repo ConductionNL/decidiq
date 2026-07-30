@@ -291,7 +291,7 @@
       },
       "VveDecisionTemplate": {
         "slug": "vve-decision-template",
-        "icon": "GavelOutline",
+        "icon": "Gavel",
         "version": "0.1.0",
         "title": "VveDecisionTemplate",
         "description": "Statutory content for a VvE ALV decision: name, proposed besluittekst, decision category, and default required majority/quorum sourced from the modelreglementen. Distinct from ProcessTemplate (which models a state machine): this is decision content, instantiated into an ordinary Decision object — decision lifecycle, routes, and voting stay in the existing decision model, never forked. Built-in seeds (builtIn: true) are read-only-but-duplicable exactly like ProcessTemplateService built-ins (REQ-VVE-002).",

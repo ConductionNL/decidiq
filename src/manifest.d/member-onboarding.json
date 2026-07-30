@@ -6,14 +6,14 @@
 		{
 			"id": "OnboardingTrajecten",
 			"label": "Onboarding",
-			"icon": "icon-add",
+			"icon": "AccountPlusOutline",
 			"route": "OnboardingTrajecten",
 			"order": 71
 		},
 		{
 			"id": "OffboardingTrajecten",
 			"label": "Offboarding",
-			"icon": "icon-close",
+			"icon": "AccountMinusOutline",
 			"route": "OffboardingTrajecten",
 			"order": 72
 		}

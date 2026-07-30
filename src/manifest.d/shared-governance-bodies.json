@@ -6,14 +6,14 @@
 		{
 			"id": "Zienswijzerondes",
 			"label": "Zienswijzerondes",
-			"icon": "icon-comment",
+			"icon": "CommentQuestionOutline",
 			"route": "Zienswijzerondes",
 			"order": 76
 		},
 		{
 			"id": "Zienswijzen",
 			"label": "Zienswijzen",
-			"icon": "icon-comment",
+			"icon": "CommentQuestionOutline",
 			"route": "Zienswijzen",
 			"order": 77
 		}

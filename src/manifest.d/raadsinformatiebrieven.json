@@ -6,7 +6,7 @@
 		{
 			"id": "Raadsinformatiebrieven",
 			"label": "Council information letters",
-			"icon": "icon-mail",
+			"icon": "EmailOutline",
 			"route": "Raadsinformatiebrieven",
 			"order": 51
 		}
@@ -62,7 +62,7 @@
 				"schema": "raadsinformatiebrief",
 				"_note": "RaadsinformatiebriefDetail (REQ-RIB-004/REQ-RIB-007). Letter data leads 8-wide, publication actions stacked right; letterDocument + bijlagen render via the Files leaf; the linked portefeuillehouder/directedTo/agendaItem/afgedaneToezegging/relatedDossier/relatedDecision/relatedMotion render as resolved references in the data + Related widgets (navigable links, REQ-RIB-003 links back to the toezegging). The technische-vragen thread is a related-objects widget scoped to technische-vraag filtered on rib=@objectId, in question order — add-question and record-answer run in dedicated dialogs (modal-isolation gate). Publish/withdraw set publicatiedatum/depublicatiedatum through the standard object save. Audit trail is a sidebar tab.",
 				"widgets": [
-					{ "id": "rib-data", "type": "data", "title": "Council information letter", "icon": "EmailSendOutline", "content": { "columns": 2 } },
+					{ "id": "rib-data", "type": "data", "title": "Council information letter", "icon": "EmailArrowRightOutline", "content": { "columns": 2 } },
 					{ "id": "rib-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "rib-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
 					{

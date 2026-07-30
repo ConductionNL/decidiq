@@ -60,42 +60,42 @@
 		{
 			"id": "Dashboard",
 			"label": "Dashboard",
-			"icon": "icon-category-dashboard",
+			"icon": "ViewDashboardOutline",
 			"route": "Dashboard",
 			"order": 10
 		},
 		{
 			"id": "Meetings",
 			"label": "Meetings",
-			"icon": "icon-group",
+			"icon": "CalendarAccountOutline",
 			"route": "Meetings",
 			"order": 20
 		},
 		{
 			"id": "Decisions",
 			"label": "Decisions",
-			"icon": "icon-checkmark",
+			"icon": "Gavel",
 			"route": "Decisions",
 			"order": 30
 		},
 		{
 			"id": "ActionItems",
 			"label": "Action items",
-			"icon": "icon-checkmark",
+			"icon": "FormatListChecks",
 			"route": "ActionItems",
 			"order": 40
 		},
 		{
 			"id": "GovernanceBodies",
 			"label": "Bodies",
-			"icon": "icon-group",
+			"icon": "AccountGroupOutline",
 			"route": "GovernanceBodies",
 			"order": 60
 		},
 		{
 			"id": "Documentation",
 			"label": "Documentation",
-			"icon": "icon-info",
+			"icon": "BookOpenVariantOutline",
 			"href": "https://decidesk.conduction.nl",
 			"section": "footer",
 			"order": 90
@@ -103,7 +103,7 @@
 		{
 			"id": "SettingsMenu",
 			"label": "Settings",
-			"icon": "icon-settings",
+			"icon": "CogOutline",
 			"route": "Settings",
 			"section": "settings",
 			"order": 99
@@ -111,7 +111,7 @@
 		{
 			"id": "FeaturesRoadmapMenu",
 			"label": "Features & roadmap",
-			"icon": "icon-toggle",
+			"icon": "MapMarkerPath",
 			"route": "FeaturesRoadmap",
 			"section": "footer",
 			"order": 100

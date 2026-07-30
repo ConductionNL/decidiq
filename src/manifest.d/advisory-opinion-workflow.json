@@ -6,7 +6,7 @@
 		{
 			"id": "Adviesaanvragen",
 			"label": "Advisory opinions",
-			"icon": "icon-comment",
+			"icon": "CommentOutline",
 			"route": "Adviesaanvragen",
 			"order": 70
 		}
