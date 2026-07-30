@@ -100,7 +100,7 @@
 					{
 						"id": "view",
 						"label": "View",
-						"icon": "icon-toggle",
+						"icon": "EyeOutline",
 						"handler": "navigate",
 						"route": "ConsultationDetail",
 						"primary": true
@@ -165,7 +165,7 @@
 					{
 						"id": "view",
 						"label": "View",
-						"icon": "icon-toggle",
+						"icon": "EyeOutline",
 						"handler": "navigate",
 						"route": "BudgetRoundDetail",
 						"primary": true

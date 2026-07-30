@@ -46,7 +46,7 @@
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "ToezeggingDetail", "primary": true }
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "ToezeggingDetail", "primary": true }
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
@@ -112,7 +112,7 @@
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "IngekomenStukDetail", "primary": true }
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "IngekomenStukDetail", "primary": true }
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },

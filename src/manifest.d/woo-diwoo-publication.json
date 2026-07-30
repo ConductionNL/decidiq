@@ -41,7 +41,7 @@
 					{ "key": "active", "label": "Active", "widget": "badge" }
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "WooCategorieMappingDetail", "primary": true }
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "WooCategorieMappingDetail", "primary": true }
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
@@ -103,7 +103,7 @@
 					{ "key": "active", "label": "Active", "widget": "badge" }
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "icon-toggle", "handler": "navigate", "route": "WooBestuursorgaanDetail", "primary": true }
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "WooBestuursorgaanDetail", "primary": true }
 				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },

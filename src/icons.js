@@ -27,6 +27,7 @@ import AccountTieOutline from 'vue-material-design-icons/AccountTieOutline.vue'
 import AccountVoice from 'vue-material-design-icons/AccountVoice.vue'
 import AlertOctagonOutline from 'vue-material-design-icons/AlertOctagonOutline.vue'
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
+import Api from 'vue-material-design-icons/Api.vue'
 import BellCogOutline from 'vue-material-design-icons/BellCogOutline.vue'
 import BellOutline from 'vue-material-design-icons/BellOutline.vue'
 import BookOpenVariant from 'vue-material-design-icons/BookOpenVariant.vue'
@@ -54,6 +55,7 @@ import ClipboardCheckOutline from 'vue-material-design-icons/ClipboardCheckOutli
 import ClipboardList from 'vue-material-design-icons/ClipboardList.vue'
 import ClipboardTextClockOutline from 'vue-material-design-icons/ClipboardTextClockOutline.vue'
 import ClipboardTextOutline from 'vue-material-design-icons/ClipboardTextOutline.vue'
+import CloudUploadOutline from 'vue-material-design-icons/CloudUploadOutline.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import CogOutline from 'vue-material-design-icons/CogOutline.vue'
 import CommentAccountOutline from 'vue-material-design-icons/CommentAccountOutline.vue'
@@ -68,6 +70,7 @@ import Email from 'vue-material-design-icons/Email.vue'
 import EmailArrowLeftOutline from 'vue-material-design-icons/EmailArrowLeftOutline.vue'
 import EmailArrowRightOutline from 'vue-material-design-icons/EmailArrowRightOutline.vue'
 import EmailOutline from 'vue-material-design-icons/EmailOutline.vue'
+import EyeOutline from 'vue-material-design-icons/EyeOutline.vue'
 import FileDocument from 'vue-material-design-icons/FileDocument.vue'
 import FileDocumentCheckOutline from 'vue-material-design-icons/FileDocumentCheckOutline.vue'
 import FileDocumentMultipleOutline from 'vue-material-design-icons/FileDocumentMultipleOutline.vue'
@@ -127,6 +130,7 @@ export default {
 	AccountVoice,
 	AlertOctagonOutline,
 	AlertOutline,
+	Api,
 	BellCogOutline,
 	BellOutline,
 	BookOpenVariant,
@@ -154,6 +158,7 @@ export default {
 	ClipboardList,
 	ClipboardTextClockOutline,
 	ClipboardTextOutline,
+	CloudUploadOutline,
 	Cog,
 	CogOutline,
 	CommentAccountOutline,
@@ -168,6 +173,7 @@ export default {
 	EmailArrowLeftOutline,
 	EmailArrowRightOutline,
 	EmailOutline,
+	EyeOutline,
 	FileDocument,
 	FileDocumentCheckOutline,
 	FileDocumentMultipleOutline,
