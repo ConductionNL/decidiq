@@ -250,7 +250,13 @@ class RegisterJsonTest extends TestCase
         // body types.
         self::assertContains(needle: 'supervisory-board', haystack: $bodyTypeEnum);
         self::assertContains(needle: 'executive-board', haystack: $bodyTypeEnum);
-        self::assertCount(expectedCount: 7, haystack: $bodyTypeEnum);
+        // The batch-2 declarative cores added the advisory-body, works-council
+        // and shared-body types (advisory-opinion-workflow,
+        // works-council-consultation, shared-governance-bodies).
+        self::assertContains(needle: 'advisory-body', haystack: $bodyTypeEnum);
+        self::assertContains(needle: 'works-council', haystack: $bodyTypeEnum);
+        self::assertContains(needle: 'shared-body', haystack: $bodyTypeEnum);
+        self::assertCount(expectedCount: 10, haystack: $bodyTypeEnum);
 
     }//end testGovernanceBodySchema()
 
