@@ -131,6 +131,7 @@ export default {
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline) 0;
 }
+
 .action-item-modal__error {
 	color: var(--color-error);
 	margin: 0;

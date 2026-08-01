@@ -138,13 +138,16 @@ export default {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: calc(var(--default-grid-baseline) * 2);
 }
+
 .evaluation-respond__question {
 	margin-bottom: calc(var(--default-grid-baseline) * 2);
 }
+
 .evaluation-respond__prompt {
 	font-weight: bold;
 	margin-bottom: var(--default-grid-baseline);
 }
+
 .evaluation-respond__likert {
 	display: flex;
 	gap: 6px;
