@@ -146,11 +146,18 @@ webpackConfig.optimization = {
 // enhanced-resolve applies the first matching entry, and the bare alias maps the
 // package to its DIRECTORY, so '@nextcloud/dialogs/style.css' (imported by
 // nextcloud-vue's useAppInstaller) would resolve to a non-existent root style.css.
-// dialogs v6 ships the stylesheet at dist/style.css behind its "exports" map.
+// dialogs ships the stylesheet at dist/style.css behind its "exports" map.
+//
+// v7 IS ESM-ONLY: its exports map declares only '.' -> ./dist/index.mjs with no
+// `main`/`module` fallback, so a DIRECTORY alias no longer resolves (webpack
+// applies an exports map to a PACKAGE REQUEST, never to an absolutised path —
+// the aliased directory has nothing to resolve against and the build fails with
+// "…/node_modules/@nextcloud/dialogs doesn't exist"). Use an exact-match `$`
+// alias onto the explicit entry FILE, exactly as `@nextcloud/vue$` above does.
 webpackConfig.resolve.alias['@nextcloud/dialogs/style.css$'] = path.resolve(__dirname, 'node_modules/@nextcloud/dialogs/dist/style.css')
-webpackConfig.resolve.alias['@nextcloud/dialogs'] = path.resolve(__dirname, 'node_modules/@nextcloud/dialogs')
+webpackConfig.resolve.alias['@nextcloud/dialogs$'] = path.resolve(__dirname, 'node_modules/@nextcloud/dialogs/dist/index.mjs')
 
-// dialogs v6 drags in a FilePicker chunk that imports node's `path`, and webpack 5 no
+// dialogs drags in a FilePicker chunk that imports node's `path`, and webpack 5 no
 // longer auto-polyfills node core modules — without this the bundle fails to emit with
 // "Can't resolve 'path'". This app only uses the toast APIs (showError/showSuccess), so
 // the FilePicker code path never runs and an empty module is safe.
