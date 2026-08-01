@@ -72,6 +72,7 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\EventDispatcher\IEventDispatcher;
 
 /**
  * Main application class for the Decidesk Nextcloud app.
@@ -935,6 +936,8 @@ class Application extends App implements IBootstrap
                 );
             }
         );
+        // The MeetingFolderListener declares its schema interest up front and is
+        // therefore subscribed from boot(), not here — see boot().
         $context->registerService(
             \OCA\Decidesk\Listener\MeetingFolderListener::class,
             static function ($c): \OCA\Decidesk\Listener\MeetingFolderListener {
@@ -967,10 +970,6 @@ class Application extends App implements IBootstrap
                 );
             }
         );
-        $context->registerEventListener(
-            event: ObjectCreatedEvent::class,
-            listener: \OCA\Decidesk\Listener\MeetingFolderListener::class
-        );
 
         // Governance role -> OR RBAC scope projection
         // (consume-or-rbac-authorization, REQ-RBAC-001): keep each body's
@@ -986,6 +985,8 @@ class Application extends App implements IBootstrap
                 );
             }
         );
+        // The GovernanceRoleProjectionListener carries the same narrowing as
+        // MeetingFolderListener and is subscribed from boot(), not here.
         $context->registerService(
             \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class,
             static function ($c): \OCA\Decidesk\Listener\GovernanceRoleProjectionListener {
@@ -994,18 +995,6 @@ class Application extends App implements IBootstrap
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }
-        );
-        $context->registerEventListener(
-            event: ObjectCreatedEvent::class,
-            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class
-        );
-        $context->registerEventListener(
-            event: ObjectUpdatedEvent::class,
-            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class
-        );
-        $context->registerEventListener(
-            event: \OCA\OpenRegister\Event\ObjectDeletedEvent::class,
-            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class
         );
 
         // Meeting transcription + AI-assisted draft minutes
@@ -1082,7 +1071,8 @@ class Application extends App implements IBootstrap
         // Submission deadline gate (motion-amendment spec): pre-save hook that
         // rejects motion/amendment creations after the linked meeting's
         // submissionDeadline (OpenRegister converts the stopped event into
-        // HTTP 422 at the object API).
+        // HTTP 422 at the object API). It declares its schema interest up front
+        // and is therefore subscribed from boot(), not here — see boot().
         $context->registerService(
             \OCA\Decidesk\Listener\SubmissionDeadlineListener::class,
             static function ($c): \OCA\Decidesk\Listener\SubmissionDeadlineListener {
@@ -1092,10 +1082,6 @@ class Application extends App implements IBootstrap
                 );
             }
         );
-        $context->registerEventListener(
-            event: ObjectCreatingEvent::class,
-            listener: \OCA\Decidesk\Listener\SubmissionDeadlineListener::class
-        );
 
         // Portal citizen create-actions open-parent guard
         // (portal-citizen-create-actions, REQ-DKPCA-001/002): rejects a
@@ -1103,6 +1089,18 @@ class Application extends App implements IBootstrap
         // consultation/budget round is not open, closing the gap left by
         // portaliq's shared create receiver (which stamps scope + defaults
         // but does not enforce a declared parentConstraint).
+        //
+        // Deliberately NOT narrowed with ObjectEventSubscription, unlike the
+        // three listeners above. This is the one object listener in the app
+        // that does not identify its rows by schema slug at all: its class
+        // docblock records that on `ObjectCreatingEvent` no slug is reachable,
+        // so it identifies its two schemas by their REQUIRED field signature
+        // instead, and therefore also fires on any lookalike row — described
+        // there as a deliberately stricter, defence-in-depth posture. Declaring
+        // `['consultation-reaction', 'budget-proposal']` would quietly narrow
+        // a live security guard from "field signature" to "these two schema
+        // ids". That is a behaviour change, not a performance change, and does
+        // not belong in this commit.
         $context->registerService(
             \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener::class,
             static function ($c): \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener {
@@ -1155,6 +1153,64 @@ class Application extends App implements IBootstrap
         $context->registerDashboardWidget(\OCA\Decidesk\Dashboard\DecideskDashboardWidget::class);
 
     }//end registerNcPlatformIntegration()
+
+    /**
+     * Register an object-lifecycle listener that declares its interest up front.
+     *
+     * OpenRegister's `ObjectEventSubscription` records the register/schema slugs
+     * a listener reacts to and routes dispatches through a single shared proxy,
+     * so an uninterested listener is neither constructed nor invoked. When
+     * OpenRegister is absent — Decidesk carries no hard dependency on it — this
+     * degrades to the plain global registration it replaced, which is exactly
+     * the behaviour every listener had before.
+     *
+     * MUST be called from boot(), never from register(). Nextcloud enables each
+     * app's own autoloader immediately before calling that app's register(), so
+     * during register() OpenRegister's classes are only autoloadable to apps
+     * that happen to be registered after it — the class_exists() guard below
+     * would then resolve differently purely by app load order and silently fall
+     * back to an unfiltered registration. boot() runs only after every app's
+     * register() has completed, so the guard is order-independent there.
+     *
+     * @param IEventDispatcher       $dispatcher The live event dispatcher.
+     * @param string                 $event      OpenRegister event class name
+     * @param string                 $listener   Listener class name
+     * @param array<int,string>|null $registers  Register slugs the listener reacts to, or null for all
+     * @param array<int,string>|null $schemas    Schema slugs the listener reacts to, or null for all
+     *
+     * @return void
+     */
+    private function registerFilteredObjectListener(
+        IEventDispatcher $dispatcher,
+        string $event,
+        string $listener,
+        ?array $registers,
+        ?array $schemas
+    ): void {
+        $subscription = '\\OCA\\OpenRegister\\Event\\ObjectEventSubscription';
+        if (class_exists($subscription) === true) {
+            $subscription::subscribe(
+                dispatcher: $dispatcher,
+                event: $event,
+                listener: $listener,
+                registers: $registers,
+                schemas: $schemas
+            );
+            return;
+        }
+
+        // Loud on purpose. This fallback is correct but UNFILTERED, and while it
+        // was silent it was indistinguishable from a working narrowing.
+        \OCP\Server::get(\Psr\Log\LoggerInterface::class)->warning(
+            'OpenRegister ObjectEventSubscription unavailable: '.$listener
+            .' fell back to an UNFILTERED registration for '.$event
+            .' and will be invoked on every object write instance-wide.',
+            ['app' => self::APP_ID]
+        );
+
+        $dispatcher->addServiceListener($event, $listener);
+
+    }//end registerFilteredObjectListener()
 
     /**
      * Phase 4 — eIDAS QES integration bindings.
@@ -1472,5 +1528,63 @@ class Application extends App implements IBootstrap
         // as a sidebar tab + detail-page widget on host objects (e.g. a procest
         // case) without the full decidesk app bundle being present.
         \OCP\Util::addInitScript(Application::APP_ID, 'decidesk-integration-init');
+
+        $dispatcher = $context->getServerContainer()->get(IEventDispatcher::class);
+
+        // Declares its schema interest at subscription time instead of
+        // re-deriving it on every dispatch: the handler's first guard is
+        // `resolveSchemaSlug(...) !== MeetingFolderListener::SCHEMA_MEETING`
+        // (= the `meeting` schema slug). Registered globally it was
+        // constructed and invoked on every object create on the instance —
+        // a larpingapp character create reached `handle()` and bailed at that
+        // guard. No register is declared: schema-only is exactly the guard
+        // the handler already applies, and stays correct if a Decidesk
+        // deployment ever splits meetings across registers.
+        $this->registerFilteredObjectListener(
+            dispatcher: $dispatcher,
+            event: ObjectCreatedEvent::class,
+            listener: \OCA\Decidesk\Listener\MeetingFolderListener::class,
+            registers: null,
+            schemas: ['meeting']
+        );
+
+        // Same narrowing as MeetingFolderListener above. The declared slug list
+        // is `GovernanceRoleProjectionListener::ROSTER_SCHEMAS` verbatim — the
+        // handler bails on
+        // `in_array($slug, self::ROSTER_SCHEMAS, true) === false` — so the
+        // declaration cannot be narrower than the guard it fronts.
+        $this->registerFilteredObjectListener(
+            dispatcher: $dispatcher,
+            event: ObjectCreatedEvent::class,
+            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class,
+            registers: null,
+            schemas: ['participant', 'membership']
+        );
+        $this->registerFilteredObjectListener(
+            dispatcher: $dispatcher,
+            event: ObjectUpdatedEvent::class,
+            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class,
+            registers: null,
+            schemas: ['participant', 'membership']
+        );
+        $this->registerFilteredObjectListener(
+            dispatcher: $dispatcher,
+            event: \OCA\OpenRegister\Event\ObjectDeletedEvent::class,
+            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class,
+            registers: null,
+            schemas: ['participant', 'membership']
+        );
+
+        // Submission deadline gate (motion-amendment spec). Declared interest is
+        // the handler's own literal guard verbatim —
+        // `in_array($slug, ['motion', 'amendment'], true) === false` — so the
+        // declaration cannot be narrower than the guard it fronts.
+        $this->registerFilteredObjectListener(
+            dispatcher: $dispatcher,
+            event: ObjectCreatingEvent::class,
+            listener: \OCA\Decidesk\Listener\SubmissionDeadlineListener::class,
+            registers: null,
+            schemas: ['motion', 'amendment']
+        );
     }//end boot()
 }//end class
