@@ -121,11 +121,13 @@ export default {
 	max-height: 320px;
 	overflow-y: auto;
 }
+
 .member-add__empty,
 .member-add__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .member-add__error {
 	color: var(--color-error);
 	margin: 8px 0 0;

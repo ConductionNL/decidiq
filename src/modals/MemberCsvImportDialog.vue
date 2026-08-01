@@ -226,23 +226,28 @@ export default {
 	margin-top: 12px;
 	border-collapse: collapse;
 }
+
 .csv-import__table th,
 .csv-import__table td {
 	text-align: start;
 	padding: 4px 8px;
 	border-bottom: 1px solid var(--color-border);
 }
+
 .csv-import__status--duplicate,
 .csv-import__unmatched {
 	color: var(--color-text-maxcontrast);
 }
+
 .csv-import__status--invalid {
 	color: var(--color-error);
 }
+
 .csv-import__error {
 	color: var(--color-error);
 	margin: 8px 0 0;
 }
+
 .csv-import__done {
 	color: var(--color-success);
 	margin: 8px 0 0;

@@ -66,21 +66,25 @@ export default {
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .amendment-diff__legend {
 	display: flex;
 	gap: calc(var(--default-grid-baseline) * 2);
 	color: var(--color-text-maxcontrast);
 	font-size: 0.85rem;
 }
+
 .amendment-diff__body {
 	margin: 0;
 	line-height: 1.6;
 	white-space: pre-wrap;
 }
+
 .amendment-diff__empty {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 }
+
 .amendment-diff__added {
 	background-color: var(--color-success-hover, var(--color-success));
 	color: var(--color-main-text);
@@ -88,6 +92,7 @@ export default {
 	border-radius: var(--border-radius);
 	padding: 0 2px;
 }
+
 .amendment-diff__removed {
 	background-color: var(--color-error-hover, var(--color-error));
 	color: var(--color-main-text);

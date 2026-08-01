@@ -215,23 +215,28 @@ export default {
 	margin-top: 12px;
 	border-collapse: collapse;
 }
+
 .group-import__table th,
 .group-import__table td {
 	text-align: start;
 	padding: 4px 8px;
 	border-bottom: 1px solid var(--color-border);
 }
+
 .group-import__dup {
 	color: var(--color-text-maxcontrast);
 }
+
 .group-import__error {
 	color: var(--color-error);
 	margin: 8px 0 0;
 }
+
 .group-import__done {
 	color: var(--color-success);
 	margin: 8px 0 0;
 }
+
 .group-import__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 8px 0 0;
