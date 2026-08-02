@@ -246,7 +246,7 @@ class ProxyVoteService
         // Fail closed: an unreadable proxy list rejects the registration.
         $maxProxies = $this->maxProxiesPerHolder();
         $existing   = $this->forMeeting(meetingId: $meetingId, status: 'active');
-        if (($existing['success'] ?? false) !== true) {
+        if ($existing['success'] !== true) {
             return [
                 'success' => false,
                 'proxy'   => null,

@@ -95,7 +95,7 @@ class DecisionRequestedListener implements IEventListener
                 $event->getActorId()
             );
 
-            if (($result['success'] ?? false) === true) {
+            if ($result['success'] === true) {
                 $decisionId = (string) ($result['decisionId'] ?? '');
                 if ($decisionId !== '') {
                     $event->setDecisionId($decisionId);

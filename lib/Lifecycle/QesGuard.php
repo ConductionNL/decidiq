@@ -115,7 +115,7 @@ class QesGuard
             }
 
             $check = $this->signatureService->validateCertificateChain($thumbprint);
-            if (($check['valid'] ?? false) !== true) {
+            if ($check['valid'] !== true) {
                 $invalid[] = $signer;
                 continue;
             }

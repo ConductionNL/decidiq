@@ -209,7 +209,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
         $iconUrl = $this->getIconUrl();
         $items   = [];
 
-        $pending = (int) ($summary['pendingVotes'] ?? 0);
+        $pending = $summary['pendingVotes'];
         $items[] = new WidgetItem(
             $this->l10n->t('Pending votes: %s', [(string) $pending]),
             $this->l10n->t('Decisions awaiting your vote'),
