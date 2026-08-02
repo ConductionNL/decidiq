@@ -44,7 +44,6 @@ use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 /**
  * Thin controller for citizen-participation action endpoints.
@@ -69,7 +68,6 @@ class ParticipationController extends Controller
      * @param IUserSession                    $userSession        The user session
      * @param IGroupManager                   $groupManager       The group manager
      * @param IAppConfig                      $appConfig          App config (staff group)
-     * @param LoggerInterface                 $logger             The logger
      *
      * @return void
      *
@@ -84,7 +82,6 @@ class ParticipationController extends Controller
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
         private readonly IAppConfig $appConfig,
-        private readonly LoggerInterface $logger,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 

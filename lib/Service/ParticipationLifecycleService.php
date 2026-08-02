@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Stateless service implementing citizen-participation lifecycle rules.
@@ -71,7 +70,6 @@ class ParticipationLifecycleService
      * Constructor for ParticipationLifecycleService.
      *
      * @param ContainerInterface $container The DI container (lazy-loads ObjectService)
-     * @param LoggerInterface    $logger    The logger
      *
      * @return void
      *
@@ -79,7 +77,6 @@ class ParticipationLifecycleService
      */
     public function __construct(
         private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
 
