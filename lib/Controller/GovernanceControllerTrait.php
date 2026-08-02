@@ -62,10 +62,6 @@ trait GovernanceControllerTrait
     protected function bodyParams(\OCP\IRequest $request, array $stripKeys=['id', '_route']): array
     {
         $raw = $request->getParams();
-        if (is_array($raw) === false) {
-            return [];
-        }
-
         foreach ($stripKeys as $key) {
             unset($raw[$key]);
         }

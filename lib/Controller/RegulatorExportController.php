@@ -101,9 +101,9 @@ class RegulatorExportController extends Controller
         }
 
         $result = $this->exportService->generate($boardId, $scope, $format, $uid);
-        if (($result['success'] ?? false) === false) {
+        if ($result['success'] === false) {
             return new JSONResponse(
-                ['message' => (string) ($result['message'] ?? 'Failed to generate export.')],
+                ['message' => $result['message']],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
         }
@@ -142,8 +142,8 @@ class RegulatorExportController extends Controller
         }
 
         $result = $this->exportService->download($id, $uid);
-        if (($result['success'] ?? false) === false) {
-            $message = (string) ($result['message'] ?? 'Failed to download export.');
+        if ($result['success'] === false) {
+            $message = $result['message'];
             $status  = Http::STATUS_UNPROCESSABLE_ENTITY;
             if (stripos($message, 'not found') !== false) {
                 $status = Http::STATUS_NOT_FOUND;

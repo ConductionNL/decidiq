@@ -143,8 +143,8 @@ class GovernanceReportController extends Controller
         }
 
         $result = $this->reportingService->exportReport($id, 'json');
-        if (($result['success'] ?? false) === false) {
-            $message = (string) ($result['message'] ?? 'Report not found.');
+        if ($result['success'] === false) {
+            $message = $result['message'];
             $status  = Http::STATUS_NOT_FOUND;
             if (stripos($message, 'not found') === false) {
                 $status = Http::STATUS_UNPROCESSABLE_ENTITY;
@@ -180,9 +180,9 @@ class GovernanceReportController extends Controller
         }
 
         $result = $this->reportingService->exportReport($id, $format);
-        if (($result['success'] ?? false) === false) {
+        if ($result['success'] === false) {
             return new JSONResponse(
-                ['message' => (string) ($result['message'] ?? 'Failed to export report.')],
+                ['message' => $result['message']],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
         }
