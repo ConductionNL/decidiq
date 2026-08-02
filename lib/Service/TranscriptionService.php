@@ -407,10 +407,6 @@ class TranscriptionService
     {
         $aligned = [];
         foreach ($segments as $segment) {
-            if (is_array($segment) === false) {
-                continue;
-            }
-
             // Drop any prior assignment so re-runs reflect the current timeline.
             unset($segment['agendaItem']);
 
@@ -541,10 +537,6 @@ class TranscriptionService
 
         $lines = [];
         foreach ($segments as $segment) {
-            if (is_array($segment) === false) {
-                continue;
-            }
-
             $label = (string) ($segment['speakerLabel'] ?? '');
             $text  = (string) ($segment['text'] ?? '');
             if ($label !== '') {
