@@ -92,9 +92,9 @@ class MultilingualReconciliationController extends Controller
         }
 
         $result = $this->reconciliationService->queue($minutesId, $sourceLocale, $targetLocales);
-        if (($result['success'] ?? false) === false) {
+        if ($result['success'] === false) {
             return new JSONResponse(
-                ['message' => (string) ($result['message'] ?? 'Failed to queue translation.')],
+                ['message' => $result['message']],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
         }
@@ -151,16 +151,16 @@ class MultilingualReconciliationController extends Controller
         $maxEntries = (int) $this->request->getParam('maxEntries', 10);
         $result     = $this->reconciliationService->processQueue($maxEntries);
         $status     = Http::STATUS_UNPROCESSABLE_ENTITY;
-        if (($result['success'] ?? false) === true) {
+        if ($result['success'] === true) {
             $status = Http::STATUS_OK;
         }
 
         return new JSONResponse(
             [
-                'processed' => $result['processed'] ?? 0,
-                'completed' => $result['completed'] ?? 0,
-                'failed'    => $result['failed'] ?? 0,
-                'message'   => $result['message'] ?? '',
+                'processed' => $result['processed'],
+                'completed' => $result['completed'],
+                'failed'    => $result['failed'],
+                'message'   => $result['message'],
             ],
             $status
         );

@@ -246,8 +246,8 @@ class RegulatorExportService
         // Re-generate the body deterministically from current data — the persisted
         // record stores metadata + sha for traceability, not the binary blob.
         $result = $this->generate(boardId: $boardId, scope: $scope, format: $format, actor: $actor);
-        if (($result['success'] ?? false) === false) {
-            return $this->failureDownload(message: (string) ($result['message'] ?? 'Failed to render export body.'));
+        if ($result['success'] === false) {
+            return $this->failureDownload(message: $result['message']);
         }
 
         return [
