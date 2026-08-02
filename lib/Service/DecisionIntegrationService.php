@@ -428,7 +428,10 @@ class DecisionIntegrationService
         try {
             $registry = $this->container->get('OCA\\OpenConnector\\Service\\IntegrationService');
             if (method_exists($registry, 'isRegisteredConsumer') === true) {
-                return (bool) $registry->isRegisteredConsumer(callbackUrl: $url);
+                // Positional, not named: the registry is resolved from a class-name
+                // string at runtime, so its parameter names are not part of any
+                // contract decidesk can rely on.
+                return (bool) $registry->isRegisteredConsumer($url);
             }
         } catch (\Throwable) {
             // Registry unavailable — fall through to the domain allowlist.
