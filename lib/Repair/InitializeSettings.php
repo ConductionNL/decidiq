@@ -87,10 +87,10 @@ class InitializeSettings implements IRepairStep
         // Ensure voter_token_secret is initialized exactly once, at install/upgrade time,
         // to prevent a concurrent first-call race in VotingService::voterTokenSecret().
         if ($this->appConfig->getValueString('decidesk', 'voter_token_secret', '') === '') {
-            // sensitive: true — this is the HMAC key that signs voting tokens and
-            // mail-reply links. Without the flag it is stored as an ordinary appconfig
-            // string, so it prints in cleartext in `occ config:list` and every support
-            // dump that feeds. Anyone who reads it can forge a vote.
+            // The `sensitive: true` flag below is required: this is the HMAC key that
+            // signs voting tokens and mail-reply links. Without the flag it is stored as
+            // an ordinary appconfig string, so it prints in cleartext in `occ config:list`
+            // and every support dump that feeds. Anyone who reads it can forge a vote.
             $this->appConfig->setValueString(
                 'decidesk',
                 'voter_token_secret',
