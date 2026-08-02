@@ -239,7 +239,6 @@ class Application extends App implements IBootstrap
                 static function ($c): ParticipationLifecycleService {
                     return new ParticipationLifecycleService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
                 );
@@ -261,7 +260,6 @@ class Application extends App implements IBootstrap
                 static function ($c): BudgetVotingService {
                     return new BudgetVotingService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
                     lifecycleService: $c->get(ParticipationLifecycleService::class),
                     votingService: $c->get(VotingService::class),
                     );
@@ -293,7 +291,6 @@ class Application extends App implements IBootstrap
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     appConfig: $c->get(\OCP\IAppConfig::class),
-                    logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
                 }
                 );
@@ -877,10 +874,13 @@ class Application extends App implements IBootstrap
                 );
             }
         );
-        $context->registerEventListener(
-            event: DeepLinkRegistrationEvent::class,
-            listener: 'OCA\\OpenRegister\\AppHost\\Listener\\GenericDeepLinkRegistrationListener'
-        );
+        // The listener is an OpenRegister AppHost class that only exists when
+        // openregister is installed, so PHPStan cannot verify it is a
+        // class-string<IEventListener>. It is registered as a service just above and
+        // is only instantiated when OpenRegister dispatches the event.
+        $listenerClass = 'OCA\\OpenRegister\\AppHost\\Listener\\GenericDeepLinkRegistrationListener';
+        // @phpstan-ignore-next-line
+        $context->registerEventListener(event: DeepLinkRegistrationEvent::class, listener: $listenerClass);
 
     }//end registerAppHostBoilerplate()
 

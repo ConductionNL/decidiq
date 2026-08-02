@@ -27,7 +27,6 @@ use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Tests proposal submission/validation guards and greedy allocation.
@@ -67,10 +66,8 @@ class BudgetVotingServiceTest extends TestCase
 
         $this->service = new BudgetVotingService(
             container: $container,
-            logger: $this->createMock(LoggerInterface::class),
             lifecycleService: new ParticipationLifecycleService(
                 container: $container,
-                logger: $this->createMock(LoggerInterface::class),
             ),
             votingService: $this->createMock(VotingService::class),
         );

@@ -25,7 +25,6 @@ use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Tests for lifecycle transitions, server-side deadline guards, and the legacy
@@ -66,7 +65,6 @@ class ParticipationLifecycleServiceTest extends TestCase
 
         $this->service = new ParticipationLifecycleService(
             container: $container,
-            logger: $this->createMock(LoggerInterface::class),
         );
 
     }//end setUp()
