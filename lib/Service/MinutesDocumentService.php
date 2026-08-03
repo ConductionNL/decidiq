@@ -377,10 +377,9 @@ class MinutesDocumentService
     private function appendGeneratedDocument(array $minutes, string $minutesId, array $record, object $objectService): void
     {
         try {
+            $documents = [];
             if (is_array($minutes['generatedDocuments'] ?? null) === true) {
                 $documents = $minutes['generatedDocuments'];
-            } else {
-                $documents = [];
             }
 
             $documents[] = $record;

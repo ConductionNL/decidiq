@@ -298,10 +298,9 @@ class ProcessTemplateService
 
         $stateNames = [];
         foreach ((array) ($stateMachine['states'] ?? []) as $state) {
+            $name = null;
             if (is_array($state) === true) {
                 $name = ($state['name'] ?? null);
-            } else {
-                $name = null;
             }
 
             if (is_string($name) === true && $name !== '') {
@@ -349,10 +348,9 @@ class ProcessTemplateService
 
             foreach ((array) ($transition['guards'] ?? []) as $guard) {
                 if (in_array($guard, self::KNOWN_GUARDS, true) === false) {
+                    $guardLabel = '?';
                     if (is_string($guard) === true) {
                         $guardLabel = $guard;
-                    } else {
-                        $guardLabel = '?';
                     }
 
                     $errors[] = "Unknown guard token '".$guardLabel."'.";

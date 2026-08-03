@@ -615,11 +615,11 @@ class RegulatorExportService
                 ['\\\\', '\\(', '\\)'],
                 $line
             );
-            if ($index === 0) {
-                $stream .= '('.$escaped.") Tj\n";
-            } else {
-                $stream .= "0 -14 Td\n".'('.$escaped.") Tj\n";
+            if ($index !== 0) {
+                $stream .= "0 -14 Td\n";
             }
+
+            $stream .= '('.$escaped.") Tj\n";
         }
 
         $stream .= 'ET';
