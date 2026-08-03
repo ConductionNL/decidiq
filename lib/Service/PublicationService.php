@@ -118,13 +118,16 @@ class PublicationService
             $targetCatalog = $this->configService->getForBody($bodyId)['catalog'];
         }
 
-        if ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '') {
+        $catalogAvailable = ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '');
+        if ($catalogAvailable === false) {
+            $warnings[] = 'opencatalogi-absent';
+        }
+
+        if ($catalogAvailable === true) {
             $catalogRef = $this->catalogPublisher->publish($targetCatalog, $payloadId, $payload);
             if ($catalogRef === '') {
                 $warnings[] = 'catalog-publish-failed';
             }
-        } else {
-            $warnings[] = 'opencatalogi-absent';
         }
 
         $record       = [
@@ -200,9 +203,8 @@ class PublicationService
         $catalogRef = (string) ($record['catalogPublication'] ?? '');
         if ($catalogRef !== '') {
             $retracted = $this->catalogPublisher->retract((string) ($record['targetCatalog'] ?? ''), $catalogRef);
-            if ($retracted === true) {
-                $catalogRetractionStatus = 'done';
-            } else {
+            $catalogRetractionStatus = 'done';
+            if ($retracted !== true) {
                 // Surface the failure and mark pending — never report success.
                 $catalogRetractionStatus = 'pending';
                 $warnings[] = 'catalog-retraction-failed';
@@ -268,15 +270,18 @@ class PublicationService
 
         $warnings = [];
 
-        $catalogRef    = '';
-        $targetCatalog = (string) ($prior['targetCatalog'] ?? '');
-        if ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '') {
+        $catalogRef       = '';
+        $targetCatalog    = (string) ($prior['targetCatalog'] ?? '');
+        $catalogAvailable = ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '');
+        if ($catalogAvailable === false) {
+            $warnings[] = 'opencatalogi-absent';
+        }
+
+        if ($catalogAvailable === true) {
             $catalogRef = $this->catalogPublisher->publish($targetCatalog, $payloadId, $payload);
             if ($catalogRef === '') {
                 $warnings[] = 'catalog-publish-failed';
             }
-        } else {
-            $warnings[] = 'opencatalogi-absent';
         }
 
         $newRecord       = [

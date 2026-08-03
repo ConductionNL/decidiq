@@ -356,14 +356,13 @@ class ProofPackageService
             $lines[] = sprintf('%s. %s', (string) ($item['orderNumber'] ?? '-'), $item['title']);
         }
 
-        $lines[] = '';
-        $lines[] = '## 2. Quorum';
-        $lines[] = '';
-        $quorum  = $package['quorum'];
+        $lines[]  = '';
+        $lines[]  = '## 2. Quorum';
+        $lines[]  = '';
+        $quorum   = $package['quorum'];
+        $metLabel = 'NEE / niet vastgesteld';
         if ($quorum['met'] === true) {
             $metLabel = 'JA';
-        } else {
-            $metLabel = 'NEE / niet vastgesteld';
         }
 
         $lines[] = sprintf(

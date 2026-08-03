@@ -542,13 +542,14 @@ class TranscriptionService
 
         $lines = [];
         foreach ($segments as $segment) {
-            $label = (string) ($segment['speakerLabel'] ?? '');
-            $text  = (string) ($segment['text'] ?? '');
+            $label  = (string) ($segment['speakerLabel'] ?? '');
+            $text   = (string) ($segment['text'] ?? '');
+            $prefix = '';
             if ($label !== '') {
-                $lines[] = $label.': '.$text;
-            } else {
-                $lines[] = $text;
+                $prefix = $label.': ';
             }
+
+            $lines[] = $prefix.$text;
         }
 
         $content  = implode("\n", $lines);
