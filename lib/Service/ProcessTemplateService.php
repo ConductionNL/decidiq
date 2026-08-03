@@ -30,9 +30,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use InvalidArgumentException;
 use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Service for process-template management and template-driven policy resolution.
@@ -158,7 +160,7 @@ class ProcessTemplateService
      *
      * @param array<string, mixed> $template The template payload
      *
-     * @throws \InvalidArgumentException When the state-machine graph is invalid (fail closed)
+     * @throws InvalidArgumentException When the state-machine graph is invalid (fail closed)
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -184,8 +186,8 @@ class ProcessTemplateService
      * @param string               $templateId The template UUID
      * @param array<string, mixed> $template   The full template payload to persist
      *
-     * @throws \InvalidArgumentException When the state-machine graph is invalid (fail closed)
-     * @throws \RuntimeException         When the template is built-in (read-only) or missing
+     * @throws InvalidArgumentException When the state-machine graph is invalid (fail closed)
+     * @throws RuntimeException         When the template is built-in (read-only) or missing
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -195,11 +197,11 @@ class ProcessTemplateService
     {
         $existing = $this->get(templateId: $templateId);
         if ($existing === null) {
-            throw new \RuntimeException("Process template '$templateId' not found.");
+            throw new RuntimeException("Process template '$templateId' not found.");
         }
 
         if (($existing['builtIn'] ?? false) === true) {
-            throw new \RuntimeException('Built-in templates are read-only; duplicate it to customise.');
+            throw new RuntimeException('Built-in templates are read-only; duplicate it to customise.');
         }
 
         $this->assertValidStateMachine(template: $template);
@@ -222,7 +224,7 @@ class ProcessTemplateService
      * @param string      $templateId The template UUID to duplicate
      * @param string|null $newName    Optional name for the copy (defaults to "<name> (copy)")
      *
-     * @throws \RuntimeException When the source template is missing
+     * @throws RuntimeException When the source template is missing
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -232,7 +234,7 @@ class ProcessTemplateService
     {
         $source = $this->get(templateId: $templateId);
         if ($source === null) {
-            throw new \RuntimeException("Process template '$templateId' not found.");
+            throw new RuntimeException("Process template '$templateId' not found.");
         }
 
         $copy = $source;
@@ -250,7 +252,7 @@ class ProcessTemplateService
      *
      * @param string $templateId The template UUID
      *
-     * @throws \RuntimeException When the template is built-in (read-only) or missing
+     * @throws RuntimeException When the template is built-in (read-only) or missing
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -260,11 +262,11 @@ class ProcessTemplateService
     {
         $existing = $this->get(templateId: $templateId);
         if ($existing === null) {
-            throw new \RuntimeException("Process template '$templateId' not found.");
+            throw new RuntimeException("Process template '$templateId' not found.");
         }
 
         if (($existing['builtIn'] ?? false) === true) {
-            throw new \RuntimeException('Built-in templates are read-only and cannot be deleted.');
+            throw new RuntimeException('Built-in templates are read-only and cannot be deleted.');
         }
 
         $this->objectService()->deleteObject(uuid: $templateId, register: 'decidesk', schema: 'process-template');
@@ -376,7 +378,7 @@ class ProcessTemplateService
      *
      * @param array<string, mixed> $template The template payload
      *
-     * @throws \InvalidArgumentException When the graph is invalid
+     * @throws InvalidArgumentException When the graph is invalid
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -386,7 +388,7 @@ class ProcessTemplateService
     {
         $result = $this->validateStateMachine(template: $template);
         if ($result['valid'] === false) {
-            throw new \InvalidArgumentException('Invalid state machine: '.implode(' ', $result['errors']));
+            throw new InvalidArgumentException('Invalid state machine: '.implode(' ', $result['errors']));
         }
 
     }//end assertValidStateMachine()

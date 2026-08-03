@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -180,7 +181,7 @@ class DashboardWidgetService
             }
 
             try {
-                $ts = (new \DateTimeImmutable($scheduled))->getTimestamp();
+                $ts = (new DateTimeImmutable($scheduled))->getTimestamp();
             } catch (\Throwable) {
                 continue;
             }

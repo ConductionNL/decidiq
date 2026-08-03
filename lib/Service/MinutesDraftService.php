@@ -26,6 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use DomainException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCP\TaskProcessing\Task;
 use OCP\TaskProcessing\TaskTypes\TextToText;
@@ -108,14 +111,14 @@ class MinutesDraftService
      * @return array<string,mixed> The draft structure for the minutes editor.
      *
      * @throws MissingObjectException When the Transcript cannot be found.
-     * @throws \DomainException       When no AI provider is available (code 503).
+     * @throws DomainException       When no AI provider is available (code 503).
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function generate(string $transcriptId): array
     {
         if ($this->isProviderAvailable() === false) {
-            throw new \DomainException('No TaskProcessing/AI provider is available on this instance.', 503);
+            throw new DomainException('No TaskProcessing/AI provider is available on this instance.', 503);
         }
 
         $transcript = $this->fetchObject(id: $transcriptId, schema: 'transcript');
@@ -139,7 +142,7 @@ class MinutesDraftService
         }
 
         $providerId  = $this->preferredProviderId();
-        $generatedAt = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $generatedAt = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 
         $sections = $this->buildSections(
             segments: $segments,

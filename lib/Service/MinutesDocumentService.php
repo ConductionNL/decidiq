@@ -27,6 +27,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use InvalidArgumentException;
+use RuntimeException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use Psr\Container\ContainerInterface;
@@ -85,8 +89,8 @@ class MinutesDocumentService
      *
      * @throws MissingObjectException    When the Minutes object is not found
      * @throws MissingRelationException  When no Meeting is linked to the Minutes
-     * @throws \InvalidArgumentException When the format is not supported
-     * @throws \RuntimeException         When OpenRegister or Files is unavailable
+     * @throws InvalidArgumentException When the format is not supported
+     * @throws RuntimeException         When OpenRegister or Files is unavailable
      *
      * @return array<string,mixed> { path, format, docudesk, note? }
      *
@@ -95,7 +99,7 @@ class MinutesDocumentService
     public function generate(string $minutesId, string $format, string $displayName): array
     {
         if (in_array($format, self::FORMATS, true) === false) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Unsupported format "%s". Supported: %s.', $format, implode(', ', self::FORMATS)),
                 422
             );
@@ -130,7 +134,7 @@ class MinutesDocumentService
 
         $title    = (string) ($minutes['title'] ?? 'Minutes');
         $version  = (int) ($minutes['version'] ?? 1);
-        $stamp    = (new \DateTimeImmutable())->format('Y-m-d Hi');
+        $stamp    = (new DateTimeImmutable())->format('Y-m-d Hi');
         $baseName = sprintf('%s v%d %s', $title, $version, $stamp);
 
         $produced = 'markdown';
@@ -165,7 +169,7 @@ class MinutesDocumentService
         }
 
         if ($path === null) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'The minutes document could not be stored: the Files backend is unavailable.',
                 503
             );
@@ -174,7 +178,7 @@ class MinutesDocumentService
         $record = [
             'path'        => $path,
             'format'      => $produced,
-            'generatedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'generatedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
             'generatedBy' => $displayName,
             'docudesk'    => $docudesk,
         ];
@@ -435,7 +439,7 @@ class MinutesDocumentService
                 'Decidesk: failed to fetch linked Meeting for document generation',
                 ['meetingId' => $meetingId, 'error' => $e->getMessage()]
             );
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'OpenRegister service is temporarily unavailable. Please try again later.',
                 503,
                 $e
@@ -447,7 +451,7 @@ class MinutesDocumentService
     /**
      * Lazy-load the OpenRegister ObjectService from the container.
      *
-     * @throws \RuntimeException When OpenRegister is not installed
+     * @throws RuntimeException When OpenRegister is not installed
      *
      * @return object The OpenRegister ObjectService instance
      */
@@ -456,7 +460,7 @@ class MinutesDocumentService
         try {
             return $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable $e) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'OpenRegister ObjectService is not available. '
                 .'Please ensure the OpenRegister app is installed and enabled.',
                 0,

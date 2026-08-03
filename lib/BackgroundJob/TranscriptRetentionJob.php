@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\BackgroundJob;
 
+use DateTimeImmutable;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Container\ContainerInterface;
@@ -101,7 +102,7 @@ class TranscriptRetentionJob extends TimedJob
             return;
         }
 
-        $now         = new \DateTimeImmutable();
+        $now         = new DateTimeImmutable();
         $transcripts = $this->fetchActiveDoneTranscripts(objectService: $objectService);
 
         foreach ($transcripts as $transcript) {
@@ -127,13 +128,13 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @param object              $objectService The OR ObjectService.
      * @param array<string,mixed> $transcript    The Transcript object.
-     * @param \DateTimeImmutable  $now           Current time (injectable for tests).
+     * @param DateTimeImmutable   $now           Current time (injectable for tests).
      *
      * @return string The resulting retention state.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
-    public function enforceForTranscript(object $objectService, array $transcript, \DateTimeImmutable $now): string
+    public function enforceForTranscript(object $objectService, array $transcript, DateTimeImmutable $now): string
     {
         $currentState = (string) ($transcript['retentionState'] ?? 'active');
         if ($currentState === 'purged') {
@@ -255,11 +256,11 @@ class TranscriptRetentionJob extends TimedJob
      * @param object $objectService The OR ObjectService.
      * @param string $meetingId     Meeting UUID.
      *
-     * @return \DateTimeImmutable|null The approval time, or null when not approved.
+     * @return DateTimeImmutable|null The approval time, or null when not approved.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
-    private function resolveMinutesApprovedAt(object $objectService, string $meetingId): ?\DateTimeImmutable
+    private function resolveMinutesApprovedAt(object $objectService, string $meetingId): ?DateTimeImmutable
     {
         $entities = $objectService->findAll(
             [
@@ -286,7 +287,7 @@ class TranscriptRetentionJob extends TimedJob
             }
 
             try {
-                return new \DateTimeImmutable($approvedAt);
+                return new DateTimeImmutable($approvedAt);
             } catch (\Throwable) {
                 continue;
             }

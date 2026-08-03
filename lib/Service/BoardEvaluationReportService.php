@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Exception\MissingObjectException;
+use RuntimeException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -99,7 +100,7 @@ class BoardEvaluationReportService
         }
 
         if ($path === null) {
-            throw new \RuntimeException('The evaluation report could not be stored: the Files backend is unavailable.', 503);
+            throw new RuntimeException('The evaluation report could not be stored: the Files backend is unavailable.', 503);
         }
 
         $result = ['path' => $path, 'format' => $format, 'docudesk' => $docudesk];

@@ -45,6 +45,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Migration;
 
+use DateTimeImmutable;
 use OCA\Decidesk\Service\SettingsService;
 use OCP\App\IAppManager;
 use OCP\Migration\IOutput;
@@ -349,7 +350,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
             actorType: 'guests',
             actorId: 'decidesk-migration',
             message: $messageBody,
-            creationDateTime: new \DateTimeImmutable($creationDateStr),
+            creationDateTime: new DateTimeImmutable($creationDateStr),
         );
 
     }//end replayIntoTalk()

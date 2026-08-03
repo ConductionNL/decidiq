@@ -26,6 +26,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use DomainException;
+use InvalidArgumentException;
+use RuntimeException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -132,7 +137,7 @@ class TranscriptionService
      * @return array<string,mixed> The created Transcript object.
      *
      * @throws MissingObjectException    When the meeting cannot be found.
-     * @throws \InvalidArgumentException When source type/path is invalid.
+     * @throws InvalidArgumentException When source type/path is invalid.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
@@ -144,15 +149,15 @@ class TranscriptionService
         string $language=''
     ): array {
         if (in_array($sourceType, ['talk-recording', 'uploaded-file'], true) === false) {
-            throw new \InvalidArgumentException('Invalid source type.', 422);
+            throw new InvalidArgumentException('Invalid source type.', 422);
         }
 
         if (trim($sourcePath) === '') {
-            throw new \InvalidArgumentException('A source file path is required.', 422);
+            throw new InvalidArgumentException('A source file path is required.', 422);
         }
 
         if (trim($confirmedBy) === '') {
-            throw new \InvalidArgumentException('A consent confirmation is required.', 422);
+            throw new InvalidArgumentException('A consent confirmation is required.', 422);
         }
 
         $meeting = $this->fetchMeeting(meetingId: $meetingId);
@@ -166,7 +171,7 @@ class TranscriptionService
             'retentionState' => 'active',
             'consent'        => [
                 'confirmedBy' => $confirmedBy,
-                'confirmedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                'confirmedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
             ],
             'relations'      => ['meeting' => $meetingId],
         ];
@@ -190,7 +195,7 @@ class TranscriptionService
      * @return array<string,mixed> The Transcript object (status unchanged at submit).
      *
      * @throws MissingObjectException    When the Transcript cannot be found.
-     * @throws \DomainException          When consent is missing (code 422) or no provider (code 503).
+     * @throws DomainException          When consent is missing (code 422) or no provider (code 503).
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
@@ -200,11 +205,11 @@ class TranscriptionService
 
         $consent = ($transcript['consent'] ?? null);
         if (is_array($consent) === false || trim((string) ($consent['confirmedBy'] ?? '')) === '') {
-            throw new \DomainException('Consent is required before a transcription can be requested.', 422);
+            throw new DomainException('Consent is required before a transcription can be requested.', 422);
         }
 
         if ($this->isProviderAvailable() === false) {
-            throw new \DomainException('No SpeechToText provider is available on this instance.', 503);
+            throw new DomainException('No SpeechToText provider is available on this instance.', 503);
         }
 
         // Preconditions satisfied; the queued TranscriptionJob will move the
@@ -383,7 +388,7 @@ class TranscriptionService
         }
 
         $transcript['segments']  = $this->alignSegments(segments: $segments, timeline: $timeline);
-        $transcript['alignedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $transcript['alignedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 
         return $this->saveTranscript(transcript: $transcript);
 
@@ -453,7 +458,7 @@ class TranscriptionService
             }
 
             try {
-                $itemStart = (new \DateTimeImmutable((string) $rawStart))->getTimestamp();
+                $itemStart = (new DateTimeImmutable((string) $rawStart))->getTimestamp();
             } catch (\Throwable) {
                 continue;
             }
@@ -565,14 +570,14 @@ class TranscriptionService
      *
      * @return \OCP\Files\File The resolved file node.
      *
-     * @throws \RuntimeException When the file cannot be resolved.
+     * @throws RuntimeException When the file cannot be resolved.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
     private function resolveSourceNode(string $path): \OCP\Files\File
     {
         if ($path === '') {
-            throw new \RuntimeException('Transcript has no source file path.');
+            throw new RuntimeException('Transcript has no source file path.');
         }
 
         $fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
@@ -582,7 +587,7 @@ class TranscriptionService
         $node        = $folderNode->get($base);
 
         if (($node instanceof \OCP\Files\File) === false) {
-            throw new \RuntimeException('Source path is not a file: '.$path);
+            throw new RuntimeException('Source path is not a file: '.$path);
         }
 
         return $node;
@@ -760,7 +765,7 @@ class TranscriptionService
      *
      * @return object The ObjectService instance.
      *
-     * @throws \RuntimeException When OpenRegister is not installed.
+     * @throws RuntimeException When OpenRegister is not installed.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
@@ -769,7 +774,7 @@ class TranscriptionService
         try {
             return $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable $e) {
-            throw new \RuntimeException('OpenRegister ObjectService is not available.', 0, $e);
+            throw new RuntimeException('OpenRegister ObjectService is not available.', 0, $e);
         }
 
     }//end getObjectService()
