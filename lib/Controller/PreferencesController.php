@@ -120,24 +120,25 @@ class PreferencesController extends Controller
             return new JSONResponse(data: ['message' => 'Invalid key'], statusCode: Http::STATUS_BAD_REQUEST);
         }
 
-        $stored = null;
+        // An empty value clears the preference rather than storing a blank one.
         if ($value === '') {
             $this->config->deleteUserValue(
                 userId: $user->getUID(),
                 appName: Application::APP_ID,
                 key: 'pref_'.$safeKey
             );
-        } else {
-            $this->config->setUserValue(
-                userId: $user->getUID(),
-                appName: Application::APP_ID,
-                key: 'pref_'.$safeKey,
-                value: $value
-            );
-            $stored = $value;
+
+            return new JSONResponse(data: ['value' => null]);
         }
 
-        return new JSONResponse(data: ['value' => $stored]);
+        $this->config->setUserValue(
+            userId: $user->getUID(),
+            appName: Application::APP_ID,
+            key: 'pref_'.$safeKey,
+            value: $value
+        );
+
+        return new JSONResponse(data: ['value' => $value]);
 
     }//end setPreference()
 
