@@ -2,10 +2,11 @@
 /**
  * Decidesk Participation Controller
  *
- * Thin REST controller for citizen-participation ACTIONS only: lifecycle
- * transitions, reaction intake + moderation, budget proposal submission +
- * validation, advisory voting, and result publication. Plain object CRUD
- * stays on the OpenRegister object API (ADR-022) — no pass-through endpoints.
+ * Thin REST controller for consultation + reaction ACTIONS only: consultation
+ * lifecycle transitions, reaction intake + moderation, and consultation/reaction
+ * publication. The participatory-BUDGET endpoints live in
+ * ParticipationBudgetController. Plain object CRUD stays on the OpenRegister
+ * object API (ADR-022) — no pass-through endpoints.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -28,9 +29,9 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\BudgetVotingService;
 use OCA\Decidesk\Service\ParticipationLifecycleService;
 use OCA\Decidesk\Service\ParticipationPublicationService;
+use OCA\Decidesk\Service\ParticipationResponder;
 use OCA\Decidesk\Service\ReactionIntakeService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -40,18 +41,16 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IAppConfig;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
- * Thin controller for citizen-participation action endpoints.
+ * Thin controller for consultation + reaction action endpoints.
  *
- * Staff actions are guarded by requireStaff() (governance-body authority via
- * the decidesk chair group, falling back to NC admin). Reaction intake is
- * available to authenticated users and — only when the consultation opts in —
- * to anonymous clients through a single brute-force-throttled public endpoint.
+ * Staff actions are guarded by the ParticipationResponder (governance-body
+ * authority via the decidesk chair group, falling back to NC admin). Reaction
+ * intake is available to authenticated users and — only when the consultation
+ * opts in — to anonymous clients through a single brute-force-throttled public
+ * endpoint.
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
@@ -63,11 +62,8 @@ class ParticipationController extends Controller
      * @param IRequest                        $request            The request object
      * @param ParticipationLifecycleService   $lifecycleService   Lifecycle transitions
      * @param ReactionIntakeService           $intakeService      Reaction intake + moderation
-     * @param BudgetVotingService             $budgetService      Proposals + advisory voting
      * @param ParticipationPublicationService $publicationService Result publication
-     * @param IUserSession                    $userSession        The user session
-     * @param IGroupManager                   $groupManager       The group manager
-     * @param IAppConfig                      $appConfig          App config (staff group)
+     * @param ParticipationResponder          $responder          Guard + response mapping
      *
      * @return void
      *
@@ -77,68 +73,12 @@ class ParticipationController extends Controller
         IRequest $request,
         private readonly ParticipationLifecycleService $lifecycleService,
         private readonly ReactionIntakeService $intakeService,
-        private readonly BudgetVotingService $budgetService,
         private readonly ParticipationPublicationService $publicationService,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-        private readonly IAppConfig $appConfig,
+        private readonly ParticipationResponder $responder,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
-
-    /**
-     * Require the current user to hold staff (governance-body) authority.
-     *
-     * Checks membership of the configured decidesk chair group, falling back to
-     * Nextcloud admin when no group is configured. Returns a 401/403
-     * JSONResponse on failure, null on success. Fail closed.
-     *
-     * @return JSONResponse|null A response on failure, null when authorized.
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    private function requireStaff(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $uid        = $user->getUID();
-        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
-
-        $authorized = $this->groupManager->isAdmin($uid);
-        if ($chairGroup !== '' && $authorized === false) {
-            $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
-        }
-
-        if ($authorized === false) {
-            return new JSONResponse(['message' => 'Governance-body authority required'], Http::STATUS_FORBIDDEN);
-        }
-
-        return null;
-
-    }//end requireStaff()
-
-    /**
-     * Map a service exception to an HTTP status code.
-     *
-     * @param \Throwable $e The thrown exception.
-     *
-     * @return int The HTTP status.
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    private function statusForException(\Throwable $e): int
-    {
-        if ($e instanceof \InvalidArgumentException) {
-            return Http::STATUS_BAD_REQUEST;
-        }
-
-        return Http::STATUS_CONFLICT;
-
-    }//end statusForException()
 
     /**
      * Transition a consultation lifecycle status (staff only).
@@ -153,46 +93,15 @@ class ParticipationController extends Controller
     #[NoAdminRequired]
     public function transitionConsultation(string $consultationId, string $status): JSONResponse
     {
-        $guard = $this->requireStaff();
-        if ($guard !== null) {
-            return $guard;
-        }
-
-        try {
-            $result = $this->lifecycleService->transitionConsultation(consultationId: $consultationId, newStatus: $status);
-            return new JSONResponse(['consultation' => $result]);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
+        return $this->responder->staffAction(
+            operation: fn (): array => $this->lifecycleService->transitionConsultation(
+                consultationId: $consultationId,
+                newStatus: $status
+            ),
+            key: 'consultation'
+        );
 
     }//end transitionConsultation()
-
-    /**
-     * Transition a participatory-budget round status (staff only).
-     *
-     * @param string $budgetId The budget round UUID.
-     * @param string $status   The target status.
-     *
-     * @return JSONResponse
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    #[NoAdminRequired]
-    public function transitionBudgetRound(string $budgetId, string $status): JSONResponse
-    {
-        $guard = $this->requireStaff();
-        if ($guard !== null) {
-            return $guard;
-        }
-
-        try {
-            $result = $this->lifecycleService->transitionBudgetRound(budgetId: $budgetId, newStatus: $status);
-            return new JSONResponse(['budgetRound' => $result]);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
-
-    }//end transitionBudgetRound()
 
     /**
      * Submit a reaction as an authenticated Nextcloud user.
@@ -212,21 +121,15 @@ class ParticipationController extends Controller
     #[NoAdminRequired]
     public function submitReaction(string $consultationId, string $body=''): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        try {
-            $reaction = $this->intakeService->submitReaction(
+        return $this->responder->citizenAction(
+            operation: fn (string $uid): array => $this->intakeService->submitReaction(
                 consultationId: $consultationId,
                 body: $body,
-                ncUid: $user->getUID()
-            );
-            return new JSONResponse(['reaction' => $reaction], Http::STATUS_CREATED);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
+                ncUid: $uid
+            ),
+            key: 'reaction',
+            status: Http::STATUS_CREATED
+        );
 
     }//end submitReaction()
 
@@ -312,22 +215,18 @@ class ParticipationController extends Controller
     #[NoAdminRequired]
     public function approveReaction(string $reactionId, string $reason=''): JSONResponse
     {
-        $guard = $this->requireStaff();
-        if ($guard !== null) {
-            return $guard;
+        $reasonValue = null;
+        if ($reason !== '') {
+            $reasonValue = $reason;
         }
 
-        try {
-            $reasonValue = null;
-            if ($reason !== '') {
-                $reasonValue = $reason;
-            }
-
-            $reaction = $this->intakeService->approveReaction(reactionId: $reactionId, reason: $reasonValue);
-            return new JSONResponse(['reaction' => $reaction]);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
+        return $this->responder->staffAction(
+            operation: fn (): array => $this->intakeService->approveReaction(
+                reactionId: $reactionId,
+                reason: $reasonValue
+            ),
+            key: 'reaction'
+        );
 
     }//end approveReaction()
 
@@ -344,118 +243,15 @@ class ParticipationController extends Controller
     #[NoAdminRequired]
     public function rejectReaction(string $reactionId, string $reason=''): JSONResponse
     {
-        $guard = $this->requireStaff();
-        if ($guard !== null) {
-            return $guard;
-        }
-
-        try {
-            $reaction = $this->intakeService->rejectReaction(reactionId: $reactionId, reason: $reason);
-            return new JSONResponse(['reaction' => $reaction]);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
+        return $this->responder->staffAction(
+            operation: fn (): array => $this->intakeService->rejectReaction(
+                reactionId: $reactionId,
+                reason: $reason
+            ),
+            key: 'reaction'
+        );
 
     }//end rejectReaction()
-
-    /**
-     * Submit a budget proposal as an authenticated citizen.
-     *
-     * The round must be in its submission phase (enforced server-side by the
-     * service), so this action is scoped to the open-round state rather than an
-     * arbitrary object id (no IDOR).
-     *
-     * @param string $budgetId    The budget round UUID.
-     * @param string $title       The proposal title.
-     * @param string $description The proposal description.
-     * @param float  $amount      The requested amount.
-     * @param string $category    Optional category.
-     *
-     * @return JSONResponse
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    #[NoAdminRequired]
-    public function submitProposal(string $budgetId, string $title='', string $description='', float $amount=0, string $category=''): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        try {
-            $proposal = $this->budgetService->submitProposal(
-                budgetId: $budgetId,
-                title: $title,
-                description: $description,
-                requested: $amount,
-                submitterId: $user->getUID(),
-                category: $category
-            );
-            return new JSONResponse(['proposal' => $proposal], Http::STATUS_CREATED);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
-
-    }//end submitProposal()
-
-    /**
-     * Validate or reject a submitted proposal (staff only).
-     *
-     * @param string $proposalId The proposal UUID.
-     * @param bool   $approve    True to validate, false to reject.
-     *
-     * @return JSONResponse
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    #[NoAdminRequired]
-    public function validateProposal(string $proposalId, bool $approve=true): JSONResponse
-    {
-        $guard = $this->requireStaff();
-        if ($guard !== null) {
-            return $guard;
-        }
-
-        try {
-            $proposal = $this->budgetService->validateProposal(proposalId: $proposalId, approve: $approve);
-            return new JSONResponse(['proposal' => $proposal]);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
-
-    }//end validateProposal()
-
-    /**
-     * Cast one advisory vote on a validated proposal (authenticated citizen).
-     *
-     * One CitizenVote per citizen per proposal; the service rejects duplicates
-     * (HTTP 409) and votes outside the voting window. The action is scoped to
-     * the proposal's validated/voting state, not an arbitrary owned object.
-     *
-     * @param string $proposalId The proposal UUID.
-     * @param string $value      'voor' | 'tegen'.
-     *
-     * @return JSONResponse
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    #[NoAdminRequired]
-    public function castAdvisoryVote(string $proposalId, string $value=''): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        try {
-            $result = $this->budgetService->castAdvisoryVote(proposalId: $proposalId, voterId: $user->getUID(), value: $value);
-            return new JSONResponse($result, Http::STATUS_CREATED);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
-
-    }//end castAdvisoryVote()
 
     /**
      * Publish a consultation's PII-free results summary (staff only).
@@ -470,45 +266,14 @@ class ParticipationController extends Controller
     #[NoAdminRequired]
     public function publishConsultationResults(string $consultationId, string $staffResponse=''): JSONResponse
     {
-        $guard = $this->requireStaff();
-        if ($guard !== null) {
-            return $guard;
-        }
-
-        try {
-            $result = $this->publicationService->publishConsultationResults(consultationId: $consultationId, staffResponse: $staffResponse);
-            return new JSONResponse($result);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
+        return $this->responder->staffAction(
+            operation: fn (): array => $this->publicationService->publishConsultationResults(
+                consultationId: $consultationId,
+                staffResponse: $staffResponse
+            )
+        );
 
     }//end publishConsultationResults()
-
-    /**
-     * Publish a budget round's PII-free allocation results (staff only).
-     *
-     * @param string $budgetId The budget round UUID.
-     *
-     * @return JSONResponse
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    #[NoAdminRequired]
-    public function publishBudgetResults(string $budgetId): JSONResponse
-    {
-        $guard = $this->requireStaff();
-        if ($guard !== null) {
-            return $guard;
-        }
-
-        try {
-            $result = $this->publicationService->publishBudgetResults(budgetId: $budgetId);
-            return new JSONResponse($result);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
-
-    }//end publishBudgetResults()
 
     /**
      * Publish a single approved reaction (staff only, never blanket).
@@ -522,17 +287,10 @@ class ParticipationController extends Controller
     #[NoAdminRequired]
     public function publishReaction(string $reactionId): JSONResponse
     {
-        $guard = $this->requireStaff();
-        if ($guard !== null) {
-            return $guard;
-        }
-
-        try {
-            $reaction = $this->publicationService->publishReaction(reactionId: $reactionId);
-            return new JSONResponse(['reaction' => $reaction]);
-        } catch (\Throwable $e) {
-            return new JSONResponse(['message' => $e->getMessage()], $this->statusForException(e: $e));
-        }
+        return $this->responder->staffAction(
+            operation: fn (): array => $this->publicationService->publishReaction(reactionId: $reactionId),
+            key: 'reaction'
+        );
 
     }//end publishReaction()
 }//end class

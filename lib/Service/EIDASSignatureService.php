@@ -148,24 +148,54 @@ class EIDASSignatureService implements IEIDASSignatureService
             payload: ['phase' => 'initiate', 'signatories' => array_values($signatories)]
         );
 
-        $requestIdOut = null;
-        if ($requestId !== '') {
-            $requestIdOut = $requestId;
-        }
-
-        $signingUrlOut = null;
-        if ($signingUrl !== '') {
-            $signingUrlOut = $signingUrl;
-        }
-
         return [
             'success'    => true,
-            'requestId'  => $requestIdOut,
-            'signingUrl' => $signingUrlOut,
+            'requestId'  => $this->nullIfEmpty(value: $requestId),
+            'signingUrl' => $this->nullIfEmpty(value: $signingUrl),
             'message'    => 'Signing request initiated.',
         ];
 
     }//end initializeSigningRequest()
+
+    /**
+     * Normalise an optional string field: '' becomes null, everything else is
+     * returned unchanged. Used for every nullable field in the response shapes.
+     *
+     * @param string $value The raw field value
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+     *
+     * @return string|null
+     */
+    private function nullIfEmpty(string $value): ?string
+    {
+        if ($value === '') {
+            return null;
+        }
+
+        return $value;
+
+    }//end nullIfEmpty()
+
+    /**
+     * Read an ObjectService entity as a plain array, preferring getObject()
+     * when the entity exposes it.
+     *
+     * @param object $entity Entity returned by ObjectService
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+     *
+     * @return array<string, mixed>
+     */
+    private function toObjectArray(object $entity): array
+    {
+        if (method_exists($entity, 'getObject') === true) {
+            return (array) $entity->getObject();
+        }
+
+        return (array) $entity->jsonSerialize();
+
+    }//end toObjectArray()
 
     /**
      * {@inheritDoc}
@@ -213,11 +243,6 @@ class EIDASSignatureService implements IEIDASSignatureService
         $thumbprint = (string) ($response['certificateThumbprint'] ?? '');
         $timestamp  = (string) ($response['timestamp'] ?? gmdate('Y-m-d\TH:i:s\Z'));
 
-        $thumbprintOut = null;
-        if ($thumbprint !== '') {
-            $thumbprintOut = $thumbprint;
-        }
-
         $messageOut = 'Signature rejected.';
         if ($valid === true) {
             $messageOut = 'Signature verified.';
@@ -225,7 +250,7 @@ class EIDASSignatureService implements IEIDASSignatureService
 
         return [
             'valid'                 => $valid,
-            'certificateThumbprint' => $thumbprintOut,
+            'certificateThumbprint' => $this->nullIfEmpty(value: $thumbprint),
             'timestamp'             => $timestamp,
             'message'               => $messageOut,
         ];
@@ -306,20 +331,10 @@ class EIDASSignatureService implements IEIDASSignatureService
             ]
         );
 
-        $archiveReferenceOut = null;
-        if ($archiveReference !== '') {
-            $archiveReferenceOut = $archiveReference;
-        }
-
-        $hashOut = null;
-        if ($hash !== '') {
-            $hashOut = $hash;
-        }
-
         return [
             'success'             => true,
-            'pdfArchiveReference' => $archiveReferenceOut,
-            'hashSha256'          => $hashOut,
+            'pdfArchiveReference' => $this->nullIfEmpty(value: $archiveReference),
+            'hashSha256'          => $this->nullIfEmpty(value: $hash),
             'message'             => 'Minutes finalized.',
         ];
 
@@ -367,16 +382,6 @@ class EIDASSignatureService implements IEIDASSignatureService
         $issuer = (string) ($response['issuer'] ?? '');
         $level  = (string) ($response['trustListLevel'] ?? '');
 
-        $issuerOut = null;
-        if ($issuer !== '') {
-            $issuerOut = $issuer;
-        }
-
-        $levelOut = null;
-        if ($level !== '') {
-            $levelOut = $level;
-        }
-
         $validateMessage = 'Certificate not on EU Trusted List.';
         if ($valid === true) {
             $validateMessage = 'Certificate chain valid.';
@@ -384,8 +389,8 @@ class EIDASSignatureService implements IEIDASSignatureService
 
         return [
             'valid'          => $valid,
-            'issuer'         => $issuerOut,
-            'trustListLevel' => $levelOut,
+            'issuer'         => $this->nullIfEmpty(value: $issuer),
+            'trustListLevel' => $this->nullIfEmpty(value: $level),
             'message'        => $validateMessage,
         ];
 
@@ -496,12 +501,7 @@ class EIDASSignatureService implements IEIDASSignatureService
             $decidedAt = gmdate('Y-m-d\TH:i:s\Z');
 
             foreach ($results as $stage) {
-                $current = [];
-                if (method_exists($stage, 'getObject') === true) {
-                    $current = $stage->getObject();
-                } else {
-                    $current = (array) $stage->jsonSerialize();
-                }
+                $current = $this->toObjectArray(entity: $stage);
 
                 $stageId = (string) ($current['id'] ?? ($current['uuid'] ?? ''));
                 if ($stageId === '') {
@@ -594,20 +594,7 @@ class EIDASSignatureService implements IEIDASSignatureService
                 ]
             );
 
-            $body = '';
-            if (is_object($response) === true && method_exists($response, 'getResponse') === true) {
-                $raw  = $response->getResponse();
-                $body = (string) ($raw['body'] ?? '');
-            }
-
-            $decoded = null;
-            if ($body !== '') {
-                $decoded = json_decode($body, true);
-            }
-
-            if (is_array($decoded) === false) {
-                throw new RuntimeException('Docudesk returned non-JSON response.');
-            }
+            $decoded = $this->decodeDocudeskResponse(response: $response);
 
             $requestId  = (string) ($decoded['id'] ?? ($decoded['signingRequestId'] ?? ''));
             $signingUrl = (string) ($decoded['signingUrl'] ?? '');
@@ -619,20 +606,10 @@ class EIDASSignatureService implements IEIDASSignatureService
                 payload: ['phase' => 'docudesk-initiate', 'signatories' => array_values($signatories)]
             );
 
-            $requestIdValue = null;
-            if ($requestId !== '') {
-                $requestIdValue = $requestId;
-            }
-
-            $signingUrlValue = null;
-            if ($signingUrl !== '') {
-                $signingUrlValue = $signingUrl;
-            }
-
             return [
                 'success'    => true,
-                'requestId'  => $requestIdValue,
-                'signingUrl' => $signingUrlValue,
+                'requestId'  => $this->nullIfEmpty(value: $requestId),
+                'signingUrl' => $this->nullIfEmpty(value: $signingUrl),
                 'message'    => 'Signing request composed via docudesk.',
             ];
         } catch (\Throwable $e) {
@@ -650,6 +627,41 @@ class EIDASSignatureService implements IEIDASSignatureService
         }//end try
 
     }//end composeDocudeskSigningRequest()
+
+    /**
+     * Decode a docudesk CallService response body into an array.
+     *
+     * Fail-closed: throws when the body is absent or not valid JSON, so the
+     * caller never treats an unparseable answer as a successful signature.
+     *
+     * @param mixed $response The raw CallService response object
+     *
+     * @throws RuntimeException When the response carries no decodable JSON body.
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+     *
+     * @return array<string, mixed> The decoded response body
+     */
+    private function decodeDocudeskResponse(mixed $response): array
+    {
+        $body = '';
+        if (is_object($response) === true && method_exists($response, 'getResponse') === true) {
+            $raw  = $response->getResponse();
+            $body = (string) ($raw['body'] ?? '');
+        }
+
+        $decoded = null;
+        if ($body !== '') {
+            $decoded = json_decode($body, true);
+        }
+
+        if (is_array($decoded) === false) {
+            throw new RuntimeException('Docudesk returned non-JSON response.');
+        }
+
+        return $decoded;
+
+    }//end decodeDocudeskResponse()
 
     /**
      * Persist a partial update on a Minutes row. Wrapped in a try/catch so
@@ -673,13 +685,8 @@ class EIDASSignatureService implements IEIDASSignatureService
                 return;
             }
 
-            $current = (array) $entity->jsonSerialize();
-            if (method_exists($entity, 'getObject') === true) {
-                $current = $entity->getObject();
-            }
-
             $objectService->saveObject(
-                object: array_merge($current, $patch),
+                object: array_merge($this->toObjectArray(entity: $entity), $patch),
                 register: 'decidesk',
                 schema: 'minutes',
                 uuid: $minutesId

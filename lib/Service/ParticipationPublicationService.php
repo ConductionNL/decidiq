@@ -388,16 +388,18 @@ class ParticipationPublicationService
 
         $catalogiInstalled  = $this->isOpenCatalogiInstalled();
         $openCatalogiRouted = false;
-        $warning            = null;
+
+        // Default to the "not installed" warning; the branch below refines it.
+        $warning = 'OpenCatalogi is not installed; the catalog routing step was skipped. '
+            .'The summary carries the published predicate only.';
 
         if ($catalogiInstalled === true) {
+            $warning            = null;
             $openCatalogiRouted = $this->routeToOpenCatalogi(summary: $summary, governanceBodyId: $governanceBodyId);
             if ($openCatalogiRouted === false) {
                 $warning = 'OpenCatalogi is installed but no target catalog is configured for this governance body; '
                     .'the summary was not routed to a catalog.';
             }
-        } else {
-            $warning = 'OpenCatalogi is not installed; the catalog routing step was skipped. The summary carries the published predicate only.';
         }
 
         return [

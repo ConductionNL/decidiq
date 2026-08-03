@@ -217,7 +217,11 @@ class VotingControllerTest extends TestCase
      */
     public function testProxyUnauthenticatedReturns401(): void
     {
-        $this->votingService->expects($this->never())->method('grantProxy');
+        // Negative control: proxy() resolves the acting participant through
+        // VotingService immediately AFTER the auth check and before it reaches
+        // ProxyDelegationService, so "resolveParticipantUuid was never called"
+        // proves the 401 was raised by the guard and not by later work.
+        $this->votingService->expects($this->never())->method('resolveParticipantUuid');
 
         $result = $this->buildController($this->unauthSession)->proxy('round-uuid-001');
 
@@ -251,7 +255,11 @@ class VotingControllerTest extends TestCase
      */
     public function testRevokeProxyUnauthenticatedReturns401(): void
     {
-        $this->votingService->expects($this->never())->method('revokeProxy');
+        // Negative control: revokeProxy() resolves the acting participant through
+        // VotingService immediately AFTER the auth check and before it reaches
+        // ProxyDelegationService, so "resolveParticipantUuid was never called"
+        // proves the 401 was raised by the guard and not by later work.
+        $this->votingService->expects($this->never())->method('resolveParticipantUuid');
 
         $result = $this->buildController($this->unauthSession)->revokeProxy('round-uuid-001');
 

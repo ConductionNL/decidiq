@@ -296,24 +296,7 @@ class MeetingService
      */
     private function resolveBodyId(array $meetingData): ?string
     {
-        $candidates = [];
-
-        $relations = ($meetingData['relations'] ?? []);
-        if (is_array($relations) === true) {
-            foreach (['governanceBody', 'GovernanceBody'] as $key) {
-                if (isset($relations[$key]) === true) {
-                    $candidates[] = $relations[$key];
-                }
-            }
-        }
-
-        foreach (['governanceBody', 'GovernanceBody'] as $key) {
-            if (isset($meetingData[$key]) === true) {
-                $candidates[] = $meetingData[$key];
-            }
-        }
-
-        foreach ($candidates as $value) {
+        foreach ($this->collectBodyIdCandidates(meetingData: $meetingData) as $value) {
             if (is_array($value) === true) {
                 $value = ($value['id'] ?? ($value[0] ?? null));
             }
@@ -325,6 +308,39 @@ class MeetingService
 
         return null;
     }//end resolveBodyId()
+
+    /**
+     * Collect the raw governance-body references a meeting may carry.
+     *
+     * Relations entries are preferred over the flat property, and both the
+     * camelCase and PascalCase key spellings are honoured — the order returned
+     * is the order the candidates are tried in.
+     *
+     * @param array<string, mixed> $meetingData Current meeting object
+     *
+     * @return array<int, mixed> The candidate references, most preferred first
+     *
+     * @spec openspec/specs/meeting-efficiency/spec.md
+     */
+    private function collectBodyIdCandidates(array $meetingData): array
+    {
+        $candidates = [];
+        $relations  = ($meetingData['relations'] ?? []);
+
+        foreach (['governanceBody', 'GovernanceBody'] as $key) {
+            if (is_array($relations) === true && isset($relations[$key]) === true) {
+                $candidates[] = $relations[$key];
+            }
+        }
+
+        foreach (['governanceBody', 'GovernanceBody'] as $key) {
+            if (isset($meetingData[$key]) === true) {
+                $candidates[] = $meetingData[$key];
+            }
+        }
+
+        return $candidates;
+    }//end collectBodyIdCandidates()
 
     /**
      * Build the additive meeting-efficiency patch for a lifecycle transition.

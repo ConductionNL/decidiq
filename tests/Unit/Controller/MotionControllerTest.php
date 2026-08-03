@@ -32,7 +32,6 @@ use OCP\IRequest;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 
 /**
  * Tests for MotionController auth guards.
@@ -108,7 +107,6 @@ class MotionControllerTest extends TestCase
     private function buildController(IUserSession $session): MotionController
     {
         $participantResolver = $this->createMock(ParticipantResolver::class);
-        $container           = $this->createMock(ContainerInterface::class);
 
         return new MotionController(
             request: $this->request,
@@ -117,7 +115,6 @@ class MotionControllerTest extends TestCase
             groupManager: $this->groupManager,
             appConfig: $this->appConfig,
             participantResolver: $participantResolver,
-            container: $container,
         );
 
     }//end buildController()

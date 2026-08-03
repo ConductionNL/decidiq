@@ -32,6 +32,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -493,7 +494,7 @@ class VotingServiceCastAsTest extends TestCase
                 votingMethod: 'for-against-abstain',
                 isSecret: false,
                 closedAt: null,
-                voteThreshold: 'plurality'
+                roundRules: new VotingRoundRules(voteThreshold: 'plurality')
             );
             self::fail('Unknown voteThreshold must be rejected');
         } catch (\InvalidArgumentException $e) {
@@ -507,7 +508,7 @@ class VotingServiceCastAsTest extends TestCase
                 votingMethod: 'for-against-abstain',
                 isSecret: false,
                 closedAt: null,
-                abstentionHandling: 'half'
+                roundRules: new VotingRoundRules(abstentionHandling: 'half')
             );
             self::fail('Unknown abstentionHandling must be rejected');
         } catch (\InvalidArgumentException $e) {
@@ -521,7 +522,7 @@ class VotingServiceCastAsTest extends TestCase
                 votingMethod: 'for-against-abstain',
                 isSecret: false,
                 closedAt: null,
-                tieBreakRule: 'coin-flip'
+                roundRules: new VotingRoundRules(tieBreakRule: 'coin-flip')
             );
             self::fail('Unknown tieBreakRule must be rejected');
         } catch (\InvalidArgumentException $e) {
@@ -588,10 +589,12 @@ class VotingServiceCastAsTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            voteThreshold: 'simple-majority',
-            abstentionHandling: 'exclude',
-            tieBreakRule: 'revote',
-            revoteOfRoundId: 'round-1'
+            revoteOfRoundId: 'round-1',
+            roundRules: new VotingRoundRules(
+                voteThreshold: 'simple-majority',
+                abstentionHandling: 'exclude',
+                tieBreakRule: 'revote'
+            )
         );
 
         self::assertSame('round-1', $created['revoteOfRound'], 'The revote round links the tied round');

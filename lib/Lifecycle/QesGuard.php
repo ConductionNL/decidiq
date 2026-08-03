@@ -81,12 +81,7 @@ class QesGuard
     public function canConclude(string $resolutionId, array $requiredSigners): array
     {
         if ($resolutionId === '') {
-            return [
-                'allowed' => false,
-                'reason'  => 'resolutionId is required.',
-                'missing' => [],
-                'invalid' => [],
-            ];
+            return $this->refuse(reason: 'resolutionId is required.', missing: [], invalid: []);
         }
 
         try {
@@ -96,15 +91,45 @@ class QesGuard
                 'Decidesk: QesGuard could not load signed-by list',
                 ['resolutionId' => $resolutionId, 'exception' => $e->getMessage()]
             );
-            return [
-                'allowed' => false,
-                'reason'  => 'Failed to inspect minutes for QES signatures.',
-                'missing' => $requiredSigners,
-                'invalid' => [],
-            ];
+            return $this->refuse(
+                reason: 'Failed to inspect minutes for QES signatures.',
+                missing: $requiredSigners,
+                invalid: []
+            );
         }
 
-        $missing = [];
+        $verified = $this->verifySignatures(signed: $signed);
+        $invalid  = $verified['invalid'];
+        $missing  = array_values(array_diff($requiredSigners, array_keys($verified['present'])));
+
+        if ($missing !== [] || $invalid !== []) {
+            return $this->refuse(
+                reason: $this->buildReason(missing: $missing, invalid: $invalid),
+                missing: $missing,
+                invalid: $invalid
+            );
+        }
+
+        return [
+            'allowed' => true,
+            'reason'  => 'QES present and verified.',
+            'missing' => [],
+            'invalid' => [],
+        ];
+
+    }//end canConclude()
+
+    /**
+     * Verify every persisted signature entry against the eIDAS adapter.
+     *
+     * @param array<int, array<string, mixed>> $signed The persisted signedBy entries
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+     *
+     * @return array{present: array<string, true>, invalid: array<int, string>}
+     */
+    private function verifySignatures(array $signed): array
+    {
         $invalid = [];
         $present = [];
         foreach ($signed as $entry) {
@@ -123,29 +148,31 @@ class QesGuard
             $present[$signer] = true;
         }
 
-        foreach ($requiredSigners as $required) {
-            if (isset($present[$required]) === false) {
-                $missing[] = $required;
-            }
-        }
+        return ['present' => $present, 'invalid' => $invalid];
 
-        if ($missing !== [] || $invalid !== []) {
-            return [
-                'allowed' => false,
-                'reason'  => $this->buildReason(missing: $missing, invalid: $invalid),
-                'missing' => $missing,
-                'invalid' => $invalid,
-            ];
-        }
+    }//end verifySignatures()
 
+    /**
+     * Build the structured refusal tuple the conclude flow maps to HTTP 422.
+     *
+     * @param string             $reason  Human-readable refusal reason
+     * @param array<int, string> $missing Member UUIDs without a QES
+     * @param array<int, string> $invalid Member UUIDs whose chain failed
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+     *
+     * @return array{allowed: bool, reason: string, missing: array<int,string>, invalid: array<int,string>}
+     */
+    private function refuse(string $reason, array $missing, array $invalid): array
+    {
         return [
-            'allowed' => true,
-            'reason'  => 'QES present and verified.',
-            'missing' => [],
-            'invalid' => [],
+            'allowed' => false,
+            'reason'  => $reason,
+            'missing' => $missing,
+            'invalid' => $invalid,
         ];
 
-    }//end canConclude()
+    }//end refuse()
 
     /**
      * Load the `signedBy` array from the BoardMinutes row linked to the
@@ -188,22 +215,42 @@ class QesGuard
         );
 
         foreach ((array) $minutesRows as $row) {
-            if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-                $row = (array) $row->jsonSerialize();
-            }
-
-            if (is_array($row) === false || ($row['meetingKoppeling'] ?? null) !== $meetingId) {
+            $minutes = $this->toArray(row: $row);
+            if (($minutes['meetingKoppeling'] ?? null) !== $meetingId) {
                 continue;
             }
 
-            if (($row['version'] ?? '') === 'signed') {
-                return array_values((array) ($row['signedBy'] ?? []));
+            if (($minutes['version'] ?? '') === 'signed') {
+                return array_values((array) ($minutes['signedBy'] ?? []));
             }
         }
 
         return [];
 
     }//end loadSignedBy()
+
+    /**
+     * Normalise an OpenRegister row (entity or array) to a plain array.
+     *
+     * @param mixed $row The ObjectService row
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+     *
+     * @return array<string, mixed> The property map, empty when unusable
+     */
+    private function toArray(mixed $row): array
+    {
+        if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+            return (array) $row->jsonSerialize();
+        }
+
+        if (is_array($row) === true) {
+            return $row;
+        }
+
+        return [];
+
+    }//end toArray()
 
     /**
      * Build the soft-block reason string for the response tuple.

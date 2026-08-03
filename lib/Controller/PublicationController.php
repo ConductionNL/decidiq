@@ -27,16 +27,13 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\PublicationService;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\Decidesk\Service\PublicationStaffGuard;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for publish / withdraw / rectify actions.
@@ -52,22 +49,16 @@ class PublicationController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest            $request             The HTTP request.
-     * @param PublicationService  $publicationService  The publication orchestrator.
-     * @param ObjectService       $objectService       OR object service.
-     * @param ParticipantResolver $participantResolver Role resolution for the staff guard.
-     * @param IUserSession        $userSession         Current user session.
-     * @param IGroupManager       $groupManager        Group manager for admin checks.
+     * @param IRequest              $request            The HTTP request.
+     * @param PublicationService    $publicationService The publication orchestrator.
+     * @param PublicationStaffGuard $staffGuard         Per-object staff authority.
      *
      * @spec openspec/specs/public-publication/spec.md
      */
     public function __construct(
         IRequest $request,
         private readonly PublicationService $publicationService,
-        private readonly ObjectService $objectService,
-        private readonly ParticipantResolver $participantResolver,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
+        private readonly PublicationStaffGuard $staffGuard,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -85,8 +76,8 @@ class PublicationController extends Controller
     #[NoAdminRequired]
     public function publish(): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
+        $userId = $this->staffGuard->currentUid();
+        if ($userId === null) {
             return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
         }
 
@@ -102,7 +93,7 @@ class PublicationController extends Controller
         }
 
         try {
-            $result = $this->publicationService->publish($sourceType, $sourceId, $user->getUID());
+            $result = $this->publicationService->publish($sourceType, $sourceId, $userId);
             return new JSONResponse($result, Http::STATUS_CREATED);
         } catch (AccessDeniedException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
@@ -129,8 +120,8 @@ class PublicationController extends Controller
     #[NoAdminRequired]
     public function withdraw(string $recordId): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
+        $userId = $this->staffGuard->currentUid();
+        if ($userId === null) {
             return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
         }
 
@@ -145,7 +136,7 @@ class PublicationController extends Controller
         }
 
         try {
-            $result = $this->publicationService->withdraw($recordId, $user->getUID(), $reason);
+            $result = $this->publicationService->withdraw($recordId, $userId, $reason);
             return new JSONResponse($result, Http::STATUS_OK);
         } catch (MissingObjectException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
@@ -172,8 +163,8 @@ class PublicationController extends Controller
     #[NoAdminRequired]
     public function rectify(string $recordId): JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
+        $userId = $this->staffGuard->currentUid();
+        if ($userId === null) {
             return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
         }
 
@@ -185,7 +176,7 @@ class PublicationController extends Controller
         $reason = (string) $this->request->getParam('reason', '');
 
         try {
-            $result = $this->publicationService->rectify($recordId, $user->getUID(), $reason);
+            $result = $this->publicationService->rectify($recordId, $userId, $reason);
             return new JSONResponse($result, Http::STATUS_CREATED);
         } catch (AccessDeniedException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
@@ -212,15 +203,8 @@ class PublicationController extends Controller
      */
     private function requireStaffForSource(string $sourceType, string $sourceId): ?JSONResponse
     {
-        $userId = $this->userSession->getUser()->getUID();
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
-
-        $meetingId = $this->resolveMeetingId(sourceType: $sourceType, sourceId: $sourceId);
-        if ($meetingId !== null
-            && $this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: ['chair', 'secretary']) === true
-        ) {
+        $outcome = $this->staffGuard->checkSource(sourceType: $sourceType, sourceId: $sourceId);
+        if ($outcome === PublicationStaffGuard::ALLOWED) {
             return null;
         }
 
@@ -242,25 +226,13 @@ class PublicationController extends Controller
      */
     private function requireStaffForRecord(string $recordId): ?JSONResponse
     {
-        $userId = $this->userSession->getUser()->getUID();
-        if ($this->groupManager->isAdmin($userId) === true) {
+        $outcome = $this->staffGuard->checkRecord(recordId: $recordId);
+        if ($outcome === PublicationStaffGuard::ALLOWED) {
             return null;
         }
 
-        $record = $this->objectService->find(id: $recordId, register: 'decidesk', schema: 'publication-record');
-        if ($record === null) {
+        if ($outcome === PublicationStaffGuard::RECORD_NOT_FOUND) {
             return new JSONResponse(['message' => 'Publication record not found.'], Http::STATUS_NOT_FOUND);
-        }
-
-        $data       = $record->jsonSerialize();
-        $sourceType = (string) ($data['sourceType'] ?? '');
-        $sourceId   = (string) ($data['sourceObject'] ?? '');
-
-        $meetingId = $this->resolveMeetingId(sourceType: $sourceType, sourceId: $sourceId);
-        if ($meetingId !== null
-            && $this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: ['chair', 'secretary']) === true
-        ) {
-            return null;
         }
 
         return new JSONResponse(
@@ -269,47 +241,4 @@ class PublicationController extends Controller
         );
 
     }//end requireStaffForRecord()
-
-    /**
-     * Resolve the meeting UUID a source object is associated with.
-     *
-     * For agenda the source IS a meeting; for minutes/decision it is resolved
-     * from the relations map.
-     *
-     * @param string $sourceType One of decision|agenda|minutes.
-     * @param string $sourceId   UUID of the source object.
-     *
-     * @spec openspec/specs/public-publication/spec.md
-     *
-     * @return string|null
-     */
-    private function resolveMeetingId(string $sourceType, string $sourceId): ?string
-    {
-        if ($sourceType === 'agenda') {
-            return $sourceId;
-        }
-
-        $schema = 'decision';
-        if ($sourceType === 'minutes') {
-            $schema = 'minutes';
-        }
-
-        $entity = $this->objectService->find(id: $sourceId, register: 'decidesk', schema: $schema);
-        if ($entity === null) {
-            return null;
-        }
-
-        $data            = $entity->jsonSerialize();
-        $meetingRelation = ($data['relations']['meeting'] ?? $data['relations']['Meeting'] ?? $data['meeting'] ?? null);
-        if (is_array($meetingRelation) === true) {
-            $meetingRelation = ($meetingRelation['id'] ?? ($meetingRelation[0] ?? null));
-        }
-
-        if (is_string($meetingRelation) === true && $meetingRelation !== '') {
-            return $meetingRelation;
-        }
-
-        return null;
-
-    }//end resolveMeetingId()
 }//end class

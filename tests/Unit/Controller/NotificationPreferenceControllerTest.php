@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\NotificationPreferenceController;
+use OCA\Decidesk\Service\NotificationPreferenceRequestValidator;
 use OCA\Decidesk\Service\NotificationPreferenceService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -83,6 +84,7 @@ class NotificationPreferenceControllerTest extends TestCase
             request: $request,
             preferenceService: $this->service,
             userSession: $userSession,
+            validator: new NotificationPreferenceRequestValidator(request: $request),
         );
 
     }//end buildController()

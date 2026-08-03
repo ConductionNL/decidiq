@@ -27,6 +27,10 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ProxyDelegationService;
+use OCA\Decidesk\Service\VotingOpenRequestParser;
+use OCA\Decidesk\Service\VotingRoundGuard;
+use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -46,6 +50,28 @@ use Psr\Log\LoggerInterface;
  */
 class VotingController extends Controller
 {
+
+    /**
+     * Per-meeting authorisation guard for the voting endpoints.
+     *
+     * @var VotingRoundGuard
+     */
+    private readonly VotingRoundGuard $guard;
+
+    /**
+     * Request parsing + validation for opening a voting round.
+     *
+     * @var VotingOpenRequestParser
+     */
+    private readonly VotingOpenRequestParser $openParser;
+
+    /**
+     * Proxy (volmacht) grant / revoke on a voting round.
+     *
+     * @var ProxyDelegationService
+     */
+    private readonly ProxyDelegationService $proxyService;
+
     /**
      * Constructor for VotingController.
      *
@@ -53,11 +79,11 @@ class VotingController extends Controller
      * @param VotingService         $votingService         The voting service
      * @param OriPublicationService $oriPublicationService The ORI publication service
      * @param IUserSession          $userSession           The user session
-     * @param IGroupManager         $groupManager          The group manager
-     * @param IAppConfig            $appConfig             The app config
+     * @param IGroupManager         $groupManager          The group manager (handed to the guard)
+     * @param IAppConfig            $appConfig             The app config (handed to the guard)
      * @param LoggerInterface       $logger                The logger
-     * @param ParticipantResolver   $participantResolver   Per-meeting participant/role resolver
-     * @param ContainerInterface    $container             DI container (lazy-loads ObjectService)
+     * @param ParticipantResolver   $participantResolver   Role resolver (handed to the guard)
+     * @param ContainerInterface    $container             DI container (handed to the guard)
      *
      * @return void
      *
@@ -68,219 +94,30 @@ class VotingController extends Controller
         private readonly VotingService $votingService,
         private readonly OriPublicationService $oriPublicationService,
         private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-        private readonly IAppConfig $appConfig,
+        IGroupManager $groupManager,
+        IAppConfig $appConfig,
         private readonly LoggerInterface $logger,
-        private readonly ParticipantResolver $participantResolver,
-        private readonly ContainerInterface $container,
+        ParticipantResolver $participantResolver,
+        ContainerInterface $container,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
+        $this->guard = new VotingRoundGuard(
+            userSession: $userSession,
+            groupManager: $groupManager,
+            appConfig: $appConfig,
+            participantResolver: $participantResolver,
+            container: $container
+        );
+
+        $this->openParser = new VotingOpenRequestParser();
+
+        $this->proxyService = new ProxyDelegationService(
+            container: $container,
+            logger: $logger
+        );
+
     }//end __construct()
-
-    /**
-     * Require the current user to hold the chair/secretary role for a specific meeting.
-     *
-     * When $meetingId is provided, checks via ParticipantResolver::hasRole() that
-     * the caller holds a 'chair' or 'secretary' Participant role in that meeting's
-     * governance body — preventing cross-body privilege escalation in multi-council
-     * deployments.
-     *
-     * Falls back to the global chair_group / admin check when $meetingId is null.
-     *
-     * Returns a 403 JSONResponse when the check fails, null on success.
-     *
-     * @param string|null $meetingId UUID of the meeting to scope the role check (optional)
-     *
-     * @return JSONResponse|null
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
-     */
-    private function requireChairOrSecretary(?string $meetingId=null): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $uid = $user->getUID();
-
-        // Per-meeting role check.
-        if ($meetingId !== null) {
-            $authorized = $this->participantResolver->hasRole(
-                meetingId: $meetingId,
-                nextcloudUid: $uid,
-                roles: ['chair', 'secretary']
-            );
-            if ($authorized === false) {
-                return new JSONResponse(['message' => 'Chair or secretary role required for this meeting'], Http::STATUS_FORBIDDEN);
-            }
-
-            return null;
-        }
-
-        // Fallback: global chair_group or system-admin check.
-        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
-
-        if ($chairGroup !== '') {
-            $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
-        } else {
-            $authorized = $this->groupManager->isAdmin($uid);
-        }
-
-        if ($authorized === false) {
-            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
-        }
-
-        return null;
-
-    }//end requireChairOrSecretary()
-
-    /**
-     * Require the current user to hold the CHAIR role (not secretary) for a meeting.
-     *
-     * Used for the chair's casting vote on a tied round (voting-system spec):
-     * a casting vote is the chair's personal prerogative, so the secretary does
-     * not suffice. Per-meeting check via ParticipantResolver::hasRole(); when the
-     * meeting cannot be resolved, falls back to the existing global
-     * chair_group/admin check. Fail closed: any failure yields a 403.
-     *
-     * @param string|null $meetingId UUID of the meeting to scope the role check (optional)
-     *
-     * @return JSONResponse|null A 403/401 response on failure, null when authorized
-     *
-     * @spec openspec/specs/voting-system/spec.md
-     */
-    private function requireChair(?string $meetingId=null): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $uid = $user->getUID();
-
-        if ($meetingId !== null) {
-            $authorized = $this->participantResolver->hasRole(
-                meetingId: $meetingId,
-                nextcloudUid: $uid,
-                roles: ['chair']
-            );
-            if ($authorized === false) {
-                return new JSONResponse(['message' => 'Chair role required for a casting vote'], Http::STATUS_FORBIDDEN);
-            }
-
-            return null;
-        }
-
-        // Fallback: global chair_group or system-admin check (existing pattern).
-        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
-
-        if ($chairGroup !== '') {
-            $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
-        } else {
-            $authorized = $this->groupManager->isAdmin($uid);
-        }
-
-        if ($authorized === false) {
-            return new JSONResponse(['message' => 'Chair role required for a casting vote'], Http::STATUS_FORBIDDEN);
-        }
-
-        return null;
-
-    }//end requireChair()
-
-    /**
-     * Resolve the meeting UUID linked to a voting round via motion relations.
-     *
-     * Handles motion rounds (round → motion → meeting) and amendment rounds
-     * (round → amendment → parent motion → meeting), honouring both the flat
-     * `meeting` property and structured relation entries on the motion.
-     *
-     * @param string $votingRoundId The voting round UUID
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return string|null The meeting UUID or null if not found
-     */
-    private function resolveMeetingIdFromVotingRound(string $votingRoundId): ?string
-    {
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $roundEntity   = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
-            if ($roundEntity === null) {
-                return null;
-            }
-
-            $round = $roundEntity->jsonSerialize();
-
-            $motionId = null;
-            foreach (($round['relations'] ?? []) as $relation) {
-                $relSchema = ($relation['schema'] ?? '');
-                if ($relSchema === 'motion') {
-                    $motionId = ($relation['id'] ?? null);
-                    break;
-                }
-
-                // Amendment rounds (motion-amendment spec): resolve the parent
-                // motion so the per-meeting chair guard still applies.
-                if ($relSchema === 'amendment') {
-                    $amendmentId = ($relation['id'] ?? null);
-                    if ($amendmentId !== null) {
-                        $amendmentEntity = $objectService->find(id: $amendmentId, register: 'decidesk', schema: 'amendment');
-                        if ($amendmentEntity !== null) {
-                            $amendment = $amendmentEntity->jsonSerialize();
-                            $parentRef = ($amendment['parentMotion'] ?? null);
-                            if (is_string($parentRef) === true && $parentRef !== '') {
-                                $motionId = $parentRef;
-                            } else if (is_array($parentRef) === true) {
-                                $motionId = ($parentRef['id'] ?? $parentRef['uuid'] ?? null);
-                            }
-
-                            if ($motionId === null) {
-                                foreach (($amendment['relations'] ?? []) as $amendmentRel) {
-                                    if (($amendmentRel['schema'] ?? '') === 'motion') {
-                                        $motionId = ($amendmentRel['id'] ?? null);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }//end if
-
-                    break;
-                }//end if
-            }//end foreach
-
-            if ($motionId !== null) {
-                $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
-                if ($motionEntity !== null) {
-                    $motion = $motionEntity->jsonSerialize();
-
-                    // Flat meeting property (canonical UI shape).
-                    $meetingRef = ($motion['meeting'] ?? null);
-                    if (is_string($meetingRef) === true && $meetingRef !== '') {
-                        return $meetingRef;
-                    }
-
-                    if (is_array($meetingRef) === true && (($meetingRef['id'] ?? $meetingRef['uuid'] ?? '') !== '')) {
-                        return ($meetingRef['id'] ?? $meetingRef['uuid']);
-                    }
-
-                    foreach (($motion['relations'] ?? []) as $motionRel) {
-                        if (($motionRel['schema'] ?? '') === 'meeting') {
-                            return ($motionRel['id'] ?? null);
-                        }
-                    }
-                }
-            }//end if
-        } catch (\Throwable) {
-            // Silently fall through to global check.
-        }//end try
-
-        return null;
-
-    }//end resolveMeetingIdFromVotingRound()
 
     /**
      * Open a new VotingRound.
@@ -309,7 +146,6 @@ class VotingController extends Controller
     public function open(): JSONResponse
     {
         $params    = $this->request->getParams();
-        $motionId  = ($params['motionId'] ?? '');
         $meetingId = ($params['meetingId'] ?? '');
 
         // Per-meeting chair/secretary check: use the meetingId from the request body if present.
@@ -318,104 +154,36 @@ class VotingController extends Controller
             $guardMeetingId = $meetingId;
         }
 
-        $guard = $this->requireChairOrSecretary(meetingId: $guardMeetingId);
+        $guard = $this->guard->requireChairOrSecretary(meetingId: $guardMeetingId);
         if ($guard !== null) {
             return $guard;
         }
 
-        $votingMethod = ($params['votingMethod'] ?? 'for-against-abstain');
-        $isSecret     = (bool) ($params['isSecret'] ?? false);
-        $closedAt     = null;
-        $presetParticipantIds = [];
-
-        if (isset($params['closedAt']) === true && $params['closedAt'] !== '') {
-            $closedAt = $params['closedAt'];
+        $request = $this->openParser->parse(params: $params);
+        if ($request['error'] !== null) {
+            return new JSONResponse(['message' => $request['error']], Http::STATUS_BAD_REQUEST);
         }
 
-        if (isset($params['presetParticipantIds']) === true && is_array($params['presetParticipantIds']) === true) {
-            $presetParticipantIds = $params['presetParticipantIds'];
-        }
-
-        if ($motionId === '' || $meetingId === '') {
-            return new JSONResponse(['message' => 'motionId and meetingId are required'], Http::STATUS_BAD_REQUEST);
-        }
-
-        // Configurable voting rules (voting-system spec) — validate against the
-        // service enums up front so a bad value is a clean 400, never a 500.
-        // process-configuration: an OMITTED rule param is passed as null so the
-        // opening body's process-template default applies; an explicit param wins.
-        $voteThreshold = null;
-        if (isset($params['voteThreshold']) === true && $params['voteThreshold'] !== '') {
-            $voteThreshold = (string) $params['voteThreshold'];
-        }
-
-        $abstentionHandling = null;
-        if (isset($params['abstentionHandling']) === true && $params['abstentionHandling'] !== '') {
-            $abstentionHandling = (string) $params['abstentionHandling'];
-        }
-
-        $tieBreakRule = null;
-        if (isset($params['tieBreakRule']) === true && $params['tieBreakRule'] !== '') {
-            $tieBreakRule = (string) $params['tieBreakRule'];
-        }
-
-        $governanceBodyId = null;
-        if (isset($params['governanceBody']) === true
-            && is_string($params['governanceBody']) === true
-            && $params['governanceBody'] !== ''
-        ) {
-            $governanceBodyId = $params['governanceBody'];
-        }
-
-        if ($voteThreshold !== null && in_array($voteThreshold, VotingService::VOTE_THRESHOLDS, true) === false) {
-            return new JSONResponse(
-                ['message' => 'voteThreshold must be one of: '.implode(', ', VotingService::VOTE_THRESHOLDS)],
-                Http::STATUS_BAD_REQUEST
-            );
-        }
-
-        if ($abstentionHandling !== null && in_array($abstentionHandling, VotingService::ABSTENTION_MODES, true) === false) {
-            return new JSONResponse(
-                ['message' => 'abstentionHandling must be one of: '.implode(', ', VotingService::ABSTENTION_MODES)],
-                Http::STATUS_BAD_REQUEST
-            );
-        }
-
-        if ($tieBreakRule !== null && in_array($tieBreakRule, VotingService::TIE_BREAK_RULES, true) === false) {
-            return new JSONResponse(
-                ['message' => 'tieBreakRule must be one of: '.implode(', ', VotingService::TIE_BREAK_RULES)],
-                Http::STATUS_BAD_REQUEST
-            );
-        }
-
-        $revoteOfRoundId = null;
-        if (isset($params['revoteOfRound']) === true && is_string($params['revoteOfRound']) === true && $params['revoteOfRound'] !== '') {
-            $revoteOfRoundId = $params['revoteOfRound'];
-        }
-
-        // Subject type (motion-amendment spec): validate up front so a bad value
-        // is a clean 400, never a 500.
-        $subjectType = (string) ($params['subjectType'] ?? 'motion');
-        if (in_array($subjectType, ['motion', 'amendment'], true) === false) {
-            return new JSONResponse(['message' => 'subjectType must be one of: motion, amendment'], Http::STATUS_BAD_REQUEST);
-        }
+        $round = $request['payload'];
 
         try {
-            $round = $this->votingService->openVotingRound(
-                motionId: $motionId,
-                meetingId: $meetingId,
-                votingMethod: $votingMethod,
-                isSecret: $isSecret,
-                closedAt: $closedAt,
-                presetParticipantIds: $presetParticipantIds,
-                voteThreshold: $voteThreshold,
-                abstentionHandling: $abstentionHandling,
-                tieBreakRule: $tieBreakRule,
-                revoteOfRoundId: $revoteOfRoundId,
-                subjectType: $subjectType,
-                governanceBodyId: $governanceBodyId
+            $opened = $this->votingService->openVotingRound(
+                motionId: $round['motionId'],
+                meetingId: $round['meetingId'],
+                votingMethod: $round['votingMethod'],
+                isSecret: $round['isSecret'],
+                closedAt: $round['closedAt'],
+                presetParticipantIds: $round['presetIds'],
+                revoteOfRoundId: $round['revoteOfRoundId'],
+                roundRules: new VotingRoundRules(
+                    voteThreshold: $round['voteThreshold'],
+                    abstentionHandling: $round['abstentionHandling'],
+                    tieBreakRule: $round['tieBreakRule'],
+                    subjectType: $round['subjectType'],
+                    governanceBodyId: $round['governanceBodyId']
+                )
             );
-            return new JSONResponse($round, Http::STATUS_CREATED);
+            return new JSONResponse($opened, Http::STATUS_CREATED);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {
@@ -510,8 +278,8 @@ class VotingController extends Controller
     public function close(string $id): JSONResponse
     {
         // Resolve the meeting from this voting round's motion chain for per-meeting auth.
-        $meetingId = $this->resolveMeetingIdFromVotingRound(votingRoundId: $id);
-        $guard     = $this->requireChairOrSecretary(meetingId: $meetingId);
+        $meetingId = $this->guard->resolveMeetingIdFromVotingRound(votingRoundId: $id);
+        $guard     = $this->guard->requireChairOrSecretary(meetingId: $meetingId);
         if ($guard !== null) {
             return $guard;
         }
@@ -523,7 +291,7 @@ class VotingController extends Controller
         if (isset($params['chairCasting']) === true && $params['chairCasting'] !== '') {
             // The casting vote is the chair's personal prerogative — require the
             // chair role specifically (fail closed; secretary may close, not cast).
-            $chairGuard = $this->requireChair(meetingId: $meetingId);
+            $chairGuard = $this->guard->requireChair(meetingId: $meetingId);
             if ($chairGuard !== null) {
                 return $chairGuard;
             }
@@ -564,7 +332,7 @@ class VotingController extends Controller
     #[NoAdminRequired]
     public function publish(string $id): JSONResponse
     {
-        $guard = $this->requireChairOrSecretary();
+        $guard = $this->guard->requireChairOrSecretary();
         if ($guard !== null) {
             return $guard;
         }
@@ -617,7 +385,7 @@ class VotingController extends Controller
         }
 
         try {
-            $this->votingService->grantProxy(
+            $this->proxyService->grantProxy(
                 votingRoundId: $id,
                 fromParticipantId: $fromParticipantId,
                 toParticipantId: $toParticipantId
@@ -650,7 +418,7 @@ class VotingController extends Controller
     #[NoAdminRequired]
     public function tally(string $id): JSONResponse
     {
-        $guard = $this->requireChairOrSecretary();
+        $guard = $this->guard->requireChairOrSecretary();
         if ($guard !== null) {
             return $guard;
         }
@@ -704,7 +472,7 @@ class VotingController extends Controller
         }
 
         try {
-            $this->votingService->revokeProxy(votingRoundId: $id, fromParticipantId: $fromParticipantId);
+            $this->proxyService->revokeProxy(votingRoundId: $id, fromParticipantId: $fromParticipantId);
             return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);

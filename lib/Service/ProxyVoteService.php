@@ -217,28 +217,14 @@ class ProxyVoteService
      */
     public function register(string $meetingId, string $grantorId, string $holderId, array $extra=[], ?string $callerUid=null): array
     {
-        if ($meetingId === '' || $grantorId === '' || $holderId === '') {
-            return [
-                'success' => false,
-                'proxy'   => null,
-                'message' => 'meetingId, grantorId and holderId are required.',
-            ];
-        }
-
-        if ($grantorId === $holderId) {
-            return [
-                'success' => false,
-                'proxy'   => null,
-                'message' => 'Grantor and holder must differ.',
-            ];
-        }
-
-        if ($callerUid !== null && $this->isAuthorizedToRegister(meetingId: $meetingId, grantorId: $grantorId, callerUid: $callerUid) === false) {
-            return [
-                'success' => false,
-                'proxy'   => null,
-                'message' => 'Forbidden: only the grantor, a chair/clerk of the meeting, or an admin may register this proxy.',
-            ];
+        $rejection = $this->validateRegistration(
+            meetingId: $meetingId,
+            grantorId: $grantorId,
+            holderId: $holderId,
+            callerUid: $callerUid
+        );
+        if ($rejection !== null) {
+            return $this->registerFailure(message: $rejection);
         }
 
         // Per-member proxy limit (voting-system spec): count the holder's ACTIVE
@@ -247,30 +233,26 @@ class ProxyVoteService
         $maxProxies = $this->maxProxiesPerHolder();
         $existing   = $this->forMeeting(meetingId: $meetingId, status: 'active');
         if ($existing['success'] !== true) {
-            return [
-                'success' => false,
-                'proxy'   => null,
-                'message' => 'Failed to verify existing proxies for the holder — registration refused.',
-            ];
+            return $this->registerFailure(
+                message: 'Failed to verify existing proxies for the holder — registration refused.'
+            );
         }
 
-        $heldByHolder = 0;
-        foreach ($existing['proxies'] as $proxyRow) {
-            if (($proxyRow['holderKoppeling'] ?? null) === $holderId) {
-                $heldByHolder++;
-            }
-        }
+        $heldByHolder = count(
+            array_filter(
+                $existing['proxies'],
+                static fn(array $proxyRow): bool => (($proxyRow['holderKoppeling'] ?? null) === $holderId)
+            )
+        );
 
         if ($heldByHolder >= $maxProxies) {
-            return [
-                'success' => false,
-                'proxy'   => null,
-                'message' => sprintf(
+            return $this->registerFailure(
+                message: sprintf(
                     'Maximum number of proxies reached: this member already holds %d of %d allowed proxies for this meeting.',
                     $heldByHolder,
                     $maxProxies
-                ),
-            ];
+                )
+            );
         }
 
         $row = [
@@ -295,11 +277,7 @@ class ProxyVoteService
                 'Decidesk: ProxyVoteService::register failed',
                 ['exception' => $e->getMessage(), 'meeting' => $meetingId]
             );
-            return [
-                'success' => false,
-                'proxy'   => null,
-                'message' => 'Failed to register proxy.',
-            ];
+            return $this->registerFailure(message: 'Failed to register proxy.');
         }
 
         $payload = $row;
@@ -321,6 +299,59 @@ class ProxyVoteService
         ];
 
     }//end register()
+
+    /**
+     * Validate the register() arguments and the caller's authorization.
+     *
+     * @param string      $meetingId UUID of the board meeting
+     * @param string      $grantorId UUID of the granting board member
+     * @param string      $holderId  UUID of the receiving board member
+     * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the check
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+     * @spec openspec/specs/voting-system/spec.md
+     * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+     *
+     * @return string|null Rejection message, or null when the request may proceed
+     */
+    private function validateRegistration(string $meetingId, string $grantorId, string $holderId, ?string $callerUid): ?string
+    {
+        if (in_array('', [$meetingId, $grantorId, $holderId], true) === true) {
+            return 'meetingId, grantorId and holderId are required.';
+        }
+
+        if ($grantorId === $holderId) {
+            return 'Grantor and holder must differ.';
+        }
+
+        if ($callerUid !== null
+            && $this->isAuthorizedToRegister(meetingId: $meetingId, grantorId: $grantorId, callerUid: $callerUid) === false
+        ) {
+            return 'Forbidden: only the grantor, a chair/clerk of the meeting, or an admin may register this proxy.';
+        }
+
+        return null;
+
+    }//end validateRegistration()
+
+    /**
+     * Build the unsuccessful register() envelope.
+     *
+     * @param string $message Human-readable rejection reason
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+     *
+     * @return array{success: bool, proxy: array|null, message: string}
+     */
+    private function registerFailure(string $message): array
+    {
+        return [
+            'success' => false,
+            'proxy'   => null,
+            'message' => $message,
+        ];
+
+    }//end registerFailure()
 
     /**
      * Resolve the configured per-holder per-meeting ACTIVE-proxy cap.

@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Unit tests for VotingService advisory (citizen-participation) tally mode.
+ * Unit tests for AdvisoryVoteService — the advisory (citizen-participation)
+ * tally mode extracted from VotingService.
  *
  * @category Test
  * @package  OCA\Decidesk\Tests\Unit\Service
@@ -19,17 +20,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
-use OCA\Decidesk\Service\MotionService;
-use OCA\Decidesk\Service\OriPublicationService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\Decidesk\Service\ProcessTemplateService;
-use OCA\Decidesk\Service\VotingService;
+use OCA\Decidesk\Service\AdvisoryVoteService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Tests advisory tally reuse: value enum, duplicate rejection (shared dedup
@@ -43,9 +39,9 @@ class VotingServiceAdvisoryTest extends TestCase
     /**
      * Service under test.
      *
-     * @var VotingService
+     * @var AdvisoryVoteService
      */
-    private VotingService $service;
+    private AdvisoryVoteService $service;
 
     /**
      * Mock ObjectService.
@@ -68,13 +64,8 @@ class VotingServiceAdvisoryTest extends TestCase
         $this->objectService->method('setSchema')->willReturnSelf();
         $container->method('get')->willReturn($this->objectService);
 
-        $this->service = new VotingService(
+        $this->service = new AdvisoryVoteService(
             container: $container,
-            logger: $this->createMock(LoggerInterface::class),
-            oriPublicationService: $this->createMock(OriPublicationService::class),
-            motionService: $this->createMock(MotionService::class),
-            participantResolver: $this->createMock(ParticipantResolver::class),
-            templateService: $this->createMock(ProcessTemplateService::class),
         );
 
     }//end setUp()

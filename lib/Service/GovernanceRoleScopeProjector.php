@@ -64,18 +64,28 @@ class GovernanceRoleScopeProjector
     private const SIGNATORY_ROLES = ['chair', 'chairman', 'vice-chairman', 'secretary'];
 
     /**
+     * Keys under which a member row may carry its GovernanceBody relation,
+     * checked in this order (relations map first, then the direct property).
+     *
+     * @var string[]
+     */
+    private const BODY_RELATION_KEYS = ['governanceBody', 'GovernanceBody'];
+
+    /**
      * Constructor.
      *
-     * @param ContainerInterface $container    DI container (lazy ObjectService)
-     * @param IGroupManager      $groupManager NC group manager (scope groups)
-     * @param IUserManager       $userManager  NC user manager (uid -> IUser)
-     * @param LoggerInterface    $logger       Diagnostic logger
+     * @param ContainerInterface   $container    DI container (lazy ObjectService)
+     * @param IGroupManager        $groupManager NC group manager (scope groups)
+     * @param IUserManager         $userManager  NC user manager (uid -> IUser)
+     * @param LoggerInterface      $logger       Diagnostic logger
+     * @param GovernanceScopeGuard $scopeGuard   Owner of the canonical scope-group naming
      */
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly IGroupManager $groupManager,
         private readonly IUserManager $userManager,
         private readonly LoggerInterface $logger,
+        private readonly GovernanceScopeGuard $scopeGuard,
     ) {
     }//end __construct()
 
@@ -103,11 +113,17 @@ class GovernanceRoleScopeProjector
             [$chairUids, $signatoryUids] = $this->desiredMembers(bodyId: $bodyId);
 
             $this->syncScope(
-                groupId: GovernanceScopeGuard::scopeGroupId(bodyId: $bodyId, scope: GovernanceScopeGuard::SCOPE_CHAIR),
+                groupId: $this->scopeGuard->scopeGroupId(
+                    bodyId: $bodyId,
+                    scope: GovernanceScopeGuard::SCOPE_CHAIR
+                ),
                 desiredUids: $chairUids
             );
             $this->syncScope(
-                groupId: GovernanceScopeGuard::scopeGroupId(bodyId: $bodyId, scope: GovernanceScopeGuard::SCOPE_SIGNATORY),
+                groupId: $this->scopeGuard->scopeGroupId(
+                    bodyId: $bodyId,
+                    scope: GovernanceScopeGuard::SCOPE_SIGNATORY
+                ),
                 desiredUids: $signatoryUids
             );
         } catch (\Throwable $e) {
@@ -262,33 +278,45 @@ class GovernanceRoleScopeProjector
      */
     private function extractBodyId(array $row): ?string
     {
-        $candidates = [];
-
         $relations = ($row['relations'] ?? []);
-        if (is_array($relations) === true) {
-            foreach (['governanceBody', 'GovernanceBody'] as $key) {
-                if (isset($relations[$key]) === true) {
-                    $candidates[] = $relations[$key];
+        if (is_array($relations) === false) {
+            $relations = [];
+        }
+
+        $sources = [
+            $relations,
+            $row,
+        ];
+
+        foreach ($sources as $source) {
+            foreach (self::BODY_RELATION_KEYS as $key) {
+                $bodyId = $this->relationToId(value: ($source[$key] ?? null));
+                if ($bodyId !== null) {
+                    return $bodyId;
                 }
-            }
-        }
-
-        foreach (['governanceBody', 'GovernanceBody'] as $key) {
-            if (isset($row[$key]) === true) {
-                $candidates[] = $row[$key];
-            }
-        }
-
-        foreach ($candidates as $value) {
-            if (is_array($value) === true) {
-                $value = ($value['id'] ?? ($value[0] ?? null));
-            }
-
-            if (is_string($value) === true && $value !== '') {
-                return $value;
             }
         }
 
         return null;
     }//end extractBodyId()
+
+    /**
+     * Reduce a relation value (uuid string, `{id: ...}` map, or list) to a UUID.
+     *
+     * @param mixed $value Raw relation value
+     *
+     * @return string|null The UUID, or null when the value carries none
+     */
+    private function relationToId(mixed $value): ?string
+    {
+        if (is_array($value) === true) {
+            $value = ($value['id'] ?? ($value[0] ?? null));
+        }
+
+        if (is_string($value) === true && $value !== '') {
+            return $value;
+        }
+
+        return null;
+    }//end relationToId()
 }//end class

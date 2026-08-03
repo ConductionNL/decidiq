@@ -47,14 +47,14 @@ class MultilingualReconciliationController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest                          $request               HTTP request
-     * @param MultilingualReconciliationService $reconciliationService Reconciliation service
-     * @param IUserSession                      $userSession           User session
-     * @param IGroupManager                     $groupManager          Group manager
+     * @param IRequest                          $request      HTTP request
+     * @param MultilingualReconciliationService $reconciler   Reconciliation service
+     * @param IUserSession                      $userSession  User session
+     * @param IGroupManager                     $groupManager Group manager
      */
     public function __construct(
         IRequest $request,
-        private readonly MultilingualReconciliationService $reconciliationService,
+        private readonly MultilingualReconciliationService $reconciler,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
     ) {
@@ -91,7 +91,7 @@ class MultilingualReconciliationController extends Controller
             );
         }
 
-        $result = $this->reconciliationService->queue($minutesId, $sourceLocale, $targetLocales);
+        $result = $this->reconciler->queue($minutesId, $sourceLocale, $targetLocales);
         if ($result['success'] === false) {
             return new JSONResponse(
                 ['message' => $result['message']],
@@ -124,7 +124,7 @@ class MultilingualReconciliationController extends Controller
         }
 
         $limit  = (int) $this->request->getParam('limit', 50);
-        $result = $this->reconciliationService->status($limit);
+        $result = $this->reconciler->status($limit);
         return new JSONResponse(
             [
                 'summary' => $result['summary'],
@@ -149,7 +149,7 @@ class MultilingualReconciliationController extends Controller
         }
 
         $maxEntries = (int) $this->request->getParam('maxEntries', 10);
-        $result     = $this->reconciliationService->processQueue($maxEntries);
+        $result     = $this->reconciler->processQueue($maxEntries);
         $status     = Http::STATUS_UNPROCESSABLE_ENTITY;
         if ($result['success'] === true) {
             $status = Http::STATUS_OK;

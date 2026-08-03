@@ -110,9 +110,9 @@ class BoardEvaluationScoreService
      *
      * Each response is shaped ['answers' => [ ['dimension'=>, 'likertValue'=>?, 'freeText'=>?], ... ]].
      *
-     * @param array<int, array<string, mixed>> $responses              The response payloads
-     * @param int                              $invitedMemberCount     Number of invited members (roster size)
-     * @param int                              $minRespondentThreshold Minimum respondents required to expose breakdowns
+     * @param array<int, array<string, mixed>> $responses          The response payloads
+     * @param int                              $invitedMemberCount Number of invited members (roster size)
+     * @param int                              $minRespondents     Minimum respondents required to expose breakdowns
      *
      * @return array<string, mixed> {
      *   overallScore: float|null, respondentCount: int, invitedMemberCount: int,
@@ -126,10 +126,10 @@ class BoardEvaluationScoreService
     public function computeScoreSummary(
         array $responses,
         int $invitedMemberCount,
-        int $minRespondentThreshold=self::DEFAULT_MIN_RESPONDENT_THRESHOLD
+        int $minRespondents=self::DEFAULT_MIN_RESPONDENT_THRESHOLD
     ): array {
         $respondentCount = count($responses);
-        $threshold       = max(1, $minRespondentThreshold);
+        $threshold       = max(1, $minRespondents);
         $thresholdMet    = ($respondentCount >= $threshold);
 
         [$dimensionScores, $overallScore] = $this->computeDimensionScores(responses: $responses);
@@ -205,13 +205,13 @@ class BoardEvaluationScoreService
                 $responseEntities
             );
 
-            $invitedMemberCount     = (int) ($evaluation['invitedMemberCount'] ?? count(($evaluation['invitedParticipantIds'] ?? [])));
-            $minRespondentThreshold = (int) ($evaluation['minRespondentThreshold'] ?? self::DEFAULT_MIN_RESPONDENT_THRESHOLD);
+            $invitedMemberCount = (int) ($evaluation['invitedMemberCount'] ?? count(($evaluation['invitedParticipantIds'] ?? [])));
+            $minRespondents     = (int) ($evaluation['minRespondentThreshold'] ?? self::DEFAULT_MIN_RESPONDENT_THRESHOLD);
 
             $summary = $this->computeScoreSummary(
                 responses: $responses,
                 invitedMemberCount: $invitedMemberCount,
-                minRespondentThreshold: $minRespondentThreshold
+                minRespondents: $minRespondents
             );
 
             $evaluation['scoreSummary']   = json_encode($summary);
@@ -309,41 +309,8 @@ class BoardEvaluationScoreService
         $dimensionWords = [];
 
         foreach ($responses as $response) {
-            $answers = [];
-            if (is_array($response['answers'] ?? null) === true) {
-                $answers = $response['answers'];
-            }
-
-            foreach ($answers as $answer) {
-                if (is_array($answer) === false) {
-                    continue;
-                }
-
-                $freeText = (string) ($answer['freeText'] ?? '');
-                if (trim($freeText) === '') {
-                    continue;
-                }
-
-                $dimension = (string) ($answer['dimension'] ?? '');
-                if ($dimension === '') {
-                    continue;
-                }
-
-                $words = preg_split('/[^\p{L}]+/u', mb_strtolower($freeText));
-                if (is_array($words) === false) {
-                    $words = [];
-                }
-
-                foreach ($words as $word) {
-                    $isStopword = in_array($word, self::THEME_STOPWORDS, true);
-                    if (mb_strlen($word) <= 3 || $isStopword === true) {
-                        continue;
-                    }
-
-                    $dimensionWords[$dimension][$word] = ($dimensionWords[$dimension][$word] ?? 0) + 1;
-                }
-            }//end foreach
-        }//end foreach
+            $this->collectThemeWords(response: $response, dimensionWords: $dimensionWords);
+        }
 
         $themes = [];
         foreach ($dimensionWords as $dimension => $wordCounts) {
@@ -359,6 +326,70 @@ class BoardEvaluationScoreService
         return $themes;
 
     }//end computeThemes()
+
+    /**
+     * Accumulate the significant free-text words of a single response into the
+     * per-dimension word-frequency tally.
+     *
+     * @param array<string, mixed>              $response       One response payload
+     * @param array<string, array<string, int>> $dimensionWords Tally accumulated across responses (by reference)
+     *
+     * @return void
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+     */
+    private function collectThemeWords(array $response, array &$dimensionWords): void
+    {
+        $answers = [];
+        if (is_array($response['answers'] ?? null) === true) {
+            $answers = $response['answers'];
+        }
+
+        foreach ($answers as $answer) {
+            if (is_array($answer) === false) {
+                continue;
+            }
+
+            $freeText  = (string) ($answer['freeText'] ?? '');
+            $dimension = (string) ($answer['dimension'] ?? '');
+            if (trim($freeText) === '' || $dimension === '') {
+                continue;
+            }
+
+            foreach ($this->significantWords(text: $freeText) as $word) {
+                $dimensionWords[$dimension][$word] = ($dimensionWords[$dimension][$word] ?? 0) + 1;
+            }
+        }//end foreach
+
+    }//end collectThemeWords()
+
+    /**
+     * Split free text into lowercase word tokens, dropping stopwords and
+     * tokens of four characters or fewer.
+     *
+     * @param string $text The free-text answer
+     *
+     * @return array<int, string> The significant tokens, in order of appearance
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+     */
+    private function significantWords(string $text): array
+    {
+        $words = preg_split('/[^\p{L}]+/u', mb_strtolower($text));
+        if (is_array($words) === false) {
+            return [];
+        }
+
+        $significant = array_filter(
+            $words,
+            static function (string $word): bool {
+                return mb_strlen($word) > 3 && in_array($word, self::THEME_STOPWORDS, true) === false;
+            }
+        );
+
+        return array_values($significant);
+
+    }//end significantWords()
 
     /**
      * Normalise a saved ObjectEntity (or array) to an array.

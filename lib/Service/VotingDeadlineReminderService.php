@@ -119,22 +119,8 @@ class VotingDeadlineReminderService
 
         $due = [];
         foreach ($rows as $entity) {
-            $row = $entity;
-            if (is_object($entity) === true) {
-                $row = (array) $entity->jsonSerialize();
-            }
-
-            if (is_array($row) === false) {
-                continue;
-            }
-
-            $isOpen      = (($row['closedAt'] ?? '') === '' || ($row['closedAt'] ?? null) === null);
-            $alreadySent = (($row['deadlineReminderSentAt'] ?? '') !== '' && ($row['deadlineReminderSentAt'] ?? null) !== null);
-            $deadline    = (string) ($row['votingDeadline'] ?? '');
-
-            if ($isOpen === true && $alreadySent === false
-                && $this->isWithinReminderWindow(deadline: $deadline, now: $now) === true
-            ) {
+            $row = $this->rowToArray(entity: $entity);
+            if ($row !== null && $this->roundNeedsReminder(row: $row, now: $now) === true) {
                 $due[] = $row;
             }
         }
@@ -142,6 +128,95 @@ class VotingDeadlineReminderService
         return $due;
 
     }//end findRoundsNeedingReminder()
+
+    /**
+     * Whether one voting-round row is still open, unreminded, and inside the window.
+     *
+     * Note `($x ?? '') === ''` is already true for a missing OR null value, so
+     * no separate null test is needed on either marker.
+     *
+     * @param array<string, mixed> $row One voting-round payload
+     * @param int                  $now Current unix timestamp
+     *
+     * @spec openspec/specs/nextcloud-integration/spec.md
+     *
+     * @return bool True when this round needs a deadline reminder
+     */
+    private function roundNeedsReminder(array $row, int $now): bool
+    {
+        $isOpen      = (($row['closedAt'] ?? '') === '');
+        $alreadySent = (($row['deadlineReminderSentAt'] ?? '') !== '');
+
+        return ($isOpen === true && $alreadySent === false
+            && $this->isWithinReminderWindow(deadline: (string) ($row['votingDeadline'] ?? ''), now: $now) === true);
+
+    }//end roundNeedsReminder()
+
+    /**
+     * Normalise one OpenRegister list item (entity or array) to an array.
+     *
+     * @param mixed $entity ObjectEntity or already-serialized array
+     *
+     * @spec openspec/specs/nextcloud-integration/spec.md
+     *
+     * @return array<string, mixed>|null The row, or null when unusable
+     */
+    private function rowToArray(mixed $entity): ?array
+    {
+        if (is_object($entity) === true) {
+            return (array) $entity->jsonSerialize();
+        }
+
+        if (is_array($entity) === true) {
+            return $entity;
+        }
+
+        return null;
+
+    }//end rowToArray()
+
+    /**
+     * Read a UUID out of a reference that may be a bare string or an {id} object.
+     *
+     * @param mixed $ref The raw reference value
+     *
+     * @spec openspec/specs/nextcloud-integration/spec.md
+     *
+     * @return string|null The UUID, or null when not resolvable
+     */
+    private function refId(mixed $ref): ?string
+    {
+        if (is_array($ref) === true) {
+            $ref = ($ref['id'] ?? null);
+        }
+
+        if (is_string($ref) === true && $ref !== '') {
+            return $ref;
+        }
+
+        return null;
+
+    }//end refId()
+
+    /**
+     * Read the linked Nextcloud UID off a participant row.
+     *
+     * @param array<string, mixed> $row The participant payload
+     *
+     * @spec openspec/specs/nextcloud-integration/spec.md
+     *
+     * @return string|null The UID, or null when the participant has no NC link
+     */
+    private function rowUserId(array $row): ?string
+    {
+        $uid = ($row['nextcloudUserId'] ?? ($row['owner'] ?? null));
+        if (is_string($uid) === true && $uid !== '') {
+            return $uid;
+        }
+
+        return null;
+
+    }//end rowUserId()
 
     /**
      * Send the reminder for one round and stamp the sent marker.
@@ -263,25 +338,19 @@ class VotingDeadlineReminderService
 
         $uids = [];
         foreach ($votes as $entity) {
-            $row = $entity;
-            if (is_object($entity) === true) {
-                $row = (array) $entity->jsonSerialize();
-            }
-
-            if (is_array($row) === false) {
+            $row = $this->rowToArray(entity: $entity);
+            if ($row === null) {
                 continue;
             }
 
-            $casterId = ($row['caster'] ?? null);
-            if (is_array($casterId) === true) {
-                $casterId = ($casterId['id'] ?? null);
+            $casterId = $this->refId(ref: ($row['caster'] ?? null));
+            if ($casterId === null) {
+                continue;
             }
 
-            if (is_string($casterId) === true && $casterId !== '') {
-                $uid = $this->participantUserId(objectService: $objectService, participantId: $casterId);
-                if ($uid !== null) {
-                    $uids[] = $uid;
-                }
+            $uid = $this->participantUserId(objectService: $objectService, participantId: $casterId);
+            if ($uid !== null) {
+                $uids[] = $uid;
             }
         }//end foreach
 
@@ -302,32 +371,8 @@ class VotingDeadlineReminderService
      */
     private function resolveParticipantUserIds(object $objectService, array $round): array
     {
-        $motionId = ($round['motion'] ?? null);
-        if (is_array($motionId) === true) {
-            $motionId = ($motionId['id'] ?? null);
-        }
-
-        if (is_string($motionId) === false || $motionId === '') {
-            return [];
-        }
-
-        try {
-            $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
-        } catch (\Throwable) {
-            return [];
-        }
-
-        if ($motionEntity === null) {
-            return [];
-        }
-
-        $motion    = (array) $motionEntity->jsonSerialize();
-        $meetingId = ($motion['meeting'] ?? ($motion['relations']['Meeting'][0] ?? null));
-        if (is_array($meetingId) === true) {
-            $meetingId = ($meetingId['id'] ?? null);
-        }
-
-        if (is_string($meetingId) === false || $meetingId === '') {
+        $meetingId = $this->resolveMeetingIdForRound(objectService: $objectService, round: $round);
+        if ($meetingId === null) {
             return [];
         }
 
@@ -345,17 +390,13 @@ class VotingDeadlineReminderService
 
         $uids = [];
         foreach ($participants as $entity) {
-            $row = $entity;
-            if (is_object($entity) === true) {
-                $row = (array) $entity->jsonSerialize();
-            }
-
-            if (is_array($row) === false) {
+            $row = $this->rowToArray(entity: $entity);
+            if ($row === null) {
                 continue;
             }
 
-            $uid = ($row['nextcloudUserId'] ?? ($row['owner'] ?? null));
-            if (is_string($uid) === true && $uid !== '') {
+            $uid = $this->rowUserId(row: $row);
+            if ($uid !== null) {
                 $uids[] = $uid;
             }
         }
@@ -363,6 +404,39 @@ class VotingDeadlineReminderService
         return array_values(array_unique($uids));
 
     }//end resolveParticipantUserIds()
+
+    /**
+     * Walk round -> motion -> meeting to find the meeting a round belongs to.
+     *
+     * @param object               $objectService OpenRegister ObjectService instance
+     * @param array<string, mixed> $round         Round payload
+     *
+     * @spec openspec/specs/nextcloud-integration/spec.md
+     *
+     * @return string|null The meeting UUID, or null when the walk cannot complete
+     */
+    private function resolveMeetingIdForRound(object $objectService, array $round): ?string
+    {
+        $motionId = $this->refId(ref: ($round['motion'] ?? null));
+        if ($motionId === null) {
+            return null;
+        }
+
+        try {
+            $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if ($motionEntity === null) {
+            return null;
+        }
+
+        $motion = (array) $motionEntity->jsonSerialize();
+
+        return $this->refId(ref: ($motion['meeting'] ?? ($motion['relations']['Meeting'][0] ?? null)));
+
+    }//end resolveMeetingIdForRound()
 
     /**
      * Resolve a participant UUID to its linked Nextcloud UID.
@@ -386,13 +460,7 @@ class VotingDeadlineReminderService
             return null;
         }
 
-        $row = (array) $entity->jsonSerialize();
-        $uid = ($row['nextcloudUserId'] ?? ($row['owner'] ?? null));
-        if (is_string($uid) === true && $uid !== '') {
-            return $uid;
-        }
-
-        return null;
+        return $this->rowUserId(row: (array) $entity->jsonSerialize());
 
     }//end participantUserId()
 }//end class

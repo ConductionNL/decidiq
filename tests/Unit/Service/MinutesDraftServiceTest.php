@@ -121,6 +121,12 @@ class MinutesDraftServiceTest extends TestCase
      */
     public function testBuildSectionsPerAgendaItemWithProvenance(): void
     {
+        // MinutesDraftService resolves its section composer from the container;
+        // the composer is pure (no collaborators), so wire the real one.
+        $this->container->method('get')
+            ->with(\OCA\Decidesk\Service\MinutesDraftComposer::class)
+            ->willReturn(new \OCA\Decidesk\Service\MinutesDraftComposer());
+
         $segments = [
             ['agendaItem' => 'A', 'speakerLabel' => 'Speaker 1', 'text' => 'discuss A'],
             ['agendaItem' => 'B', 'speakerLabel' => 'Speaker 1', 'text' => 'discuss B'],
@@ -160,6 +166,12 @@ class MinutesDraftServiceTest extends TestCase
      */
     public function testBuildSectionsFlatFallback(): void
     {
+        // MinutesDraftService resolves its section composer from the container;
+        // the composer is pure (no collaborators), so wire the real one.
+        $this->container->method('get')
+            ->with(\OCA\Decidesk\Service\MinutesDraftComposer::class)
+            ->willReturn(new \OCA\Decidesk\Service\MinutesDraftComposer());
+
         $segments = [
             ['speakerLabel' => 'Speaker 1', 'text' => 'whole meeting'],
         ];
@@ -191,6 +203,12 @@ class MinutesDraftServiceTest extends TestCase
      */
     public function testCrossCheckMatchesAndFlags(): void
     {
+        // MinutesDraftService resolves its section composer from the container;
+        // the composer is pure (no collaborators), so wire the real one.
+        $this->container->method('get')
+            ->with(\OCA\Decidesk\Service\MinutesDraftComposer::class)
+            ->willReturn(new \OCA\Decidesk\Service\MinutesDraftComposer());
+
         $summary = 'De raad nam het besluit Woningbouwplan Oost aan. '
             .'Er werd ook iets over een onbekend voorstel gezegd.';
 

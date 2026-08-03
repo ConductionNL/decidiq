@@ -70,6 +70,17 @@ class AuditLogService
     ];
 
     /**
+     * Exact-match query filters, mapped from their filter key to the audit
+     * row property they compare against.
+     *
+     * @var array<string, string>
+     */
+    private const QUERY_EQUALITY_FIELDS = [
+        'actor'  => 'actorUuid',
+        'action' => 'action',
+    ];
+
+    /**
      * Constructor for AuditLogService.
      *
      * @param ContainerInterface $container The DI container (used to retrieve ObjectService lazily)
@@ -242,12 +253,9 @@ class AuditLogService
                 (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
             );
 
-            $canonicalForHash = '';
-            if ($canonical !== false) {
-                $canonicalForHash = $canonical;
-            }
-
-            $expected = hash('sha256', $canonicalForHash);
+            // A json_encode() failure returns false, which casts to the same
+            // empty string the previous explicit fallback used.
+            $expected = hash('sha256', (string) $canonical);
 
             if (($row['currentHash'] ?? '') !== $expected) {
                 $tampered[] = (string) ($row['id'] ?? $row['uuid'] ?? '?');
@@ -391,42 +399,12 @@ class AuditLogService
             ];
         }
 
-        $actor      = ($filters['actor'] ?? null);
-        $action     = ($filters['action'] ?? null);
-        $startDate  = ($filters['startDate'] ?? null);
-        $endDate    = ($filters['endDate'] ?? null);
-        $objectUuid = ($filters['objectUuid'] ?? null);
-
         $filtered = array_values(
             array_filter(
                 $chain,
-                static function (array $row) use ($actor, $action, $startDate, $endDate, $objectUuid): bool {
-                    if ($actor !== null && ($row['actorUuid'] ?? null) !== $actor) {
-                        return false;
-                    }
-
-                    if ($action !== null && ($row['action'] ?? null) !== $action) {
-                        return false;
-                    }
-
-                    $timestamp = ($row['timestamp'] ?? '');
-                    if ($startDate !== null && $timestamp < $startDate) {
-                        return false;
-                    }
-
-                    if ($endDate !== null && $timestamp > $endDate) {
-                        return false;
-                    }
-
-                    if ($objectUuid !== null) {
-                        $uids = array_map('strval', (array) ($row['objectUids'] ?? []));
-                        if (in_array($objectUuid, $uids, true) === false) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
+                fn (array $row): bool => $this->matchesEqualityFilters(row: $row, filters: $filters) === true
+                    && $this->matchesDateRange(row: $row, filters: $filters) === true
+                    && $this->matchesObjectUuid(row: $row, filters: $filters) === true
             )
         );
 
@@ -445,6 +423,83 @@ class AuditLogService
         ];
 
     }//end query()
+
+    /**
+     * Whether an audit row satisfies the exact-match filters (actor, action).
+     *
+     * @param array<string, mixed> $row     A single audit-chain row
+     * @param array<string, mixed> $filters Filter criteria
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+     *
+     * @return bool
+     */
+    private function matchesEqualityFilters(array $row, array $filters): bool
+    {
+        foreach (self::QUERY_EQUALITY_FIELDS as $filterKey => $rowKey) {
+            $expected = ($filters[$filterKey] ?? null);
+            if ($expected !== null && ($row[$rowKey] ?? null) !== $expected) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }//end matchesEqualityFilters()
+
+    /**
+     * Whether an audit row's timestamp falls inside the requested date range.
+     *
+     * Both bounds are optional and compared lexicographically on the ISO-8601
+     * timestamp, matching the original inline filter.
+     *
+     * @param array<string, mixed> $row     A single audit-chain row
+     * @param array<string, mixed> $filters Filter criteria
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+     *
+     * @return bool
+     */
+    private function matchesDateRange(array $row, array $filters): bool
+    {
+        $timestamp = ($row['timestamp'] ?? '');
+
+        $startDate = ($filters['startDate'] ?? null);
+        if ($startDate !== null && $timestamp < $startDate) {
+            return false;
+        }
+
+        $endDate = ($filters['endDate'] ?? null);
+        if ($endDate !== null && $timestamp > $endDate) {
+            return false;
+        }
+
+        return true;
+
+    }//end matchesDateRange()
+
+    /**
+     * Whether an audit row references the requested object uuid.
+     *
+     * @param array<string, mixed> $row     A single audit-chain row
+     * @param array<string, mixed> $filters Filter criteria
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+     *
+     * @return bool
+     */
+    private function matchesObjectUuid(array $row, array $filters): bool
+    {
+        $objectUuid = ($filters['objectUuid'] ?? null);
+        if ($objectUuid === null) {
+            return true;
+        }
+
+        $uids = array_map('strval', (array) ($row['objectUids'] ?? []));
+
+        return in_array($objectUuid, $uids, true);
+
+    }//end matchesObjectUuid()
 
     /**
      * Resolve the previousHash for a new entry by inspecting the most recent

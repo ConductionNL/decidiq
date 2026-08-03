@@ -38,13 +38,6 @@ class VotingService
 {
 
     /**
-     * Roles that may not be a proxy receiver (observer and guest cannot vote).
-     *
-     * @var string[]
-     */
-    private const NON_VOTING_ROLES = ['observer', 'guest'];
-
-    /**
      * Configurable majority thresholds (mirrors Resolution.voteThreshold).
      *
      * @var string[]
@@ -76,6 +69,34 @@ class VotingService
     public const TIE_BREAK_RULES = ['rejected', 'chair-decides', 'revote'];
 
     /**
+     * Fail-closed preflight for opening a round (rules, revote guard, presets).
+     *
+     * @var VotingRoundPreflight
+     */
+    private readonly VotingRoundPreflight $preflight;
+
+    /**
+     * Parliamentary amendment ordering + subject/meeting resolution.
+     *
+     * @var AmendmentOrderService
+     */
+    private readonly AmendmentOrderService $amendmentOrder;
+
+    /**
+     * Fail-soft announcements for a freshly opened round.
+     *
+     * @var VotingOpenedNotifier
+     */
+    private readonly VotingOpenedNotifier $notifier;
+
+    /**
+     * Pure, rule-aware result computation.
+     *
+     * @var VotingResultCalculator
+     */
+    private readonly VotingResultCalculator $calculator;
+
+    /**
      * Constructor for VotingService.
      *
      * @param ContainerInterface     $container             The DI container
@@ -95,8 +116,29 @@ class VotingService
         private readonly OriPublicationService $oriPublicationService,
         private readonly MotionService $motionService,
         private readonly ParticipantResolver $participantResolver,
-        private readonly ProcessTemplateService $templateService,
+        ProcessTemplateService $templateService,
     ) {
+        $this->preflight = new VotingRoundPreflight(
+            container: $container,
+            logger: $logger,
+            motionService: $motionService,
+            participantResolver: $participantResolver,
+            templateService: $templateService
+        );
+
+        $this->amendmentOrder = new AmendmentOrderService(
+            container: $container,
+            motionService: $motionService
+        );
+
+        $this->notifier = new VotingOpenedNotifier(
+            container: $container,
+            logger: $logger,
+            participantResolver: $participantResolver
+        );
+
+        $this->calculator = new VotingResultCalculator();
+
     }//end __construct()
 
     /**
@@ -205,17 +247,6 @@ class VotingService
         return false;
 
     }//end relationsReference()
-
-    /**
-     * Resolve Nextcloud Notification IManager.
-     *
-     * @return \OCP\Notification\IManager
-     */
-    private function notificationManager(): \OCP\Notification\IManager
-    {
-        return $this->container->get(\OCP\Notification\IManager::class);
-
-    }//end notificationManager()
 
     /**
      * Resolve OpenRegister FileService.
@@ -347,18 +378,15 @@ class VotingService
      *   when a sibling amendment earlier in the configured order (votingOrder
      *   ascending, unordered last by submittedAt) is still undecided.
      *
-     * @param string        $motionId             The motion UUID (the amendment UUID when subjectType is 'amendment')
-     * @param string        $meetingId            The meeting UUID
-     * @param string        $votingMethod         The voting method (for-against-abstain, show-of-hands, etc.)
-     * @param bool          $isSecret             Whether the ballot is secret
-     * @param string|null   $closedAt             Optional pre-defined close time
-     * @param array<string> $presetParticipantIds Optional array of participant UUIDs for a voting group preset
-     * @param string|null   $voteThreshold        Majority rule (see VOTE_THRESHOLDS); null = use the body template default, then simple-majority
-     * @param string|null   $abstentionHandling   Abstention mode (see ABSTENTION_MODES); null = body template default, then exclude
-     * @param string|null   $tieBreakRule         Tie-break rule (see TIE_BREAK_RULES); null = body template default, then rejected
-     * @param string|null   $revoteOfRoundId      UUID of a tied round this round is the single permitted revote of
-     * @param string        $subjectType          What is being voted: 'motion' (default) or 'amendment' (fail closed)
-     * @param string|null   $governanceBodyId     Body opening the round; when set, its process template supplies rule defaults
+     * @param string                $motionId             The motion UUID (the amendment UUID when subjectType is 'amendment')
+     * @param string                $meetingId            The meeting UUID
+     * @param string                $votingMethod         The voting method (for-against-abstain, show-of-hands, etc.)
+     * @param bool                  $isSecret             Whether the ballot is secret
+     * @param string|null           $closedAt             Optional pre-defined close time
+     * @param array<string>         $presetParticipantIds Optional array of participant UUIDs for a voting group preset
+     * @param string|null           $revoteOfRoundId      UUID of a tied round this round is the single permitted revote of
+     * @param VotingRoundRules|null $roundRules           The configurable decision rules (threshold / abstention /
+     *                                                    tie-break / subject type / opening body); null = all defaults
      *
      * @return array<string,mixed> The created voting round object with excludedPresetUuids key if any UUIDs were excluded
      *
@@ -378,37 +406,23 @@ class VotingService
         bool $isSecret,
         ?string $closedAt,
         array $presetParticipantIds=[],
-        ?string $voteThreshold=null,
-        ?string $abstentionHandling=null,
-        ?string $tieBreakRule=null,
         ?string $revoteOfRoundId=null,
-        string $subjectType='motion',
-        ?string $governanceBodyId=null,
+        ?VotingRoundRules $roundRules=null,
     ): array {
+        $roundRules  = ($roundRules ?? new VotingRoundRules());
+        $subjectType = $roundRules->subjectType;
+
         // Process-configuration: resolution order per rule is caller value (non-null) ->
         // body template default -> built-in default. The caller (controller) always passes
-        // explicit values, so it always wins; the template only fills nulls.
-        $templateRule       = $this->templateService->resolveVotingRuleForBody(governanceBodyId: $governanceBodyId);
-        $voteThreshold      = ($voteThreshold ?? ($templateRule['voteThreshold'] ?? 'simple-majority'));
-        $abstentionHandling = ($abstentionHandling ?? ($templateRule['abstentionHandling'] ?? 'exclude'));
-        $tieBreakRule       = ($tieBreakRule ?? ($templateRule['tieBreakRule'] ?? 'rejected'));
-
-        // Fail closed: unknown rule values are rejected, never silently defaulted.
-        if (in_array($voteThreshold, self::VOTE_THRESHOLDS, true) === false) {
-            throw new \InvalidArgumentException("Unknown voteThreshold '{$voteThreshold}'");
-        }
-
-        if (in_array($abstentionHandling, self::ABSTENTION_MODES, true) === false) {
-            throw new \InvalidArgumentException("Unknown abstentionHandling '{$abstentionHandling}'");
-        }
-
-        if (in_array($tieBreakRule, self::TIE_BREAK_RULES, true) === false) {
-            throw new \InvalidArgumentException("Unknown tieBreakRule '{$tieBreakRule}'");
-        }
-
-        if (in_array($subjectType, ['motion', 'amendment'], true) === false) {
-            throw new \InvalidArgumentException("Unknown subjectType '{$subjectType}'");
-        }
+        // explicit values, so it always wins; the template only fills nulls. Unknown rule
+        // values are rejected, never silently defaulted.
+        $rules = $this->preflight->resolveRules(
+            governanceBodyId: $roundRules->governanceBodyId,
+            voteThreshold: $roundRules->voteThreshold,
+            abstentionHandling: $roundRules->abstentionHandling,
+            tieBreakRule: $roundRules->tieBreakRule,
+            subjectType: $subjectType
+        );
 
         $quorumMet = $this->checkQuorum(meetingId: $meetingId);
         if ($quorumMet === false) {
@@ -418,493 +432,54 @@ class VotingService
         // Revote-once guard: the referenced round must be a tied revote-rule round
         // that has not been revoted before (fail closed on every mismatch).
         if ($revoteOfRoundId !== null) {
-            $this->assertRevoteAllowed(revoteOfRoundId: $revoteOfRoundId);
+            $this->preflight->assertRevoteAllowed(revoteOfRoundId: $revoteOfRoundId);
         }
 
-        // Parliamentary ordering guards (motion-amendment spec). Revote rounds
-        // re-open a question that was already legitimately in order, so the
-        // ordering guard applies to fresh rounds only.
-        if ($revoteOfRoundId === null) {
-            $this->assertAmendmentOrdering(subjectId: $motionId, subjectType: $subjectType);
+        // Parliamentary ordering (motion-amendment spec) and the lifecycle
+        // transition below apply to fresh rounds only: a revote re-opens a
+        // question that was already in order and never left 'voting'.
+        $isFreshRound = ($revoteOfRoundId === null);
+        if ($isFreshRound === true) {
+            $this->amendmentOrder->assertOrdering(subjectId: $motionId, subjectType: $subjectType);
         }
 
-        $objectService = $this->objectService();
+        // Preset UUIDs are validated against active memberships; the eligible
+        // ones become participant relations on the round.
+        $presets     = $this->preflight->splitPresetParticipants(meetingId: $meetingId, presetIds: $presetParticipantIds);
+        $votingRound = $this->preflight->buildRoundPayload(
+            motionId: $motionId,
+            subjectType: $subjectType,
+            votingMethod: $votingMethod,
+            isSecret: $isSecret,
+            closedAt: $closedAt,
+            quorumMet: $quorumMet,
+            rules: $rules,
+            revoteOfRoundId: $revoteOfRoundId,
+            participantIds: $presets['eligible']
+        );
 
-        $votingRound = [
-            'votingMethod'       => $votingMethod,
-            'isSecret'           => $isSecret,
-            'openedAt'           => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-            'closedAt'           => $closedAt,
-            'quorumMet'          => $quorumMet,
-            'result'             => null,
-            'votesFor'           => 0,
-            'votesAgainst'       => 0,
-            'votesAbstain'       => 0,
-            'voteThreshold'      => $voteThreshold,
-            'abstentionHandling' => $abstentionHandling,
-            'tieBreakRule'       => $tieBreakRule,
-            'relations'          => [
-                ['register' => 'decidesk', 'schema' => $subjectType, 'id' => $motionId],
-            ],
-        ];
+        $created = $this->objectService()->saveObject(register: 'decidesk', schema: 'voting-round', object: $votingRound);
 
-        if ($revoteOfRoundId !== null) {
-            $votingRound['revoteOfRound'] = $revoteOfRoundId;
-        }
-
-        // Validate preset UUIDs against active memberships.
-        $excludedUuids = [];
-        if (count($presetParticipantIds) > 0) {
-            $participantArrays  = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
-            $activeParticipants = array_column($participantArrays, 'id', 'id');
-
-            foreach ($presetParticipantIds as $uuid) {
-                if (isset($activeParticipants[$uuid]) === false) {
-                    $excludedUuids[] = $uuid;
-                }
-            }
-
-            // Store eligible preset UUIDs as relations.
-            $eligibleUuids = array_diff($presetParticipantIds, $excludedUuids);
-            foreach ($eligibleUuids as $uuid) {
-                $votingRound['relations'][] = ['register' => 'decidesk', 'schema' => 'participant', 'id' => $uuid];
-            }
-        }//end if
-
-        $created = $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $votingRound);
-
-        // Transition the subject lifecycle to 'voting' via the guarded state machine.
-        // Skipped for revote rounds: a tied result never transitioned the subject out
-        // of 'voting', and 'voting' -> 'voting' is not a legal transition.
-        if ($revoteOfRoundId === null) {
-            try {
-                $this->motionService->transitionLifecycle(
-                    objectId: $motionId,
-                    objectType: $subjectType,
-                    newState: 'voting',
-                    actorId: 'system',
-                );
-            } catch (\InvalidArgumentException $e) {
-                throw new \RuntimeException('Cannot open voting round: '.$e->getMessage(), 0, $e);
-            } catch (\Throwable $e) {
-                $this->logger->warning('Decidesk: failed to transition motion lifecycle', ['error' => $e->getMessage()]);
-            }
+        if ($isFreshRound === true) {
+            $this->preflight->transitionSubjectToVoting(subjectId: $motionId, subjectType: $subjectType);
         }
 
         // ObjectService::saveObject() returns an ObjectEntity; normalise to an array so the
         // declared `: array` return type holds and callers can subscript the result.
         $result = $this->normaliseSaved(saved: $created, fallback: $votingRound);
 
-        if (count($excludedUuids) > 0) {
-            $result['excludedPresetUuids'] = $excludedUuids;
+        if (count($presets['excluded']) > 0) {
+            $result['excludedPresetUuids'] = $presets['excluded'];
         }
 
-        // Activity feed (fail-soft): a voting round opened.
-        // @spec openspec/specs/nextcloud-integration/spec.md.
-        try {
-            $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
-                subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_VOTE_INITIATED,
-                title: (string) ($result['votingMethod'] ?? 'voting round'),
-                status: 'open',
-                objectType: 'voting-round',
-                objectUuid: (string) ($result['id'] ?? ($result['uuid'] ?? '')),
-                segment: 'voting-rounds'
-            );
-        } catch (\Throwable $activityError) {
-            $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
-        }
-
-        // Preference-aware "pending vote" notifications (user-settings spec):
-        // every meeting participant whose votingOpened toggle is on receives a
-        // notification with the motion title, governance body and deadline,
-        // via their chosen channels, fanned out to their active absence
-        // delegate. Best-effort: failures are logged and never break the
-        // round opening.
-        $this->notifyVotingOpened(motionId: $motionId, meetingId: $meetingId, closedAt: $closedAt, subjectType: $subjectType);
+        // Fail-soft announcements: the activity-feed entry and the
+        // preference-aware "pending vote" notifications (user-settings spec),
+        // fanned out to each participant's active absence delegate.
+        $this->notifier->announce(round: $result, motionId: $motionId, meetingId: $meetingId, closedAt: $closedAt, subjectType: $subjectType);
 
         return $result;
 
     }//end openVotingRound()
-
-    /**
-     * Enforce the parliamentary amendment-before-motion ordering (fail closed).
-     *
-     * For a MOTION round: every amendment of the motion must already be decided
-     * (lifecycle adopted/rejected) — amendments are voted before the main motion.
-     *
-     * For an AMENDMENT round: the requested amendment must be the next one in
-     * the configured order. Amendments sort by votingOrder ascending (set by
-     * the chair via MotionService::setAmendmentVotingOrder), with unordered
-     * amendments after ordered ones, oldest submittedAt first, id as the final
-     * deterministic tiebreaker. The first undecided amendment in that order is
-     * the only one a round may be opened on.
-     *
-     * @param string $subjectId   The motion UUID, or the amendment UUID for amendment rounds
-     * @param string $subjectType 'motion' or 'amendment' (validated by the caller)
-     *
-     * @return void
-     *
-     * @throws \RuntimeException When the ordering rule is violated or the amendment cannot be resolved
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    private function assertAmendmentOrdering(string $subjectId, string $subjectType): void
-    {
-        if ($subjectType === 'motion') {
-            $amendments = $this->motionService->getAmendmentsForMotion(motionId: $subjectId);
-            $pending    = [];
-            foreach ($amendments as $amendment) {
-                $lifecycle = ($amendment['lifecycle'] ?? '');
-                if (in_array($lifecycle, ['submitted', 'debating', 'voting'], true) === true) {
-                    $pending[] = (string) ($amendment['title'] ?? $amendment['id'] ?? 'amendment');
-                }
-            }
-
-            if ($pending !== []) {
-                throw new \RuntimeException(
-                    sprintf(
-                        'Cannot open a voting round on the motion: %d amendment(s) must be decided first '
-                        .'(amendments are voted before the main motion): %s',
-                        count($pending),
-                        implode(', ', $pending)
-                    )
-                );
-            }
-
-            return;
-        }//end if
-
-        // Amendment round: resolve the amendment and its parent motion.
-        $amendmentEntity = $this->objectService()->find(id: $subjectId, register: 'decidesk', schema: 'amendment');
-        if ($amendmentEntity === null) {
-            throw new \RuntimeException("Amendment {$subjectId} not found");
-        }
-
-        $amendment      = $amendmentEntity->jsonSerialize();
-        $parentMotionId = $this->resolveParentMotionId(amendment: $amendment);
-        if ($parentMotionId === null) {
-            // No parent motion — nothing to order against; a standalone amendment
-            // (data-migration artifact) may be voted directly.
-            return;
-        }
-
-        $siblings = $this->motionService->getAmendmentsForMotion(motionId: $parentMotionId);
-
-        // Ensure the requested amendment itself is part of the comparison set even
-        // when its link shape is unusual.
-        $present = false;
-        foreach ($siblings as $sibling) {
-            if ((string) ($sibling['id'] ?? $sibling['uuid'] ?? '') === $subjectId) {
-                $present = true;
-                break;
-            }
-        }
-
-        if ($present === false) {
-            $amendment['id'] = ($amendment['id'] ?? $amendment['uuid'] ?? $subjectId);
-            $siblings[]      = $amendment;
-        }
-
-        usort(
-            $siblings,
-            static function (array $a, array $b): int {
-                $orderA = $a['votingOrder'] ?? null;
-                $orderB = $b['votingOrder'] ?? null;
-                if (is_numeric($orderA) === true) {
-                    $rankA = (int) $orderA;
-                } else {
-                    $rankA = PHP_INT_MAX;
-                }
-
-                if (is_numeric($orderB) === true) {
-                    $rankB = (int) $orderB;
-                } else {
-                    $rankB = PHP_INT_MAX;
-                }
-
-                if ($rankA !== $rankB) {
-                    return ($rankA <=> $rankB);
-                }
-
-                $submittedA = (string) ($a['submittedAt'] ?? '');
-                $submittedB = (string) ($b['submittedAt'] ?? '');
-                if ($submittedA !== $submittedB) {
-                    return ($submittedA <=> $submittedB);
-                }
-
-                return ((string) ($a['id'] ?? '') <=> (string) ($b['id'] ?? ''));
-            }
-        );
-
-        foreach ($siblings as $sibling) {
-            $lifecycle = ($sibling['lifecycle'] ?? '');
-            if (in_array($lifecycle, ['adopted', 'rejected'], true) === true) {
-                continue;
-            }
-
-            $nextId = (string) ($sibling['id'] ?? $sibling['uuid'] ?? '');
-            if ($nextId === $subjectId) {
-                return;
-            }
-
-            throw new \RuntimeException(
-                sprintf(
-                    "Amendment voting order violated: '%s' must be voted first (the chair-configured order is enforced, most far-reaching first)",
-                    (string) ($sibling['title'] ?? $nextId)
-                )
-            );
-        }
-
-        // All siblings decided yet this one undecided was not encountered —
-        // only possible when the requested amendment is itself already decided.
-        throw new \RuntimeException("Amendment {$subjectId} has already been decided");
-
-    }//end assertAmendmentOrdering()
-
-    /**
-     * Resolve the parent motion UUID from a serialized amendment.
-     *
-     * Honours the flat `parentMotion` property (string or {id} object) and the
-     * structured `relations` list with schema 'motion'.
-     *
-     * @param array<string,mixed> $amendment Serialized amendment object
-     *
-     * @return string|null The parent motion UUID, or null when unlinked
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    private function resolveParentMotionId(array $amendment): ?string
-    {
-        $parentRef = ($amendment['parentMotion'] ?? null);
-        if (is_string($parentRef) === true && $parentRef !== '') {
-            return $parentRef;
-        }
-
-        if (is_array($parentRef) === true) {
-            $refId = ($parentRef['id'] ?? $parentRef['uuid'] ?? '');
-            if ($refId !== '') {
-                return (string) $refId;
-            }
-        }
-
-        foreach (($amendment['relations'] ?? []) as $relation) {
-            if (is_array($relation) === true && ($relation['schema'] ?? '') === 'motion') {
-                $relId = ($relation['id'] ?? $relation['uuid'] ?? '');
-                if ($relId !== '') {
-                    return (string) $relId;
-                }
-            }
-        }
-
-        return null;
-
-    }//end resolveParentMotionId()
-
-    /**
-     * Resolve the meeting UUID that owns a voting round.
-     *
-     * Walks round → motion → meeting for motion rounds, and
-     * round → amendment → parent motion → meeting for amendment rounds, so the
-     * membership (#300) and count-validation (#302) guards apply to both round
-     * types. Honours the flat `meeting` property on motions as well as the
-     * structured relation entry.
-     *
-     * @param array<string,mixed> $round Serialized voting round
-     *
-     * @return string|null The meeting UUID, or null when unresolvable
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    private function resolveMeetingIdForRound(array $round): ?string
-    {
-        $objectService = $this->objectService();
-
-        $motionId = null;
-        foreach (($round['relations'] ?? []) as $roundRel) {
-            $relSchema = ($roundRel['schema'] ?? '');
-            if ($relSchema === 'motion') {
-                $motionId = ($roundRel['id'] ?? null);
-                break;
-            }
-
-            if ($relSchema === 'amendment') {
-                $amendmentId = ($roundRel['id'] ?? null);
-                if ($amendmentId !== null) {
-                    $amendmentEntity = $objectService->find(id: $amendmentId, register: 'decidesk', schema: 'amendment');
-                    if ($amendmentEntity !== null) {
-                        $motionId = $this->resolveParentMotionId(amendment: $amendmentEntity->jsonSerialize());
-                    }
-                }
-
-                break;
-            }
-        }
-
-        if ($motionId === null) {
-            return null;
-        }
-
-        $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
-        if ($motionEntity === null) {
-            return null;
-        }
-
-        $motionData = $motionEntity->jsonSerialize();
-
-        // Flat meeting property (canonical UI shape).
-        $meetingRef = ($motionData['meeting'] ?? null);
-        if (is_string($meetingRef) === true && $meetingRef !== '') {
-            return $meetingRef;
-        }
-
-        if (is_array($meetingRef) === true) {
-            $refId = ($meetingRef['id'] ?? $meetingRef['uuid'] ?? '');
-            if ($refId !== '') {
-                return (string) $refId;
-            }
-        }
-
-        // Structured relation entry.
-        foreach (($motionData['relations'] ?? []) as $motionRel) {
-            if (($motionRel['schema'] ?? '') === 'meeting') {
-                $relId = ($motionRel['id'] ?? null);
-                if ($relId !== null && $relId !== '') {
-                    return (string) $relId;
-                }
-            }
-        }
-
-        return null;
-
-    }//end resolveMeetingIdForRound()
-
-    /**
-     * Guard the single permitted revote of a tied round (fail closed).
-     *
-     * A revote is only allowed when the referenced round exists, was tallied
-     * 'tied', carries tieBreakRule 'revote', and has not already been revoted
-     * (no other round references it via revoteOfRound). Every mismatch throws.
-     *
-     * @param string $revoteOfRoundId The tied round UUID being revoted
-     *
-     * @return void
-     *
-     * @throws \RuntimeException When the revote guard fails
-     *
-     * @spec openspec/specs/voting-system/spec.md
-     */
-    private function assertRevoteAllowed(string $revoteOfRoundId): void
-    {
-        $objectService = $this->objectService();
-
-        $originalEntity = $objectService->find(id: $revoteOfRoundId, register: 'decidesk', schema: 'voting-round');
-        $original       = null;
-        if ($originalEntity !== null) {
-            $original = $originalEntity->jsonSerialize();
-        }
-
-        if ($original === null) {
-            throw new \RuntimeException("Revote refused: round {$revoteOfRoundId} not found");
-        }
-
-        if (($original['result'] ?? null) !== 'tied') {
-            throw new \RuntimeException('Revote refused: the referenced round is not tied');
-        }
-
-        if (($original['tieBreakRule'] ?? 'rejected') !== 'revote') {
-            throw new \RuntimeException("Revote refused: the referenced round's tie-break rule is not 'revote'");
-        }
-
-        // The "once" guarantee: no other round may already reference this round.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('voting-round');
-        $existingRevotes = $objectService->findAll(['filters' => ['revoteOfRound' => $revoteOfRoundId]]);
-        foreach ($existingRevotes as $revoteEntity) {
-            $revote = $revoteEntity->jsonSerialize();
-            if (($revote['revoteOfRound'] ?? null) === $revoteOfRoundId) {
-                throw new \RuntimeException('Revote refused: this round has already been revoted once');
-            }
-        }
-
-    }//end assertRevoteAllowed()
-
-    /**
-     * Dispatch "pending vote" notifications for a freshly opened voting round.
-     *
-     * Resolves the meeting participants, maps them to Nextcloud UIDs and
-     * routes each notification through the preference-aware dispatcher
-     * (NotificationPreferenceService::dispatch), which honours the per-event
-     * toggle, the delivery channels and the absence delegation fan-out. The
-     * notification includes the motion (decision) title, the meeting/body
-     * context and the voting deadline per the spec scenario. Entirely
-     * fail-soft.
-     *
-     * @param string      $motionId    The motion UUID the round belongs to (amendment UUID for amendment rounds)
-     * @param string      $meetingId   The meeting UUID
-     * @param string|null $closedAt    The voting deadline (ATOM), when preset
-     * @param string      $subjectType 'motion' or 'amendment' — selects the title-lookup schema
-     *
-     * @return void
-     *
-     * @spec openspec/specs/user-settings/spec.md
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    private function notifyVotingOpened(string $motionId, string $meetingId, ?string $closedAt, string $subjectType='motion'): void
-    {
-        try {
-            $prefService = $this->container->get(NotificationPreferenceService::class);
-            if ($prefService instanceof NotificationPreferenceService === false) {
-                return;
-            }
-
-            $lookupSchema = 'motion';
-            $motionTitle  = 'Motion';
-            if ($subjectType === 'amendment') {
-                $lookupSchema = 'amendment';
-                $motionTitle  = 'Amendment';
-            }
-
-            try {
-                $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: $lookupSchema);
-                if ($motionEntity !== null) {
-                    $motion      = $motionEntity->jsonSerialize();
-                    $motionTitle = (string) ($motion['title'] ?? $motionTitle);
-                }
-            } catch (\Throwable $e) {
-                $this->logger->debug('Decidesk: motion lookup for vote notification failed', ['error' => $e->getMessage()]);
-            }
-
-            $deadline = 'no deadline set';
-            if ($closedAt !== null && $closedAt !== '') {
-                $deadline = $closedAt;
-            }
-
-            $message = sprintf('A new vote is open in your body (meeting %s). Voting deadline: %s.', $meetingId, $deadline);
-
-            $participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
-            foreach ($participants as $participant) {
-                if (($participant['leftAt'] ?? null) !== null) {
-                    continue;
-                }
-
-                $ncUid = (string) ($participant['nextcloudUserId'] ?? '');
-                if ($ncUid === '') {
-                    continue;
-                }
-
-                $prefService->dispatch(
-                    personId: $ncUid,
-                    eventType: 'votingOpened',
-                    title: 'Pending vote: '.$motionTitle,
-                    message: $message,
-                    deepLink: '/motions/'.$motionId
-                );
-            }
-        } catch (\Throwable $e) {
-            $this->logger->warning('Decidesk: votingOpened notification dispatch failed', ['error' => $e->getMessage()]);
-        }//end try
-
-    }//end notifyVotingOpened()
 
     /**
      * Check whether the casting participant is the configured absence delegate
@@ -1038,7 +613,7 @@ class VotingService
         // #300: Verify the participant is actually a member of the meeting that owns this round.
         // The round is linked to a Motion (or an Amendment, which resolves through its
         // parent motion); the Motion is linked to a Meeting via its relations.
-        $meetingId = $this->resolveMeetingIdForRound(round: $round);
+        $meetingId = $this->amendmentOrder->resolveMeetingIdForRound(round: $round);
 
         if ($meetingId !== null) {
             // Verify the participant belongs to the meeting's governance body.
@@ -1484,80 +1059,7 @@ class VotingService
      */
     public function computeResult(int $for, int $against, int $abstain, array $round): array
     {
-        $threshold = ($round['voteThreshold'] ?? 'simple-majority');
-        $abstMode  = ($round['abstentionHandling'] ?? 'exclude');
-        $tieRule   = ($round['tieBreakRule'] ?? 'rejected');
-
-        // Fail closed: unknown stored values fall back to the strictest sane default.
-        if (in_array($threshold, self::VOTE_THRESHOLDS, true) === false) {
-            $threshold = 'simple-majority';
-        }
-
-        if (in_array($abstMode, self::ABSTENTION_MODES, true) === false) {
-            $abstMode = 'exclude';
-        }
-
-        if (in_array($tieRule, self::TIE_BREAK_RULES, true) === false) {
-            $tieRule = 'rejected';
-        }
-
-        $total = ($for + $against + $abstain);
-        $base  = ($for + $against);
-        if ($abstMode === 'count') {
-            $base = $total;
-        }
-
-        $meta = [
-            'base'               => $base,
-            'voteThreshold'      => $threshold,
-            'abstentionHandling' => $abstMode,
-            'tieBreakRule'       => $tieRule,
-        ];
-
-        if ($total === 0) {
-            return (['result' => 'invalid'] + $meta);
-        }
-
-        // Classic tie deadlock — only meaningful under simple majority. A vote that
-        // merely misses half of a counted base (F != A) is plain 'rejected'.
-        if ($threshold === 'simple-majority' && $for === $against && $for > 0) {
-            if ($tieRule === 'chair-decides') {
-                $casting = ($round['chairCastingVote'] ?? null);
-                if ($casting === 'for') {
-                    return (['result' => 'adopted'] + $meta);
-                }
-
-                if ($casting === 'against') {
-                    return (['result' => 'rejected'] + $meta);
-                }
-
-                return (['result' => 'tied'] + $meta);
-            }
-
-            if ($tieRule === 'revote') {
-                return (['result' => 'tied'] + $meta);
-            }
-
-            // Default 'rejected': a tied motion fails (legal status quo).
-            return (['result' => 'rejected'] + $meta);
-        }//end if
-
-        if ($base === 0) {
-            return (['result' => 'rejected'] + $meta);
-        }
-
-        $adopted = match ($threshold) {
-            'qualified-majority-two-thirds'     => (3 * $for) >= (2 * $base),
-            'qualified-majority-three-quarters' => (4 * $for) >= (3 * $base),
-            'unanimous'                         => $for === $base,
-            default                             => (2 * $for) > $base,
-        };
-
-        if ($adopted === true) {
-            return (['result' => 'adopted'] + $meta);
-        }
-
-        return (['result' => 'rejected'] + $meta);
+        return $this->calculator->compute(for: $for, against: $against, abstain: $abstain, round: $round);
 
     }//end computeResult()
 
@@ -1681,7 +1183,7 @@ class VotingService
         // #302: Validate submitted counts against the actual participant count for the meeting.
         // The round relates to a motion (or an amendment, resolved through its parent
         // motion), which relates to a meeting; count active participants.
-        $meetingId = $this->resolveMeetingIdForRound(round: $round);
+        $meetingId = $this->amendmentOrder->resolveMeetingIdForRound(round: $round);
 
         if ($meetingId !== null) {
             // Count only active participants (leftAt is null) via canonical resolver.
@@ -1725,154 +1227,6 @@ class VotingService
         return $this->normaliseSaved(saved: $saved, fallback: $round);
 
     }//end saveShowOfHandsTally()
-
-    /**
-     * Grant proxy: delegate voting right from one participant to another for a VotingRound.
-     *
-     * Validates that the receiver has a voting role (not observer/guest).
-     * Sends notification to the delegate.
-     *
-     * @param string $votingRoundId     The voting round UUID
-     * @param string $fromParticipantId The delegating participant UUID
-     * @param string $toParticipantId   The receiving participant UUID
-     *
-     * @return void
-     *
-     * @throws \InvalidArgumentException When the receiver cannot receive proxies
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     */
-    public function grantProxy(string $votingRoundId, string $fromParticipantId, string $toParticipantId): void
-    {
-        if ($fromParticipantId === $toParticipantId) {
-            throw new \InvalidArgumentException('Een deelnemer kan geen volmacht aan zichzelf verlenen');
-        }
-
-        $objectService = $this->objectService();
-
-        $toParticipantEntity = $objectService->find(id: $toParticipantId, register: 'decidesk', schema: 'participant');
-        $toParticipant       = null;
-        if ($toParticipantEntity !== null) {
-            $toParticipant = $toParticipantEntity->jsonSerialize();
-        }
-
-        if ($toParticipant !== null) {
-            $role = strtolower($toParticipant['role'] ?? '');
-            if (in_array($role, self::NON_VOTING_ROLES, true) === true) {
-                throw new \InvalidArgumentException(
-                    "Deelnemer met rol '{$role}' kan geen volmacht ontvangen"
-                );
-            }
-        }
-
-        $proxyRecord = [
-            'fromParticipantId' => $fromParticipantId,
-            'toParticipantId'   => $toParticipantId,
-            'votingRoundId'     => $votingRoundId,
-            'grantedAt'         => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-        ];
-
-        // Store proxy as a structured note on the VotingRound.
-        $roundEntity = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
-        $round       = null;
-        if ($roundEntity !== null) {
-            $round = $roundEntity->jsonSerialize();
-        }
-
-        if ($round !== null) {
-            $notes          = ($round['notes'] ?? []);
-            $notes[]        = [
-                'title' => 'Proxy',
-                'body'  => json_encode($proxyRecord),
-            ];
-            $round['notes'] = $notes;
-            $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
-        }
-
-        // Notify delegate — resolve the Nextcloud UID from the participant object.
-        try {
-            if ($toParticipant === null) {
-                return;
-            }
-
-            $nextcloudUserId = $toParticipant['nextcloudUserId'] ?? null;
-
-            // Fall back to email lookup when nextcloudUserId is not stored on the participant.
-            if ($nextcloudUserId === null) {
-                $email = $toParticipant['email'] ?? null;
-                if ($email !== null) {
-                    $userManager = $this->container->get(\OCP\IUserManager::class);
-                    $users       = $userManager->getByEmail($email);
-                    if (count($users) === 1) {
-                        $nextcloudUserId = $users[0]->getUID();
-                    }
-                }
-            }
-
-            if ($nextcloudUserId !== null) {
-                $notificationManager = $this->notificationManager();
-                $notification        = $notificationManager->createNotification();
-                $notification->setApp('decidesk')
-                    ->setUser($nextcloudUserId)
-                    ->setDateTime(new \DateTime())
-                    ->setObject('voting-round', $votingRoundId)
-                    ->setSubject('proxy_granted', ['from' => $fromParticipantId, 'votingRoundId' => $votingRoundId]);
-                $notificationManager->notify($notification);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->warning('Decidesk: proxy grant notification failed', ['error' => $e->getMessage()]);
-        }//end try
-
-    }//end grantProxy()
-
-    /**
-     * Revoke proxy: remove proxy delegation before the round opens.
-     *
-     * @param string $votingRoundId     The voting round UUID
-     * @param string $fromParticipantId The participant revoking their proxy
-     *
-     * @return void
-     *
-     * @throws \RuntimeException When the round is already open
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     */
-    public function revokeProxy(string $votingRoundId, string $fromParticipantId): void
-    {
-        $objectService = $this->objectService();
-        $roundEntity   = $objectService->find(id: $votingRoundId, register: 'decidesk', schema: 'voting-round');
-        $round         = null;
-        if ($roundEntity !== null) {
-            $round = $roundEntity->jsonSerialize();
-        }
-
-        if ($round === null) {
-            throw new \RuntimeException("VotingRound {$votingRoundId} not found");
-        }
-
-        if (($round['openedAt'] ?? null) !== null) {
-            throw new \RuntimeException('Stemronde is al geopend — volmacht kan niet meer worden ingetrokken');
-        }
-
-        $notes    = ($round['notes'] ?? []);
-        $filtered = array_values(
-                array_filter(
-                $notes,
-                static function (array $note) use ($fromParticipantId): bool {
-                    if (($note['title'] ?? '') !== 'Proxy') {
-                        return true;
-                    }
-
-                    $body = json_decode($note['body'] ?? '{}', true);
-                    return ($body['fromParticipantId'] ?? '') !== $fromParticipantId;
-                }
-                )
-                );
-
-        $round['notes'] = $filtered;
-        $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
-
-    }//end revokeProxy()
 
     /**
      * Create a dossier folder for an adopted motion via FileService.
@@ -1921,7 +1275,7 @@ class VotingService
             }
 
             $amendment      = $amendmentEntity->jsonSerialize();
-            $parentMotionId = $this->resolveParentMotionId(amendment: $amendment);
+            $parentMotionId = $this->amendmentOrder->resolveParentMotionId(amendment: $amendment);
             if ($parentMotionId === null) {
                 return;
             }
@@ -2026,140 +1380,4 @@ class VotingService
         ];
 
     }//end getPublicState()
-
-    /**
-     * Cast one advisory citizen vote on a BudgetProposal and re-tally (citizen-participation).
-     *
-     * Advisory mode reuses the statutory tally machinery's guarantees:
-     * - duplicate detection via the SAME filterByRelation()/relation scan used for
-     *   statutory votes (one CitizenVote per voterId per proposal — second cast throws);
-     * - atomic upsert via a deterministic @self.slug so concurrent casts converge;
-     * - the proposal tally is recomputed by counting CitizenVote objects, never mixed
-     *   with statutory VotingRound Vote tallies (separation invariant).
-     *
-     * No quorum, no secret ballot, no proxy — voor/tegen only. The caller
-     * (BudgetVotingService) enforces the voting-window guard; this method enforces
-     * the value enum and the one-vote-per-citizen integrity.
-     *
-     * @param string $proposalId The validated BudgetProposal UUID.
-     * @param string $voterId    The authenticated citizen NC UID.
-     * @param string $value      'voor' | 'tegen'.
-     *
-     * @return array<string,mixed> ['vote' => <CitizenVote>, 'votesFor' => int, 'votesAgainst' => int].
-     *
-     * @throws \RuntimeException         When the proposal is missing or a duplicate vote exists.
-     * @throws \InvalidArgumentException When the value is not voor/tegen.
-     *
-     * @spec openspec/specs/voting-system/spec.md
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    public function applyAdvisoryTally(string $proposalId, string $voterId, string $value): array
-    {
-        if (in_array($value, ['voor', 'tegen'], true) === false) {
-            throw new \InvalidArgumentException("Advisory vote value must be 'voor' or 'tegen'");
-        }
-
-        $objectService = $this->objectService();
-
-        // Duplicate detection — reuse filterByRelation() (the statutory dedup path):
-        // scope to the proposal, then to the voterId.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('citizen-vote');
-        $existing = $this->filterByRelation(
-            entities: $objectService->findAll(
-                [
-                    'filters' => [
-                        '_relations.budget-proposal' => $proposalId,
-                        'voterId'                    => $voterId,
-                    ],
-                ]
-            ),
-            schema: 'budget-proposal',
-            targetId: $proposalId
-        );
-        foreach ($existing as $existingEntity) {
-            $existingVote = $existingEntity->jsonSerialize();
-            if ((string) ($existingVote['voterId'] ?? '') === $voterId) {
-                throw new \RuntimeException('Citizen has already voted on this proposal');
-            }
-        }
-
-        // Atomic upsert via deterministic slug (same idempotency strategy as castVote()).
-        $idempotencySlug = 'cvote-'.substr($proposalId, 0, 8).'-'.substr(hash('sha256', $voterId), 0, 16);
-
-        $vote = [
-            '@self'      => ['slug' => $idempotencySlug],
-            'voteValue'  => $value,
-            'voterId'    => $voterId,
-            'proposalId' => $proposalId,
-            'weight'     => 1,
-            'isProxy'    => false,
-            'castAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-            'relations'  => [
-                ['register' => 'decidesk', 'schema' => 'budget-proposal', 'id' => $proposalId],
-            ],
-        ];
-
-        $saved    = $objectService->saveObject(register: 'decidesk', schema: 'citizen-vote', object: $vote);
-        $savedArr = $this->normaliseSaved(saved: $saved, fallback: $vote);
-
-        // Re-tally all CitizenVotes for this proposal (atomic count path) and persist
-        // onto the BudgetProposal. CitizenVote objects only — never statutory Votes.
-        $tally = $this->tallyAdvisoryProposal(proposalId: $proposalId);
-
-        return [
-            'vote'         => $savedArr,
-            'votesFor'     => $tally['votesFor'],
-            'votesAgainst' => $tally['votesAgainst'],
-        ];
-
-    }//end applyAdvisoryTally()
-
-    /**
-     * Recount advisory CitizenVotes for a BudgetProposal and persist the tally.
-     *
-     * @param string $proposalId The BudgetProposal UUID.
-     *
-     * @return array{votesFor:int,votesAgainst:int} The recomputed advisory tally.
-     *
-     * @spec openspec/specs/voting-system/spec.md
-     */
-    public function tallyAdvisoryProposal(string $proposalId): array
-    {
-        $objectService = $this->objectService();
-
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('citizen-vote');
-        $voteEntities = $this->filterByRelation(
-            entities: $objectService->findAll(['filters' => ['_relations.budget-proposal' => $proposalId]]),
-            schema: 'budget-proposal',
-            targetId: $proposalId
-        );
-
-        $for     = 0;
-        $against = 0;
-        foreach ($voteEntities as $voteEntity) {
-            $vote = $voteEntity->jsonSerialize();
-            $val  = (string) ($vote['voteValue'] ?? '');
-            if ($val === 'voor') {
-                $for++;
-            } else if ($val === 'tegen') {
-                $against++;
-            }
-        }
-
-        $proposalEntity = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
-        if ($proposalEntity !== null) {
-            $proposal = $proposalEntity->jsonSerialize();
-            $proposal['votesFor']     = $for;
-            $proposal['votesAgainst'] = $against;
-            $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
-        }
-
-        return [
-            'votesFor'     => $for,
-            'votesAgainst' => $against,
-        ];
-
-    }//end tallyAdvisoryProposal()
 }//end class

@@ -50,12 +50,7 @@ class ProcessTemplateService
      *
      * @var string[]
      */
-    public const KNOWN_GUARDS = [
-        'quorum_met',
-        'chair_only',
-        'all_amendments_resolved',
-        'legal_review_complete',
-    ];
+    public const KNOWN_GUARDS = StateMachineValidator::KNOWN_GUARDS;
 
     /**
      * Constructor for ProcessTemplateService.
@@ -63,6 +58,7 @@ class ProcessTemplateService
      * @param ContainerInterface            $container The DI container (lazy-loads OpenRegister's ObjectService)
      * @param LoggerInterface               $logger    The logger
      * @param ProcessTemplatePolicyResolver $resolver  Pure template -> guard policy translator
+     * @param StateMachineValidator         $validator Pure transition-graph validator
      *
      * @spec openspec/specs/process-configuration/spec.md
      */
@@ -70,6 +66,7 @@ class ProcessTemplateService
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly ProcessTemplatePolicyResolver $resolver,
+        private readonly StateMachineValidator $validator,
     ) {
     }//end __construct()
 
@@ -289,85 +286,7 @@ class ProcessTemplateService
      */
     public function validateStateMachine(array $template): array
     {
-        $errors = [];
-
-        $stateMachine = ($template['stateMachine'] ?? null);
-        if (is_array($stateMachine) === false) {
-            return ['valid' => false, 'errors' => ['stateMachine is required and must be an object.']];
-        }
-
-        $stateNames = [];
-        foreach ((array) ($stateMachine['states'] ?? []) as $state) {
-            $name = null;
-            if (is_array($state) === true) {
-                $name = ($state['name'] ?? null);
-            }
-
-            if (is_string($name) === true && $name !== '') {
-                $stateNames[$name] = true;
-            }
-        }
-
-        if ($stateNames === []) {
-            $errors[] = 'states[] must declare at least one named state.';
-        }
-
-        $initialState = ($template['initialState'] ?? null);
-        if (is_string($initialState) === false || $initialState === '') {
-            $errors[] = 'initialState is required.';
-        } else if (isset($stateNames[$initialState]) === false && $stateNames !== []) {
-            $errors[] = "initialState '$initialState' is not declared in states[].";
-        }
-
-        $inbound  = [];
-        $outbound = [];
-        foreach ((array) ($stateMachine['transitions'] ?? []) as $transition) {
-            if (is_array($transition) === false) {
-                $errors[] = 'Each transition must be an object.';
-                continue;
-            }
-
-            $from = ($transition['from'] ?? null);
-            $to   = ($transition['to'] ?? null);
-
-            if (is_string($from) === false || $from === '' || is_string($to) === false || $to === '') {
-                $errors[] = 'Each transition must declare non-empty from and to states.';
-                continue;
-            }
-
-            if (isset($stateNames[$from]) === false) {
-                $errors[] = "Transition references dangling from-state '$from' not declared in states[].";
-            }
-
-            if (isset($stateNames[$to]) === false) {
-                $errors[] = "Transition references dangling to-state '$to' not declared in states[].";
-            }
-
-            $outbound[$from] = true;
-            $inbound[$to]    = true;
-
-            foreach ((array) ($transition['guards'] ?? []) as $guard) {
-                if (in_array($guard, self::KNOWN_GUARDS, true) === false) {
-                    $guardLabel = '?';
-                    if (is_string($guard) === true) {
-                        $guardLabel = $guard;
-                    }
-
-                    $errors[] = "Unknown guard token '".$guardLabel."'.";
-                }
-            }
-        }//end foreach
-
-        // Unreachable: a state with neither inbound nor outbound transitions that
-        // is not the initial state.
-        foreach (array_keys($stateNames) as $name) {
-            $hasEdge = (isset($inbound[$name]) === true || isset($outbound[$name]) === true);
-            if ($hasEdge === false && $name !== $initialState) {
-                $errors[] = "State '$name' is unreachable: no transitions reference it.";
-            }
-        }
-
-        return ['valid' => ($errors === []), 'errors' => $errors];
+        return $this->validator->validate(template: $template);
 
     }//end validateStateMachine()
 

@@ -33,7 +33,7 @@ use RuntimeException;
  * Stateless service for participatory-budget proposals + advisory voting.
  *
  * Advisory voting NEVER produces a statutory decision outcome; the tally is
- * delegated to VotingService::applyAdvisoryTally() so there is no parallel
+ * delegated to AdvisoryVoteService::applyAdvisoryTally() so there is no parallel
  * tally implementation and citizen tallies stay separate from VotingRound
  * tallies.
  *
@@ -44,9 +44,9 @@ class BudgetVotingService
     /**
      * Constructor for BudgetVotingService.
      *
-     * @param ContainerInterface            $container        DI container (lazy ObjectService)
-     * @param ParticipationLifecycleService $lifecycleService Status/deadline guards
-     * @param VotingService                 $votingService    Shared advisory tally machinery
+     * @param ContainerInterface            $container           DI container (lazy ObjectService)
+     * @param ParticipationLifecycleService $lifecycleService    Status/deadline guards
+     * @param AdvisoryVoteService           $advisoryVoteService Advisory citizen-vote tally machinery
      *
      * @return void
      *
@@ -55,7 +55,7 @@ class BudgetVotingService
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly ParticipationLifecycleService $lifecycleService,
-        private readonly VotingService $votingService,
+        private readonly AdvisoryVoteService $advisoryVoteService,
     ) {
     }//end __construct()
 
@@ -217,7 +217,7 @@ class BudgetVotingService
      *
      * Enforces the window guard (round in 'voting' + before votingDeadline,
      * server-side) and that the proposal is 'validated', then delegates the
-     * one-vote integrity + atomic tally to the shared VotingService.
+     * one-vote integrity + atomic tally to the shared AdvisoryVoteService.
      *
      * @param string $proposalId The BudgetProposal UUID.
      * @param string $voterId    The authenticated citizen NC UID.
@@ -255,7 +255,7 @@ class BudgetVotingService
             }
         }
 
-        return $this->votingService->applyAdvisoryTally(proposalId: $proposalId, voterId: $voterId, value: $value);
+        return $this->advisoryVoteService->applyAdvisoryTally(proposalId: $proposalId, voterId: $voterId, value: $value);
 
     }//end castAdvisoryVote()
 
@@ -405,13 +405,9 @@ class BudgetVotingService
      */
     private function resolveBudgetId(array $proposal): ?string
     {
-        foreach (($proposal['relations'] ?? []) as $relation) {
-            if (is_array($relation) === true && ($relation['schema'] ?? '') === 'participatory-budget') {
-                $id = ($relation['id'] ?? null);
-                if ($id !== null && $id !== '') {
-                    return (string) $id;
-                }
-            }
+        $related = $this->budgetIdFromRelations(relations: ($proposal['relations'] ?? []));
+        if ($related !== null) {
+            return $related;
         }
 
         $flat = ($proposal['participatoryBudget'] ?? null);
@@ -429,4 +425,30 @@ class BudgetVotingService
         return null;
 
     }//end resolveBudgetId()
+
+    /**
+     * Resolve the ParticipatoryBudget UUID from a proposal's relations.
+     *
+     * @param mixed $relations The proposal's relations collection.
+     *
+     * @return string|null The budget UUID, or null when no usable relation exists.
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    private function budgetIdFromRelations(mixed $relations): ?string
+    {
+        foreach ($relations as $relation) {
+            if (is_array($relation) === false || ($relation['schema'] ?? '') !== 'participatory-budget') {
+                continue;
+            }
+
+            $id = ($relation['id'] ?? null);
+            if ($id !== null && $id !== '') {
+                return (string) $id;
+            }
+        }
+
+        return null;
+
+    }//end budgetIdFromRelations()
 }//end class

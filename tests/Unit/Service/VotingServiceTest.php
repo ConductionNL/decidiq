@@ -453,28 +453,7 @@ class VotingServiceTest extends TestCase
 
     }//end testCloseVotingRoundTransitionsLifecycle()
 
-    /**
-     * Test that grantProxy throws when the delegate has an observer role.
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.5
-     *
-     * @return void
-     */
-    public function testGrantProxyRejectsObserverRole(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Deelnemer met rol 'observer' kan geen volmacht ontvangen");
-
-        $delegate = [
-            'displayName' => 'Observer X',
-            'role'        => 'observer',
-        ];
-
-        $this->objectService->expects($this->once())
-            ->method('getObject')
-            ->willReturn($delegate);
-
-        $this->service->grantProxy('round-uuid', 'granter-uuid', 'delegate-uuid');
-
-    }//end testGrantProxyRejectsObserverRole()
+    // The proxy (volmacht) delegation rules moved to ProxyDelegationService
+    // together with grantProxy()/revokeProxy(); they are covered — and, unlike
+    // this whole class, actually EXECUTED — by ProxyDelegationServiceTest.
 }//end class

@@ -69,6 +69,23 @@ class RegulatorExportService
     public const SCHEMA = 'regulator-export';
 
     /**
+     * MIME type emitted per export format.
+     *
+     * @var array<string, string>
+     */
+    private const CONTENT_TYPES = [
+        'csv' => 'text/csv',
+        'pdf' => 'application/pdf',
+    ];
+
+    /**
+     * Renders the export body; owns all format-specific presentation rules.
+     *
+     * @var RegulatorExportRenderer
+     */
+    private readonly RegulatorExportRenderer $renderer;
+
+    /**
      * Constructor.
      *
      * @param ContainerInterface $container       DI container (lazy ObjectService + optional docudesk)
@@ -80,6 +97,7 @@ class RegulatorExportService
         private readonly LoggerInterface $logger,
         private readonly AuditLogService $auditLogService,
     ) {
+        $this->renderer = new RegulatorExportRenderer(container: $container, logger: $logger);
     }//end __construct()
 
     /**
@@ -99,16 +117,9 @@ class RegulatorExportService
         $format = strtolower($format);
         $scope  = strtolower($scope);
 
-        if ($boardId === '') {
-            return $this->failure(message: 'boardId is required.');
-        }
-
-        if (in_array($scope, self::SCOPES, true) === false) {
-            return $this->failure(message: 'Unsupported scope: '.$scope);
-        }
-
-        if (in_array($format, self::FORMATS, true) === false) {
-            return $this->failure(message: 'Unsupported format: '.$format);
+        $rejection = $this->validateRequest(boardId: $boardId, scope: $scope, format: $format);
+        if ($rejection !== null) {
+            return $this->failure(message: $rejection);
         }
 
         try {
@@ -133,19 +144,18 @@ class RegulatorExportService
 
         $generatedAt = gmdate('Y-m-d\TH:i:s\Z');
         $title       = 'Decidesk Regulator Export — '.$scope.' — board '.$boardId;
+        $body        = $this->renderer->render(
+            format: $format,
+            title: $title,
+            generatedAt: $generatedAt,
+            scope: $scope,
+            rows: $rows
+        );
 
-        if ($format === 'csv') {
-            $body        = $this->renderCsv(scope: $scope, rows: $rows);
-            $contentType = 'text/csv';
-            $extension   = 'csv';
-        } else {
-            $body        = $this->renderPdf(title: $title, generatedAt: $generatedAt, scope: $scope, rows: $rows);
-            $contentType = 'application/pdf';
-            $extension   = 'pdf';
-        }
-
-        $checksum = hash('sha256', $body);
-        $filename = sprintf('decidesk-%s-%s-%s.%s', $scope, $boardId, substr($generatedAt, 0, 10), $extension);
+        // The extension is always the format label ('csv' / 'pdf').
+        $contentType = self::CONTENT_TYPES[$format];
+        $checksum    = hash('sha256', $body);
+        $filename    = sprintf('decidesk-%s-%s-%s.%s', $scope, $boardId, substr($generatedAt, 0, 10), $format);
 
         $exportRecord = [
             'boardKoppeling' => $boardId,
@@ -199,6 +209,35 @@ class RegulatorExportService
         ];
 
     }//end generate()
+
+    /**
+     * Validate the generate() request triple.
+     *
+     * @param string $boardId Board UUID
+     * @param string $scope   Requested scope (already lower-cased)
+     * @param string $format  Requested format (already lower-cased)
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+     *
+     * @return string|null Rejection message, or null when the request is valid
+     */
+    private function validateRequest(string $boardId, string $scope, string $format): ?string
+    {
+        if ($boardId === '') {
+            return 'boardId is required.';
+        }
+
+        if (in_array($scope, self::SCOPES, true) === false) {
+            return 'Unsupported scope: '.$scope;
+        }
+
+        if (in_array($format, self::FORMATS, true) === false) {
+            return 'Unsupported format: '.$format;
+        }
+
+        return null;
+
+    }//end validateRequest()
 
     /**
      * Retrieve a previously generated export record and re-emit its body.
@@ -385,276 +424,6 @@ class RegulatorExportService
         );
 
     }//end collect()
-
-    /**
-     * Build a self-contained, single-page PDF (1.4) skeleton — no third-party
-     * dependency. Compatible with regulator desk tooling that accepts PDF/A
-     * "light". When the docudesk leaf is available the rendering is delegated
-     * to it.
-     *
-     * @param string                           $title       Document title
-     * @param string                           $generatedAt ISO-8601 timestamp
-     * @param string                           $scope       Scope label
-     * @param array<int, array<string, mixed>> $rows        Payload rows
-     *
-     * @return string
-     */
-    private function renderPdf(string $title, string $generatedAt, string $scope, array $rows): string
-    {
-        $delegated = $this->tryDelegateToDocudesk(title: $title, generatedAt: $generatedAt, scope: $scope, rows: $rows);
-        if ($delegated !== null) {
-            return $delegated;
-        }
-
-        $lines = [
-            $title,
-            'Generated at: '.$generatedAt,
-            'Scope: '.$scope,
-            'Records: '.count($rows),
-            '',
-        ];
-
-        foreach ($rows as $index => $row) {
-            $lines[] = sprintf('%02d. %s', ($index + 1), $this->summariseRow(scope: $scope, row: $row));
-        }
-
-        return $this->assemblePdf(lines: $lines);
-
-    }//end renderPdf()
-
-    /**
-     * Try to delegate PDF generation to docudesk's PdfRenderService if
-     * available; return null when the leaf is not installed.
-     *
-     * @param string                           $title       Document title
-     * @param string                           $generatedAt ISO-8601 timestamp
-     * @param string                           $scope       Scope label
-     * @param array<int, array<string, mixed>> $rows        Payload rows
-     *
-     * @return string|null
-     */
-    private function tryDelegateToDocudesk(string $title, string $generatedAt, string $scope, array $rows): ?string
-    {
-        $candidates = [
-            '\\OCA\\Docudesk\\Service\\PdfRenderService',
-            '\\OCA\\Docudesk\\Service\\PdfService',
-        ];
-
-        foreach ($candidates as $candidate) {
-            if (class_exists($candidate) === false) {
-                continue;
-            }
-
-            try {
-                $svc = $this->container->get($candidate);
-                if (is_object($svc) === false) {
-                    continue;
-                }
-
-                if (method_exists($svc, 'renderRegulatorExport') === true) {
-                    $blob = $svc->renderRegulatorExport($title, $generatedAt, $scope, $rows);
-                    if (is_string($blob) === true && $blob !== '') {
-                        return $blob;
-                    }
-                }
-            } catch (\Throwable $e) {
-                $this->logger->warning(
-                    'Decidesk: docudesk PDF delegation failed; falling back to skeleton',
-                    ['candidate' => $candidate, 'exception' => $e->getMessage()]
-                );
-            }
-        }//end foreach
-
-        return null;
-
-    }//end tryDelegateToDocudesk()
-
-    /**
-     * Render rows as CSV.
-     *
-     * @param string                           $scope Scope label
-     * @param array<int, array<string, mixed>> $rows  Payload rows
-     *
-     * @return string
-     */
-    private function renderCsv(string $scope, array $rows): string
-    {
-        $columns = $this->csvColumns(scope: $scope);
-        $lines   = [implode(',', $columns)];
-        foreach ($rows as $row) {
-            $cells = [];
-            foreach ($columns as $column) {
-                $cells[] = $this->csvEscape(value: (string) ($row[$column] ?? ''));
-            }
-
-            $lines[] = implode(',', $cells);
-        }
-
-        return implode("\n", $lines);
-
-    }//end renderCsv()
-
-    /**
-     * Return the CSV column ordering for a given scope.
-     *
-     * @param string $scope Scope label
-     *
-     * @return string[]
-     */
-    private function csvColumns(string $scope): array
-    {
-        if ($scope === 'resolutions') {
-            return [
-                'id',
-                'meetingKoppeling',
-                'resolutionNumber',
-                'title',
-                'type',
-                'status',
-                'voteThreshold',
-                'adoptionDate',
-            ];
-        }
-
-        if ($scope === 'minutes') {
-            return [
-                'id',
-                'meetingKoppeling',
-                'language',
-                'version',
-                'preparedBy',
-                'reviewedBy',
-                'signingCompletionDate',
-                'hashSha256',
-            ];
-        }
-
-        return [
-            'id',
-            'timestamp',
-            'actorUuid',
-            'action',
-            'previousHash',
-            'currentHash',
-        ];
-
-    }//end csvColumns()
-
-    /**
-     * Safely escape a CSV cell (wraps in quotes when needed).
-     *
-     * @param string $value Raw value
-     *
-     * @return string
-     */
-    private function csvEscape(string $value): string
-    {
-        if (preg_match('/[",\n]/', $value) === 1) {
-            return '"'.str_replace('"', '""', $value).'"';
-        }
-
-        return $value;
-
-    }//end csvEscape()
-
-    /**
-     * Summarise one row for the PDF text body.
-     *
-     * @param string               $scope Scope label
-     * @param array<string, mixed> $row   Row data
-     *
-     * @return string
-     */
-    private function summariseRow(string $scope, array $row): string
-    {
-        if ($scope === 'resolutions') {
-            return sprintf(
-                '[%s] %s (%s) — status %s',
-                (string) ($row['resolutionNumber'] ?? '?'),
-                (string) ($row['title'] ?? '(untitled)'),
-                (string) ($row['type'] ?? '?'),
-                (string) ($row['status'] ?? '?')
-            );
-        }
-
-        if ($scope === 'minutes') {
-            return sprintf(
-                'Minutes %s (%s, %s) — sha256 %s',
-                (string) ($row['id'] ?? '?'),
-                (string) ($row['language'] ?? '?'),
-                (string) ($row['version'] ?? '?'),
-                substr((string) ($row['hashSha256'] ?? ''), 0, 12)
-            );
-        }
-
-        return sprintf(
-            'Audit %s — %s by %s (hash %s)',
-            (string) ($row['timestamp'] ?? '?'),
-            (string) ($row['action'] ?? '?'),
-            (string) ($row['actorUuid'] ?? '?'),
-            substr((string) ($row['currentHash'] ?? ''), 0, 12)
-        );
-
-    }//end summariseRow()
-
-    /**
-     * Assemble a minimal valid PDF 1.4 file from a list of text lines.
-     *
-     * Layered as a single page with Helvetica 10pt; one text-object per line.
-     *
-     * @param string[] $lines Lines to render
-     *
-     * @return string
-     */
-    private function assemblePdf(array $lines): string
-    {
-        $stream = "BT\n/F1 10 Tf\n72 770 Td\n";
-        foreach ($lines as $index => $line) {
-            $escaped = str_replace(
-                ['\\', '(', ')'],
-                ['\\\\', '\\(', '\\)'],
-                $line
-            );
-            if ($index !== 0) {
-                $stream .= "0 -14 Td\n";
-            }
-
-            $stream .= '('.$escaped.") Tj\n";
-        }
-
-        $stream .= 'ET';
-
-        $objects   = [];
-        $objects[] = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj";
-        $objects[] = "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj";
-        $page      = '3 0 obj'."\n";
-        $page     .= '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842]'."\n";
-        $page     .= ' /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>'."\n";
-        $page     .= 'endobj';
-        $objects[] = $page;
-        $objects[] = "4 0 obj\n<< /Length ".strlen($stream)." >>\nstream\n".$stream."\nendstream\nendobj";
-        $objects[] = "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj";
-
-        $pdf     = "%PDF-1.4\n";
-        $offsets = [0];
-        foreach ($objects as $object) {
-            $offsets[] = strlen($pdf);
-            $pdf      .= $object."\n";
-        }
-
-        $xrefOffset = strlen($pdf);
-        $pdf       .= "xref\n0 ".(count($objects) + 1)."\n";
-        $pdf       .= "0000000000 65535 f \n";
-        for ($i = 1, $count = count($offsets); $i < $count; $i++) {
-            $pdf .= sprintf("%010d 00000 n \n", $offsets[$i]);
-        }
-
-        $pdf .= "trailer\n<< /Size ".(count($objects) + 1)." /Root 1 0 R >>\n";
-        $pdf .= "startxref\n".$xrefOffset."\n%%EOF";
-
-        return $pdf;
-
-    }//end assemblePdf()
 
     /**
      * Normalise heterogeneous findAll() output to plain arrays.

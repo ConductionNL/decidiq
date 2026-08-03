@@ -89,15 +89,7 @@ class GovernanceRoleProjectionListener implements IEventListener
                 return;
             }
 
-            $row = [];
-            if (method_exists($entity, 'getObject') === true) {
-                $row = (array) $entity->getObject();
-            }
-
-            if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-                $row = (array) $entity->jsonSerialize();
-            }
-
+            $row  = $this->extractRow(entity: $entity);
             $slug = $this->resolveSchemaSlug(entity: $entity, row: $row);
             if (in_array($slug, self::ROSTER_SCHEMAS, true) === false) {
                 return;
@@ -112,6 +104,32 @@ class GovernanceRoleProjectionListener implements IEventListener
             );
         }//end try
     }//end handle()
+
+    /**
+     * Extract the serialised payload row from an OR object entity.
+     *
+     * Prefers the entity's own `getObject()` map and falls back to
+     * `jsonSerialize()` when that yields nothing.
+     *
+     * @param object $entity OR object entity
+     *
+     * @return array<string, mixed> Serialised payload, empty when unavailable
+     *
+     * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+     */
+    private function extractRow(object $entity): array
+    {
+        $row = [];
+        if (method_exists($entity, 'getObject') === true) {
+            $row = (array) $entity->getObject();
+        }
+
+        if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
+            $row = (array) $entity->jsonSerialize();
+        }
+
+        return $row;
+    }//end extractRow()
 
     /**
      * Resolve the schema slug from the OR entity surface.

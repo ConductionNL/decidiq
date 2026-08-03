@@ -23,6 +23,7 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\DecisionLifecycleService;
+use OCA\Decidesk\Service\DecisionPublicationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -44,27 +45,37 @@ use Psr\Log\LoggerInterface;
  */
 class DecisionController extends Controller
 {
+
+    /**
+     * Owns the server-side publication pipeline (load, validate, persist, activity).
+     *
+     * @var DecisionPublicationService
+     */
+    private readonly DecisionPublicationService $publicationService;
+
     /**
      * Constructor for DecisionController.
      *
      * @param IRequest                 $request          The HTTP request
-     * @param ContainerInterface       $container        DI container (lazy-loads OpenRegister services)
+     * @param ContainerInterface       $container        DI container (lazy-loads OpenRegister services for publication)
      * @param IUserSession             $userSession      The current user session
      * @param IGroupManager            $groupManager     Group manager for admin checks
-     * @param LoggerInterface          $logger           The logger
+     * @param LoggerInterface          $logger           The logger (handed to the publication service)
      * @param DecisionLifecycleService $lifecycleService Guarded decision state machine
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      */
     public function __construct(
         IRequest $request,
-        private ContainerInterface $container,
+        ContainerInterface $container,
         private IUserSession $userSession,
         private IGroupManager $groupManager,
-        private LoggerInterface $logger,
+        LoggerInterface $logger,
         private DecisionLifecycleService $lifecycleService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
+        $this->publicationService = new DecisionPublicationService(container: $container, logger: $logger);
+
     }//end __construct()
 
     /**
@@ -215,99 +226,15 @@ class DecisionController extends Controller
             );
         }
 
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        } catch (\Throwable $e) {
-            return new JSONResponse(
-                ['message' => 'OpenRegister is not available.'],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }
+        // Loading, the adopted/unpublished guard, the persist and the fail-soft
+        // activity event all live in DecisionPublicationService; it returns the
+        // status + payload this endpoint renders verbatim.
+        $result = $this->publicationService->publish(
+            decisionId: $decisionId,
+            actorUid: $user->getUID()
+        );
 
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('decision');
-
-        // OpenRegister's find() raises DoesNotExistException for an unknown id (instead of
-        // returning null), so treat that — and a null return — as a 404 not-found.
-        try {
-            $entity = $objectService->find(id: $decisionId);
-        } catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
-            $entity = null;
-        }
-
-        if ($entity === null) {
-            return new JSONResponse(['message' => sprintf('Decision "%s" not found.', $decisionId)], Http::STATUS_NOT_FOUND);
-        }
-
-        $decision = $entity->getObject();
-
-        // Server-side guard: only adopted, unpublished decisions may be published.
-        if (($decision['outcome'] ?? '') !== 'adopted') {
-            return new JSONResponse(
-                ['message' => 'Only decisions with outcome "adopted" may be published.'],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
-
-        // P3-citizen-participation: isPublished is now an enum ('internal' | 'public' | 'confidential').
-        // Only 'internal' decisions are eligible for publication; backward-compatible with the legacy
-        // boolean form by treating true/missing-as-true as already published.
-        $currentPublication = $decision['isPublished'] ?? 'internal';
-        if ($currentPublication === 'public' || $currentPublication === 'confidential' || $currentPublication === true) {
-            return new JSONResponse(
-                ['message' => 'Decision is already published.'],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
-
-        $updated = $decision;
-        $updated['isPublished'] = 'public';
-        $updated['publishedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
-
-        try {
-            $saved = $objectService->saveObject(
-                object: $updated,
-                register: 'decidesk',
-                schema: 'decision',
-                uuid: $decisionId
-            );
-
-            $result = $updated;
-            if ($saved instanceof \stdClass === true || is_array($saved) === true) {
-                $result = (array) $saved;
-            }
-
-            $this->logger->info(
-                'Decidesk: Decision published',
-                ['id' => $decisionId, 'publishedBy' => $user->getUID()]
-            );
-
-            // Activity feed (fail-soft): decision published.
-            // @spec openspec/specs/nextcloud-integration/spec.md.
-            try {
-                $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
-                    subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_DECISION_PUBLISHED,
-                    title: (string) ($updated['title'] ?? $decisionId),
-                    status: 'public',
-                    objectType: 'decision',
-                    objectUuid: $decisionId,
-                    segment: 'decisions'
-                );
-            } catch (\Throwable $activityError) {
-                $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
-            }
-
-            return new JSONResponse($result);
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: Failed to publish Decision',
-                ['id' => $decisionId, 'exception' => $e->getMessage()]
-            );
-            return new JSONResponse(
-                ['message' => 'Failed to publish decision. Please try again.'],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }//end try
+        return new JSONResponse($result['data'], $result['status']);
 
     }//end publish()
 }//end class

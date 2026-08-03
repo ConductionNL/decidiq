@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\OriController;
+use OCA\Decidesk\Service\OriSerializer;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\IConfig;
@@ -112,6 +113,7 @@ class OriControllerTest extends TestCase
             $this->config,
             $this->container,
             $this->logger,
+            new OriSerializer(),
         );
 
     }//end setUp()

@@ -95,28 +95,50 @@ class OpenCatalogiPublisher
                 schema: 'publication',
             );
 
-            if (is_object($publication) === true && method_exists($publication, 'getUuid') === true) {
-                $uuid = $publication->getUuid();
-                if (is_string($uuid) === true && $uuid !== '') {
-                    return $uuid;
-                }
-            }
-
-            if (is_object($publication) === true && method_exists($publication, 'jsonSerialize') === true) {
-                $data = $publication->jsonSerialize();
-                $id   = ($data['id'] ?? $data['uuid'] ?? ($data['@self']['id'] ?? null));
-                if (is_string($id) === true && $id !== '') {
-                    return $id;
-                }
-            }
-
-            return '';
+            return $this->referenceOf(publication: $publication);
         } catch (\Throwable $e) {
             $this->logger->warning('Decidesk publication: OpenCatalogi publish failed', ['exception' => $e->getMessage()]);
             return '';
         }//end try
 
     }//end publish()
+
+    /**
+     * Extract the catalog publication reference from whatever OpenCatalogi returned.
+     *
+     * Prefers the entity's own `getUuid()`, then falls back to the serialized
+     * id/uuid/@self.id. Returns '' when no usable reference is present.
+     *
+     * @param mixed $publication The saveObject() return value.
+     *
+     * @spec openspec/specs/public-publication/spec.md
+     *
+     * @return string The catalog publication reference, or '' when absent.
+     */
+    private function referenceOf(mixed $publication): string
+    {
+        if (is_object($publication) === false) {
+            return '';
+        }
+
+        if (method_exists($publication, 'getUuid') === true) {
+            $uuid = $publication->getUuid();
+            if (is_string($uuid) === true && $uuid !== '') {
+                return $uuid;
+            }
+        }
+
+        if (method_exists($publication, 'jsonSerialize') === true) {
+            $data = $publication->jsonSerialize();
+            $id   = ($data['id'] ?? $data['uuid'] ?? ($data['@self']['id'] ?? null));
+            if (is_string($id) === true && $id !== '') {
+                return $id;
+            }
+        }
+
+        return '';
+
+    }//end referenceOf()
 
     /**
      * Retract a previously-created catalog publication.

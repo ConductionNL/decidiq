@@ -87,8 +87,8 @@ return \OCA\OpenRegister\AppHost\Routes::standard(
 
         // Minutes approval workflow + document generation (minutes-ui-v1).
         // @spec openspec/specs/resolution-minutes/spec.md
-        ['name' => 'minutes#addCorrection',     'url' => '/api/minutes/{minutesId}/corrections',                  'verb' => 'POST'],
-        ['name' => 'minutes#resolveCorrection', 'url' => '/api/minutes/{minutesId}/corrections/{correctionId}',   'verb' => 'PUT'],
+        ['name' => 'minutesCorrection#addCorrection',     'url' => '/api/minutes/{minutesId}/corrections',                'verb' => 'POST'],
+        ['name' => 'minutesCorrection#resolveCorrection', 'url' => '/api/minutes/{minutesId}/corrections/{correctionId}', 'verb' => 'PUT'],
         ['name' => 'minutes#reject',            'url' => '/api/minutes/{minutesId}/reject',                       'verb' => 'POST'],
         ['name' => 'minutes#generateDocument',  'url' => '/api/minutes/{minutesId}/generate-document',            'verb' => 'POST'],
 
@@ -265,10 +265,11 @@ return \OCA\OpenRegister\AppHost\Routes::standard(
         ['name' => 'participation#approveReaction',            'url' => '/api/participation/reactions/{reactionId}/approve',                  'verb' => 'POST'],
         ['name' => 'participation#rejectReaction',             'url' => '/api/participation/reactions/{reactionId}/reject',                   'verb' => 'POST'],
         ['name' => 'participation#publishReaction',            'url' => '/api/participation/reactions/{reactionId}/publish',                  'verb' => 'POST'],
-        ['name' => 'participation#transitionBudgetRound',      'url' => '/api/participation/budgets/{budgetId}/transition',                   'verb' => 'POST'],
-        ['name' => 'participation#submitProposal',             'url' => '/api/participation/budgets/{budgetId}/proposals',                    'verb' => 'POST'],
-        ['name' => 'participation#publishBudgetResults',       'url' => '/api/participation/budgets/{budgetId}/publish',                      'verb' => 'POST'],
-        ['name' => 'participation#validateProposal',           'url' => '/api/participation/proposals/{proposalId}/validate',                 'verb' => 'POST'],
-        ['name' => 'participation#castAdvisoryVote',           'url' => '/api/participation/proposals/{proposalId}/vote',                     'verb' => 'POST'],
+        // Participatory budget — same URLs, handled by ParticipationBudgetController.
+        ['name' => 'participationBudget#transitionBudgetRound', 'url' => '/api/participation/budgets/{budgetId}/transition',                  'verb' => 'POST'],
+        ['name' => 'participationBudget#submitProposal',        'url' => '/api/participation/budgets/{budgetId}/proposals',                   'verb' => 'POST'],
+        ['name' => 'participationBudget#publishBudgetResults',  'url' => '/api/participation/budgets/{budgetId}/publish',                     'verb' => 'POST'],
+        ['name' => 'participationBudget#validateProposal',      'url' => '/api/participation/proposals/{proposalId}/validate',                'verb' => 'POST'],
+        ['name' => 'participationBudget#castAdvisoryVote',      'url' => '/api/participation/proposals/{proposalId}/vote',                    'verb' => 'POST'],
     ]
 );
