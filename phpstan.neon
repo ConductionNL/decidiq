@@ -24,6 +24,12 @@ parameters:
         - lib/Controller/MetricsController.php
     scanDirectories:
         - vendor/nextcloud/ocp
+    scanFiles:
+        # OpenRegister ships IMcpToolProvider at runtime only. "implements unknown
+        # interface" is a non-ignorable PHPStan error, so hand it the same stub the
+        # phpunit bootstrap uses instead of muting it — this analyses the contract
+        # for real rather than suppressing it.
+        - tests/Stubs/Mcp/IMcpToolProvider.php
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         # Nextcloud server internals (\OC, OC_App, OC\) not stubbed in nextcloud/ocp

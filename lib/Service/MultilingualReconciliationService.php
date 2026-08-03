@@ -388,7 +388,7 @@ class MultilingualReconciliationService
             $source      = (string) ($sourceMinutes['content'] ?? '');
             $translation = $adapter->translate($source, $sourceLocale, $targetLocale);
 
-            if (($translation['success'] ?? false) !== true) {
+            if ($translation['success'] !== true) {
                 $failed++;
                 $this->updateEntry(
                     objectService: $objectService,
@@ -398,8 +398,8 @@ class MultilingualReconciliationService
                         [
                             'status'    => 'failed',
                             'attempts'  => ($attempts + 1),
-                            'provider'  => (string) ($translation['provider'] ?? 'unknown'),
-                            'lastError' => (string) ($translation['message'] ?? 'Translation failed.'),
+                            'provider'  => $translation['provider'],
+                            'lastError' => $translation['message'],
                             'updatedAt' => $now,
                         ]
                     )
@@ -423,7 +423,7 @@ class MultilingualReconciliationService
                     [
                         'status'                     => 'completed',
                         'attempts'                   => ($attempts + 1),
-                        'provider'                   => (string) ($translation['provider'] ?? 'log'),
+                        'provider'                   => $translation['provider'],
                         'lastError'                  => null,
                         'translatedMinutesKoppeling' => $newMinutesId,
                         'completedAt'                => $now,

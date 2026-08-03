@@ -112,10 +112,6 @@ class BoardEvaluationResponseService
 
             $sanitisedAnswers = [];
             foreach ($answers as $answer) {
-                if (is_array($answer) === false) {
-                    continue;
-                }
-
                 $likertValue = null;
                 if (isset($answer['likertValue']) === true) {
                     $likertValue = (int) $answer['likertValue'];

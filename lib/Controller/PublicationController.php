@@ -147,10 +147,10 @@ class PublicationController extends Controller
         try {
             $result = $this->publicationService->withdraw($recordId, $user->getUID(), $reason);
             return new JSONResponse($result, Http::STATUS_OK);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
         } catch (MissingObjectException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
         } catch (\Throwable $e) {
             return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }

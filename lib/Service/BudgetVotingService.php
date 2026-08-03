@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Stateless service for participatory-budget proposals + advisory voting.
@@ -44,7 +43,6 @@ class BudgetVotingService
      * Constructor for BudgetVotingService.
      *
      * @param ContainerInterface            $container        DI container (lazy ObjectService)
-     * @param LoggerInterface               $logger           The logger
      * @param ParticipationLifecycleService $lifecycleService Status/deadline guards
      * @param VotingService                 $votingService    Shared advisory tally machinery
      *
@@ -54,7 +52,6 @@ class BudgetVotingService
      */
     public function __construct(
         private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
         private readonly ParticipationLifecycleService $lifecycleService,
         private readonly VotingService $votingService,
     ) {

@@ -87,9 +87,9 @@ class QuorumVerificationService
             }
         }
 
-        $threshold = (int) ($report['threshold'] ?? 0);
+        $threshold = $report['threshold'];
         return [
-            'total'     => (int) $report['total'],
+            'total'     => $report['total'],
             'present'   => $present,
             'threshold' => $threshold,
             'met'       => ($threshold > 0 && $present >= $threshold),
@@ -106,11 +106,14 @@ class QuorumVerificationService
      *  - `attendance` (array of { boardMemberKoppeling, mode })
      *  - `quorumRequired` (optional, overrides board-level computation)
      *
+     * Returns an empty array when the meeting cannot be resolved or the
+     * OpenRegister lookup fails; callers must treat `[]` as "unknown".
+     *
      * @param string $meetingId UUID of the board meeting
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
      *
-     * @return array{total: int, threshold: int, members: array<int, array{boardMemberKoppeling: string, status: string}>}
+     * @return array{}|array{total: int, threshold: int, members: array<int, array{boardMemberKoppeling: string, status: string}>}
      */
     public function getAttendanceReport(string $meetingId): array
     {

@@ -218,10 +218,6 @@ class MinutesDraftService
 
         if ($hasTimeline === true && $agendaItems !== []) {
             foreach ($agendaItems as $item) {
-                if (is_array($item) === false) {
-                    continue;
-                }
-
                 $itemId    = (string) ($item['id'] ?? ($item['uuid'] ?? ''));
                 $itemTitle = (string) ($item['title'] ?? ($item['name'] ?? 'Agendapunt'));
                 $itemSegs  = $this->segmentsForItem(segments: $segments, agendaItemId: $itemId);
@@ -384,10 +380,6 @@ class MinutesDraftService
         $lines[] = 'Transcript:';
 
         foreach ($segments as $segment) {
-            if (is_array($segment) === false) {
-                continue;
-            }
-
             $label  = (string) ($segment['speakerLabel'] ?? '');
             $text   = (string) ($segment['text'] ?? '');
             $prefix = '';
@@ -509,10 +501,6 @@ class MinutesDraftService
     {
         $result = [];
         foreach ($records as $record) {
-            if (is_array($record) === false) {
-                continue;
-            }
-
             $linked = ($record['agendaItem'] ?? ($record['relations']['agendaItem'] ?? ($record['relations']['agenda-item'] ?? null)));
             if (is_array($linked) === true) {
                 $linked = ($linked['id'] ?? ($linked[0] ?? null));
