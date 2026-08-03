@@ -234,6 +234,11 @@ class MailReplyHandler extends TimedJob
      * @return void
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by
+     * the OCP\BackgroundJob\Job::run() signature this method overrides. The job
+     * carries no argument, but the parameter cannot be dropped without breaking
+     * the parent contract.
      */
     protected function run(mixed $argument): void
     {

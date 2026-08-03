@@ -75,15 +75,15 @@ class VotingController extends Controller
     /**
      * Constructor for VotingController.
      *
-     * @param IRequest              $request               The request object
-     * @param VotingService         $votingService         The voting service
-     * @param OriPublicationService $oriPublicationService The ORI publication service
-     * @param IUserSession          $userSession           The user session
-     * @param IGroupManager         $groupManager          The group manager (handed to the guard)
-     * @param IAppConfig            $appConfig             The app config (handed to the guard)
-     * @param LoggerInterface       $logger                The logger
-     * @param ParticipantResolver   $participantResolver   Role resolver (handed to the guard)
-     * @param ContainerInterface    $container             DI container (handed to the guard)
+     * @param IRequest              $request             The request object
+     * @param VotingService         $votingService       The voting service
+     * @param OriPublicationService $oriService          The ORI publication service
+     * @param IUserSession          $userSession         The user session
+     * @param IGroupManager         $groupManager        The group manager (handed to the guard)
+     * @param IAppConfig            $appConfig           The app config (handed to the guard)
+     * @param LoggerInterface       $logger              The logger
+     * @param ParticipantResolver   $participantResolver Role resolver (handed to the guard)
+     * @param ContainerInterface    $container           DI container (handed to the guard)
      *
      * @return void
      *
@@ -92,7 +92,7 @@ class VotingController extends Controller
     public function __construct(
         IRequest $request,
         private readonly VotingService $votingService,
-        private readonly OriPublicationService $oriPublicationService,
+        private readonly OriPublicationService $oriService,
         private readonly IUserSession $userSession,
         IGroupManager $groupManager,
         IAppConfig $appConfig,
@@ -338,8 +338,8 @@ class VotingController extends Controller
         }
 
         try {
-            $this->oriPublicationService->publish(votingRoundId: $id);
-            $status = $this->oriPublicationService->getPublicationStatus(votingRoundId: $id);
+            $this->oriService->publish(votingRoundId: $id);
+            $status = $this->oriService->getPublicationStatus(votingRoundId: $id);
             return new JSONResponse(['status' => $status]);
         } catch (\Throwable $e) {
             $this->logger->error('Decidesk: ORI publication failed', ['votingRoundId' => $id, 'error' => $e->getMessage()]);

@@ -63,28 +63,28 @@ class MinutesController extends Controller
      * time would freeze it as null when the container is first built in a cron or
      * pre-flight context. The UID is resolved per-request via $this->userSession.
      *
-     * @param IRequest                    $request                  The HTTP request
-     * @param MinutesGenerationService    $minutesGenerationService The generation service
-     * @param ALVMinutesService           $alvMinutesService        The ALV minutes service
-     * @param ActionItemExtractionService $extractionService        The extraction service
-     * @param MinutesService              $minutesService           The minutes service
-     * @param IUserSession                $userSession              The current user session
-     * @param ObjectService               $objectService            The object service for direct data access
-     * @param MinutesAccessGuard          $accessGuard              Per-object minutes authorisation
-     * @param MinutesDocumentService      $minutesDocumentService   Document generation + persistence service
+     * @param IRequest                    $request           The HTTP request
+     * @param MinutesGenerationService    $generationService The generation service
+     * @param ALVMinutesService           $alvMinutesService The ALV minutes service
+     * @param ActionItemExtractionService $extractionService The extraction service
+     * @param MinutesService              $minutesService    The minutes service
+     * @param IUserSession                $userSession       The current user session
+     * @param ObjectService               $objectService     The object service for direct data access
+     * @param MinutesAccessGuard          $accessGuard       Per-object minutes authorisation
+     * @param MinutesDocumentService      $documentService   Document generation + persistence service
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function __construct(
         IRequest $request,
-        private MinutesGenerationService $minutesGenerationService,
+        private MinutesGenerationService $generationService,
         private ALVMinutesService $alvMinutesService,
         private ActionItemExtractionService $extractionService,
         private MinutesService $minutesService,
         private IUserSession $userSession,
         private ObjectService $objectService,
         private readonly MinutesAccessGuard $accessGuard,
-        private MinutesDocumentService $minutesDocumentService,
+        private MinutesDocumentService $documentService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -134,7 +134,7 @@ class MinutesController extends Controller
         }
 
         try {
-            $preview = $this->minutesGenerationService->generateDraft($minutesId);
+            $preview = $this->generationService->generateDraft($minutesId);
             return new JSONResponse(['preview' => $preview]);
         } catch (InvalidArgumentException $e) {
             return new JSONResponse(
@@ -206,7 +206,7 @@ class MinutesController extends Controller
         }
 
         try {
-            $updated = $this->minutesGenerationService->transition(
+            $updated = $this->generationService->transition(
                 minutesId: $minutesId,
                 newLifecycle: $newLifecycle,
                 displayName: $displayName,
@@ -553,7 +553,7 @@ class MinutesController extends Controller
         $user = $this->userSession->getUser();
 
         try {
-            $updated = $this->minutesGenerationService->reject(
+            $updated = $this->generationService->reject(
                 minutesId: $minutesId,
                 comment: $comment,
                 userId: $user->getUID(),
@@ -622,7 +622,7 @@ class MinutesController extends Controller
         }
 
         try {
-            $result = $this->minutesDocumentService->generate(
+            $result = $this->documentService->generate(
                 minutesId: $minutesId,
                 format: $format,
                 displayName: $displayName,

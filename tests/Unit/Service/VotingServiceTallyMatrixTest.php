@@ -54,7 +54,7 @@ class VotingServiceTallyMatrixTest extends TestCase
         return new VotingService(
             container: $this->createMock(ContainerInterface::class),
             logger: new NullLogger(),
-            oriPublicationService: $this->createMock(OriPublicationService::class),
+            oriService:$this->createMock(OriPublicationService::class),
             motionService: $this->createMock(MotionService::class),
             participantResolver: $this->createMock(ParticipantResolver::class),
             templateService: $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class),

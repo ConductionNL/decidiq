@@ -259,7 +259,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
         return new VotingService(
             container: $container,
             logger: new NullLogger(),
-            oriPublicationService: $this->createMock(OriPublicationService::class),
+            oriService:$this->createMock(OriPublicationService::class),
             motionService: $this->motionService,
             participantResolver: $participantResolver,
             templateService: $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class),

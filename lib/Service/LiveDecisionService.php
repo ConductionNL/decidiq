@@ -174,9 +174,9 @@ class LiveDecisionService
             ];
             $objectService->setRegister('decidesk');
             $objectService->setSchema('minutes');
-            $existingMinutesEntities = $objectService->findAll(['filters' => $params]);
+            $existingMinutes = $objectService->findAll(['filters' => $params]);
 
-            foreach ($existingMinutesEntities as $minutesEntity) {
+            foreach ($existingMinutes as $minutesEntity) {
                 $minutes = $minutesEntity->jsonSerialize();
                 // Check if linked to the Meeting.
                 if (empty($minutes['relations']['Meeting']) === false) {

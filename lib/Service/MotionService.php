@@ -24,9 +24,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use InvalidArgumentException;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Stateless service handling motion lifecycle transitions, co-signatory management,
@@ -162,8 +166,8 @@ class MotionService
      * @param string $newState   Target lifecycle state
      * @param string $actorId    Nextcloud user UID performing the transition, or 'system' for internal calls
      *
-     * @throws \InvalidArgumentException When the transition is not allowed, the co-signer minimum is not met, or actorId is empty
-     * @throws \RuntimeException         When the object cannot be found or saved
+     * @throws InvalidArgumentException When the transition is not allowed, the co-signer minimum is not met, or actorId is empty
+     * @throws RuntimeException         When the object cannot be found or saved
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      * @spec openspec/specs/motion-amendment/spec.md
@@ -174,7 +178,7 @@ class MotionService
     {
         // #317: Reject calls without an authenticated actor to prevent bare DI-path abuse.
         if ($actorId === '') {
-            throw new \InvalidArgumentException('actorId must be a non-empty Nextcloud user UID or the sentinel "system"');
+            throw new InvalidArgumentException('actorId must be a non-empty Nextcloud user UID or the sentinel "system"');
         }
 
         $objectService = $this->getObjectService();
@@ -183,7 +187,7 @@ class MotionService
 
         $object = $objectService->find($objectId);
         if ($object === null) {
-            throw new \RuntimeException("Object $objectType/$objectId not found");
+            throw new RuntimeException("Object $objectType/$objectId not found");
         }
 
         $objectArray  = $object->getObject();
@@ -196,7 +200,7 @@ class MotionService
 
         $allowed = $transitions[$currentState] ?? [];
         if (in_array($newState, $allowed, true) === false) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "Transition from '$currentState' to '$newState' is not allowed for $objectType"
             );
         }
@@ -235,7 +239,7 @@ class MotionService
      * @param string               $newState     The target lifecycle state
      * @param array<string, mixed> $objectArray  The serialized object being transitioned
      *
-     * @throws \InvalidArgumentException When the co-signer minimum is not met
+     * @throws InvalidArgumentException When the co-signer minimum is not met
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
@@ -252,7 +256,7 @@ class MotionService
         $coSignerCount = count($objectArray['coSigners'] ?? []);
 
         if ($minCoSigners > 0 && $coSignerCount < $minCoSigners) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Motion requires at least %d co-signers before it can proceed to debate; it currently has %d (%d more needed)',
                     $minCoSigners,
@@ -285,7 +289,7 @@ class MotionService
 
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         $motionData = $motionObject->getObject();
@@ -326,7 +330,7 @@ class MotionService
                         failureLog: "Decidesk: Could not send co-sign notification to $nextcloudUserId: "
                     );
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->logger->warning(
                     "Decidesk: Could not send co-sign request to participant $participantId: {$e->getMessage()}"
                 );
@@ -359,14 +363,14 @@ class MotionService
      * Idempotent: if the name is already present, no duplicate is added.
      * Saves the updated Motion via ObjectService.
      *
-     * @param string $motionId               UUID of the Motion
-     * @param string $participantDisplayName Display name of the confirming co-signer
+     * @param string $motionId     UUID of the Motion
+     * @param string $coSignerName Display name of the confirming co-signer
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
      */
-    public function addCoSigner(string $motionId, string $participantDisplayName): void
+    public function addCoSigner(string $motionId, string $coSignerName): void
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
@@ -374,14 +378,14 @@ class MotionService
 
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         $motionData = $motionObject->getObject();
         $coSigners  = $motionData['coSigners'] ?? [];
 
-        if (in_array($participantDisplayName, $coSigners, true) === false) {
-            $coSigners[] = $participantDisplayName;
+        if (in_array($coSignerName, $coSigners, true) === false) {
+            $coSigners[] = $coSignerName;
             $objectService->saveObject(
                 object: array_merge($motionData, ['coSigners' => $coSigners]),
                 register: 'decidesk',
@@ -444,7 +448,7 @@ class MotionService
 
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         $motionData = $motionObject->getObject();
@@ -458,7 +462,7 @@ class MotionService
             ]
         );
         if ($budgetPayload === false) {
-            throw new \RuntimeException('JSON encoding of budget impact failed: '.json_last_error_msg());
+            throw new RuntimeException('JSON encoding of budget impact failed: '.json_last_error_msg());
         }
 
         $budgetNote = [
@@ -582,28 +586,28 @@ class MotionService
      *
      * @return array<int, array<string, mixed>> The amendments with their new votingOrder values
      *
-     * @throws \InvalidArgumentException When an id does not belong to the motion, ids repeat, or actorId is empty
-     * @throws \RuntimeException         When the motion has no amendments to order
+     * @throws InvalidArgumentException When an id does not belong to the motion, ids repeat, or actorId is empty
+     * @throws RuntimeException         When the motion has no amendments to order
      *
      * @spec openspec/specs/motion-amendment/spec.md
      */
     public function setAmendmentVotingOrder(string $motionId, array $orderedAmendmentIds, string $actorId): array
     {
         if ($actorId === '') {
-            throw new \InvalidArgumentException('actorId must be a non-empty Nextcloud user UID');
+            throw new InvalidArgumentException('actorId must be a non-empty Nextcloud user UID');
         }
 
         if ($orderedAmendmentIds === []) {
-            throw new \InvalidArgumentException('orderedAmendmentIds must not be empty');
+            throw new InvalidArgumentException('orderedAmendmentIds must not be empty');
         }
 
         if (count($orderedAmendmentIds) !== count(array_unique($orderedAmendmentIds))) {
-            throw new \InvalidArgumentException('orderedAmendmentIds must not contain duplicates');
+            throw new InvalidArgumentException('orderedAmendmentIds must not contain duplicates');
         }
 
         $amendments = $this->getAmendmentsForMotion(motionId: $motionId);
         if ($amendments === []) {
-            throw new \RuntimeException("Motion $motionId has no amendments to order");
+            throw new RuntimeException("Motion $motionId has no amendments to order");
         }
 
         $byId = [];
@@ -613,7 +617,7 @@ class MotionService
 
         foreach ($orderedAmendmentIds as $amendmentId) {
             if (isset($byId[$amendmentId]) === false) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     "Amendment $amendmentId does not belong to motion $motionId"
                 );
             }
@@ -707,8 +711,8 @@ class MotionService
                 $splitExst = [];
             }
 
-            $newWords      = array_filter($splitNew, fn($w) => mb_strlen($w) > 4);
-            $existingWords = array_filter($splitExst, fn($w) => mb_strlen($w) > 4);
+            $newWords      = array_filter($splitNew, fn($word) => mb_strlen($word) > 4);
+            $existingWords = array_filter($splitExst, fn($word) => mb_strlen($word) > 4);
             $overlap       = array_intersect($newWords, $existingWords);
 
             if (count($overlap) > 3) {
@@ -762,7 +766,7 @@ class MotionService
         $objectService->setSchema('amendment');
         $amendmentObject = $objectService->find($amendmentId);
         if ($amendmentObject === null) {
-            throw new \RuntimeException("Amendment $amendmentId not found");
+            throw new RuntimeException("Amendment $amendmentId not found");
         }
 
         $amendmentData = $amendmentObject->getObject();
@@ -773,7 +777,7 @@ class MotionService
         $objectService->setSchema('motion');
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         $motionData  = $motionObject->getObject();
@@ -804,7 +808,7 @@ class MotionService
      *
      * @return array<string,mixed> The created forwarded Motion object
      *
-     * @throws \RuntimeException When role is not authorized or motion is not found
+     * @throws RuntimeException When role is not authorized or motion is not found
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      */
@@ -824,7 +828,7 @@ class MotionService
         $userManager = $this->userManager;
         $user        = $userManager->get($actorId);
         if ($user === null) {
-            throw new \RuntimeException("Actor {$actorId} not found");
+            throw new RuntimeException("Actor {$actorId} not found");
         }
 
         $objectService = $this->getObjectService();
@@ -834,7 +838,7 @@ class MotionService
         $objectService->setSchema('motion');
         $sourceMotionObject = $objectService->find($motionId);
         if ($sourceMotionObject === null) {
-            throw new \RuntimeException("Motion $motionId not found");
+            throw new RuntimeException("Motion $motionId not found");
         }
 
         $sourceMotionData = $sourceMotionObject->getObject();
@@ -850,7 +854,7 @@ class MotionService
             'proposer'    => $sourceMotionData['proposer'] ?? '',
             'coSigners'   => $sourceMotionData['coSigners'] ?? [],
             'lifecycle'   => 'submitted',
-            'submittedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'submittedAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
             'relations'   => [
                 ['register' => 'decidesk', 'schema' => 'governance-body', 'id' => $targetBodyId],
                 ['register' => 'decidesk', 'schema' => 'motion', 'id' => $motionId],
@@ -864,7 +868,7 @@ class MotionService
                                 'targetBodyId'   => $targetBodyId,
                                 'forwardedBy'    => $actorId,
                                 'justification'  => $justification,
-                                'forwardedAt'    => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                                'forwardedAt'    => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
                             ]
                             ),
                 ],
@@ -887,7 +891,7 @@ class MotionService
                     [
                         'targetBodyId'      => $targetBodyId,
                         'forwardedMotionId' => ($created['id'] ?? $created['uuid'] ?? null),
-                        'forwardedAt'       => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                        'forwardedAt'       => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
                     ]
                     ),
         ];

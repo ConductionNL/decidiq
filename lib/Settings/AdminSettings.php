@@ -45,14 +45,14 @@ class AdminSettings implements IDelegatedSettings
     /**
      * Constructor.
      *
-     * @param IAppManager              $appManager               The app manager.
-     * @param IInitialState            $initialState             The initial state service.
-     * @param PublicationConfigService $publicationConfigService The publication configuration service.
+     * @param IAppManager              $appManager        The app manager.
+     * @param IInitialState            $initialState      The initial state service.
+     * @param PublicationConfigService $publicationConfig The publication configuration service.
      */
     public function __construct(
         private IAppManager $appManager,
         private IInitialState $initialState,
-        private \OCA\Decidesk\Service\PublicationConfigService $publicationConfigService,
+        private \OCA\Decidesk\Service\PublicationConfigService $publicationConfig,
     ) {
     }//end __construct()
 
@@ -74,7 +74,7 @@ class AdminSettings implements IDelegatedSettings
         // and policy enums to the admin settings page via IInitialState — rendered
         // by the NC settings framework, NOT added to the in-app vue-router.
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md.
-        $this->initialState->provideInitialState('publicationConfig', $this->publicationConfigService->getAll());
+        $this->initialState->provideInitialState('publicationConfig', $this->publicationConfig->getAll());
         $this->initialState->provideInitialState(
             'publicationPolicies',
             [

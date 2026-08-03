@@ -24,11 +24,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
 use OCA\Decidesk\AppInfo\Application;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Stateless service that sends voting round results to the ORI 1.0 API endpoint
@@ -99,9 +102,9 @@ class OriPublicationService
 
         // Reject direct private/loopback IP ranges to prevent SSRF (OWASP A10).
         // DNS-based rebinding is handled separately by Nextcloud IClientService via allow_local_remote_servers.
-        $ip = filter_var($host, FILTER_VALIDATE_IP);
-        if ($ip !== false) {
-            $isPublicIp = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+        $parsedIp = filter_var($host, FILTER_VALIDATE_IP);
+        if ($parsedIp !== false) {
+            $isPublicIp = filter_var($parsedIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
             if ($isPublicIp === false) {
                 return false;
             }
@@ -139,7 +142,7 @@ class OriPublicationService
         } catch (\DomainException $e) {
             $this->logger->warning('Decidesk ORI: publication refused by deny-list — '.$e->getMessage());
             return;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Eligibility service unavailable (very old container): do not block
             // the existing publish path on a missing optional guard.
         }
@@ -171,7 +174,7 @@ class OriPublicationService
 
             $body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             if ($body === false) {
-                throw new \RuntimeException('JSON encoding of ORI payload failed: '.json_last_error_msg());
+                throw new RuntimeException('JSON encoding of ORI payload failed: '.json_last_error_msg());
             }
 
             // #320: Attach the configurable ORI bearer token when set.
@@ -200,14 +203,14 @@ class OriPublicationService
 
             // Stamp oriPublishedAt to distinguish "published" from merely "closed".
             $objectService->saveObject(
-                object: array_merge($roundData, ['oriPublishedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM)]),
+                object: array_merge($roundData, ['oriPublishedAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM)]),
                 register: 'decidesk',
                 schema: 'voting-round',
                 uuid: $votingRoundId,
             );
 
             $this->logger->info("Decidesk ORI: VotingRound $votingRoundId published successfully to $endpoint");
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // M3: log here for diagnostics, then rethrow so the caller (VotingService)
             // can attach the error to the round data and surface it in the response.
             $this->logger->warning(
@@ -286,7 +289,7 @@ class OriPublicationService
             }
 
             return 'pending';
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return 'pending';
         }
 

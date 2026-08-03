@@ -131,7 +131,7 @@ class VotingControllerTest extends TestCase
         return new VotingController(
             request: $this->request,
             votingService: $this->votingService,
-            oriPublicationService: $this->oriPublicationService,
+            oriService:$this->oriPublicationService,
             userSession: $session,
             groupManager: $this->groupManager,
             appConfig: $this->appConfig,

@@ -168,11 +168,10 @@ class SettingsService
                 continue;
             }
 
-            $value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $value          = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $settings[$key] = ($defaults[$key] ?? '');
             if ($value !== '') {
                 $settings[$key] = $value;
-            } else {
-                $settings[$key] = ($defaults[$key] ?? '');
             }
         }
 
@@ -414,21 +413,27 @@ class SettingsService
     private static function deepMergeConfig(array $base, array $overlay): array
     {
         foreach ($overlay as $key => $value) {
-            if (is_array($value) === true
-                && isset($base[$key]) === true
-                && is_array($base[$key]) === true
+            // A scalar overlay, or a key the base does not hold as an array,
+            // overwrites the base outright.
+            if (is_array($value) === false
+                || isset($base[$key]) === false
+                || is_array($base[$key]) === false
             ) {
-                $baseIsList    = ($base[$key] === [] || array_keys($base[$key]) === range(0, (count($base[$key]) - 1)));
-                $overlayIsList = ($value === [] || array_keys($value) === range(0, (count($value) - 1)));
-                if ($baseIsList === true && $overlayIsList === true) {
-                    $base[$key] = array_merge($base[$key], $value);
-                } else {
-                    $base[$key] = self::deepMergeConfig(base: $base[$key], overlay: $value);
-                }
-            } else {
                 $base[$key] = $value;
+                continue;
             }
-        }
+
+            $baseIsList    = ($base[$key] === [] || array_keys($base[$key]) === range(0, (count($base[$key]) - 1)));
+            $overlayIsList = ($value === [] || array_keys($value) === range(0, (count($value) - 1)));
+
+            // Two list arrays concatenate; anything else recurses by key union.
+            if ($baseIsList === true && $overlayIsList === true) {
+                $base[$key] = array_merge($base[$key], $value);
+                continue;
+            }
+
+            $base[$key] = self::deepMergeConfig(base: $base[$key], overlay: $value);
+        }//end foreach
 
         return $base;
 

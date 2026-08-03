@@ -118,7 +118,7 @@ class VotingServiceTest extends TestCase
 
         $this->service = new VotingService(
             container: $this->container,
-            oriPublicationService: $this->oriService,
+            oriService:$this->oriService,
             logger: $this->logger,
             motionService: $this->motionService,
             participantResolver: $participantResolver,

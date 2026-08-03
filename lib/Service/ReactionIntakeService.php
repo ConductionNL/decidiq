@@ -24,9 +24,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use InvalidArgumentException;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Stateless service handling ConsultationReaction intake and moderation.
@@ -119,8 +123,8 @@ class ReactionIntakeService
      *
      * @return array<string, mixed> The created ConsultationReaction object.
      *
-     * @throws \RuntimeException         When the consultation is not found or closed.
-     * @throws \InvalidArgumentException When the body is empty/oversized or anonymous intake is not enabled.
+     * @throws RuntimeException         When the consultation is not found or closed.
+     * @throws InvalidArgumentException When the body is empty/oversized or anonymous intake is not enabled.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -128,11 +132,11 @@ class ReactionIntakeService
     {
         $body = trim($body);
         if ($body === '') {
-            throw new \InvalidArgumentException('Reaction body must not be empty');
+            throw new InvalidArgumentException('Reaction body must not be empty');
         }
 
         if (strlen($body) > self::MAX_BODY_BYTES) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Reaction body exceeds the maximum of %d bytes', self::MAX_BODY_BYTES)
             );
         }
@@ -140,43 +144,38 @@ class ReactionIntakeService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
         if ($entity === null) {
-            throw new \RuntimeException("PublicConsultation {$consultationId} not found");
+            throw new RuntimeException("PublicConsultation {$consultationId} not found");
         }
 
         $consultation = $entity->jsonSerialize();
 
         // Server-side window guard (open + future deadline), independent of stored status.
         if ($this->lifecycleService->consultationAcceptsSubmissions(consultation: $consultation) === false) {
-            throw new \RuntimeException('This consultation is not open for submissions');
+            throw new RuntimeException('This consultation is not open for submissions');
         }
 
         $isAnonymous = ($ncUid === null || $ncUid === '');
 
         // Anonymous intake is allowed only when staff enabled it on this consultation.
         if ($isAnonymous === true && ($consultation['anonymousReactionsAllowed'] ?? false) !== true) {
-            throw new \InvalidArgumentException('Anonymous reactions are not enabled for this consultation');
+            throw new InvalidArgumentException('Anonymous reactions are not enabled for this consultation');
         }
 
         $policy = (string) ($consultation['moderationPolicy'] ?? 'pre-moderation');
 
-        if ($isAnonymous === true) {
-            $submitterId      = $this->pseudonymousId(consultationId: $consultationId, seed: (string) ($clientSeed ?? ''));
-            $moderationStatus = 'pending';
-            // Anonymous reactions are ALWAYS pre-moderated regardless of policy.
-        } else {
-            $submitterId = $ncUid;
-            if ($policy === 'post-moderation') {
-                $moderationStatus = 'approved';
-            } else {
-                $moderationStatus = 'pending';
-            }
-        }
+        $submitterId      = $this->resolveSubmitterId(
+            consultationId: $consultationId,
+            ncUid: $ncUid,
+            isAnonymous: $isAnonymous,
+            clientSeed: $clientSeed
+        );
+        $moderationStatus = $this->resolveModerationStatus(isAnonymous: $isAnonymous, policy: $policy);
 
         $reaction = [
             'body'             => $body,
             'moderationStatus' => $moderationStatus,
             'submitterId'      => $submitterId,
-            'submittedAt'      => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'submittedAt'      => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
             'relations'        => [
                 ['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => $consultationId],
             ],
@@ -200,7 +199,7 @@ class ReactionIntakeService
      *
      * @return array<string, mixed> The updated reaction object.
      *
-     * @throws \RuntimeException When the reaction is not found.
+     * @throws RuntimeException When the reaction is not found.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -209,7 +208,7 @@ class ReactionIntakeService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $reactionId, register: 'decidesk', schema: 'consultation-reaction');
         if ($entity === null) {
-            throw new \RuntimeException("ConsultationReaction {$reactionId} not found");
+            throw new RuntimeException("ConsultationReaction {$reactionId} not found");
         }
 
         $reaction = $entity->jsonSerialize();
@@ -269,7 +268,7 @@ class ReactionIntakeService
             $consultation = $consultationEntity->jsonSerialize();
             $consultation['submissionCount'] = ((int) ($consultation['submissionCount'] ?? 0)) + 1;
             $objectService->saveObject(register: 'decidesk', schema: 'public-consultation', object: $consultation);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning(
                 'ReactionIntakeService: could not increment consultation submissionCount: '.$e->getMessage()
             );
@@ -289,8 +288,8 @@ class ReactionIntakeService
      *
      * @return array<string, mixed> The updated reaction object.
      *
-     * @throws \RuntimeException         When the reaction is not found.
-     * @throws \InvalidArgumentException When no reason is given.
+     * @throws RuntimeException         When the reaction is not found.
+     * @throws InvalidArgumentException When no reason is given.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -298,13 +297,13 @@ class ReactionIntakeService
     {
         $reason = trim($reason);
         if ($reason === '') {
-            throw new \InvalidArgumentException('A rejection reason is required');
+            throw new InvalidArgumentException('A rejection reason is required');
         }
 
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $reactionId, register: 'decidesk', schema: 'consultation-reaction');
         if ($entity === null) {
-            throw new \RuntimeException("ConsultationReaction {$reactionId} not found");
+            throw new RuntimeException("ConsultationReaction {$reactionId} not found");
         }
 
         $reaction = $entity->jsonSerialize();
@@ -316,6 +315,59 @@ class ReactionIntakeService
         return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
     }//end rejectReaction()
+
+    /**
+     * Resolve the submitter id recorded on a reaction.
+     *
+     * A named submitter is stored by Nextcloud UID; an anonymous one is
+     * reduced to a stable pseudonymous token that reveals no PII.
+     *
+     * @param string      $consultationId The consultation UUID.
+     * @param string|null $ncUid          The Nextcloud UID of a named submitter.
+     * @param bool        $isAnonymous    Whether the reaction is anonymous.
+     * @param string|null $clientSeed     Client fingerprint for the anonymous token.
+     *
+     * @return string|null The submitter id to persist.
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    private function resolveSubmitterId(
+        string $consultationId,
+        ?string $ncUid,
+        bool $isAnonymous,
+        ?string $clientSeed
+    ): ?string {
+        if ($isAnonymous === false) {
+            return $ncUid;
+        }
+
+        return $this->pseudonymousId(consultationId: $consultationId, seed: (string) ($clientSeed ?? ''));
+
+    }//end resolveSubmitterId()
+
+    /**
+     * Decide the moderation status a new reaction starts in.
+     *
+     * Anonymous reactions are ALWAYS pre-moderated regardless of the
+     * consultation's policy; only a named submitter under post-moderation is
+     * auto-approved.
+     *
+     * @param bool   $isAnonymous Whether the reaction is anonymous.
+     * @param string $policy      The consultation's moderation policy.
+     *
+     * @return string Either 'approved' or 'pending'.
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    private function resolveModerationStatus(bool $isAnonymous, string $policy): string
+    {
+        if ($isAnonymous === false && $policy === 'post-moderation') {
+            return 'approved';
+        }
+
+        return 'pending';
+
+    }//end resolveModerationStatus()
 
     /**
      * Build a stable, opaque pseudonymous submitter id for an anonymous reaction.

@@ -25,9 +25,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use InvalidArgumentException;
 use OCA\Decidesk\Service\ParticipantResolver;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Stateless service implementing voting round governance rules.
@@ -99,12 +103,12 @@ class VotingService
     /**
      * Constructor for VotingService.
      *
-     * @param ContainerInterface     $container             The DI container
-     * @param LoggerInterface        $logger                The logger
-     * @param OriPublicationService  $oriPublicationService The ORI publication service
-     * @param MotionService          $motionService         The motion service for lifecycle transitions
-     * @param ParticipantResolver    $participantResolver   Participant resolver for meeting-based membership checks
-     * @param ProcessTemplateService $templateService       Resolves a body's template voting-rule defaults (process-configuration)
+     * @param ContainerInterface     $container           The DI container
+     * @param LoggerInterface        $logger              The logger
+     * @param OriPublicationService  $oriService          The ORI publication service
+     * @param MotionService          $motionService       The motion service for lifecycle transitions
+     * @param ParticipantResolver    $participantResolver Participant resolver for meeting-based membership checks
+     * @param ProcessTemplateService $templateService     Resolves a body's template voting-rule defaults (process-configuration)
      *
      * @return void
      *
@@ -113,7 +117,7 @@ class VotingService
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
-        private readonly OriPublicationService $oriPublicationService,
+        private readonly OriPublicationService $oriService,
         private readonly MotionService $motionService,
         private readonly ParticipantResolver $participantResolver,
         ProcessTemplateService $templateService,
@@ -289,6 +293,46 @@ class VotingService
     }//end voterTokenSecret()
 
     /**
+     * Build the deterministic @self.slug that makes castVote idempotent.
+     *
+     * Concurrent castVote requests for the same (participant, round) must
+     * upsert rather than insert twice: OpenRegister's saveObject() performs an
+     * UPDATE when the slug matches an existing object, so the second request
+     * safely overwrites the first with the same value.
+     *
+     * - Secret rounds:     an HMAC over (participant, round), already opaque.
+     * - Non-secret rounds: "vote-{round}-{participant}", truncated because
+     *   slugs must be URL-safe and at most 255 characters.
+     *
+     * @param string      $votingRoundId The voting round UUID.
+     * @param string      $participantId The voting participant UUID.
+     * @param bool        $isSecret      Whether the round is secret.
+     * @param bool        $isProxy       Whether the vote is cast by proxy.
+     * @param string|null $delegatorId   The delegator UUID for a proxy vote.
+     *
+     * @return string The idempotency slug.
+     */
+    private function idempotencySlug(
+        string $votingRoundId,
+        string $participantId,
+        bool $isSecret,
+        bool $isProxy,
+        ?string $delegatorId
+    ): string {
+        if ($isSecret === true) {
+            return hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
+        }
+
+        $slug = 'vote-'.substr($votingRoundId, 0, 8).'-'.substr($participantId, 0, 8);
+        if ($isProxy === true && $delegatorId !== null) {
+            $slug .= '-proxy-'.substr($delegatorId, 0, 8);
+        }
+
+        return $slug;
+
+    }//end idempotencySlug()
+
+    /**
      * Resolve the OpenRegister participant UUID for a given Nextcloud user ID.
      *
      * Queries the participant register by nextcloudUserId field. Returns null
@@ -390,9 +434,9 @@ class VotingService
      *
      * @return array<string,mixed> The created voting round object with excludedPresetUuids key if any UUIDs were excluded
      *
-     * @throws \RuntimeException         When quorum is not met, the revote guard fails, the amendment ordering rule is violated,
+     * @throws RuntimeException         When quorum is not met, the revote guard fails, the amendment ordering rule is violated,
      *                                   or lifecycle transition fails
-     * @throws \InvalidArgumentException When a rule or subjectType value is not in its enum (fail closed)
+     * @throws InvalidArgumentException When a rule or subjectType value is not in its enum (fail closed)
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      * @spec openspec/specs/voting-system/spec.md
@@ -426,7 +470,7 @@ class VotingService
 
         $quorumMet = $this->checkQuorum(meetingId: $meetingId);
         if ($quorumMet === false) {
-            throw new \RuntimeException('Quorum niet bereikt');
+            throw new RuntimeException('Quorum niet bereikt');
         }
 
         // Revote-once guard: the referenced round must be a tied revote-rule round
@@ -514,7 +558,7 @@ class VotingService
             if ($callerUid !== null && $callerUid !== '') {
                 return $prefService->hasActiveDelegationTo(delegatorId: $delegatorId, delegateId: $callerUid);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Both outcomes deny the vote; this only selects the error text.
             $this->logger->debug('Decidesk: delegation consult failed', ['error' => $e->getMessage()]);
         }
@@ -548,7 +592,7 @@ class VotingService
                     return $type;
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->debug('Decidesk: castAs participant lookup failed', ['error' => $e->getMessage()]);
         }
 
@@ -574,7 +618,7 @@ class VotingService
      *
      * @return array<string,mixed> The created/updated Vote object
      *
-     * @throws \RuntimeException When the round is not open, the caller is not a meeting member,
+     * @throws RuntimeException When the round is not open, the caller is not a meeting member,
      *                           or proxy rules are violated
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
@@ -599,15 +643,15 @@ class VotingService
         }
 
         if ($round === null) {
-            throw new \RuntimeException("VotingRound {$votingRoundId} not found");
+            throw new RuntimeException("VotingRound {$votingRoundId} not found");
         }
 
         if (($round['closedAt'] ?? null) !== null && strtotime($round['closedAt']) < time()) {
-            throw new \RuntimeException('Stemronde is gesloten');
+            throw new RuntimeException('Stemronde is gesloten');
         }
 
         if (($round['openedAt'] ?? null) === null) {
-            throw new \RuntimeException('Stemronde is nog niet geopend');
+            throw new RuntimeException('Stemronde is nog niet geopend');
         }
 
         // #300: Verify the participant is actually a member of the meeting that owns this round.
@@ -620,7 +664,7 @@ class VotingService
             $meetingParticipants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
             $memberIds           = array_column($meetingParticipants, 'id');
             if (in_array($participantId, $memberIds, true) === false) {
-                throw new \RuntimeException('Deelnemer is geen lid van de vergadering');
+                throw new RuntimeException('Deelnemer is geen lid van de vergadering');
             }
         }
 
@@ -651,13 +695,13 @@ class VotingService
                 // The existing proxy-grant check above stays authoritative;
                 // this only improves the rejection for the delegation case.
                 if ($this->hasAbsenceDelegation(delegatorId: $delegatorId, participantId: $participantId, callerUid: $callerUid) === true) {
-                    throw new \RuntimeException(
+                    throw new RuntimeException(
                         'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting. '
                         .'Grant one via the voting round proxy process (POST /apps/decidesk/api/voting-rounds/{id}/proxy).'
                     );
                 }
 
-                throw new \RuntimeException('Geen geldige volmacht gevonden: de deelnemer heeft geen volmacht ontvangen van deze volmachtgever');
+                throw new RuntimeException('Geen geldige volmacht gevonden: de deelnemer heeft geen volmacht ontvangen van deze volmachtgever');
             }
 
             // Enforce one-proxy-per-round: check for existing proxy vote from this delegator.
@@ -667,7 +711,7 @@ class VotingService
                 $delegatorToken = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('vote');
-                $existingProxyEntities = $this->filterByRelation(
+                $existingProxies = $this->filterByRelation(
                     entities: $objectService->findAll(
                         [
                             'filters' => [
@@ -679,13 +723,13 @@ class VotingService
                     schema: 'voting-round',
                     targetId: $votingRoundId
                 );
-                if (empty($existingProxyEntities) === false) {
-                    throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
+                if (empty($existingProxies) === false) {
+                    throw new RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
                 }
             } else {
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('vote');
-                $existingProxyEntities = $this->filterByRelation(
+                $existingProxies = $this->filterByRelation(
                     entities: $objectService->findAll(
                         [
                             'filters' => [
@@ -698,11 +742,11 @@ class VotingService
                     targetId: $votingRoundId
                 );
 
-                foreach ($existingProxyEntities as $proxyVoteEntity) {
+                foreach ($existingProxies as $proxyVoteEntity) {
                     $proxyVote = $proxyVoteEntity->jsonSerialize();
                     foreach (($proxyVote['relations'] ?? []) as $rel) {
                         if (($rel['schema'] ?? '') === 'participant' && ($rel['id'] ?? '') === $delegatorId && ($rel['type'] ?? '') === 'delegator') {
-                            throw new \RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
+                            throw new RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
                         }
                     }
                 }
@@ -771,29 +815,20 @@ class VotingService
             }
         }
 
-        // Build the vote object.
-        // Idempotency: set a deterministic @self.slug so that concurrent castVote requests
-        // for the same (participant, round) result in an upsert rather than two inserts.
-        // - Secret rounds:     slug = voterToken (HMAC, already opaque)
-        // - Non-secret rounds: slug = "vote-{votingRoundId}-{participantId}" (truncated)
-        // OR's saveObject with a matching slug performs UPDATE rather than INSERT, so the
-        // second concurrent request safely overwrites the first with the same value.
-        if ($isSecret === true) {
-            $idempotencySlug = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
-        } else {
-            // Slugs must be URL-safe and <= 255 chars.
-            $idempotencySlug = 'vote-'.substr($votingRoundId, 0, 8).'-'.substr($participantId, 0, 8);
-            if ($isProxy === true && $delegatorId !== null) {
-                $idempotencySlug .= '-proxy-'.substr($delegatorId, 0, 8);
-            }
-        }
+        $idempotencySlug = $this->idempotencySlug(
+            votingRoundId: $votingRoundId,
+            participantId: $participantId,
+            isSecret: $isSecret,
+            isProxy: $isProxy,
+            delegatorId: $delegatorId
+        );
 
         $vote = [
             '@self'     => ['slug' => $idempotencySlug],
             'value'     => $value,
             'weight'    => 1,
             'isProxy'   => $isProxy,
-            'castAt'    => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'castAt'    => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
             'castAs'    => $this->resolveCastAs(participantId: $participantId),
             'relations' => $relations,
         ];
@@ -833,14 +868,14 @@ class VotingService
      *
      * @return void
      *
-     * @throws \RuntimeException When the casting vote is not permitted
+     * @throws RuntimeException When the casting vote is not permitted
      *
      * @spec openspec/specs/voting-system/spec.md
      */
     private function applyChairCastingVote(string $votingRoundId, string $chairCasting): void
     {
         if (in_array($chairCasting, ['for', 'against'], true) === false) {
-            throw new \RuntimeException("Casting vote refused: value must be 'for' or 'against'");
+            throw new RuntimeException("Casting vote refused: value must be 'for' or 'against'");
         }
 
         $objectService = $this->objectService();
@@ -851,11 +886,11 @@ class VotingService
         }
 
         if ($round === null) {
-            throw new \RuntimeException("VotingRound {$votingRoundId} not found");
+            throw new RuntimeException("VotingRound {$votingRoundId} not found");
         }
 
         if (($round['tieBreakRule'] ?? 'rejected') !== 'chair-decides') {
-            throw new \RuntimeException("Casting vote refused: this round's tie-break rule is not 'chair-decides'");
+            throw new RuntimeException("Casting vote refused: this round's tie-break rule is not 'chair-decides'");
         }
 
         $round['chairCastingVote'] = $chairCasting;
@@ -880,7 +915,7 @@ class VotingService
      *
      * @return array<string,mixed> The closed voting round object
      *
-     * @throws \RuntimeException When the casting vote is not permitted (fail closed)
+     * @throws RuntimeException When the casting vote is not permitted (fail closed)
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      * @spec openspec/specs/voting-system/spec.md
@@ -902,14 +937,14 @@ class VotingService
         }
 
         if ($round !== null && ($round['closedAt'] ?? null) === null) {
-            $round['closedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $round['closedAt'] = (new DateTimeImmutable())->format(\DateTimeInterface::ATOM);
             $objectService->saveObject(register: 'decidesk', schema: 'voting-round', object: $round);
         }
 
         $result = ($tally['result'] ?? 'invalid');
 
         // Transition subject (motion or amendment) lifecycle based on result.
-        // #318: Re-throw \InvalidArgumentException (bad state-machine transition) so the
+        // #318: Re-throw InvalidArgumentException (bad state-machine transition) so the
         // caller learns the round was closed but the subject lifecycle could not be updated.
         // Transient/infrastructure errors are still logged-and-continued so a network hiccup
         // does not leave the round un-closed; however they are logged at ERROR level so they
@@ -962,15 +997,15 @@ class VotingService
                         if ($subjectType === 'amendment' && $subjectLifecycle === 'adopted') {
                             $this->incorporateAdoptedAmendment(amendmentId: $subjectId);
                         }
-                    } catch (\InvalidArgumentException $e) {
+                    } catch (InvalidArgumentException $e) {
                         // State-machine violation: re-throw so the caller can surface it.
                         // #318: Previously swallowed silently.
-                        throw new \RuntimeException(
+                        throw new RuntimeException(
                             'Stemronde gesloten maar motie kon niet worden bijgewerkt: '.$e->getMessage(),
                             0,
                             $e
                         );
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         // Transient infrastructure failure: log at ERROR level and continue.
                         // #318: Previously logged at WARNING and lost in monitoring noise.
                         $this->logger->error(
@@ -989,8 +1024,8 @@ class VotingService
         // Infrastructure/network errors are logged at ERROR level (was INFO) so they surface
         // in monitoring.
         try {
-            $this->oriPublicationService->publish($votingRoundId);
-        } catch (\Throwable $e) {
+            $this->oriService->publish($votingRoundId);
+        } catch (Throwable $e) {
             $this->logger->error(
                 'Decidesk: ORI publication failed after round close',
                 ['votingRoundId' => $votingRoundId, 'error' => $e->getMessage()]
@@ -1019,7 +1054,7 @@ class VotingService
                 }
 
                 $this->logger->info('Decidesk: votes anonymised', ['votingRoundId' => $votingRoundId]);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->logger->warning('Decidesk: vote anonymisation failed', ['error' => $e->getMessage()]);
             }
         }//end if
@@ -1157,7 +1192,7 @@ class VotingService
      *
      * @return array<string,mixed> Updated VotingRound data
      *
-     * @throws \RuntimeException When the round is not found or is not a show-of-hands round
+     * @throws RuntimeException When the round is not found or is not a show-of-hands round
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
      * @spec openspec/specs/voting-system/spec.md
@@ -1173,11 +1208,11 @@ class VotingService
         }
 
         if ($round === null) {
-            throw new \RuntimeException("VotingRound $votingRoundId not found");
+            throw new RuntimeException("VotingRound $votingRoundId not found");
         }
 
         if (($round['votingMethod'] ?? '') !== 'show-of-hands') {
-            throw new \RuntimeException('saveShowOfHandsTally is only valid for show-of-hands rounds');
+            throw new RuntimeException('saveShowOfHandsTally is only valid for show-of-hands rounds');
         }
 
         // #302: Validate submitted counts against the actual participant count for the meeting.
@@ -1197,7 +1232,7 @@ class VotingService
 
             $submittedTotal = ($votesFor + $votesAgainst + $votesAbstain);
             if ($activeCount > 0 && $submittedTotal > $activeCount) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     "Ingevoerde tellingen ({$submittedTotal}) overschrijden het aantal actieve deelnemers ({$activeCount})"
                 );
             }
@@ -1246,7 +1281,7 @@ class VotingService
             $folderPath  = "motions/{$slug}-{$motionId}";
             $fileService->createFolder($folderPath);
             $this->logger->info('Decidesk: dossier folder created', ['path' => $folderPath, 'motionId' => $motionId]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning('Decidesk: dossier folder creation failed', ['motionId' => $motionId, 'error' => $e->getMessage()]);
         }
 
@@ -1281,7 +1316,7 @@ class VotingService
             }
 
             $this->motionService->applyAmendment(motionId: $parentMotionId, amendmentId: $amendmentId);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error(
                 'Decidesk: failed to incorporate adopted amendment into the parent motion text',
                 ['amendmentId' => $amendmentId, 'error' => $e->getMessage()]
