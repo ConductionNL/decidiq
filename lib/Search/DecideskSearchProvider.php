@@ -120,6 +120,10 @@ class DecideskSearchProvider implements IProvider
      * @spec openspec/specs/nextcloud-integration/spec.md
      *
      * @return int|null
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $routeParameters is mandated by
+     * the OCP\Search\IProvider::getOrder() signature; ordering depends only on the
+     * route name, so the parameter cannot be removed.
      */
     public function getOrder(string $route, array $routeParameters): ?int
     {
@@ -143,6 +147,11 @@ class DecideskSearchProvider implements IProvider
      * @spec openspec/specs/nextcloud-integration/spec.md
      *
      * @return SearchResult
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $user is mandated by the
+     * OCP\Search\IProvider::search() signature. Per-object visibility is enforced
+     * by OpenRegister RBAC from the session user inside ObjectService::findAll(),
+     * so this method never reads the parameter directly.
      */
     public function search(IUser $user, ISearchQuery $query): SearchResult
     {

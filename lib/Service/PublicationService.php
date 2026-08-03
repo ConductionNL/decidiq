@@ -96,7 +96,7 @@ class PublicationService
     public function publish(string $sourceType, string $sourceId, string $actorId): array
     {
         $source = $this->eligibility->assertEligible($sourceType, $sourceId);
-        $bodyId = $this->resolveBodyId(sourceType: $sourceType, source: $source);
+        $bodyId = $this->resolveBodyId(source: $source);
 
         $version = 1;
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $version);
@@ -259,7 +259,7 @@ class PublicationService
 
         // Re-validate eligibility for the corrected source state.
         $source = $this->eligibility->assertEligible($sourceType, $sourceId);
-        $bodyId = $this->resolveBodyId(sourceType: $sourceType, source: $source);
+        $bodyId = $this->resolveBodyId(source: $source);
 
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
         $payload['publicatiedatum']   = $this->now();
@@ -502,14 +502,13 @@ class PublicationService
     /**
      * Resolve the governance body UUID for a source object.
      *
-     * @param string              $sourceType One of decision|agenda|minutes.
-     * @param array<string,mixed> $source     The source object data.
+     * @param array<string,mixed> $source The source object data.
      *
      * @spec openspec/specs/public-publication/spec.md
      *
      * @return string|null
      */
-    private function resolveBodyId(string $sourceType, array $source): ?string
+    private function resolveBodyId(array $source): ?string
     {
         $direct = ($source['governanceBody'] ?? ($source['relations']['GovernanceBody'] ?? $source['relations']['governanceBody'] ?? null));
         if (is_array($direct) === true) {

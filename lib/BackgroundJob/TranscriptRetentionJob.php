@@ -89,6 +89,10 @@ class TranscriptRetentionJob extends TimedJob
      * @return void
      *
      * @spec openspec/specs/meeting-transcription/spec.md
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
+     * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with
+     * no argument, so the parameter cannot be removed.
      */
     protected function run(mixed $argument): void
     {

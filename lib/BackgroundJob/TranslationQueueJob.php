@@ -74,6 +74,10 @@ class TranslationQueueJob extends TimedJob
      * @return void
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
+     * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with
+     * no argument, so the parameter cannot be removed.
      */
     protected function run(mixed $argument): void
     {

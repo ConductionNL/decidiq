@@ -249,7 +249,6 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
         try {
             if ($talkManager !== null && $talkChatManager !== null && $target !== '') {
                 $this->replayIntoTalk(
-                    objectService: $objectService,
                     talkManager: $talkManager,
                     talkChatManager: $talkChatManager,
                     comment: $comment,
@@ -286,7 +285,6 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
      * then posts the comment text with author + timestamp prefix so the audit
      * record is preserved in the Talk chat log (design D3).
      *
-     * @param object              $objectService   The OR ObjectService.
      * @param object              $talkManager     NC Talk Manager.
      * @param object              $talkChatManager NC Talk ChatManager.
      * @param array<string,mixed> $comment         The legacy Comment object.
@@ -298,7 +296,6 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
      * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.3
      */
     private function replayIntoTalk(
-        object $objectService,
         object $talkManager,
         object $talkChatManager,
         array $comment,
