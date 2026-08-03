@@ -27,7 +27,7 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 const MEETING_ID = 'e2e-transcription-meeting'
 
 /**

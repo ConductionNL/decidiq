@@ -27,7 +27,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import { cleanupAll, createObject, newLedger, objId, type SeedLedger } from '../workflows/governance-fixture'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 let ledger: SeedLedger
 let meetingId = ''

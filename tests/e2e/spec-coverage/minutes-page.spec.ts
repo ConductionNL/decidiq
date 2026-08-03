@@ -16,7 +16,7 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 /** Dismiss the cn-support-dialog if it auto-opened and is intercepting clicks. */
 async function dismissSupportDialog(page: Page): Promise<void> {
