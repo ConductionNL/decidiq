@@ -21,6 +21,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use InvalidArgumentException;
+use RuntimeException;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
@@ -186,7 +190,7 @@ class MinutesController extends Controller
         try {
             $preview = $this->minutesGenerationService->generateDraft($minutesId);
             return new JSONResponse(['preview' => $preview]);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_NOT_FOUND
@@ -196,7 +200,7 @@ class MinutesController extends Controller
                 ['message' => $e->getMessage()],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_SERVICE_UNAVAILABLE
@@ -267,12 +271,12 @@ class MinutesController extends Controller
                 ['message' => $e->getMessage()],
                 Http::STATUS_NOT_FOUND
             );
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_SERVICE_UNAVAILABLE
@@ -726,7 +730,7 @@ class MinutesController extends Controller
                 'authorName' => $user->getDisplayName(),
                 'text'       => trim($text),
                 'status'     => 'proposed',
-                'createdAt'  => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                'createdAt'  => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
             ];
 
             $minutes['corrections'] = $corrections;
@@ -815,7 +819,7 @@ class MinutesController extends Controller
 
                 $correction['status']     = $status;
                 $correction['resolvedBy'] = $user->getUID();
-                $correction['resolvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+                $correction['resolvedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 
                 $corrections[$index] = $correction;
                 $updated = $correction;
@@ -893,12 +897,12 @@ class MinutesController extends Controller
                 ['message' => $e->getMessage()],
                 Http::STATUS_NOT_FOUND
             );
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_SERVICE_UNAVAILABLE
@@ -967,12 +971,12 @@ class MinutesController extends Controller
                 ['message' => $e->getMessage()],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             return new JSONResponse(
                 ['message' => $e->getMessage()],
                 Http::STATUS_SERVICE_UNAVAILABLE

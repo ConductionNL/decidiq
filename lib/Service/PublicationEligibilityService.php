@@ -40,6 +40,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DomainException;
 use OCA\Decidesk\Exception\AccessDeniedException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
@@ -248,21 +249,21 @@ class PublicationEligibilityService
      *
      * @return void
      *
-     * @throws \DomainException When the target is on the deny-list (code 422).
+     * @throws DomainException When the target is on the deny-list (code 422).
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function assertPublishable(string $schemaSlug, ?string $fileName=null): void
     {
         if ($this->isSchemaDenied(schemaSlug: $schemaSlug) === true) {
-            throw new \DomainException(
+            throw new DomainException(
                 sprintf('Objects of type "%s" are not publishable (structural deny-list).', $schemaSlug),
                 422
             );
         }
 
         if ($fileName !== null && $this->isFileDenied(fileName: $fileName) === true) {
-            throw new \DomainException(
+            throw new DomainException(
                 sprintf('File "%s" is a confidential recording/transcript and is not publishable.', $fileName),
                 422
             );

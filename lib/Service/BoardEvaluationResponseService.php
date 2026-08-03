@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -139,7 +141,7 @@ class BoardEvaluationResponseService
             $response = [
                 '@self'         => ['slug' => $responseToken],
                 'answers'       => $sanitisedAnswers,
-                'submittedAt'   => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                'submittedAt'   => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
                 'responseToken' => $responseToken,
                 'relations'     => [
                     ['register' => 'decidesk', 'schema' => 'board-evaluation', 'id' => $evaluationId],

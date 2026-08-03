@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Dashboard;
 
+use DateTimeImmutable;
 use OCA\Decidesk\Service\DashboardWidgetService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Dashboard\IAPIWidgetV2;
@@ -279,7 +280,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
         }
 
         try {
-            $dt = new \DateTimeImmutable($scheduledDate);
+            $dt = new DateTimeImmutable($scheduledDate);
         } catch (\Throwable) {
             return $this->l10n->t('Your next meeting');
         }

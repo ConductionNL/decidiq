@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
@@ -172,7 +175,7 @@ class PublicationService
      *
      * @spec openspec/specs/public-publication/spec.md
      *
-     * @throws \InvalidArgumentException When the reason is empty.
+     * @throws InvalidArgumentException When the reason is empty.
      * @throws MissingObjectException    When the record does not exist.
      *
      * @return array<string,mixed> { record, warnings[] }
@@ -180,7 +183,7 @@ class PublicationService
     public function withdraw(string $recordId, string $actorId, string $reason): array
     {
         if (trim($reason) === '') {
-            throw new \InvalidArgumentException('A withdraw reason is required.');
+            throw new InvalidArgumentException('A withdraw reason is required.');
         }
 
         $record = $this->loadRecord(recordId: $recordId);
@@ -582,7 +585,7 @@ class PublicationService
      */
     private function now(): string
     {
-        return (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        return (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 
     }//end now()
 }//end class

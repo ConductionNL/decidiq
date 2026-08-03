@@ -25,7 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 
 /**
  * Stateless service implementing citizen-participation lifecycle rules.
@@ -154,8 +156,8 @@ class ParticipationLifecycleService
      *
      * @return array<string, mixed> The updated consultation object.
      *
-     * @throws \RuntimeException         When the consultation is not found.
-     * @throws \InvalidArgumentException When the transition is illegal (fail closed).
+     * @throws RuntimeException         When the consultation is not found.
+     * @throws InvalidArgumentException When the transition is illegal (fail closed).
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -164,7 +166,7 @@ class ParticipationLifecycleService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
         if ($entity === null) {
-            throw new \RuntimeException("PublicConsultation {$consultationId} not found");
+            throw new RuntimeException("PublicConsultation {$consultationId} not found");
         }
 
         $consultation = $entity->jsonSerialize();
@@ -181,7 +183,7 @@ class ParticipationLifecycleService
         if ($newStatus === 'open') {
             $deadline = ($consultation['submissionDeadline'] ?? null);
             if ($deadline !== null && $deadline !== '' && strtotime((string) $deadline) <= time()) {
-                throw new \InvalidArgumentException('Cannot open a consultation whose submissionDeadline has already passed');
+                throw new InvalidArgumentException('Cannot open a consultation whose submissionDeadline has already passed');
             }
         }
 
@@ -200,8 +202,8 @@ class ParticipationLifecycleService
      *
      * @return array<string, mixed> The updated budget round object.
      *
-     * @throws \RuntimeException         When the round is not found.
-     * @throws \InvalidArgumentException When the transition is illegal (fail closed).
+     * @throws RuntimeException         When the round is not found.
+     * @throws InvalidArgumentException When the transition is illegal (fail closed).
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -210,7 +212,7 @@ class ParticipationLifecycleService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
         if ($entity === null) {
-            throw new \RuntimeException("ParticipatoryBudget {$budgetId} not found");
+            throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
         }
 
         $round   = $entity->jsonSerialize();
@@ -240,18 +242,18 @@ class ParticipationLifecycleService
      *
      * @return void
      *
-     * @throws \InvalidArgumentException When the transition is not permitted.
+     * @throws InvalidArgumentException When the transition is not permitted.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
     private function assertTransitionAllowed(string $current, string $target, array $transitions, string $label): void
     {
         if (isset($transitions[$current]) === false) {
-            throw new \InvalidArgumentException("Unknown {$label} status '{$current}'");
+            throw new InvalidArgumentException("Unknown {$label} status '{$current}'");
         }
 
         if (in_array($target, $transitions[$current], true) === false) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf("Illegal %s transition '%s' -> '%s'", $label, $current, $target)
             );
         }

@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
 
+use DateTimeImmutable;
 use OCA\Decidesk\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -540,7 +541,7 @@ class OriController extends Controller
             return false;
         }
 
-        $now       = new \DateTimeImmutable();
+        $now       = new DateTimeImmutable();
         $published = $this->parseDate(value: $publishedRaw);
         if ($published === null || $published > $now) {
             return false;
@@ -563,12 +564,12 @@ class OriController extends Controller
      *
      * @param string $value The date-time string
      *
-     * @return \DateTimeImmutable|null The parsed value, or null when unparseable
+     * @return DateTimeImmutable|null The parsed value, or null when unparseable
      */
-    private function parseDate(string $value): ?\DateTimeImmutable
+    private function parseDate(string $value): ?DateTimeImmutable
     {
         try {
-            return new \DateTimeImmutable($value);
+            return new DateTimeImmutable($value);
         } catch (\Throwable) {
             return null;
         }

@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -152,7 +154,7 @@ class BoardEvaluationScoreService
             'suppressed'             => ($thresholdMet === false),
             'dimensionScores'        => $exposedDimensionScores,
             'themes'                 => $exposedThemes,
-            'computedAt'             => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'computedAt'             => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
         ];
 
         return $summary;
@@ -214,7 +216,7 @@ class BoardEvaluationScoreService
 
             $evaluation['scoreSummary']   = json_encode($summary);
             $evaluation['lifecycle']      = 'closed';
-            $evaluation['closedAt']       = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $evaluation['closedAt']       = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
             $evaluation['respondedCount'] = $summary['respondentCount'];
 
             $saved = $objectService->saveObject(register: 'decidesk', schema: 'board-evaluation', object: $evaluation);

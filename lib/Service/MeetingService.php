@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use OCA\Decidesk\Lifecycle\MeetingTransitionGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
@@ -346,11 +348,11 @@ class MeetingService
         $patch = [];
 
         if ($action === 'open' && empty($meetingData['openedAt']) === true) {
-            $patch['openedAt'] = (new \DateTimeImmutable('now'))->format(\DateTimeInterface::ATOM);
+            $patch['openedAt'] = (new DateTimeImmutable('now'))->format(DateTimeInterface::ATOM);
         }
 
         if ($action === 'close') {
-            $closedAt          = (new \DateTimeImmutable('now'))->format(\DateTimeInterface::ATOM);
+            $closedAt          = (new DateTimeImmutable('now'))->format(DateTimeInterface::ATOM);
             $patch['closedAt'] = $closedAt;
 
             try {

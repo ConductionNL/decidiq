@@ -40,6 +40,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -411,7 +412,7 @@ class EIDASSignatureService implements IEIDASSignatureService
 
         $source = $sourceMapper->findBySlug(slug: self::ESIGN_SOURCE_SLUG);
         if ($source === null) {
-            throw new \RuntimeException("Openconnector source '".self::ESIGN_SOURCE_SLUG."' is not configured.");
+            throw new RuntimeException("Openconnector source '".self::ESIGN_SOURCE_SLUG."' is not configured.");
         }
 
         $response = $callService->call(
@@ -605,7 +606,7 @@ class EIDASSignatureService implements IEIDASSignatureService
             }
 
             if (is_array($decoded) === false) {
-                throw new \RuntimeException('Docudesk returned non-JSON response.');
+                throw new RuntimeException('Docudesk returned non-JSON response.');
             }
 
             $requestId  = (string) ($decoded['id'] ?? ($decoded['signingRequestId'] ?? ''));

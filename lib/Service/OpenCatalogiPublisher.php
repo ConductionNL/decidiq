@@ -24,6 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -84,7 +86,7 @@ class OpenCatalogiPublisher
                     'title'     => (string) ($payload['title'] ?? ''),
                     'summary'   => (string) ($payload['title'] ?? ''),
                     'catalog'   => $catalogId,
-                    'published' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                    'published' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
                     'reference' => $payloadId,
                     'register'  => 'decidesk',
                     'schema'    => 'publication-payload',

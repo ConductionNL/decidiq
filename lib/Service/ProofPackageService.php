@@ -27,6 +27,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use RuntimeException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -79,7 +82,7 @@ class ProofPackageService
      * @param string $generatedBy Display name of the requesting user (server session)
      *
      * @throws MissingObjectException When the meeting is not found
-     * @throws \RuntimeException      When OpenRegister or Files is unavailable
+     * @throws RuntimeException      When OpenRegister or Files is unavailable
      *
      * @return array<string,mixed> { files: string[], sha256: string, generatedAt: string }
      *
@@ -118,7 +121,7 @@ class ProofPackageService
             'decisions'   => $this->buildDecisionTexts(decisions: $decisions),
         ];
 
-        $generatedAt = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $generatedAt = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
         $canonical   = $this->canonicalJson(data: $package);
         $sha256      = hash('sha256', $canonical);
 
@@ -134,12 +137,12 @@ class ProofPackageService
             'generatedBy' => $generatedBy,
         ];
 
-        $stamp    = (new \DateTimeImmutable())->format('Y-m-d Hi');
+        $stamp    = (new DateTimeImmutable())->format('Y-m-d Hi');
         $baseName = 'Proof package '.$stamp;
 
         $jsonContent = json_encode($envelope, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ($jsonContent === false) {
-            throw new \RuntimeException('Failed to encode the proof package.', 500);
+            throw new RuntimeException('Failed to encode the proof package.', 500);
         }
 
         $jsonPath = $this->folderService->writeMeetingFile(
@@ -157,7 +160,7 @@ class ProofPackageService
         );
 
         if ($jsonPath === null || $mdPath === null) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'The proof package could not be stored: the Files backend is unavailable.',
                 503
             );
@@ -438,7 +441,7 @@ class ProofPackageService
         $sorted  = $this->ksortRecursive(data: $data);
         $encoded = json_encode($sorted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ($encoded === false) {
-            throw new \RuntimeException('Failed to canonicalise the proof package.', 500);
+            throw new RuntimeException('Failed to canonicalise the proof package.', 500);
         }
 
         return $encoded;
@@ -530,7 +533,7 @@ class ProofPackageService
     /**
      * Lazy-load the OpenRegister ObjectService from the container.
      *
-     * @throws \RuntimeException When OpenRegister is not installed
+     * @throws RuntimeException When OpenRegister is not installed
      *
      * @return object The OpenRegister ObjectService instance
      */
@@ -539,7 +542,7 @@ class ProofPackageService
         try {
             return $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable $e) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'OpenRegister ObjectService is not available. '
                 .'Please ensure the OpenRegister app is installed and enabled.',
                 0,
