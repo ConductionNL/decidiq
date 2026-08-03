@@ -240,10 +240,9 @@ class MeetingCostService
         try {
             $start    = new DateTimeImmutable((string) $openedAt);
             $closedAt = ($meeting['closedAt'] ?? null);
+            $end      = new DateTimeImmutable('now');
             if ($closedAt !== null && $closedAt !== '') {
                 $end = new DateTimeImmutable((string) $closedAt);
-            } else {
-                $end = new DateTimeImmutable('now');
             }
 
             return max(0, $end->getTimestamp() - $start->getTimestamp());
