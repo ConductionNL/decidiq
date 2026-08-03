@@ -338,11 +338,12 @@ class MeetingSeriesService
                     schema: 'meeting'
                 );
 
+                $entry = $instance;
                 if (is_object($saved) === true) {
-                    $instances[] = (array) $saved->jsonSerialize();
-                } else {
-                    $instances[] = $instance;
+                    $entry = (array) $saved->jsonSerialize();
                 }
+
+                $instances[] = $entry;
             }//end foreach
         } catch (\Throwable $e) {
             $this->logger->error(

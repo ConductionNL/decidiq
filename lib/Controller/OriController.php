@@ -222,10 +222,9 @@ class OriController extends Controller
             // flat property map (title, lifecycle, motionType, …). A raw (array)
             // cast mangles the entity's protected props, leaving the serializer
             // with only @self/id — so normalise to the serialised array first.
+            $objectArray = (array) $object;
             if (is_object($object) === true && method_exists($object, 'jsonSerialize') === true) {
                 $objectArray = $object->jsonSerialize();
-            } else {
-                $objectArray = (array) $object;
             }
 
             if ($resource === 'publications') {

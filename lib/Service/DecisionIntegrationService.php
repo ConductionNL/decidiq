@@ -143,10 +143,9 @@ class DecisionIntegrationService
             }
 
             if (is_array($existing) === true && count($existing) > 0) {
-                $first = reset($existing);
-                if (is_array($first) === true) {
-                    $firstData = $first;
-                } else {
+                $first     = reset($existing);
+                $firstData = $first;
+                if (is_array($first) === false) {
                     $firstData = (array) $first->jsonSerialize();
                 }
 
@@ -189,9 +188,8 @@ class DecisionIntegrationService
                 schema: 'decision'
             );
 
-            if (is_array($saved) === true) {
-                $savedArr = $saved;
-            } else {
+            $savedArr = $saved;
+            if (is_array($saved) === false) {
                 $savedArr = (array) $saved->jsonSerialize();
             }
 
@@ -253,9 +251,8 @@ class DecisionIntegrationService
             return null;
         }
 
-        if (is_array($entity) === true) {
-            $decision = $entity;
-        } else {
+        $decision = $entity;
+        if (is_array($entity) === false) {
             $decision = (array) $entity->jsonSerialize();
         }
 
@@ -345,9 +342,8 @@ class DecisionIntegrationService
             return ['success' => false, 'code' => 'not_found', 'message' => "Decision '{$decisionId}' not found."];
         }
 
-        if (is_array($entity) === true) {
-            $decision = $entity;
-        } else {
+        $decision = $entity;
+        if (is_array($entity) === false) {
             $decision = (array) $entity->jsonSerialize();
         }
 
@@ -510,9 +506,8 @@ class DecisionIntegrationService
         }
 
         foreach ($stages as $stage) {
-            if (is_array($stage) === true) {
-                $stageData = $stage;
-            } else {
+            $stageData = $stage;
+            if (is_array($stage) === false) {
                 $stageData = (array) $stage->jsonSerialize();
             }
 
