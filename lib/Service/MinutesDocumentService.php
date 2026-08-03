@@ -341,16 +341,16 @@ class MinutesDocumentService
             $escaped = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $escaped) ?? $escaped;
             $escaped = preg_replace('/_(.+?)_/', '<em>$1</em>', $escaped) ?? $escaped;
 
-            if (preg_match('/^### (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h3>'.$m[1].'</h3>';
-            } else if (preg_match('/^## (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h2>'.$m[1].'</h2>';
-            } else if (preg_match('/^# (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h1>'.$m[1].'</h1>';
+            if (preg_match('/^### (.*)$/', $escaped, $matches) === 1) {
+                $html[] = '<h3>'.$matches[1].'</h3>';
+            } else if (preg_match('/^## (.*)$/', $escaped, $matches) === 1) {
+                $html[] = '<h2>'.$matches[1].'</h2>';
+            } else if (preg_match('/^# (.*)$/', $escaped, $matches) === 1) {
+                $html[] = '<h1>'.$matches[1].'</h1>';
             } else if (trim($escaped) === '---') {
                 $html[] = '<hr/>';
-            } else if (preg_match('/^\d+\. (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<p class="list-item">'.$m[1].'</p>';
+            } else if (preg_match('/^\d+\. (.*)$/', $escaped, $matches) === 1) {
+                $html[] = '<p class="list-item">'.$matches[1].'</p>';
             } else if (trim($escaped) === '') {
                 $html[] = '';
             } else {
