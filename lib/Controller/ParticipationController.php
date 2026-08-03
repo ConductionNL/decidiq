@@ -108,10 +108,9 @@ class ParticipationController extends Controller
         $uid        = $user->getUID();
         $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
 
-        if ($chairGroup !== '') {
-            $authorized = ($this->groupManager->isInGroup($uid, $chairGroup) === true || $this->groupManager->isAdmin($uid) === true);
-        } else {
-            $authorized = $this->groupManager->isAdmin($uid);
+        $authorized = $this->groupManager->isAdmin($uid);
+        if ($chairGroup !== '' && $authorized === false) {
+            $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
         }
 
         if ($authorized === false) {

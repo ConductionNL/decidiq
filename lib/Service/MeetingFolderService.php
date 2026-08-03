@@ -108,10 +108,10 @@ class MeetingFolderService
 
             $path = '';
             foreach ($segments as $segment) {
-                if ($path === '') {
-                    $path = $segment;
-                } else {
-                    $path = $path.'/'.$segment;
+                $prefix = $path;
+                $path   = $segment;
+                if ($prefix !== '') {
+                    $path = $prefix.'/'.$segment;
                 }
 
                 $fileService->createFolder($path);

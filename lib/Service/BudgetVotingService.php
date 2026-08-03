@@ -201,10 +201,9 @@ class BudgetVotingService
             throw new InvalidArgumentException('Only a submitted proposal can be validated or rejected');
         }
 
+        $proposal['status'] = 'rejected';
         if ($approve === true) {
             $proposal['status'] = 'validated';
-        } else {
-            $proposal['status'] = 'rejected';
         }
 
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);

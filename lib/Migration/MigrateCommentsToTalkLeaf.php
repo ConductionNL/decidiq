@@ -336,10 +336,9 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
         }
 
         // Post as a system message in the admin actor context.
+        $creationDateStr = 'now';
         if ($timestamp !== '') {
             $creationDateStr = $timestamp;
-        } else {
-            $creationDateStr = 'now';
         }
 
         $talkChatManager->addSystemMessage(

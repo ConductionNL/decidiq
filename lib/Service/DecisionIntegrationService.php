@@ -260,14 +260,13 @@ class DecisionIntegrationService
         $outcome   = (string) ($decision['outcome'] ?? '');
 
         // Derive status (ADR-031 — declarative, no new state machine).
+        $status = 'pending';
         if ($lifecycle === 'withdrawn') {
             $status = 'withdrawn';
         } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome === 'adopted') {
             $status = 'approved';
         } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome !== '') {
             $status = 'rejected';
-        } else {
-            $status = 'pending';
         }
 
         $decidedAt = null;
