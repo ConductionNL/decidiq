@@ -22,6 +22,12 @@ jobs:
       enable-eslint: true
       enable-phpunit: true
       enable-newman: true
-      # additional-apps: '[]'  # Add app dependencies here if needed, e.g.:
-      # additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"main"}]'
+      # openregister is a HARD dependency of the integration server, not an
+      # optional one: since the AppHost adoption, lib/Controller/DashboardController
+      # `extends \OCA\OpenRegister\AppHost\Controller\GenericDashboardController`.
+      # Nextcloud's router ReflectionClass()es every controller while MATCHING a
+      # route, so with openregister absent that one unresolvable parent class
+      # makes EVERY decidesk endpoint return 500 — not just the dashboard one.
+      # Without this input the Newman run 500s on its very first request.
+      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"main"}]'
       enable-sbom: true
