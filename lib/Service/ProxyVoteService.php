@@ -153,8 +153,8 @@ class ProxyVoteService
      */
     private function isAuthorizedToRegister(string $meetingId, string $grantorId, string $callerUid): bool
     {
-        $callerParticipantUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
-        if ($callerParticipantUuid !== null && $callerParticipantUuid === $grantorId) {
+        $callerParticipant = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+        if ($callerParticipant !== null && $callerParticipant === $grantorId) {
             return true;
         }
 
@@ -176,11 +176,11 @@ class ProxyVoteService
      */
     private function isAuthorizedForTransition(array $proxy, string $callerUid): bool
     {
-        $callerParticipantUuid = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
-        $grantorId = ($proxy['grantorKoppeling'] ?? null);
-        $holderId  = ($proxy['holderKoppeling'] ?? null);
-        if ($callerParticipantUuid !== null
-            && ($callerParticipantUuid === $grantorId || $callerParticipantUuid === $holderId)
+        $callerParticipant = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+        $grantorId         = ($proxy['grantorKoppeling'] ?? null);
+        $holderId          = ($proxy['holderKoppeling'] ?? null);
+        if ($callerParticipant !== null
+            && ($callerParticipant === $grantorId || $callerParticipant === $holderId)
         ) {
             return true;
         }

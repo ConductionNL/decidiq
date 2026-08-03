@@ -199,15 +199,15 @@ class PublicationService
         // anonymously readable even if the remote retraction fails.
         $this->setDepublicationDate(payloadId: (string) $record['payloadObject']);
 
-        $catalogRetractionStatus = 'none';
-        $catalogRef = (string) ($record['catalogPublication'] ?? '');
+        $retractionStatus = 'none';
+        $catalogRef       = (string) ($record['catalogPublication'] ?? '');
         if ($catalogRef !== '') {
-            $retracted = $this->catalogPublisher->retract((string) ($record['targetCatalog'] ?? ''), $catalogRef);
-            $catalogRetractionStatus = 'done';
+            $retracted        = $this->catalogPublisher->retract((string) ($record['targetCatalog'] ?? ''), $catalogRef);
+            $retractionStatus = 'done';
             if ($retracted !== true) {
                 // Surface the failure and mark pending — never report success.
-                $catalogRetractionStatus = 'pending';
-                $warnings[] = 'catalog-retraction-failed';
+                $retractionStatus = 'pending';
+                $warnings[]       = 'catalog-retraction-failed';
             }
         }
 
@@ -215,7 +215,7 @@ class PublicationService
         $record['withdrawnBy']    = $actorId;
         $record['withdrawnAt']    = $this->now();
         $record['withdrawReason'] = $reason;
-        $record['catalogRetractionStatus'] = $catalogRetractionStatus;
+        $record['catalogRetractionStatus'] = $retractionStatus;
         $this->persistRecord(record: $record, uuid: $recordId);
 
         $this->markSourcePublished(

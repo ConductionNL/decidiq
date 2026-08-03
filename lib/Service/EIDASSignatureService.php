@@ -328,15 +328,15 @@ class EIDASSignatureService implements IEIDASSignatureService
     /**
      * {@inheritDoc}
      *
-     * @param string $certificateThumbprint SHA-256 thumbprint of the cert
+     * @param string $certThumbprint SHA-256 thumbprint of the cert
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
      *
      * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
      */
-    public function validateCertificateChain(string $certificateThumbprint): array
+    public function validateCertificateChain(string $certThumbprint): array
     {
-        if ($certificateThumbprint === '') {
+        if ($certThumbprint === '') {
             return [
                 'valid'          => false,
                 'issuer'         => null,
@@ -348,12 +348,12 @@ class EIDASSignatureService implements IEIDASSignatureService
         try {
             $response = $this->invokeOpenconnector(
                 action: 'validate-cert',
-                payload: ['certificateThumbprint' => $certificateThumbprint]
+                payload: ['certificateThumbprint' => $certThumbprint]
             );
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: eIDAS validateCertificateChain failed',
-                ['certificateThumbprint' => $certificateThumbprint, 'exception' => $e->getMessage()]
+                ['certificateThumbprint' => $certThumbprint, 'exception' => $e->getMessage()]
             );
             return [
                 'valid'          => false,
