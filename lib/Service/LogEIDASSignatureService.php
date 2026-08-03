@@ -166,17 +166,17 @@ class LogEIDASSignatureService implements IEIDASSignatureService
     /**
      * {@inheritDoc}
      *
-     * @param string $certificateThumbprint SHA-256 thumbprint of the cert
+     * @param string $certThumbprint SHA-256 thumbprint of the cert
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
      *
      * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
      */
-    public function validateCertificateChain(string $certificateThumbprint): array
+    public function validateCertificateChain(string $certThumbprint): array
     {
         $this->logger->warning(
             'Decidesk: dormant eIDAS adapter received validateCertificateChain',
-            ['certificateThumbprint' => $certificateThumbprint]
+            ['certificateThumbprint' => $certThumbprint]
         );
 
         return [

@@ -374,11 +374,11 @@ class ParticipationPublicationService
         $sourceObject['publicatiedatum']   = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
         $sourceObject['depublicatiedatum'] = null;
 
-        $publishedPredicateSet = false;
+        $predicateSet = false;
         try {
-            $saved   = $objectService->saveObject(register: 'decidesk', schema: $sourceSchema, object: $sourceObject);
-            $summary = array_merge($summary, ['sourceObject' => $this->normaliseSaved(saved: $saved, fallback: $sourceObject)]);
-            $publishedPredicateSet = true;
+            $saved        = $objectService->saveObject(register: 'decidesk', schema: $sourceSchema, object: $sourceObject);
+            $summary      = array_merge($summary, ['sourceObject' => $this->normaliseSaved(saved: $saved, fallback: $sourceObject)]);
+            $predicateSet = true;
         } catch (\Throwable $e) {
             $this->logger->warning(
                 'Decidesk participation: failed to persist published summary',
@@ -386,11 +386,11 @@ class ParticipationPublicationService
             );
         }
 
-        $openCatalogiInstalled = $this->isOpenCatalogiInstalled();
-        $openCatalogiRouted    = false;
-        $warning = null;
+        $catalogiInstalled  = $this->isOpenCatalogiInstalled();
+        $openCatalogiRouted = false;
+        $warning            = null;
 
-        if ($openCatalogiInstalled === true) {
+        if ($catalogiInstalled === true) {
             $openCatalogiRouted = $this->routeToOpenCatalogi(summary: $summary, governanceBodyId: $governanceBodyId);
             if ($openCatalogiRouted === false) {
                 $warning = 'OpenCatalogi is installed but no target catalog is configured for this governance body; '
@@ -402,12 +402,12 @@ class ParticipationPublicationService
 
         return [
             'summary'                => $summary,
-            'publishedPredicateSet'  => $publishedPredicateSet,
+            'publishedPredicateSet'  => $predicateSet,
             // Anonymous visibility is governed by the public-group RBAC rule on
             // the published schema (publicatiedatum <= $now); when the predicate
             // write succeeded the object is publicly readable.
-            'anonVisibilityVerified' => $publishedPredicateSet,
-            'openCatalogiInstalled'  => $openCatalogiInstalled,
+            'anonVisibilityVerified' => $predicateSet,
+            'openCatalogiInstalled'  => $catalogiInstalled,
             'openCatalogiRouted'     => $openCatalogiRouted,
             'warning'                => $warning,
         ];
