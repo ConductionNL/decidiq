@@ -280,12 +280,12 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
         }
 
         try {
-            $dt = new DateTimeImmutable($scheduledDate);
+            $date = new DateTimeImmutable($scheduledDate);
         } catch (\Throwable) {
             return $this->l10n->t('Your next meeting');
         }
 
-        return $dt->format('Y-m-d H:i');
+        return $date->format('Y-m-d H:i');
 
     }//end formatMeetingSubtitle()
 }//end class

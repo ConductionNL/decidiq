@@ -365,7 +365,7 @@ class RegulatorExportService
             return array_values(
                 array_filter(
                     $all,
-                    static fn(array $m): bool => in_array((string) ($m['meetingKoppeling'] ?? ''), $meetingIds, true)
+                    static fn(array $row): bool => in_array((string) ($row['meetingKoppeling'] ?? ''), $meetingIds, true)
                 )
             );
         }

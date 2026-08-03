@@ -313,8 +313,8 @@ class AuditLogService
             array_filter(
                 $chain,
                 static function (array $row) use ($startDate, $endDate): bool {
-                    $ts = ($row['timestamp'] ?? '');
-                    return ($ts >= $startDate && $ts <= $endDate);
+                    $timestamp = ($row['timestamp'] ?? '');
+                    return ($timestamp >= $startDate && $timestamp <= $endDate);
                 }
             )
         );
@@ -409,12 +409,12 @@ class AuditLogService
                         return false;
                     }
 
-                    $ts = ($row['timestamp'] ?? '');
-                    if ($startDate !== null && $ts < $startDate) {
+                    $timestamp = ($row['timestamp'] ?? '');
+                    if ($startDate !== null && $timestamp < $startDate) {
                         return false;
                     }
 
-                    if ($endDate !== null && $ts > $endDate) {
+                    if ($endDate !== null && $timestamp > $endDate) {
                         return false;
                     }
 

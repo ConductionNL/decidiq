@@ -450,10 +450,10 @@ class DecisionIntegrationService
     private function isPrivateHost(string $host): bool
     {
         // IP literal check.
-        $ip = filter_var($host, FILTER_VALIDATE_IP);
-        if ($ip !== false) {
+        $ipAddress = filter_var($host, FILTER_VALIDATE_IP);
+        if ($ipAddress !== false) {
             return filter_var(
-                $ip,
+                $ipAddress,
                 FILTER_VALIDATE_IP,
                 FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
             ) === false;

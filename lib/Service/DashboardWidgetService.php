@@ -181,12 +181,12 @@ class DashboardWidgetService
             }
 
             try {
-                $ts = (new DateTimeImmutable($scheduled))->getTimestamp();
+                $timestamp = (new DateTimeImmutable($scheduled))->getTimestamp();
             } catch (\Throwable) {
                 continue;
             }
 
-            if ($ts < $now) {
+            if ($timestamp < $now) {
                 continue;
             }
 
@@ -197,8 +197,8 @@ class DashboardWidgetService
                 continue;
             }
 
-            if ($bestTime === null || $ts < $bestTime) {
-                $bestTime = $ts;
+            if ($bestTime === null || $timestamp < $bestTime) {
+                $bestTime = $timestamp;
                 $best     = $meeting;
             }
         }//end foreach
