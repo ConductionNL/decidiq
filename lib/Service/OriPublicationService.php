@@ -102,9 +102,9 @@ class OriPublicationService
 
         // Reject direct private/loopback IP ranges to prevent SSRF (OWASP A10).
         // DNS-based rebinding is handled separately by Nextcloud IClientService via allow_local_remote_servers.
-        $ip = filter_var($host, FILTER_VALIDATE_IP);
-        if ($ip !== false) {
-            $isPublicIp = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+        $parsedIp = filter_var($host, FILTER_VALIDATE_IP);
+        if ($parsedIp !== false) {
+            $isPublicIp = filter_var($parsedIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
             if ($isPublicIp === false) {
                 return false;
             }

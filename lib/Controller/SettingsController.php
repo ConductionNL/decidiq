@@ -44,10 +44,10 @@ class SettingsController extends Controller
     /**
      * Constructor for the SettingsController.
      *
-     * @param IRequest                 $request                  The request object
-     * @param SettingsService          $settingsService          The settings service
-     * @param IUserSession             $userSession              The user session
-     * @param PublicationConfigService $publicationConfigService The publication configuration service
+     * @param IRequest                 $request           The request object
+     * @param SettingsService          $settingsService   The settings service
+     * @param IUserSession             $userSession       The user session
+     * @param PublicationConfigService $publicationConfig The publication configuration service
      *
      * @return void
      */
@@ -55,7 +55,7 @@ class SettingsController extends Controller
         IRequest $request,
         private SettingsService $settingsService,
         private IUserSession $userSession,
-        private \OCA\Decidesk\Service\PublicationConfigService $publicationConfigService,
+        private \OCA\Decidesk\Service\PublicationConfigService $publicationConfig,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -146,7 +146,7 @@ class SettingsController extends Controller
             return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
         }
 
-        return new JSONResponse(['config' => $this->publicationConfigService->getAll()]);
+        return new JSONResponse(['config' => $this->publicationConfig->getAll()]);
     }//end getPublicationConfig()
 
     /**
@@ -166,7 +166,7 @@ class SettingsController extends Controller
             $config = [];
         }
 
-        $saved = $this->publicationConfigService->save($config);
+        $saved = $this->publicationConfig->save($config);
 
         return new JSONResponse(['success' => true, 'config' => $saved]);
     }//end setPublicationConfig()

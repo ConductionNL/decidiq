@@ -95,7 +95,7 @@ class VotingServiceTemplateRuleTest extends TestCase
         return new VotingService(
             container: $container,
             logger: new NullLogger(),
-            oriPublicationService: $this->createMock(OriPublicationService::class),
+            oriService:$this->createMock(OriPublicationService::class),
             motionService: $motionService,
             participantResolver: $participantResolver,
             templateService: $templateService,

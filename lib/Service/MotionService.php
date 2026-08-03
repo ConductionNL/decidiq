@@ -363,14 +363,14 @@ class MotionService
      * Idempotent: if the name is already present, no duplicate is added.
      * Saves the updated Motion via ObjectService.
      *
-     * @param string $motionId               UUID of the Motion
-     * @param string $participantDisplayName Display name of the confirming co-signer
+     * @param string $motionId     UUID of the Motion
+     * @param string $coSignerName Display name of the confirming co-signer
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      *
      * @return void
      */
-    public function addCoSigner(string $motionId, string $participantDisplayName): void
+    public function addCoSigner(string $motionId, string $coSignerName): void
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
@@ -384,8 +384,8 @@ class MotionService
         $motionData = $motionObject->getObject();
         $coSigners  = $motionData['coSigners'] ?? [];
 
-        if (in_array($participantDisplayName, $coSigners, true) === false) {
-            $coSigners[] = $participantDisplayName;
+        if (in_array($coSignerName, $coSigners, true) === false) {
+            $coSigners[] = $coSignerName;
             $objectService->saveObject(
                 object: array_merge($motionData, ['coSigners' => $coSigners]),
                 register: 'decidesk',
@@ -711,8 +711,8 @@ class MotionService
                 $splitExst = [];
             }
 
-            $newWords      = array_filter($splitNew, fn($w) => mb_strlen($w) > 4);
-            $existingWords = array_filter($splitExst, fn($w) => mb_strlen($w) > 4);
+            $newWords      = array_filter($splitNew, fn($word) => mb_strlen($word) > 4);
+            $existingWords = array_filter($splitExst, fn($word) => mb_strlen($word) > 4);
             $overlap       = array_intersect($newWords, $existingWords);
 
             if (count($overlap) > 3) {

@@ -103,12 +103,12 @@ class VotingService
     /**
      * Constructor for VotingService.
      *
-     * @param ContainerInterface     $container             The DI container
-     * @param LoggerInterface        $logger                The logger
-     * @param OriPublicationService  $oriPublicationService The ORI publication service
-     * @param MotionService          $motionService         The motion service for lifecycle transitions
-     * @param ParticipantResolver    $participantResolver   Participant resolver for meeting-based membership checks
-     * @param ProcessTemplateService $templateService       Resolves a body's template voting-rule defaults (process-configuration)
+     * @param ContainerInterface     $container           The DI container
+     * @param LoggerInterface        $logger              The logger
+     * @param OriPublicationService  $oriService          The ORI publication service
+     * @param MotionService          $motionService       The motion service for lifecycle transitions
+     * @param ParticipantResolver    $participantResolver Participant resolver for meeting-based membership checks
+     * @param ProcessTemplateService $templateService     Resolves a body's template voting-rule defaults (process-configuration)
      *
      * @return void
      *
@@ -117,7 +117,7 @@ class VotingService
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
-        private readonly OriPublicationService $oriPublicationService,
+        private readonly OriPublicationService $oriService,
         private readonly MotionService $motionService,
         private readonly ParticipantResolver $participantResolver,
         ProcessTemplateService $templateService,
@@ -671,7 +671,7 @@ class VotingService
                 $delegatorToken = hash_hmac('sha256', $delegatorId.':proxy:'.$votingRoundId, $this->voterTokenSecret());
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('vote');
-                $existingProxyEntities = $this->filterByRelation(
+                $existingProxies = $this->filterByRelation(
                     entities: $objectService->findAll(
                         [
                             'filters' => [
@@ -683,13 +683,13 @@ class VotingService
                     schema: 'voting-round',
                     targetId: $votingRoundId
                 );
-                if (empty($existingProxyEntities) === false) {
+                if (empty($existingProxies) === false) {
                     throw new RuntimeException('Er is al een volmacht geregistreerd voor deze deelnemer in deze stemronde');
                 }
             } else {
                 $objectService->setRegister('decidesk');
                 $objectService->setSchema('vote');
-                $existingProxyEntities = $this->filterByRelation(
+                $existingProxies = $this->filterByRelation(
                     entities: $objectService->findAll(
                         [
                             'filters' => [
@@ -702,7 +702,7 @@ class VotingService
                     targetId: $votingRoundId
                 );
 
-                foreach ($existingProxyEntities as $proxyVoteEntity) {
+                foreach ($existingProxies as $proxyVoteEntity) {
                     $proxyVote = $proxyVoteEntity->jsonSerialize();
                     foreach (($proxyVote['relations'] ?? []) as $rel) {
                         if (($rel['schema'] ?? '') === 'participant' && ($rel['id'] ?? '') === $delegatorId && ($rel['type'] ?? '') === 'delegator') {
@@ -993,7 +993,7 @@ class VotingService
         // Infrastructure/network errors are logged at ERROR level (was INFO) so they surface
         // in monitoring.
         try {
-            $this->oriPublicationService->publish($votingRoundId);
+            $this->oriService->publish($votingRoundId);
         } catch (Throwable $e) {
             $this->logger->error(
                 'Decidesk: ORI publication failed after round close',

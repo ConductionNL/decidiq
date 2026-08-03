@@ -100,7 +100,7 @@ class SettingsControllerTest extends TestCase
             request: $this->request,
             settingsService: $this->settingsService,
             userSession: $this->userSession,
-            publicationConfigService: $this->publicationConfigService,
+            publicationConfig: $this->publicationConfigService,
         );
 
     }//end setUp()

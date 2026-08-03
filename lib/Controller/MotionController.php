@@ -315,7 +315,7 @@ class MotionController extends Controller
         }
 
         try {
-            $this->motionService->addCoSigner(motionId: $id, participantDisplayName: $displayName);
+            $this->motionService->addCoSigner(motionId: $id, coSignerName: $displayName);
             return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);

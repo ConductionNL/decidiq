@@ -170,7 +170,7 @@ class MinutesControllerTest extends TestCase
 
         $this->controller = new MinutesController(
             request: $this->request,
-            minutesGenerationService: $this->minutesGenerationService,
+            generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
             extractionService: $this->extractionService,
             minutesService: $this->minutesService,
@@ -182,7 +182,7 @@ class MinutesControllerTest extends TestCase
                 userSession: $this->userSession,
                 groupManager: $this->groupManager,
             ),
-            minutesDocumentService: $this->minutesDocumentService,
+            documentService: $this->minutesDocumentService,
         );
 
         // The correction endpoints moved to MinutesCorrectionController; it is
@@ -366,7 +366,7 @@ class MinutesControllerTest extends TestCase
 
         $unauthController = new MinutesController(
             request: $this->request,
-            minutesGenerationService: $this->minutesGenerationService,
+            generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
             extractionService: $this->extractionService,
             minutesService: $this->minutesService,
@@ -378,7 +378,7 @@ class MinutesControllerTest extends TestCase
                 userSession: $unauthSession,
                 groupManager: $this->groupManager,
             ),
-            minutesDocumentService: $this->minutesDocumentService,
+            documentService: $this->minutesDocumentService,
         );
 
         // The service must NOT be called for an unauthenticated request.
@@ -536,7 +536,7 @@ class MinutesControllerTest extends TestCase
 
         $unauthController = new MinutesController(
             request: $this->request,
-            minutesGenerationService: $this->minutesGenerationService,
+            generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
             extractionService: $this->extractionService,
             minutesService: $this->minutesService,
@@ -548,7 +548,7 @@ class MinutesControllerTest extends TestCase
                 userSession: $unauthSession,
                 groupManager: $this->groupManager,
             ),
-            minutesDocumentService: $this->minutesDocumentService,
+            documentService: $this->minutesDocumentService,
         );
 
         $this->alvMinutesService->expects($this->never())->method('generateALVDraft');
@@ -622,7 +622,7 @@ class MinutesControllerTest extends TestCase
 
         $unauthController = new MinutesController(
             request: $this->request,
-            minutesGenerationService: $this->minutesGenerationService,
+            generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
             extractionService: $this->extractionService,
             minutesService: $this->minutesService,
@@ -634,7 +634,7 @@ class MinutesControllerTest extends TestCase
                 userSession: $unauthSession,
                 groupManager: $this->groupManager,
             ),
-            minutesDocumentService: $this->minutesDocumentService,
+            documentService: $this->minutesDocumentService,
         );
 
         $this->alvMinutesService->expects($this->never())->method('distribute');

@@ -653,8 +653,8 @@ class MinutesGenerationService
     private function formatDate(string $isoDate): string
     {
         try {
-            $dt = new DateTimeImmutable($isoDate);
-            return $dt->format('d-m-Y H:i');
+            $date = new DateTimeImmutable($isoDate);
+            return $date->format('d-m-Y H:i');
         } catch (Throwable) {
             return $isoDate;
         }
