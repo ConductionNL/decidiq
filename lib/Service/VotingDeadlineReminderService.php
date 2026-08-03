@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -79,12 +80,12 @@ class VotingDeadlineReminderService
         }
 
         try {
-            $ts = (new \DateTimeImmutable($deadline))->getTimestamp();
+            $timestamp = (new DateTimeImmutable($deadline))->getTimestamp();
         } catch (\Throwable) {
             return false;
         }
 
-        $delta = ($ts - $now);
+        $delta = ($timestamp - $now);
         return ($delta > 0 && $delta <= self::REMINDER_WINDOW);
 
     }//end isWithinReminderWindow()

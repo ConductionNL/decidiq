@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Exception\MissingObjectException;
+use RuntimeException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -99,7 +100,7 @@ class BoardEvaluationReportService
         }
 
         if ($path === null) {
-            throw new \RuntimeException('The evaluation report could not be stored: the Files backend is unavailable.', 503);
+            throw new RuntimeException('The evaluation report could not be stored: the Files backend is unavailable.', 503);
         }
 
         $result = ['path' => $path, 'format' => $format, 'docudesk' => $docudesk];
@@ -179,7 +180,7 @@ class BoardEvaluationReportService
         $lines[] = '';
         $lines[] = '## Recurring free-text themes';
         foreach ((array) ($summary['themes'] ?? []) as $dimension => $words) {
-            $wordList = implode(', ', array_map(static fn ($w) => (string) ($w['word'] ?? ''), (array) $words));
+            $wordList = implode(', ', array_map(static fn ($entry) => (string) ($entry['word'] ?? ''), (array) $words));
             if ($wordList === '') {
                 $wordList = '_none_';
             }
@@ -236,12 +237,12 @@ class BoardEvaluationReportService
 
         foreach ($lines as $line) {
             $escaped = htmlspecialchars($line, ENT_QUOTES, 'UTF-8');
-            if (preg_match('/^## (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h2>'.$m[1].'</h2>';
-            } else if (preg_match('/^# (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h1>'.$m[1].'</h1>';
-            } else if (preg_match('/^- (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<p class="list-item">'.$m[1].'</p>';
+            if (preg_match('/^## (.*)$/', $escaped, $matches) === 1) {
+                $html[] = '<h2>'.$matches[1].'</h2>';
+            } else if (preg_match('/^# (.*)$/', $escaped, $matches) === 1) {
+                $html[] = '<h1>'.$matches[1].'</h1>';
+            } else if (preg_match('/^- (.*)$/', $escaped, $matches) === 1) {
+                $html[] = '<p class="list-item">'.$matches[1].'</p>';
             } else if (trim($escaped) === '') {
                 $html[] = '';
             } else {
@@ -281,10 +282,10 @@ class BoardEvaluationReportService
 
             $path = '';
             foreach ($segments as $segment) {
-                if ($path === '') {
-                    $path = $segment;
-                } else {
-                    $path = $path.'/'.$segment;
+                $prefix = $path;
+                $path   = $segment;
+                if ($prefix !== '') {
+                    $path = $prefix.'/'.$segment;
                 }
 
                 $fileService->createFolder($path);

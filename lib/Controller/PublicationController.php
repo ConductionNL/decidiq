@@ -289,10 +289,9 @@ class PublicationController extends Controller
             return $sourceId;
         }
 
+        $schema = 'decision';
         if ($sourceType === 'minutes') {
             $schema = 'minutes';
-        } else {
-            $schema = 'decision';
         }
 
         $entity = $this->objectService->find(id: $sourceId, register: 'decidesk', schema: $schema);

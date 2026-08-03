@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use OCA\Decidesk\Event\DecisionConcludedEvent;
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidesk\Service\ProcessTemplateService;
@@ -285,7 +287,7 @@ class DecisionLifecycleService
 
             $patch = ['lifecycle' => $transition['to']];
             if ($transition['to'] === 'enacted') {
-                $patch['enactedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+                $patch['enactedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
             }
 
             // Object-level write ACL: saveObject() throws when the session user lacks

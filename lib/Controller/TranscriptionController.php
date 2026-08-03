@@ -460,12 +460,13 @@ class TranscriptionController extends Controller
         }
 
         foreach ($entities as $entity) {
-            if (is_array($entity) === true) {
-                $meeting = $entity;
-            } else if (method_exists($entity, 'jsonSerialize') === true) {
-                $meeting = (array) $entity->jsonSerialize();
-            } else {
+            if (is_array($entity) === false && method_exists($entity, 'jsonSerialize') === false) {
                 continue;
+            }
+
+            $meeting = $entity;
+            if (is_array($entity) === false) {
+                $meeting = (array) $entity->jsonSerialize();
             }
 
             $meetingId = (string) ($meeting['id'] ?? ($meeting['@self']['id'] ?? ''));

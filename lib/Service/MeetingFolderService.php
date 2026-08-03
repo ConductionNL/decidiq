@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -107,10 +108,10 @@ class MeetingFolderService
 
             $path = '';
             foreach ($segments as $segment) {
-                if ($path === '') {
-                    $path = $segment;
-                } else {
-                    $path = $path.'/'.$segment;
+                $prefix = $path;
+                $path   = $segment;
+                if ($prefix !== '') {
+                    $path = $prefix.'/'.$segment;
                 }
 
                 $fileService->createFolder($path);
@@ -241,7 +242,7 @@ class MeetingFolderService
         }
 
         try {
-            return (new \DateTimeImmutable($raw))->format('Y-m-d');
+            return (new DateTimeImmutable($raw))->format('Y-m-d');
         } catch (\Throwable) {
             return '';
         }

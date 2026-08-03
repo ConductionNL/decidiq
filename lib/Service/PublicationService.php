@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
@@ -93,7 +96,7 @@ class PublicationService
     public function publish(string $sourceType, string $sourceId, string $actorId): array
     {
         $source = $this->eligibility->assertEligible($sourceType, $sourceId);
-        $bodyId = $this->resolveBodyId(sourceType: $sourceType, source: $source);
+        $bodyId = $this->resolveBodyId(source: $source);
 
         $version = 1;
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $version);
@@ -115,13 +118,16 @@ class PublicationService
             $targetCatalog = $this->configService->getForBody($bodyId)['catalog'];
         }
 
-        if ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '') {
+        $catalogAvailable = ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '');
+        if ($catalogAvailable === false) {
+            $warnings[] = 'opencatalogi-absent';
+        }
+
+        if ($catalogAvailable === true) {
             $catalogRef = $this->catalogPublisher->publish($targetCatalog, $payloadId, $payload);
             if ($catalogRef === '') {
                 $warnings[] = 'catalog-publish-failed';
             }
-        } else {
-            $warnings[] = 'opencatalogi-absent';
         }
 
         $record       = [
@@ -172,7 +178,7 @@ class PublicationService
      *
      * @spec openspec/specs/public-publication/spec.md
      *
-     * @throws \InvalidArgumentException When the reason is empty.
+     * @throws InvalidArgumentException When the reason is empty.
      * @throws MissingObjectException    When the record does not exist.
      *
      * @return array<string,mixed> { record, warnings[] }
@@ -180,7 +186,7 @@ class PublicationService
     public function withdraw(string $recordId, string $actorId, string $reason): array
     {
         if (trim($reason) === '') {
-            throw new \InvalidArgumentException('A withdraw reason is required.');
+            throw new InvalidArgumentException('A withdraw reason is required.');
         }
 
         $record = $this->loadRecord(recordId: $recordId);
@@ -193,16 +199,15 @@ class PublicationService
         // anonymously readable even if the remote retraction fails.
         $this->setDepublicationDate(payloadId: (string) $record['payloadObject']);
 
-        $catalogRetractionStatus = 'none';
-        $catalogRef = (string) ($record['catalogPublication'] ?? '');
+        $retractionStatus = 'none';
+        $catalogRef       = (string) ($record['catalogPublication'] ?? '');
         if ($catalogRef !== '') {
-            $retracted = $this->catalogPublisher->retract((string) ($record['targetCatalog'] ?? ''), $catalogRef);
-            if ($retracted === true) {
-                $catalogRetractionStatus = 'done';
-            } else {
+            $retracted        = $this->catalogPublisher->retract((string) ($record['targetCatalog'] ?? ''), $catalogRef);
+            $retractionStatus = 'done';
+            if ($retracted !== true) {
                 // Surface the failure and mark pending — never report success.
-                $catalogRetractionStatus = 'pending';
-                $warnings[] = 'catalog-retraction-failed';
+                $retractionStatus = 'pending';
+                $warnings[]       = 'catalog-retraction-failed';
             }
         }
 
@@ -210,7 +215,7 @@ class PublicationService
         $record['withdrawnBy']    = $actorId;
         $record['withdrawnAt']    = $this->now();
         $record['withdrawReason'] = $reason;
-        $record['catalogRetractionStatus'] = $catalogRetractionStatus;
+        $record['catalogRetractionStatus'] = $retractionStatus;
         $this->persistRecord(record: $record, uuid: $recordId);
 
         $this->markSourcePublished(
@@ -256,7 +261,7 @@ class PublicationService
 
         // Re-validate eligibility for the corrected source state.
         $source = $this->eligibility->assertEligible($sourceType, $sourceId);
-        $bodyId = $this->resolveBodyId(sourceType: $sourceType, source: $source);
+        $bodyId = $this->resolveBodyId(source: $source);
 
         $payload = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
         $payload['publicatiedatum']   = $this->now();
@@ -265,15 +270,18 @@ class PublicationService
 
         $warnings = [];
 
-        $catalogRef    = '';
-        $targetCatalog = (string) ($prior['targetCatalog'] ?? '');
-        if ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '') {
+        $catalogRef       = '';
+        $targetCatalog    = (string) ($prior['targetCatalog'] ?? '');
+        $catalogAvailable = ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '');
+        if ($catalogAvailable === false) {
+            $warnings[] = 'opencatalogi-absent';
+        }
+
+        if ($catalogAvailable === true) {
             $catalogRef = $this->catalogPublisher->publish($targetCatalog, $payloadId, $payload);
             if ($catalogRef === '') {
                 $warnings[] = 'catalog-publish-failed';
             }
-        } else {
-            $warnings[] = 'opencatalogi-absent';
         }
 
         $newRecord       = [
@@ -499,14 +507,13 @@ class PublicationService
     /**
      * Resolve the governance body UUID for a source object.
      *
-     * @param string              $sourceType One of decision|agenda|minutes.
-     * @param array<string,mixed> $source     The source object data.
+     * @param array<string,mixed> $source The source object data.
      *
      * @spec openspec/specs/public-publication/spec.md
      *
      * @return string|null
      */
-    private function resolveBodyId(string $sourceType, array $source): ?string
+    private function resolveBodyId(array $source): ?string
     {
         $direct = ($source['governanceBody'] ?? ($source['relations']['GovernanceBody'] ?? $source['relations']['governanceBody'] ?? null));
         if (is_array($direct) === true) {
@@ -582,7 +589,7 @@ class PublicationService
      */
     private function now(): string
     {
-        return (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        return (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 
     }//end now()
 }//end class

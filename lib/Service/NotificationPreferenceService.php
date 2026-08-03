@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -238,14 +239,14 @@ class NotificationPreferenceService
      * "already started"). Expiry is therefore automatic — every consult is a
      * date comparison against today, no cron or cleanup job involved.
      *
-     * @param string                  $personId Person UUID or user ID of the absent user
-     * @param \DateTimeImmutable|null $today    Clock override for tests (defaults to today)
+     * @param string                 $personId Person UUID or user ID of the absent user
+     * @param DateTimeImmutable|null $today    Clock override for tests (defaults to today)
      *
      * @return string|null The delegate identifier (NC UID), or null when no delegation is active
      *
      * @spec openspec/specs/user-settings/spec.md
      */
-    public function getActiveDelegate(string $personId, ?\DateTimeImmutable $today=null): ?string
+    public function getActiveDelegate(string $personId, ?DateTimeImmutable $today=null): ?string
     {
         $pref     = $this->findPreference(personId: $personId);
         $delegate = ($pref['delegate'] ?? null);
@@ -261,7 +262,7 @@ class NotificationPreferenceService
             return null;
         }
 
-        $todayStr = ($today ?? new \DateTimeImmutable())->format('Y-m-d');
+        $todayStr = ($today ?? new DateTimeImmutable())->format('Y-m-d');
 
         $from = ($pref['delegationFrom'] ?? null);
         if (is_string($from) === true && $from !== '' && substr($from, 0, 10) > $todayStr) {
@@ -284,15 +285,15 @@ class NotificationPreferenceService
      * stored identifier, which is the NC UID picked in the settings UI;
      * callers may pass either the NC UID or a participant UUID.
      *
-     * @param string                  $delegatorId The absent user (preference owner)
-     * @param string                  $delegateId  The acting user (NC UID or participant UUID)
-     * @param \DateTimeImmutable|null $today       Clock override for tests
+     * @param string                 $delegatorId The absent user (preference owner)
+     * @param string                 $delegateId  The acting user (NC UID or participant UUID)
+     * @param DateTimeImmutable|null $today       Clock override for tests
      *
      * @return bool
      *
      * @spec openspec/specs/user-settings/spec.md
      */
-    public function hasActiveDelegationTo(string $delegatorId, string $delegateId, ?\DateTimeImmutable $today=null): bool
+    public function hasActiveDelegationTo(string $delegatorId, string $delegateId, ?DateTimeImmutable $today=null): bool
     {
         if ($delegateId === '') {
             return false;

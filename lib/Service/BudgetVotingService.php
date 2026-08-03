@@ -25,7 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 
 /**
  * Stateless service for participatory-budget proposals + advisory voting.
@@ -109,8 +111,8 @@ class BudgetVotingService
      *
      * @return array<string, mixed> The created BudgetProposal object.
      *
-     * @throws \RuntimeException         When the round is missing or not accepting proposals.
-     * @throws \InvalidArgumentException When the amount is invalid.
+     * @throws RuntimeException         When the round is missing or not accepting proposals.
+     * @throws InvalidArgumentException When the amount is invalid.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -124,28 +126,28 @@ class BudgetVotingService
     ): array {
         $title = trim($title);
         if ($title === '') {
-            throw new \InvalidArgumentException('Proposal title must not be empty');
+            throw new InvalidArgumentException('Proposal title must not be empty');
         }
 
         $objectService = $this->objectService();
         $roundEntity   = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
         if ($roundEntity === null) {
-            throw new \RuntimeException("ParticipatoryBudget {$budgetId} not found");
+            throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
         }
 
         $round = $roundEntity->jsonSerialize();
 
         if ($this->lifecycleService->budgetAcceptsProposals(round: $round) === false) {
-            throw new \RuntimeException('This budget round is not open for proposal submission');
+            throw new RuntimeException('This budget round is not open for proposal submission');
         }
 
         if ($requested <= 0) {
-            throw new \InvalidArgumentException('requestedAmount must be a positive number');
+            throw new InvalidArgumentException('requestedAmount must be a positive number');
         }
 
         $total = (float) ($round['totalAmount'] ?? 0);
         if ($total > 0 && $requested > $total) {
-            throw new \InvalidArgumentException('requestedAmount exceeds the round total amount');
+            throw new InvalidArgumentException('requestedAmount exceeds the round total amount');
         }
 
         $proposal = [
@@ -181,8 +183,8 @@ class BudgetVotingService
      *
      * @return array<string, mixed> The updated proposal object.
      *
-     * @throws \RuntimeException         When the proposal is not found.
-     * @throws \InvalidArgumentException When the proposal is not in 'submitted'.
+     * @throws RuntimeException         When the proposal is not found.
+     * @throws InvalidArgumentException When the proposal is not in 'submitted'.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -191,18 +193,17 @@ class BudgetVotingService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
         if ($entity === null) {
-            throw new \RuntimeException("BudgetProposal {$proposalId} not found");
+            throw new RuntimeException("BudgetProposal {$proposalId} not found");
         }
 
         $proposal = $entity->jsonSerialize();
         if ((string) ($proposal['status'] ?? '') !== 'submitted') {
-            throw new \InvalidArgumentException('Only a submitted proposal can be validated or rejected');
+            throw new InvalidArgumentException('Only a submitted proposal can be validated or rejected');
         }
 
+        $proposal['status'] = 'rejected';
         if ($approve === true) {
             $proposal['status'] = 'validated';
-        } else {
-            $proposal['status'] = 'rejected';
         }
 
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
@@ -224,8 +225,8 @@ class BudgetVotingService
      *
      * @return array<string, mixed> ['vote' => ..., 'votesFor' => int, 'votesAgainst' => int].
      *
-     * @throws \RuntimeException         When the proposal/round is missing, closed, or not validated.
-     * @throws \InvalidArgumentException When the value is invalid.
+     * @throws RuntimeException         When the proposal/round is missing, closed, or not validated.
+     * @throws InvalidArgumentException When the value is invalid.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      * @spec openspec/specs/voting-system/spec.md
@@ -235,12 +236,12 @@ class BudgetVotingService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
         if ($entity === null) {
-            throw new \RuntimeException("BudgetProposal {$proposalId} not found");
+            throw new RuntimeException("BudgetProposal {$proposalId} not found");
         }
 
         $proposal = $entity->jsonSerialize();
         if ((string) ($proposal['status'] ?? '') !== 'validated') {
-            throw new \RuntimeException('Only validated proposals can be voted on');
+            throw new RuntimeException('Only validated proposals can be voted on');
         }
 
         $budgetId = $this->resolveBudgetId(proposal: $proposal);
@@ -249,7 +250,7 @@ class BudgetVotingService
             if ($roundEntity !== null) {
                 $round = $roundEntity->jsonSerialize();
                 if ($this->lifecycleService->budgetAcceptsVotes(round: $round) === false) {
-                    throw new \RuntimeException('Voting is closed for this budget round');
+                    throw new RuntimeException('Voting is closed for this budget round');
                 }
             }
         }
@@ -271,7 +272,7 @@ class BudgetVotingService
      *
      * @return array<string, mixed> Allocation summary with ranked proposals.
      *
-     * @throws \RuntimeException When the round is not found.
+     * @throws RuntimeException When the round is not found.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -280,7 +281,7 @@ class BudgetVotingService
         $objectService = $this->objectService();
         $roundEntity   = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
         if ($roundEntity === null) {
-            throw new \RuntimeException("ParticipatoryBudget {$budgetId} not found");
+            throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
         }
 
         $round = $roundEntity->jsonSerialize();

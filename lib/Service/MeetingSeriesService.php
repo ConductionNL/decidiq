@@ -26,6 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateInterval;
+use DateTimeImmutable;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -103,7 +106,7 @@ class MeetingSeriesService
      * @param string               $startDate Template start datetime (ISO-8601)
      * @param array<string, mixed> $pattern   Recurrence pattern (frequency, interval, until, exceptions)
      *
-     * @throws \InvalidArgumentException When the pattern or start date is invalid
+     * @throws InvalidArgumentException When the pattern or start date is invalid
      *
      * @spec openspec/specs/meeting-management/spec.md
      *
@@ -113,32 +116,32 @@ class MeetingSeriesService
     {
         $frequency = (string) ($pattern['frequency'] ?? '');
         if (in_array($frequency, self::FREQUENCIES, true) === false) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'frequency must be one of: '.implode(', ', self::FREQUENCIES).'.'
             );
         }
 
         $interval = (int) ($pattern['interval'] ?? 1);
         if ($interval < 1) {
-            throw new \InvalidArgumentException('interval must be >= 1.');
+            throw new InvalidArgumentException('interval must be >= 1.');
         }
 
         $untilRaw = (string) ($pattern['until'] ?? '');
         if ($untilRaw === '') {
-            throw new \InvalidArgumentException('until is required.');
+            throw new InvalidArgumentException('until is required.');
         }
 
         try {
-            $start = new \DateTimeImmutable($startDate);
+            $start = new DateTimeImmutable($startDate);
         } catch (\Throwable) {
-            throw new \InvalidArgumentException('Invalid start date: '.$startDate);
+            throw new InvalidArgumentException('Invalid start date: '.$startDate);
         }
 
         try {
             // `until` is inclusive and compared on the date part in the template's timezone.
-            $until = new \DateTimeImmutable($untilRaw.' 23:59:59', $start->getTimezone());
+            $until = new DateTimeImmutable($untilRaw.' 23:59:59', $start->getTimezone());
         } catch (\Throwable) {
-            throw new \InvalidArgumentException('Invalid until date: '.$untilRaw);
+            throw new InvalidArgumentException('Invalid until date: '.$untilRaw);
         }
 
         $exceptions = [];
@@ -190,7 +193,7 @@ class MeetingSeriesService
             }
 
             for ($step = 0; true; $step++) {
-                $occurrence = $start->add(new \DateInterval('P'.($step * $stepDays).'D'));
+                $occurrence = $start->add(new DateInterval('P'.($step * $stepDays).'D'));
                 if ($occurrence > $until) {
                     break;
                 }
@@ -285,7 +288,7 @@ class MeetingSeriesService
 
         try {
             $expansion = $this->expandPattern(startDate: $scheduledDate, pattern: $pattern);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             return [
                 'success'   => false,
                 'series'    => null,
@@ -335,11 +338,12 @@ class MeetingSeriesService
                     schema: 'meeting'
                 );
 
+                $entry = $instance;
                 if (is_object($saved) === true) {
-                    $instances[] = (array) $saved->jsonSerialize();
-                } else {
-                    $instances[] = $instance;
+                    $entry = (array) $saved->jsonSerialize();
                 }
+
+                $instances[] = $entry;
             }//end foreach
         } catch (\Throwable $e) {
             $this->logger->error(

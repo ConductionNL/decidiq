@@ -143,10 +143,9 @@ class DecisionIntegrationService
             }
 
             if (is_array($existing) === true && count($existing) > 0) {
-                $first = reset($existing);
-                if (is_array($first) === true) {
-                    $firstData = $first;
-                } else {
+                $first     = reset($existing);
+                $firstData = $first;
+                if (is_array($first) === false) {
                     $firstData = (array) $first->jsonSerialize();
                 }
 
@@ -189,9 +188,8 @@ class DecisionIntegrationService
                 schema: 'decision'
             );
 
-            if (is_array($saved) === true) {
-                $savedArr = $saved;
-            } else {
+            $savedArr = $saved;
+            if (is_array($saved) === false) {
                 $savedArr = (array) $saved->jsonSerialize();
             }
 
@@ -253,9 +251,8 @@ class DecisionIntegrationService
             return null;
         }
 
-        if (is_array($entity) === true) {
-            $decision = $entity;
-        } else {
+        $decision = $entity;
+        if (is_array($entity) === false) {
             $decision = (array) $entity->jsonSerialize();
         }
 
@@ -263,14 +260,13 @@ class DecisionIntegrationService
         $outcome   = (string) ($decision['outcome'] ?? '');
 
         // Derive status (ADR-031 — declarative, no new state machine).
+        $status = 'pending';
         if ($lifecycle === 'withdrawn') {
             $status = 'withdrawn';
         } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome === 'adopted') {
             $status = 'approved';
         } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome !== '') {
             $status = 'rejected';
-        } else {
-            $status = 'pending';
         }
 
         $decidedAt = null;
@@ -345,9 +341,8 @@ class DecisionIntegrationService
             return ['success' => false, 'code' => 'not_found', 'message' => "Decision '{$decisionId}' not found."];
         }
 
-        if (is_array($entity) === true) {
-            $decision = $entity;
-        } else {
+        $decision = $entity;
+        if (is_array($entity) === false) {
             $decision = (array) $entity->jsonSerialize();
         }
 
@@ -455,10 +450,10 @@ class DecisionIntegrationService
     private function isPrivateHost(string $host): bool
     {
         // IP literal check.
-        $ip = filter_var($host, FILTER_VALIDATE_IP);
-        if ($ip !== false) {
+        $ipAddress = filter_var($host, FILTER_VALIDATE_IP);
+        if ($ipAddress !== false) {
             return filter_var(
-                $ip,
+                $ipAddress,
                 FILTER_VALIDATE_IP,
                 FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
             ) === false;
@@ -510,9 +505,8 @@ class DecisionIntegrationService
         }
 
         foreach ($stages as $stage) {
-            if (is_array($stage) === true) {
-                $stageData = $stage;
-            } else {
+            $stageData = $stage;
+            if (is_array($stage) === false) {
                 $stageData = (array) $stage->jsonSerialize();
             }
 

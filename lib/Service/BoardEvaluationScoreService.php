@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -136,11 +138,11 @@ class BoardEvaluationScoreService
         // Below threshold: NO per-dimension or free-text breakdown is ever
         // materialised — not merely hidden from a renderer — so a small
         // board cannot de-anonymise an answer by inference (design D2).
-        $exposedDimensionScores = null;
-        $exposedThemes          = null;
+        $exposedScores = null;
+        $exposedThemes = null;
         if ($thresholdMet === true) {
-            $exposedDimensionScores = $dimensionScores;
-            $exposedThemes          = $themes;
+            $exposedScores = $dimensionScores;
+            $exposedThemes = $themes;
         }
 
         $summary = [
@@ -150,9 +152,9 @@ class BoardEvaluationScoreService
             'minRespondentThreshold' => $threshold,
             'thresholdMet'           => $thresholdMet,
             'suppressed'             => ($thresholdMet === false),
-            'dimensionScores'        => $exposedDimensionScores,
+            'dimensionScores'        => $exposedScores,
             'themes'                 => $exposedThemes,
-            'computedAt'             => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'computedAt'             => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
         ];
 
         return $summary;
@@ -214,7 +216,7 @@ class BoardEvaluationScoreService
 
             $evaluation['scoreSummary']   = json_encode($summary);
             $evaluation['lifecycle']      = 'closed';
-            $evaluation['closedAt']       = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $evaluation['closedAt']       = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
             $evaluation['respondedCount'] = $summary['respondentCount'];
 
             $saved = $objectService->saveObject(register: 'decidesk', schema: 'board-evaluation', object: $evaluation);
@@ -304,7 +306,7 @@ class BoardEvaluationScoreService
      */
     private function computeThemes(array $responses): array
     {
-        $wordCountsByDimension = [];
+        $dimensionWords = [];
 
         foreach ($responses as $response) {
             $answers = [];
@@ -338,13 +340,13 @@ class BoardEvaluationScoreService
                         continue;
                     }
 
-                    $wordCountsByDimension[$dimension][$word] = ($wordCountsByDimension[$dimension][$word] ?? 0) + 1;
+                    $dimensionWords[$dimension][$word] = ($dimensionWords[$dimension][$word] ?? 0) + 1;
                 }
             }//end foreach
         }//end foreach
 
         $themes = [];
-        foreach ($wordCountsByDimension as $dimension => $wordCounts) {
+        foreach ($dimensionWords as $dimension => $wordCounts) {
             arsort($wordCounts);
             $top = [];
             foreach (array_slice($wordCounts, 0, 3, true) as $word => $count) {

@@ -168,10 +168,12 @@ class ActionItemExtractionService
 
                 try {
                     $created = $writer->create(item: $actionItem);
+                    if ($created === null) {
+                        $this->logger->warning('Failed to save ActionItem VTODO for minutes '.$minutesId);
+                    }
+
                     if ($created !== null) {
                         $savedCount++;
-                    } else {
-                        $this->logger->warning('Failed to save ActionItem VTODO for minutes '.$minutesId);
                     }
                 } catch (\Exception $e) {
                     $this->logger->warning("Failed to save ActionItem: ".$e->getMessage());

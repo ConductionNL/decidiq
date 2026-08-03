@@ -420,12 +420,12 @@ class GovernanceReportingService
             array_filter(
                 $rows,
                 static function (array $row) use ($field, $start, $end): bool {
-                    $ts = (string) ($row[$field] ?? '');
-                    if ($ts === '') {
+                    $timestamp = (string) ($row[$field] ?? '');
+                    if ($timestamp === '') {
                         return false;
                     }
 
-                    return ($ts >= $start && $ts <= $end);
+                    return ($timestamp >= $start && $timestamp <= $end);
                 }
             )
         );
