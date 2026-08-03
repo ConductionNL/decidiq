@@ -19,9 +19,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Service\AdvisoryVoteService;
 use OCA\Decidesk\Service\BudgetVotingService;
 use OCA\Decidesk\Service\ParticipationLifecycleService;
-use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -69,7 +69,7 @@ class BudgetVotingServiceTest extends TestCase
             lifecycleService: new ParticipationLifecycleService(
                 container: $container,
             ),
-            votingService: $this->createMock(VotingService::class),
+            advisoryVoteService: $this->createMock(AdvisoryVoteService::class),
         );
 
     }//end setUp()

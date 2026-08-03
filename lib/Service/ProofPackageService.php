@@ -377,14 +377,42 @@ class ProofPackageService
             $lines[] = '_Let op: er is geen aanwezigheidsregistratie vastgelegd voor deze vergadering._';
         }
 
+        $lines = array_merge(
+            $lines,
+            $this->renderVotesSection(votes: $package['votes']),
+            $this->renderDecisionsSection(decisions: $package['decisions'])
+        );
+
+        $lines[] = '---';
+        $lines[] = '';
+        $lines[] = '_De machineleesbare versie van dit pakket (JSON, naast dit bestand) bevat de SHA-256 '
+            .'integriteitshash; herbereken de hash over het canonieke JSON van het "package"-element '
+            .'om manipulatie uit te sluiten._';
+
+        return implode("\n", $lines);
+
+    }//end renderMarkdown()
+
+    /**
+     * Render section 3 (Stemmingen) of the markdown rendition.
+     *
+     * @param array<int, array<string, mixed>> $votes The package's voting rounds
+     *
+     * @return string[] Markdown lines
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     */
+    private function renderVotesSection(array $votes): array
+    {
+        $lines   = [];
         $lines[] = '';
         $lines[] = '## 3. Stemmingen';
         $lines[] = '';
-        if (count($package['votes']) === 0) {
+        if (count($votes) === 0) {
             $lines[] = '_Geen stemrondes geregistreerd._';
         }
 
-        foreach ($package['votes'] as $round) {
+        foreach ($votes as $round) {
             $lines[] = sprintf(
                 '- Methode: %s — voor: %s, tegen: %s, onthouding: %s — uitslag: %s',
                 $round['votingMethod'],
@@ -395,14 +423,30 @@ class ProofPackageService
             );
         }
 
+        return $lines;
+
+    }//end renderVotesSection()
+
+    /**
+     * Render section 4 (Besluiten) of the markdown rendition.
+     *
+     * @param array<int, array<string, mixed>> $decisions The package's decision texts
+     *
+     * @return string[] Markdown lines
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     */
+    private function renderDecisionsSection(array $decisions): array
+    {
+        $lines   = [];
         $lines[] = '';
         $lines[] = '## 4. Besluiten';
         $lines[] = '';
-        if (count($package['decisions']) === 0) {
+        if (count($decisions) === 0) {
             $lines[] = '_Geen besluiten geregistreerd._';
         }
 
-        foreach ($package['decisions'] as $decision) {
+        foreach ($decisions as $decision) {
             $lines[] = '### '.$decision['title'];
             if ($decision['legalBasis'] !== '') {
                 $lines[] = 'Gelet op: '.$decision['legalBasis'];
@@ -417,15 +461,9 @@ class ProofPackageService
             $lines[] = '';
         }
 
-        $lines[] = '---';
-        $lines[] = '';
-        $lines[] = '_De machineleesbare versie van dit pakket (JSON, naast dit bestand) bevat de SHA-256 '
-            .'integriteitshash; herbereken de hash over het canonieke JSON van het "package"-element '
-            .'om manipulatie uit te sluiten._';
+        return $lines;
 
-        return implode("\n", $lines);
-
-    }//end renderMarkdown()
+    }//end renderDecisionsSection()
 
     /**
      * Canonical JSON: recursively key-sorted, no whitespace — the stable

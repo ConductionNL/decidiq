@@ -219,26 +219,11 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
             'decidesk-pending-votes'
         );
 
-        $nextMeeting = ($summary['nextMeeting'] ?? null);
-        if (is_array($nextMeeting) === true) {
-            $title    = (string) ($nextMeeting['title'] ?? ($nextMeeting['name'] ?? $this->l10n->t('Next meeting')));
-            $subtitle = $this->formatMeetingSubtitle(scheduledDate: (string) ($nextMeeting['scheduledDate'] ?? ''));
-            $items[]  = new WidgetItem(
-                $title,
-                $subtitle,
-                $appUrl,
-                $iconUrl,
-                'decidesk-next-meeting'
-            );
-        } else {
-            $items[] = new WidgetItem(
-                $this->l10n->t('No upcoming meetings'),
-                '',
-                $appUrl,
-                $iconUrl,
-                'decidesk-next-meeting'
-            );
-        }//end if
+        $items[] = $this->buildNextMeetingItem(
+            nextMeeting: ($summary['nextMeeting'] ?? null),
+            appUrl: $appUrl,
+            iconUrl: $iconUrl
+        );
 
         return new WidgetItems(
             $items,
@@ -246,6 +231,39 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
         );
 
     }//end getItemsV2()
+
+    /**
+     * Build the next-meeting widget item, or its "nothing scheduled" placeholder.
+     *
+     * @param mixed  $nextMeeting The summary's nextMeeting entry (a meeting array, or null/absent)
+     * @param string $appUrl      Deep link to the Decidesk app root
+     * @param string $iconUrl     Widget icon url
+     *
+     * @spec openspec/specs/dashboard/spec.md
+     *
+     * @return WidgetItem The next-meeting item
+     */
+    private function buildNextMeetingItem(mixed $nextMeeting, string $appUrl, string $iconUrl): WidgetItem
+    {
+        if (is_array($nextMeeting) === false) {
+            return new WidgetItem(
+                $this->l10n->t('No upcoming meetings'),
+                '',
+                $appUrl,
+                $iconUrl,
+                'decidesk-next-meeting'
+            );
+        }
+
+        return new WidgetItem(
+            (string) ($nextMeeting['title'] ?? ($nextMeeting['name'] ?? $this->l10n->t('Next meeting'))),
+            $this->formatMeetingSubtitle(scheduledDate: (string) ($nextMeeting['scheduledDate'] ?? '')),
+            $appUrl,
+            $iconUrl,
+            'decidesk-next-meeting'
+        );
+
+    }//end buildNextMeetingItem()
 
     /**
      * Absolute url to the Decidesk app root (in-app dashboard).

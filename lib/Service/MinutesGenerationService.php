@@ -197,17 +197,7 @@ class MinutesGenerationService
         }
 
         if (in_array($newLifecycle, ['approved', 'signed'], true) === true) {
-            if (is_array($minutes['signedBy'] ?? null) === true) {
-                $signers = $minutes['signedBy'];
-            } else {
-                $signers = [];
-            }
-
-            if (in_array($displayName, $signers, true) === false) {
-                $signers[] = $displayName;
-            }
-
-            $updated['signedBy'] = $signers;
+            $updated['signedBy'] = $this->withSigner(minutes: $minutes, displayName: $displayName);
         }
 
         // Named arguments: the positional form ($object, 'decidesk', 'minutes', $id)
@@ -215,6 +205,47 @@ class MinutesGenerationService
         // parameter ($extend) — a latent pre-existing defect fixed here.
         $saved = $objectService->saveObject(object: $updated, register: 'decidesk', schema: 'minutes', uuid: $minutesId);
 
+        return $this->normaliseSaved(saved: $saved, fallback: $updated);
+
+    }//end transition()
+
+    /**
+     * Append the signing user to the Minutes signedBy list, without duplicates.
+     *
+     * @param array<string,mixed> $minutes     The current Minutes object data
+     * @param string              $displayName Display name of the authenticated user
+     *
+     * @return array<int,string> The signedBy list including the signer
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     */
+    private function withSigner(array $minutes, string $displayName): array
+    {
+        $signers = [];
+        if (is_array($minutes['signedBy'] ?? null) === true) {
+            $signers = $minutes['signedBy'];
+        }
+
+        if (in_array($displayName, $signers, true) === false) {
+            $signers[] = $displayName;
+        }
+
+        return $signers;
+
+    }//end withSigner()
+
+    /**
+     * Normalise whatever OpenRegister returned from saveObject() to an array.
+     *
+     * @param mixed               $saved    The saveObject() return value
+     * @param array<string,mixed> $fallback The locally-updated payload to fall back on
+     *
+     * @return array<string,mixed> The persisted object data
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     */
+    private function normaliseSaved(mixed $saved, array $fallback): array
+    {
         if ($saved instanceof \stdClass === true || is_array($saved) === true) {
             return (array) $saved;
         }
@@ -223,9 +254,9 @@ class MinutesGenerationService
             return (array) $saved->getObject();
         }
 
-        return $updated;
+        return $fallback;
 
-    }//end transition()
+    }//end normaliseSaved()
 
     /**
      * Reject Minutes in review back to draft with a mandatory comment.
@@ -299,15 +330,7 @@ class MinutesGenerationService
 
         $saved = $objectService->saveObject(object: $updated, register: 'decidesk', schema: 'minutes', uuid: $minutesId);
 
-        if ($saved instanceof \stdClass === true || is_array($saved) === true) {
-            return (array) $saved;
-        }
-
-        if (is_object($saved) === true && method_exists($saved, 'getObject') === true) {
-            return (array) $saved->getObject();
-        }
-
-        return $updated;
+        return $this->normaliseSaved(saved: $saved, fallback: $updated);
 
     }//end reject()
 

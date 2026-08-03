@@ -105,7 +105,7 @@ class BoardEvaluationScoreServiceTest extends TestCase
             $this->response(['strategy-and-oversight' => 3, 'board-composition' => 3]),
         ];
 
-        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 5, minRespondentThreshold: 3);
+        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 5, minRespondents: 3);
 
         self::assertTrue($summary['thresholdMet']);
         self::assertSame(3.0, $summary['dimensionScores']['strategy-and-oversight']);
@@ -128,7 +128,7 @@ class BoardEvaluationScoreServiceTest extends TestCase
             $this->response(['strategy-and-oversight' => 5, 'chair-effectiveness' => 2]),
         ];
 
-        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 3, minRespondentThreshold: 3);
+        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 3, minRespondents: 3);
 
         // strategy-and-oversight mean = 5.0, chair-effectiveness mean = 2.0 -> overall = 3.5
         self::assertSame(5.0, $summary['dimensionScores']['strategy-and-oversight']);
@@ -155,7 +155,7 @@ class BoardEvaluationScoreServiceTest extends TestCase
         ];
 
         // 2 respondents, threshold 3 -> below boundary.
-        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 7, minRespondentThreshold: 3);
+        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 7, minRespondents: 3);
 
         self::assertFalse($summary['thresholdMet']);
         self::assertTrue($summary['suppressed']);
@@ -183,7 +183,7 @@ class BoardEvaluationScoreServiceTest extends TestCase
         ];
 
         // Exactly at the threshold (3 respondents, threshold 3).
-        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 5, minRespondentThreshold: 3);
+        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 5, minRespondents: 3);
 
         self::assertTrue($summary['thresholdMet']);
         self::assertFalse($summary['suppressed']);
@@ -192,7 +192,7 @@ class BoardEvaluationScoreServiceTest extends TestCase
 
         // One more respondent (above threshold) still shows the breakdown.
         $responses[] = $this->response(['strategy-and-oversight' => 4]);
-        $summaryAbove = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 5, minRespondentThreshold: 3);
+        $summaryAbove = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 5, minRespondents: 3);
         self::assertTrue($summaryAbove['thresholdMet']);
         self::assertIsArray($summaryAbove['dimensionScores']);
 
@@ -214,7 +214,7 @@ class BoardEvaluationScoreServiceTest extends TestCase
             $this->response(['board-dynamics' => 3], ['board-dynamics' => 'shorter meetings would help dynamics']),
         ];
 
-        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 3, minRespondentThreshold: 3);
+        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 3, minRespondents: 3);
 
         self::assertTrue($summary['thresholdMet']);
         self::assertArrayHasKey('board-dynamics', $summary['themes']);
@@ -249,7 +249,7 @@ class BoardEvaluationScoreServiceTest extends TestCase
             self::assertArrayNotHasKey('member', $response);
         }
 
-        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 7, minRespondentThreshold: 3);
+        $summary = $this->service->computeScoreSummary(responses: $responses, invitedMemberCount: 7, minRespondents: 3);
 
         // Completion (respondentCount) is derived purely from array count —
         // it carries no per-member linkage, and the summary itself contains

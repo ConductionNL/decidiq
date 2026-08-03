@@ -53,13 +53,13 @@ class TranslationQueueJob extends TimedJob
     /**
      * Constructor.
      *
-     * @param ITimeFactory                      $time                  Nextcloud time factory
-     * @param MultilingualReconciliationService $reconciliationService Reconciliation service
-     * @param LoggerInterface                   $logger                Logger
+     * @param ITimeFactory                      $time       Nextcloud time factory
+     * @param MultilingualReconciliationService $reconciler Reconciliation service
+     * @param LoggerInterface                   $logger     Logger
      */
     public function __construct(
         ITimeFactory $time,
-        private readonly MultilingualReconciliationService $reconciliationService,
+        private readonly MultilingualReconciliationService $reconciler,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(time: $time);
@@ -84,7 +84,7 @@ class TranslationQueueJob extends TimedJob
         $this->logger->info('Decidesk: TranslationQueueJob started');
 
         try {
-            $result = $this->reconciliationService->processQueue(maxEntries: self::BATCH_SIZE);
+            $result = $this->reconciler->processQueue(maxEntries: self::BATCH_SIZE);
             $this->logger->info(
                 sprintf(
                     'Decidesk: TranslationQueueJob finished — processed %d (%d completed, %d failed)',

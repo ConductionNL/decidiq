@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\GovernanceRoleScopeProjector;
+use OCA\Decidesk\Service\GovernanceScopeGuard;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\IGroup;
@@ -218,7 +219,12 @@ class GovernanceRoleScopeProjectorTest extends TestCase
             $container,
             $groupManager,
             $userManager,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            new GovernanceScopeGuard(
+                $container,
+                $groupManager,
+                $this->createMock(LoggerInterface::class)
+            )
         );
     }//end makeProjector()
 

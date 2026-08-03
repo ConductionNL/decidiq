@@ -202,101 +202,21 @@ class MinutesDraftService
         string $generatedAt,
         ?callable $runner=null
     ): array {
-        $run = $runner;
-        if ($run === null) {
-            $run = function (string $prompt): string {
-                return $this->runPrompt(prompt: $prompt);
-            };
-        }
+        $run = ($runner ?? function (string $prompt): string {
+            return $this->runPrompt(prompt: $prompt);
+        });
 
-        $hasTimeline = false;
-        foreach ($segments as $segment) {
-            if (is_array($segment) === true && ($segment['agendaItem'] ?? '') !== '') {
-                $hasTimeline = true;
-                break;
-            }
-        }
-
-        $sections = [];
-
-        if ($hasTimeline === true && $agendaItems !== []) {
-            foreach ($agendaItems as $item) {
-                $itemId    = (string) ($item['id'] ?? ($item['uuid'] ?? ''));
-                $itemTitle = (string) ($item['title'] ?? ($item['name'] ?? 'Agendapunt'));
-                $itemSegs  = $this->segmentsForItem(segments: $segments, agendaItemId: $itemId);
-                $itemVotes = $this->recordForItem(records: $votingRounds, agendaItemId: $itemId);
-                $itemDec   = $this->recordForItem(records: $decisions, agendaItemId: $itemId);
-
-                $prompt  = $this->assemblePrompt(title: $itemTitle, segments: $itemSegs, votes: $itemVotes, decisions: $itemDec);
-                $summary = $run($prompt);
-
-                $sections[] = $this->buildSection(
-                    agendaItem: $itemId,
-                    title: $itemTitle,
-                    summary: $summary,
-                    votingRounds: $itemVotes,
-                    decisions: $itemDec,
-                    providerId: $providerId,
-                    generatedAt: $generatedAt
-                );
-            }//end foreach
-        } else {
-            // Flat whole-meeting fallback.
-            $prompt  = $this->assemblePrompt(title: 'Volledige vergadering', segments: $segments, votes: $votingRounds, decisions: $decisions);
-            $summary = $run($prompt);
-
-            $sections[] = $this->buildSection(
-                agendaItem: '',
-                title: 'Volledige vergadering',
-                summary: $summary,
-                votingRounds: $votingRounds,
-                decisions: $decisions,
-                providerId: $providerId,
-                generatedAt: $generatedAt
-            );
-        }//end if
-
-        return $sections;
+        return $this->getComposer()->buildSections(
+            segments: $segments,
+            agendaItems: $agendaItems,
+            votingRounds: $votingRounds,
+            decisions: $decisions,
+            providerId: $providerId,
+            generatedAt: $generatedAt,
+            run: $run
+        );
 
     }//end buildSections()
-
-    /**
-     * Build one provenance-stamped section with cross-checked suggestions.
-     *
-     * @param string                         $agendaItem   Agenda item UUID ('' for flat).
-     * @param string                         $title        Section title.
-     * @param string                         $summary      AI-generated summary text.
-     * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds in scope.
-     * @param array<int,array<string,mixed>> $decisions    Recorded decisions in scope.
-     * @param string                         $providerId   AI provider id.
-     * @param string                         $generatedAt  Generation timestamp.
-     *
-     * @return array<string,mixed> The section.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function buildSection(
-        string $agendaItem,
-        string $title,
-        string $summary,
-        array $votingRounds,
-        array $decisions,
-        string $providerId,
-        string $generatedAt
-    ): array {
-        return [
-            'agendaItem'  => $agendaItem,
-            'title'       => $title,
-            'summary'     => $summary,
-            'suggestions' => $this->crossCheck(summary: $summary, votingRounds: $votingRounds, decisions: $decisions),
-            'provenance'  => [
-                'aiGenerated' => true,
-                'providerId'  => $providerId,
-                'generatedAt' => $generatedAt,
-            ],
-        ];
-
-    }//end buildSection()
 
     /**
      * Cross-check the AI summary's suggested outcomes against the recorded record.
@@ -317,46 +237,11 @@ class MinutesDraftService
      */
     public function crossCheck(string $summary, array $votingRounds, array $decisions): array
     {
-        $lowerSummary = mb_strtolower($summary);
-        $suggestions  = [];
-
-        $records = [];
-        foreach ($decisions as $decision) {
-            if (is_array($decision) === true) {
-                $records[] = ['type' => 'decision', 'data' => $decision];
-            }
-        }
-
-        foreach ($votingRounds as $round) {
-            if (is_array($round) === true) {
-                $records[] = ['type' => 'voting-round', 'data' => $round];
-            }
-        }
-
-        foreach ($records as $record) {
-            $data  = $record['data'];
-            $title = (string) ($data['title'] ?? ($data['name'] ?? ''));
-            $id    = (string) ($data['id'] ?? ($data['uuid'] ?? ''));
-            if ($title === '') {
-                continue;
-            }
-
-            $matched = (mb_strtolower($title) !== '' && str_contains($lowerSummary, mb_strtolower($title)) === true);
-
-            $linkedId = '';
-            if ($matched === true) {
-                $linkedId = $id;
-            }
-
-            $suggestions[] = [
-                'title'      => $title,
-                'recordType' => $record['type'],
-                'linkedId'   => $linkedId,
-                'unverified' => ($matched === false),
-            ];
-        }//end foreach
-
-        return $suggestions;
+        return $this->getComposer()->crossCheck(
+            summary: $summary,
+            votingRounds: $votingRounds,
+            decisions: $decisions
+        );
 
     }//end crossCheck()
 
@@ -374,44 +259,27 @@ class MinutesDraftService
      */
     public function assemblePrompt(string $title, array $segments, array $votes, array $decisions): string
     {
-        $lines   = [];
-        $lines[] = 'Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. '
-            .'Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.';
-        $lines[] = '';
-        $lines[] = 'Agendapunt: '.$title;
-        $lines[] = '';
-        $lines[] = 'Transcript:';
-
-        foreach ($segments as $segment) {
-            $label  = (string) ($segment['speakerLabel'] ?? '');
-            $text   = (string) ($segment['text'] ?? '');
-            $prefix = '';
-            if ($label !== '') {
-                $prefix = $label.': ';
-            }
-
-            $lines[] = $prefix.$text;
-        }
-
-        if ($votes !== [] || $decisions !== []) {
-            $lines[] = '';
-            $lines[] = 'Vastgelegde uitkomsten (ter referentie, niet verzinnen):';
-            foreach ($decisions as $decision) {
-                if (is_array($decision) === true) {
-                    $lines[] = '- Besluit: '.((string) ($decision['title'] ?? ''));
-                }
-            }
-
-            foreach ($votes as $vote) {
-                if (is_array($vote) === true) {
-                    $lines[] = '- Stemming: '.((string) ($vote['title'] ?? '')).' ('.((string) ($vote['result'] ?? ($vote['outcome'] ?? ''))).')';
-                }
-            }
-        }
-
-        return implode("\n", $lines);
+        return $this->getComposer()->assemblePrompt(
+            title: $title,
+            segments: $segments,
+            votes: $votes,
+            decisions: $decisions
+        );
 
     }//end assemblePrompt()
+
+    /**
+     * Get the MinutesDraftComposer from the container.
+     *
+     * @return MinutesDraftComposer
+     *
+     * @spec openspec/specs/meeting-transcription/spec.md
+     */
+    private function getComposer(): MinutesDraftComposer
+    {
+        return $this->container->get(MinutesDraftComposer::class);
+
+    }//end getComposer()
 
     /**
      * Run a single text-to-text prompt through TaskProcessing synchronously.
@@ -466,57 +334,6 @@ class MinutesDraftService
         return '';
 
     }//end preferredProviderId()
-
-    /**
-     * Segments aligned to a given agenda item.
-     *
-     * @param array<int,array<string,mixed>> $segments     All segments.
-     * @param string                         $agendaItemId Agenda item UUID.
-     *
-     * @return array<int,array<string,mixed>> Matching segments.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function segmentsForItem(array $segments, string $agendaItemId): array
-    {
-        $result = [];
-        foreach ($segments as $segment) {
-            if (is_array($segment) === true && (string) ($segment['agendaItem'] ?? '') === $agendaItemId) {
-                $result[] = $segment;
-            }
-        }
-
-        return $result;
-
-    }//end segmentsForItem()
-
-    /**
-     * Records (votes/decisions) linked to a given agenda item.
-     *
-     * @param array<int,array<string,mixed>> $records      Records.
-     * @param string                         $agendaItemId Agenda item UUID.
-     *
-     * @return array<int,array<string,mixed>> Matching records.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function recordForItem(array $records, string $agendaItemId): array
-    {
-        $result = [];
-        foreach ($records as $record) {
-            $linked = ($record['agendaItem'] ?? ($record['relations']['agendaItem'] ?? ($record['relations']['agenda-item'] ?? null)));
-            if (is_array($linked) === true) {
-                $linked = ($linked['id'] ?? ($linked[0] ?? null));
-            }
-
-            if ((string) $linked === $agendaItemId) {
-                $result[] = $record;
-            }
-        }
-
-        return $result;
-
-    }//end recordForItem()
 
     /**
      * Fetch objects related to a meeting via OR findAll.

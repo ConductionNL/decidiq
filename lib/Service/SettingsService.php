@@ -234,91 +234,18 @@ class SettingsService
         }
 
         try {
-            $configPath = __DIR__.'/../Settings/decidesk_register.json';
-            if (file_exists($configPath) === false) {
-                $this->logger->error('Decidesk: decidesk_register.json not found at '.$configPath);
-                return [
-                    'success' => false,
-                    'message' => 'Configuration file decidesk_register.json not found.',
-                ];
+            [$configData, $failure] = $this->readBaseRegisterConfig();
+            if ($failure !== null) {
+                return $failure;
             }
 
-            $configContent = file_get_contents($configPath);
-            if ($configContent === false) {
-                $this->logger->error('Decidesk: failed to read decidesk_register.json');
-                return [
-                    'success' => false,
-                    'message' => 'Failed to read configuration file.',
-                ];
-            }
+            [$configData, $fragmentSig] = $this->mergeRegisterFragments(configData: $configData);
 
-            $configData = json_decode($configContent, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                $this->logger->error('Decidesk: failed to parse decidesk_register.json: '.json_last_error_msg());
-                return [
-                    'success' => false,
-                    'message' => 'Failed to parse configuration file: '.json_last_error_msg(),
-                ];
-            }
-
-            // ADR-037: merge modular register fragments from Settings/register.d/*.json.
-            // Each OpenSpec change drops its own fragment file instead of editing this
-            // monolith, so concurrent builds touch disjoint files (no merge conflicts).
-            // OpenAPI `components.schemas` / `paths` are keyed objects, so disjoint
-            // fragments union cleanly by key.
-            $fragmentDir = __DIR__.'/../Settings/register.d';
-            $fragmentSig = '';
-            if (is_dir($fragmentDir) === true) {
-                $fragmentFiles = glob($fragmentDir.'/*.json');
-                sort($fragmentFiles);
-                foreach ($fragmentFiles as $fragmentFile) {
-                    $fragmentContent = file_get_contents($fragmentFile);
-                    if ($fragmentContent === false) {
-                        continue;
-                    }
-
-                    $fragmentData = json_decode($fragmentContent, true);
-                    if (json_last_error() !== JSON_ERROR_NONE) {
-                        $this->logger->warning(
-                            'Decidesk: skipping malformed register fragment '.basename($fragmentFile)
-                            .': '.json_last_error_msg()
-                        );
-                        continue;
-                    }
-
-                    $configData   = self::deepMergeConfig(base: $configData, overlay: $fragmentData);
-                    $fragmentSig .= basename($fragmentFile).':'.md5($fragmentContent).';';
-                }
-            }//end if
-
-            // Fold the fragment signature into the version so OpenRegister's
-            // version-gated importFromApp re-imports whenever fragments change.
-            $configVersion = ($configData['info']['version'] ?? '0.0.0');
-            if ($fragmentSig !== '') {
-                $configVersion .= '+frag.'.substr(md5($fragmentSig), 0, 8);
-            }
-
-            $configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
-            $result = $configurationService->importFromApp(
-                appId: Application::APP_ID,
-                data: $configData,
-                version: $configVersion,
+            return $this->importRegisterConfig(
+                configData: $configData,
+                fragmentSig: $fragmentSig,
                 force: $force
             );
-
-            if (empty($result) === false) {
-                $this->logger->info('Decidesk: register configuration imported successfully');
-                return [
-                    'success' => true,
-                    'message' => 'Configuration imported successfully.',
-                    'version' => ($result['version'] ?? 'unknown'),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Import returned an empty result.',
-            ];
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: configuration import failed',
@@ -330,6 +257,147 @@ class SettingsService
             ];
         }//end try
     }//end loadConfiguration()
+
+    /**
+     * Read and decode the monolithic decidesk_register.json.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array{0: array<string,mixed>, 1: array<string,mixed>|null} [configData, failureResult]
+     */
+    private function readBaseRegisterConfig(): array
+    {
+        $configPath = __DIR__.'/../Settings/decidesk_register.json';
+        if (file_exists($configPath) === false) {
+            $this->logger->error('Decidesk: decidesk_register.json not found at '.$configPath);
+            return [
+                [],
+                [
+                    'success' => false,
+                    'message' => 'Configuration file decidesk_register.json not found.',
+                ],
+            ];
+        }
+
+        $configContent = file_get_contents($configPath);
+        if ($configContent === false) {
+            $this->logger->error('Decidesk: failed to read decidesk_register.json');
+            return [
+                [],
+                [
+                    'success' => false,
+                    'message' => 'Failed to read configuration file.',
+                ],
+            ];
+        }
+
+        $configData = json_decode($configContent, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error('Decidesk: failed to parse decidesk_register.json: '.json_last_error_msg());
+            return [
+                [],
+                [
+                    'success' => false,
+                    'message' => 'Failed to parse configuration file: '.json_last_error_msg(),
+                ],
+            ];
+        }
+
+        return [$configData, null];
+    }//end readBaseRegisterConfig()
+
+    /**
+     * Merge modular register fragments from Settings/register.d/*.json (ADR-037).
+     *
+     * Each OpenSpec change drops its own fragment file instead of editing the
+     * monolith, so concurrent builds touch disjoint files (no merge conflicts).
+     * OpenAPI `components.schemas` / `paths` are keyed objects, so disjoint
+     * fragments union cleanly by key.
+     *
+     * @param array<string,mixed> $configData The decoded base configuration.
+     *
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array{0: array<string,mixed>, 1: string} [mergedConfig, fragmentSignature]
+     */
+    private function mergeRegisterFragments(array $configData): array
+    {
+        $fragmentDir = __DIR__.'/../Settings/register.d';
+        $fragmentSig = '';
+        if (is_dir($fragmentDir) === false) {
+            return [$configData, $fragmentSig];
+        }
+
+        $fragmentFiles = glob($fragmentDir.'/*.json');
+        sort($fragmentFiles);
+        foreach ($fragmentFiles as $fragmentFile) {
+            $fragmentContent = file_get_contents($fragmentFile);
+            if ($fragmentContent === false) {
+                continue;
+            }
+
+            $fragmentData = json_decode($fragmentContent, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->logger->warning(
+                    'Decidesk: skipping malformed register fragment '.basename($fragmentFile)
+                    .': '.json_last_error_msg()
+                );
+                continue;
+            }
+
+            $configData   = self::deepMergeConfig(base: $configData, overlay: $fragmentData);
+            $fragmentSig .= basename($fragmentFile).':'.md5($fragmentContent).';';
+        }//end foreach
+
+        return [$configData, $fragmentSig];
+    }//end mergeRegisterFragments()
+
+    /**
+     * Hand the merged configuration to OpenRegister's version-gated importer.
+     *
+     * The fragment signature is folded into the version so importFromApp
+     * re-imports whenever any fragment changes.
+     *
+     * @param array<string,mixed> $configData  The merged configuration.
+     * @param string              $fragmentSig Signature of the merged fragments.
+     * @param bool                $force       Force re-import even if already configured.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     */
+    private function importRegisterConfig(array $configData, string $fragmentSig, bool $force): array
+    {
+        $configVersion = ($configData['info']['version'] ?? '0.0.0');
+        if ($fragmentSig !== '') {
+            $configVersion .= '+frag.'.substr(md5($fragmentSig), 0, 8);
+        }
+
+        $configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
+        $result = $configurationService->importFromApp(
+            appId: Application::APP_ID,
+            data: $configData,
+            version: $configVersion,
+            force: $force
+        );
+
+        if (empty($result) === true) {
+            return [
+                'success' => false,
+                'message' => 'Import returned an empty result.',
+            ];
+        }
+
+        $this->logger->info('Decidesk: register configuration imported successfully');
+
+        return [
+            'success' => true,
+            'message' => 'Configuration imported successfully.',
+            'version' => ($result['version'] ?? 'unknown'),
+        ];
+    }//end importRegisterConfig()
 
     /**
      * Deep-merge a register fragment onto the base config (ADR-037).

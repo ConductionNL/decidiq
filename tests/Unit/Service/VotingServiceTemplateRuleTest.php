@@ -26,6 +26,7 @@ use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProcessTemplateService;
+use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
@@ -123,10 +124,12 @@ class VotingServiceTemplateRuleTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            voteThreshold: null,
-            abstentionHandling: null,
-            tieBreakRule: null,
-            governanceBodyId: 'body-1'
+            roundRules: new VotingRoundRules(
+                voteThreshold: null,
+                abstentionHandling: null,
+                tieBreakRule: null,
+                governanceBodyId: 'body-1'
+            )
         );
 
         self::assertNotEmpty($this->saved);
@@ -152,8 +155,7 @@ class VotingServiceTemplateRuleTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            voteThreshold: 'unanimous',
-            governanceBodyId: 'body-1'
+            roundRules: new VotingRoundRules(voteThreshold: 'unanimous', governanceBodyId: 'body-1')
         );
 
         self::assertSame('unanimous', $this->saved[0]['voteThreshold']);
@@ -175,7 +177,7 @@ class VotingServiceTemplateRuleTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            governanceBodyId: null
+            roundRules: new VotingRoundRules(governanceBodyId: null)
         );
 
         self::assertSame('simple-majority', $this->saved[0]['voteThreshold']);

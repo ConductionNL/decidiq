@@ -112,25 +112,7 @@ class BoardEvaluationResponseService
 
             $responseToken = $this->responseToken(participantId: $participantId, evaluationId: $evaluationId);
 
-            $sanitisedAnswers = [];
-            foreach ($answers as $answer) {
-                $likertValue = null;
-                if (isset($answer['likertValue']) === true) {
-                    $likertValue = (int) $answer['likertValue'];
-                }
-
-                $freeText = null;
-                if (isset($answer['freeText']) === true) {
-                    $freeText = (string) $answer['freeText'];
-                }
-
-                $sanitisedAnswers[] = [
-                    'questionId'  => (string) ($answer['questionId'] ?? ''),
-                    'dimension'   => (string) ($answer['dimension'] ?? ''),
-                    'likertValue' => $likertValue,
-                    'freeText'    => $freeText,
-                ];
-            }//end foreach
+            $sanitisedAnswers = $this->sanitiseAnswers(answers: $answers);
 
             $objectService->setRegister('decidesk');
             $objectService->setSchema('evaluation-response');
@@ -164,6 +146,45 @@ class BoardEvaluationResponseService
         }//end try
 
     }//end submitResponse()
+
+    /**
+     * Reduce raw submitted answers to the persisted answer shape.
+     *
+     * Every answer is normalised to the same four keys so the stored response
+     * never carries caller-supplied extras (which could re-identify the member);
+     * an absent or null Likert value / free text stays null.
+     *
+     * @param array<int, array<string,mixed>> $answers Raw submitted answers
+     *
+     * @return array<int, array<string,mixed>> Sanitised answers
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+     */
+    private function sanitiseAnswers(array $answers): array
+    {
+        $sanitised = [];
+        foreach ($answers as $answer) {
+            $likertValue = ($answer['likertValue'] ?? null);
+            if ($likertValue !== null) {
+                $likertValue = (int) $likertValue;
+            }
+
+            $freeText = ($answer['freeText'] ?? null);
+            if ($freeText !== null) {
+                $freeText = (string) $freeText;
+            }
+
+            $sanitised[] = [
+                'questionId'  => (string) ($answer['questionId'] ?? ''),
+                'dimension'   => (string) ($answer['dimension'] ?? ''),
+                'likertValue' => $likertValue,
+                'freeText'    => $freeText,
+            ];
+        }
+
+        return $sanitised;
+
+    }//end sanitiseAnswers()
 
     /**
      * Non-responders remaining on the roster (for reminder flows) — computed

@@ -47,13 +47,19 @@ class GovernanceScopeGuardTest extends TestCase
      */
     public function testScopeGroupIdConvention(): void
     {
+        $guard = new GovernanceScopeGuard(
+            $this->createMock(ContainerInterface::class),
+            $this->createMock(IGroupManager::class),
+            $this->createMock(LoggerInterface::class)
+        );
+
         $this->assertSame(
             'decidesk:body:body-1:signatory',
-            GovernanceScopeGuard::scopeGroupId('body-1', GovernanceScopeGuard::SCOPE_SIGNATORY)
+            $guard->scopeGroupId('body-1', GovernanceScopeGuard::SCOPE_SIGNATORY)
         );
         $this->assertSame(
             'decidesk:body:body-1:chair',
-            GovernanceScopeGuard::scopeGroupId('body-1', GovernanceScopeGuard::SCOPE_CHAIR)
+            $guard->scopeGroupId('body-1', GovernanceScopeGuard::SCOPE_CHAIR)
         );
     }//end testScopeGroupIdConvention()
 

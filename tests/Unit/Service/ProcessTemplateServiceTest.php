@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\Decidesk\Service\ProcessTemplateService;
+use OCA\Decidesk\Service\StateMachineValidator;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -77,6 +78,7 @@ class ProcessTemplateServiceTest extends TestCase
             container: $this->container,
             logger: $this->createMock(LoggerInterface::class),
             resolver: new ProcessTemplatePolicyResolver(),
+            validator: new StateMachineValidator(),
         );
 
     }//end setUp()

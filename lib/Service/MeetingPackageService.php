@@ -102,53 +102,103 @@ class MeetingPackageService
                 'Decidesk: MeetingPackageService::assemble lookup failed',
                 ['meetingId' => $meetingId, 'exception' => $e->getMessage()]
             );
-            return [
-                'success' => false,
-                'path'    => null,
-                'items'   => 0,
-                'files'   => 0,
-                'skipped' => [],
-                'message' => 'Failed to load meeting.',
-            ];
+            return $this->failure(message: 'Failed to load meeting.');
         }
 
         if ($entity === null) {
-            return [
-                'success' => false,
-                'path'    => null,
-                'items'   => 0,
-                'files'   => 0,
-                'skipped' => [],
-                'message' => 'Meeting not found.',
-            ];
+            return $this->failure(message: 'Meeting not found.');
         }
 
-        $meeting = (array) $entity->jsonSerialize();
-        if (method_exists($entity, 'getObject') === true) {
-            $meeting = $entity->getObject();
-        }
-
-        $items = $this->collectAgendaItems(objectService: $objectService, meetingId: $meetingId);
+        $meeting = $this->toMeetingArray(entity: $entity);
+        $items   = $this->collectAgendaItems(objectService: $objectService, meetingId: $meetingId);
 
         $meetingPath = $this->meetingFolderService->ensureMeetingFolders(meeting: array_merge($meeting, ['id' => $meetingId]));
         if ($meetingPath === null) {
-            return [
-                'success' => false,
-                'path'    => null,
-                'items'   => count($items),
-                'files'   => 0,
-                'skipped' => [],
-                'message' => 'Could not create the meeting folder (Files unavailable).',
-            ];
+            return $this->failure(
+                message: 'Could not create the meeting folder (Files unavailable).',
+                items: count($items)
+            );
         }
 
-        $skipped    = [];
-        $filesCount = 0;
+        return $this->writePackage(
+            meeting: $meeting,
+            items: $items,
+            meetingPath: $meetingPath,
+            meetingId: $meetingId,
+            userId: $userId
+        );
+
+    }//end assemble()
+
+    /**
+     * Build the failure envelope every unhappy path in assemble() returns.
+     *
+     * @param string             $message Human-readable failure message
+     * @param string|null        $path    Meeting folder path, when it was resolved
+     * @param int                $items   Agenda items counted so far
+     * @param int                $files   Documents copied so far
+     * @param array<int, string> $skipped Skip log accumulated so far
+     *
+     * @spec openspec/specs/agenda-management/spec.md
+     *
+     * @return array{success: bool, path: string|null, items: int, files: int, skipped: array<int, string>, message: string}
+     */
+    private function failure(string $message, ?string $path=null, int $items=0, int $files=0, array $skipped=[]): array
+    {
+        return [
+            'success' => false,
+            'path'    => $path,
+            'items'   => $items,
+            'files'   => $files,
+            'skipped' => $skipped,
+            'message' => $message,
+        ];
+
+    }//end failure()
+
+    /**
+     * Read a meeting entity as a plain array, preferring getObject() when the
+     * ObjectService entity exposes it.
+     *
+     * @param object $entity Meeting entity returned by ObjectService::find()
+     *
+     * @spec openspec/specs/agenda-management/spec.md
+     *
+     * @return array<string, mixed>
+     */
+    private function toMeetingArray(object $entity): array
+    {
+        if (method_exists($entity, 'getObject') === true) {
+            return (array) $entity->getObject();
+        }
+
+        return (array) $entity->jsonSerialize();
+
+    }//end toMeetingArray()
+
+    /**
+     * Write the package subtree: the table of contents plus one folder per
+     * agenda item holding that item's documents.
+     *
+     * @param array<string, mixed>             $meeting     Meeting payload
+     * @param array<int, array<string, mixed>> $items       Agenda items sorted by orderNumber
+     * @param string                           $meetingPath Path of the meeting's Files folder
+     * @param string                           $meetingId   UUID of the meeting
+     * @param string                           $userId      Acting user UID (logged with the assembly)
+     *
+     * @spec openspec/specs/agenda-management/spec.md
+     *
+     * @return array{success: bool, path: string|null, items: int, files: int, skipped: array<int, string>, message: string}
+     */
+    private function writePackage(array $meeting, array $items, string $meetingPath, string $meetingId, string $userId): array
+    {
+        $skipped     = [];
+        $filesCount  = 0;
+        $packagePath = $meetingPath.'/'.self::PACKAGE_FOLDER;
 
         try {
             $fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
 
-            $packagePath   = $meetingPath.'/'.self::PACKAGE_FOLDER;
             $packageFolder = $fileService->createFolder($packagePath);
 
             $this->writeFileDefensively(
@@ -161,38 +211,27 @@ class MeetingPackageService
             $number = 0;
             foreach ($items as $item) {
                 $number++;
-                $itemFolderName = $this->itemFolderName(number: $number, item: $item);
-                $itemFolder     = $fileService->createFolder($packagePath.'/'.$itemFolderName);
-
-                foreach ($this->resolveItemFiles(fileService: $fileService, item: $item) as $fileNode) {
-                    try {
-                        $written = $this->writeFileDefensively(
-                            folder: $itemFolder,
-                            name: (string) $fileNode->getName(),
-                            content: (string) $fileNode->getContent(),
-                            skipped: $skipped
-                        );
-                        if ($written === true) {
-                            $filesCount++;
-                        }
-                    } catch (\Throwable $copyError) {
-                        $skipped[] = $itemFolderName.'/'.$fileNode->getName().' ('.$copyError->getMessage().')';
-                    }
-                }
-            }//end foreach
+                $this->copyItemDocuments(
+                    fileService: $fileService,
+                    item: $item,
+                    packagePath: $packagePath,
+                    number: $number,
+                    skipped: $skipped,
+                    filesCount: $filesCount
+                );
+            }
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: meeting package assembly failed',
                 ['meetingId' => $meetingId, 'exception' => $e->getMessage()]
             );
-            return [
-                'success' => false,
-                'path'    => $meetingPath,
-                'items'   => count($items),
-                'files'   => $filesCount,
-                'skipped' => $skipped,
-                'message' => 'Package assembly failed. See server log for details.',
-            ];
+            return $this->failure(
+                message: 'Package assembly failed. See server log for details.',
+                path: $meetingPath,
+                items: count($items),
+                files: $filesCount,
+                skipped: $skipped
+            );
         }//end try
 
         $this->logger->info(
@@ -200,7 +239,7 @@ class MeetingPackageService
             [
                 'meetingId' => $meetingId,
                 'userId'    => $userId,
-                'path'      => $meetingPath.'/'.self::PACKAGE_FOLDER,
+                'path'      => $packagePath,
                 'items'     => count($items),
                 'files'     => $filesCount,
                 'skipped'   => count($skipped),
@@ -214,7 +253,7 @@ class MeetingPackageService
 
         return [
             'success' => true,
-            'path'    => $meetingPath.'/'.self::PACKAGE_FOLDER,
+            'path'    => $packagePath,
             'items'   => count($items),
             'files'   => $filesCount,
             'skipped' => $skipped,
@@ -226,7 +265,50 @@ class MeetingPackageService
             ),
         ];
 
-    }//end assemble()
+    }//end writePackage()
+
+    /**
+     * Copy one agenda item's documents into its numbered package folder.
+     *
+     * @param object               $fileService OpenRegister FileService
+     * @param array<string, mixed> $item        Agenda item payload
+     * @param string               $packagePath Path of the package folder
+     * @param int                  $number      Sequential item number (1-based)
+     * @param array<int, string>   $skipped     Skip log (mutated; by-reference)
+     * @param int                  $filesCount  Running copied-document count (mutated; by-reference)
+     *
+     * @spec openspec/specs/agenda-management/spec.md
+     *
+     * @return void
+     */
+    private function copyItemDocuments(
+        object $fileService,
+        array $item,
+        string $packagePath,
+        int $number,
+        array &$skipped,
+        int &$filesCount
+    ): void {
+        $itemFolderName = $this->itemFolderName(number: $number, item: $item);
+        $itemFolder     = $fileService->createFolder($packagePath.'/'.$itemFolderName);
+
+        foreach ($this->resolveItemFiles(fileService: $fileService, item: $item) as $fileNode) {
+            try {
+                $written = $this->writeFileDefensively(
+                    folder: $itemFolder,
+                    name: (string) $fileNode->getName(),
+                    content: (string) $fileNode->getContent(),
+                    skipped: $skipped
+                );
+                if ($written === true) {
+                    $filesCount++;
+                }
+            } catch (\Throwable $copyError) {
+                $skipped[] = $itemFolderName.'/'.$fileNode->getName().' ('.$copyError->getMessage().')';
+            }//end try
+        }
+
+    }//end copyItemDocuments()
 
     /**
      * Build the markdown table of contents for a meeting package.
@@ -252,45 +334,18 @@ class MeetingPackageService
             $header .= ' — '.$date;
         }
 
-        $lines   = [];
-        $lines[] = $header;
-        $lines[] = '';
-        $lines[] = 'Meeting package (vergaderstukken) — table of contents.';
-        $lines[] = '';
+        $lines = [
+            $header,
+            '',
+            'Meeting package (vergaderstukken) — table of contents.',
+            '',
+        ];
 
         $number = 0;
         foreach ($items as $item) {
             $number++;
-            $lines[] = sprintf('%02d. %s', $number, (string) ($item['title'] ?? 'Agenda item'));
-
-            $itemType = (string) ($item['itemType'] ?? '');
-            $duration = $item['estimatedDuration'] ?? null;
-            $metaBits = [];
-            if ($itemType !== '') {
-                $metaBits[] = $itemType;
-            }
-
-            if ($duration !== null) {
-                $metaBits[] = $duration.' min';
-            }
-
-            if (count($metaBits) > 0) {
-                $lines[] = '    ('.implode(', ', $metaBits).')';
-            }
-
-            foreach ((array) ($item['files'] ?? []) as $file) {
-                $fileName = '';
-                if (is_array($file) === true) {
-                    $fileName = (string) ($file['name'] ?? ($file['title'] ?? ($file['path'] ?? '')));
-                } else if (is_string($file) === true) {
-                    $fileName = $file;
-                }
-
-                if ($fileName !== '') {
-                    $lines[] = '    - '.basename($fileName);
-                }
-            }
-        }//end foreach
+            array_push($lines, ...$this->tocLinesForItem(number: $number, item: $item));
+        }
 
         if ($number === 0) {
             $lines[] = '_No agenda items._';
@@ -299,6 +354,89 @@ class MeetingPackageService
         return implode("\n", $lines)."\n";
 
     }//end buildTableOfContents()
+
+    /**
+     * Render the table-of-contents lines for a single agenda item: its
+     * numbered title, the optional meta line, and one line per attached file.
+     *
+     * @param int                  $number Sequential item number (1-based)
+     * @param array<string, mixed> $item   Agenda item payload
+     *
+     * @spec openspec/specs/agenda-management/spec.md
+     *
+     * @return array<int, string> Markdown lines for this item
+     */
+    private function tocLinesForItem(int $number, array $item): array
+    {
+        $lines = [sprintf('%02d. %s', $number, (string) ($item['title'] ?? 'Agenda item'))];
+
+        $metaBits = $this->tocMetaBits(item: $item);
+        if (count($metaBits) > 0) {
+            $lines[] = '    ('.implode(', ', $metaBits).')';
+        }
+
+        foreach ((array) ($item['files'] ?? []) as $file) {
+            $fileName = $this->resolveFileLabel(file: $file);
+            if ($fileName !== '') {
+                $lines[] = '    - '.basename($fileName);
+            }
+        }
+
+        return $lines;
+
+    }//end tocLinesForItem()
+
+    /**
+     * Collect the optional meta descriptors (type, estimated duration) shown
+     * under an agenda item in the table of contents.
+     *
+     * @param array<string, mixed> $item Agenda item payload
+     *
+     * @spec openspec/specs/agenda-management/spec.md
+     *
+     * @return array<int, string> Meta descriptors, possibly empty
+     */
+    private function tocMetaBits(array $item): array
+    {
+        $metaBits = [];
+
+        $itemType = (string) ($item['itemType'] ?? '');
+        if ($itemType !== '') {
+            $metaBits[] = $itemType;
+        }
+
+        $duration = ($item['estimatedDuration'] ?? null);
+        if ($duration !== null) {
+            $metaBits[] = $duration.' min';
+        }
+
+        return $metaBits;
+
+    }//end tocMetaBits()
+
+    /**
+     * Resolve the displayable name of an attached file reference, which may be
+     * a plain string or a `{name|title|path}` array.
+     *
+     * @param mixed $file A single entry of the agenda item's `files` list
+     *
+     * @spec openspec/specs/agenda-management/spec.md
+     *
+     * @return string The file label, or '' when none can be resolved
+     */
+    private function resolveFileLabel(mixed $file): string
+    {
+        if (is_array($file) === true) {
+            return (string) ($file['name'] ?? ($file['title'] ?? ($file['path'] ?? '')));
+        }
+
+        if (is_string($file) === true) {
+            return $file;
+        }
+
+        return '';
+
+    }//end resolveFileLabel()
 
     /**
      * Collect the meeting's agenda items sorted by orderNumber.
@@ -391,17 +529,14 @@ class MeetingPackageService
             return [];
         }
 
-        $files = [];
-        foreach ((array) $nodes as $node) {
-            if (is_object($node) === true
-                && method_exists($node, 'getName') === true
-                && method_exists($node, 'getContent') === true
-            ) {
-                $files[] = $node;
-            }
-        }
-
-        return $files;
+        return array_values(
+            array_filter(
+                (array) $nodes,
+                static fn (mixed $node): bool => is_object($node) === true
+                    && method_exists($node, 'getName') === true
+                    && method_exists($node, 'getContent') === true
+            )
+        );
 
     }//end resolveItemFiles()
 

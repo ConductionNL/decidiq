@@ -96,64 +96,26 @@ class ConsultationAutoCloseJob extends TimedJob
             return;
         }
 
-        $now         = time();
-        $closedCount = 0;
-        $errorCount  = 0;
-        $offset      = 0;
+        $now    = time();
+        $tally  = ['closed' => 0, 'errors' => 0];
+        $offset = 0;
 
         while (true) {
-            try {
-                $objectService->setRegister('decidesk');
-                $objectService->setSchema('public-consultation');
-                $entities = $objectService->findAll(
-                    [
-                        'filters' => [
-                            'register' => 'decidesk',
-                            'schema'   => 'public-consultation',
-                            'status'   => 'open',
-                        ],
-                        'limit'   => self::PAGE_SIZE,
-                        'offset'  => $offset,
-                    ]
-                );
-            } catch (\Throwable $e) {
-                $this->logger->error(
-                    'Decidesk ConsultationAutoCloseJob: failed to fetch consultations',
-                    ['offset' => $offset, 'exception' => $e->getMessage()]
-                );
+            $entities = $this->fetchOpenConsultations(objectService: $objectService, offset: $offset);
+            if ($entities === null) {
                 break;
-            }//end try
+            }
 
             $batchCount = 0;
             foreach ($entities as $entity) {
                 $batchCount++;
-                $consultation = $entity->jsonSerialize();
-                $deadline     = ($consultation['submissionDeadline'] ?? null);
-                if ($deadline === null || $deadline === '') {
-                    continue;
-                }
-
-                $deadlineTs = strtotime((string) $deadline);
-                if ($deadlineTs === false || $deadlineTs > $now) {
-                    continue;
-                }
-
-                $uuid = ($consultation['id'] ?? $consultation['uuid'] ?? null);
-                if ($uuid === null || $uuid === '') {
-                    continue;
-                }
-
-                try {
-                    $lifecycleService->transitionConsultation(consultationId: (string) $uuid, newStatus: 'closed');
-                    $closedCount++;
-                } catch (\Throwable $e) {
-                    $errorCount++;
-                    $this->logger->error(
-                        'Decidesk ConsultationAutoCloseJob: failed to close consultation',
-                        ['uuid' => $uuid, 'exception' => $e->getMessage()]
-                    );
-                }
-            }//end foreach
+                $this->closeIfExpired(
+                    lifecycleService: $lifecycleService,
+                    consultation: $entity->jsonSerialize(),
+                    now: $now,
+                    tally: $tally
+                );
+            }
 
             $offset += $batchCount;
             if ($batchCount < self::PAGE_SIZE) {
@@ -162,8 +124,109 @@ class ConsultationAutoCloseJob extends TimedJob
         }//end while
 
         $this->logger->info(
-            sprintf('Decidesk ConsultationAutoCloseJob: closed %d consultations (%d errors)', $closedCount, $errorCount)
+            sprintf('Decidesk ConsultationAutoCloseJob: closed %d consultations (%d errors)', $tally['closed'], $tally['errors'])
         );
 
     }//end run()
+
+    /**
+     * Fetch one page of open consultations, or null when the fetch failed.
+     *
+     * @param object $objectService The OpenRegister ObjectService
+     * @param int    $offset        Page offset
+     *
+     * @return array<int, mixed>|null The page of entities, or null on failure
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    private function fetchOpenConsultations(object $objectService, int $offset): ?array
+    {
+        try {
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('public-consultation');
+            return $objectService->findAll(
+                [
+                    'filters' => [
+                        'register' => 'decidesk',
+                        'schema'   => 'public-consultation',
+                        'status'   => 'open',
+                    ],
+                    'limit'   => self::PAGE_SIZE,
+                    'offset'  => $offset,
+                ]
+            );
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk ConsultationAutoCloseJob: failed to fetch consultations',
+                ['offset' => $offset, 'exception' => $e->getMessage()]
+            );
+            return null;
+        }//end try
+
+    }//end fetchOpenConsultations()
+
+    /**
+     * Close a single consultation when its submission deadline has passed,
+     * updating the closed/error tally.
+     *
+     * @param object               $lifecycleService The participation lifecycle service
+     * @param array<string, mixed> $consultation     The serialised consultation
+     * @param int                  $now              Current unix timestamp
+     * @param array<string, int>   $tally            Closed/error counters (by reference)
+     *
+     * @return void
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    private function closeIfExpired(object $lifecycleService, array $consultation, int $now, array &$tally): void
+    {
+        $uuid = $this->expiredConsultationId(consultation: $consultation, now: $now);
+        if ($uuid === null) {
+            return;
+        }
+
+        try {
+            $lifecycleService->transitionConsultation(consultationId: $uuid, newStatus: 'closed');
+            $tally['closed']++;
+        } catch (\Throwable $e) {
+            $tally['errors']++;
+            $this->logger->error(
+                'Decidesk ConsultationAutoCloseJob: failed to close consultation',
+                ['uuid' => $uuid, 'exception' => $e->getMessage()]
+            );
+        }
+
+    }//end closeIfExpired()
+
+    /**
+     * Resolve the identifier of a consultation whose deadline has passed, or
+     * null when it has no usable deadline, is not yet due, or has no id.
+     *
+     * @param array<string, mixed> $consultation The serialised consultation
+     * @param int                  $now          Current unix timestamp
+     *
+     * @return string|null The consultation id, or null when it must be skipped
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    private function expiredConsultationId(array $consultation, int $now): ?string
+    {
+        $deadline = (string) ($consultation['submissionDeadline'] ?? '');
+        if ($deadline === '') {
+            return null;
+        }
+
+        $deadlineTs = strtotime($deadline);
+        if ($deadlineTs === false || $deadlineTs > $now) {
+            return null;
+        }
+
+        $uuid = (string) ($consultation['id'] ?? $consultation['uuid'] ?? '');
+        if ($uuid === '') {
+            return null;
+        }
+
+        return $uuid;
+
+    }//end expiredConsultationId()
 }//end class

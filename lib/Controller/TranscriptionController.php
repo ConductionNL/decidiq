@@ -27,20 +27,17 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\BackgroundJob\TranscriptionJob;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\MinutesDraftService;
-use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\TranscriptionQueue;
 use OCA\Decidesk\Service\TranscriptionService;
+use OCA\Decidesk\Service\TranscriptionStaffGuard;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\BackgroundJob\IJobList;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for meeting-transcription actions.
@@ -57,14 +54,12 @@ class TranscriptionController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest             $request              The HTTP request.
-     * @param TranscriptionService $transcriptionService Transcription orchestration.
-     * @param MinutesDraftService  $minutesDraftService  AI draft generation.
-     * @param ObjectService        $objectService        OR object service (guards + reads).
-     * @param ParticipantResolver  $participantResolver  Meeting role resolution.
-     * @param IJobList             $jobList              Background job queue.
-     * @param IUserSession         $userSession          Current user session.
-     * @param IGroupManager        $groupManager         Group manager (admin check).
+     * @param IRequest                $request              The HTTP request.
+     * @param TranscriptionService    $transcriptionService Transcription orchestration.
+     * @param MinutesDraftService     $minutesDraftService  AI draft generation.
+     * @param ObjectService           $objectService        OR object service (retention reads/writes).
+     * @param TranscriptionStaffGuard $staffGuard           Per-object staff authorization.
+     * @param TranscriptionQueue      $queue                Asynchronous transcription hand-off.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
@@ -73,10 +68,8 @@ class TranscriptionController extends Controller
         private readonly TranscriptionService $transcriptionService,
         private readonly MinutesDraftService $minutesDraftService,
         private readonly ObjectService $objectService,
-        private readonly ParticipantResolver $participantResolver,
-        private readonly IJobList $jobList,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
+        private readonly TranscriptionStaffGuard $staffGuard,
+        private readonly TranscriptionQueue $queue,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -148,7 +141,7 @@ class TranscriptionController extends Controller
         $sourceType  = (string) $this->request->getParam('sourceType', '');
         $sourcePath  = (string) $this->request->getParam('sourcePath', '');
         $language    = (string) $this->request->getParam('language', '');
-        $confirmedBy = (string) $this->userSession->getUser()?->getUID();
+        $confirmedBy = $this->staffGuard->currentUserId();
 
         try {
             $transcript = $this->transcriptionService->attach(
@@ -205,7 +198,7 @@ class TranscriptionController extends Controller
             return new JSONResponse(['message' => $e->getMessage()], $status);
         }
 
-        $this->jobList->add(TranscriptionJob::class, ['transcriptId' => $transcriptId]);
+        $this->queue->enqueue(transcriptId: $transcriptId);
 
         return new JSONResponse(['status' => 'queued']);
 
@@ -339,28 +332,7 @@ class TranscriptionController extends Controller
      */
     private function requireStaffForMeeting(string $meetingId): ?JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $userId = $user->getUID();
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
-
-        if ($meetingId === '') {
-            return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
-        }
-
-        if ($this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: ['chair', 'secretary']) === true) {
-            return null;
-        }
-
-        return new JSONResponse(
-            ['message' => 'Forbidden: chair or secretary role required.'],
-            Http::STATUS_FORBIDDEN
-        );
+        return $this->staffGuard->forMeeting(meetingId: $meetingId);
 
     }//end requireStaffForMeeting()
 
@@ -377,40 +349,7 @@ class TranscriptionController extends Controller
      */
     private function requireStaffForTranscript(string $transcriptId): ?JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $userId = $user->getUID();
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
-
-        $entity = $this->objectService->find(id: $transcriptId, register: 'decidesk', schema: 'transcript');
-        if ($entity === null) {
-            // Fail closed: do not leak existence to non-staff.
-            return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
-        }
-
-        $transcript = (array) $entity->jsonSerialize();
-        $meetingId  = ($transcript['relations']['meeting'] ?? ($transcript['meeting'] ?? null));
-        if (is_array($meetingId) === true) {
-            $meetingId = ($meetingId['id'] ?? ($meetingId[0] ?? null));
-        }
-
-        if ($meetingId === null || $meetingId === '') {
-            return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
-        }
-
-        if ($this->participantResolver->hasRole(meetingId: (string) $meetingId, nextcloudUid: $userId, roles: ['chair', 'secretary']) === true) {
-            return null;
-        }
-
-        return new JSONResponse(
-            ['message' => 'Forbidden: chair or secretary role required.'],
-            Http::STATUS_FORBIDDEN
-        );
+        return $this->staffGuard->forTranscript(transcriptId: $transcriptId);
 
     }//end requireStaffForTranscript()
 
@@ -428,61 +367,7 @@ class TranscriptionController extends Controller
      */
     private function requireStaffForBody(string $bodyId): ?JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $userId = $user->getUID();
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
-
-        if ($bodyId === '') {
-            return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
-        }
-
-        // Resolve meetings of this body and require a staff role on one of them.
-        try {
-            $entities = $this->objectService->findAll(
-                [
-                    'register' => 'decidesk',
-                    'schema'   => 'meeting',
-                    'filters'  => [
-                        'register'                  => 'decidesk',
-                        'schema'                    => 'meeting',
-                        '_relations.GovernanceBody' => $bodyId,
-                    ],
-                ]
-            );
-        } catch (\Throwable) {
-            $entities = [];
-        }
-
-        foreach ($entities as $entity) {
-            if (is_array($entity) === false && method_exists($entity, 'jsonSerialize') === false) {
-                continue;
-            }
-
-            $meeting = $entity;
-            if (is_array($entity) === false) {
-                $meeting = (array) $entity->jsonSerialize();
-            }
-
-            $meetingId = (string) ($meeting['id'] ?? ($meeting['@self']['id'] ?? ''));
-            if ($meetingId === '') {
-                continue;
-            }
-
-            if ($this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: ['chair', 'secretary']) === true) {
-                return null;
-            }
-        }
-
-        return new JSONResponse(
-            ['message' => 'Forbidden: chair or secretary role required for this body.'],
-            Http::STATUS_FORBIDDEN
-        );
+        return $this->staffGuard->forBody(bodyId: $bodyId);
 
     }//end requireStaffForBody()
 }//end class

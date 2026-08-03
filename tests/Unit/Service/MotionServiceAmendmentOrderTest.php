@@ -247,9 +247,17 @@ class MotionServiceAmendmentOrderTest extends TestCase
 
         $container = $this->createMock(ContainerInterface::class);
         $container->method('get')->willReturnCallback(
-            static function (string $id) use ($objectService): object {
+            static function (string $id) use ($objectService, &$container): object {
                 if ($id === 'OCA\OpenRegister\Service\ObjectService') {
                     return $objectService;
+                }
+
+                // MotionService resolves its collaborators lazily from the
+                // container; MotionLinkResolver is a pure resolver over the same
+                // ObjectService, so wiring the real one keeps this test
+                // end-to-end rather than stubbing the behaviour under test.
+                if ($id === \OCA\Decidesk\Service\MotionLinkResolver::class) {
+                    return new \OCA\Decidesk\Service\MotionLinkResolver(container: $container);
                 }
 
                 throw new \RuntimeException('not wired in test: '.$id);

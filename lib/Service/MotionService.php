@@ -96,6 +96,52 @@ class MotionService
     }//end getObjectService()
 
     /**
+     * Get the MotionNotifier from the container.
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+     *
+     * @return MotionNotifier
+     */
+    private function getNotifier(): MotionNotifier
+    {
+        return $this->container->get(MotionNotifier::class);
+
+    }//end getNotifier()
+
+    /**
+     * Get the MotionLinkResolver from the container.
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return MotionLinkResolver
+     */
+    private function getLinkResolver(): MotionLinkResolver
+    {
+        return $this->container->get(MotionLinkResolver::class);
+
+    }//end getLinkResolver()
+
+    /**
+     * Resolve the meeting UUID linked to a motion.
+     *
+     * Honours BOTH link shapes: the flat `meeting` property (what the UI and
+     * the Newman fixtures write) and the structured `relations` entry.
+     * Returns null when the motion, or any meeting link on it, cannot be
+     * resolved — callers treat that as "no meeting context".
+     *
+     * @param string $motionId The motion UUID
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return string|null The meeting UUID or null if not found
+     */
+    public function resolveMeetingId(string $motionId): ?string
+    {
+        return $this->getLinkResolver()->resolveMeetingId(motionId: $motionId);
+
+    }//end resolveMeetingId()
+
+    /**
      * Transition a Motion or Amendment to a new lifecycle state.
      *
      * Validates that the transition is allowed for the object type, then
@@ -143,10 +189,9 @@ class MotionService
         $objectArray  = $object->getObject();
         $currentState = $objectArray['lifecycle'] ?? 'submitted';
 
+        $transitions = self::MOTION_TRANSITIONS;
         if ($objectType === 'amendment') {
             $transitions = self::AMENDMENT_TRANSITIONS;
-        } else {
-            $transitions = self::MOTION_TRANSITIONS;
         }
 
         $allowed = $transitions[$currentState] ?? [];
@@ -156,27 +201,12 @@ class MotionService
             );
         }
 
-        // Co-signer minimum threshold (motion-amendment spec): a motion may only
-        // leave 'submitted' for 'debating' when it carries at least the configured
-        // number of co-signers (app config motion_min_cosigners, default 0 = disabled).
-        // The rejection message names the requirement and the shortfall so the
-        // proposer knows how many more co-signers to gather before resubmitting.
-        if ($objectType !== 'amendment' && $currentState === 'submitted' && $newState === 'debating') {
-            $appConfig     = $this->container->get(\OCP\IAppConfig::class);
-            $minCoSigners  = (int) $appConfig->getValueString('decidesk', 'motion_min_cosigners', '0');
-            $coSignerCount = count($objectArray['coSigners'] ?? []);
-            if ($minCoSigners > 0 && $coSignerCount < $minCoSigners) {
-                $shortfall = ($minCoSigners - $coSignerCount);
-                throw new \InvalidArgumentException(
-                    sprintf(
-                        'Motion requires at least %d co-signers before it can proceed to debate; it currently has %d (%d more needed)',
-                        $minCoSigners,
-                        $coSignerCount,
-                        $shortfall
-                    )
-                );
-            }
-        }
+        $this->assertCoSignerThreshold(
+            objectType: $objectType,
+            currentState: $currentState,
+            newState: $newState,
+            objectArray: $objectArray
+        );
 
         $objectService->saveObject(
             object: array_merge($objectArray, ['lifecycle' => $newState, 'status' => $newState]),
@@ -190,6 +220,49 @@ class MotionService
         );
 
     }//end transitionLifecycle()
+
+    /**
+     * Enforce the co-signer minimum before a motion may enter debate.
+     *
+     * Motion-amendment spec: a motion may only leave 'submitted' for 'debating'
+     * when it carries at least the configured number of co-signers (app config
+     * motion_min_cosigners, default 0 = disabled). The rejection message names
+     * the requirement and the shortfall so the proposer knows how many more
+     * co-signers to gather before resubmitting. Amendments are exempt.
+     *
+     * @param string               $objectType   Schema slug: 'motion' or 'amendment'
+     * @param string               $currentState The current lifecycle state
+     * @param string               $newState     The target lifecycle state
+     * @param array<string, mixed> $objectArray  The serialized object being transitioned
+     *
+     * @throws \InvalidArgumentException When the co-signer minimum is not met
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return void
+     */
+    private function assertCoSignerThreshold(string $objectType, string $currentState, string $newState, array $objectArray): void
+    {
+        if ($objectType === 'amendment' || $currentState !== 'submitted' || $newState !== 'debating') {
+            return;
+        }
+
+        $appConfig     = $this->container->get(\OCP\IAppConfig::class);
+        $minCoSigners  = (int) $appConfig->getValueString('decidesk', 'motion_min_cosigners', '0');
+        $coSignerCount = count($objectArray['coSigners'] ?? []);
+
+        if ($minCoSigners > 0 && $coSignerCount < $minCoSigners) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Motion requires at least %d co-signers before it can proceed to debate; it currently has %d (%d more needed)',
+                    $minCoSigners,
+                    $coSignerCount,
+                    ($minCoSigners - $coSignerCount)
+                )
+            );
+        }
+
+    }//end assertCoSignerThreshold()
 
     /**
      * Send co-signature request notifications to listed Participants.
@@ -245,20 +318,13 @@ class MotionService
                 if ($nextcloudUserId !== null) {
                     $pendingSignerUids[] = $nextcloudUserId;
 
-                    try {
-                        $notificationManager = $this->container->get(\OCP\Notification\IManager::class);
-                        $notification        = $notificationManager->createNotification();
-                        $notification->setApp('decidesk')
-                            ->setUser($nextcloudUserId)
-                            ->setDateTime(new \DateTime())
-                            ->setObject('motion', $motionId)
-                            ->setSubject('co_sign_request', ['motionTitle' => $title, 'motionId' => $motionId]);
-                        $notificationManager->notify($notification);
-                    } catch (\Throwable $notifyEx) {
-                        $this->logger->warning(
-                            "Decidesk: Could not send co-sign notification to $nextcloudUserId: {$notifyEx->getMessage()}"
-                        );
-                    }
+                    $this->getNotifier()->notify(
+                        userId: $nextcloudUserId,
+                        motionId: $motionId,
+                        subject: 'co_sign_request',
+                        parameters: ['motionTitle' => $title, 'motionId' => $motionId],
+                        failureLog: "Decidesk: Could not send co-sign notification to $nextcloudUserId: "
+                    );
                 }
             } catch (\Throwable $e) {
                 $this->logger->warning(
@@ -452,7 +518,7 @@ class MotionService
         $objectService->setSchema('amendment');
         $byProperty = $objectService->findAll(['filters' => ['parentMotion' => $motionId]]);
         foreach ($byProperty as $entity) {
-            $amendment = $this->serializeAmendment(entity: $entity);
+            $amendment = $this->getLinkResolver()->serializeAmendment(entity: $entity);
             if ($amendment !== null && $this->amendmentReferencesMotion(amendment: $amendment, motionId: $motionId) === true) {
                 $key         = (string) ($amendment['id'] ?? $amendment['uuid'] ?? '');
                 $found[$key] = $amendment;
@@ -466,7 +532,7 @@ class MotionService
         $objectService->setSchema('amendment');
         $byRelation = $objectService->findAll(['filters' => ['_relations.motion' => $motionId]]);
         foreach ($byRelation as $entity) {
-            $amendment = $this->serializeAmendment(entity: $entity);
+            $amendment = $this->getLinkResolver()->serializeAmendment(entity: $entity);
             if ($amendment === null) {
                 continue;
             }
@@ -486,36 +552,7 @@ class MotionService
     }//end getAmendmentsForMotion()
 
     /**
-     * Serialize an ObjectService result item (entity or array) to an array.
-     *
-     * @param mixed $entity ObjectEntity or already-serialized array
-     *
-     * @return array<string, mixed>|null Serialized object, or null when unusable
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    private function serializeAmendment(mixed $entity): ?array
-    {
-        if (is_array($entity) === true) {
-            return $entity;
-        }
-
-        if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-            $serialized = $entity->jsonSerialize();
-            if (is_array($serialized) === true) {
-                return $serialized;
-            }
-        }
-
-        return null;
-
-    }//end serializeAmendment()
-
-    /**
      * Determine whether a serialized amendment references the given motion.
-     *
-     * Checks the flat `parentMotion` property (string or {id} object) and the
-     * structured `relations` list.
      *
      * @param array<string, mixed> $amendment Serialized amendment object
      * @param string               $motionId  UUID of the motion
@@ -526,32 +563,7 @@ class MotionService
      */
     private function amendmentReferencesMotion(array $amendment, string $motionId): bool
     {
-        $parentRef = ($amendment['parentMotion'] ?? null);
-        if (is_string($parentRef) === true && $parentRef === $motionId) {
-            return true;
-        }
-
-        if (is_array($parentRef) === true && (($parentRef['id'] ?? $parentRef['uuid'] ?? '') === $motionId)) {
-            return true;
-        }
-
-        foreach (($amendment['relations'] ?? []) as $relation) {
-            if (is_array($relation) === true) {
-                $relId     = ($relation['id'] ?? $relation['uuid'] ?? '');
-                $relSchema = ($relation['schema'] ?? null);
-                if ($relId === $motionId && ($relSchema === null || $relSchema === 'motion')) {
-                    return true;
-                }
-
-                continue;
-            }
-
-            if (is_string($relation) === true && $relation === $motionId) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->getLinkResolver()->amendmentReferencesMotion(amendment: $amendment, motionId: $motionId);
 
     }//end amendmentReferencesMotion()
 
@@ -891,26 +903,17 @@ class MotionService
 
         // Send notification if approval is required.
         if ($requiresApproval === true) {
-            try {
-                $notificationManager = $this->container->get(\OCP\Notification\IManager::class);
-                $notification        = $notificationManager->createNotification();
-                $notification
-                    ->setApp('decidesk')
-                    ->setUser($actorId)
-                    ->setDateTime(new \DateTimeImmutable())
-                    ->setObject('motion', ($created['id'] ?? $created['uuid'] ?? ''))
-                    ->setSubject(
-                            'motion_forwarded_approval',
-                            [
-                                'title' => $sourceMotionData['title'] ?? '',
-                                'body'  => $targetBodyId,
-                            ]
-                            );
-                $notificationManager->notify($notification);
-            } catch (\Throwable $e) {
-                $this->logger->warning(message: 'Decidesk: notification send failed: '.$e->getMessage(), context: ['exception' => $e]);
-            }
-        }//end if
+            $this->getNotifier()->notify(
+                userId: $actorId,
+                motionId: ($created['id'] ?? $created['uuid'] ?? ''),
+                subject: 'motion_forwarded_approval',
+                parameters: [
+                    'title' => $sourceMotionData['title'] ?? '',
+                    'body'  => $targetBodyId,
+                ],
+                failureLog: 'Decidesk: notification send failed: '
+            );
+        }
 
         return ($created ?? $forwardedMotion);
 

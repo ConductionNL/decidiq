@@ -35,6 +35,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -437,7 +438,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'resolution',
+            roundRules: new VotingRoundRules(subjectType: 'resolution'),
         );
 
     }//end testUnknownSubjectTypeRejected()
@@ -479,7 +480,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
         self::assertSame('amendment', $round['relations'][0]['schema']);
@@ -517,7 +518,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
     }//end testAmendmentRoundOutOfOrderRejected()
@@ -549,7 +550,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
         self::assertSame('amendment-2', $round['relations'][0]['id']);
@@ -587,7 +588,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
     }//end testVotingOrderBeatsSubmissionAge()
@@ -618,7 +619,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
     }//end testDecidedAmendmentCannotBeReopened()
