@@ -20,10 +20,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * Stateless service that generates an initial Dutch minutes draft from linked meeting data.
@@ -74,8 +78,8 @@ class MinutesGenerationService
      *
      * @param string $minutesId UUID of the Minutes object
      *
-     * @throws \InvalidArgumentException When the Minutes object cannot be found
-     * @throws \RuntimeException         When OpenRegister is not available
+     * @throws InvalidArgumentException When the Minutes object cannot be found
+     * @throws RuntimeException         When OpenRegister is not available
      *
      * @return string The generated Dutch minutes text
      *
@@ -93,7 +97,7 @@ class MinutesGenerationService
         $minutesEntity = $objectService->find($minutesId);
 
         if ($minutesEntity === null) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Minutes object with id "%s" not found.', $minutesId)
             );
         }
@@ -151,8 +155,8 @@ class MinutesGenerationService
      * @param string $newLifecycle The target lifecycle state
      * @param string $displayName  Display name of the authenticated user (from server session)
      *
-     * @throws \InvalidArgumentException When the Minutes object is not found or the transition is invalid
-     * @throws \RuntimeException         When OpenRegister is not available
+     * @throws InvalidArgumentException When the Minutes object is not found or the transition is invalid
+     * @throws RuntimeException         When OpenRegister is not available
      *
      * @return array<string,mixed> The updated Minutes object data
      *
@@ -179,7 +183,7 @@ class MinutesGenerationService
         $currentLifecycle = $minutes['lifecycle'] ?? 'draft';
 
         if ((self::LIFECYCLE_TRANSITIONS[$currentLifecycle] ?? null) !== $newLifecycle) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Invalid lifecycle transition: "%s" → "%s". Expected next state: "%s".',
                     $currentLifecycle,
@@ -193,7 +197,7 @@ class MinutesGenerationService
         $updated = array_merge($minutes, ['lifecycle' => $newLifecycle]);
 
         if ($newLifecycle === 'approved') {
-            $updated['approvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $updated['approvedAt'] = (new DateTimeImmutable())->format(\DateTimeInterface::ATOM);
         }
 
         if (in_array($newLifecycle, ['approved', 'signed'], true) === true) {
@@ -272,8 +276,8 @@ class MinutesGenerationService
      * @param string $userId    Nextcloud UID of the rejecting user (from server session)
      *
      * @throws MissingObjectException    When the Minutes object is not found
-     * @throws \InvalidArgumentException When the comment is empty or lifecycle is not review
-     * @throws \RuntimeException         When OpenRegister is not available
+     * @throws InvalidArgumentException When the comment is empty or lifecycle is not review
+     * @throws RuntimeException         When OpenRegister is not available
      *
      * @return array<string,mixed> The updated Minutes object data
      *
@@ -282,7 +286,7 @@ class MinutesGenerationService
     public function reject(string $minutesId, string $comment, string $userId): array
     {
         if (trim($comment) === '') {
-            throw new \InvalidArgumentException('A rejection comment is required.', 422);
+            throw new InvalidArgumentException('A rejection comment is required.', 422);
         }
 
         $objectService = $this->getObjectService();
@@ -301,7 +305,7 @@ class MinutesGenerationService
         $minutes = $minutesEntity->getObject();
 
         if (($minutes['lifecycle'] ?? 'draft') !== 'review') {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Only minutes in the "review" state can be rejected.',
                 422
             );
@@ -317,7 +321,7 @@ class MinutesGenerationService
             'action'    => 'rejected',
             'comment'   => trim($comment),
             'author'    => $userId,
-            'createdAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'createdAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
         ];
 
         $updated = array_merge(
@@ -385,14 +389,14 @@ class MinutesGenerationService
             }
 
             return $meetingEntity->getObject();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning(
                 'Decidesk: Failed to fetch linked Meeting for minutes draft generation',
                 ['exception' => $e->getMessage(), 'meetingId' => $meetingId]
             );
             // Re-throw as RuntimeException (503) so the caller distinguishes a transient
             // OpenRegister outage from a genuinely missing relation (null return above).
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'OpenRegister service is temporarily unavailable. Please try again later.',
                 503,
                 $e
@@ -441,7 +445,7 @@ class MinutesGenerationService
                             'offset'  => $offset,
                         ]
                         );
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->logger->warning(
                     'Decidesk: Failed to fetch related objects for minutes draft',
                     ['schema' => $schema, 'meetingId' => $meetingId, 'offset' => $offset, 'exception' => $e->getMessage()]
@@ -649,9 +653,9 @@ class MinutesGenerationService
     private function formatDate(string $isoDate): string
     {
         try {
-            $dt = new \DateTimeImmutable($isoDate);
+            $dt = new DateTimeImmutable($isoDate);
             return $dt->format('d-m-Y H:i');
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return $isoDate;
         }
 
@@ -660,7 +664,7 @@ class MinutesGenerationService
     /**
      * Lazy-load the OpenRegister ObjectService from the container.
      *
-     * @throws \RuntimeException When OpenRegister is not installed
+     * @throws RuntimeException When OpenRegister is not installed
      *
      * @return object The OpenRegister ObjectService instance
      *
@@ -670,8 +674,8 @@ class MinutesGenerationService
     {
         try {
             return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        } catch (\Throwable $e) {
-            throw new \RuntimeException(
+        } catch (Throwable $e) {
+            throw new RuntimeException(
                 'OpenRegister ObjectService is not available. '
                 .'Please ensure the OpenRegister app is installed and enabled.',
                 0,
