@@ -24,44 +24,100 @@ namespace OCA\Decidesk\AppInfo;
 
 use OCA\Decidesk\BackgroundJob\ConsultationAutoCloseJob;
 use OCA\Decidesk\BackgroundJob\OverdueActionItemsJob;
-use OCA\Decidesk\Mcp\DecideskToolProvider;
+use OCA\Decidesk\BackgroundJob\TranscriptRetentionJob;
+use OCA\Decidesk\BackgroundJob\TranscriptionJob;
+use OCA\Decidesk\BackgroundJob\TranslationQueueJob;
 use OCA\Decidesk\Controller\AnalyticsController;
+use OCA\Decidesk\Controller\AuditLogController;
+use OCA\Decidesk\Controller\BoardEvaluationController;
+use OCA\Decidesk\Controller\ConflictOfInterestController;
 use OCA\Decidesk\Controller\DecisionController;
+use OCA\Decidesk\Controller\EIDASSignatureController;
 use OCA\Decidesk\Controller\EngagementController;
+use OCA\Decidesk\Controller\GovernanceReportController;
 use OCA\Decidesk\Controller\LiveMeetingController;
 use OCA\Decidesk\Controller\MinutesController;
-use OCA\Decidesk\Controller\MotionController;
 use OCA\Decidesk\Controller\MotionCoauthorController;
+use OCA\Decidesk\Controller\MotionController;
+use OCA\Decidesk\Controller\MultilingualReconciliationController;
 use OCA\Decidesk\Controller\NotificationPreferenceController;
 use OCA\Decidesk\Controller\ParticipationController;
 use OCA\Decidesk\Controller\ProjectionController;
+use OCA\Decidesk\Controller\ProxyVoteController;
+use OCA\Decidesk\Controller\PublicationController;
+use OCA\Decidesk\Controller\RegulatorExportController;
+use OCA\Decidesk\Controller\TranscriptionController;
 use OCA\Decidesk\Controller\VotingBehaviourController;
 use OCA\Decidesk\Controller\VotingController;
+use OCA\Decidesk\Dashboard\DecideskDashboardWidget;
 use OCA\Decidesk\Event\DecisionRequestedEvent;
+use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
+use OCA\Decidesk\Lifecycle\QesGuard;
 use OCA\Decidesk\Listener\DecisionRequestedListener;
+use OCA\Decidesk\Listener\GovernanceRoleProjectionListener;
+use OCA\Decidesk\Listener\MeetingFolderListener;
+use OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener;
+use OCA\Decidesk\Listener\SubmissionDeadlineListener;
+use OCA\Decidesk\Mcp\DecideskToolProvider;
 use OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf;
 use OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf;
+use OCA\Decidesk\Search\DecideskSearchProvider;
+use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\ActionItemAnalyticsService;
 use OCA\Decidesk\Service\ActionItemExtractionService;
-use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\ActivityPublisherService;
+use OCA\Decidesk\Service\AuditLogService;
+use OCA\Decidesk\Service\BoardEvaluationReportService;
+use OCA\Decidesk\Service\BoardEvaluationResponseService;
+use OCA\Decidesk\Service\BoardEvaluationScoreService;
+use OCA\Decidesk\Service\BudgetVotingService;
+use OCA\Decidesk\Service\ConflictOfInterestService;
+use OCA\Decidesk\Service\DashboardWidgetService;
 use OCA\Decidesk\Service\DecisionIntegrationService;
 use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCA\Decidesk\Service\DecisionNotificationService;
+use OCA\Decidesk\Service\EIDASSignatureService;
 use OCA\Decidesk\Service\EmailReferenceExtractor;
 use OCA\Decidesk\Service\EngagementService;
+use OCA\Decidesk\Service\GovernanceReportingService;
+use OCA\Decidesk\Service\GovernanceRoleScopeProjector;
+use OCA\Decidesk\Service\GovernanceScopeGuard;
+use OCA\Decidesk\Service\IEIDASSignatureService;
+use OCA\Decidesk\Service\ITranslationAdapter;
 use OCA\Decidesk\Service\LiveDecisionService;
+use OCA\Decidesk\Service\LogEIDASSignatureService;
+use OCA\Decidesk\Service\LogTranslationAdapter;
+use OCA\Decidesk\Service\MeetingFolderService;
+use OCA\Decidesk\Service\MeetingPackageService;
+use OCA\Decidesk\Service\MeetingSeriesService;
+use OCA\Decidesk\Service\MinutesDocumentService;
+use OCA\Decidesk\Service\MinutesDraftService;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
 use OCA\Decidesk\Service\MotionCoauthorService;
 use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Service\MultilingualReconciliationService;
 use OCA\Decidesk\Service\NotificationPreferenceService;
+use OCA\Decidesk\Service\OpenCatalogiPublisher;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ParticipationLifecycleService;
 use OCA\Decidesk\Service\ParticipationPublicationService;
-use OCA\Decidesk\Service\BudgetVotingService;
+use OCA\Decidesk\Service\ProcessTemplateService;
+use OCA\Decidesk\Service\ProxyVoteService;
+use OCA\Decidesk\Service\PublicationConfigService;
+use OCA\Decidesk\Service\PublicationEligibilityService;
+use OCA\Decidesk\Service\PublicationPayloadService;
+use OCA\Decidesk\Service\PublicationService;
+use OCA\Decidesk\Service\QuorumVerificationService;
 use OCA\Decidesk\Service\ReactionIntakeService;
+use OCA\Decidesk\Service\RegulatorExportService;
+use OCA\Decidesk\Service\SettingsService;
+use OCA\Decidesk\Service\TranscriptionService;
+use OCA\Decidesk\Service\TranscriptionSourceResolver;
 use OCA\Decidesk\Service\VotingBehaviourService;
+use OCA\Decidesk\Service\VotingDeadlineReminderService;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
@@ -146,7 +202,7 @@ class Application extends App implements IBootstrap
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     objectService: $c->get(ObjectService::class),
                     participantResolver: $c->get(ParticipantResolver::class),
-                    minutesDocumentService: $c->get(\OCA\Decidesk\Service\MinutesDocumentService::class),
+                    minutesDocumentService: $c->get(MinutesDocumentService::class),
                     );
                 }
                 );
@@ -159,9 +215,9 @@ class Application extends App implements IBootstrap
                     return new DecisionLifecycleService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    transitionGuard: new \OCA\Decidesk\Lifecycle\DecisionTransitionGuard(),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
-                    templateService: $c->get(\OCA\Decidesk\Service\ProcessTemplateService::class),
+                    transitionGuard: new DecisionTransitionGuard(),
+                    auditLogService: $c->get(AuditLogService::class),
+                    templateService: $c->get(ProcessTemplateService::class),
                     integrationService: $c->get(DecisionIntegrationService::class),
                     eventDispatcher: $c->get(\OCP\EventDispatcher\IEventDispatcher::class),
                     );
@@ -178,7 +234,7 @@ class Application extends App implements IBootstrap
                     return new DecisionIntegrationService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    auditLog: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    auditLog: $c->get(AuditLogService::class),
                     );
                 }
                 );
@@ -335,18 +391,18 @@ class Application extends App implements IBootstrap
         // Register publication services for DI (publish-decisions-via-opencatalogi).
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md.
         $context->registerService(
-                \OCA\Decidesk\Service\PublicationConfigService::class,
-                static function ($c): \OCA\Decidesk\Service\PublicationConfigService {
-                    return new \OCA\Decidesk\Service\PublicationConfigService(
+                PublicationConfigService::class,
+                static function ($c): PublicationConfigService {
+                    return new PublicationConfigService(
                     appConfig: $c->get(\OCP\IAppConfig::class),
                     );
                 }
                 );
 
         $context->registerService(
-                \OCA\Decidesk\Service\PublicationEligibilityService::class,
-                static function ($c): \OCA\Decidesk\Service\PublicationEligibilityService {
-                    return new \OCA\Decidesk\Service\PublicationEligibilityService(
+                PublicationEligibilityService::class,
+                static function ($c): PublicationEligibilityService {
+                    return new PublicationEligibilityService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     );
@@ -354,20 +410,20 @@ class Application extends App implements IBootstrap
                 );
 
         $context->registerService(
-                \OCA\Decidesk\Service\PublicationPayloadService::class,
-                static function ($c): \OCA\Decidesk\Service\PublicationPayloadService {
-                    return new \OCA\Decidesk\Service\PublicationPayloadService(
+                PublicationPayloadService::class,
+                static function ($c): PublicationPayloadService {
+                    return new PublicationPayloadService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    configService: $c->get(\OCA\Decidesk\Service\PublicationConfigService::class),
+                    configService: $c->get(PublicationConfigService::class),
                     );
                 }
                 );
 
         $context->registerService(
-                \OCA\Decidesk\Service\OpenCatalogiPublisher::class,
-                static function ($c): \OCA\Decidesk\Service\OpenCatalogiPublisher {
-                    return new \OCA\Decidesk\Service\OpenCatalogiPublisher(
+                OpenCatalogiPublisher::class,
+                static function ($c): OpenCatalogiPublisher {
+                    return new OpenCatalogiPublisher(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     appManager: $c->get(\OCP\App\IAppManager::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
@@ -376,27 +432,27 @@ class Application extends App implements IBootstrap
                 );
 
         $context->registerService(
-                \OCA\Decidesk\Service\PublicationService::class,
-                static function ($c): \OCA\Decidesk\Service\PublicationService {
-                    return new \OCA\Decidesk\Service\PublicationService(
+                PublicationService::class,
+                static function ($c): PublicationService {
+                    return new PublicationService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     appManager: $c->get(\OCP\App\IAppManager::class),
-                    eligibility: $c->get(\OCA\Decidesk\Service\PublicationEligibilityService::class),
-                    payloadService: $c->get(\OCA\Decidesk\Service\PublicationPayloadService::class),
-                    configService: $c->get(\OCA\Decidesk\Service\PublicationConfigService::class),
-                    catalogPublisher: $c->get(\OCA\Decidesk\Service\OpenCatalogiPublisher::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    eligibility: $c->get(PublicationEligibilityService::class),
+                    payloadService: $c->get(PublicationPayloadService::class),
+                    configService: $c->get(PublicationConfigService::class),
+                    catalogPublisher: $c->get(OpenCatalogiPublisher::class),
+                    auditLogService: $c->get(AuditLogService::class),
                     );
                 }
                 );
 
         $context->registerService(
-                \OCA\Decidesk\Controller\PublicationController::class,
-                static function ($c): \OCA\Decidesk\Controller\PublicationController {
-                    return new \OCA\Decidesk\Controller\PublicationController(
+                PublicationController::class,
+                static function ($c): PublicationController {
+                    return new PublicationController(
                     request: $c->get(\OCP\IRequest::class),
-                    publicationService: $c->get(\OCA\Decidesk\Service\PublicationService::class),
+                    publicationService: $c->get(PublicationService::class),
                     objectService: $c->get(ObjectService::class),
                     participantResolver: $c->get(ParticipantResolver::class),
                     userSession: $c->get(\OCP\IUserSession::class),
@@ -453,7 +509,7 @@ class Application extends App implements IBootstrap
                     oriPublicationService: $c->get(OriPublicationService::class),
                     motionService: $c->get(MotionService::class),
                     participantResolver: $c->get(ParticipantResolver::class),
-                    templateService: $c->get(\OCA\Decidesk\Service\ProcessTemplateService::class),
+                    templateService: $c->get(ProcessTemplateService::class),
                     );
                 }
                 );
@@ -462,12 +518,12 @@ class Application extends App implements IBootstrap
         // CRUD + state-machine validation + body-template policy resolution.
         // @spec openspec/specs/process-configuration/spec.md.
         $context->registerService(
-                \OCA\Decidesk\Service\ProcessTemplateService::class,
-                static function ($c): \OCA\Decidesk\Service\ProcessTemplateService {
-                    return new \OCA\Decidesk\Service\ProcessTemplateService(
+                ProcessTemplateService::class,
+                static function ($c): ProcessTemplateService {
+                    return new ProcessTemplateService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    resolver: new \OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver(),
+                    resolver: new ProcessTemplatePolicyResolver(),
                     );
                 }
                 );
@@ -712,7 +768,7 @@ class Application extends App implements IBootstrap
             MigrateCommentsToTalkLeaf::class,
             static function ($c): MigrateCommentsToTalkLeaf {
                 return new MigrateCommentsToTalkLeaf(
-                    settingsService: $c->get(\OCA\Decidesk\Service\SettingsService::class),
+                    settingsService: $c->get(SettingsService::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                     appManager: $c->get(\OCP\App\IAppManager::class),
@@ -745,9 +801,9 @@ class Application extends App implements IBootstrap
         // Board portal Phase 2 services.
         // @spec openspec/changes/board-meeting-resolutions/tasks.md.
         $context->registerService(
-            \OCA\Decidesk\Service\AuditLogService::class,
-            static function ($c): \OCA\Decidesk\Service\AuditLogService {
-                return new \OCA\Decidesk\Service\AuditLogService(
+            AuditLogService::class,
+            static function ($c): AuditLogService {
+                return new AuditLogService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -755,20 +811,20 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Service\ConflictOfInterestService::class,
-            static function ($c): \OCA\Decidesk\Service\ConflictOfInterestService {
-                return new \OCA\Decidesk\Service\ConflictOfInterestService(
+            ConflictOfInterestService::class,
+            static function ($c): ConflictOfInterestService {
+                return new ConflictOfInterestService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    auditLogService: $c->get(AuditLogService::class),
                 );
             }
         );
 
         $context->registerService(
-            \OCA\Decidesk\Service\QuorumVerificationService::class,
-            static function ($c): \OCA\Decidesk\Service\QuorumVerificationService {
-                return new \OCA\Decidesk\Service\QuorumVerificationService(
+            QuorumVerificationService::class,
+            static function ($c): QuorumVerificationService {
+                return new QuorumVerificationService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -776,22 +832,22 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Controller\ConflictOfInterestController::class,
-            static function ($c): \OCA\Decidesk\Controller\ConflictOfInterestController {
-                return new \OCA\Decidesk\Controller\ConflictOfInterestController(
+            ConflictOfInterestController::class,
+            static function ($c): ConflictOfInterestController {
+                return new ConflictOfInterestController(
                     request: $c->get(\OCP\IRequest::class),
-                    conflictService: $c->get(\OCA\Decidesk\Service\ConflictOfInterestService::class),
+                    conflictService: $c->get(ConflictOfInterestService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                 );
             }
         );
 
         $context->registerService(
-            \OCA\Decidesk\Controller\AuditLogController::class,
-            static function ($c): \OCA\Decidesk\Controller\AuditLogController {
-                return new \OCA\Decidesk\Controller\AuditLogController(
+            AuditLogController::class,
+            static function ($c): AuditLogController {
+                return new AuditLogController(
                     request: $c->get(\OCP\IRequest::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    auditLogService: $c->get(AuditLogService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                 );
@@ -902,9 +958,9 @@ class Application extends App implements IBootstrap
     {
         // Fail-soft Activity publisher (called from the governance services).
         $context->registerService(
-            \OCA\Decidesk\Service\ActivityPublisherService::class,
-            static function ($c): \OCA\Decidesk\Service\ActivityPublisherService {
-                return new \OCA\Decidesk\Service\ActivityPublisherService(
+            ActivityPublisherService::class,
+            static function ($c): ActivityPublisherService {
+                return new ActivityPublisherService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -913,9 +969,9 @@ class Application extends App implements IBootstrap
 
         // Unified search over decisions / meetings / resolutions (OR RBAC scoped).
         $context->registerService(
-            \OCA\Decidesk\Search\DecideskSearchProvider::class,
-            static function ($c): \OCA\Decidesk\Search\DecideskSearchProvider {
-                return new \OCA\Decidesk\Search\DecideskSearchProvider(
+            DecideskSearchProvider::class,
+            static function ($c): DecideskSearchProvider {
+                return new DecideskSearchProvider(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     urlGenerator: $c->get(\OCP\IURLGenerator::class),
                     l10n: $c->get(\OCP\L10N\IFactory::class)->get(self::APP_ID),
@@ -923,23 +979,23 @@ class Application extends App implements IBootstrap
                 );
             }
         );
-        $context->registerSearchProvider(\OCA\Decidesk\Search\DecideskSearchProvider::class);
+        $context->registerSearchProvider(DecideskSearchProvider::class);
 
         // Meeting Files folder tree on meeting creation.
         $context->registerService(
-            \OCA\Decidesk\Service\MeetingFolderService::class,
-            static function ($c): \OCA\Decidesk\Service\MeetingFolderService {
-                return new \OCA\Decidesk\Service\MeetingFolderService(
+            MeetingFolderService::class,
+            static function ($c): MeetingFolderService {
+                return new MeetingFolderService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }
         );
         $context->registerService(
-            \OCA\Decidesk\Listener\MeetingFolderListener::class,
-            static function ($c): \OCA\Decidesk\Listener\MeetingFolderListener {
-                return new \OCA\Decidesk\Listener\MeetingFolderListener(
-                    folderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
+            MeetingFolderListener::class,
+            static function ($c): MeetingFolderListener {
+                return new MeetingFolderListener(
+                    folderService: $c->get(MeetingFolderService::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }
@@ -948,37 +1004,37 @@ class Application extends App implements IBootstrap
         // Recurring series generation + meeting document package assembly
         // (meeting-agenda-gaps-v1).
         $context->registerService(
-            \OCA\Decidesk\Service\MeetingSeriesService::class,
-            static function ($c): \OCA\Decidesk\Service\MeetingSeriesService {
-                return new \OCA\Decidesk\Service\MeetingSeriesService(
+            MeetingSeriesService::class,
+            static function ($c): MeetingSeriesService {
+                return new MeetingSeriesService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    auditLogService: $c->get(AuditLogService::class),
                 );
             }
         );
         $context->registerService(
-            \OCA\Decidesk\Service\MeetingPackageService::class,
-            static function ($c): \OCA\Decidesk\Service\MeetingPackageService {
-                return new \OCA\Decidesk\Service\MeetingPackageService(
+            MeetingPackageService::class,
+            static function ($c): MeetingPackageService {
+                return new MeetingPackageService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    meetingFolderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
+                    meetingFolderService: $c->get(MeetingFolderService::class),
                 );
             }
         );
         $context->registerEventListener(
             event: ObjectCreatedEvent::class,
-            listener: \OCA\Decidesk\Listener\MeetingFolderListener::class
+            listener: MeetingFolderListener::class
         );
 
         // Governance role -> OR RBAC scope projection
         // (consume-or-rbac-authorization, REQ-RBAC-001): keep each body's
         // chair/signatory scopes in sync on Participant/Membership writes.
         $context->registerService(
-            \OCA\Decidesk\Service\GovernanceRoleScopeProjector::class,
-            static function ($c): \OCA\Decidesk\Service\GovernanceRoleScopeProjector {
-                return new \OCA\Decidesk\Service\GovernanceRoleScopeProjector(
+            GovernanceRoleScopeProjector::class,
+            static function ($c): GovernanceRoleScopeProjector {
+                return new GovernanceRoleScopeProjector(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     userManager: $c->get(\OCP\IUserManager::class),
@@ -987,25 +1043,25 @@ class Application extends App implements IBootstrap
             }
         );
         $context->registerService(
-            \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class,
-            static function ($c): \OCA\Decidesk\Listener\GovernanceRoleProjectionListener {
-                return new \OCA\Decidesk\Listener\GovernanceRoleProjectionListener(
-                    projector: $c->get(\OCA\Decidesk\Service\GovernanceRoleScopeProjector::class),
+            GovernanceRoleProjectionListener::class,
+            static function ($c): GovernanceRoleProjectionListener {
+                return new GovernanceRoleProjectionListener(
+                    projector: $c->get(GovernanceRoleScopeProjector::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }
         );
         $context->registerEventListener(
             event: ObjectCreatedEvent::class,
-            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class
+            listener: GovernanceRoleProjectionListener::class
         );
         $context->registerEventListener(
             event: ObjectUpdatedEvent::class,
-            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class
+            listener: GovernanceRoleProjectionListener::class
         );
         $context->registerEventListener(
             event: \OCA\OpenRegister\Event\ObjectDeletedEvent::class,
-            listener: \OCA\Decidesk\Listener\GovernanceRoleProjectionListener::class
+            listener: GovernanceRoleProjectionListener::class
         );
 
         // Meeting transcription + AI-assisted draft minutes
@@ -1014,49 +1070,49 @@ class Application extends App implements IBootstrap
         // resolution is lazy + guarded so absence is a first-class state.
         // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md.
         $context->registerService(
-            \OCA\Decidesk\Service\TranscriptionSourceResolver::class,
-            static function ($c): \OCA\Decidesk\Service\TranscriptionSourceResolver {
-                return new \OCA\Decidesk\Service\TranscriptionSourceResolver(
+            TranscriptionSourceResolver::class,
+            static function ($c): TranscriptionSourceResolver {
+                return new TranscriptionSourceResolver(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    folderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
+                    folderService: $c->get(MeetingFolderService::class),
                 );
             }
         );
         $context->registerService(
-            \OCA\Decidesk\Service\TranscriptionService::class,
-            static function ($c): \OCA\Decidesk\Service\TranscriptionService {
-                return new \OCA\Decidesk\Service\TranscriptionService(
+            TranscriptionService::class,
+            static function ($c): TranscriptionService {
+                return new TranscriptionService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    sourceResolver: $c->get(\OCA\Decidesk\Service\TranscriptionSourceResolver::class),
-                    folderService: $c->get(\OCA\Decidesk\Service\MeetingFolderService::class),
+                    sourceResolver: $c->get(TranscriptionSourceResolver::class),
+                    folderService: $c->get(MeetingFolderService::class),
                 );
             }
         );
         $context->registerService(
-            \OCA\Decidesk\Service\MinutesDraftService::class,
-            static function ($c): \OCA\Decidesk\Service\MinutesDraftService {
-                return new \OCA\Decidesk\Service\MinutesDraftService(
+            MinutesDraftService::class,
+            static function ($c): MinutesDraftService {
+                return new MinutesDraftService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }
         );
         $context->registerService(
-            \OCA\Decidesk\BackgroundJob\TranscriptionJob::class,
-            static function ($c): \OCA\Decidesk\BackgroundJob\TranscriptionJob {
-                return new \OCA\Decidesk\BackgroundJob\TranscriptionJob(
+            TranscriptionJob::class,
+            static function ($c): TranscriptionJob {
+                return new TranscriptionJob(
                     time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
-                    transcriptionService: $c->get(\OCA\Decidesk\Service\TranscriptionService::class),
+                    transcriptionService: $c->get(TranscriptionService::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }
         );
         $context->registerService(
-            \OCA\Decidesk\BackgroundJob\TranscriptRetentionJob::class,
-            static function ($c): \OCA\Decidesk\BackgroundJob\TranscriptRetentionJob {
-                return new \OCA\Decidesk\BackgroundJob\TranscriptRetentionJob(
+            TranscriptRetentionJob::class,
+            static function ($c): TranscriptRetentionJob {
+                return new TranscriptRetentionJob(
                     time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
@@ -1064,12 +1120,12 @@ class Application extends App implements IBootstrap
             }
         );
         $context->registerService(
-            \OCA\Decidesk\Controller\TranscriptionController::class,
-            static function ($c): \OCA\Decidesk\Controller\TranscriptionController {
-                return new \OCA\Decidesk\Controller\TranscriptionController(
+            TranscriptionController::class,
+            static function ($c): TranscriptionController {
+                return new TranscriptionController(
                     request: $c->get(\OCP\IRequest::class),
-                    transcriptionService: $c->get(\OCA\Decidesk\Service\TranscriptionService::class),
-                    minutesDraftService: $c->get(\OCA\Decidesk\Service\MinutesDraftService::class),
+                    transcriptionService: $c->get(TranscriptionService::class),
+                    minutesDraftService: $c->get(MinutesDraftService::class),
                     objectService: $c->get(ObjectService::class),
                     participantResolver: $c->get(ParticipantResolver::class),
                     jobList: $c->get(\OCP\BackgroundJob\IJobList::class),
@@ -1084,9 +1140,9 @@ class Application extends App implements IBootstrap
         // submissionDeadline (OpenRegister converts the stopped event into
         // HTTP 422 at the object API).
         $context->registerService(
-            \OCA\Decidesk\Listener\SubmissionDeadlineListener::class,
-            static function ($c): \OCA\Decidesk\Listener\SubmissionDeadlineListener {
-                return new \OCA\Decidesk\Listener\SubmissionDeadlineListener(
+            SubmissionDeadlineListener::class,
+            static function ($c): SubmissionDeadlineListener {
+                return new SubmissionDeadlineListener(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -1094,7 +1150,7 @@ class Application extends App implements IBootstrap
         );
         $context->registerEventListener(
             event: ObjectCreatingEvent::class,
-            listener: \OCA\Decidesk\Listener\SubmissionDeadlineListener::class
+            listener: SubmissionDeadlineListener::class
         );
 
         // Portal citizen create-actions open-parent guard
@@ -1104,9 +1160,9 @@ class Application extends App implements IBootstrap
         // portaliq's shared create receiver (which stamps scope + defaults
         // but does not enforce a declared parentConstraint).
         $context->registerService(
-            \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener::class,
-            static function ($c): \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener {
-                return new \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener(
+            PortalCreateOpenParentGuardListener::class,
+            static function ($c): PortalCreateOpenParentGuardListener {
+                return new PortalCreateOpenParentGuardListener(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -1114,14 +1170,14 @@ class Application extends App implements IBootstrap
         );
         $context->registerEventListener(
             event: ObjectCreatingEvent::class,
-            listener: \OCA\Decidesk\Listener\PortalCreateOpenParentGuardListener::class
+            listener: PortalCreateOpenParentGuardListener::class
         );
 
         // Voting deadline reminder sweep (hourly job in appinfo/info.xml).
         $context->registerService(
-            \OCA\Decidesk\Service\VotingDeadlineReminderService::class,
-            static function ($c): \OCA\Decidesk\Service\VotingDeadlineReminderService {
-                return new \OCA\Decidesk\Service\VotingDeadlineReminderService(
+            VotingDeadlineReminderService::class,
+            static function ($c): VotingDeadlineReminderService {
+                return new VotingDeadlineReminderService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -1133,26 +1189,26 @@ class Application extends App implements IBootstrap
         // Nextcloud Hub, deep-linking into the app. Fail-soft, OR-scoped.
         // @spec openspec/specs/dashboard/spec.md.
         $context->registerService(
-            \OCA\Decidesk\Service\DashboardWidgetService::class,
-            static function ($c): \OCA\Decidesk\Service\DashboardWidgetService {
-                return new \OCA\Decidesk\Service\DashboardWidgetService(
+            DashboardWidgetService::class,
+            static function ($c): DashboardWidgetService {
+                return new DashboardWidgetService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }
         );
         $context->registerService(
-            \OCA\Decidesk\Dashboard\DecideskDashboardWidget::class,
-            static function ($c): \OCA\Decidesk\Dashboard\DecideskDashboardWidget {
-                return new \OCA\Decidesk\Dashboard\DecideskDashboardWidget(
+            DecideskDashboardWidget::class,
+            static function ($c): DecideskDashboardWidget {
+                return new DecideskDashboardWidget(
                     l10n: $c->get(\OCP\L10N\IFactory::class)->get(self::APP_ID),
                     urlGenerator: $c->get(\OCP\IURLGenerator::class),
                     timeFactory: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
-                    widgetService: $c->get(\OCA\Decidesk\Service\DashboardWidgetService::class),
+                    widgetService: $c->get(DashboardWidgetService::class),
                 );
             }
         );
-        $context->registerDashboardWidget(\OCA\Decidesk\Dashboard\DecideskDashboardWidget::class);
+        $context->registerDashboardWidget(DecideskDashboardWidget::class);
 
     }//end registerNcPlatformIntegration()
 
@@ -1160,10 +1216,10 @@ class Application extends App implements IBootstrap
      * Phase 4 — eIDAS QES integration bindings.
      *
      * The IEIDASSignatureService binding picks the dormant
-     * {@see \OCA\Decidesk\Service\LogEIDASSignatureService} fallback when
+     * {@see LogEIDASSignatureService} fallback when
      * openconnector is absent or its `eidas-qes` Source is not configured;
      * otherwise the openconnector-delegating
-     * {@see \OCA\Decidesk\Service\EIDASSignatureService} is used.
+     * {@see EIDASSignatureService} is used.
      *
      * @param IRegistrationContext $context Registration context
      *
@@ -1177,22 +1233,22 @@ class Application extends App implements IBootstrap
         // Both implementations are individually constructable so tests / DI
         // overrides can pick either side without going through the resolver.
         $context->registerService(
-            \OCA\Decidesk\Service\EIDASSignatureService::class,
-            static function ($c): \OCA\Decidesk\Service\EIDASSignatureService {
-                return new \OCA\Decidesk\Service\EIDASSignatureService(
+            EIDASSignatureService::class,
+            static function ($c): EIDASSignatureService {
+                return new EIDASSignatureService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    auditLogService: $c->get(AuditLogService::class),
                 );
             }
         );
 
         $context->registerService(
-            \OCA\Decidesk\Service\LogEIDASSignatureService::class,
-            static function ($c): \OCA\Decidesk\Service\LogEIDASSignatureService {
-                return new \OCA\Decidesk\Service\LogEIDASSignatureService(
+            LogEIDASSignatureService::class,
+            static function ($c): LogEIDASSignatureService {
+                return new LogEIDASSignatureService(
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    auditLogService: $c->get(AuditLogService::class),
                 );
             }
         );
@@ -1201,8 +1257,8 @@ class Application extends App implements IBootstrap
         // openconnector's CallService binding is registered, prefer the
         // delegating implementation; otherwise the dormant LogEIDASSignatureService.
         $context->registerService(
-            \OCA\Decidesk\Service\IEIDASSignatureService::class,
-            static function ($c): \OCA\Decidesk\Service\IEIDASSignatureService {
+            IEIDASSignatureService::class,
+            static function ($c): IEIDASSignatureService {
                 $hasOpenconnector = false;
                 try {
                     $c->get('OCA\\OpenConnector\\Service\\CallService');
@@ -1212,20 +1268,20 @@ class Application extends App implements IBootstrap
                 }
 
                 if ($hasOpenconnector === true) {
-                    return $c->get(\OCA\Decidesk\Service\EIDASSignatureService::class);
+                    return $c->get(EIDASSignatureService::class);
                 }
 
-                return $c->get(\OCA\Decidesk\Service\LogEIDASSignatureService::class);
+                return $c->get(LogEIDASSignatureService::class);
             }
         );
 
         $context->registerService(
-            \OCA\Decidesk\Lifecycle\QesGuard::class,
-            static function ($c): \OCA\Decidesk\Lifecycle\QesGuard {
-                return new \OCA\Decidesk\Lifecycle\QesGuard(
+            QesGuard::class,
+            static function ($c): QesGuard {
+                return new QesGuard(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    signatureService: $c->get(\OCA\Decidesk\Service\IEIDASSignatureService::class),
+                    signatureService: $c->get(IEIDASSignatureService::class),
                 );
             }
         );
@@ -1234,9 +1290,9 @@ class Application extends App implements IBootstrap
         // signatory/chair scopes (consume-or-rbac-authorization). It replaces
         // the retired app-local MinutesAuthorizationService.
         $context->registerService(
-            \OCA\Decidesk\Service\GovernanceScopeGuard::class,
-            static function ($c): \OCA\Decidesk\Service\GovernanceScopeGuard {
-                return new \OCA\Decidesk\Service\GovernanceScopeGuard(
+            GovernanceScopeGuard::class,
+            static function ($c): GovernanceScopeGuard {
+                return new GovernanceScopeGuard(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
@@ -1245,13 +1301,13 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Controller\EIDASSignatureController::class,
-            static function ($c): \OCA\Decidesk\Controller\EIDASSignatureController {
-                return new \OCA\Decidesk\Controller\EIDASSignatureController(
+            EIDASSignatureController::class,
+            static function ($c): EIDASSignatureController {
+                return new EIDASSignatureController(
                     request: $c->get(\OCP\IRequest::class),
-                    signatureService: $c->get(\OCA\Decidesk\Service\IEIDASSignatureService::class),
+                    signatureService: $c->get(IEIDASSignatureService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
-                    scopeGuard: $c->get(\OCA\Decidesk\Service\GovernanceScopeGuard::class),
+                    scopeGuard: $c->get(GovernanceScopeGuard::class),
                 );
             }
         );
@@ -1273,23 +1329,23 @@ class Application extends App implements IBootstrap
     private function registerPhase5Bindings(IRegistrationContext $context): void
     {
         $context->registerService(
-            \OCA\Decidesk\Service\ProxyVoteService::class,
-            static function ($c): \OCA\Decidesk\Service\ProxyVoteService {
-                return new \OCA\Decidesk\Service\ProxyVoteService(
+            ProxyVoteService::class,
+            static function ($c): ProxyVoteService {
+                return new ProxyVoteService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    auditLogService: $c->get(AuditLogService::class),
                     participantResolver: $c->get(ParticipantResolver::class),
                 );
             }
         );
 
         $context->registerService(
-            \OCA\Decidesk\Controller\ProxyVoteController::class,
-            static function ($c): \OCA\Decidesk\Controller\ProxyVoteController {
-                return new \OCA\Decidesk\Controller\ProxyVoteController(
+            ProxyVoteController::class,
+            static function ($c): ProxyVoteController {
+                return new ProxyVoteController(
                     request: $c->get(\OCP\IRequest::class),
-                    proxyService: $c->get(\OCA\Decidesk\Service\ProxyVoteService::class),
+                    proxyService: $c->get(ProxyVoteService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                 );
@@ -1297,9 +1353,9 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Service\GovernanceReportingService::class,
-            static function ($c): \OCA\Decidesk\Service\GovernanceReportingService {
-                return new \OCA\Decidesk\Service\GovernanceReportingService(
+            GovernanceReportingService::class,
+            static function ($c): GovernanceReportingService {
+                return new GovernanceReportingService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -1307,11 +1363,11 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Controller\GovernanceReportController::class,
-            static function ($c): \OCA\Decidesk\Controller\GovernanceReportController {
-                return new \OCA\Decidesk\Controller\GovernanceReportController(
+            GovernanceReportController::class,
+            static function ($c): GovernanceReportController {
+                return new GovernanceReportController(
                     request: $c->get(\OCP\IRequest::class),
-                    reportingService: $c->get(\OCA\Decidesk\Service\GovernanceReportingService::class),
+                    reportingService: $c->get(GovernanceReportingService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                 );
@@ -1333,22 +1389,22 @@ class Application extends App implements IBootstrap
     private function registerPhase6Bindings(IRegistrationContext $context): void
     {
         $context->registerService(
-            \OCA\Decidesk\Service\RegulatorExportService::class,
-            static function ($c): \OCA\Decidesk\Service\RegulatorExportService {
-                return new \OCA\Decidesk\Service\RegulatorExportService(
+            RegulatorExportService::class,
+            static function ($c): RegulatorExportService {
+                return new RegulatorExportService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
-                    auditLogService: $c->get(\OCA\Decidesk\Service\AuditLogService::class),
+                    auditLogService: $c->get(AuditLogService::class),
                 );
             }
         );
 
         $context->registerService(
-            \OCA\Decidesk\Controller\RegulatorExportController::class,
-            static function ($c): \OCA\Decidesk\Controller\RegulatorExportController {
-                return new \OCA\Decidesk\Controller\RegulatorExportController(
+            RegulatorExportController::class,
+            static function ($c): RegulatorExportController {
+                return new RegulatorExportController(
                     request: $c->get(\OCP\IRequest::class),
-                    exportService: $c->get(\OCA\Decidesk\Service\RegulatorExportService::class),
+                    exportService: $c->get(RegulatorExportService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                 );
@@ -1356,9 +1412,9 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Service\MultilingualReconciliationService::class,
-            static function ($c): \OCA\Decidesk\Service\MultilingualReconciliationService {
-                return new \OCA\Decidesk\Service\MultilingualReconciliationService(
+            MultilingualReconciliationService::class,
+            static function ($c): MultilingualReconciliationService {
+                return new MultilingualReconciliationService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -1368,9 +1424,9 @@ class Application extends App implements IBootstrap
         // Dormant default translation adapter — rebind in production to delegate
         // to openconnector's translation source service.
         $context->registerService(
-            \OCA\Decidesk\Service\ITranslationAdapter::class,
-            static function ($c): \OCA\Decidesk\Service\ITranslationAdapter {
-                return new \OCA\Decidesk\Service\LogTranslationAdapter(
+            ITranslationAdapter::class,
+            static function ($c): ITranslationAdapter {
+                return new LogTranslationAdapter(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -1378,11 +1434,11 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Controller\MultilingualReconciliationController::class,
-            static function ($c): \OCA\Decidesk\Controller\MultilingualReconciliationController {
-                return new \OCA\Decidesk\Controller\MultilingualReconciliationController(
+            MultilingualReconciliationController::class,
+            static function ($c): MultilingualReconciliationController {
+                return new MultilingualReconciliationController(
                     request: $c->get(\OCP\IRequest::class),
-                    reconciliationService: $c->get(\OCA\Decidesk\Service\MultilingualReconciliationService::class),
+                    reconciliationService: $c->get(MultilingualReconciliationService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                     groupManager: $c->get(\OCP\IGroupManager::class),
                 );
@@ -1390,11 +1446,11 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\BackgroundJob\TranslationQueueJob::class,
-            static function ($c): \OCA\Decidesk\BackgroundJob\TranslationQueueJob {
-                return new \OCA\Decidesk\BackgroundJob\TranslationQueueJob(
+            TranslationQueueJob::class,
+            static function ($c): TranslationQueueJob {
+                return new TranslationQueueJob(
                     time: $c->get(\OCP\AppFramework\Utility\ITimeFactory::class),
-                    reconciliationService: $c->get(\OCA\Decidesk\Service\MultilingualReconciliationService::class),
+                    reconciliationService: $c->get(MultilingualReconciliationService::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
             }
@@ -1402,9 +1458,9 @@ class Application extends App implements IBootstrap
 
         // Board self-evaluation (board-self-evaluation).
         $context->registerService(
-            \OCA\Decidesk\Service\BoardEvaluationScoreService::class,
-            static function ($c): \OCA\Decidesk\Service\BoardEvaluationScoreService {
-                return new \OCA\Decidesk\Service\BoardEvaluationScoreService(
+            BoardEvaluationScoreService::class,
+            static function ($c): BoardEvaluationScoreService {
+                return new BoardEvaluationScoreService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -1412,9 +1468,9 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Service\BoardEvaluationResponseService::class,
-            static function ($c): \OCA\Decidesk\Service\BoardEvaluationResponseService {
-                return new \OCA\Decidesk\Service\BoardEvaluationResponseService(
+            BoardEvaluationResponseService::class,
+            static function ($c): BoardEvaluationResponseService {
+                return new BoardEvaluationResponseService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     appConfig: $c->get(\OCP\IAppConfig::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
@@ -1423,9 +1479,9 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Service\BoardEvaluationReportService::class,
-            static function ($c): \OCA\Decidesk\Service\BoardEvaluationReportService {
-                return new \OCA\Decidesk\Service\BoardEvaluationReportService(
+            BoardEvaluationReportService::class,
+            static function ($c): BoardEvaluationReportService {
+                return new BoardEvaluationReportService(
                     container: $c->get(\Psr\Container\ContainerInterface::class),
                     logger: $c->get(\Psr\Log\LoggerInterface::class),
                 );
@@ -1433,15 +1489,15 @@ class Application extends App implements IBootstrap
         );
 
         $context->registerService(
-            \OCA\Decidesk\Controller\BoardEvaluationController::class,
-            static function ($c): \OCA\Decidesk\Controller\BoardEvaluationController {
-                return new \OCA\Decidesk\Controller\BoardEvaluationController(
+            BoardEvaluationController::class,
+            static function ($c): BoardEvaluationController {
+                return new BoardEvaluationController(
                     request: $c->get(\OCP\IRequest::class),
-                    responseService: $c->get(\OCA\Decidesk\Service\BoardEvaluationResponseService::class),
-                    scoreService: $c->get(\OCA\Decidesk\Service\BoardEvaluationScoreService::class),
-                    reportService: $c->get(\OCA\Decidesk\Service\BoardEvaluationReportService::class),
-                    publicationService: $c->get(\OCA\Decidesk\Service\ParticipationPublicationService::class),
-                    votingService: $c->get(\OCA\Decidesk\Service\VotingService::class),
+                    responseService: $c->get(BoardEvaluationResponseService::class),
+                    scoreService: $c->get(BoardEvaluationScoreService::class),
+                    reportService: $c->get(BoardEvaluationReportService::class),
+                    publicationService: $c->get(ParticipationPublicationService::class),
+                    votingService: $c->get(VotingService::class),
                     userSession: $c->get(\OCP\IUserSession::class),
                 );
             }
