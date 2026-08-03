@@ -163,17 +163,13 @@ class ReactionIntakeService
 
         $policy = (string) ($consultation['moderationPolicy'] ?? 'pre-moderation');
 
-        $submitterId = $ncUid;
-        if ($isAnonymous === true) {
-            $submitterId = $this->pseudonymousId(consultationId: $consultationId, seed: (string) ($clientSeed ?? ''));
-        }
-
-        // Anonymous reactions are ALWAYS pre-moderated regardless of policy;
-        // only a named submitter under post-moderation is auto-approved.
-        $moderationStatus = 'pending';
-        if ($isAnonymous === false && $policy === 'post-moderation') {
-            $moderationStatus = 'approved';
-        }
+        $submitterId      = $this->resolveSubmitterId(
+            consultationId: $consultationId,
+            ncUid: $ncUid,
+            isAnonymous: $isAnonymous,
+            clientSeed: $clientSeed
+        );
+        $moderationStatus = $this->resolveModerationStatus(isAnonymous: $isAnonymous, policy: $policy);
 
         $reaction = [
             'body'             => $body,
@@ -319,6 +315,59 @@ class ReactionIntakeService
         return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
     }//end rejectReaction()
+
+    /**
+     * Resolve the submitter id recorded on a reaction.
+     *
+     * A named submitter is stored by Nextcloud UID; an anonymous one is
+     * reduced to a stable pseudonymous token that reveals no PII.
+     *
+     * @param string      $consultationId The consultation UUID.
+     * @param string|null $ncUid          The Nextcloud UID of a named submitter.
+     * @param bool        $isAnonymous    Whether the reaction is anonymous.
+     * @param string|null $clientSeed     Client fingerprint for the anonymous token.
+     *
+     * @return string|null The submitter id to persist.
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    private function resolveSubmitterId(
+        string $consultationId,
+        ?string $ncUid,
+        bool $isAnonymous,
+        ?string $clientSeed
+    ): ?string {
+        if ($isAnonymous === false) {
+            return $ncUid;
+        }
+
+        return $this->pseudonymousId(consultationId: $consultationId, seed: (string) ($clientSeed ?? ''));
+
+    }//end resolveSubmitterId()
+
+    /**
+     * Decide the moderation status a new reaction starts in.
+     *
+     * Anonymous reactions are ALWAYS pre-moderated regardless of the
+     * consultation's policy; only a named submitter under post-moderation is
+     * auto-approved.
+     *
+     * @param bool   $isAnonymous Whether the reaction is anonymous.
+     * @param string $policy      The consultation's moderation policy.
+     *
+     * @return string Either 'approved' or 'pending'.
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    private function resolveModerationStatus(bool $isAnonymous, string $policy): string
+    {
+        if ($isAnonymous === false && $policy === 'post-moderation') {
+            return 'approved';
+        }
+
+        return 'pending';
+
+    }//end resolveModerationStatus()
 
     /**
      * Build a stable, opaque pseudonymous submitter id for an anonymous reaction.
