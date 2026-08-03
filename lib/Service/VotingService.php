@@ -246,9 +246,9 @@ class VotingService
         $appConfig = $this->container->get(\OCP\IAppConfig::class);
         $secret    = $appConfig->getValueString('decidesk', 'voter_token_secret', '');
         if ($secret === '') {
-            // sensitive: true — see InitializeSettings. This lazy path exists for the
-            // first call before the repair step has run; it must flag the key too, or a
-            // fresh instance writes it in cleartext.
+            // The `sensitive: true` flag below is required — see InitializeSettings. This
+            // lazy path exists for the first call before the repair step has run; it must
+            // flag the key too, or a fresh instance writes it in cleartext.
             $secret = bin2hex(random_bytes(32));
             $appConfig->setValueString('decidesk', 'voter_token_secret', $secret, sensitive: true);
         }
