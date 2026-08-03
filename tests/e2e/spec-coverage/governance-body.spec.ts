@@ -16,7 +16,7 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 // @e2e openspec/specs/admin-settings/spec.md#create-a-governing-body-for-an-association-board
 test('governance bodies list renders with Add GovernanceBody button', async ({ page }) => {

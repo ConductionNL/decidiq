@@ -22,6 +22,54 @@ jobs:
       enable-eslint: true
       enable-phpunit: true
       enable-newman: true
-      # additional-apps: '[]'  # Add app dependencies here if needed, e.g.:
-      # additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"main"}]'
+      # OpenRegister is not optional for decidesk — it is the foundation this
+      # app is built on. `appinfo/routes.php` returns
+      # `\OCA\OpenRegister\AppHost\Routes::standard()`, the entire domain model
+      # lives in `lib/Settings/decidesk_register.json` + `register.d/`, and the
+      # SPA reads/writes every entity through
+      # /apps/openregister/api/objects/decidesk/<schema>. This input was
+      # COMMENTED OUT, so every CI instance ran decidesk without its foundation:
+      # the register could not be provisioned at all and the UI came up empty.
+      #
+      # Pinned to `development`, not `main`: the AppHost route plumbing
+      # `appinfo/routes.php` already depends on lands there first, and pinning
+      # the foundation to `main` while this app tracks `development` makes the
+      # CI instance behave unlike any environment the app is developed against.
+      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
       enable-sbom: true
+
+      # ── E2E browser tests ────────────────────────────────────────────────
+      # Previously OFF (the input was never set, so the shared workflow's
+      # `if: inputs.enable-playwright && …` gate reported the job as `skipped`
+      # — a state that reads on the PR page exactly like a passing one).
+      #
+      # Two things had to be true before turning it on, and both now are:
+      #
+      #  1. The register has to exist on the CI instance. `occ app:enable
+      #     decidesk` cannot provide it: the repair step runs with NO user
+      #     session, OpenRegister's RBAC denies the import outright, and the
+      #     step catches \Throwable and downgrades it to a warning so
+      #     `occ app:enable` still exits 0. FIXED by not relying on it —
+      #     `ci-seed.sh` performs the import explicitly over the admin HTTP API
+      #     (POST /apps/decidesk/api/settings/load →
+      #     loadConfiguration(force: true), which also merges the register.d/
+      #     fragments) and then VERIFIES the register + 18 schema slugs, so a
+      #     bad provision is one loud step failure instead of two dozen
+      #     misleading spec failures.
+      #  2. OpenRegister has to be installed at all — see `additional-apps`
+      #     above, which was commented out.
+      enable-playwright: true
+      # Double duty in the shared workflow: it is both the directory the
+      # "Validate Playwright tests exist" step counts *.spec.ts in, AND the
+      # FIRST place the run step looks for a config
+      # (`${playwright-test-path}/playwright.config.ts`), falling back to the
+      # repo root only if that file is absent. We ship
+      # tests/e2e/playwright.config.ts precisely so that lookup hits it: the run
+      # step passes no `--project`, so the ROOT config would ALSO run
+      # `docs-capture` (re-shooting every documentation screenshot on every PR)
+      # and `visual` (whose own README records that a CI Linux runner cannot
+      # byte-match a dev-container PNG baseline — guaranteed red that says
+      # nothing about the app).
+      playwright-test-path: tests/e2e
+      # cwd for this step is the Nextcloud server root.
+      playwright-seed-command: 'bash apps/decidesk/tests/e2e/ci-seed.sh'

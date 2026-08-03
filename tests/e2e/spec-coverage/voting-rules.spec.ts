@@ -23,7 +23,7 @@
  */
 import { test, expect, request as pwRequest, type APIRequestContext, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 const ADMIN_USER = process.env.NC_ADMIN_USER || 'admin'
 const ADMIN_PASS = process.env.NC_ADMIN_PASS || 'admin'
 
