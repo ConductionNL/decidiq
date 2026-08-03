@@ -293,6 +293,46 @@ class VotingService
     }//end voterTokenSecret()
 
     /**
+     * Build the deterministic @self.slug that makes castVote idempotent.
+     *
+     * Concurrent castVote requests for the same (participant, round) must
+     * upsert rather than insert twice: OpenRegister's saveObject() performs an
+     * UPDATE when the slug matches an existing object, so the second request
+     * safely overwrites the first with the same value.
+     *
+     * - Secret rounds:     an HMAC over (participant, round), already opaque.
+     * - Non-secret rounds: "vote-{round}-{participant}", truncated because
+     *   slugs must be URL-safe and at most 255 characters.
+     *
+     * @param string      $votingRoundId The voting round UUID.
+     * @param string      $participantId The voting participant UUID.
+     * @param bool        $isSecret      Whether the round is secret.
+     * @param bool        $isProxy       Whether the vote is cast by proxy.
+     * @param string|null $delegatorId   The delegator UUID for a proxy vote.
+     *
+     * @return string The idempotency slug.
+     */
+    private function idempotencySlug(
+        string $votingRoundId,
+        string $participantId,
+        bool $isSecret,
+        bool $isProxy,
+        ?string $delegatorId
+    ): string {
+        if ($isSecret === true) {
+            return hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
+        }
+
+        $slug = 'vote-'.substr($votingRoundId, 0, 8).'-'.substr($participantId, 0, 8);
+        if ($isProxy === true && $delegatorId !== null) {
+            $slug .= '-proxy-'.substr($delegatorId, 0, 8);
+        }
+
+        return $slug;
+
+    }//end idempotencySlug()
+
+    /**
      * Resolve the OpenRegister participant UUID for a given Nextcloud user ID.
      *
      * Queries the participant register by nextcloudUserId field. Returns null
@@ -775,22 +815,13 @@ class VotingService
             }
         }
 
-        // Build the vote object.
-        // Idempotency: set a deterministic @self.slug so that concurrent castVote requests
-        // for the same (participant, round) result in an upsert rather than two inserts.
-        // - Secret rounds:     slug = voterToken (HMAC, already opaque)
-        // - Non-secret rounds: slug = "vote-{votingRoundId}-{participantId}" (truncated)
-        // OR's saveObject with a matching slug performs UPDATE rather than INSERT, so the
-        // second concurrent request safely overwrites the first with the same value.
-        if ($isSecret === true) {
-            $idempotencySlug = hash_hmac('sha256', $participantId.':'.$votingRoundId, $this->voterTokenSecret());
-        } else {
-            // Slugs must be URL-safe and <= 255 chars.
-            $idempotencySlug = 'vote-'.substr($votingRoundId, 0, 8).'-'.substr($participantId, 0, 8);
-            if ($isProxy === true && $delegatorId !== null) {
-                $idempotencySlug .= '-proxy-'.substr($delegatorId, 0, 8);
-            }
-        }
+        $idempotencySlug = $this->idempotencySlug(
+            votingRoundId: $votingRoundId,
+            participantId: $participantId,
+            isSecret: $isSecret,
+            isProxy: $isProxy,
+            delegatorId: $delegatorId
+        );
 
         $vote = [
             '@self'     => ['slug' => $idempotencySlug],

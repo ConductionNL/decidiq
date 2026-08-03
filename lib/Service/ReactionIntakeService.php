@@ -163,17 +163,16 @@ class ReactionIntakeService
 
         $policy = (string) ($consultation['moderationPolicy'] ?? 'pre-moderation');
 
+        $submitterId = $ncUid;
         if ($isAnonymous === true) {
-            $submitterId      = $this->pseudonymousId(consultationId: $consultationId, seed: (string) ($clientSeed ?? ''));
-            $moderationStatus = 'pending';
-            // Anonymous reactions are ALWAYS pre-moderated regardless of policy.
-        } else {
-            $submitterId = $ncUid;
-            if ($policy === 'post-moderation') {
-                $moderationStatus = 'approved';
-            } else {
-                $moderationStatus = 'pending';
-            }
+            $submitterId = $this->pseudonymousId(consultationId: $consultationId, seed: (string) ($clientSeed ?? ''));
+        }
+
+        // Anonymous reactions are ALWAYS pre-moderated regardless of policy;
+        // only a named submitter under post-moderation is auto-approved.
+        $moderationStatus = 'pending';
+        if ($isAnonymous === false && $policy === 'post-moderation') {
+            $moderationStatus = 'approved';
         }
 
         $reaction = [
