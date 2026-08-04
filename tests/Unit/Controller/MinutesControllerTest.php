@@ -24,14 +24,14 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\MinutesController;
 use OCA\Decidesk\Controller\MinutesCorrectionController;
+use OCA\Decidesk\Controller\MinutesResponder;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
-use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesAccessGuard;
 use OCA\Decidesk\Service\MinutesDocumentService;
 use OCA\Decidesk\Service\MinutesGenerationService;
-use OCA\Decidesk\Service\MinutesService;
+use OCA\Decidesk\Service\MinutesWorkflowService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
@@ -81,18 +81,11 @@ class MinutesControllerTest extends TestCase
     private ALVMinutesService&MockObject $alvMinutesService;
 
     /**
-     * Mock ActionItemExtractionService.
+     * Mock MinutesWorkflowService.
      *
-     * @var ActionItemExtractionService&MockObject
+     * @var MinutesWorkflowService&MockObject
      */
-    private ActionItemExtractionService&MockObject $extractionService;
-
-    /**
-     * Mock MinutesService.
-     *
-     * @var MinutesService&MockObject
-     */
-    private MinutesService&MockObject $minutesService;
+    private MinutesWorkflowService&MockObject $workflowService;
 
     /**
      * Mock IUserSession.
@@ -155,8 +148,7 @@ class MinutesControllerTest extends TestCase
         $this->request                  = $this->createMock(originalClassName: IRequest::class);
         $this->minutesGenerationService = $this->createMock(originalClassName: MinutesGenerationService::class);
         $this->alvMinutesService        = $this->createMock(originalClassName: ALVMinutesService::class);
-        $this->extractionService        = $this->createMock(originalClassName: ActionItemExtractionService::class);
-        $this->minutesService           = $this->createMock(originalClassName: MinutesService::class);
+        $this->workflowService          = $this->createMock(originalClassName: MinutesWorkflowService::class);
         $this->userSession              = $this->createMock(originalClassName: IUserSession::class);
         $this->groupManager             = $this->createMock(originalClassName: IGroupManager::class);
         $this->objectService            = $this->createMock(originalClassName: ObjectService::class);
@@ -168,14 +160,15 @@ class MinutesControllerTest extends TestCase
         $this->user->method('getDisplayName')->willReturn('Test User');
         $this->userSession->method('getUser')->willReturn($this->user);
 
+        // The responder is a pure exception-to-status mapper with no
+        // dependencies, so the real one is used: these tests assert on the
+        // status codes it produces, which a mock could not demonstrate.
         $this->controller = new MinutesController(
             request: $this->request,
             generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
-            extractionService: $this->extractionService,
-            minutesService: $this->minutesService,
+            workflowService: $this->workflowService,
             userSession: $this->userSession,
-            objectService: $this->objectService,
             accessGuard: new MinutesAccessGuard(
                 objectService: $this->objectService,
                 participantResolver: $this->participantResolver,
@@ -183,6 +176,7 @@ class MinutesControllerTest extends TestCase
                 groupManager: $this->groupManager,
             ),
             documentService: $this->minutesDocumentService,
+            responder: new MinutesResponder(),
         );
 
         // The correction endpoints moved to MinutesCorrectionController; it is
@@ -368,10 +362,8 @@ class MinutesControllerTest extends TestCase
             request: $this->request,
             generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
-            extractionService: $this->extractionService,
-            minutesService: $this->minutesService,
+            workflowService: $this->workflowService,
             userSession: $unauthSession,
-            objectService: $this->objectService,
             accessGuard: new MinutesAccessGuard(
                 objectService: $this->objectService,
                 participantResolver: $this->participantResolver,
@@ -379,6 +371,7 @@ class MinutesControllerTest extends TestCase
                 groupManager: $this->groupManager,
             ),
             documentService: $this->minutesDocumentService,
+            responder: new MinutesResponder(),
         );
 
         // The service must NOT be called for an unauthenticated request.
@@ -538,10 +531,8 @@ class MinutesControllerTest extends TestCase
             request: $this->request,
             generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
-            extractionService: $this->extractionService,
-            minutesService: $this->minutesService,
+            workflowService: $this->workflowService,
             userSession: $unauthSession,
-            objectService: $this->objectService,
             accessGuard: new MinutesAccessGuard(
                 objectService: $this->objectService,
                 participantResolver: $this->participantResolver,
@@ -549,6 +540,7 @@ class MinutesControllerTest extends TestCase
                 groupManager: $this->groupManager,
             ),
             documentService: $this->minutesDocumentService,
+            responder: new MinutesResponder(),
         );
 
         $this->alvMinutesService->expects($this->never())->method('generateALVDraft');
@@ -624,10 +616,8 @@ class MinutesControllerTest extends TestCase
             request: $this->request,
             generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
-            extractionService: $this->extractionService,
-            minutesService: $this->minutesService,
+            workflowService: $this->workflowService,
             userSession: $unauthSession,
-            objectService: $this->objectService,
             accessGuard: new MinutesAccessGuard(
                 objectService: $this->objectService,
                 participantResolver: $this->participantResolver,
@@ -635,6 +625,7 @@ class MinutesControllerTest extends TestCase
                 groupManager: $this->groupManager,
             ),
             documentService: $this->minutesDocumentService,
+            responder: new MinutesResponder(),
         );
 
         $this->alvMinutesService->expects($this->never())->method('distribute');
@@ -719,6 +710,8 @@ class MinutesControllerTest extends TestCase
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $this->objectService->method('find')->willReturn(null);
+        $this->workflowService->method('extractActionItems')
+            ->willThrowException(new MissingObjectException(message: 'Minutes not found.'));
 
         $result = $this->controller->extractActionItems('minutes-uuid-999');
 
@@ -739,7 +732,7 @@ class MinutesControllerTest extends TestCase
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'content' => 'Actie: Jan doet X']);
         $this->objectService->method('find')->willReturn($minutesEntity);
-        $this->extractionService->method('extractFromContent')->willReturn(
+        $this->workflowService->method('extractActionItems')->willReturn(
             [['title' => 'Jan doet X', 'suggestedAssignee' => 'Jan']]
         );
 
@@ -809,6 +802,10 @@ class MinutesControllerTest extends TestCase
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'lifecycle' => 'review']);
         $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->workflowService->method('submitForApproval')
+            ->willThrowException(
+                new \RuntimeException('Minutes must be in draft state to submit for approval.', 409)
+            );
 
         $result = $this->controller->submitForApproval('minutes-uuid-001');
 
@@ -829,8 +826,14 @@ class MinutesControllerTest extends TestCase
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'lifecycle' => 'draft']);
         $this->objectService->method('find')->willReturn($minutesEntity);
-        $this->objectService->expects($this->once())->method('saveObject');
-        $this->minutesService->method('notifyApproversOnSubmit')->willReturn(2);
+        $this->workflowService->expects($this->once())
+            ->method('submitForApproval')
+            ->willReturn(
+                [
+                    'lifecycle' => 'review',
+                    'notified'  => 2,
+                ]
+            );
 
         $result = $this->controller->submitForApproval('minutes-uuid-001');
 

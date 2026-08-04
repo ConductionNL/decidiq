@@ -24,7 +24,6 @@ namespace OCA\Decidesk\Service;
 
 use Exception;
 use OCA\Decidesk\Exception\MissingObjectException;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -33,6 +32,11 @@ use Psr\Log\LoggerInterface;
  * Generates minutes for Algemene Ledenvergadering (general assemblies) with
  * quorum statements, member rolls, and formal resolution language. Handles
  * distribution of approved minutes to active members via notifications.
+ *
+ * OpenRegister lookups are delegated to MinutesContextResolver and notification
+ * delivery to ParticipantNotifier; what stays here is the ALV domain rules —
+ * what counts as an ALV, what quorum means, and when minutes may be
+ * distributed.
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
  */
@@ -67,16 +71,28 @@ Notulen goedgekeurd door: {chair}
 TEMPLATE;
 
     /**
+     * Lifecycle states from which approved minutes may be distributed.
+     *
+     * @var array<int,string>
+     */
+    private const DISTRIBUTABLE_LIFECYCLES = [
+        'approved',
+        'signed',
+    ];
+
+    /**
      * Constructor.
      *
-     * @param ContainerInterface $container The DI container
-     * @param LoggerInterface    $logger    The logger
+     * @param LoggerInterface        $logger   The logger
+     * @param MinutesContextResolver $context  Resolves Minutes/Meeting/Participant context
+     * @param ParticipantNotifier    $notifier Delivers notifications to participants
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
      */
     public function __construct(
-        private ContainerInterface $container,
         private LoggerInterface $logger,
+        private MinutesContextResolver $context,
+        private ParticipantNotifier $notifier,
     ) {
     }//end __construct()
 
@@ -102,138 +118,29 @@ TEMPLATE;
     public function generateALVDraft(string $minutesId): array
     {
         try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $minutes   = $this->context->requireMinutes(minutesId: $minutesId);
+            $meetingId = $this->context->linkedMeetingId(minutes: $minutes);
 
-            // Fetch Minutes.
-            $minutesEntity = $objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
-
-            if ($minutes === null) {
-                throw new MissingObjectException(message: "Minutes not found: $minutesId");
-            }
-
-            // Get linked Meeting.
-            $meetingId = null;
-            if (empty($minutes['relations']['Meeting']) === false) {
-                $meetingRels = $minutes['relations']['Meeting'];
-                $meetingId   = $meetingRels;
-                if (is_array($meetingRels) === true) {
-                    $meetingId = $meetingRels[0];
-                }
-            }
-
-            if (empty($meetingId) === true) {
+            if ($meetingId === null) {
                 throw new Exception('No Meeting linked to Minutes');
             }
 
-            $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
-            $meeting       = null;
-            if ($meetingEntity !== null) {
-                $meeting = $meetingEntity->jsonSerialize();
-            }
+            $meeting = $this->context->requireMeeting(meetingId: $meetingId);
+            $this->assertAlvMeeting(meeting: $meeting);
 
-            if ($meeting === null) {
-                throw new MissingObjectException(message: "Meeting not found: $meetingId");
-            }
+            $participants = $this->context->activeParticipants(
+                bodyId: $this->context->governanceBodyId(meeting: $meeting)
+            );
 
-            // Validate meeting type is ALV.
-            $meetingType = strtolower($meeting['meetingType'] ?? '');
-            if (strpos($meetingType, 'alv') === false && strpos($meetingType, 'algemene-ledenvergadering') === false) {
-                throw new Exception("Meeting is not an ALV (type: $meetingType)", 422);
-            }
-
-            // Get GovernanceBody ID.
-            $bodyId = null;
-            if (empty($meeting['relations']['GovernanceBody']) === false) {
-                $bodyRels = $meeting['relations']['GovernanceBody'];
-                $bodyId   = $bodyRels;
-                if (is_array($bodyRels) === true) {
-                    $bodyId = $bodyRels[0];
-                }
-            }
-
-            // Fetch active participants scoped to this governance body.
-            $params       = [
-                'leftAt' => null,
-                '_limit' => 999,
-            ];
-            $participants = [];
-            if ($bodyId !== null) {
-                $params['_relations.governance-body'] = $bodyId;
-                $objectService->setRegister('decidesk');
-                $objectService->setSchema('participant');
-                $participantEntities = $objectService->findAll(['filters' => $params]);
-                $participants        = array_map(fn($e) => $e->jsonSerialize(), $participantEntities);
-            }
-
-            // Count active members.
             $memberCount  = count($participants);
-            $presentCount = $memberCount;
-            if (empty($meeting['quorumRequired']) === false) {
-                $presentCount = min($memberCount, $meeting['quorumRequired']);
-            }
+            $presentCount = $this->presentCount(memberCount: $memberCount, meeting: $meeting);
 
-            // Fetch agenda items scoped to this meeting.
-            $agendaParams = [
-                '_relations.meeting' => $meetingId,
-                '_limit'             => 999,
-                '_order'             => 'orderNumber:ASC',
-            ];
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('agenda-item');
-            $agendaItemEntities = $objectService->findAll(['filters' => $agendaParams]);
-            $agendaItems        = array_map(fn($e) => $e->jsonSerialize(), $agendaItemEntities);
-
-            // Format agenda items.
-            $agendaText = '';
-            foreach ($agendaItems as $item) {
-                $agendaText .= sprintf(
-                    "- %s: %s\n",
-                    $item['orderNumber'] ?? '',
-                    $item['title'] ?? 'Untitled'
-                );
-            }
-
-            // Determine quorum status.
-            $quorumMet    = $presentCount >= ($meeting['quorumRequired'] ?? 0);
-            $quorumStatus = "Quorum niet bereikt ($presentCount/$memberCount leden)";
-            if ($quorumMet === true) {
-                $quorumStatus = "Quorum bereikt ($presentCount/$memberCount leden)";
-            }
-
-            // Render template.
-            $searchKeys = [
-                '{title}',
-                '{date}',
-                '{location}',
-                '{presentCount}',
-                '{totalCount}',
-                '{quorumStatus}',
-                '{agendaItems}',
-                '{resolutions}',
-                '{secretary}',
-                '{chair}',
-                '{aob}',
-            ];
-            $content    = str_replace(
-                $searchKeys,
-                [
-                    $minutes['title'] ?? 'Algemene Ledenvergadering',
-                    $meeting['scheduledDate'] ?? date('d-m-Y'),
-                    $meeting['location'] ?? '',
-                    $presentCount,
-                    $memberCount,
-                    $quorumStatus,
-                    trim($agendaText),
-                    '[Resoluties met stemming in aparte tabel]',
-                    '[Secretaris naam]',
-                    '[Voorzitter naam]',
-                    '[Rondvraag: geen bijzonderheden / gesloten om ...]',
-                ],
-                self::ALV_TEMPLATE
+            $content = $this->renderAlvTemplate(
+                minutes: $minutes,
+                meeting: $meeting,
+                agendaItems: $this->context->agendaItems(meetingId: $meetingId),
+                presentCount: $presentCount,
+                memberCount: $memberCount
             );
 
             $this->logger->info("ALV draft generated for minutes $minutesId");
@@ -246,6 +153,7 @@ TEMPLATE;
             $this->logger->error("ALVMinutesService::generateALVDraft failed: ".$e->getMessage());
             throw $e;
         }//end try
+
     }//end generateALVDraft()
 
     /**
@@ -267,101 +175,19 @@ TEMPLATE;
     public function distribute(string $minutesId): int
     {
         try {
-            $objectService       = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $notificationService = $this->container->get('OpenRegisterNotificationService');
+            $minutes = $this->context->requireMinutes(minutesId: $minutesId);
+            $this->assertDistributable(minutes: $minutes);
 
-            // Fetch Minutes.
-            $minutesEntity = $objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
+            $participants = $this->context->activeParticipants(
+                bodyId: $this->context->governanceBodyIdForMinutes(minutes: $minutes)
+            );
 
-            if ($minutes === null) {
-                throw new MissingObjectException(message: "Minutes not found: $minutesId");
-            }
-
-            // Validate lifecycle.
-            $lifecycle = $minutes['lifecycle'] ?? null;
-            if ($lifecycle !== 'approved' && $lifecycle !== 'signed') {
-                throw new Exception("Minutes must be approved or signed before distribution (current: $lifecycle)", 403);
-            }
-
-            // Get linked Meeting.
-            $meetingId = null;
-            if (empty($minutes['relations']['Meeting']) === false) {
-                $meetingRels = $minutes['relations']['Meeting'];
-                $meetingId   = $meetingRels;
-                if (is_array($meetingRels) === true) {
-                    $meetingId = $meetingRels[0];
-                }
-            }
-
-            // Get GovernanceBody ID.
-            $bodyId = null;
-            if ($meetingId !== null) {
-                $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
-                $meeting       = null;
-                if ($meetingEntity !== null) {
-                    $meeting = $meetingEntity->jsonSerialize();
-                }
-
-                if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
-                    $bodyRels = $meeting['relations']['GovernanceBody'];
-                    $bodyId   = $bodyRels;
-                    if (is_array($bodyRels) === true) {
-                        $bodyId = $bodyRels[0];
-                    }
-                }
-            }
-
-            // Fetch active participants scoped to this governance body.
-            $params       = [
-                'leftAt' => null,
-                '_limit' => 999,
-            ];
-            $participants = [];
-            if ($bodyId !== null) {
-                $params['_relations.governance-body'] = $bodyId;
-                $objectService->setRegister('decidesk');
-                $objectService->setSchema('participant');
-                $participantEntities = $objectService->findAll(['filters' => $params]);
-                $participants        = array_map(fn($e) => $e->jsonSerialize(), $participantEntities);
-            }
-
-            // Resolve Nextcloud UID for each participant and send notifications.
-            $userManager = $this->container->get(\OCP\IUserManager::class);
-            $sentCount   = 0;
-            foreach ($participants as $participant) {
-                $ncUid = $participant['nextcloudUserId'] ?? null;
-                if (empty($ncUid) === true) {
-                    $email = $participant['email'] ?? null;
-                    if (empty($email) === false) {
-                        $users = $userManager->getByEmail(email: $email);
-                        if (empty($users) === false) {
-                            $ncUid = array_values($users)[0]->getUID();
-                        }
-                    }
-                }
-
-                if (empty($ncUid) === true) {
-                    $displayName = $participant['displayName'] ?? '?';
-                    $this->logger->warning('ALVMinutesService: cannot resolve Nextcloud UID for participant', ['participant' => $displayName]);
-                    continue;
-                }
-
-                try {
-                    $notificationService->sendNotification(
-                        userId: $ncUid,
-                        title: "Notulen gepubliceerd: ".($minutes['title'] ?? 'Untitled'),
-                        message: "De notulen zijn nu beschikbaar.",
-                        deepLink: "/minutes/$minutesId"
-                    );
-                    $sentCount++;
-                } catch (Exception $e) {
-                    $this->logger->warning("Failed to send notification to $ncUid: ".$e->getMessage());
-                }
-            }//end foreach
+            $sentCount = $this->notifier->notifyAll(
+                participants: $participants,
+                title: "Notulen gepubliceerd: ".($minutes['title'] ?? 'Untitled'),
+                message: "De notulen zijn nu beschikbaar.",
+                deepLink: "/minutes/$minutesId"
+            );
 
             $this->logger->info("ALV minutes distributed to $sentCount participants");
 
@@ -370,5 +196,144 @@ TEMPLATE;
             $this->logger->error("ALVMinutesService::distribute failed: ".$e->getMessage());
             throw $e;
         }//end try
+
     }//end distribute()
+
+    /**
+     * Assert that a Meeting is an ALV.
+     *
+     * @param array<string,mixed> $meeting The Meeting data
+     *
+     * @return void
+     *
+     * @throws Exception When the meeting is not an ALV (HTTP 422)
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+     */
+    private function assertAlvMeeting(array $meeting): void
+    {
+        $meetingType = strtolower((string) ($meeting['meetingType'] ?? ''));
+
+        if (strpos($meetingType, 'alv') === false
+            && strpos($meetingType, 'algemene-ledenvergadering') === false
+        ) {
+            throw new Exception("Meeting is not an ALV (type: $meetingType)", 422);
+        }
+
+    }//end assertAlvMeeting()
+
+    /**
+     * Assert that Minutes have reached a lifecycle state that may be distributed.
+     *
+     * @param array<string,mixed> $minutes The Minutes data
+     *
+     * @return void
+     *
+     * @throws Exception When the lifecycle is not approved or signed (HTTP 403)
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+     */
+    private function assertDistributable(array $minutes): void
+    {
+        $lifecycle = ($minutes['lifecycle'] ?? null);
+
+        if (in_array($lifecycle, self::DISTRIBUTABLE_LIFECYCLES, true) === false) {
+            throw new Exception(
+                "Minutes must be approved or signed before distribution (current: $lifecycle)",
+                403
+            );
+        }
+
+    }//end assertDistributable()
+
+    /**
+     * Determine how many members count as present.
+     *
+     * Without a quorum requirement every active member counts as present; with
+     * one, the present count is capped at the requirement.
+     *
+     * @param int                 $memberCount The active member count
+     * @param array<string,mixed> $meeting     The Meeting data
+     *
+     * @return int The present count
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+     */
+    private function presentCount(int $memberCount, array $meeting): int
+    {
+        if (empty($meeting['quorumRequired']) === true) {
+            return $memberCount;
+        }
+
+        return (int) min($memberCount, $meeting['quorumRequired']);
+
+    }//end presentCount()
+
+    /**
+     * Render the ALV Dutch template.
+     *
+     * @param array<string,mixed>            $minutes      The Minutes data
+     * @param array<string,mixed>            $meeting      The Meeting data
+     * @param array<int,array<string,mixed>> $agendaItems  The agenda items
+     * @param int                            $presentCount The present member count
+     * @param int                            $memberCount  The total member count
+     *
+     * @return string The rendered ALV minutes text
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+     */
+    private function renderAlvTemplate(
+        array $minutes,
+        array $meeting,
+        array $agendaItems,
+        int $presentCount,
+        int $memberCount
+    ): string {
+        $agendaText = '';
+        foreach ($agendaItems as $item) {
+            $agendaText .= sprintf(
+                "- %s: %s\n",
+                $item['orderNumber'] ?? '',
+                $item['title'] ?? 'Untitled'
+            );
+        }
+
+        $quorumStatus = "Quorum niet bereikt ($presentCount/$memberCount leden)";
+        if ($presentCount >= ($meeting['quorumRequired'] ?? 0)) {
+            $quorumStatus = "Quorum bereikt ($presentCount/$memberCount leden)";
+        }
+
+        $searchKeys = [
+            '{title}',
+            '{date}',
+            '{location}',
+            '{presentCount}',
+            '{totalCount}',
+            '{quorumStatus}',
+            '{agendaItems}',
+            '{resolutions}',
+            '{secretary}',
+            '{chair}',
+            '{aob}',
+        ];
+
+        return str_replace(
+            $searchKeys,
+            [
+                $minutes['title'] ?? 'Algemene Ledenvergadering',
+                $meeting['scheduledDate'] ?? date('d-m-Y'),
+                $meeting['location'] ?? '',
+                $presentCount,
+                $memberCount,
+                $quorumStatus,
+                trim($agendaText),
+                '[Resoluties met stemming in aparte tabel]',
+                '[Secretaris naam]',
+                '[Voorzitter naam]',
+                '[Rondvraag: geen bijzonderheden / gesloten om ...]',
+            ],
+            self::ALV_TEMPLATE
+        );
+
+    }//end renderAlvTemplate()
 }//end class

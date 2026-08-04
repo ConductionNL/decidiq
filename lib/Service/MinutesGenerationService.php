@@ -58,14 +58,16 @@ class MinutesGenerationService
     /**
      * Constructor for MinutesGenerationService.
      *
-     * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
-     * @param LoggerInterface    $logger    The logger
+     * @param ContainerInterface   $container The DI container (lazy-loads OpenRegister services)
+     * @param LoggerInterface      $logger    The logger
+     * @param MinutesDraftRenderer $renderer  Renders the gathered data into the Dutch template
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function __construct(
         private ContainerInterface $container,
         private LoggerInterface $logger,
+        private MinutesDraftRenderer $renderer,
     ) {
     }//end __construct()
 
@@ -132,7 +134,7 @@ class MinutesGenerationService
             }
         );
 
-        return $this->renderTemplate(
+        return $this->renderer->render(
             minutes: $minutes,
             meeting: $meeting,
             agendaItems: $agendaItems,
@@ -197,7 +199,7 @@ class MinutesGenerationService
         $updated = array_merge($minutes, ['lifecycle' => $newLifecycle]);
 
         if ($newLifecycle === 'approved') {
-            $updated['approvedAt'] = (new DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $updated['approvedAt'] = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
         }
 
         if (in_array($newLifecycle, ['approved', 'signed'], true) === true) {
@@ -311,17 +313,16 @@ class MinutesGenerationService
             );
         }
 
+        $reviewComments = [];
         if (is_array($minutes['reviewComments'] ?? null) === true) {
             $reviewComments = $minutes['reviewComments'];
-        } else {
-            $reviewComments = [];
         }
 
         $reviewComments[] = [
             'action'    => 'rejected',
             'comment'   => trim($comment),
             'author'    => $userId,
-            'createdAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'createdAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
         ];
 
         $updated = array_merge(
@@ -470,196 +471,6 @@ class MinutesGenerationService
         return $result;
 
     }//end fetchRelatedObjects()
-
-    /**
-     * Render the Dutch minutes template from the gathered data.
-     *
-     * @param array<string,mixed>            $minutes      Minutes object data
-     * @param array<string,mixed>            $meeting      Meeting object data
-     * @param array<int,array<string,mixed>> $agendaItems  Agenda items (sorted by orderNumber)
-     * @param array<int,array<string,mixed>> $motions      Motions from the meeting
-     * @param array<int,array<string,mixed>> $votingRounds VotingRounds from the meeting
-     * @param array<int,array<string,mixed>> $decisions    Decisions from the meeting
-     *
-     * @return string The rendered Dutch minutes text
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
-     */
-    private function renderTemplate(
-        array $minutes,
-        array $meeting,
-        array $agendaItems,
-        array $motions,
-        array $votingRounds,
-        array $decisions
-    ): string {
-        $lines = [];
-
-        $meetingTitle  = $meeting['title'] ?? $meeting['name'] ?? 'Vergadering';
-        $scheduledDate = $meeting['scheduledDate'] ?? $meeting['date'] ?? '';
-        $location      = $meeting['location'] ?? '';
-
-        if ($scheduledDate !== '') {
-            $formattedDate = $this->formatDate(isoDate: $scheduledDate);
-        } else {
-            $formattedDate = '';
-        }
-
-        $lines[] = '# '.($minutes['title'] ?? 'Concept Notulen');
-        $lines[] = '';
-        $lines[] = '**Vergadering:** '.$meetingTitle;
-        if ($formattedDate !== '') {
-            $lines[] = '**Datum:** '.$formattedDate;
-        }
-
-        if ($location !== '') {
-            $lines[] = '**Locatie:** '.$location;
-        }
-
-        $lines[] = '';
-        $lines[] = '---';
-        $lines[] = '';
-        $lines[] = '## 1. Opening';
-        $lines[] = '';
-        $lines[] = 'De vergadering wordt geopend door de voorzitter.';
-        $lines[] = '';
-
-        // Track the current section number — incremented each time a section is emitted.
-        $sectionNumber = 1;
-
-        // Agenda items section.
-        if (count($agendaItems) > 0) {
-            $sectionNumber++;
-            $lines[] = '## '.$sectionNumber.'. Agenda';
-            $lines[] = '';
-            $lines[] = 'De agenda wordt vastgesteld met de volgende punten:';
-            $lines[] = '';
-            foreach ($agendaItems as $index => $item) {
-                $order   = $item['orderNumber'] ?? ($index + 1);
-                $title   = $item['title'] ?? $item['name'] ?? 'Agendapunt '.$order;
-                $lines[] = sprintf('%d. %s', $order, $title);
-            }
-
-            $lines[] = '';
-        }
-
-        // Per-agenda-item treatment.
-        if (count($agendaItems) > 0) {
-            $sectionNumber++;
-            $lines[] = '## '.$sectionNumber.'. Behandeling agendapunten';
-            $lines[] = '';
-            foreach ($agendaItems as $index => $item) {
-                $order       = $item['orderNumber'] ?? ($index + 1);
-                $title       = $item['title'] ?? $item['name'] ?? 'Agendapunt '.$order;
-                $description = $item['description'] ?? '';
-                $lines[]     = sprintf('### %d. %s', $order, $title);
-                $lines[]     = '';
-                if ($description !== '') {
-                    $lines[] = $description;
-                    $lines[] = '';
-                }
-
-                $lines[] = '_[Hier de bespreking van dit agendapunt invullen.]_';
-                $lines[] = '';
-            }
-        }
-
-        // Motions section.
-        if (count($motions) > 0) {
-            $sectionNumber++;
-            $lines[] = '## '.$sectionNumber.'. Moties en voorstellen';
-            $lines[] = '';
-            foreach ($motions as $motion) {
-                $title   = $motion['title'] ?? $motion['name'] ?? 'Motie';
-                $text    = $motion['text'] ?? $motion['description'] ?? '';
-                $lines[] = '**'.$title.'**';
-                if ($text !== '') {
-                    $lines[] = '';
-                    $lines[] = $text;
-                }
-
-                $lines[] = '';
-            }
-        }
-
-        // Voting rounds section.
-        if (count($votingRounds) > 0) {
-            $sectionNumber++;
-            $lines[] = '## '.$sectionNumber.'. Stemmingen';
-            $lines[] = '';
-            foreach ($votingRounds as $round) {
-                $title   = $round['title'] ?? $round['name'] ?? 'Stemming';
-                $result  = $round['result'] ?? $round['outcome'] ?? '';
-                $lines[] = '**'.$title.'**';
-                if ($result !== '') {
-                    $lines[] = 'Uitslag: '.$result;
-                }
-
-                $lines[] = '';
-            }
-        }
-
-        // Decisions section.
-        if (count($decisions) > 0) {
-            $sectionNumber++;
-            $lines[] = '## '.$sectionNumber.'. Besluiten';
-            $lines[] = '';
-            foreach ($decisions as $decision) {
-                $title   = $decision['title'] ?? 'Besluit';
-                $text    = $decision['text'] ?? $decision['description'] ?? '';
-                $outcome = $decision['outcome'] ?? '';
-                $lines[] = '**'.$title.'**';
-                if ($outcome !== '') {
-                    if ($outcome === 'adopted') {
-                        $outcomeLabel = 'Aangenomen';
-                    } else {
-                        $outcomeLabel = 'Verworpen';
-                    }
-
-                    $lines[] = 'Uitkomst: '.$outcomeLabel;
-                }
-
-                if ($text !== '') {
-                    $lines[] = $text;
-                }
-
-                $lines[] = '';
-            }//end foreach
-        }//end if
-
-        // Closing section — number follows whichever sections were actually emitted.
-        $sectionNumber++;
-        $lines[] = '## '.$sectionNumber.'. Sluiting';
-        $lines[] = '';
-        $lines[] = 'De voorzitter sluit de vergadering.';
-        $lines[] = '';
-        $lines[] = '---';
-        $lines[] = '';
-        $lines[] = '_Dit is een automatisch gegenereerd concept. Controleer en bewerk de notulen vóór vaststelling._';
-
-        return implode("\n", $lines);
-
-    }//end renderTemplate()
-
-    /**
-     * Format an ISO 8601 date string to a Dutch display format.
-     *
-     * @param string $isoDate ISO 8601 date string
-     *
-     * @return string Dutch formatted date (dd-mm-yyyy HH:MM) or original string on failure
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
-     */
-    private function formatDate(string $isoDate): string
-    {
-        try {
-            $date = new DateTimeImmutable($isoDate);
-            return $date->format('d-m-Y H:i');
-        } catch (Throwable) {
-            return $isoDate;
-        }
-
-    }//end formatDate()
 
     /**
      * Lazy-load the OpenRegister ObjectService from the container.
