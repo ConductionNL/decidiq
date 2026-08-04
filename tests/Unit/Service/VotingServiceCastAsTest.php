@@ -32,10 +32,21 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ParticipantUuidLookup;
+use OCA\Decidesk\Service\ProcessTemplateService;
+use OCA\Decidesk\Service\VoteCastingService;
+use OCA\Decidesk\Service\VotingOpenedNotifier;
+use OCA\Decidesk\Service\VotingRoundCloser;
+use OCA\Decidesk\Service\VotingRoundOpener;
+use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidesk\Service\VotingRoundProjection;
+use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
+use OCA\Decidesk\Service\VotingSubjectOutcomeApplier;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
@@ -251,16 +262,88 @@ class VotingServiceCastAsTest extends TestCase
         $templateService = $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class);
         $templateService->method('resolveVotingRuleForBody')->willReturn(null);
 
-        return new VotingService(
+        return self::assembleVotingService(
             container: $container,
             logger: new NullLogger(),
-            oriService:$this->createMock(OriPublicationService::class),
+            oriService: $this->createMock(OriPublicationService::class),
             motionService: $this->motionService,
             participantResolver: $participantResolver,
-            templateService: $templateService,
+            templateService: $templateService
         );
 
     }//end buildService()
+
+    /**
+     * Assemble the VotingService facade from its collaborators.
+     *
+     * VotingService is a thin facade: every operation is delegated to a
+     * single-purpose collaborator, so the graph has to be built explicitly here
+     * where production relies on Nextcloud's constructor auto-wiring.
+     *
+     * @param ContainerInterface     $container           The (mocked) DI container
+     * @param LoggerInterface        $logger              The logger
+     * @param OriPublicationService  $oriService          The ORI publication service
+     * @param MotionService          $motionService       The motion service
+     * @param ParticipantResolver    $participantResolver The participant resolver
+     * @param ProcessTemplateService $templateService     The process template service
+     *
+     * @return VotingService
+     */
+    private static function assembleVotingService(
+        ContainerInterface $container,
+        LoggerInterface $logger,
+        OriPublicationService $oriService,
+        MotionService $motionService,
+        ParticipantResolver $participantResolver,
+        ProcessTemplateService $templateService
+    ): VotingService {
+        $results = new VotingRoundResults(
+            container: $container,
+            motionService: $motionService,
+            participantResolver: $participantResolver
+        );
+
+        return new VotingService(
+            opener: new VotingRoundOpener(
+                container: $container,
+                motionService: $motionService,
+                participantResolver: $participantResolver,
+                preflight: new VotingRoundPreflight(
+                    container: $container,
+                    logger: $logger,
+                    motionService: $motionService,
+                    participantResolver: $participantResolver,
+                    templateService: $templateService
+                ),
+                notifier: new VotingOpenedNotifier(
+                    container: $container,
+                    logger: $logger,
+                    participantResolver: $participantResolver
+                )
+            ),
+            caster: new VoteCastingService(
+                container: $container,
+                logger: $logger,
+                motionService: $motionService,
+                participantResolver: $participantResolver
+            ),
+            closer: new VotingRoundCloser(
+                container: $container,
+                logger: $logger,
+                oriService: $oriService,
+                results: $results,
+                outcome: new VotingSubjectOutcomeApplier(
+                    container: $container,
+                    logger: $logger,
+                    motionService: $motionService
+                )
+            ),
+            results: $results,
+            projection: new VotingRoundProjection(container: $container),
+            participants: new ParticipantUuidLookup(container: $container),
+        );
+
+    }//end assembleVotingService()
 
     /**
      * An open round without motion relation (skips the membership branch).
@@ -406,7 +489,7 @@ class VotingServiceCastAsTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage("tie-break rule is not 'chair-decides'");
 
-        $service->closeVotingRound(votingRoundId: 'round-1', anonymise: false, chairCasting: 'for');
+        $service->closeVotingRound(votingRoundId: 'round-1', chairCasting: 'for');
 
     }//end testChairCastingRefusedOnWrongTieBreakRule()
 
@@ -426,7 +509,7 @@ class VotingServiceCastAsTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage("value must be 'for' or 'against'");
 
-        $service->closeVotingRound(votingRoundId: 'round-1', anonymise: false, chairCasting: 'abstain');
+        $service->closeVotingRound(votingRoundId: 'round-1', chairCasting: 'abstain');
 
     }//end testChairCastingRefusedOnInvalidValue()
 
@@ -468,7 +551,7 @@ class VotingServiceCastAsTest extends TestCase
             ]
         );
 
-        $closed = $service->closeVotingRound(votingRoundId: 'round-1', anonymise: false, chairCasting: 'for');
+        $closed = $service->closeVotingRound(votingRoundId: 'round-1', chairCasting: 'for');
 
         self::assertSame('adopted', $closed['result'], 'The casting vote resolves the 1-1 tie to adopted');
         self::assertSame('for', $closed['chairCastingVote'], 'The casting vote is recorded for the audit trail');

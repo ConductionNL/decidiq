@@ -23,7 +23,16 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
+use OCA\Decidesk\Service\ParticipantUuidLookup;
+use OCA\Decidesk\Service\VoteCastingService;
+use OCA\Decidesk\Service\VotingOpenedNotifier;
+use OCA\Decidesk\Service\VotingRoundCloser;
+use OCA\Decidesk\Service\VotingRoundOpener;
+use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidesk\Service\VotingRoundProjection;
+use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
+use OCA\Decidesk\Service\VotingSubjectOutcomeApplier;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -116,13 +125,50 @@ class VotingServiceTest extends TestCase
         $templateService = $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class);
         $templateService->method('resolveVotingRuleForBody')->willReturn(null);
 
-        $this->service = new VotingService(
+        $results = new VotingRoundResults(
             container: $this->container,
-            oriService:$this->oriService,
-            logger: $this->logger,
             motionService: $this->motionService,
-            participantResolver: $participantResolver,
-            templateService: $templateService,
+            participantResolver: $participantResolver
+        );
+
+        $this->service = new VotingService(
+            opener: new VotingRoundOpener(
+                container: $this->container,
+                motionService: $this->motionService,
+                participantResolver: $participantResolver,
+                preflight: new VotingRoundPreflight(
+                    container: $this->container,
+                    logger: $this->logger,
+                    motionService: $this->motionService,
+                    participantResolver: $participantResolver,
+                    templateService: $templateService
+                ),
+                notifier: new VotingOpenedNotifier(
+                    container: $this->container,
+                    logger: $this->logger,
+                    participantResolver: $participantResolver
+                )
+            ),
+            caster: new VoteCastingService(
+                container: $this->container,
+                logger: $this->logger,
+                motionService: $this->motionService,
+                participantResolver: $participantResolver
+            ),
+            closer: new VotingRoundCloser(
+                container: $this->container,
+                logger: $this->logger,
+                oriService: $this->oriService,
+                results: $results,
+                outcome: new VotingSubjectOutcomeApplier(
+                    container: $this->container,
+                    logger: $this->logger,
+                    motionService: $this->motionService
+                )
+            ),
+            results: $results,
+            projection: new VotingRoundProjection(container: $this->container),
+            participants: new ParticipantUuidLookup(container: $this->container),
         );
 
     }//end setUp()

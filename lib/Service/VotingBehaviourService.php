@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
  */
 
 declare(strict_types=1);
@@ -37,7 +37,7 @@ use Psr\Container\ContainerInterface;
  * to a governance-body), and votes are linked to a round and a participant via
  * their relations array — there are no scalar foreign-key fields.
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
  */
 class VotingBehaviourService
 {
@@ -48,7 +48,7 @@ class VotingBehaviourService
      *
      * @return void
      *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -84,20 +84,52 @@ class VotingBehaviourService
      * @return array<string,mixed> Statistics array with totalRounds, participated, participationRate,
      *                             votesFor, votesAgainst, votesAbstain, proxiesGiven, proxiesReceived
      *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
      */
     public function getStats(string $participantId, string $governanceBodyId): array
     {
-        $objectService = $this->objectService();
+        $closedRounds = $this->closedRoundsForBody(governanceBodyId: $governanceBodyId);
+        $totalRounds  = count($closedRounds);
+        $behaviour    = $this->tallyBehaviour(participantId: $participantId, closedRounds: $closedRounds);
 
-        // Step 1: Fetch all motions for this governance body.
+        return array_merge(
+            [
+                'participantId'     => $participantId,
+                'governanceBodyId'  => $governanceBodyId,
+                'totalRounds'       => $totalRounds,
+                'participated'      => $behaviour['participated'],
+                'participationRate' => $this->participationRate(
+                    participated: $behaviour['participated'],
+                    totalRounds: $totalRounds
+                ),
+            ],
+            $behaviour['counts']
+        );
+
+    }//end getStats()
+
+    /**
+     * Collect every closed voting round of a governance body.
+     *
+     * Traversal: governanceBodyId -> motions (relations.governance-body = $bodyId)
+     * -> voting-rounds (relations.motion = $motionId), keeping only rounds whose
+     * closedAt is set.
+     *
+     * @param string $governanceBodyId The governance body UUID
+     *
+     * @return array<int, array<string, mixed>> The serialised closed voting rounds
+     *
+     * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
+     */
+    private function closedRoundsForBody(string $governanceBodyId): array
+    {
+        $objectService = $this->objectService();
         $objectService->setRegister('decidesk');
         $objectService->setSchema('motion');
         $motionEntities = $objectService->findAll(
             ['filters' => ['_relations.governance-body' => $governanceBodyId]]
         );
 
-        // Step 2: For each motion, collect all closed voting-rounds.
         $closedRounds = [];
         foreach ($motionEntities as $motionEntity) {
             $motion   = $motionEntity->jsonSerialize();
@@ -121,100 +153,197 @@ class VotingBehaviourService
             }
         }//end foreach
 
-        $totalRounds     = count($closedRounds);
-        $participated    = 0;
-        $votesFor        = 0;
-        $votesAgainst    = 0;
-        $votesAbstain    = 0;
-        $proxiesGiven    = 0;
-        $proxiesReceived = 0;
+        return $closedRounds;
 
-        // Step 3: For each closed round, fetch votes for this participant.
+    }//end closedRoundsForBody()
+
+    /**
+     * Aggregate the participant's behaviour across a set of closed rounds.
+     *
+     * @param string                           $participantId The participant UUID
+     * @param array<int, array<string, mixed>> $closedRounds  The closed voting rounds
+     *
+     * @return array{participated: int, counts: array<string, int>} The participation count and the vote/proxy counters
+     *
+     * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
+     */
+    private function tallyBehaviour(string $participantId, array $closedRounds): array
+    {
+        $participated = 0;
+        $counts       = [
+            'votesFor'        => 0,
+            'votesAgainst'    => 0,
+            'votesAbstain'    => 0,
+            'proxiesGiven'    => 0,
+            'proxiesReceived' => 0,
+        ];
+
         foreach ($closedRounds as $round) {
             $roundId = ($round['id'] ?? ($round['uuid'] ?? null));
             if ($roundId === null) {
                 continue;
             }
 
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('vote');
-            $voteEntities = $objectService->findAll(
-                    [
-                        'filters' => [
-                            '_relations.voting-round' => $roundId,
-                            '_relations.participant'  => $participantId,
-                        ],
-                    ]
-                    );
-
-            $votes = array_map(fn($e) => $e->jsonSerialize(), $voteEntities);
+            $votes = $this->participantVotes(participantId: $participantId, roundId: $roundId);
             if (count($votes) > 0) {
                 $participated++;
-
-                // Count vote values.
-                foreach ($votes as $vote) {
-                    $value = ($vote['value'] ?? null);
-                    if ($value === 'for') {
-                        $votesFor++;
-                    } else if ($value === 'against') {
-                        $votesAgainst++;
-                    } else if ($value === 'abstain') {
-                        $votesAbstain++;
-                    }
-
-                    // Count proxy status: isProxy=true means this participant voted as proxy
-                    // on behalf of someone else (they cast the proxy, i.e., proxiesGiven).
-                    if ($vote['isProxy'] ?? false) {
-                        $proxiesGiven++;
-                    }
-                }
-            }//end if
-
-            // Count proxies received: find proxy votes in this round where this
-            // participant was the delegator (a relation entry with type='delegator').
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('vote');
-            $proxyVoteEntities = $objectService->findAll(
-                [
-                    'filters' => [
-                        '_relations.voting-round' => $roundId,
-                        'isProxy'                 => true,
-                    ],
-                ]
-            );
-            foreach ($proxyVoteEntities as $proxyVoteEntity) {
-                $proxyVote = $proxyVoteEntity->jsonSerialize();
-                foreach (($proxyVote['relations'] ?? []) as $rel) {
-                    if (is_array($rel) === true
-                        && ($rel['schema'] ?? '') === 'participant'
-                        && ($rel['id'] ?? '') === $participantId
-                        && ($rel['type'] ?? '') === 'delegator'
-                    ) {
-                        $proxiesReceived++;
-                        break;
-                    }
-                }
+                $counts = $this->addVoteCounts(counts: $counts, votes: $votes);
             }
-        }//end foreach
 
-        // Participation rate as percentage.
-        $participationRate = 0.0;
-        if ($totalRounds > 0) {
-            $participationRate = round(($participated / $totalRounds) * 100, 1);
+            $counts['proxiesReceived'] += $this->countProxiesReceived(
+                participantId: $participantId,
+                roundId: $roundId
+            );
         }
 
-        return [
-            'participantId'     => $participantId,
-            'governanceBodyId'  => $governanceBodyId,
-            'totalRounds'       => $totalRounds,
-            'participated'      => $participated,
-            'participationRate' => $participationRate,
-            'votesFor'          => $votesFor,
-            'votesAgainst'      => $votesAgainst,
-            'votesAbstain'      => $votesAbstain,
-            'proxiesGiven'      => $proxiesGiven,
-            'proxiesReceived'   => $proxiesReceived,
-        ];
+        return ['participated' => $participated, 'counts' => $counts];
 
-    }//end getStats()
+    }//end tallyBehaviour()
+
+    /**
+     * Fetch the participant's ballots in a single round.
+     *
+     * @param string $participantId The participant UUID
+     * @param string $roundId       The voting round UUID
+     *
+     * @return array<int, array<string, mixed>> The serialised Vote objects
+     *
+     * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
+     */
+    private function participantVotes(string $participantId, string $roundId): array
+    {
+        $objectService = $this->objectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('vote');
+        $voteEntities = $objectService->findAll(
+            [
+                'filters' => [
+                    '_relations.voting-round' => $roundId,
+                    '_relations.participant'  => $participantId,
+                ],
+            ]
+        );
+
+        return array_map(fn($e) => $e->jsonSerialize(), $voteEntities);
+
+    }//end participantVotes()
+
+    /**
+     * Add a round's ballots to the running vote and proxy-given counters.
+     *
+     * A ballot with isProxy=true means this participant voted as proxy on behalf
+     * of someone else (they cast the proxy, i.e. proxiesGiven).
+     *
+     * @param array<string, int>               $counts The running counters
+     * @param array<int, array<string, mixed>> $votes  The participant's ballots in this round
+     *
+     * @return array<string, int> The updated counters
+     *
+     * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
+     */
+    private function addVoteCounts(array $counts, array $votes): array
+    {
+        foreach ($votes as $vote) {
+            $value = ($vote['value'] ?? null);
+            if ($value === 'for') {
+                $counts['votesFor']++;
+            } else if ($value === 'against') {
+                $counts['votesAgainst']++;
+            } else if ($value === 'abstain') {
+                $counts['votesAbstain']++;
+            }
+
+            if ($vote['isProxy'] ?? false) {
+                $counts['proxiesGiven']++;
+            }
+        }
+
+        return $counts;
+
+    }//end addVoteCounts()
+
+    /**
+     * Count the proxy ballots in a round that were cast on this participant's behalf.
+     *
+     * Finds proxy votes in the round where this participant was the delegator (a
+     * relation entry with type='delegator').
+     *
+     * @param string $participantId The participant UUID
+     * @param string $roundId       The voting round UUID
+     *
+     * @return int The number of proxies received in this round
+     *
+     * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
+     */
+    private function countProxiesReceived(string $participantId, string $roundId): int
+    {
+        $objectService = $this->objectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('vote');
+        $proxyVoteEntities = $objectService->findAll(
+            [
+                'filters' => [
+                    '_relations.voting-round' => $roundId,
+                    'isProxy'                 => true,
+                ],
+            ]
+        );
+
+        $received = 0;
+        foreach ($proxyVoteEntities as $proxyVoteEntity) {
+            $proxyVote = $proxyVoteEntity->jsonSerialize();
+            if ($this->isDelegatedBy(vote: $proxyVote, participantId: $participantId) === true) {
+                $received++;
+            }
+        }
+
+        return $received;
+
+    }//end countProxiesReceived()
+
+    /**
+     * Whether a serialised proxy ballot names this participant as the delegator.
+     *
+     * @param array<string, mixed> $vote          The serialised Vote object
+     * @param string               $participantId The participant UUID
+     *
+     * @return bool True when the ballot carries a 'delegator' relation to the participant
+     *
+     * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
+     */
+    private function isDelegatedBy(array $vote, string $participantId): bool
+    {
+        foreach (($vote['relations'] ?? []) as $rel) {
+            if (is_array($rel) === true
+                && ($rel['schema'] ?? '') === 'participant'
+                && ($rel['id'] ?? '') === $participantId
+                && ($rel['type'] ?? '') === 'delegator'
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }//end isDelegatedBy()
+
+    /**
+     * Express participation as a percentage of the closed rounds.
+     *
+     * @param int $participated The number of rounds the participant voted in
+     * @param int $totalRounds  The number of closed rounds
+     *
+     * @return float The participation rate, rounded to one decimal
+     *
+     * @spec openspec/specs/member-voting-behaviour-tracking/spec.md
+     */
+    private function participationRate(int $participated, int $totalRounds): float
+    {
+        if ($totalRounds === 0) {
+            return 0.0;
+        }
+
+        return round((($participated / $totalRounds) * 100), 1);
+
+    }//end participationRate()
 }//end class

@@ -31,7 +31,17 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ParticipantUuidLookup;
+use OCA\Decidesk\Service\ProcessTemplateService;
+use OCA\Decidesk\Service\VoteCastingService;
+use OCA\Decidesk\Service\VotingOpenedNotifier;
+use OCA\Decidesk\Service\VotingRoundCloser;
+use OCA\Decidesk\Service\VotingRoundOpener;
+use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidesk\Service\VotingRoundProjection;
+use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
+use OCA\Decidesk\Service\VotingSubjectOutcomeApplier;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -51,13 +61,58 @@ class VotingServiceTallyMatrixTest extends TestCase
      */
     private function buildService(): VotingService
     {
+        // Only computeResult() is exercised here, so the facade is assembled with
+        // the single collaborator that backs it; the rest are cheap stand-ins.
+        $container           = $this->createMock(ContainerInterface::class);
+        $logger              = new NullLogger();
+        $motionService       = $this->createMock(MotionService::class);
+        $participantResolver = $this->createMock(ParticipantResolver::class);
+        $templateService     = $this->createMock(ProcessTemplateService::class);
+
+        $results = new VotingRoundResults(
+            container: $container,
+            motionService: $motionService,
+            participantResolver: $participantResolver
+        );
+
         return new VotingService(
-            container: $this->createMock(ContainerInterface::class),
-            logger: new NullLogger(),
-            oriService:$this->createMock(OriPublicationService::class),
-            motionService: $this->createMock(MotionService::class),
-            participantResolver: $this->createMock(ParticipantResolver::class),
-            templateService: $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class),
+            opener: new VotingRoundOpener(
+                container: $container,
+                motionService: $motionService,
+                participantResolver: $participantResolver,
+                preflight: new VotingRoundPreflight(
+                    container: $container,
+                    logger: $logger,
+                    motionService: $motionService,
+                    participantResolver: $participantResolver,
+                    templateService: $templateService
+                ),
+                notifier: new VotingOpenedNotifier(
+                    container: $container,
+                    logger: $logger,
+                    participantResolver: $participantResolver
+                )
+            ),
+            caster: new VoteCastingService(
+                container: $container,
+                logger: $logger,
+                motionService: $motionService,
+                participantResolver: $participantResolver
+            ),
+            closer: new VotingRoundCloser(
+                container: $container,
+                logger: $logger,
+                oriService: $this->createMock(OriPublicationService::class),
+                results: $results,
+                outcome: new VotingSubjectOutcomeApplier(
+                    container: $container,
+                    logger: $logger,
+                    motionService: $motionService
+                )
+            ),
+            results: $results,
+            projection: new VotingRoundProjection(container: $container),
+            participants: new ParticipantUuidLookup(container: $container),
         );
 
     }//end buildService()
