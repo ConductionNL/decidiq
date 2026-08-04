@@ -40,8 +40,10 @@ use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;
+use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Background job that polls for email vote replies on open VotingRounds.
@@ -305,158 +307,19 @@ class MailReplyHandler extends TimedJob
         $dirty = false;
 
         foreach ($round['_mail'] as &$mailEntry) {
-            $participantId = ($mailEntry['participantId'] ?? null);
-            $replyBody     = ($mailEntry['replyBody'] ?? '');
-            $processed     = (bool) ($mailEntry['processed'] ?? false);
+            $updated = $this->handleMailEntry(
+                objectService: $objectService,
+                round: $round,
+                roundId: $roundId,
+                entry: $mailEntry,
+                notificationService: $notificationService
+            );
 
-            if ($processed === true || $participantId === null) {
-                continue;
+            if ($updated !== null) {
+                $mailEntry = $updated;
+                $dirty     = true;
             }
-
-            // Reject any _mail entry that lacks a valid HMAC signature.
-            // An entry without a signature was not written by the trusted ingestion path —
-            // it may have been injected directly into OpenRegister by a user with write
-            // access to the VotingRound object (OWASP A08:2021 / issue #299).
-            if ($this->verifyMailHmac(entry: $mailEntry, roundId: $roundId) === false) {
-                $this->logger->warning(
-                    'Decidesk: MailReplyHandler — _mail entry rejected: missing or invalid HMAC signature',
-                    [
-                        'participantId' => $participantId,
-                        'votingRoundId' => $roundId,
-                    ]
-                );
-                continue;
-            }
-
-            // Validate that the participantId from _mail metadata refers to an existing Participant
-            // object before casting any vote. This prevents manipulated metadata from casting
-            // votes on behalf of arbitrary or non-existent participants (OWASP A07:2021).
-            $participantEntity = $objectService->find(id: $participantId, register: 'decidesk', schema: 'participant');
-            $participant       = null;
-            if ($participantEntity !== null) {
-                $participant = $participantEntity->jsonSerialize();
-            }
-
-            if ($participant === null) {
-                $this->logger->warning(
-                    'Decidesk: MailReplyHandler — unknown participantId in _mail metadata, skipping',
-                    [
-                        'participantId' => $participantId,
-                        'votingRoundId' => $roundId,
-                    ]
-                );
-                continue;
-            }
-
-            // Resolve Nextcloud UID for notifications — participant UUID is not a valid Nextcloud userId.
-            // Prefer the stored nextcloudUserId; fall back to email lookup via IUserManager.
-            $notifyUid = $participant['nextcloudUserId'] ?? null;
-            if ($notifyUid === null) {
-                $email = $participant['email'] ?? null;
-                if ($email !== null) {
-                    try {
-                        $userManager = $this->container->get(\OCP\IUserManager::class);
-                        $users       = $userManager->getByEmail($email);
-                        if (count($users) === 1) {
-                            $notifyUid = $users[0]->getUID();
-                        }
-                    } catch (\Throwable $e) {
-                        $this->logger->warning('Decidesk: could not resolve Nextcloud UID for participant', ['participantId' => $participantId]);
-                    }
-                }
-            }
-
-            // Refuse email votes on secret rounds: email does not provide ballot secrecy.
-            // An email reply is visible in transit logs and to the mail server operator;
-            // counting it as a secret ballot would undermine the anonymity guarantee
-            // (issue #299, item 4 of suggested fix).
-            if ((bool) ($round['isSecret'] ?? false) === true) {
-                $this->logger->warning(
-                    'Decidesk: MailReplyHandler — email vote rejected: round is a secret ballot',
-                    [
-                        'participantId' => $participantId,
-                        'votingRoundId' => $roundId,
-                    ]
-                );
-                $mailEntry['processed']    = true;
-                $mailEntry['abandoned']    = true;
-                $mailEntry['rejectReason'] = 'secret-ballot';
-                $dirty = true;
-                continue;
-            }
-
-            $keyword = $this->parseVoteKeyword(body: $replyBody);
-
-            if ($keyword !== null) {
-                try {
-                    $this->votingService->castVote(
-                        votingRoundId: $roundId,
-                        participantId: $participantId,
-                        value: $keyword,
-                        isProxy: false,
-                        delegatorId: null
-                    );
-
-                    // Send confirmation — use Nextcloud UID, not OpenRegister participant UUID.
-                    if ($notifyUid !== null) {
-                        $notificationService->createNotification(
-                            userId: $notifyUid,
-                            app: 'decidesk',
-                            subject: 'email_vote_confirmed',
-                            subjectParameters: ['value' => $keyword, 'votingRoundId' => $roundId],
-                            object: 'voting-round',
-                            objectId: $roundId
-                        );
-                    }
-
-                    $mailEntry['processed'] = true;
-                    $dirty = true;
-                    $this->logger->info('Decidesk: email vote processed', ['participant' => $participantId]);
-                } catch (\Throwable $e) {
-                    $this->logger->warning('Decidesk: email vote cast failed', ['error' => $e->getMessage()]);
-                }//end try
-            } else {
-                $retries = (int) ($mailEntry['retries'] ?? 0);
-                $retries++;
-
-                if ($retries >= self::MAX_RETRIES) {
-                    $mailEntry['processed'] = true;
-                    $mailEntry['abandoned'] = true;
-                    $dirty = true;
-                    if ($notifyUid !== null) {
-                        try {
-                            $notificationService->createNotification(
-                                userId: $notifyUid,
-                                app: 'decidesk',
-                                subject: 'email_vote_abandoned',
-                                subjectParameters: ['votingRoundId' => $roundId],
-                                object: 'voting-round',
-                                objectId: $roundId
-                            );
-                        } catch (\Throwable $e) {
-                            $this->logger->warning('Decidesk: abandoned vote notification failed', ['error' => $e->getMessage()]);
-                        }
-                    }
-                } else {
-                    $mailEntry['retries'] = $retries;
-                    $dirty = true;
-                    if ($notifyUid !== null) {
-                        try {
-                            $notificationService->createNotification(
-                                userId: $notifyUid,
-                                app: 'decidesk',
-                                subject: 'email_vote_reprompt',
-                                subjectParameters: ['votingRoundId' => $roundId, 'attempt' => $retries],
-                                object: 'voting-round',
-                                objectId: $roundId
-                            );
-                        } catch (\Throwable $e) {
-                            $this->logger->warning('Decidesk: reprompt notification failed', ['error' => $e->getMessage()]);
-                        }
-                    }
-                }//end if
-            }//end if
-        }//end foreach
+        }
 
         unset($mailEntry);
 
@@ -466,6 +329,348 @@ class MailReplyHandler extends TimedJob
         }
 
     }//end processRoundMailReplies()
+
+    /**
+     * Process one _mail entry, returning the mutated entry or null.
+     *
+     * A null return means the entry was skipped and nothing needs persisting;
+     * any other return value replaces the entry in the round's _mail array.
+     *
+     * @param object              $objectService       The OpenRegister ObjectService
+     * @param array<string,mixed> $round               The VotingRound object
+     * @param string              $roundId             The VotingRound UUID
+     * @param array<string,mixed> $entry               The _mail entry to process
+     * @param object              $notificationService The OpenRegister NotificationService
+     *
+     * @return array<string,mixed>|null The mutated entry, or null when unchanged.
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function handleMailEntry(
+        object $objectService,
+        array $round,
+        string $roundId,
+        array $entry,
+        object $notificationService,
+    ): ?array {
+        $participantId = ($entry['participantId'] ?? null);
+        if ((bool) ($entry['processed'] ?? false) === true || $participantId === null) {
+            return null;
+        }
+
+        // Reject any _mail entry that lacks a valid HMAC signature.
+        // An entry without a signature was not written by the trusted ingestion path —
+        // it may have been injected directly into OpenRegister by a user with write
+        // access to the VotingRound object (OWASP A08:2021 / issue #299).
+        if ($this->verifyMailHmac(entry: $entry, roundId: $roundId) === false) {
+            $this->logger->warning(
+                'Decidesk: MailReplyHandler — _mail entry rejected: missing or invalid HMAC signature',
+                [
+                    'participantId' => $participantId,
+                    'votingRoundId' => $roundId,
+                ]
+            );
+            return null;
+        }
+
+        // Validate that the participantId from _mail metadata refers to an existing Participant
+        // object before casting any vote. This prevents manipulated metadata from casting
+        // votes on behalf of arbitrary or non-existent participants (OWASP A07:2021).
+        $participant = $this->findParticipant(objectService: $objectService, participantId: $participantId);
+        if ($participant === null) {
+            $this->logger->warning(
+                'Decidesk: MailReplyHandler — unknown participantId in _mail metadata, skipping',
+                [
+                    'participantId' => $participantId,
+                    'votingRoundId' => $roundId,
+                ]
+            );
+            return null;
+        }
+
+        $notifyUid = $this->resolveNotifyUid(participant: $participant, participantId: $participantId);
+
+        // Refuse email votes on secret rounds: email does not provide ballot secrecy.
+        // An email reply is visible in transit logs and to the mail server operator;
+        // counting it as a secret ballot would undermine the anonymity guarantee
+        // (issue #299, item 4 of suggested fix).
+        if ((bool) ($round['isSecret'] ?? false) === true) {
+            $this->logger->warning(
+                'Decidesk: MailReplyHandler — email vote rejected: round is a secret ballot',
+                [
+                    'participantId' => $participantId,
+                    'votingRoundId' => $roundId,
+                ]
+            );
+            $entry['processed']    = true;
+            $entry['abandoned']    = true;
+            $entry['rejectReason'] = 'secret-ballot';
+
+            return $entry;
+        }
+
+        $keyword = $this->parseVoteKeyword(body: (string) ($entry['replyBody'] ?? ''));
+        if ($keyword === null) {
+            return $this->recordUnparsedReply(
+                entry: $entry,
+                roundId: $roundId,
+                notifyUid: $notifyUid,
+                notificationService: $notificationService
+            );
+        }
+
+        return $this->castEmailVote(
+            entry: $entry,
+            roundId: $roundId,
+            participantId: $participantId,
+            keyword: $keyword,
+            notifyUid: $notifyUid,
+            notificationService: $notificationService
+        );
+
+    }//end handleMailEntry()
+
+    /**
+     * Load the Participant object named by a _mail entry.
+     *
+     * @param object $objectService The OpenRegister ObjectService
+     * @param string $participantId The participant UUID from the _mail metadata
+     *
+     * @return array<string,mixed>|null The participant, or null when it does not exist.
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function findParticipant(object $objectService, string $participantId): ?array
+    {
+        $participantEntity = $objectService->find(id: $participantId, register: 'decidesk', schema: 'participant');
+        if ($participantEntity === null) {
+            return null;
+        }
+
+        return $participantEntity->jsonSerialize();
+
+    }//end findParticipant()
+
+    /**
+     * Resolve the Nextcloud UID to notify for a participant.
+     *
+     * The participant UUID is not a valid Nextcloud userId, so notifications
+     * need the stored nextcloudUserId; when that is absent the participant's
+     * email address is looked up via IUserManager, and an ambiguous or failing
+     * lookup yields null (no notification is sent).
+     *
+     * @param array<string,mixed> $participant   The participant object
+     * @param string              $participantId The participant UUID (for logging)
+     *
+     * @return string|null The Nextcloud UID, or null when it cannot be resolved.
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function resolveNotifyUid(array $participant, string $participantId): ?string
+    {
+        $notifyUid = ($participant['nextcloudUserId'] ?? null);
+        if ($notifyUid !== null) {
+            return $notifyUid;
+        }
+
+        $email = ($participant['email'] ?? null);
+        if ($email === null) {
+            return null;
+        }
+
+        try {
+            $userManager = $this->container->get(IUserManager::class);
+            $users       = $userManager->getByEmail($email);
+            if (count($users) === 1) {
+                return $users[0]->getUID();
+            }
+        } catch (Throwable $e) {
+            $this->logger->warning(
+                'Decidesk: could not resolve Nextcloud UID for participant',
+                ['participantId' => $participantId]
+            );
+        }
+
+        return null;
+
+    }//end resolveNotifyUid()
+
+    /**
+     * Cast the parsed email vote and confirm it to the voter.
+     *
+     * The confirmation notification shares the cast's try block on purpose: if
+     * confirming fails the entry is NOT marked processed, so the next run
+     * retries the whole step rather than leaving a vote the voter was never
+     * told about.
+     *
+     * @param array<string,mixed> $entry               The _mail entry
+     * @param string              $roundId             The VotingRound UUID
+     * @param string              $participantId       The participant UUID
+     * @param string              $keyword             The parsed canonical vote value
+     * @param string|null         $notifyUid           The Nextcloud UID to confirm to
+     * @param object              $notificationService The OpenRegister NotificationService
+     *
+     * @return array<string,mixed>|null The mutated entry, or null when the cast failed.
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function castEmailVote(
+        array $entry,
+        string $roundId,
+        string $participantId,
+        string $keyword,
+        ?string $notifyUid,
+        object $notificationService,
+    ): ?array {
+        try {
+            $this->votingService->castVote(
+                votingRoundId: $roundId,
+                participantId: $participantId,
+                value: $keyword,
+                isProxy: false,
+                delegatorId: null
+            );
+
+            // Send confirmation — use Nextcloud UID, not OpenRegister participant UUID.
+            $this->notify(
+                notificationService: $notificationService,
+                notifyUid: $notifyUid,
+                subject: 'email_vote_confirmed',
+                parameters: ['value' => $keyword, 'votingRoundId' => $roundId],
+                roundId: $roundId
+            );
+
+            $entry['processed'] = true;
+            $this->logger->info('Decidesk: email vote processed', ['participant' => $participantId]);
+
+            return $entry;
+        } catch (Throwable $e) {
+            $this->logger->warning('Decidesk: email vote cast failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }//end try
+
+    }//end castEmailVote()
+
+    /**
+     * Record an unrecognised reply: re-prompt, or abandon after MAX_RETRIES.
+     *
+     * @param array<string,mixed> $entry               The _mail entry
+     * @param string              $roundId             The VotingRound UUID
+     * @param string|null         $notifyUid           The Nextcloud UID to notify
+     * @param object              $notificationService The OpenRegister NotificationService
+     *
+     * @return array<string,mixed> The mutated entry.
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function recordUnparsedReply(
+        array $entry,
+        string $roundId,
+        ?string $notifyUid,
+        object $notificationService,
+    ): array {
+        $retries = ((int) ($entry['retries'] ?? 0) + 1);
+
+        if ($retries >= self::MAX_RETRIES) {
+            $entry['processed'] = true;
+            $entry['abandoned'] = true;
+            $this->notifyQuietly(
+                notificationService: $notificationService,
+                notifyUid: $notifyUid,
+                subject: 'email_vote_abandoned',
+                parameters: ['votingRoundId' => $roundId],
+                roundId: $roundId,
+                failureMessage: 'Decidesk: abandoned vote notification failed'
+            );
+
+            return $entry;
+        }
+
+        $entry['retries'] = $retries;
+        $this->notifyQuietly(
+            notificationService: $notificationService,
+            notifyUid: $notifyUid,
+            subject: 'email_vote_reprompt',
+            parameters: ['votingRoundId' => $roundId, 'attempt' => $retries],
+            roundId: $roundId,
+            failureMessage: 'Decidesk: reprompt notification failed'
+        );
+
+        return $entry;
+
+    }//end recordUnparsedReply()
+
+    /**
+     * Send one voting-round notification, skipping when there is no recipient.
+     *
+     * @param object              $notificationService The OpenRegister NotificationService
+     * @param string|null         $notifyUid           The Nextcloud UID to notify
+     * @param string              $subject             The notification subject key
+     * @param array<string,mixed> $parameters          The subject parameters
+     * @param string              $roundId             The VotingRound UUID
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function notify(
+        object $notificationService,
+        ?string $notifyUid,
+        string $subject,
+        array $parameters,
+        string $roundId,
+    ): void {
+        if ($notifyUid === null) {
+            return;
+        }
+
+        $notificationService->createNotification(
+            userId: $notifyUid,
+            app: 'decidesk',
+            subject: $subject,
+            subjectParameters: $parameters,
+            object: 'voting-round',
+            objectId: $roundId
+        );
+
+    }//end notify()
+
+    /**
+     * Send a notification whose failure must not abort the entry's bookkeeping.
+     *
+     * @param object              $notificationService The OpenRegister NotificationService
+     * @param string|null         $notifyUid           The Nextcloud UID to notify
+     * @param string              $subject             The notification subject key
+     * @param array<string,mixed> $parameters          The subject parameters
+     * @param string              $roundId             The VotingRound UUID
+     * @param string              $failureMessage      The message logged on failure
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+     */
+    private function notifyQuietly(
+        object $notificationService,
+        ?string $notifyUid,
+        string $subject,
+        array $parameters,
+        string $roundId,
+        string $failureMessage,
+    ): void {
+        try {
+            $this->notify(
+                notificationService: $notificationService,
+                notifyUid: $notifyUid,
+                subject: $subject,
+                parameters: $parameters,
+                roundId: $roundId
+            );
+        } catch (Throwable $e) {
+            $this->logger->warning($failureMessage, ['error' => $e->getMessage()]);
+        }
+
+    }//end notifyQuietly()
 
     /**
      * Parse the first non-empty line of an email reply for a vote keyword.

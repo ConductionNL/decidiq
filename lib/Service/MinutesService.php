@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use Exception;
+use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -65,102 +67,217 @@ class MinutesService
     public function notifyApproversOnSubmit(string $minutesId, string $actorId): int
     {
         try {
-            $objectService       = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $notificationService = $this->container->get('OpenRegisterNotificationService');
-
-            // Fetch Minutes.
-            $minutesEntity = $objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
-
-            if ($minutes === null) {
-                $this->logger->warning("Minutes not found: $minutesId");
-                return 0;
-            }
-
-            // Get linked Meeting.
-            $meetingId = null;
-            if (empty($minutes['relations']['Meeting']) === false) {
-                $meetingRels = $minutes['relations']['Meeting'];
-                $meetingId   = $meetingRels;
-                if (is_array($meetingRels) === true) {
-                    $meetingId = $meetingRels[0];
-                }
-            }
-
-            // Get GovernanceBody from Meeting.
-            $bodyId = null;
-            if ($meetingId !== null) {
-                $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
-                $meeting       = null;
-                if ($meetingEntity !== null) {
-                    $meeting = $meetingEntity->jsonSerialize();
-                }
-
-                if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
-                    $bodyRels = $meeting['relations']['GovernanceBody'];
-                    $bodyId   = $bodyRels;
-                    if (is_array($bodyRels) === true) {
-                        $bodyId = $bodyRels[0];
-                    }
-                }
-            }
-
-            if (empty($bodyId) === true) {
-                $this->logger->info("No GovernanceBody linked to Minutes $minutesId");
-                return 0;
-            }
-
-            // Query Memberships with chair/secretary roles.
-            $params = [
-                'role'   => ['chair', 'secretary'],
-                '_limit' => 999,
-            ];
-
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('participant');
-            $membershipEntities = $objectService->findAll(['filters' => $params]);
-
-            $userManager = $this->container->get(\OCP\IUserManager::class);
-            $sentCount   = 0;
-            foreach ($membershipEntities as $membershipEntity) {
-                $membership = $membershipEntity->jsonSerialize();
-                $ncUid      = $membership['nextcloudUserId'] ?? null;
-                if (empty($ncUid) === true) {
-                    $displayName = $membership['displayName'] ?? null;
-                    if (empty($displayName) === false) {
-                        $users = $userManager->search(pattern: $displayName, limit: 1);
-                        if (empty($users) === false) {
-                            $ncUid = array_values($users)[0]->getUID();
-                        }
-                    }
-                }
-
-                if (empty($ncUid) === true) {
-                    $memberName = $membership['displayName'] ?? '?';
-                    $this->logger->warning('MinutesService: cannot resolve Nextcloud UID', ['displayName' => $memberName]);
-                    continue;
-                }
-
-                try {
-                    $notificationService->sendNotification(
-                        userId: $ncUid,
-                        title: "Notulen ter goedkeuring: ".($minutes['title'] ?? 'Untitled'),
-                        message: "De notulen zijn ter goedkeuring ingediend.",
-                        deepLink: "/minutes/$minutesId"
-                    );
-                    $sentCount++;
-                } catch (\Exception $e) {
-                    $this->logger->warning("Failed to send approval notification: ".$e->getMessage());
-                }
-            }//end foreach
-
-            return $sentCount;
-        } catch (\Exception $e) {
+            return $this->notifyApprovers(minutesId: $minutesId);
+        } catch (Exception $e) {
             $this->logger->error("MinutesService::notifyApproversOnSubmit failed: ".$e->getMessage());
             return 0;
-        }//end try
+        }
+
     }//end notifyApproversOnSubmit()
+
+    /**
+     * Resolve the approvers and notify them (the body of notifyApproversOnSubmit).
+     *
+     * @param string $minutesId The Minutes ID
+     *
+     * @return int The count of notifications sent
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.1
+     */
+    private function notifyApprovers(string $minutesId): int
+    {
+        $objectService       = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+        $notificationService = $this->container->get('OpenRegisterNotificationService');
+
+        $minutes = $this->loadObject(objectService: $objectService, objectId: $minutesId, schema: 'minutes');
+        if ($minutes === null) {
+            $this->logger->warning("Minutes not found: $minutesId");
+            return 0;
+        }
+
+        $bodyId = $this->governanceBodyIdForMinutes(objectService: $objectService, minutes: $minutes);
+        if ($bodyId === null) {
+            $this->logger->info("No GovernanceBody linked to Minutes $minutesId");
+            return 0;
+        }
+
+        // Query Memberships with chair/secretary roles.
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('participant');
+        $membershipEntities = $objectService->findAll(
+            [
+                'filters' => [
+                    'role'   => ['chair', 'secretary'],
+                    '_limit' => 999,
+                ],
+            ]
+        );
+
+        $userManager = $this->container->get(IUserManager::class);
+        $sentCount   = 0;
+        foreach ($membershipEntities as $membershipEntity) {
+            $membership = $membershipEntity->jsonSerialize();
+            $ncUid      = $this->resolveApproverUid(userManager: $userManager, membership: $membership);
+            if ($ncUid === null) {
+                $this->logger->warning(
+                    'MinutesService: cannot resolve Nextcloud UID',
+                    ['displayName' => ($membership['displayName'] ?? '?')]
+                );
+                continue;
+            }
+
+            $sentCount += $this->notifyApprover(
+                notificationService: $notificationService,
+                ncUid: $ncUid,
+                minutes: $minutes,
+                minutesId: $minutesId
+            );
+        }//end foreach
+
+        return $sentCount;
+
+    }//end notifyApprovers()
+
+    /**
+     * Resolve the GovernanceBody behind a Minutes object, via its Meeting.
+     *
+     * @param object              $objectService The OpenRegister ObjectService
+     * @param array<string,mixed> $minutes       The Minutes object
+     *
+     * @return string|null The GovernanceBody ID, or null when it cannot be resolved.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.1
+     */
+    private function governanceBodyIdForMinutes(object $objectService, array $minutes): ?string
+    {
+        $meetingId = $this->relatedId(object: $minutes, relationKey: 'Meeting');
+        if ($meetingId === null) {
+            return null;
+        }
+
+        $meeting = $this->loadObject(objectService: $objectService, objectId: $meetingId, schema: 'meeting');
+        if ($meeting === null) {
+            return null;
+        }
+
+        return $this->relatedId(object: $meeting, relationKey: 'GovernanceBody');
+
+    }//end governanceBodyIdForMinutes()
+
+    /**
+     * Resolve the Nextcloud UID of one approver.
+     *
+     * Prefers the stored nextcloudUserId and falls back to a display-name search.
+     *
+     * @param object              $userManager The Nextcloud user manager
+     * @param array<string,mixed> $membership  The Participant object
+     *
+     * @return string|null The Nextcloud UID, or null when it cannot be resolved.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.1
+     */
+    private function resolveApproverUid(object $userManager, array $membership): ?string
+    {
+        $ncUid = ($membership['nextcloudUserId'] ?? null);
+        if (empty($ncUid) === false) {
+            return (string) $ncUid;
+        }
+
+        $displayName = ($membership['displayName'] ?? null);
+        if (empty($displayName) === true) {
+            return null;
+        }
+
+        $users = $userManager->search(pattern: $displayName, limit: 1);
+        if (empty($users) === true) {
+            return null;
+        }
+
+        return (string) array_values($users)[0]->getUID();
+
+    }//end resolveApproverUid()
+
+    /**
+     * Send the approval-request notification to one approver (fail-soft).
+     *
+     * @param object              $notificationService The OpenRegister notification service
+     * @param string              $ncUid               The recipient's Nextcloud UID
+     * @param array<string,mixed> $minutes             The Minutes object
+     * @param string              $minutesId           The Minutes ID
+     *
+     * @return int 1 when the notification was sent, 0 when it failed.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.1
+     */
+    private function notifyApprover(
+        object $notificationService,
+        string $ncUid,
+        array $minutes,
+        string $minutesId,
+    ): int {
+        try {
+            $notificationService->sendNotification(
+                userId: $ncUid,
+                title: 'Notulen ter goedkeuring: '.($minutes['title'] ?? 'Untitled'),
+                message: 'De notulen zijn ter goedkeuring ingediend.',
+                deepLink: "/minutes/$minutesId"
+            );
+
+            return 1;
+        } catch (Exception $e) {
+            $this->logger->warning("Failed to send approval notification: ".$e->getMessage());
+
+            return 0;
+        }
+
+    }//end notifyApprover()
+
+    /**
+     * Pick a single related object id out of a relations map.
+     *
+     * Handles both the scalar and the list shape OpenRegister returns.
+     *
+     * @param array<string,mixed> $object      The object carrying the relations
+     * @param string              $relationKey The relation key, e.g. 'Meeting'
+     *
+     * @return string|null The related id, or null when absent.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.1
+     */
+    private function relatedId(array $object, string $relationKey): ?string
+    {
+        $related = ($object['relations'][$relationKey] ?? null);
+        if (is_array($related) === true) {
+            $related = ($related[0] ?? null);
+        }
+
+        if (empty($related) === true) {
+            return null;
+        }
+
+        return (string) $related;
+
+    }//end relatedId()
+
+    /**
+     * Load a decidesk object as an array.
+     *
+     * @param object $objectService The OpenRegister ObjectService
+     * @param string $objectId      The object id
+     * @param string $schema        The schema slug
+     *
+     * @return array<string,mixed>|null The object, or null when absent.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.1
+     */
+    private function loadObject(object $objectService, string $objectId, string $schema): ?array
+    {
+        $entity = $objectService->find(id: $objectId, register: 'decidesk', schema: $schema);
+        if ($entity === null) {
+            return null;
+        }
+
+        return $entity->jsonSerialize();
+
+    }//end loadObject()
 }//end class

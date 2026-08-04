@@ -22,7 +22,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use DateTimeImmutable;
-use DateTimeInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use OCA\Decidesk\AppInfo\Application;
@@ -32,15 +31,14 @@ use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesAccessGuard;
 use OCA\Decidesk\Service\MinutesDocumentService;
+use OCA\Decidesk\Service\MinutesErrorResponder;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\Decidesk\Service\MinutesService;
-use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -55,6 +53,14 @@ use OCP\IUserSession;
  */
 class MinutesController extends Controller
 {
+
+    /**
+     * Translates a caught domain exception into this endpoint's documented status.
+     *
+     * @var MinutesErrorResponder
+     */
+    private readonly MinutesErrorResponder $errorResponder;
+
     /**
      * Constructor for MinutesController.
      *
@@ -87,6 +93,7 @@ class MinutesController extends Controller
         private MinutesDocumentService $documentService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
+        $this->errorResponder = new MinutesErrorResponder();
     }//end __construct()
 
     /**
@@ -136,20 +143,16 @@ class MinutesController extends Controller
         try {
             $preview = $this->generationService->generateDraft($minutesId);
             return new JSONResponse(['preview' => $preview]);
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (MissingRelationException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (RuntimeException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_SERVICE_UNAVAILABLE
+        } catch (\Exception $e) {
+            // Order matters: MissingObjectException extends InvalidArgumentException
+            // and MissingRelationException extends RuntimeException.
+            return $this->errorResponder->translate(
+                error: $e,
+                statusMap: [
+                    InvalidArgumentException::class => Http::STATUS_NOT_FOUND,
+                    MissingRelationException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
+                    RuntimeException::class         => Http::STATUS_SERVICE_UNAVAILABLE,
+                ]
             );
         }//end try
 
@@ -190,46 +193,69 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        $user = $this->userSession->getUser();
-
-        $newLifecycle = $this->request->getParam('lifecycle');
-        if ($newLifecycle === null || is_string($newLifecycle) === false || $newLifecycle === '') {
+        $newLifecycle = $this->requestedLifecycle();
+        if ($newLifecycle === null) {
             return new JSONResponse(
                 ['message' => 'Missing or invalid lifecycle parameter.'],
                 Http::STATUS_BAD_REQUEST
             );
         }
 
-        $displayName = '';
-        if ($user !== null) {
-            $displayName = $user->getDisplayName();
-        }
-
         try {
             $updated = $this->generationService->transition(
                 minutesId: $minutesId,
                 newLifecycle: $newLifecycle,
-                displayName: $displayName,
+                displayName: $this->currentDisplayName(),
             );
             return new JSONResponse($updated);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (RuntimeException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_SERVICE_UNAVAILABLE
+        } catch (\Exception $e) {
+            return $this->errorResponder->translate(
+                error: $e,
+                statusMap: [
+                    MissingObjectException::class   => Http::STATUS_NOT_FOUND,
+                    InvalidArgumentException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
+                    RuntimeException::class         => Http::STATUS_SERVICE_UNAVAILABLE,
+                ]
             );
         }//end try
 
     }//end transition()
+
+    /**
+     * The requested target lifecycle, or null when the parameter is unusable.
+     *
+     * @return string|null The requested lifecycle.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     */
+    private function requestedLifecycle(): ?string
+    {
+        $newLifecycle = $this->request->getParam('lifecycle');
+        if (is_string($newLifecycle) === false || $newLifecycle === '') {
+            return null;
+        }
+
+        return $newLifecycle;
+
+    }//end requestedLifecycle()
+
+    /**
+     * The display name of the authenticated user, for server-side attribution.
+     *
+     * @return string The display name, or an empty string when anonymous.
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     */
+    private function currentDisplayName(): string
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return '';
+        }
+
+        return $user->getDisplayName();
+
+    }//end currentDisplayName()
 
     /**
      * Generate an ALV minutes draft.
@@ -265,17 +291,11 @@ class MinutesController extends Controller
                 Http::STATUS_NOT_FOUND
             );
         } catch (\Exception $e) {
-            $code = (int) $e->getCode();
-            if ($code === 422) {
-                return new JSONResponse(
-                    ['message' => $e->getMessage()],
-                    Http::STATUS_UNPROCESSABLE_ENTITY
-                );
-            }
-
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_BAD_REQUEST
+            return $this->errorResponder->translateCode(
+                error: $e,
+                expectedCode: 422,
+                matchedStatus: Http::STATUS_UNPROCESSABLE_ENTITY,
+                fallbackStatus: Http::STATUS_BAD_REQUEST
             );
         }//end try
     }//end generateALVDraft()
@@ -313,17 +333,11 @@ class MinutesController extends Controller
                 Http::STATUS_NOT_FOUND
             );
         } catch (\Exception $e) {
-            $code = (int) $e->getCode();
-            if ($code === 403) {
-                return new JSONResponse(
-                    ['message' => $e->getMessage()],
-                    Http::STATUS_FORBIDDEN
-                );
-            }
-
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_BAD_REQUEST
+            return $this->errorResponder->translateCode(
+                error: $e,
+                expectedCode: 403,
+                matchedStatus: Http::STATUS_FORBIDDEN,
+                fallbackStatus: Http::STATUS_BAD_REQUEST
             );
         }//end try
     }//end distributeALVMinutes()
@@ -559,20 +573,14 @@ class MinutesController extends Controller
                 userId: $user->getUID(),
             );
             return new JSONResponse($updated);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (RuntimeException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_SERVICE_UNAVAILABLE
+        } catch (\Exception $e) {
+            return $this->errorResponder->translate(
+                error: $e,
+                statusMap: [
+                    MissingObjectException::class   => Http::STATUS_NOT_FOUND,
+                    InvalidArgumentException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
+                    RuntimeException::class         => Http::STATUS_SERVICE_UNAVAILABLE,
+                ]
             );
         }//end try
 
@@ -615,38 +623,22 @@ class MinutesController extends Controller
             $format = 'markdown';
         }
 
-        $user        = $this->userSession->getUser();
-        $displayName = '';
-        if ($user !== null) {
-            $displayName = $user->getDisplayName();
-        }
-
         try {
             $result = $this->documentService->generate(
                 minutesId: $minutesId,
                 format: $format,
-                displayName: $displayName,
+                displayName: $this->currentDisplayName(),
             );
             return new JSONResponse($result);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (MissingRelationException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (RuntimeException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_SERVICE_UNAVAILABLE
+        } catch (\Exception $e) {
+            return $this->errorResponder->translate(
+                error: $e,
+                statusMap: [
+                    MissingObjectException::class   => Http::STATUS_NOT_FOUND,
+                    MissingRelationException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
+                    InvalidArgumentException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
+                    RuntimeException::class         => Http::STATUS_SERVICE_UNAVAILABLE,
+                ]
             );
         }//end try
 

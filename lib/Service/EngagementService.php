@@ -104,36 +104,7 @@ class EngagementService
             ];
         }
 
-        switch ($eventType) {
-            case 'speech':
-                $record['speeches'][] = $eventData;
-                $duration = (int) ($eventData['duration'] ?? 0);
-                if ($duration === 0
-                    && isset($eventData['startTime'], $eventData['endTime']) === true
-                ) {
-                    try {
-                        $start    = new DateTimeImmutable((string) $eventData['startTime']);
-                        $end      = new DateTimeImmutable((string) $eventData['endTime']);
-                        $duration = max(0, $end->getTimestamp() - $start->getTimestamp());
-                    } catch (Throwable $e) {
-                        $duration = 0;
-                    }
-                }
-
-                $record['speakingDuration'] = ((int) ($record['speakingDuration'] ?? 0)) + $duration;
-                break;
-
-            case 'question':
-                $record['questionsRaised'][] = $eventData;
-                break;
-
-            case 'topic':
-                $record['topicsSuggested'][] = $eventData;
-                break;
-
-            default:
-                throw new InvalidArgumentException("Unknown engagement event type '$eventType'");
-        }//end switch
+        $record = $this->applyEvent(record: $record, eventType: $eventType, eventData: $eventData);
 
         $record['engagementScore'] = $this->calculateScore(record: $record);
 
@@ -161,6 +132,78 @@ class EngagementService
         return (array) $saved;
 
     }//end captureEngagement()
+
+    /**
+     * Fold one engagement event into the record it belongs to.
+     *
+     * @param array<string, mixed> $record    The engagement record
+     * @param string               $eventType One of 'speech', 'question', 'topic'
+     * @param array<string, mixed> $eventData Event payload
+     *
+     * @return array<string, mixed> The updated record.
+     *
+     * @throws InvalidArgumentException When event type is unknown
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+     */
+    private function applyEvent(array $record, string $eventType, array $eventData): array
+    {
+        if ($eventType === 'speech') {
+            $record['speeches'][]       = $eventData;
+            $record['speakingDuration'] = (((int) ($record['speakingDuration'] ?? 0)) + $this->speechDuration(eventData: $eventData));
+
+            return $record;
+        }
+
+        if ($eventType === 'question') {
+            $record['questionsRaised'][] = $eventData;
+
+            return $record;
+        }
+
+        if ($eventType === 'topic') {
+            $record['topicsSuggested'][] = $eventData;
+
+            return $record;
+        }
+
+        throw new InvalidArgumentException("Unknown engagement event type '$eventType'");
+
+    }//end applyEvent()
+
+    /**
+     * The duration of one speech event, in seconds.
+     *
+     * Prefers the reported duration; when it is absent or zero, derives it from
+     * startTime/endTime. An unparseable timestamp pair yields zero.
+     *
+     * @param array<string, mixed> $eventData Event payload
+     *
+     * @return int The duration in seconds.
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+     */
+    private function speechDuration(array $eventData): int
+    {
+        $duration = (int) ($eventData['duration'] ?? 0);
+        if ($duration !== 0) {
+            return $duration;
+        }
+
+        if (isset($eventData['startTime'], $eventData['endTime']) === false) {
+            return 0;
+        }
+
+        try {
+            $start = new DateTimeImmutable((string) $eventData['startTime']);
+            $end   = new DateTimeImmutable((string) $eventData['endTime']);
+
+            return max(0, ($end->getTimestamp() - $start->getTimestamp()));
+        } catch (Throwable $e) {
+            return 0;
+        }
+
+    }//end speechDuration()
 
     /**
      * Find an existing EngagementRecord for a (meeting, participant) pair.
