@@ -379,8 +379,16 @@ class MotionCoauthorService
     /**
      * Whether the latest history entry is another author's edit within 5 minutes.
      *
-     * @param array<int, array<string, mixed>> $history       Existing version history
-     * @param string                           $currentAuthor Author of the new change
+     * `$history` is declared as `array<int, mixed>` rather than
+     * `array<int, array<string, mixed>>` on purpose: it arrives as
+     * `$motion['versionHistory']`, straight off an OpenRegister object, so an
+     * entry that is not an array is a shape the store can actually hand us.
+     * The narrower docblock made the `is_array()` guard below provably dead —
+     * phpstan reported it as a comparison that can never be true — which is a
+     * docblock that over-promises, not a guard that is redundant.
+     *
+     * @param array<int, mixed> $history       Existing version history
+     * @param string            $currentAuthor Author of the new change
      *
      * @return bool True when the new change collides with a recent foreign edit.
      *

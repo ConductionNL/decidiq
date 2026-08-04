@@ -1,7 +1,7 @@
 includes:
-    # Per-app tracked lint debt lives here (auto-generated via `phpstan --generate-baseline`).
-    # Apps without debt ship an empty baseline file; canonical includes are otherwise byte-identical
-    # across the fleet.
+    # One tracked entry left, and it is a security question rather than lint —
+    # read the file's header before touching it. Not regenerated; entries are
+    # removed one at a time as the underlying code is fixed.
     - phpstan-baseline.neon
 
 parameters:
