@@ -137,9 +137,11 @@ class TranscriptRetentionJobTest extends TestCase
         );
 
         $objectService->method('saveObject')->willReturnCallback(
-            function (array $object) {
+            // saveObject() is typed `: ObjectEntity` in production and can never
+            // return the payload array it was handed (#399).
+            function (array $object): object {
                 $this->saved = $object;
-                return $object;
+                return $this->entity($object);
             }
         );
 
@@ -199,7 +201,11 @@ class TranscriptRetentionJobTest extends TestCase
 
 
     /**
-     * Mock OR entity returning data from jsonSerialize().
+     * ObjectEntity double returning data from jsonSerialize().
+     *
+     * Must be an ObjectEntity double, not a stdClass one: ObjectService::find()
+     * is typed `?ObjectEntity` in production, so a stdClass mock is a value the
+     * service can never hand the code under test (#399).
      *
      * @param array<string,mixed> $data Object data.
      *
@@ -207,7 +213,7 @@ class TranscriptRetentionJobTest extends TestCase
      */
     private function entity(array $data): object
     {
-        $mock = $this->getMockBuilder(\stdClass::class)->addMethods(['jsonSerialize'])->getMock();
+        $mock = $this->createMock(\OCA\OpenRegister\Db\ObjectEntity::class);
         $mock->method('jsonSerialize')->willReturn($data);
         return $mock;
 
@@ -305,9 +311,11 @@ class TranscriptRetentionJobTest extends TestCase
                 : []
         );
         $objectService->method('saveObject')->willReturnCallback(
-            function (array $object) {
+            // saveObject() is typed `: ObjectEntity` in production and can never
+            // return the payload array it was handed (#399).
+            function (array $object): object {
                 $this->saved = $object;
-                return $object;
+                return $this->entity($object);
             }
         );
         $this->wireContainer(objectService: $objectService);
@@ -360,7 +368,9 @@ class TranscriptRetentionJobTest extends TestCase
                 ? [['lifecycle' => 'approved', 'approvedAt' => '2020-01-01T00:00:00Z', 'relations' => ['meeting' => 'm1']]]
                 : []
         );
-        $objectService->method('saveObject')->willReturnCallback(fn (array $o) => $o);
+        // saveObject() is typed `: ObjectEntity` in production and can never
+        // return the payload array it was handed (#399).
+        $objectService->method('saveObject')->willReturnCallback(fn (array $o): object => $this->entity($o));
         $this->wireContainer(objectService: $objectService);
 
         $job = new TranscriptRetentionJob($this->time, $this->container, $this->logger);

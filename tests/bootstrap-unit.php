@@ -85,27 +85,17 @@ if (class_exists(\OCA\OpenRegister\Event\ObjectUpdatedEvent::class) === false) {
     require_once __DIR__.'/Stubs/Event/ObjectUpdatedEvent.php';
 }
 
-if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
-    require_once __DIR__.'/Stubs/Service/ObjectService.php';
-}
-
-if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
-    require_once __DIR__.'/Stubs/Db/ObjectEntity.php';
-}
-
-if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
-    require_once __DIR__.'/Stubs/ObjectService.php';
-}
-
-if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
-    require_once __DIR__.'/Stubs/ObjectEntity.php';
-}
-
-// OpenRegister service stubs — loaded when running without a live NC+OpenRegister install.
-if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false
-    || class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false
-    || class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false
-) {
+// ObjectService, ObjectEntity, Register and Schema need no require_once: the
+// PSR-4 root registered above resolves them to tests/Stubs/Service/ and
+// tests/Stubs/Db/ whenever the real OpenRegister app is absent, and to the real
+// app when it is present. There used to be four more require_once branches here
+// pointing at a second, LOOSER copy of each stub; the guards could never be
+// true, so the copies were dead while still reading as the contract (#399).
+//
+// CalendarEventService is different: PSR-4 would look for
+// tests/Stubs/Service/CalendarEventService.php, which does not exist, so the
+// class really is missing without OpenRegister and must be required explicitly.
+if (class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false) {
     require_once __DIR__.'/Stubs/OpenRegisterServices.php';
 }
 

@@ -27,6 +27,7 @@ use OCA\Decidesk\Exception\MissingRelationException;
 use OCA\Decidesk\Service\MeetingFolderService;
 use OCA\Decidesk\Service\MinutesDocumentService;
 use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -128,17 +129,19 @@ class MinutesDocumentServiceTest extends TestCase
     }//end setUp()
 
     /**
-     * Helper: create a mock entity exposing getObject().
+     * Helper: create an ObjectEntity double exposing getObject().
+     *
+     * Must be an ObjectEntity double, not a stdClass one: ObjectService::find()
+     * is typed `?ObjectEntity` in production, so a stdClass mock is a value the
+     * service can never hand the code under test (#399).
      *
      * @param array<string,mixed> $data Object data
      *
-     * @return object
+     * @return ObjectEntity&MockObject
      */
-    private function createEntityMock(array $data): object
+    private function createEntityMock(array $data): ObjectEntity&MockObject
     {
-        $mock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['getObject'])
-            ->getMock();
+        $mock = $this->createMock(ObjectEntity::class);
         $mock->method('getObject')->willReturn($data);
         return $mock;
 

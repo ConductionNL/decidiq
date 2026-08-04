@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\DecisionIntegrationService;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -97,17 +98,20 @@ class DecisionIntegrationServiceTest extends TestCase
     }//end setUp()
 
     /**
-     * Build a mock entity that serializes to the given array.
+     * Build an ObjectEntity double that serializes to the given array.
+     *
+     * Must be an ObjectEntity double, not a stdClass one: ObjectService::find()
+     * and ::saveObject() are typed `?ObjectEntity` / `ObjectEntity` in
+     * production, so a stdClass mock is a value the service can never hand the
+     * code under test (#399).
      *
      * @param array<string, mixed> $data Object payload
      *
-     * @return MockObject
+     * @return ObjectEntity&MockObject
      */
-    private function entity(array $data): MockObject
+    private function entity(array $data): ObjectEntity&MockObject
     {
-        $entity = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['jsonSerialize'])
-            ->getMock();
+        $entity = $this->createMock(ObjectEntity::class);
         $entity->method('jsonSerialize')->willReturn($data);
         return $entity;
 
