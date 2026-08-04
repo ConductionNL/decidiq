@@ -21,22 +21,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
 
-use DateTimeImmutable;
-use InvalidArgumentException;
-use RuntimeException;
 use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Exception\MissingRelationException;
-use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
 use OCA\Decidesk\Service\MinutesAccessGuard;
 use OCA\Decidesk\Service\MinutesDocumentService;
-use OCA\Decidesk\Service\MinutesErrorResponder;
 use OCA\Decidesk\Service\MinutesGenerationService;
-use OCA\Decidesk\Service\MinutesService;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\Decidesk\Service\MinutesWorkflowService;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -49,18 +40,15 @@ use OCP\IUserSession;
  * a linked meeting's data and for enforcing server-side lifecycle
  * transitions with signatory attribution.
  *
+ * Every endpoint is the same three steps: authorise, delegate, respond. The
+ * authorisation lives in MinutesAccessGuard, the work in a service, and the
+ * exception-to-status mapping in MinutesResponder — so what is left here is
+ * only the routing surface, which is exactly the part that must not drift.
+ *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
 class MinutesController extends Controller
 {
-
-    /**
-     * Translates a caught domain exception into this endpoint's documented status.
-     *
-     * @var MinutesErrorResponder
-     */
-    private readonly MinutesErrorResponder $errorResponder;
-
     /**
      * Constructor for MinutesController.
      *
@@ -69,15 +57,14 @@ class MinutesController extends Controller
      * time would freeze it as null when the container is first built in a cron or
      * pre-flight context. The UID is resolved per-request via $this->userSession.
      *
-     * @param IRequest                    $request           The HTTP request
-     * @param MinutesGenerationService    $generationService The generation service
-     * @param ALVMinutesService           $alvMinutesService The ALV minutes service
-     * @param ActionItemExtractionService $extractionService The extraction service
-     * @param MinutesService              $minutesService    The minutes service
-     * @param IUserSession                $userSession       The current user session
-     * @param ObjectService               $objectService     The object service for direct data access
-     * @param MinutesAccessGuard          $accessGuard       Per-object minutes authorisation
-     * @param MinutesDocumentService      $documentService   Document generation + persistence service
+     * @param IRequest                 $request           The HTTP request
+     * @param MinutesGenerationService $generationService The generation service
+     * @param ALVMinutesService        $alvMinutesService The ALV minutes service
+     * @param MinutesWorkflowService   $workflowService   Action items + approval submission
+     * @param IUserSession             $userSession       The current user session
+     * @param MinutesAccessGuard       $accessGuard       Per-object minutes authorisation
+     * @param MinutesDocumentService   $documentService   Document generation + persistence service
+     * @param MinutesResponder         $responder         Maps operation failures to HTTP statuses
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
@@ -85,15 +72,13 @@ class MinutesController extends Controller
         IRequest $request,
         private MinutesGenerationService $generationService,
         private ALVMinutesService $alvMinutesService,
-        private ActionItemExtractionService $extractionService,
-        private MinutesService $minutesService,
+        private MinutesWorkflowService $workflowService,
         private IUserSession $userSession,
-        private ObjectService $objectService,
         private readonly MinutesAccessGuard $accessGuard,
         private MinutesDocumentService $documentService,
+        private readonly MinutesResponder $responder,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
-        $this->errorResponder = new MinutesErrorResponder();
     }//end __construct()
 
     /**
@@ -113,6 +98,24 @@ class MinutesController extends Controller
         return $this->accessGuard->requireChairOrAdmin(minutesId: $minutesId);
 
     }//end requireChairOrAdminForMinutes()
+
+    /**
+     * Resolve the display name of the authenticated user, or an empty string.
+     *
+     * @return string The display name
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     */
+    private function currentDisplayName(): string
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return '';
+        }
+
+        return $user->getDisplayName();
+
+    }//end currentDisplayName()
 
     /**
      * Generate a Dutch draft text for the given Minutes object.
@@ -140,21 +143,9 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            $preview = $this->generationService->generateDraft($minutesId);
-            return new JSONResponse(['preview' => $preview]);
-        } catch (\Exception $e) {
-            // Order matters: MissingObjectException extends InvalidArgumentException
-            // and MissingRelationException extends RuntimeException.
-            return $this->errorResponder->translate(
-                error: $e,
-                statusMap: [
-                    InvalidArgumentException::class => Http::STATUS_NOT_FOUND,
-                    MissingRelationException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
-                    RuntimeException::class         => Http::STATUS_SERVICE_UNAVAILABLE,
-                ]
-            );
-        }//end try
+        return $this->responder->runDraft(
+            operation: fn(): array => ['preview' => $this->generationService->generateDraft($minutesId)]
+        );
 
     }//end generateDraft()
 
@@ -193,69 +184,22 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        $newLifecycle = $this->requestedLifecycle();
-        if ($newLifecycle === null) {
-            return new JSONResponse(
-                ['message' => 'Missing or invalid lifecycle parameter.'],
-                Http::STATUS_BAD_REQUEST
-            );
-        }
-
-        try {
-            $updated = $this->generationService->transition(
-                minutesId: $minutesId,
-                newLifecycle: $newLifecycle,
-                displayName: $this->currentDisplayName(),
-            );
-            return new JSONResponse($updated);
-        } catch (\Exception $e) {
-            return $this->errorResponder->translate(
-                error: $e,
-                statusMap: [
-                    MissingObjectException::class   => Http::STATUS_NOT_FOUND,
-                    InvalidArgumentException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
-                    RuntimeException::class         => Http::STATUS_SERVICE_UNAVAILABLE,
-                ]
-            );
-        }//end try
-
-    }//end transition()
-
-    /**
-     * The requested target lifecycle, or null when the parameter is unusable.
-     *
-     * @return string|null The requested lifecycle.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
-     */
-    private function requestedLifecycle(): ?string
-    {
         $newLifecycle = $this->request->getParam('lifecycle');
         if (is_string($newLifecycle) === false || $newLifecycle === '') {
-            return null;
+            return $this->responder->badRequest(message: 'Missing or invalid lifecycle parameter.');
         }
 
-        return $newLifecycle;
+        $displayName = $this->currentDisplayName();
 
-    }//end requestedLifecycle()
+        return $this->responder->runLifecycle(
+            operation: fn(): array => $this->generationService->transition(
+                minutesId: $minutesId,
+                newLifecycle: $newLifecycle,
+                displayName: $displayName,
+            )
+        );
 
-    /**
-     * The display name of the authenticated user, for server-side attribution.
-     *
-     * @return string The display name, or an empty string when anonymous.
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
-     */
-    private function currentDisplayName(): string
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return '';
-        }
-
-        return $user->getDisplayName();
-
-    }//end currentDisplayName()
+    }//end transition()
 
     /**
      * Generate an ALV minutes draft.
@@ -282,22 +226,13 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            $result = $this->alvMinutesService->generateALVDraft($minutesId);
-            return new JSONResponse(['preview' => $result['content']]);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (\Exception $e) {
-            return $this->errorResponder->translateCode(
-                error: $e,
-                expectedCode: 422,
-                matchedStatus: Http::STATUS_UNPROCESSABLE_ENTITY,
-                fallbackStatus: Http::STATUS_BAD_REQUEST
-            );
-        }//end try
+        return $this->responder->runCoded(
+            operation: fn(): array => [
+                'preview' => $this->alvMinutesService->generateALVDraft($minutesId)['content'],
+            ],
+            honouredStatus: 422
+        );
+
     }//end generateALVDraft()
 
     /**
@@ -324,22 +259,11 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            $count = $this->alvMinutesService->distribute($minutesId);
-            return new JSONResponse(['notified' => $count]);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (\Exception $e) {
-            return $this->errorResponder->translateCode(
-                error: $e,
-                expectedCode: 403,
-                matchedStatus: Http::STATUS_FORBIDDEN,
-                fallbackStatus: Http::STATUS_BAD_REQUEST
-            );
-        }//end try
+        return $this->responder->runCoded(
+            operation: fn(): array => ['notified' => $this->alvMinutesService->distribute($minutesId)],
+            honouredStatus: 403
+        );
+
     }//end distributeALVMinutes()
 
     /**
@@ -363,31 +287,12 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            // Fetch the Minutes object to get content.
-            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
+        return $this->responder->runInternal(
+            operation: fn(): array => [
+                'candidates' => $this->workflowService->extractActionItems(minutesId: $minutesId),
+            ]
+        );
 
-            if ($minutes === null) {
-                return new JSONResponse(
-                    ['message' => 'Minutes not found.'],
-                    Http::STATUS_NOT_FOUND
-                );
-            }
-
-            $content    = $minutes['content'] ?? '';
-            $candidates = $this->extractionService->extractFromContent(content: $content);
-
-            return new JSONResponse(['candidates' => $candidates]);
-        } catch (\Exception $e) {
-            return new JSONResponse(
-                ['message' => 'Internal server error.'],
-                Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
     }//end extractActionItems()
 
     /**
@@ -415,43 +320,17 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            $confirmed = $this->request->getParam('confirmed', []);
+        $confirmed = $this->request->getParam('confirmed', []);
 
-            // Fetch Minutes to verify lifecycle before saving.
-            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
+        return $this->responder->runInternal(
+            operation: fn(): array => [
+                'saved' => $this->workflowService->saveExtractedActionItems(
+                    minutesId: $minutesId,
+                    confirmed: $confirmed
+                ),
+            ]
+        );
 
-            if ($minutes === null) {
-                return new JSONResponse(
-                    ['message' => 'Minutes not found.'],
-                    Http::STATUS_NOT_FOUND
-                );
-            }
-
-            $lifecycle = $minutes['lifecycle'] ?? null;
-            if ($lifecycle === 'published') {
-                return new JSONResponse(
-                    ['message' => 'Cannot save action items for published minutes.'],
-                    Http::STATUS_BAD_REQUEST
-                );
-            }
-
-            $count = $this->extractionService->saveExtracted(
-                minutesId: $minutesId,
-                confirmed: $confirmed
-            );
-
-            return new JSONResponse(['saved' => $count]);
-        } catch (\Exception $e) {
-            return new JSONResponse(
-                ['message' => 'Internal server error.'],
-                Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
     }//end saveExtractedActionItems()
 
     /**
@@ -462,8 +341,8 @@ class MinutesController extends Controller
      * Transitions lifecycle from draft to review and sends approval notifications.
      *
      * Returns 200 with updated lifecycle on success.
-     * Returns 400 when lifecycle is not draft.
      * Returns 404 when Minutes not found.
+     * Returns 409 when lifecycle is not draft.
      *
      * @param string $minutesId The UUID of the Minutes object
      *
@@ -481,55 +360,13 @@ class MinutesController extends Controller
 
         $user = $this->userSession->getUser();
 
-        try {
-            // Fetch Minutes.
-            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
-
-            if ($minutes === null) {
-                return new JSONResponse(
-                    ['message' => 'Minutes not found.'],
-                    Http::STATUS_NOT_FOUND
-                );
-            }
-
-            // Verify lifecycle is draft.
-            if (($minutes['lifecycle'] ?? null) !== 'draft') {
-                return new JSONResponse(
-                    ['message' => 'Minutes must be in draft state to submit for approval.'],
-                    Http::STATUS_CONFLICT
-                );
-            }
-
-            // Transition lifecycle to review.
-            $minutes['lifecycle'] = 'review';
-            $this->objectService->saveObject(
-                register: 'decidesk',
-                schema: 'minutes',
-                object: $minutes
-            );
-
-            // Send approval notifications.
-            $notified = $this->minutesService->notifyApproversOnSubmit(
+        return $this->responder->runInternal(
+            operation: fn(): array => $this->workflowService->submitForApproval(
                 minutesId: $minutesId,
                 actorId: $user->getUID()
-            );
+            )
+        );
 
-            return new JSONResponse(
-                    [
-                        'lifecycle' => 'review',
-                        'notified'  => $notified,
-                    ]
-                    );
-        } catch (\Exception $e) {
-            return new JSONResponse(
-                ['message' => 'Internal server error.'],
-                Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
     }//end submitForApproval()
 
     /**
@@ -566,23 +403,13 @@ class MinutesController extends Controller
 
         $user = $this->userSession->getUser();
 
-        try {
-            $updated = $this->generationService->reject(
+        return $this->responder->runLifecycle(
+            operation: fn(): array => $this->generationService->reject(
                 minutesId: $minutesId,
                 comment: $comment,
                 userId: $user->getUID(),
-            );
-            return new JSONResponse($updated);
-        } catch (\Exception $e) {
-            return $this->errorResponder->translate(
-                error: $e,
-                statusMap: [
-                    MissingObjectException::class   => Http::STATUS_NOT_FOUND,
-                    InvalidArgumentException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
-                    RuntimeException::class         => Http::STATUS_SERVICE_UNAVAILABLE,
-                ]
-            );
-        }//end try
+            )
+        );
 
     }//end reject()
 
@@ -623,24 +450,15 @@ class MinutesController extends Controller
             $format = 'markdown';
         }
 
-        try {
-            $result = $this->documentService->generate(
+        $displayName = $this->currentDisplayName();
+
+        return $this->responder->runLifecycle(
+            operation: fn(): array => $this->documentService->generate(
                 minutesId: $minutesId,
                 format: $format,
-                displayName: $this->currentDisplayName(),
-            );
-            return new JSONResponse($result);
-        } catch (\Exception $e) {
-            return $this->errorResponder->translate(
-                error: $e,
-                statusMap: [
-                    MissingObjectException::class   => Http::STATUS_NOT_FOUND,
-                    MissingRelationException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
-                    InvalidArgumentException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
-                    RuntimeException::class         => Http::STATUS_SERVICE_UNAVAILABLE,
-                ]
-            );
-        }//end try
+                displayName: $displayName,
+            )
+        );
 
     }//end generateDocument()
 }//end class

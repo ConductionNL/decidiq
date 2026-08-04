@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Service\MinutesDraftRenderer;
 use OCA\Decidesk\Service\MinutesGenerationService;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -92,9 +93,13 @@ class MinutesGenerationServiceTest extends TestCase
             ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($this->objectService);
 
+        // The renderer is a pure, dependency-free collaborator, so the real one
+        // is used here: these tests assert on the rendered text, and a mock
+        // would only assert that a mock was called.
         $this->service = new MinutesGenerationService(
             container: $this->container,
             logger: $this->logger,
+            renderer: new MinutesDraftRenderer(),
         );
 
     }//end setUp()
@@ -275,6 +280,7 @@ class MinutesGenerationServiceTest extends TestCase
         $service = new MinutesGenerationService(
             container: $containerNoOR,
             logger: $this->logger,
+            renderer: new MinutesDraftRenderer(),
         );
 
         $this->expectException(\RuntimeException::class);

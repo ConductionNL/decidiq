@@ -20,6 +20,8 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\MinutesContextResolver;
+use OCA\Decidesk\Service\ParticipantNotifier;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -47,7 +49,15 @@ class ALVMinutesServiceTest extends TestCase
         parent::setUp();
         $this->container = $this->createMock(ContainerInterface::class);
         $this->logger    = $this->createMock(LoggerInterface::class);
-        $this->service   = new ALVMinutesService($this->container, $this->logger);
+
+        // The lookup and notification collaborators are built from the SAME
+        // mock container, so every ObjectService expectation below still
+        // exercises the identical OpenRegister calls it always did.
+        $this->service = new ALVMinutesService(
+            $this->logger,
+            new MinutesContextResolver($this->container),
+            new ParticipantNotifier($this->container, $this->logger),
+        );
     }
 
     /**

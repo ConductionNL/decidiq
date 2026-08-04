@@ -56,29 +56,19 @@ class MinutesGenerationService
     ];
 
     /**
-     * Builds the concept-minutes document.
-     *
-     * @var MinutesTemplateRenderer
-     */
-    private readonly MinutesTemplateRenderer $renderer;
-
-    /**
      * Constructor for MinutesGenerationService.
      *
-     * The renderer is built in the constructor body rather than injected, so
-     * the DI signature stays the two framework services below.
-     *
-     * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
-     * @param LoggerInterface    $logger    The logger
+     * @param ContainerInterface   $container The DI container (lazy-loads OpenRegister services)
+     * @param LoggerInterface      $logger    The logger
+     * @param MinutesDraftRenderer $renderer  Renders the gathered data into the Dutch template
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function __construct(
         private ContainerInterface $container,
         private LoggerInterface $logger,
+        private MinutesDraftRenderer $renderer,
     ) {
-        $this->renderer = new MinutesTemplateRenderer();
-
     }//end __construct()
 
     /**
@@ -209,7 +199,7 @@ class MinutesGenerationService
         $updated = array_merge($minutes, ['lifecycle' => $newLifecycle]);
 
         if ($newLifecycle === 'approved') {
-            $updated['approvedAt'] = (new DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $updated['approvedAt'] = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
         }
 
         if (in_array($newLifecycle, ['approved', 'signed'], true) === true) {
@@ -262,10 +252,7 @@ class MinutesGenerationService
      */
     private function normaliseSaved(mixed $saved, array $fallback): array
     {
-        // Uses is_a() rather than `instanceof \stdClass`: identical semantics
-        // (it matches subclasses too), but it keeps stdClass out of this
-        // class's compile-time dependency set.
-        if (is_a($saved, 'stdClass') === true || is_array($saved) === true) {
+        if ($saved instanceof \stdClass === true || is_array($saved) === true) {
             return (array) $saved;
         }
 
@@ -335,7 +322,7 @@ class MinutesGenerationService
             'action'    => 'rejected',
             'comment'   => trim($comment),
             'author'    => $userId,
-            'createdAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'createdAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
         ];
 
         $updated = array_merge(
