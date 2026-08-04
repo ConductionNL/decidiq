@@ -29,6 +29,11 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Mcp;
 
 use OCA\Decidesk\Mcp\DecideskToolProvider;
+use OCA\Decidesk\Mcp\Handler\AddActionItemHandler;
+use OCA\Decidesk\Mcp\Handler\GetMeetingDetailsHandler;
+use OCA\Decidesk\Mcp\Handler\ListOpenActionItemsHandler;
+use OCA\Decidesk\Mcp\Handler\ListRecentMeetingsHandler;
+use OCA\Decidesk\Mcp\Handler\StartMeetingHandler;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -136,16 +141,39 @@ class DecideskToolProviderTest extends TestCase
         $this->logger              = $this->createMock(LoggerInterface::class);
         $this->participantResolver = $this->createMock(ParticipantResolver::class);
 
+        // The provider is a registry/dispatcher; the tool logic lives in the
+        // per-tool handlers. Real handlers are constructed here from the same
+        // mocks the provider used to receive directly, so every behavioural
+        // test below still exercises the full path through invokeTool().
         $this->provider = new DecideskToolProvider(
-            meetingService: $this->meetingService,
-            userSession: $this->userSession,
-            groupManager: $this->groupManager,
-            container: $this->container,
-            logger: $this->logger,
-            participantResolver: $this->participantResolver,
+            listOpenActionItems: new ListOpenActionItemsHandler(...$this->handlerDeps()),
+            listRecentMeetings: new ListRecentMeetingsHandler(...$this->handlerDeps()),
+            getMeetingDetails: new GetMeetingDetailsHandler(...$this->handlerDeps()),
+            startMeeting: new StartMeetingHandler(
+                ...array_merge($this->handlerDeps(), ['meetingService' => $this->meetingService]),
+            ),
+            addActionItem: new AddActionItemHandler(...$this->handlerDeps()),
         );
 
     }//end setUp()
+
+
+    /**
+     * The shared constructor arguments every MCP tool handler takes.
+     *
+     * @return array<string, mixed>
+     */
+    private function handlerDeps(): array
+    {
+        return [
+            'userSession'         => $this->userSession,
+            'groupManager'        => $this->groupManager,
+            'container'           => $this->container,
+            'logger'              => $this->logger,
+            'participantResolver' => $this->participantResolver,
+        ];
+
+    }//end handlerDeps()
 
 
     /**
