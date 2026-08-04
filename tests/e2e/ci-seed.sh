@@ -378,16 +378,4 @@ if [ "${GITHUB_ACTIONS:-}" = "true" ] || [ "${CI:-}" = "true" ]; then
 	esac
 fi
 
-# ── TRUNCATION CONTROL — THROWAWAY, REVERT IMMEDIATELY AFTER THE RUN ─────────
-# Deliberately destroys the built bundle AFTER the gate above has verified the
-# real one, so the specs run against a mounted-but-empty SPA.
-#
-# TRUNCATE, do not delete: global-setup.ts's ensureBundleBuilt() does an
-# fs.existsSync() and silently runs `npm run build` when the file is missing, so
-# a delete-based control quietly restores the bundle and comes back green — the
-# exact false pass this control exists to rule out. A 0-byte file still exists,
-# so no rebuild fires.
-: > "${APP_DIR}/js/decidesk-main.js"
-echo "[ci-seed] CONTROL: truncated ${APP_DIR}/js/decidesk-main.js to $(stat -c%s "${APP_DIR}/js/decidesk-main.js") bytes."
-
 echo "[ci-seed] done."

@@ -116,9 +116,6 @@ export default defineConfig({
 	// re-rolling. Once the suite is green the retry can come back to absorb
 	// genuine flakes, because then it costs a few seconds rather than an hour.
 	retries: 0,
-	// THROWAWAY (truncation control): bound the run so it yields a verdict
-	// quickly instead of burning 171 × 60s against the 45-minute cap.
-	maxFailures: 12,
 	workers: 1,
 	reporter: [
 		['html', { open: 'never', outputFolder: path.resolve(__dirname, 'playwright-report') }],
