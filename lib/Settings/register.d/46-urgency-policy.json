@@ -317,7 +317,7 @@
       },
       "ProcessTemplate": {
         "slug": "process-template",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "description": "Additive delta (ADR-037; OpenSpec urgent-decision-procedure, process-configuration delta). Merges ONLY the optional urgencyPolicy object onto the existing process-template schema (defined in 43-process-config-v1.json) so each governance body configures whether and how the urgent procedure is available. Fail-closed posture: a template with NO urgencyPolicy makes the urgent procedure UNAVAILABLE for its bodies — never available-with-no-limits. Server-side template validation (ProcessTemplateService, Task 2) rejects an urgencyPolicy with empty allowedTriggerRoles, an unrecognised role token, min>max deadline bounds, or ratificationRequired=true without a resolvable ratifyingBody — SAVE-TIME imperative rules, NOT schema constraints (OR rejects allOf/anyOf/oneOf). Built-in templates stay read-only; urgency is enabled by duplicating and editing (see the two urgency-enabled custom seeds in this fragment).",
         "properties": {
           "urgencyPolicy": {
