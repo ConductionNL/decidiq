@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\AgendaController;
+use OCA\Decidesk\Service\AgendaAuthorizationGuard;
 use OCA\Decidesk\Service\AgendaService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Service\ObjectService;
@@ -115,20 +116,29 @@ class AgendaControllerTest extends TestCase
     /**
      * Build an AgendaController with the given user session.
      *
+     * The authorization guard is the REAL AgendaAuthorizationGuard over the
+     * same mocks the controller used to hold directly, so these tests still
+     * exercise the actual auth path (in particular that ObjectService::find()
+     * is never reached before the 401).
+     *
      * @param IUserSession $session The session to inject.
      *
      * @return AgendaController
      */
     private function buildController(IUserSession $session): AgendaController
     {
-        return new AgendaController(
-            request: $this->request,
-            agendaService: $this->agendaService,
+        $guard = new AgendaAuthorizationGuard(
             objectService: $this->objectService,
             userSession: $session,
             groupManager: $this->groupManager,
-            logger: $this->logger,
             participantResolver: $this->participantResolver,
+        );
+
+        return new AgendaController(
+            request: $this->request,
+            agendaService: $this->agendaService,
+            guard: $guard,
+            logger: $this->logger,
         );
 
     }//end buildController()

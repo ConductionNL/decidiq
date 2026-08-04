@@ -148,7 +148,7 @@ class InitializeSettingsTest extends TestCase
 
         $this->settingsService->expects($this->once())
             ->method(constraint: 'loadConfiguration')
-            ->with(false)
+            ->with()
             ->willReturn(
                     [
                         'success' => true,
