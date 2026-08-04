@@ -1,3 +1,9 @@
+includes:
+    # One tracked entry left, and it is a security question rather than lint —
+    # read the file's header before touching it. Not regenerated; entries are
+    # removed one at a time as the underlying code is fixed.
+    - phpstan-baseline.neon
+
 parameters:
     level: 5
     paths:
