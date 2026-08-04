@@ -22,6 +22,26 @@ jobs:
       enable-eslint: true
       enable-phpunit: true
       enable-newman: true
-      # additional-apps: '[]'  # Add app dependencies here if needed, e.g.:
-      # additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"main"}]'
+      # Every Newman collection seeds its own fixtures through OpenRegister's
+      # object API (`/apps/openregister/api/objects/decidesk/<schema>`) — ADR-022
+      # keeps plain CRUD there rather than in decidesk controllers. Without
+      # OpenRegister checked out the seed POSTs answer 404, every downstream id
+      # interpolates to the empty string, and the collections fail wholesale on
+      # a cause that has nothing to do with the code under test (measured:
+      # 206 of 282 assertions failed in run 30899265429).
+      #
+      # `ref: development` matches the rest of the fleet (opencatalogi,
+      # openconnector, procest, softwarecatalog, scholiq, pipelinq). It is not
+      # interchangeable with `main`: decidesk's appinfo/routes.php builds on
+      # `\OCA\OpenRegister\AppHost\Routes`, which does not exist on OpenRegister
+      # `main` (0.2.19) at all — only on `development`.
+      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
+      # Two collections (decidesk-meeting-agenda, decidesk-user-settings) carry
+      # no collection-level `baseUrl`/`noAuthBase`/`adminUser`/`adminPass`, and
+      # the workflow's ad-hoc fallback defines `base_url`-style names instead.
+      # Every request in those two therefore left `{{baseUrl}}` unresolved and
+      # errored before it was sent — 42 assertions failing with no server
+      # involved. The committed environment file supplies all four to every
+      # collection uniformly.
+      newman-environment-path: tests/integration/decidesk-environment.json
       enable-sbom: true
