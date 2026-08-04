@@ -82,17 +82,29 @@ export default defineConfig({
 	// project-level testIgnore replaces rather than extends this list.
 	testIgnore: NON_CI_PATTERNS,
 	globalSetup: path.resolve(__dirname, 'global-setup.ts'),
-	// TEMPORARY DIAGNOSTIC SETTINGS — revert before merge.
-	// The first enabled run (30858373402) hit the shared workflow's
-	// `timeout-minutes: 45` and was CANCELLED, which is no verdict at all. It
-	// spent ~42 minutes burning the full 60s test timeout on 43 consecutive
-	// executions of integration-registry.spec.ts. These settings exist purely to
-	// make a run FINISH so it produces a report with real error text.
-	timeout: 25_000,
-	expect: { timeout: 8_000 },
+	// RUNTIME BUDGET
+	// The shared workflow caps this job at `timeout-minutes: 45`, and a
+	// cancelled job is no verdict at all — not a pass and not a diagnosable
+	// failure. Run 30858373402 hit that cap exactly (45m18s) because the
+	// vue-router base was misconfigured on the CI instance, so every deep route
+	// silently redirected to the dashboard and each spec burned its full 60s
+	// timeout waiting for a view that would never mount. That cause is fixed in
+	// ci-seed.sh (htaccess.IgnoreFrontController), not by shortening timeouts:
+	// a timeout that is too short turns a slow environment into a fake failure
+	// just as surely as one that is too long turns a broken one into a timeout.
+	//
+	// Kept at workers: 1 deliberately. `fullyParallel: false` would run FILES in
+	// parallel, but no spec in this suite declares `test.describe.serial`, and
+	// several assert on collection COUNTS that another file would be mutating
+	// concurrently (voting-quorum asserts the voting-round count is unchanged
+	// after a blocked open; crud-persistence counts rows in shared lists).
+	// Parallelising before those are isolated buys minutes at the price of
+	// flakes that look like product bugs.
+	timeout: 60_000,
+	expect: { timeout: 15_000 },
 	fullyParallel: false,
-	retries: 0,
-	workers: 3,
+	retries: process.env.CI ? 1 : 0,
+	workers: 1,
 	reporter: [
 		['html', { open: 'never', outputFolder: path.resolve(__dirname, 'playwright-report') }],
 		['list'],
@@ -104,9 +116,7 @@ export default defineConfig({
 		baseURL: BASE_URL,
 		// Written by global-setup.ts after the admin login.
 		storageState: path.resolve(__dirname, '.auth', 'admin.json'),
-		// DIAGNOSTIC: retries are 0 for this run, so 'on-first-retry' would
-		// capture nothing. Revert to 'on-first-retry' with the block above.
-		trace: 'retain-on-failure',
+		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 	},
 

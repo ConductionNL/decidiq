@@ -77,6 +77,51 @@ USER_PASS="${ADMIN_PASSWORD:-${NC_ADMIN_PASS:-admin}}"
 echo "[ci-seed] target:  ${BASE}"
 echo "[ci-seed] app dir: ${APP_DIR}"
 
+# ── 0. Make Nextcloud emit the pretty URLs the specs navigate to ─────────────
+# decidesk's SPA router is `createWebHistory(generateUrl('/apps/decidesk'))`
+# (src/main.js). The JS `generateUrl` prefixes `/index.php` unless
+# `OC.config.modRewriteWorking` is true, and that flag is derived from the
+# `htaccess.IgnoreFrontController` system config — which `occ
+# maintenance:install` leaves at its default of FALSE.
+#
+# So on an unconfigured CI instance the router's base is
+# `/index.php/apps/decidesk`, while every spec navigates to
+# `${BASE}/apps/decidesk/...`. vue-router 4 only strips a base that the current
+# path actually starts with, so the resolved path stays `/apps/decidesk/...`,
+# matches NO route, and the view never mounts. The failure surfaces as a
+# selector timeout naming an element — i.e. it reads like a broken component,
+# not like a misconfigured base.
+#
+# The workflow's `ci-router.php` front controller already serves pretty URLs
+# (the job asserts `/apps/<app>/` does not 404), so telling Nextcloud the front
+# controller is active is accurate here, not a workaround.
+#
+# Only attempted when `occ` is actually next to us — this step's cwd is the
+# Nextcloud server root.
+if [ -f ./occ ]; then
+	php ./occ config:system:set htaccess.IgnoreFrontController --value=true --type=boolean >/dev/null 2>&1 || true
+
+	# Read it BACK and gate on it. `occ config:system:set` can fail silently
+	# (read-only config, a config partition it will not write), and an
+	# unverified set is exactly the shape of a check whose absence looks like
+	# its success.
+	#
+	# ⚠️ occ prints unrelated notices to STDOUT ahead of the value on some
+	# instances, so take the LAST non-empty line rather than the whole output.
+	FC_VALUE="$(php ./occ config:system:get htaccess.IgnoreFrontController 2>/dev/null \
+		| grep -v '^[[:space:]]*$' | tail -1 | tr -d '[:space:]' || true)"
+	echo "[ci-seed] htaccess.IgnoreFrontController -> '${FC_VALUE}'"
+	if [ "$FC_VALUE" != "true" ] && [ "$FC_VALUE" != "1" ]; then
+		echo "::error::htaccess.IgnoreFrontController is '${FC_VALUE}', not true."
+		echo "::error::generateUrl() will emit /index.php/apps/decidesk as the vue-router base while"
+		echo "::error::the specs navigate to /apps/decidesk/... — no route matches and every UI spec"
+		echo "::error::fails on a selector timeout that names an element rather than the real cause."
+		exit 1
+	fi
+else
+	echo "[ci-seed] no ./occ in $(pwd) — skipping the front-controller config (not a server root?)."
+fi
+
 # ── 1. Import the Decidesk configuration ─────────────────────────────────────
 # Decidesk's `appinfo/routes.php` returns
 # `\OCA\OpenRegister\AppHost\Routes::standard([...])`, whose canonical table

@@ -137,7 +137,11 @@ test.describe('public publication flow', () => {
 	})
 
 	test('mixed agenda publish strips the confidential item', async ({ page }) => {
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Council', bodyType: 'council' })
+		// `council` is NOT in GovernanceBody's bodyType enum (legislative,
+		// association, corporate-board, operational, citizen-panel,
+		// supervisory-board, executive-board, advisory-body, works-council,
+		// shared-body), and `domain` is required — both are hard 400s.
+		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Council', bodyType: 'legislative', domain: 'municipal' })
 		const meeting = await createObject(page, ledger, 'meeting', {
 			title: 'E2E public meeting', meetingType: 'regular', meetingMode: 'physical',
 			scheduledDate: '2025-05-01T19:00:00Z', lifecycle: 'scheduled',
