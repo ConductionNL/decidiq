@@ -39,6 +39,7 @@ use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Db\ObjectEntity;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -60,6 +61,29 @@ class VotingServiceTemplateRuleTest extends TestCase
     private array $saved = [];
 
     /**
+     * Build an ObjectEntity double whose jsonSerialize() returns $data.
+     *
+     * saveObject() is typed `ObjectEntity` on the live OpenRegister service,
+     * so the double must be a real ObjectEntity, not an array or \stdClass.
+     * onlyMethods() (not createMock) keeps Entity::__call() intact.
+     *
+     * @param array<string,mixed> $data The serialised object payload.
+     *
+     * @return ObjectEntity&MockObject
+     */
+    private function entity(array $data): ObjectEntity
+    {
+        $entity = $this->getMockBuilder(ObjectEntity::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['jsonSerialize'])
+            ->getMock();
+        $entity->method('jsonSerialize')->willReturn($data);
+        return $entity;
+
+    }//end entity()
+
+
+    /**
      * Build a VotingService whose ProcessTemplateService returns $templateRule.
      *
      * @param array<string,string>|null $templateRule The template voting rule, or null
@@ -70,16 +94,15 @@ class VotingServiceTemplateRuleTest extends TestCase
     {
         $this->saved = [];
 
-        $meeting = $this->createMock(ObjectEntity::class);
         // quorumRequired=0 -> checkQuorum() returns true (no participants needed).
-        $meeting->method('jsonSerialize')->willReturn(['id' => 'meeting-1', 'quorumRequired' => 0]);
+        $meeting = $this->entity(['id' => 'meeting-1', 'quorumRequired' => 0]);
 
         $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $objectService->method('find')->willReturn($meeting);
         $objectService->method('saveObject')->willReturnCallback(
-            function (array $object) {
+            function (array $object): ObjectEntity {
                 $this->saved[] = $object;
-                return $object;
+                return $this->entity($object);
             }
         );
 

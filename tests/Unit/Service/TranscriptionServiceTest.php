@@ -26,7 +26,9 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\MeetingFolderService;
 use OCA\Decidesk\Service\TranscriptionService;
 use OCA\Decidesk\Service\TranscriptionSourceResolver;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\SpeechToText\ISpeechToTextManager;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -103,13 +105,20 @@ class TranscriptionServiceTest extends TestCase
     /**
      * Mock OR entity returning data from jsonSerialize().
      *
+     * Must be a real ObjectEntity — ObjectService::find() is typed
+     * `?ObjectEntity` and saveObject() `ObjectEntity`, so a \stdClass double is
+     * rejected with a TypeError when the real OpenRegister app is installed.
+     *
      * @param array<string,mixed> $data Object data.
      *
-     * @return object
+     * @return ObjectEntity&MockObject
      */
-    private function entity(array $data): object
+    private function entity(array $data): ObjectEntity
     {
-        $mock = $this->getMockBuilder(\stdClass::class)->addMethods(['jsonSerialize'])->getMock();
+        $mock = $this->getMockBuilder(ObjectEntity::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['jsonSerialize'])
+            ->getMock();
         $mock->method('jsonSerialize')->willReturn($data);
         return $mock;
 
@@ -346,9 +355,9 @@ class TranscriptionServiceTest extends TestCase
         $objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
         $objectService->method('find')->willReturn($this->entity($transcript));
         $objectService->method('saveObject')->willReturnCallback(
-            function (array $object) use (&$saved) {
+            function (array $object) use (&$saved): ObjectEntity {
                 $saved = $object;
-                return $object;
+                return $this->entity($object);
             }
         );
 

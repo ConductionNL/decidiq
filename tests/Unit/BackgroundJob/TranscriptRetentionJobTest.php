@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\BackgroundJob;
 
 use OCA\Decidesk\BackgroundJob\TranscriptRetentionJob;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Utility\ITimeFactory;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -137,9 +139,9 @@ class TranscriptRetentionJobTest extends TestCase
         );
 
         $objectService->method('saveObject')->willReturnCallback(
-            function (array $object) {
+            function (array $object): ObjectEntity {
                 $this->saved = $object;
-                return $object;
+                return $this->entity($object);
             }
         );
 
@@ -201,13 +203,23 @@ class TranscriptRetentionJobTest extends TestCase
     /**
      * Mock OR entity returning data from jsonSerialize().
      *
+     * Must be a real ObjectEntity — ObjectService::find() is typed
+     * `?ObjectEntity`, so a \stdClass double raises a TypeError against the
+     * live OpenRegister app. TranscriptRetentionJob::fetchObject() swallows
+     * that in `catch (\Throwable) { return null; }`, so the violation showed up
+     * as a silently-wrong retentionState ('active' instead of 'purged') rather
+     * than an error — the reason these two tests failed instead of erroring.
+     *
      * @param array<string,mixed> $data Object data.
      *
-     * @return object
+     * @return ObjectEntity&MockObject
      */
-    private function entity(array $data): object
+    private function entity(array $data): ObjectEntity
     {
-        $mock = $this->getMockBuilder(\stdClass::class)->addMethods(['jsonSerialize'])->getMock();
+        $mock = $this->getMockBuilder(ObjectEntity::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['jsonSerialize'])
+            ->getMock();
         $mock->method('jsonSerialize')->willReturn($data);
         return $mock;
 
@@ -305,9 +317,9 @@ class TranscriptRetentionJobTest extends TestCase
                 : []
         );
         $objectService->method('saveObject')->willReturnCallback(
-            function (array $object) {
+            function (array $object): ObjectEntity {
                 $this->saved = $object;
-                return $object;
+                return $this->entity($object);
             }
         );
         $this->wireContainer(objectService: $objectService);
@@ -360,7 +372,7 @@ class TranscriptRetentionJobTest extends TestCase
                 ? [['lifecycle' => 'approved', 'approvedAt' => '2020-01-01T00:00:00Z', 'relations' => ['meeting' => 'm1']]]
                 : []
         );
-        $objectService->method('saveObject')->willReturnCallback(fn (array $o) => $o);
+        $objectService->method('saveObject')->willReturnCallback(fn (array $o): ObjectEntity => $this->entity($o));
         $this->wireContainer(objectService: $objectService);
 
         $job = new TranscriptRetentionJob($this->time, $this->container, $this->logger);

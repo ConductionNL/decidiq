@@ -32,6 +32,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -59,6 +60,33 @@ class PublicationServiceTest extends TestCase
     private int $seq = 0;
 
     /**
+     * Build an ObjectEntity double whose jsonSerialize() returns $data.
+     *
+     * NOTE: getUuid() is deliberately NOT stubbed. On the live
+     * OCA\OpenRegister\Db\ObjectEntity it is an OCP Entity magic accessor, not
+     * a declared method, so `createMock(...)->method('getUuid')` throws
+     * MethodCannotBeConfiguredException — and, more importantly,
+     * PublicationRepository::extractObjectId() guards it with
+     * method_exists($saved, 'getUuid'), which is FALSE for a magic accessor.
+     * Production therefore resolves the id via jsonSerialize()['id'], and so
+     * does this double. Stubbing getUuid() here tested a path that never runs.
+     *
+     * @param array<string,mixed> $data The serialised object payload.
+     *
+     * @return ObjectEntity&MockObject
+     */
+    private function entity(array $data): ObjectEntity
+    {
+        $entity = $this->getMockBuilder(ObjectEntity::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['jsonSerialize'])
+            ->getMock();
+        $entity->method('jsonSerialize')->willReturn($data);
+        return $entity;
+
+    }//end entity()
+
+    /**
      * Build a fully-wired PublicationService over an in-memory ObjectService.
      *
      * @param bool                       $openCatalogi    Whether OpenCatalogi is "installed".
@@ -72,18 +100,16 @@ class PublicationServiceTest extends TestCase
 
         $objectService = $this->createMock(ObjectService::class);
         $objectService->method('find')->willReturnCallback(
-            function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null): ?object {
+            function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null): ?ObjectEntity {
                 if (isset($this->store[(string) $id]) === false) {
                     return null;
                 }
 
-                $entity = $this->createMock(ObjectEntity::class);
-                $entity->method('jsonSerialize')->willReturn($this->store[(string) $id]);
-                return $entity;
+                return $this->entity($this->store[(string) $id]);
             }
         );
         $objectService->method('saveObject')->willReturnCallback(
-            function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): object {
+            function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity {
                 if ($uuid === null) {
                     $this->seq++;
                     $uuid = 'obj-'.$this->seq;
@@ -92,10 +118,7 @@ class PublicationServiceTest extends TestCase
                 $row = array_merge(['id' => $uuid], $object);
                 $this->store[$uuid] = $row;
 
-                $entity = $this->createMock(ObjectEntity::class);
-                $entity->method('jsonSerialize')->willReturn($row);
-                $entity->method('getUuid')->willReturn($uuid);
-                return $entity;
+                return $this->entity($row);
             }
         );
 

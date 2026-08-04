@@ -95,10 +95,14 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase
         if ($this->objectService !== null) {
             foreach ($this->createdIds as $id) {
                 try {
+                    // The parameter is `$uuid`, not `$id` — a named argument of
+                    // `id:` is an Error, which the catch below would have
+                    // swallowed, so this cleanup could never have deleted
+                    // anything.
                     $this->objectService->deleteObject(
+                        uuid: $id,
                         register: 'decidesk',
-                        schema: 'action-item',
-                        id: $id
+                        schema: 'action-item'
                     );
                 } catch (\Throwable) {
                     // Best-effort cleanup — ignore failures.

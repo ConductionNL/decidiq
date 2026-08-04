@@ -26,6 +26,7 @@ use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\MeetingFolderService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProofPackageService;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -106,30 +107,24 @@ class ProofPackageServiceTest extends TestCase
     /**
      * Helper: create a mock entity exposing jsonSerialize().
      *
+     * Must be a real ObjectEntity — ObjectService::find() is typed
+     * `?ObjectEntity`, so an anonymous \JsonSerializable is rejected with a
+     * TypeError when the real OpenRegister app is installed. onlyMethods()
+     * (not createMock) keeps Entity::__call() intact so the magic accessors
+     * still work.
+     *
      * @param array<string,mixed> $data Object data
      *
-     * @return object
+     * @return ObjectEntity&MockObject
      */
-    private function createEntityMock(array $data): object
+    private function createEntityMock(array $data): ObjectEntity
     {
-        return new class ($data) implements \JsonSerializable {
-
-            /**
-             * @param array<string,mixed> $data Object payload
-             */
-            public function __construct(private array $data)
-            {
-            }
-
-            /**
-             * @return array<string,mixed>
-             */
-            public function jsonSerialize(): array
-            {
-                return $this->data;
-
-            }//end jsonSerialize()
-        };
+        $entity = $this->getMockBuilder(ObjectEntity::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['jsonSerialize'])
+            ->getMock();
+        $entity->method('jsonSerialize')->willReturn($data);
+        return $entity;
 
     }//end createEntityMock()
 

@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\AuditLogService;
 use OCA\Decidesk\Service\DecisionIntegrationService;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -99,14 +100,21 @@ class DecisionIntegrationServiceTest extends TestCase
     /**
      * Build a mock entity that serializes to the given array.
      *
+     * Must be a real ObjectEntity — ObjectService::find() is typed
+     * `?ObjectEntity` and saveObject() `ObjectEntity`, so a \stdClass double is
+     * rejected with a TypeError when the real OpenRegister app is installed.
+     * onlyMethods() (not createMock) keeps Entity::__call() intact so the magic
+     * accessors still work.
+     *
      * @param array<string, mixed> $data Object payload
      *
-     * @return MockObject
+     * @return ObjectEntity&MockObject
      */
-    private function entity(array $data): MockObject
+    private function entity(array $data): ObjectEntity
     {
-        $entity = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['jsonSerialize'])
+        $entity = $this->getMockBuilder(ObjectEntity::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['jsonSerialize'])
             ->getMock();
         $entity->method('jsonSerialize')->willReturn($data);
         return $entity;

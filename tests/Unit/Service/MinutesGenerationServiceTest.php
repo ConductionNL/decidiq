@@ -24,6 +24,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\MinutesDraftRenderer;
 use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -313,9 +314,9 @@ class MinutesGenerationServiceTest extends TestCase
         $savedObject = null;
         $this->objectService->expects($this->once())
             ->method('saveObject')
-            ->willReturnCallback(static function (array $object) use (&$savedObject): array {
+            ->willReturnCallback(function (array $object) use (&$savedObject): ObjectEntity {
                 $savedObject = $object;
-                return $object;
+                return $this->createEntityMock($object);
             });
 
         $result = $this->service->reject(
@@ -362,9 +363,9 @@ class MinutesGenerationServiceTest extends TestCase
 
         $savedObject = null;
         $this->objectService->method('saveObject')
-            ->willReturnCallback(static function (array $object) use (&$savedObject): array {
+            ->willReturnCallback(function (array $object) use (&$savedObject): ObjectEntity {
                 $savedObject = $object;
-                return $object;
+                return $this->createEntityMock($object);
             });
 
         $this->service->reject(minutesId: 'minutes-011', comment: 'Second round', userId: 'chair-user');
@@ -440,14 +441,20 @@ class MinutesGenerationServiceTest extends TestCase
     /**
      * Helper: create a mock ObjectEntity with getObject().
      *
+     * Must be a real ObjectEntity — ObjectService::find() is typed
+     * `?ObjectEntity`, so a \stdClass double is rejected with a TypeError when
+     * the real OpenRegister app is installed. getObject() is a real declared
+     * method on the live entity, so onlyMethods() can stub it.
+     *
      * @param array<string,mixed> $data Object data
      *
-     * @return object
+     * @return ObjectEntity&MockObject
      */
-    private function createEntityMock(array $data): object
+    private function createEntityMock(array $data): ObjectEntity
     {
-        $mock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['getObject'])
+        $mock = $this->getMockBuilder(ObjectEntity::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getObject'])
             ->getMock();
         $mock->method('getObject')->willReturn($data);
         return $mock;
