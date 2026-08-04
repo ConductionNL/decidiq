@@ -2,7 +2,10 @@
 /**
  * Decidesk Voting Controller
  *
- * Thin REST controller for voting round management, vote casting, and proxy delegation.
+ * Thin REST controller for voting round management, vote casting, and proxy
+ * delegation. Every endpoint is guard -> read input -> delegate; the
+ * exception-to-status mapping lives in VotingErrorResponder and the
+ * open-a-round request shape lives in VotingOpenRequestHandler.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -15,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+ * @spec openspec/specs/voting-system/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -26,96 +29,52 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\OriPublicationService;
-use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProxyDelegationService;
-use OCA\Decidesk\Service\VotingOpenRequestParser;
+use OCA\Decidesk\Service\VotingErrorResponder;
+use OCA\Decidesk\Service\VotingOpenRequestHandler;
 use OCA\Decidesk\Service\VotingRoundGuard;
-use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IAppConfig;
-use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Thin controller for voting round API endpoints.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+ * @spec openspec/specs/voting-system/spec.md
  */
 class VotingController extends Controller
 {
-
-    /**
-     * Per-meeting authorisation guard for the voting endpoints.
-     *
-     * @var VotingRoundGuard
-     */
-    private readonly VotingRoundGuard $guard;
-
-    /**
-     * Request parsing + validation for opening a voting round.
-     *
-     * @var VotingOpenRequestParser
-     */
-    private readonly VotingOpenRequestParser $openParser;
-
-    /**
-     * Proxy (volmacht) grant / revoke on a voting round.
-     *
-     * @var ProxyDelegationService
-     */
-    private readonly ProxyDelegationService $proxyService;
-
     /**
      * Constructor for VotingController.
      *
-     * @param IRequest              $request             The request object
-     * @param VotingService         $votingService       The voting service
-     * @param OriPublicationService $oriService          The ORI publication service
-     * @param IUserSession          $userSession         The user session
-     * @param IGroupManager         $groupManager        The group manager (handed to the guard)
-     * @param IAppConfig            $appConfig           The app config (handed to the guard)
-     * @param LoggerInterface       $logger              The logger
-     * @param ParticipantResolver   $participantResolver Role resolver (handed to the guard)
-     * @param ContainerInterface    $container           DI container (handed to the guard)
+     * @param IRequest                 $request       The request object
+     * @param VotingService            $votingService The voting service
+     * @param OriPublicationService    $oriService    The ORI publication service
+     * @param IUserSession             $userSession   The user session
+     * @param VotingRoundGuard         $guard         Per-meeting authorisation guard
+     * @param VotingOpenRequestHandler $openHandler   Open-a-round request handling
+     * @param ProxyDelegationService   $proxyService  Proxy (volmacht) grant / revoke
+     * @param VotingErrorResponder     $errors        Exception-to-status mapping
      *
      * @return void
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     * @spec openspec/specs/voting-system/spec.md
      */
     public function __construct(
         IRequest $request,
         private readonly VotingService $votingService,
         private readonly OriPublicationService $oriService,
         private readonly IUserSession $userSession,
-        IGroupManager $groupManager,
-        IAppConfig $appConfig,
-        private readonly LoggerInterface $logger,
-        ParticipantResolver $participantResolver,
-        ContainerInterface $container,
+        private readonly VotingRoundGuard $guard,
+        private readonly VotingOpenRequestHandler $openHandler,
+        private readonly ProxyDelegationService $proxyService,
+        private readonly VotingErrorResponder $errors,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
-
-        $this->guard = new VotingRoundGuard(
-            userSession: $userSession,
-            groupManager: $groupManager,
-            appConfig: $appConfig,
-            participantResolver: $participantResolver,
-            container: $container
-        );
-
-        $this->openParser = new VotingOpenRequestParser();
-
-        $this->proxyService = new ProxyDelegationService(
-            container: $container,
-            logger: $logger
-        );
 
     }//end __construct()
 
@@ -129,13 +88,8 @@ class VotingController extends Controller
      *         "tieBreakRule": "rejected", "revoteOfRound": "uuid|null",
      *         "subjectType": "motion|amendment" }
      *
-     * For subjectType=amendment, motionId carries the AMENDMENT UUID; the
-     * parliamentary ordering rules (amendments before the motion, chair-set
-     * order) are enforced server-side by VotingService (fail closed).
-     *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      * @spec openspec/specs/voting-system/spec.md
      * @spec openspec/specs/motion-amendment/spec.md
      * @spec openspec/specs/process-configuration/spec.md
@@ -159,36 +113,7 @@ class VotingController extends Controller
             return $guard;
         }
 
-        $request = $this->openParser->parse(params: $params);
-        if ($request['error'] !== null) {
-            return new JSONResponse(['message' => $request['error']], Http::STATUS_BAD_REQUEST);
-        }
-
-        $round = $request['payload'];
-
-        try {
-            $opened = $this->votingService->openVotingRound(
-                motionId: $round['motionId'],
-                meetingId: $round['meetingId'],
-                votingMethod: $round['votingMethod'],
-                isSecret: $round['isSecret'],
-                closedAt: $round['closedAt'],
-                presetParticipantIds: $round['presetIds'],
-                revoteOfRoundId: $round['revoteOfRoundId'],
-                roundRules: new VotingRoundRules(
-                    voteThreshold: $round['voteThreshold'],
-                    abstentionHandling: $round['abstentionHandling'],
-                    tieBreakRule: $round['tieBreakRule'],
-                    subjectType: $round['subjectType'],
-                    governanceBodyId: $round['governanceBodyId']
-                )
-            );
-            return new JSONResponse($opened, Http::STATUS_CREATED);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        }//end try
+        return $this->errors->badRequest(fn (): JSONResponse => $this->openHandler->handle(params: $params));
 
     }//end open()
 
@@ -202,7 +127,7 @@ class VotingController extends Controller
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     * @spec openspec/specs/voting-system/spec.md
      * @spec openspec/specs/user-settings/spec.md
      *
      * @return JSONResponse
@@ -238,19 +163,19 @@ class VotingController extends Controller
             return new JSONResponse(['message' => 'value must be for, against, or abstain'], Http::STATUS_BAD_REQUEST);
         }
 
-        try {
-            $vote = $this->votingService->castVote(
-                votingRoundId: $id,
-                participantId: $participantId,
-                value: $value,
-                isProxy: $isProxy,
-                delegatorId: $delegatorId,
-                callerUid: $nextcloudUid
-            );
-            return new JSONResponse($vote, Http::STATUS_CREATED);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        }
+        return $this->errors->badRequest(
+            fn (): JSONResponse => new JSONResponse(
+                $this->votingService->castVote(
+                    votingRoundId: $id,
+                    participantId: $participantId,
+                    value: $value,
+                    isProxy: $isProxy,
+                    delegatorId: $delegatorId,
+                    callerUid: $nextcloudUid
+                ),
+                Http::STATUS_CREATED
+            )
+        );
 
     }//end cast()
 
@@ -269,7 +194,6 @@ class VotingController extends Controller
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      * @spec openspec/specs/voting-system/spec.md
      *
      * @return JSONResponse
@@ -302,17 +226,10 @@ class VotingController extends Controller
             }
         }
 
-        try {
-            $round = $this->votingService->closeVotingRound(votingRoundId: $id, anonymise: $anonymise, chairCasting: $chairCasting);
-            return new JSONResponse($round);
-        } catch (\RuntimeException $e) {
-            // Casting-vote refusals are client errors; a missing round is a 404.
-            if (str_contains($e->getMessage(), 'not found') === true) {
-                return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-            }
-
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        }
+        // Casting-vote refusals are client errors; a missing round is a 404.
+        return $this->errors->badRequestOrNotFound(
+            fn (): JSONResponse => new JSONResponse($this->closeRound(votingRoundId: $id, anonymise: $anonymise, chairCasting: $chairCasting))
+        );
 
     }//end close()
 
@@ -325,7 +242,7 @@ class VotingController extends Controller
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     * @spec openspec/specs/voting-result-publication/spec.md
      *
      * @return JSONResponse
      */
@@ -337,14 +254,12 @@ class VotingController extends Controller
             return $guard;
         }
 
-        try {
-            $this->oriService->publish(votingRoundId: $id);
-            $status = $this->oriService->getPublicationStatus(votingRoundId: $id);
-            return new JSONResponse(['status' => $status]);
-        } catch (\Throwable $e) {
-            $this->logger->error('Decidesk: ORI publication failed', ['votingRoundId' => $id, 'error' => $e->getMessage()]);
-            return new JSONResponse(['message' => 'Publication failed'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        return $this->errors->internalError(
+            fn (): JSONResponse => new JSONResponse(['status' => $this->publishRound(votingRoundId: $id)]),
+            'Decidesk: ORI publication failed',
+            ['votingRoundId' => $id],
+            'Publication failed'
+        );
 
     }//end publish()
 
@@ -358,7 +273,7 @@ class VotingController extends Controller
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     * @spec openspec/specs/proxy-voting/spec.md
      *
      * @return JSONResponse
      */
@@ -384,18 +299,17 @@ class VotingController extends Controller
             return new JSONResponse(['message' => 'toParticipantId is required'], Http::STATUS_BAD_REQUEST);
         }
 
-        try {
-            $this->proxyService->grantProxy(
-                votingRoundId: $id,
-                fromParticipantId: $fromParticipantId,
-                toParticipantId: $toParticipantId
-            );
-            return new JSONResponse(['success' => true]);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-        }
+        return $this->errors->invalidOrMissing(
+            function () use ($id, $fromParticipantId, $toParticipantId): JSONResponse {
+                $this->proxyService->grantProxy(
+                    votingRoundId: $id,
+                    fromParticipantId: $fromParticipantId,
+                    toParticipantId: $toParticipantId
+                );
+
+                return new JSONResponse(['success' => true]);
+            }
+        );
 
     }//end proxy()
 
@@ -411,7 +325,7 @@ class VotingController extends Controller
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     * @spec openspec/specs/voting-system/spec.md
      *
      * @return JSONResponse
      */
@@ -428,17 +342,16 @@ class VotingController extends Controller
         $votesAgainst = (int) ($params['votesAgainst'] ?? 0);
         $votesAbstain = (int) ($params['votesAbstain'] ?? 0);
 
-        try {
-            $round = $this->votingService->saveShowOfHandsTally(
-                votingRoundId: $id,
-                votesFor: $votesFor,
-                votesAgainst: $votesAgainst,
-                votesAbstain: $votesAbstain,
-            );
-            return new JSONResponse($round);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        }
+        return $this->errors->badRequest(
+            fn (): JSONResponse => new JSONResponse(
+                $this->votingService->saveShowOfHandsTally(
+                    votingRoundId: $id,
+                    votesFor: $votesFor,
+                    votesAgainst: $votesAgainst,
+                    votesAbstain: $votesAbstain,
+                )
+            )
+        );
 
     }//end tally()
 
@@ -452,7 +365,7 @@ class VotingController extends Controller
      *
      * @NoAdminRequired
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+     * @spec openspec/specs/proxy-voting/spec.md
      *
      * @return JSONResponse
      */
@@ -471,12 +384,57 @@ class VotingController extends Controller
             return new JSONResponse(['message' => 'Geen deelnemersprofiel gevonden'], Http::STATUS_FORBIDDEN);
         }
 
-        try {
-            $this->proxyService->revokeProxy(votingRoundId: $id, fromParticipantId: $fromParticipantId);
-            return new JSONResponse(['success' => true]);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        }
+        return $this->errors->badRequest(
+            function () use ($id, $fromParticipantId): JSONResponse {
+                $this->proxyService->revokeProxy(votingRoundId: $id, fromParticipantId: $fromParticipantId);
+
+                return new JSONResponse(['success' => true]);
+            }
+        );
 
     }//end revokeProxy()
+
+    /**
+     * Close the round through the variant the request asked for.
+     *
+     * Anonymisation is irreversible, so it is a distinct service method rather
+     * than a boolean flag; this is the single place the request flag selects one.
+     *
+     * @param string      $votingRoundId The voting round UUID
+     * @param bool        $anonymise     Whether the request asked for anonymisation
+     * @param string|null $chairCasting  The validated chair casting vote, when present
+     *
+     * @return array<string, mixed> The closed voting round object
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     */
+    private function closeRound(string $votingRoundId, bool $anonymise, ?string $chairCasting): array
+    {
+        if ($anonymise === true) {
+            return $this->votingService->closeVotingRoundAnonymised(
+                votingRoundId: $votingRoundId,
+                chairCasting: $chairCasting
+            );
+        }
+
+        return $this->votingService->closeVotingRound(votingRoundId: $votingRoundId, chairCasting: $chairCasting);
+
+    }//end closeRound()
+
+    /**
+     * Publish the round to ORI and read back its publication status.
+     *
+     * @param string $votingRoundId The voting round UUID
+     *
+     * @return mixed The publication status
+     *
+     * @spec openspec/specs/voting-result-publication/spec.md
+     */
+    private function publishRound(string $votingRoundId): mixed
+    {
+        $this->oriService->publish(votingRoundId: $votingRoundId);
+
+        return $this->oriService->getPublicationStatus(votingRoundId: $votingRoundId);
+
+    }//end publishRound()
 }//end class

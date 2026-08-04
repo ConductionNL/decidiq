@@ -21,8 +21,18 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Service\AmendmentOrderService;
 use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Service\ObjectRelationFilter;
 use OCA\Decidesk\Service\OriPublicationService;
+use OCA\Decidesk\Service\ParticipantUuidLookup;
+use OCA\Decidesk\Service\VoteCastingService;
+use OCA\Decidesk\Service\VotingOpenedNotifier;
+use OCA\Decidesk\Service\VotingRoundCloser;
+use OCA\Decidesk\Service\VotingRoundOpener;
+use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidesk\Service\VotingRoundProjection;
+use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -116,13 +126,55 @@ class VotingServiceTest extends TestCase
         $templateService = $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class);
         $templateService->method('resolveVotingRuleForBody')->willReturn(null);
 
-        $this->service = new VotingService(
+        // VotingService is a thin facade: every operation is delegated to a
+        // single-purpose collaborator, so the graph is built explicitly here
+        // where production relies on Nextcloud's constructor auto-wiring.
+        $amendmentOrder = new AmendmentOrderService(
             container: $this->container,
-            oriService:$this->oriService,
-            logger: $this->logger,
-            motionService: $this->motionService,
-            participantResolver: $participantResolver,
-            templateService: $templateService,
+            motionService: $this->motionService
+        );
+        $relationFilter = new ObjectRelationFilter();
+
+        $this->service = new VotingService(
+            opener: new VotingRoundOpener(
+                container: $this->container,
+                motionService: $this->motionService,
+                participantResolver: $participantResolver,
+                preflight: new VotingRoundPreflight(
+                    container: $this->container,
+                    logger: $this->logger,
+                    motionService: $this->motionService,
+                    participantResolver: $participantResolver,
+                    templateService: $templateService
+                ),
+                notifier: new VotingOpenedNotifier(
+                    container: $this->container,
+                    logger: $this->logger,
+                    participantResolver: $participantResolver
+                )
+            ),
+            caster: new VoteCastingService(
+                container: $this->container,
+                logger: $this->logger,
+                participantResolver: $participantResolver,
+                amendmentOrder: $amendmentOrder,
+                relationFilter: $relationFilter
+            ),
+            closer: new VotingRoundCloser(
+                container: $this->container,
+                logger: $this->logger,
+                oriService: $this->oriService,
+                motionService: $this->motionService,
+                amendmentOrder: $amendmentOrder,
+                relationFilter: $relationFilter
+            ),
+            results: new VotingRoundResults(
+                container: $this->container,
+                motionService: $this->motionService,
+                participantResolver: $participantResolver
+            ),
+            projection: new VotingRoundProjection(container: $this->container),
+            participants: new ParticipantUuidLookup(container: $this->container),
         );
 
     }//end setUp()
