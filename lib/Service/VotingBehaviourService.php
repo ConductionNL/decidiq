@@ -88,6 +88,70 @@ class VotingBehaviourService
      */
     public function getStats(string $participantId, string $governanceBodyId): array
     {
+        $closedRounds = $this->closedRoundsForBody(governanceBodyId: $governanceBodyId);
+        $totalRounds  = count($closedRounds);
+
+        $tally = [
+            'participated'    => 0,
+            'votesFor'        => 0,
+            'votesAgainst'    => 0,
+            'votesAbstain'    => 0,
+            'proxiesGiven'    => 0,
+            'proxiesReceived' => 0,
+        ];
+
+        foreach ($closedRounds as $round) {
+            $roundId = ($round['id'] ?? ($round['uuid'] ?? null));
+            if ($roundId === null) {
+                continue;
+            }
+
+            $this->accumulateRound(
+                tally: $tally,
+                roundId: (string) $roundId,
+                participantId: $participantId
+            );
+        }
+
+        // Participation rate as percentage.
+        $participationRate = 0.0;
+        if ($totalRounds > 0) {
+            $participationRate = round((($tally['participated'] / $totalRounds) * 100), 1);
+        }
+
+        return array_merge(
+            [
+                'participantId'     => $participantId,
+                'governanceBodyId'  => $governanceBodyId,
+                'totalRounds'       => $totalRounds,
+                'participated'      => $tally['participated'],
+                'participationRate' => $participationRate,
+            ],
+            [
+                'votesFor'        => $tally['votesFor'],
+                'votesAgainst'    => $tally['votesAgainst'],
+                'votesAbstain'    => $tally['votesAbstain'],
+                'proxiesGiven'    => $tally['proxiesGiven'],
+                'proxiesReceived' => $tally['proxiesReceived'],
+            ]
+        );
+
+    }//end getStats()
+
+    /**
+     * Collect every closed voting round of a governance body.
+     *
+     * Walks governance-body -> motion -> voting-round, keeping only rounds that
+     * carry a closedAt.
+     *
+     * @param string $governanceBodyId The governance body UUID
+     *
+     * @return array<int, array<string,mixed>> The closed rounds.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     */
+    private function closedRoundsForBody(string $governanceBodyId): array
+    {
         $objectService = $this->objectService();
 
         // Step 1: Fetch all motions for this governance body.
@@ -106,115 +170,195 @@ class VotingBehaviourService
                 continue;
             }
 
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('voting-round');
-            $roundEntities = $objectService->findAll(
-                ['filters' => ['_relations.motion' => $motionId]]
+            $closedRounds = array_merge(
+                $closedRounds,
+                $this->closedRoundsForMotion(motionId: (string) $motionId)
             );
-
-            foreach ($roundEntities as $roundEntity) {
-                $round = $roundEntity->jsonSerialize();
-                // Only include closed rounds (closedAt is not null).
-                if (isset($round['closedAt']) === true && $round['closedAt'] !== null) {
-                    $closedRounds[] = $round;
-                }
-            }
-        }//end foreach
-
-        $totalRounds     = count($closedRounds);
-        $participated    = 0;
-        $votesFor        = 0;
-        $votesAgainst    = 0;
-        $votesAbstain    = 0;
-        $proxiesGiven    = 0;
-        $proxiesReceived = 0;
-
-        // Step 3: For each closed round, fetch votes for this participant.
-        foreach ($closedRounds as $round) {
-            $roundId = ($round['id'] ?? ($round['uuid'] ?? null));
-            if ($roundId === null) {
-                continue;
-            }
-
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('vote');
-            $voteEntities = $objectService->findAll(
-                    [
-                        'filters' => [
-                            '_relations.voting-round' => $roundId,
-                            '_relations.participant'  => $participantId,
-                        ],
-                    ]
-                    );
-
-            $votes = array_map(fn($e) => $e->jsonSerialize(), $voteEntities);
-            if (count($votes) > 0) {
-                $participated++;
-
-                // Count vote values.
-                foreach ($votes as $vote) {
-                    $value = ($vote['value'] ?? null);
-                    if ($value === 'for') {
-                        $votesFor++;
-                    } else if ($value === 'against') {
-                        $votesAgainst++;
-                    } else if ($value === 'abstain') {
-                        $votesAbstain++;
-                    }
-
-                    // Count proxy status: isProxy=true means this participant voted as proxy
-                    // on behalf of someone else (they cast the proxy, i.e., proxiesGiven).
-                    if ($vote['isProxy'] ?? false) {
-                        $proxiesGiven++;
-                    }
-                }
-            }//end if
-
-            // Count proxies received: find proxy votes in this round where this
-            // participant was the delegator (a relation entry with type='delegator').
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('vote');
-            $proxyVoteEntities = $objectService->findAll(
-                [
-                    'filters' => [
-                        '_relations.voting-round' => $roundId,
-                        'isProxy'                 => true,
-                    ],
-                ]
-            );
-            foreach ($proxyVoteEntities as $proxyVoteEntity) {
-                $proxyVote = $proxyVoteEntity->jsonSerialize();
-                foreach (($proxyVote['relations'] ?? []) as $rel) {
-                    if (is_array($rel) === true
-                        && ($rel['schema'] ?? '') === 'participant'
-                        && ($rel['id'] ?? '') === $participantId
-                        && ($rel['type'] ?? '') === 'delegator'
-                    ) {
-                        $proxiesReceived++;
-                        break;
-                    }
-                }
-            }
-        }//end foreach
-
-        // Participation rate as percentage.
-        $participationRate = 0.0;
-        if ($totalRounds > 0) {
-            $participationRate = round(($participated / $totalRounds) * 100, 1);
         }
 
-        return [
-            'participantId'     => $participantId,
-            'governanceBodyId'  => $governanceBodyId,
-            'totalRounds'       => $totalRounds,
-            'participated'      => $participated,
-            'participationRate' => $participationRate,
-            'votesFor'          => $votesFor,
-            'votesAgainst'      => $votesAgainst,
-            'votesAbstain'      => $votesAbstain,
-            'proxiesGiven'      => $proxiesGiven,
-            'proxiesReceived'   => $proxiesReceived,
-        ];
+        return $closedRounds;
 
-    }//end getStats()
+    }//end closedRoundsForBody()
+
+    /**
+     * The closed voting rounds of one motion.
+     *
+     * @param string $motionId The motion UUID
+     *
+     * @return array<int, array<string,mixed>> The closed rounds.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     */
+    private function closedRoundsForMotion(string $motionId): array
+    {
+        $objectService = $this->objectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('voting-round');
+        $roundEntities = $objectService->findAll(
+            ['filters' => ['_relations.motion' => $motionId]]
+        );
+
+        $closed = [];
+        foreach ($roundEntities as $roundEntity) {
+            $round = $roundEntity->jsonSerialize();
+            // Only include closed rounds (closedAt is not null).
+            if (isset($round['closedAt']) === true && $round['closedAt'] !== null) {
+                $closed[] = $round;
+            }
+        }
+
+        return $closed;
+
+    }//end closedRoundsForMotion()
+
+    /**
+     * Fold one closed round's ballots into the running tally.
+     *
+     * @param array<string,int> $tally         The running tally, updated in place
+     * @param string            $roundId       The voting round UUID
+     * @param string            $participantId The participant UUID
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     */
+    private function accumulateRound(array &$tally, string $roundId, string $participantId): void
+    {
+        $votes = $this->participantVotes(roundId: $roundId, participantId: $participantId);
+        if (count($votes) > 0) {
+            $tally['participated']++;
+            foreach ($votes as $vote) {
+                $this->accumulateVote(tally: $tally, vote: $vote);
+            }
+        }
+
+        // Count proxies received: find proxy votes in this round where this
+        // participant was the delegator (a relation entry with type='delegator').
+        $tally['proxiesReceived'] += $this->proxiesReceived(
+            roundId: $roundId,
+            participantId: $participantId
+        );
+
+    }//end accumulateRound()
+
+    /**
+     * Fold one ballot's value and proxy status into the running tally.
+     *
+     * @param array<string,int>   $tally The running tally, updated in place
+     * @param array<string,mixed> $vote  The ballot
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     */
+    private function accumulateVote(array &$tally, array $vote): void
+    {
+        $countKey = match (($vote['value'] ?? null)) {
+            'for'     => 'votesFor',
+            'against' => 'votesAgainst',
+            'abstain' => 'votesAbstain',
+            default   => null,
+        };
+
+        if ($countKey !== null) {
+            $tally[$countKey]++;
+        }
+
+        // An isProxy=true ballot means this participant voted as proxy on
+        // behalf of someone else (they cast the proxy, i.e. proxiesGiven).
+        if ((bool) ($vote['isProxy'] ?? false) === true) {
+            $tally['proxiesGiven']++;
+        }
+
+    }//end accumulateVote()
+
+    /**
+     * The participant's own ballots in one round.
+     *
+     * @param string $roundId       The voting round UUID
+     * @param string $participantId The participant UUID
+     *
+     * @return array<int, array<string,mixed>> The ballots.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     */
+    private function participantVotes(string $roundId, string $participantId): array
+    {
+        $objectService = $this->objectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('vote');
+        $voteEntities = $objectService->findAll(
+            [
+                'filters' => [
+                    '_relations.voting-round' => $roundId,
+                    '_relations.participant'  => $participantId,
+                ],
+            ]
+        );
+
+        return array_map(static fn($e) => $e->jsonSerialize(), $voteEntities);
+
+    }//end participantVotes()
+
+    /**
+     * How many proxy votes in one round name this participant as delegator.
+     *
+     * @param string $roundId       The voting round UUID
+     * @param string $participantId The participant UUID
+     *
+     * @return int The number of proxies received.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     */
+    private function proxiesReceived(string $roundId, string $participantId): int
+    {
+        $objectService = $this->objectService();
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('vote');
+        $proxyVoteEntities = $objectService->findAll(
+            [
+                'filters' => [
+                    '_relations.voting-round' => $roundId,
+                    'isProxy'                 => true,
+                ],
+            ]
+        );
+
+        $received = 0;
+        foreach ($proxyVoteEntities as $proxyVoteEntity) {
+            $proxyVote = $proxyVoteEntity->jsonSerialize();
+            if ($this->namesDelegator(relations: ($proxyVote['relations'] ?? []), participantId: $participantId) === true) {
+                $received++;
+            }
+        }
+
+        return $received;
+
+    }//end proxiesReceived()
+
+    /**
+     * Whether a vote's relations name the participant as delegator.
+     *
+     * @param mixed  $relations     The vote's relations structure
+     * @param string $participantId The participant UUID
+     *
+     * @return bool True when the participant is the delegator.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     */
+    private function namesDelegator(mixed $relations, string $participantId): bool
+    {
+        foreach (($relations ?? []) as $rel) {
+            if (is_array($rel) === true
+                && ($rel['schema'] ?? '') === 'participant'
+                && ($rel['id'] ?? '') === $participantId
+                && ($rel['type'] ?? '') === 'delegator'
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }//end namesDelegator()
 }//end class
