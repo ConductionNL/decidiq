@@ -99,9 +99,9 @@ class MinutesWorkflowServiceTest extends TestCase
      *
      * @param array<string,mixed> $data The object data
      *
-     * @return object
+     * @return ObjectEntity&MockObject
      */
-    private function makeEntity(array $data): object
+    private function makeEntity(array $data): ObjectEntity&MockObject
     {
         $entity = $this->createMock(ObjectEntity::class);
         $entity->method('jsonSerialize')->willReturn($data);
@@ -239,9 +239,11 @@ class MinutesWorkflowServiceTest extends TestCase
         $this->objectService->expects($this->once())
             ->method('saveObject')
             ->willReturnCallback(
-                static function (array $object) use (&$saved): array {
+                // saveObject() is typed `: ObjectEntity` in production and can
+                // never return the payload array it was handed (#399).
+                function (array $object) use (&$saved): ObjectEntity {
                     $saved = $object;
-                    return $object;
+                    return $this->makeEntity($object);
                 }
             );
 

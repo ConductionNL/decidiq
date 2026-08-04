@@ -26,6 +26,7 @@ use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\MeetingFolderService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProofPackageService;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -104,32 +105,22 @@ class ProofPackageServiceTest extends TestCase
     }//end setUp()
 
     /**
-     * Helper: create a mock entity exposing jsonSerialize().
+     * Helper: create an ObjectEntity double exposing jsonSerialize().
+     *
+     * Must be an ObjectEntity double, not an anonymous JsonSerializable:
+     * ObjectService::find() is typed `?ObjectEntity` in production, so any
+     * other JsonSerializable is a value the service can never hand the code
+     * under test (#399).
      *
      * @param array<string,mixed> $data Object data
      *
-     * @return object
+     * @return ObjectEntity&MockObject
      */
-    private function createEntityMock(array $data): object
+    private function createEntityMock(array $data): ObjectEntity&MockObject
     {
-        return new class ($data) implements \JsonSerializable {
-
-            /**
-             * @param array<string,mixed> $data Object payload
-             */
-            public function __construct(private array $data)
-            {
-            }
-
-            /**
-             * @return array<string,mixed>
-             */
-            public function jsonSerialize(): array
-            {
-                return $this->data;
-
-            }//end jsonSerialize()
-        };
+        $mock = $this->createMock(ObjectEntity::class);
+        $mock->method('jsonSerialize')->willReturn($data);
+        return $mock;
 
     }//end createEntityMock()
 
