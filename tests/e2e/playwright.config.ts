@@ -82,11 +82,17 @@ export default defineConfig({
 	// project-level testIgnore replaces rather than extends this list.
 	testIgnore: NON_CI_PATTERNS,
 	globalSetup: path.resolve(__dirname, 'global-setup.ts'),
-	timeout: 60_000,
-	expect: { timeout: 15_000 },
+	// TEMPORARY DIAGNOSTIC SETTINGS — revert before merge.
+	// The first enabled run (30858373402) hit the shared workflow's
+	// `timeout-minutes: 45` and was CANCELLED, which is no verdict at all. It
+	// spent ~42 minutes burning the full 60s test timeout on 43 consecutive
+	// executions of integration-registry.spec.ts. These settings exist purely to
+	// make a run FINISH so it produces a report with real error text.
+	timeout: 25_000,
+	expect: { timeout: 8_000 },
 	fullyParallel: false,
-	retries: process.env.CI ? 1 : 0,
-	workers: 1,
+	retries: 0,
+	workers: 3,
 	reporter: [
 		['html', { open: 'never', outputFolder: path.resolve(__dirname, 'playwright-report') }],
 		['list'],
@@ -98,7 +104,9 @@ export default defineConfig({
 		baseURL: BASE_URL,
 		// Written by global-setup.ts after the admin login.
 		storageState: path.resolve(__dirname, '.auth', 'admin.json'),
-		trace: 'on-first-retry',
+		// DIAGNOSTIC: retries are 0 for this run, so 'on-first-retry' would
+		// capture nothing. Revert to 'on-first-retry' with the block above.
+		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
 	},
 
