@@ -235,13 +235,18 @@ class MinutesWorkflowServiceTest extends TestCase
             $this->makeEntity(['id' => 'minutes-001', 'lifecycle' => 'draft'])
         );
 
+        // `saveObject()` is typed `: ObjectEntity` on the real
+        // OCA\OpenRegister\Service\ObjectService, so returning the raw array is a
+        // TypeError as soon as OpenRegister is actually installed alongside
+        // decidesk (which it now is, for the e2e job). Capture the payload for
+        // the assertion below, but hand back an entity.
         $saved = null;
         $this->objectService->expects($this->once())
             ->method('saveObject')
             ->willReturnCallback(
-                static function (array $object) use (&$saved): array {
+                function (array $object) use (&$saved): ObjectEntity {
                     $saved = $object;
-                    return $object;
+                    return $this->makeEntity($object);
                 }
             );
 
