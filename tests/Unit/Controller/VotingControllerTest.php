@@ -23,6 +23,10 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ProxyDelegationService;
+use OCA\Decidesk\Service\VotingErrorResponder;
+use OCA\Decidesk\Service\VotingOpenRequestHandler;
+use OCA\Decidesk\Service\VotingRoundGuard;
 use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -131,13 +135,18 @@ class VotingControllerTest extends TestCase
         return new VotingController(
             request: $this->request,
             votingService: $this->votingService,
-            oriService:$this->oriPublicationService,
+            oriService: $this->oriPublicationService,
             userSession: $session,
-            groupManager: $this->groupManager,
-            appConfig: $this->appConfig,
-            logger: $this->logger,
-            participantResolver: $participantResolver,
-            container: $container,
+            guard: new VotingRoundGuard(
+                userSession: $session,
+                groupManager: $this->groupManager,
+                appConfig: $this->appConfig,
+                participantResolver: $participantResolver,
+                container: $container
+            ),
+            openHandler: new VotingOpenRequestHandler(votingService: $this->votingService),
+            proxyService: new ProxyDelegationService(container: $container, logger: $this->logger),
+            errors: new VotingErrorResponder(logger: $this->logger),
         );
 
     }//end buildController()

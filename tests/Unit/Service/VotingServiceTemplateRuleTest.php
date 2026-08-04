@@ -25,7 +25,17 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\AmendmentOrderService;
+use OCA\Decidesk\Service\ObjectRelationFilter;
+use OCA\Decidesk\Service\ParticipantUuidLookup;
 use OCA\Decidesk\Service\ProcessTemplateService;
+use OCA\Decidesk\Service\VoteCastingService;
+use OCA\Decidesk\Service\VotingOpenedNotifier;
+use OCA\Decidesk\Service\VotingRoundCloser;
+use OCA\Decidesk\Service\VotingRoundOpener;
+use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidesk\Service\VotingRoundProjection;
+use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -92,13 +102,53 @@ class VotingServiceTemplateRuleTest extends TestCase
 
         $motionService = $this->createMock(MotionService::class);
 
+        // VotingService is a thin facade: every operation is delegated to a
+        // single-purpose collaborator, so the graph is built explicitly here
+        // where production relies on Nextcloud's constructor auto-wiring.
+        $logger         = new NullLogger();
+        $amendmentOrder = new AmendmentOrderService(container: $container, motionService: $motionService);
+        $relationFilter = new ObjectRelationFilter();
+
         return new VotingService(
-            container: $container,
-            logger: new NullLogger(),
-            oriService:$this->createMock(OriPublicationService::class),
-            motionService: $motionService,
-            participantResolver: $participantResolver,
-            templateService: $templateService,
+            opener: new VotingRoundOpener(
+                container: $container,
+                motionService: $motionService,
+                participantResolver: $participantResolver,
+                preflight: new VotingRoundPreflight(
+                    container: $container,
+                    logger: $logger,
+                    motionService: $motionService,
+                    participantResolver: $participantResolver,
+                    templateService: $templateService
+                ),
+                notifier: new VotingOpenedNotifier(
+                    container: $container,
+                    logger: $logger,
+                    participantResolver: $participantResolver
+                )
+            ),
+            caster: new VoteCastingService(
+                container: $container,
+                logger: $logger,
+                participantResolver: $participantResolver,
+                amendmentOrder: $amendmentOrder,
+                relationFilter: $relationFilter
+            ),
+            closer: new VotingRoundCloser(
+                container: $container,
+                logger: $logger,
+                oriService: $this->createMock(OriPublicationService::class),
+                motionService: $motionService,
+                amendmentOrder: $amendmentOrder,
+                relationFilter: $relationFilter
+            ),
+            results: new VotingRoundResults(
+                container: $container,
+                motionService: $motionService,
+                participantResolver: $participantResolver
+            ),
+            projection: new VotingRoundProjection(container: $container),
+            participants: new ParticipantUuidLookup(container: $container),
         );
 
     }//end buildService()
