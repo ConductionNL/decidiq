@@ -3,13 +3,20 @@
 /**
  * Decidesk Health Controller
  *
- * Thin AppHost adopter: subclasses the OpenRegister AppHost
- * {@see \OCA\OpenRegister\AppHost\Controller\GenericHealthController} and
- * reshapes the engine result into the published REQ-API-004 response body
- * (`{status, baseUrl, version, openregister}`). Health-check execution,
- * the always-200 status-code policy, CORS, and the public auth posture all
- * come from the engine (declared in the `observability` block of
- * `src/manifest.json`); only the legacy body shape is owned here.
+ * AppHost adopter by COMPOSITION, not inheritance: the OpenRegister AppHost
+ * observability engine is resolved lazily out of the DI container by FQCN
+ * string, and the engine result is reshaped into the published REQ-API-004
+ * response body (`{status, baseUrl, version, openregister}`). Health-check
+ * execution, the always-200 status-code policy and CORS come from the engine
+ * (declared in the `observability` block of `src/manifest.json`); the body
+ * shape and the OpenRegister-absent fallback are owned here.
+ *
+ * ⚠️ This class MUST NOT `extends` — nor name in any resolved position — a
+ * class from another app. Nextcloud's router `ReflectionClass()`es every file
+ * in `lib/Controller/` while MATCHING a route, so an unresolvable parent makes
+ * EVERY route in decidesk return HTTP 500, not just this one. `extends` is
+ * resolved by the autoloader, not the container, so no amount of lazy DI
+ * registration can rescue it. See decidesk#377.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -34,15 +41,14 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCA\OpenRegister\AppHost\Controller\GenericHealthController;
-use OCA\OpenRegister\AppHost\Observability\HealthCheckExecutor;
-use OCA\OpenRegister\AppHost\Observability\ManifestLoader;
+use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IConfig;
 use OCP\IRequest;
+use Psr\Container\ContainerInterface;
 
 /**
  * Public, declarative health endpoint — REQ-API-004 body shape.
@@ -50,35 +56,50 @@ use OCP\IRequest;
  * The bespoke OR DI-container probe is replaced by the engine's `orAvailable`
  * check (manifest `observability.health.checks`); this controller maps the
  * engine result back onto the historical reverse-proxy-verification body.
- * It holds its own references to the engine collaborators (the generic keeps
- * its copies private), injected via the constructor closure in Application.php.
+ * The engine collaborators are pulled from the container by FQCN string at
+ * dispatch time, so decidesk never binds the OpenRegister classes at
+ * class-declaration time.
  *
  * @spec openspec/specs/apphost-adoption/spec.md
  */
-class HealthController extends GenericHealthController
+class HealthController extends Controller
 {
+
+    /**
+     * FQCN of the AppHost observability manifest loader.
+     *
+     * Referenced as a string, never imported: the class only exists when
+     * openregister is installed.
+     *
+     * @var string
+     */
+    private const MANIFEST_LOADER = 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader';
+
+    /**
+     * FQCN of the AppHost declarative health-check executor.
+     *
+     * Referenced as a string, never imported: the class only exists when
+     * openregister is installed.
+     *
+     * @var string
+     */
+    private const HEALTH_EXECUTOR = 'OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor';
+
     /**
      * Constructor.
      *
-     * @param IRequest            $request        The request object.
-     * @param IConfig             $config         The Nextcloud config service (baseUrl).
-     * @param ManifestLoader      $manifestLoader Loads the observability config.
-     * @param HealthCheckExecutor $executor       Runs the declarative checks.
+     * @param IRequest           $request   The request object.
+     * @param IConfig            $config    The Nextcloud config service (baseUrl).
+     * @param ContainerInterface $container DI container — resolves the AppHost engine lazily.
      *
      * @return void
      */
     public function __construct(
         IRequest $request,
         private readonly IConfig $config,
-        private readonly ManifestLoader $manifestLoader,
-        private readonly HealthCheckExecutor $executor,
+        private readonly ContainerInterface $container,
     ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request,
-            manifestLoader: $manifestLoader,
-            executor: $executor
-        );
+        parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
 
@@ -90,6 +111,10 @@ class HealthController extends GenericHealthController
      * reverse-proxy probes verify: the effective base URL, the app version, and
      * a flattened `openregister: connected|unavailable` status.
      *
+     * When the AppHost engine cannot be resolved — openregister absent or
+     * disabled — the endpoint still answers (the whole point of a health
+     * probe): `status: degraded`, `openregister: unavailable`, HTTP 200.
+     *
      * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
      *
      * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
@@ -99,29 +124,29 @@ class HealthController extends GenericHealthController
     #[NoCSRFRequired]
     public function index(): JSONResponse
     {
-        $appId    = $this->appName;
-        $manifest = $this->manifestLoader->load(appId: $appId);
-        $result   = $this->executor->execute(manifest: $manifest);
-
         $baseUrl = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '');
-        $version = $this->manifestLoader->appVersion(appId: $appId);
 
-        // Flatten the engine's `checks.openregister` (ok|failed[: ...]) back to
-        // the historical `connected|unavailable` value.
-        $orCheck      = (string) ($result->checks['openregister'] ?? 'failed');
-        $openregister = 'unavailable';
-        if (str_starts_with($orCheck, 'ok') === true) {
-            $openregister = 'connected';
+        $body = $this->engineBody();
+        if ($body === null) {
+            $body = [
+                'status'       => 'degraded',
+                'version'      => $this->config->getAppValue(Application::APP_ID, 'installed_version', ''),
+                'openregister' => 'unavailable',
+                'httpStatus'   => Http::STATUS_OK,
+            ];
         }
+
+        $httpStatus = (int) $body['httpStatus'];
+        unset($body['httpStatus']);
 
         $response = new JSONResponse(
             [
-                'status'       => $result->status,
+                'status'       => $body['status'],
                 'baseUrl'      => $baseUrl,
-                'version'      => $version,
-                'openregister' => $openregister,
+                'version'      => $body['version'],
+                'openregister' => $body['openregister'],
             ],
-            $result->httpStatusCode
+            $httpStatus
         );
 
         $this->applyCorsHeaders(response: $response);
@@ -129,6 +154,42 @@ class HealthController extends GenericHealthController
         return $response;
 
     }//end index()
+
+    /**
+     * Run the AppHost observability engine and flatten its result.
+     *
+     * @return array{status: string, version: string, openregister: string, httpStatus: int}|null
+     *         Null when the engine is unavailable (openregister absent/disabled).
+     */
+    private function engineBody(): ?array
+    {
+        try {
+            $manifestLoader = $this->container->get(self::MANIFEST_LOADER);
+            $executor       = $this->container->get(self::HEALTH_EXECUTOR);
+
+            $appId    = $this->appName;
+            $manifest = $manifestLoader->load(appId: $appId);
+            $result   = $executor->execute(manifest: $manifest);
+
+            // Flatten the engine's `checks.openregister` (ok|failed[: ...]) back
+            // to the historical `connected|unavailable` value.
+            $orCheck      = (string) ($result->checks['openregister'] ?? 'failed');
+            $openregister = 'unavailable';
+            if (str_starts_with($orCheck, 'ok') === true) {
+                $openregister = 'connected';
+            }
+
+            return [
+                'status'       => (string) $result->status,
+                'version'      => (string) $manifestLoader->appVersion(appId: $appId),
+                'openregister' => $openregister,
+                'httpStatus'   => (int) $result->httpStatusCode,
+            ];
+        } catch (\Throwable $e) {
+            return null;
+        }//end try
+
+    }//end engineBody()
 
     /**
      * Legacy alias target for `GET /api/v1/health`. Delegates to {@see index()}.

@@ -72,15 +72,21 @@ class AppHostRegistrar
     /**
      * Register the adopted AppHost boilerplate.
      *
-     * The dashboard / metrics / health route targets are thin decidesk
-     * subclasses of the AppHost generics (`Controller\DashboardController`,
-     * `Controller\MetricsController`, `Controller\HealthController`) —
-     * concrete classes so the route targets stay reachable (gate-5 / gate-14).
-     * Their constructor dependencies (the engine's ManifestLoader /
-     * MetricsEngine / HealthCheckExecutor, all OpenRegister services) are
-     * resolved by the DI container at dispatch time, so no explicit binding is
-     * needed here and a disabled OpenRegister never loads an AppHost class at
-     * bootstrap.
+     * The dashboard / metrics / health route targets are bespoke decidesk
+     * controllers (`Controller\DashboardController`,
+     * `Controller\MetricsController`, `Controller\HealthController`) that adopt
+     * the AppHost by COMPOSITION, not inheritance — concrete classes so the
+     * route targets stay reachable (gate-5 / gate-14), and free of any
+     * `extends`/import of an OpenRegister class so they still reflect when
+     * openregister is absent. They pull the engine's ManifestLoader /
+     * MetricsEngine / HealthCheckExecutor out of the container by FQCN string
+     * at dispatch time, so no explicit binding is needed here.
+     *
+     * ⚠️ Do NOT "simplify" those three back into subclasses of the AppHost
+     * generics. Nextcloud's router `ReflectionClass()`es every file in
+     * `lib/Controller/` while MATCHING a route, so an unresolvable parent
+     * returns HTTP 500 for EVERY route in decidesk, and `extends` is resolved
+     * by the autoloader — lazy DI cannot rescue it. See decidesk#377.
      *
      * Lazy by construction: the binding is a `registerService` closure, so a
      * disabled OpenRegister never loads an AppHost class at bootstrap (the
