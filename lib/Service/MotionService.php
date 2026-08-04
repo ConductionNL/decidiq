@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use DateTimeImmutable;
 use InvalidArgumentException;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
@@ -124,6 +123,36 @@ class MotionService
         return $this->container->get(MotionLinkResolver::class);
 
     }//end getLinkResolver()
+
+    /**
+     * Get the MotionAmendmentService from the container.
+     *
+     * The amendment-side behaviour (resolution, ordering, conflict detection,
+     * application) lives in its own collaborator; the public methods on this
+     * class delegate to it so the published API is unchanged.
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return MotionAmendmentService
+     */
+    private function getAmendmentService(): MotionAmendmentService
+    {
+        return $this->container->get(MotionAmendmentService::class);
+
+    }//end getAmendmentService()
+
+    /**
+     * Get the MotionForwardingService from the container.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     *
+     * @return MotionForwardingService
+     */
+    private function getForwardingService(): MotionForwardingService
+    {
+        return $this->container->get(MotionForwardingService::class);
+
+    }//end getForwardingService()
 
     /**
      * Resolve the meeting UUID linked to a motion.
@@ -305,19 +334,7 @@ class MotionService
                     continue;
                 }
 
-                $participantData = $participant->getObject();
-                $nextcloudUserId = $participantData['nextcloudUserId'] ?? null;
-
-                // Resolve Nextcloud UID: prefer stored nextcloudUserId, fall back to email lookup.
-                if ($nextcloudUserId === null) {
-                    $email = $participantData['email'] ?? null;
-                    if ($email !== null) {
-                        $users = $this->userManager->getByEmail($email);
-                        if (count($users) === 1) {
-                            $nextcloudUserId = $users[0]->getUID();
-                        }
-                    }
-                }
+                $nextcloudUserId = $this->resolveParticipantUid(participantData: $participant->getObject());
 
                 if ($nextcloudUserId !== null) {
                     $pendingSignerUids[] = $nextcloudUserId;
@@ -356,6 +373,39 @@ class MotionService
         }
 
     }//end requestCoSignature()
+
+    /**
+     * Resolve the Nextcloud UID for a Participant payload.
+     *
+     * Prefers the stored `nextcloudUserId`, falling back to a unique email
+     * lookup. Returns null when no unambiguous UID can be resolved.
+     *
+     * @param array<string, mixed> $participantData Serialized Participant object
+     *
+     * @return string|null The Nextcloud UID, or null when unresolvable
+     *
+     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+     */
+    private function resolveParticipantUid(array $participantData): ?string
+    {
+        $nextcloudUserId = $participantData['nextcloudUserId'] ?? null;
+        if ($nextcloudUserId !== null) {
+            return (string) $nextcloudUserId;
+        }
+
+        $email = $participantData['email'] ?? null;
+        if ($email === null) {
+            return null;
+        }
+
+        $users = $this->userManager->getByEmail($email);
+        if (count($users) !== 1) {
+            return null;
+        }
+
+        return $users[0]->getUID();
+
+    }//end resolveParticipantUid()
 
     /**
      * Append a co-signer display name to a Motion's coSigners array.
@@ -513,63 +563,9 @@ class MotionService
      */
     public function getAmendmentsForMotion(string $motionId): array
     {
-        $objectService = $this->getObjectService();
-
-        $found = [];
-
-        // Shape 1: flat parentMotion property (canonical UI shape).
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $byProperty = $objectService->findAll(['filters' => ['parentMotion' => $motionId]]);
-        foreach ($byProperty as $entity) {
-            $amendment = $this->getLinkResolver()->serializeAmendment(entity: $entity);
-            if ($amendment !== null && $this->amendmentReferencesMotion(amendment: $amendment, motionId: $motionId) === true) {
-                $key         = (string) ($amendment['id'] ?? $amendment['uuid'] ?? '');
-                $found[$key] = $amendment;
-            }
-        }
-
-        // Shape 2: structured relations entry. The _relations filter is
-        // schema-presence-only in OpenRegister, so each hit is re-checked for an
-        // exact motion-id reference before it counts.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $byRelation = $objectService->findAll(['filters' => ['_relations.motion' => $motionId]]);
-        foreach ($byRelation as $entity) {
-            $amendment = $this->getLinkResolver()->serializeAmendment(entity: $entity);
-            if ($amendment === null) {
-                continue;
-            }
-
-            $key = (string) ($amendment['id'] ?? $amendment['uuid'] ?? '');
-            if (isset($found[$key]) === true) {
-                continue;
-            }
-
-            if ($this->amendmentReferencesMotion(amendment: $amendment, motionId: $motionId) === true) {
-                $found[$key] = $amendment;
-            }
-        }
-
-        return array_values($found);
+        return $this->getAmendmentService()->getAmendmentsForMotion(motionId: $motionId);
 
     }//end getAmendmentsForMotion()
-
-    /**
-     * Determine whether a serialized amendment references the given motion.
-     *
-     * @param array<string, mixed> $amendment Serialized amendment object
-     * @param string               $motionId  UUID of the motion
-     *
-     * @return bool True when the amendment belongs to the motion
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    private function amendmentReferencesMotion(array $amendment, string $motionId): bool
-    {
-        return $this->getLinkResolver()->amendmentReferencesMotion(amendment: $amendment, motionId: $motionId);
-
-    }//end amendmentReferencesMotion()
 
     /**
      * Persist the chair-chosen amendment voting order on a motion.
@@ -593,59 +589,11 @@ class MotionService
      */
     public function setAmendmentVotingOrder(string $motionId, array $orderedAmendmentIds, string $actorId): array
     {
-        if ($actorId === '') {
-            throw new InvalidArgumentException('actorId must be a non-empty Nextcloud user UID');
-        }
-
-        if ($orderedAmendmentIds === []) {
-            throw new InvalidArgumentException('orderedAmendmentIds must not be empty');
-        }
-
-        if (count($orderedAmendmentIds) !== count(array_unique($orderedAmendmentIds))) {
-            throw new InvalidArgumentException('orderedAmendmentIds must not contain duplicates');
-        }
-
-        $amendments = $this->getAmendmentsForMotion(motionId: $motionId);
-        if ($amendments === []) {
-            throw new RuntimeException("Motion $motionId has no amendments to order");
-        }
-
-        $byId = [];
-        foreach ($amendments as $amendment) {
-            $byId[(string) ($amendment['id'] ?? $amendment['uuid'] ?? '')] = $amendment;
-        }
-
-        foreach ($orderedAmendmentIds as $amendmentId) {
-            if (isset($byId[$amendmentId]) === false) {
-                throw new InvalidArgumentException(
-                    "Amendment $amendmentId does not belong to motion $motionId"
-                );
-            }
-        }
-
-        $objectService = $this->getObjectService();
-        $updated       = [];
-        foreach (array_values($orderedAmendmentIds) as $position => $amendmentId) {
-            $amendment = $byId[$amendmentId];
-            $amendment['votingOrder'] = ($position + 1);
-
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('amendment');
-            $objectService->saveObject(
-                object: $amendment,
-                register: 'decidesk',
-                schema: 'amendment',
-                uuid: $amendmentId,
-            );
-            $updated[] = $amendment;
-        }
-
-        $this->logger->info(
-            "Decidesk: amendment voting order set on motion $motionId by $actorId",
-            ['order' => array_values($orderedAmendmentIds)]
+        return $this->getAmendmentService()->setAmendmentVotingOrder(
+            motionId: $motionId,
+            orderedAmendmentIds: $orderedAmendmentIds,
+            actorId: $actorId
         );
-
-        return $updated;
 
     }//end setAmendmentVotingOrder()
 
@@ -668,80 +616,10 @@ class MotionService
      */
     public function detectConflicts(string $motionId, string $newAmendmentId): void
     {
-        $objectService = $this->getObjectService();
-
-        // Fetch the new amendment.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $newAmendment = $objectService->find($newAmendmentId);
-        if ($newAmendment === null) {
-            return;
-        }
-
-        $newData = $newAmendment->getObject();
-        $newText = strtolower($newData['text'] ?? '');
-
-        // Fetch existing amendments for this motion (both link shapes).
-        $existing = $this->getAmendmentsForMotion(motionId: $motionId);
-
-        $conflictFound = false;
-        foreach ($existing as $amendmentData) {
-            $amendmentId = $amendmentData['id'] ?? $amendmentData['uuid'] ?? '';
-
-            if ($amendmentId === $newAmendmentId) {
-                continue;
-            }
-
-            $lifecycle = $amendmentData['lifecycle'] ?? '';
-            if (in_array($lifecycle, ['submitted', 'debating'], true) === false) {
-                continue;
-            }
-
-            $existingText = strtolower($amendmentData['text'] ?? '');
-
-            // Naive overlap: check for common significant words (>4 chars).
-            // Use Unicode-aware split so Dutch diacritics (é, ó, ë, etc.) are treated as word characters.
-            $splitNew  = preg_split('/[^\pL\pN]+/u', $newText, -1, PREG_SPLIT_NO_EMPTY);
-            $splitExst = preg_split('/[^\pL\pN]+/u', $existingText, -1, PREG_SPLIT_NO_EMPTY);
-            if ($splitNew === false) {
-                $splitNew = [];
-            }
-
-            if ($splitExst === false) {
-                $splitExst = [];
-            }
-
-            $newWords      = array_filter($splitNew, fn($word) => mb_strlen($word) > 4);
-            $existingWords = array_filter($splitExst, fn($word) => mb_strlen($word) > 4);
-            $overlap       = array_intersect($newWords, $existingWords);
-
-            if (count($overlap) > 3) {
-                $conflictFound = true;
-                break;
-            }
-        }//end foreach
-
-        if ($conflictFound === false) {
-            return;
-        }
-
-        // Store conflict note on the new amendment.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $amendData = $newAmendment->getObject();
-        $notes     = $amendData['notes'] ?? [];
-        $notes[]   = [
-            'title' => 'Conflict:',
-            'body'  => 'Mogelijk tekstconflict gedetecteerd met een ander amendement. Raadpleeg de griffier.',
-        ];
-        $objectService->saveObject(
-            object: array_merge($amendData, ['notes' => $notes]),
-            register: 'decidesk',
-            schema: 'amendment',
-            uuid: $newAmendmentId,
+        $this->getAmendmentService()->detectConflicts(
+            motionId: $motionId,
+            newAmendmentId: $newAmendmentId
         );
-
-        $this->logger->info("Decidesk: Amendment conflict detected for amendment $newAmendmentId on motion $motionId");
 
     }//end detectConflicts()
 
@@ -760,35 +638,9 @@ class MotionService
      */
     public function applyAmendment(string $motionId, string $amendmentId): void
     {
-        $objectService = $this->getObjectService();
-
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $amendmentObject = $objectService->find($amendmentId);
-        if ($amendmentObject === null) {
-            throw new RuntimeException("Amendment $amendmentId not found");
-        }
-
-        $amendmentData = $amendmentObject->getObject();
-        $amendTitle    = $amendmentData['title'] ?? 'Amendement';
-        $amendText     = $amendmentData['text'] ?? '';
-
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
-        $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
-        }
-
-        $motionData  = $motionObject->getObject();
-        $currentText = $motionData['text'] ?? '';
-        $updatedText = $currentText."\n\n---\n**Amendement: $amendTitle**\n$amendText";
-
-        $objectService->saveObject(
-            object: array_merge($motionData, ['text' => $updatedText]),
-            register: 'decidesk',
-            schema: 'motion',
-            uuid: $motionId,
+        $this->getAmendmentService()->applyAmendment(
+            motionId: $motionId,
+            amendmentId: $amendmentId
         );
 
     }//end applyAmendment()
@@ -814,112 +666,12 @@ class MotionService
      */
     public function forwardMotion(string $motionId, string $targetBodyId, string $actorId, string $justification): array
     {
-        $appConfig = $this->container->get(\OCP\IAppConfig::class);
-
-        // Check actor role against forwarding config.
-        $forwardingRolesJson = $appConfig->getValueString('decidesk', 'motion_forwarding_roles', '["chair","secretary"]');
-        $forwardingRoles     = json_decode($forwardingRolesJson, true);
-        if (is_array($forwardingRoles) === false) {
-            $forwardingRoles = ['chair', 'secretary'];
-        }
-
-        // Simple check: actor role must be in allowed roles (enforce in backend only, no frontend-only checks).
-        // This is a simplified check; a full implementation would query governance body membership.
-        $userManager = $this->userManager;
-        $user        = $userManager->get($actorId);
-        if ($user === null) {
-            throw new RuntimeException("Actor {$actorId} not found");
-        }
-
-        $objectService = $this->getObjectService();
-
-        // Fetch the source motion.
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
-        $sourceMotionObject = $objectService->find($motionId);
-        if ($sourceMotionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
-        }
-
-        $sourceMotionData = $sourceMotionObject->getObject();
-
-        // Check approval requirement config.
-        $requiresApproval = $appConfig->getValueBool('decidesk', 'motion_forwarding_requires_approval', false);
-
-        // Create forwarded motion in target body.
-        $forwardedMotion = [
-            'title'       => $sourceMotionData['title'] ?? '',
-            'text'        => $sourceMotionData['text'] ?? '',
-            'motionType'  => $sourceMotionData['motionType'] ?? 'motion',
-            'proposer'    => $sourceMotionData['proposer'] ?? '',
-            'coSigners'   => $sourceMotionData['coSigners'] ?? [],
-            'lifecycle'   => 'submitted',
-            'submittedAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-            'relations'   => [
-                ['register' => 'decidesk', 'schema' => 'governance-body', 'id' => $targetBodyId],
-                ['register' => 'decidesk', 'schema' => 'motion', 'id' => $motionId],
-            ],
-            'notes'       => [
-                [
-                    'title' => 'Doorgestuurd van',
-                    'body'  => json_encode(
-                            [
-                                'sourceMotionId' => $motionId,
-                                'targetBodyId'   => $targetBodyId,
-                                'forwardedBy'    => $actorId,
-                                'justification'  => $justification,
-                                'forwardedAt'    => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-                            ]
-                            ),
-                ],
-            ],
-        ];
-
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
-        $created = $objectService->saveObject(
-            object: $forwardedMotion,
-            register: 'decidesk',
-            schema: 'motion',
+        return $this->getForwardingService()->forwardMotion(
+            motionId: $motionId,
+            targetBodyId: $targetBodyId,
+            actorId: $actorId,
+            justification: $justification
         );
-
-        // Add forwarding note to source motion.
-        $sourceMotionData['notes']   = ($sourceMotionData['notes'] ?? []);
-        $sourceMotionData['notes'][] = [
-            'title' => 'Doorgestuurd naar',
-            'body'  => json_encode(
-                    [
-                        'targetBodyId'      => $targetBodyId,
-                        'forwardedMotionId' => ($created['id'] ?? $created['uuid'] ?? null),
-                        'forwardedAt'       => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-                    ]
-                    ),
-        ];
-
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
-        $objectService->saveObject(
-            object: $sourceMotionData,
-            register: 'decidesk',
-            schema: 'motion',
-            uuid: $motionId,
-        );
-
-        // Send notification if approval is required.
-        if ($requiresApproval === true) {
-            $this->getNotifier()->notify(
-                userId: $actorId,
-                motionId: ($created['id'] ?? $created['uuid'] ?? ''),
-                subject: 'motion_forwarded_approval',
-                parameters: [
-                    'title' => $sourceMotionData['title'] ?? '',
-                    'body'  => $targetBodyId,
-                ],
-                failureLog: 'Decidesk: notification send failed: '
-            );
-        }
-
-        return ($created ?? $forwardedMotion);
 
     }//end forwardMotion()
 }//end class

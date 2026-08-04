@@ -214,7 +214,9 @@ class SettingsService
     /**
      * Load configuration from decidesk_register.json via OpenRegister.
      *
-     * @param bool $force Force re-import even if already configured.
+     * Import is skipped when the register is already configured at the same
+     * version/fragment signature. Use {@see reloadConfiguration()} to force a
+     * re-import.
      *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
@@ -222,7 +224,42 @@ class SettingsService
      *
      * @return array<string,mixed> Result with success flag, message, and version.
      */
-    public function loadConfiguration(bool $force=false): array
+    public function loadConfiguration(): array
+    {
+        return $this->importConfiguration(force: false);
+
+    }//end loadConfiguration()
+
+    /**
+     * Re-import configuration from decidesk_register.json, ignoring the
+     * already-configured check.
+     *
+     * The forcing counterpart of {@see loadConfiguration()}; both delegate to
+     * the same import routine.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     */
+    public function reloadConfiguration(): array
+    {
+        return $this->importConfiguration(force: true);
+
+    }//end reloadConfiguration()
+
+    /**
+     * Shared configuration import used by loadConfiguration()/reloadConfiguration().
+     *
+     * @param bool $force Force re-import even if already configured.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     */
+    private function importConfiguration(bool $force): array
     {
         if ($this->isOpenRegisterAvailable() === false) {
             $this->logger->warning('Decidesk: OpenRegister not available, skipping register initialization');
@@ -255,7 +292,7 @@ class SettingsService
                 'message' => 'Configuration import failed. See server log for details.',
             ];
         }//end try
-    }//end loadConfiguration()
+    }//end importConfiguration()
 
     /**
      * Read and decode the monolithic decidesk_register.json.

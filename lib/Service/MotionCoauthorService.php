@@ -367,33 +367,70 @@ class MotionCoauthorService
         array $history,
         string $currentAuthor
     ): ?string {
-        if (count($history) === 0) {
+        if ($this->isConcurrentForeignEdit(history: $history, currentAuthor: $currentAuthor) === false) {
             return null;
+        }
+
+        // Within 5 min, different author — diff paragraphs.
+        return $this->firstDivergentParagraph(previousText: $previousText, newText: $newText);
+
+    }//end detectParagraphConflict()
+
+    /**
+     * Determine whether the most recent version entry is a different author's
+     * edit made within the last 5 minutes.
+     *
+     * @param array<int, array<string, mixed>> $history       Existing version history
+     * @param string                           $currentAuthor Author of the new change
+     *
+     * @return bool True when the latest entry is a recent edit by another author
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+     */
+    private function isConcurrentForeignEdit(array $history, string $currentAuthor): bool
+    {
+        if (count($history) === 0) {
+            return false;
         }
 
         $latest = end($history);
         if (is_array($latest) === false) {
-            return null;
+            return false;
         }
 
         $latestAuthor    = ($latest['author'] ?? '');
         $latestTimestamp = ($latest['timestamp'] ?? null);
         if ($latestAuthor === $currentAuthor || $latestTimestamp === null) {
-            return null;
+            return false;
         }
 
         try {
             $latestTime = new DateTimeImmutable((string) $latestTimestamp);
         } catch (Throwable $e) {
-            return null;
+            return false;
         }
 
-        $diff = (new DateTimeImmutable())->getTimestamp() - $latestTime->getTimestamp();
-        if ($diff > 300) {
-            return null;
-        }
+        $diff = ((new DateTimeImmutable())->getTimestamp() - $latestTime->getTimestamp());
 
-        // Within 5 min, different author — diff paragraphs.
+        return ($diff <= 300);
+
+    }//end isConcurrentForeignEdit()
+
+    /**
+     * Return a marker for the first paragraph that differs between two texts.
+     *
+     * Paragraphs are split on a blank line. The marker is
+     * `<index>:<first 60 chars of the new paragraph>`.
+     *
+     * @param string $previousText Previous full text
+     * @param string $newText      New full text
+     *
+     * @return string|null The marker, or null when the texts do not diverge
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+     */
+    private function firstDivergentParagraph(string $previousText, string $newText): ?string
+    {
         $prevPars = preg_split('/\n\s*\n/', $previousText);
         if ($prevPars === false) {
             $prevPars = [];
@@ -417,7 +454,7 @@ class MotionCoauthorService
 
         return null;
 
-    }//end detectParagraphConflict()
+    }//end firstDivergentParagraph()
 
     /**
      * Capture a manual version snapshot without changing the text.

@@ -91,49 +91,13 @@ class EngagementService
     ): array {
         $existing = $this->findEngagementForMeetingAndParticipant(meetingId: $meetingId, participant: $participant);
 
-        $record = $existing;
-        if ($existing === null) {
-            $record = [
-                'meeting'          => $meetingId,
-                'participant'      => $participant,
-                'speeches'         => [],
-                'questionsRaised'  => [],
-                'topicsSuggested'  => [],
-                'speakingDuration' => 0,
-                'engagementScore'  => 0,
-            ];
-        }
+        $record = ($existing ?? $this->newEngagementRecord(meetingId: $meetingId, participant: $participant));
 
-        switch ($eventType) {
-            case 'speech':
-                $record['speeches'][] = $eventData;
-                $duration = (int) ($eventData['duration'] ?? 0);
-                if ($duration === 0
-                    && isset($eventData['startTime'], $eventData['endTime']) === true
-                ) {
-                    try {
-                        $start    = new DateTimeImmutable((string) $eventData['startTime']);
-                        $end      = new DateTimeImmutable((string) $eventData['endTime']);
-                        $duration = max(0, $end->getTimestamp() - $start->getTimestamp());
-                    } catch (Throwable $e) {
-                        $duration = 0;
-                    }
-                }
-
-                $record['speakingDuration'] = ((int) ($record['speakingDuration'] ?? 0)) + $duration;
-                break;
-
-            case 'question':
-                $record['questionsRaised'][] = $eventData;
-                break;
-
-            case 'topic':
-                $record['topicsSuggested'][] = $eventData;
-                break;
-
-            default:
-                throw new InvalidArgumentException("Unknown engagement event type '$eventType'");
-        }//end switch
+        $record = $this->applyEngagementEvent(
+            record: $record,
+            eventType: $eventType,
+            eventData: $eventData
+        );
 
         $record['engagementScore'] = $this->calculateScore(record: $record);
 
@@ -150,6 +114,119 @@ class EngagementService
             ['meetingId' => $meetingId, 'participant' => $participant, 'eventType' => $eventType]
         );
 
+        return $this->normaliseSavedRecord(saved: $saved);
+
+    }//end captureEngagement()
+
+    /**
+     * Build a blank EngagementRecord for a (meeting, participant) pair.
+     *
+     * @param string $meetingId   UUID of the Meeting object
+     * @param string $participant Participant UUID
+     *
+     * @return array<string, mixed>
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+     */
+    private function newEngagementRecord(string $meetingId, string $participant): array
+    {
+        return [
+            'meeting'          => $meetingId,
+            'participant'      => $participant,
+            'speeches'         => [],
+            'questionsRaised'  => [],
+            'topicsSuggested'  => [],
+            'speakingDuration' => 0,
+            'engagementScore'  => 0,
+        ];
+
+    }//end newEngagementRecord()
+
+    /**
+     * Append one engagement event to a record.
+     *
+     * @param array<string, mixed> $record    The record to append to
+     * @param string               $eventType One of 'speech', 'question', 'topic'
+     * @param array<string, mixed> $eventData Event payload
+     *
+     * @return array<string, mixed> The record with the event applied
+     *
+     * @throws InvalidArgumentException When event type is unknown
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+     */
+    private function applyEngagementEvent(array $record, string $eventType, array $eventData): array
+    {
+        switch ($eventType) {
+            case 'speech':
+                $record['speeches'][] = $eventData;
+
+                $previousDuration = (int) ($record['speakingDuration'] ?? 0);
+                $eventDuration    = $this->resolveSpeechDuration(eventData: $eventData);
+
+                $record['speakingDuration'] = ($previousDuration + $eventDuration);
+                break;
+
+            case 'question':
+                $record['questionsRaised'][] = $eventData;
+                break;
+
+            case 'topic':
+                $record['topicsSuggested'][] = $eventData;
+                break;
+
+            default:
+                throw new InvalidArgumentException("Unknown engagement event type '$eventType'");
+        }//end switch
+
+        return $record;
+
+    }//end applyEngagementEvent()
+
+    /**
+     * Resolve the duration in seconds of a speech event.
+     *
+     * Prefers an explicit `duration`; otherwise derives it from the
+     * `startTime`/`endTime` pair. Unparseable timestamps yield 0.
+     *
+     * @param array<string, mixed> $eventData Speech event payload
+     *
+     * @return int Duration in seconds, never negative
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+     */
+    private function resolveSpeechDuration(array $eventData): int
+    {
+        $duration = (int) ($eventData['duration'] ?? 0);
+        if ($duration !== 0) {
+            return $duration;
+        }
+
+        if (isset($eventData['startTime'], $eventData['endTime']) === false) {
+            return 0;
+        }
+
+        try {
+            $start = new DateTimeImmutable((string) $eventData['startTime']);
+            $end   = new DateTimeImmutable((string) $eventData['endTime']);
+            return max(0, ($end->getTimestamp() - $start->getTimestamp()));
+        } catch (Throwable $e) {
+            return 0;
+        }
+
+    }//end resolveSpeechDuration()
+
+    /**
+     * Normalise whatever OpenRegister's saveObject() returned into an array.
+     *
+     * @param mixed $saved The saveObject() return value
+     *
+     * @return array<string, mixed>
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+     */
+    private function normaliseSavedRecord(mixed $saved): array
+    {
         if (is_array($saved) === true) {
             return $saved;
         }
@@ -160,7 +237,7 @@ class EngagementService
 
         return (array) $saved;
 
-    }//end captureEngagement()
+    }//end normaliseSavedRecord()
 
     /**
      * Find an existing EngagementRecord for a (meeting, participant) pair.

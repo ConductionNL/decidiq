@@ -160,107 +160,34 @@ class MeetingService
                 ];
             }
 
-            $meetingData      = $entity->getObject();
-            $currentLifecycle = $meetingData['lifecycle'] ?? 'draft';
-            $domain           = $meetingData['domain'] ?? 'operations';
+            $meetingData = $entity->getObject();
 
-            if (in_array(needle: $currentLifecycle, haystack: $transition['from'], strict: true) === false) {
-                return [
-                    'success' => false,
-                    'meeting' => null,
-                    'message' => "Cannot '$action' a meeting in '$currentLifecycle' state. "
-                        ."Allowed from: ".implode(separator: ', ', array: $transition['from']).".",
-                ];
-            }
-
-            // Domain-level transition validation (OWASP A01:2021).
-            // Enforces domain-specific rules such as "no pause in corporate domain".
-            if ($this->workflowService->isTransitionAllowed(domain: $domain, fromState: $currentLifecycle, toState: $transition['to']) === false) {
-                return [
-                    'success' => false,
-                    'meeting' => null,
-                    'message' => "Transition '$action' is not permitted in '$domain' domain.",
-                ];
-            }
-
-            // Chair-only transition enforcement (OWASP A01:2021 — broken access control).
-            // requiresChairAuthorization() is process configuration: it returns true
-            // when "$from:$to" is in the workflow template's chairOnlyTransitions. The
-            // actor decision is then made by consuming the OpenRegister-projected chair
-            // scope for the owning body (consume-or-rbac-authorization) — replacing the
-            // former NC-UID-vs-chair comparison. Fail-closed: an unresolved body or an
-            // empty chair scope denies.
-            if ($this->workflowService->requiresChairAuthorization(domain: $domain, from: $currentLifecycle, to: $transition['to']) === true) {
-                $bodyId = $this->resolveBodyId(meetingData: $meetingData);
-                if ($currentUserId === null
-                    || $bodyId === null
-                    || $this->scopeGuard->isInBodyScope($currentUserId, $bodyId, GovernanceScopeGuard::SCOPE_CHAIR) === false
-                ) {
-                    return [
-                        'success' => false,
-                        'meeting' => null,
-                        'message' => 'Only the meeting chair may perform this transition.',
-                    ];
-                }
-            }
-
-            // Quorum enforcement before opening a meeting (OWASP A01:2021).
-            // Reads quorumMet from the declarative Meeting field (chain spec 2 of 3).
-            if ($action === 'open' && $this->workflowService->isQuorumRequired(domain: $domain) === true) {
-                if ($this->transitionGuard->isOpenAllowed(meeting: $meetingData) === false) {
-                    return [
-                        'success' => false,
-                        'meeting' => null,
-                        'message' => 'Quorum is not met. Cannot open meeting.',
-                    ];
-                }
-            }
-
-            // Meeting-efficiency timing/cost stamping (additive, server-side):
-            // - first 'open' stamps openedAt (idempotent across pause/resume/
-            // adjourn-resume so the cost window starts at the real start);
-            // - 'close' stamps closedAt and the fail-soft final meetingCost.
-            $efficiencyPatch = $this->buildEfficiencyPatch(
+            $denial = $this->denyTransition(
                 action: $action,
-                meetingId: $meetingId,
-                meetingData: $meetingData
+                transition: $transition,
+                meetingData: $meetingData,
+                currentUserId: $currentUserId
             );
-
-            // Object-level write ACL: ObjectService::saveObject() checks that the
-            // current Nextcloud session user has write access to this specific object
-            // before applying the patch. If the caller lacks write access an exception
-            // is thrown and caught by the \Throwable handler below, returning a generic
-            // error response without leaking object details.
-            $updated = $objectService->saveObject(
-                object: array_merge($meetingData, ['lifecycle' => $transition['to']], $efficiencyPatch),
-                register: 'decidesk',
-                schema: 'meeting',
-                uuid: $meetingId,
-            );
-
-            $this->logger->info(
-                'Decidesk: meeting lifecycle transitioned',
-                ['id' => $meetingId, 'action' => $action, 'to' => $transition['to']]
-            );
-
-            // Activity feed (fail-soft): meeting lifecycle transition.
-            // @spec openspec/specs/nextcloud-integration/spec.md.
-            try {
-                $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
-                    subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_MEETING_TRANSITION,
-                    title: (string) ($meetingData['title'] ?? $meetingId),
-                    status: $transition['to'],
-                    objectType: 'meeting',
-                    objectUuid: $meetingId,
-                    segment: 'meetings'
-                );
-            } catch (\Throwable $activityError) {
-                $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+            if ($denial !== null) {
+                return $denial;
             }
+
+            $updated = $this->persistTransition(
+                meetingId: $meetingId,
+                action: $action,
+                meetingData: $meetingData,
+                newState: $transition['to']
+            );
+
+            $this->publishTransitionActivity(
+                meetingId: $meetingId,
+                meetingData: $meetingData,
+                newState: $transition['to']
+            );
 
             return [
                 'success' => true,
-                'meeting' => $updated->jsonSerialize(),
+                'meeting' => $updated,
                 'message' => "Meeting transitioned to '{$transition['to']}'.",
             ];
         } catch (DoesNotExistException) {
@@ -282,6 +209,250 @@ class MeetingService
         }//end try
 
     }//end transition()
+
+    /**
+     * Stamp the efficiency patch and persist the new lifecycle state.
+     *
+     * Meeting-efficiency timing/cost stamping (additive, server-side):
+     * - first 'open' stamps openedAt (idempotent across pause/resume/
+     *   adjourn-resume so the cost window starts at the real start);
+     * - 'close' stamps closedAt and the fail-soft final meetingCost.
+     *
+     * Object-level write ACL: ObjectService::saveObject() checks that the
+     * current Nextcloud session user has write access to this specific object
+     * before applying the patch. If the caller lacks write access an exception
+     * is thrown and propagates to the \Throwable handler in
+     * {@see transition()}, returning a generic error response without leaking
+     * object details.
+     *
+     * @param string               $meetingId   UUID of the meeting
+     * @param string               $action      Transition action being applied
+     * @param array<string, mixed> $meetingData Current serialised meeting object
+     * @param string               $newState    The lifecycle state to transition to
+     *
+     * @return array<string, mixed> The saved meeting, serialised
+     *
+     * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+     */
+    private function persistTransition(
+        string $meetingId,
+        string $action,
+        array $meetingData,
+        string $newState
+    ): array {
+        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+        $efficiencyPatch = $this->buildEfficiencyPatch(
+            action: $action,
+            meetingId: $meetingId,
+            meetingData: $meetingData
+        );
+
+        $updated = $objectService->saveObject(
+            object: array_merge($meetingData, ['lifecycle' => $newState], $efficiencyPatch),
+            register: 'decidesk',
+            schema: 'meeting',
+            uuid: $meetingId,
+        );
+
+        $this->logger->info(
+            'Decidesk: meeting lifecycle transitioned',
+            ['id' => $meetingId, 'action' => $action, 'to' => $newState]
+        );
+
+        return $updated->jsonSerialize();
+
+    }//end persistTransition()
+
+    /**
+     * Run every pre-transition gate and return the first denial, if any.
+     *
+     * Fail-closed by construction: each gate returns the failure result it
+     * would have returned inline in {@see transition()}, and a null return
+     * means every gate passed.
+     *
+     * @param string               $action        Transition action being applied
+     * @param array<string, mixed> $transition    The TRANSITIONS entry for $action
+     * @param array<string, mixed> $meetingData   Current serialised meeting object
+     * @param string|null          $currentUserId Nextcloud UID of the requesting user
+     *
+     * @return array{success: bool, meeting: array|null, message: string}|null Denial result, or null when allowed
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+     */
+    private function denyTransition(string $action, array $transition, array $meetingData, ?string $currentUserId): ?array
+    {
+        $currentLifecycle = $meetingData['lifecycle'] ?? 'draft';
+        $domain           = $meetingData['domain'] ?? 'operations';
+
+        $denial = $this->denyForState(
+            action: $action,
+            transition: $transition,
+            currentLifecycle: $currentLifecycle,
+            domain: $domain
+        );
+        if ($denial !== null) {
+            return $denial;
+        }
+
+        $denial = $this->denyForChairAuthorization(
+            transition: $transition,
+            currentLifecycle: $currentLifecycle,
+            domain: $domain,
+            meetingData: $meetingData,
+            currentUserId: $currentUserId
+        );
+        if ($denial !== null) {
+            return $denial;
+        }
+
+        return $this->denyForQuorum(action: $action, domain: $domain, meetingData: $meetingData);
+
+    }//end denyTransition()
+
+    /**
+     * State-machine and domain-workflow gates.
+     *
+     * @param string               $action           Transition action being applied
+     * @param array<string, mixed> $transition       The TRANSITIONS entry for $action
+     * @param string               $currentLifecycle The meeting's current lifecycle state
+     * @param string               $domain           The meeting's governance domain
+     *
+     * @return array{success: bool, meeting: array|null, message: string}|null Denial result, or null when allowed
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
+     */
+    private function denyForState(string $action, array $transition, string $currentLifecycle, string $domain): ?array
+    {
+        if (in_array(needle: $currentLifecycle, haystack: $transition['from'], strict: true) === false) {
+            return [
+                'success' => false,
+                'meeting' => null,
+                'message' => "Cannot '$action' a meeting in '$currentLifecycle' state. "
+                    ."Allowed from: ".implode(separator: ', ', array: $transition['from']).".",
+            ];
+        }
+
+        // Domain-level transition validation (OWASP A01:2021).
+        // Enforces domain-specific rules such as "no pause in corporate domain".
+        if ($this->workflowService->isTransitionAllowed(domain: $domain, fromState: $currentLifecycle, toState: $transition['to']) === false) {
+            return [
+                'success' => false,
+                'meeting' => null,
+                'message' => "Transition '$action' is not permitted in '$domain' domain.",
+            ];
+        }
+
+        return null;
+
+    }//end denyForState()
+
+    /**
+     * Chair-only transition enforcement (OWASP A01:2021 — broken access control).
+     *
+     * The requiresChairAuthorization() call is process configuration: it returns
+     * true when "$from:$to" is in the workflow template's chairOnlyTransitions. The
+     * actor decision is then made by consuming the OpenRegister-projected chair
+     * scope for the owning body (consume-or-rbac-authorization) — replacing the
+     * former NC-UID-vs-chair comparison. Fail-closed: an unresolved body or an
+     * empty chair scope denies.
+     *
+     * @param array<string, mixed> $transition       The TRANSITIONS entry for the action
+     * @param string               $currentLifecycle The meeting's current lifecycle state
+     * @param string               $domain           The meeting's governance domain
+     * @param array<string, mixed> $meetingData      Current serialised meeting object
+     * @param string|null          $currentUserId    Nextcloud UID of the requesting user
+     *
+     * @return array{success: bool, meeting: array|null, message: string}|null Denial result, or null when allowed
+     *
+     * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-003-chair-only-lifecycle-transitions-are-enforced-by-openregister-property-rbac
+     */
+    private function denyForChairAuthorization(
+        array $transition,
+        string $currentLifecycle,
+        string $domain,
+        array $meetingData,
+        ?string $currentUserId
+    ): ?array {
+        if ($this->workflowService->requiresChairAuthorization(domain: $domain, from: $currentLifecycle, to: $transition['to']) === false) {
+            return null;
+        }
+
+        $bodyId = $this->resolveBodyId(meetingData: $meetingData);
+        if ($currentUserId === null
+            || $bodyId === null
+            || $this->scopeGuard->isInBodyScope($currentUserId, $bodyId, GovernanceScopeGuard::SCOPE_CHAIR) === false
+        ) {
+            return [
+                'success' => false,
+                'meeting' => null,
+                'message' => 'Only the meeting chair may perform this transition.',
+            ];
+        }
+
+        return null;
+
+    }//end denyForChairAuthorization()
+
+    /**
+     * Quorum enforcement before opening a meeting (OWASP A01:2021).
+     *
+     * Reads quorumMet from the declarative Meeting field (chain spec 2 of 3).
+     *
+     * @param string               $action      Transition action being applied
+     * @param string               $domain      The meeting's governance domain
+     * @param array<string, mixed> $meetingData Current serialised meeting object
+     *
+     * @return array{success: bool, meeting: array|null, message: string}|null Denial result, or null when allowed
+     *
+     * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+     */
+    private function denyForQuorum(string $action, string $domain, array $meetingData): ?array
+    {
+        if ($action !== 'open' || $this->workflowService->isQuorumRequired(domain: $domain) === false) {
+            return null;
+        }
+
+        if ($this->transitionGuard->isOpenAllowed(meeting: $meetingData) === false) {
+            return [
+                'success' => false,
+                'meeting' => null,
+                'message' => 'Quorum is not met. Cannot open meeting.',
+            ];
+        }
+
+        return null;
+
+    }//end denyForQuorum()
+
+    /**
+     * Publish the meeting-transition Activity event (fail-soft).
+     *
+     * @param string               $meetingId   UUID of the transitioned meeting
+     * @param array<string, mixed> $meetingData Serialised meeting object (pre-patch)
+     * @param string               $newState    The lifecycle state transitioned to
+     *
+     * @return void
+     *
+     * @spec openspec/specs/nextcloud-integration/spec.md
+     */
+    private function publishTransitionActivity(string $meetingId, array $meetingData, string $newState): void
+    {
+        try {
+            $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
+                subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_MEETING_TRANSITION,
+                title: (string) ($meetingData['title'] ?? $meetingId),
+                status: $newState,
+                objectType: 'meeting',
+                objectUuid: $meetingId,
+                segment: 'meetings'
+            );
+        } catch (\Throwable $activityError) {
+            $this->logger->debug('Decidesk: activity publish skipped', ['error' => $activityError->getMessage()]);
+        }
+
+    }//end publishTransitionActivity()
 
     /**
      * Extract the owning GovernanceBody UUID from a serialised meeting object

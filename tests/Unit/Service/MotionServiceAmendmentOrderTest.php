@@ -260,6 +260,16 @@ class MotionServiceAmendmentOrderTest extends TestCase
                     return new \OCA\Decidesk\Service\MotionLinkResolver(container: $container);
                 }
 
+                // MotionService delegates amendment resolution / ordering /
+                // conflict detection to MotionAmendmentService; wiring the real
+                // one over the same container keeps this test end-to-end.
+                if ($id === \OCA\Decidesk\Service\MotionAmendmentService::class) {
+                    return new \OCA\Decidesk\Service\MotionAmendmentService(
+                        container: $container,
+                        logger: new NullLogger(),
+                    );
+                }
+
                 throw new \RuntimeException('not wired in test: '.$id);
             }
         );
