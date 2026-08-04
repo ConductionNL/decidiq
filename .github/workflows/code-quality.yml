@@ -45,3 +45,42 @@ jobs:
       # collection uniformly.
       newman-environment-path: tests/integration/decidesk-environment.json
       enable-sbom: true
+
+      # ── Frontend Check legs ──────────────────────────────────────────────
+      # `frontend-checks` defaults to `[]`, and an empty list means the shared
+      # workflow emits NO "Frontend Check" job at all — so these two validators
+      # ran nowhere while the run still looked complete. Both are self-contained
+      # `node` scripts, which is what a leg has to be (each leg is a fresh job
+      # with its own checkout + `npm ci`).
+      # `test:unit` is NOT listed: the shared "Frontend Tests (unit)" job
+      # already falls back to it when there is no `test` script, and this repo
+      # has none — its 282 vitest tests are already covered there.
+      # `test:l10n:parity` is NOT listed either: measured on this tree it is
+      # short 289+ translations across the required locales. That is a
+      # translation backlog, and a permanently-red leg is one that gets
+      # switched off again.
+      frontend-checks: '["check:manifest", "test:l10n"]'
+
+      # ── Coverage ratchet ─────────────────────────────────────────────────
+      # `enable-coverage-guard` defaults to FALSE, which is why both
+      # "Coverage Baseline Protection" (PR side) and "Coverage Baseline Check"
+      # (push side) have only ever reported `skipped`. It needs two inputs this
+      # repo did not have, both added in this commit:
+      # `scripts/coverage-guard.php` (byte-identical to the copies in
+      # openregister and procest) and `.coverage-baseline` = 57.66, this repo's
+      # own measured coverage (8687 of 15065 statements) read from clover.xml
+      # in the `coverage-report` artifact of run 30911223203.
+      enable-coverage-guard: true
+
+      # ── Hydra mechanical gates ───────────────────────────────────────────
+      # `enable-hydra-gates` defaults to FALSE, so this tier has never executed
+      # here — the job reported `skipped`, which the Quality Report renders
+      # identically to a pass. .github#149 is what made this viable: gate-7
+      # (no-admin-idor) now follows delegation, so the 11 MinutesController-style
+      # methods whose guards are reached through `staffAction()` → `requireStaff()`
+      # are no longer flagged. Pinned to v1.0.1 so a change to the gate package
+      # cannot move this repo's verdict without a commit here.
+      # `enable-axe` deliberately NOT set: a vanilla Nextcloud 34 already carries
+      # serious/critical violations from core's own UI.
+      enable-hydra-gates: true
+      hydra-gates-ref: v1.0.1
