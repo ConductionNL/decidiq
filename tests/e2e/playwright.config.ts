@@ -103,7 +103,19 @@ export default defineConfig({
 	timeout: 60_000,
 	expect: { timeout: 15_000 },
 	fullyParallel: false,
-	retries: process.env.CI ? 1 : 0,
+	// retries: 0, deliberately, including on CI.
+	//
+	// A retry doubles the wall-clock cost of every FAILING test, and a failing
+	// test is precisely the one that burns the full 60s timeout. With ~30 known
+	// failures that is an extra ~30 minutes against a 45-minute cap — and
+	// blowing the cap does not produce a red, it produces a CANCELLED job, which
+	// is no verdict at all and cannot be diagnosed. Run 30858373402 was lost
+	// exactly that way.
+	//
+	// So the budget goes to getting a readable verdict rather than to
+	// re-rolling. Once the suite is green the retry can come back to absorb
+	// genuine flakes, because then it costs a few seconds rather than an hour.
+	retries: 0,
 	workers: 1,
 	reporter: [
 		['html', { open: 'never', outputFolder: path.resolve(__dirname, 'playwright-report') }],
