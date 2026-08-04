@@ -2,15 +2,9 @@
 /**
  * Decidesk Motion Forwarding Service
  *
- * Forwards a motion to another governance body: authorises the actor against
- * the `motion_forwarding_roles` configuration, creates the forwarded Motion in
- * the target body, records the forwarding on both sides, and notifies the
- * target chair when approval is required.
- *
- * Extracted from {@see MotionService} so that class stays inside the PHPMD
- * ExcessiveClassComplexity budget and the forwarding flow inside the
- * ExcessiveMethodLength budget; MotionService keeps a thin delegating wrapper
- * so its published API — consumed by MotionController — is unchanged.
+ * Forwards a motion to another governance body: copies it into the target
+ * body, cross-links both copies with an audit note, and notifies when the
+ * instance requires approval for forwarding.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -40,19 +34,23 @@ use Psr\Container\ContainerInterface;
 use RuntimeException;
 
 /**
- * Cross-body motion forwarding.
+ * The forward-a-motion path, extracted from MotionService.
+ *
+ * MotionService::forwardMotion() was a 110-line method that read the
+ * forwarding configuration, authorised the actor, copied the motion, wrote
+ * two audit notes and conditionally notified — five concerns in one body.
  *
  * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
  */
 class MotionForwardingService
 {
     /**
-     * Construct the MotionForwardingService.
+     * Constructor for the MotionForwardingService.
      *
-     * @param ContainerInterface $container   The DI container for lazy-loading OR services
-     * @param IUserManager       $userManager Nextcloud user manager for actor lookup
+     * @param ContainerInterface $container   The DI container (for ObjectService / IAppConfig / MotionNotifier)
+     * @param IUserManager       $userManager Nextcloud user manager for UID lookup
      *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     * @return void
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -61,38 +59,7 @@ class MotionForwardingService
     }//end __construct()
 
     /**
-     * Get the ObjectService from the container.
-     *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
-     *
-     * @return object
-     */
-    private function getObjectService(): object
-    {
-        return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-    }//end getObjectService()
-
-    /**
-     * Get the MotionNotifier from the container.
-     *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
-     *
-     * @return MotionNotifier
-     */
-    private function getNotifier(): MotionNotifier
-    {
-        return $this->container->get(MotionNotifier::class);
-
-    }//end getNotifier()
-
-    /**
-     * Forward a motion to a target governance body with optional approval workflow.
-     *
-     * Checks the actor's role against the motion_forwarding_roles config. Creates a new
-     * Motion in the target body and stores a relation between the forwarded and source
-     * motions. If approval is required, the forwarded Motion is created with lifecycle
-     * 'submitted' and a notification is sent to the target chair.
+     * Forward a motion to another governance body.
      *
      * @param string $motionId      The motion UUID to forward
      * @param string $targetBodyId  The target governance body UUID
@@ -101,19 +68,22 @@ class MotionForwardingService
      *
      * @return array<string,mixed> The created forwarded Motion object
      *
-     * @throws RuntimeException When role is not authorized or motion is not found
+     * @throws RuntimeException When the actor or the motion is not found
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      */
-    public function forwardMotion(string $motionId, string $targetBodyId, string $actorId, string $justification): array
+    public function forward(string $motionId, string $targetBodyId, string $actorId, string $justification): array
     {
         $appConfig = $this->container->get(IAppConfig::class);
 
-        // Simple check: actor role must be in allowed roles (enforce in backend only, no frontend-only checks).
-        // This is a simplified check; a full implementation would query governance body membership.
-        $this->assertActorMayForward(appConfig: $appConfig, actorId: $actorId);
+        // Simple check: the actor must exist (enforced in the backend only, never
+        // frontend-only). A full implementation would query governance body
+        // membership against motion_forwarding_roles.
+        if ($this->userManager->get($actorId) === null) {
+            throw new RuntimeException("Actor {$actorId} not found");
+        }
 
-        $objectService = $this->getObjectService();
+        $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
         // Fetch the source motion.
         $objectService->setRegister('decidesk');
@@ -124,9 +94,6 @@ class MotionForwardingService
         }
 
         $sourceMotionData = $sourceMotionObject->getObject();
-
-        // Check approval requirement config.
-        $requiresApproval = $appConfig->getValueBool('decidesk', 'motion_forwarding_requires_approval', false);
 
         $forwardedMotion = $this->buildForwardedMotion(
             sourceMotionData: $sourceMotionData,
@@ -144,86 +111,38 @@ class MotionForwardingService
             schema: 'motion',
         );
 
-        $forwardedMotionId = ($created['id'] ?? $created['uuid'] ?? null);
-
-        // Add forwarding note to source motion.
-        $sourceMotionData['notes']   = ($sourceMotionData['notes'] ?? []);
-        $sourceMotionData['notes'][] = [
-            'title' => 'Doorgestuurd naar',
-            'body'  => json_encode(
-                [
-                    'targetBodyId'      => $targetBodyId,
-                    'forwardedMotionId' => $forwardedMotionId,
-                    'forwardedAt'       => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-                ]
-            ),
-        ];
-
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
-        $objectService->saveObject(
-            object: $sourceMotionData,
-            register: 'decidesk',
-            schema: 'motion',
-            uuid: $motionId,
+        $sourceMotionData = $this->noteForwarding(
+            objectService: $objectService,
+            sourceMotionData: $sourceMotionData,
+            motionId: $motionId,
+            targetBodyId: $targetBodyId,
+            forwardedMotionId: ($created['id'] ?? $created['uuid'] ?? null)
         );
 
         // Send notification if approval is required.
-        if ($requiresApproval === true) {
-            $this->getNotifier()->notify(
-                userId: $actorId,
-                motionId: (string) ($forwardedMotionId ?? ''),
-                subject: 'motion_forwarded_approval',
-                parameters: [
-                    'title' => $sourceMotionData['title'] ?? '',
-                    'body'  => $targetBodyId,
-                ],
-                failureLog: 'Decidesk: notification send failed: '
+        if ($appConfig->getValueBool('decidesk', 'motion_forwarding_requires_approval', false) === true) {
+            $this->notifyApprovalRequired(
+                actorId: $actorId,
+                forwardedMotionId: (string) ($created['id'] ?? $created['uuid'] ?? ''),
+                targetBodyId: $targetBodyId,
+                title: (string) ($sourceMotionData['title'] ?? '')
             );
         }
 
         return ($created ?? $forwardedMotion);
 
-    }//end forwardMotion()
+    }//end forward()
 
     /**
-     * Verify the forwarding actor exists and the forwarding-role config is usable.
+     * Build the copy of the motion that lands in the target body.
      *
-     * @param IAppConfig $appConfig The Nextcloud app config
-     * @param string     $actorId   Nextcloud user ID of the person forwarding
-     *
-     * @return void
-     *
-     * @throws RuntimeException When the actor cannot be resolved
-     *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
-     */
-    private function assertActorMayForward(IAppConfig $appConfig, string $actorId): void
-    {
-        // Check actor role against forwarding config.
-        $forwardingRolesJson = $appConfig->getValueString('decidesk', 'motion_forwarding_roles', '["chair","secretary"]');
-        $forwardingRoles     = json_decode($forwardingRolesJson, true);
-        if (is_array($forwardingRoles) === false) {
-            $forwardingRoles = ['chair', 'secretary'];
-        }
-
-        $user = $this->userManager->get($actorId);
-        if ($user === null) {
-            throw new RuntimeException("Actor {$actorId} not found");
-        }
-
-    }//end assertActorMayForward()
-
-    /**
-     * Build the payload for the Motion created in the target governance body.
-     *
-     * @param array<string,mixed> $sourceMotionData The source motion payload
-     * @param string              $motionId         UUID of the source motion
-     * @param string              $targetBodyId     UUID of the target governance body
-     * @param string              $actorId          Nextcloud user ID of the person forwarding
+     * @param array<string,mixed> $sourceMotionData The source motion object
+     * @param string              $motionId         The source motion UUID
+     * @param string              $targetBodyId     The target governance body UUID
+     * @param string              $actorId          The Nextcloud user ID of the person forwarding
      * @param string              $justification    The reason for forwarding
      *
-     * @return array<string,mixed> The forwarded Motion payload
+     * @return array<string,mixed> The forwarded motion payload.
      *
      * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
      */
@@ -232,10 +151,8 @@ class MotionForwardingService
         string $motionId,
         string $targetBodyId,
         string $actorId,
-        string $justification
+        string $justification,
     ): array {
-        $now = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-
         return [
             'title'       => $sourceMotionData['title'] ?? '',
             'text'        => $sourceMotionData['text'] ?? '',
@@ -243,7 +160,7 @@ class MotionForwardingService
             'proposer'    => $sourceMotionData['proposer'] ?? '',
             'coSigners'   => $sourceMotionData['coSigners'] ?? [],
             'lifecycle'   => 'submitted',
-            'submittedAt' => $now,
+            'submittedAt' => $this->nowIso(),
             'relations'   => [
                 ['register' => 'decidesk', 'schema' => 'governance-body', 'id' => $targetBodyId],
                 ['register' => 'decidesk', 'schema' => 'motion', 'id' => $motionId],
@@ -257,7 +174,7 @@ class MotionForwardingService
                             'targetBodyId'   => $targetBodyId,
                             'forwardedBy'    => $actorId,
                             'justification'  => $justification,
-                            'forwardedAt'    => $now,
+                            'forwardedAt'    => $this->nowIso(),
                         ]
                     ),
                 ],
@@ -265,4 +182,93 @@ class MotionForwardingService
         ];
 
     }//end buildForwardedMotion()
+
+    /**
+     * Append the "forwarded to" audit note to the source motion and persist it.
+     *
+     * @param object              $objectService     The OpenRegister ObjectService
+     * @param array<string,mixed> $sourceMotionData  The source motion object
+     * @param string              $motionId          The source motion UUID
+     * @param string              $targetBodyId      The target governance body UUID
+     * @param mixed               $forwardedMotionId The UUID of the created copy
+     *
+     * @return array<string,mixed> The source motion with the note appended.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     */
+    private function noteForwarding(
+        object $objectService,
+        array $sourceMotionData,
+        string $motionId,
+        string $targetBodyId,
+        mixed $forwardedMotionId,
+    ): array {
+        $sourceMotionData['notes']   = ($sourceMotionData['notes'] ?? []);
+        $sourceMotionData['notes'][] = [
+            'title' => 'Doorgestuurd naar',
+            'body'  => json_encode(
+                [
+                    'targetBodyId'      => $targetBodyId,
+                    'forwardedMotionId' => $forwardedMotionId,
+                    'forwardedAt'       => $this->nowIso(),
+                ]
+            ),
+        ];
+
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('motion');
+        $objectService->saveObject(
+            object: $sourceMotionData,
+            register: 'decidesk',
+            schema: 'motion',
+            uuid: $motionId,
+        );
+
+        return $sourceMotionData;
+
+    }//end noteForwarding()
+
+    /**
+     * Notify the actor that the forwarded motion awaits approval.
+     *
+     * @param string $actorId           The Nextcloud user ID of the person forwarding
+     * @param string $forwardedMotionId The UUID of the created copy
+     * @param string $targetBodyId      The target governance body UUID
+     * @param string $title             The motion title
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     */
+    private function notifyApprovalRequired(
+        string $actorId,
+        string $forwardedMotionId,
+        string $targetBodyId,
+        string $title,
+    ): void {
+        $this->container->get(MotionNotifier::class)->notify(
+            userId: $actorId,
+            motionId: $forwardedMotionId,
+            subject: 'motion_forwarded_approval',
+            parameters: [
+                'title' => $title,
+                'body'  => $targetBodyId,
+            ],
+            failureLog: 'Decidesk: notification send failed: '
+        );
+
+    }//end notifyApprovalRequired()
+
+    /**
+     * Current timestamp in ISO 8601 (ATOM) form.
+     *
+     * @return string The formatted timestamp.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+     */
+    private function nowIso(): string
+    {
+        return (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
+
+    }//end nowIso()
 }//end class

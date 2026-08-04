@@ -2,15 +2,9 @@
 /**
  * Decidesk Motion Amendment Service
  *
- * Amendment-side collaborator of {@see MotionService}: resolves the amendments
- * belonging to a motion (across both link shapes), persists the chair-chosen
- * amendment voting order, detects text conflicts between amendments, and
- * applies an adopted amendment to its parent motion.
- *
- * Extracted from MotionService so that class stays inside the PHPMD
- * ExcessiveClassComplexity budget; MotionService keeps thin delegating
- * wrappers so its published API — consumed by MotionController,
- * AmendmentOrderService and VotingService — is unchanged.
+ * The amendment side of a motion: resolving a motion's amendments, stamping the
+ * parliamentary voting order, detecting overlapping amendments, and merging an
+ * adopted amendment into the motion text.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -32,25 +26,32 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 /**
- * Amendment resolution, ordering, conflict detection and application.
+ * Amendment operations, extracted from MotionService.
+ *
+ * MotionService carried an overall complexity of 72, of which the five
+ * amendment methods were 30. They form a coherent unit — every one of them
+ * starts by resolving the amendments of a motion — so they move out together
+ * rather than being split into private helpers that would leave the class
+ * WMC unchanged.
  *
  * @spec openspec/specs/motion-amendment/spec.md
  */
 class MotionAmendmentService
 {
     /**
-     * Construct the MotionAmendmentService.
+     * Constructor for the MotionAmendmentService.
      *
-     * @param ContainerInterface $container The DI container for lazy-loading OR services
-     * @param LoggerInterface    $logger    Logger interface
+     * @param ContainerInterface $container The DI container (for ObjectService / MotionLinkResolver)
+     * @param LoggerInterface    $logger    The logger
      *
-     * @spec openspec/specs/motion-amendment/spec.md
+     * @return void
      */
     public function __construct(
         private readonly ContainerInterface $container,
@@ -61,9 +62,9 @@ class MotionAmendmentService
     /**
      * Get the ObjectService from the container.
      *
-     * @spec openspec/specs/motion-amendment/spec.md
+     * @return object The OpenRegister ObjectService.
      *
-     * @return object
+     * @spec openspec/specs/motion-amendment/spec.md
      */
     private function getObjectService(): object
     {
@@ -74,9 +75,9 @@ class MotionAmendmentService
     /**
      * Get the MotionLinkResolver from the container.
      *
-     * @spec openspec/specs/motion-amendment/spec.md
+     * @return MotionLinkResolver The motion link resolver.
      *
-     * @return MotionLinkResolver
+     * @spec openspec/specs/motion-amendment/spec.md
      */
     private function getLinkResolver(): MotionLinkResolver
     {
@@ -85,7 +86,7 @@ class MotionAmendmentService
     }//end getLinkResolver()
 
     /**
-     * Resolve every amendment belonging to a motion.
+     * Fetch all amendments linked to a motion, honouring BOTH link shapes.
      *
      * Amendments reference their motion either through the flat `parentMotion`
      * property (what the UI's relation tabs write) or through a structured
@@ -182,54 +183,6 @@ class MotionAmendmentService
      */
     public function setAmendmentVotingOrder(string $motionId, array $orderedAmendmentIds, string $actorId): array
     {
-        $byId = $this->assertOrderableAmendments(
-            motionId: $motionId,
-            orderedAmendmentIds: $orderedAmendmentIds,
-            actorId: $actorId
-        );
-
-        $objectService = $this->getObjectService();
-        $updated       = [];
-        foreach (array_values($orderedAmendmentIds) as $position => $amendmentId) {
-            $amendment = $byId[$amendmentId];
-            $amendment['votingOrder'] = ($position + 1);
-
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('amendment');
-            $objectService->saveObject(
-                object: $amendment,
-                register: 'decidesk',
-                schema: 'amendment',
-                uuid: $amendmentId,
-            );
-            $updated[] = $amendment;
-        }
-
-        $this->logger->info(
-            "Decidesk: amendment voting order set on motion $motionId by $actorId",
-            ['order' => array_values($orderedAmendmentIds)]
-        );
-
-        return $updated;
-
-    }//end setAmendmentVotingOrder()
-
-    /**
-     * Validate a requested amendment voting order and index the motion's amendments by id.
-     *
-     * @param string        $motionId            UUID of the parent Motion
-     * @param array<string> $orderedAmendmentIds Amendment UUIDs in the desired voting order
-     * @param string        $actorId             Nextcloud user UID performing the reorder
-     *
-     * @return array<string, array<string, mixed>> The motion's amendments indexed by id
-     *
-     * @throws InvalidArgumentException When an id does not belong to the motion, ids repeat, or actorId is empty
-     * @throws RuntimeException         When the motion has no amendments to order
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    private function assertOrderableAmendments(string $motionId, array $orderedAmendmentIds, string $actorId): array
-    {
         if ($actorId === '') {
             throw new InvalidArgumentException('actorId must be a non-empty Nextcloud user UID');
         }
@@ -260,9 +213,31 @@ class MotionAmendmentService
             }
         }
 
-        return $byId;
+        $objectService = $this->getObjectService();
+        $updated       = [];
+        foreach (array_values($orderedAmendmentIds) as $position => $amendmentId) {
+            $amendment = $byId[$amendmentId];
+            $amendment['votingOrder'] = ($position + 1);
 
-    }//end assertOrderableAmendments()
+            $objectService->setRegister('decidesk');
+            $objectService->setSchema('amendment');
+            $objectService->saveObject(
+                object: $amendment,
+                register: 'decidesk',
+                schema: 'amendment',
+                uuid: $amendmentId,
+            );
+            $updated[] = $amendment;
+        }
+
+        $this->logger->info(
+            "Decidesk: amendment voting order set on motion $motionId by $actorId",
+            ['order' => array_values($orderedAmendmentIds)]
+        );
+
+        return $updated;
+
+    }//end setAmendmentVotingOrder()
 
     /**
      * Detect text overlap between a new amendment and existing amendments on a motion.
@@ -271,7 +246,7 @@ class MotionAmendmentService
      * canonical getAmendmentsForMotion() resolver, so amendments linked through
      * the flat `parentMotion` property are no longer invisible to conflict
      * detection) and performs a naive word-overlap check. If overlap is
-     * detected, a conflict note is stored on the new amendment.
+     * detected, notifies secretary-role users via NotificationService.
      *
      * @param string $motionId       UUID of the parent Motion
      * @param string $newAmendmentId UUID of the newly submitted Amendment
@@ -299,7 +274,44 @@ class MotionAmendmentService
         // Fetch existing amendments for this motion (both link shapes).
         $existing = $this->getAmendmentsForMotion(motionId: $motionId);
 
-        if ($this->hasTextConflict(newText: $newText, newAmendmentId: $newAmendmentId, existing: $existing) === false) {
+        $conflictFound = false;
+        foreach ($existing as $amendmentData) {
+            $amendmentId = $amendmentData['id'] ?? $amendmentData['uuid'] ?? '';
+
+            if ($amendmentId === $newAmendmentId) {
+                continue;
+            }
+
+            $lifecycle = $amendmentData['lifecycle'] ?? '';
+            if (in_array($lifecycle, ['submitted', 'debating'], true) === false) {
+                continue;
+            }
+
+            $existingText = strtolower($amendmentData['text'] ?? '');
+
+            // Naive overlap: check for common significant words (>4 chars).
+            // Use Unicode-aware split so Dutch diacritics (é, ó, ë, etc.) are treated as word characters.
+            $splitNew  = preg_split('/[^\pL\pN]+/u', $newText, -1, PREG_SPLIT_NO_EMPTY);
+            $splitExst = preg_split('/[^\pL\pN]+/u', $existingText, -1, PREG_SPLIT_NO_EMPTY);
+            if ($splitNew === false) {
+                $splitNew = [];
+            }
+
+            if ($splitExst === false) {
+                $splitExst = [];
+            }
+
+            $newWords      = array_filter($splitNew, fn($word) => mb_strlen($word) > 4);
+            $existingWords = array_filter($splitExst, fn($word) => mb_strlen($word) > 4);
+            $overlap       = array_intersect($newWords, $existingWords);
+
+            if (count($overlap) > 3) {
+                $conflictFound = true;
+                break;
+            }
+        }//end foreach
+
+        if ($conflictFound === false) {
             return;
         }
 
@@ -324,69 +336,6 @@ class MotionAmendmentService
     }//end detectConflicts()
 
     /**
-     * Naive word-overlap conflict check against the motion's open amendments.
-     *
-     * Only submitted/debating amendments other than the new one are considered.
-     *
-     * @param string                           $newText        Lower-cased text of the new amendment
-     * @param string                           $newAmendmentId UUID of the new amendment (skipped when encountered)
-     * @param array<int, array<string, mixed>> $existing       Serialized amendments on the motion
-     *
-     * @return bool True when a conflicting amendment was found
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    private function hasTextConflict(string $newText, string $newAmendmentId, array $existing): bool
-    {
-        $newWords = $this->significantWords(text: $newText);
-
-        foreach ($existing as $amendmentData) {
-            $amendmentId = $amendmentData['id'] ?? $amendmentData['uuid'] ?? '';
-
-            if ($amendmentId === $newAmendmentId) {
-                continue;
-            }
-
-            $lifecycle = $amendmentData['lifecycle'] ?? '';
-            if (in_array($lifecycle, ['submitted', 'debating'], true) === false) {
-                continue;
-            }
-
-            $existingWords = $this->significantWords(text: strtolower($amendmentData['text'] ?? ''));
-
-            if (count(array_intersect($newWords, $existingWords)) > 3) {
-                return true;
-            }
-        }//end foreach
-
-        return false;
-
-    }//end hasTextConflict()
-
-    /**
-     * Split a text into significant (>4 character) words.
-     *
-     * Uses a Unicode-aware split so Dutch diacritics (é, ó, ë, etc.) are
-     * treated as word characters.
-     *
-     * @param string $text The text to split
-     *
-     * @return array<int, string> Significant words
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    private function significantWords(string $text): array
-    {
-        $split = preg_split('/[^\pL\pN]+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
-        if ($split === false) {
-            return [];
-        }
-
-        return array_filter($split, static fn($word) => mb_strlen($word) > 4);
-
-    }//end significantWords()
-
-    /**
      * Apply an amendment to its parent motion by appending the amendment text.
      *
      * Reads the Amendment text and appends it as an annotation to the Motion
@@ -396,8 +345,6 @@ class MotionAmendmentService
      * @param string $amendmentId UUID of the Amendment to apply
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
-     *
-     * @throws RuntimeException When the amendment or the motion cannot be found
      *
      * @return void
      */

@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
@@ -70,7 +71,24 @@ class MotionService
     ];
 
     /**
+     * The amendment side of a motion.
+     *
+     * @var MotionAmendmentService
+     */
+    private readonly MotionAmendmentService $amendments;
+
+    /**
+     * The forward-to-another-body path.
+     *
+     * @var MotionForwardingService
+     */
+    private readonly MotionForwardingService $forwarding;
+
+    /**
      * Construct the MotionService.
+     *
+     * The amendment collaborator is built in the constructor body rather than
+     * injected, so the DI signature stays the three services below.
      *
      * @param ContainerInterface $container   The DI container for lazy-loading OR services
      * @param LoggerInterface    $logger      Logger interface
@@ -83,6 +101,9 @@ class MotionService
         private readonly LoggerInterface $logger,
         private readonly IUserManager $userManager,
     ) {
+        $this->amendments = new MotionAmendmentService(container: $container, logger: $logger);
+        $this->forwarding = new MotionForwardingService(container: $container, userManager: $userManager);
+
     }//end __construct()
 
     /**
@@ -123,36 +144,6 @@ class MotionService
         return $this->container->get(MotionLinkResolver::class);
 
     }//end getLinkResolver()
-
-    /**
-     * Get the MotionAmendmentService from the container.
-     *
-     * The amendment-side behaviour (resolution, ordering, conflict detection,
-     * application) lives in its own collaborator; the public methods on this
-     * class delegate to it so the published API is unchanged.
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return MotionAmendmentService
-     */
-    private function getAmendmentService(): MotionAmendmentService
-    {
-        return $this->container->get(MotionAmendmentService::class);
-
-    }//end getAmendmentService()
-
-    /**
-     * Get the MotionForwardingService from the container.
-     *
-     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
-     *
-     * @return MotionForwardingService
-     */
-    private function getForwardingService(): MotionForwardingService
-    {
-        return $this->container->get(MotionForwardingService::class);
-
-    }//end getForwardingService()
 
     /**
      * Resolve the meeting UUID linked to a motion.
@@ -327,26 +318,23 @@ class MotionService
 
         foreach ($participantIds as $participantId) {
             try {
-                $objectService->setRegister('decidesk');
-                $objectService->setSchema('participant');
-                $participant = $objectService->find($participantId);
-                if ($participant === null) {
+                $nextcloudUserId = $this->coSignerUid(
+                    objectService: $objectService,
+                    participantId: $participantId
+                );
+                if ($nextcloudUserId === null) {
                     continue;
                 }
 
-                $nextcloudUserId = $this->resolveParticipantUid(participantData: $participant->getObject());
+                $pendingSignerUids[] = $nextcloudUserId;
 
-                if ($nextcloudUserId !== null) {
-                    $pendingSignerUids[] = $nextcloudUserId;
-
-                    $this->getNotifier()->notify(
-                        userId: $nextcloudUserId,
-                        motionId: $motionId,
-                        subject: 'co_sign_request',
-                        parameters: ['motionTitle' => $title, 'motionId' => $motionId],
-                        failureLog: "Decidesk: Could not send co-sign notification to $nextcloudUserId: "
-                    );
-                }
+                $this->getNotifier()->notify(
+                    userId: $nextcloudUserId,
+                    motionId: $motionId,
+                    subject: 'co_sign_request',
+                    parameters: ['motionTitle' => $title, 'motionId' => $motionId],
+                    failureLog: "Decidesk: Could not send co-sign notification to $nextcloudUserId: "
+                );
             } catch (Throwable $e) {
                 $this->logger->warning(
                     "Decidesk: Could not send co-sign request to participant $participantId: {$e->getMessage()}"
@@ -375,25 +363,34 @@ class MotionService
     }//end requestCoSignature()
 
     /**
-     * Resolve the Nextcloud UID for a Participant payload.
+     * Resolve the Nextcloud UID of a participant invited to co-sign.
      *
-     * Prefers the stored `nextcloudUserId`, falling back to a unique email
-     * lookup. Returns null when no unambiguous UID can be resolved.
+     * Prefers the stored nextcloudUserId and falls back to an email lookup,
+     * which only resolves when it matches exactly one account.
      *
-     * @param array<string, mixed> $participantData Serialized Participant object
+     * @param object $objectService The OpenRegister ObjectService
+     * @param string $participantId UUID of the Participant
      *
-     * @return string|null The Nextcloud UID, or null when unresolvable
+     * @return string|null The Nextcloud UID, or null when it cannot be resolved.
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
      */
-    private function resolveParticipantUid(array $participantData): ?string
+    private function coSignerUid(object $objectService, string $participantId): ?string
     {
-        $nextcloudUserId = $participantData['nextcloudUserId'] ?? null;
+        $objectService->setRegister('decidesk');
+        $objectService->setSchema('participant');
+        $participant = $objectService->find($participantId);
+        if ($participant === null) {
+            return null;
+        }
+
+        $participantData = $participant->getObject();
+        $nextcloudUserId = ($participantData['nextcloudUserId'] ?? null);
         if ($nextcloudUserId !== null) {
             return (string) $nextcloudUserId;
         }
 
-        $email = $participantData['email'] ?? null;
+        $email = ($participantData['email'] ?? null);
         if ($email === null) {
             return null;
         }
@@ -403,9 +400,9 @@ class MotionService
             return null;
         }
 
-        return $users[0]->getUID();
+        return (string) $users[0]->getUID();
 
-    }//end resolveParticipantUid()
+    }//end coSignerUid()
 
     /**
      * Append a co-signer display name to a Motion's coSigners array.
@@ -546,14 +543,11 @@ class MotionService
     }//end saveBudgetImpact()
 
     /**
-     * Fetch all amendments linked to a motion, honouring BOTH link shapes.
+     * Resolve every Amendment that belongs to a Motion.
      *
-     * Amendments reference their motion either through the flat `parentMotion`
-     * property (what the UI's relation tabs write) or through a structured
-     * `relations` entry with schema 'motion' (what some backend paths write).
-     * This resolver queries both shapes and dedups by id so callers (voting-order
-     * enforcement, conflict detection, the chair ordering endpoint) see every
-     * amendment regardless of how it was created.
+     * Delegates to MotionAmendmentService, which honours BOTH link shapes (the
+     * flat `parentMotion` property and a structured `relations` entry) and
+     * dedups by id.
      *
      * @param string $motionId UUID of the parent Motion
      *
@@ -563,33 +557,26 @@ class MotionService
      */
     public function getAmendmentsForMotion(string $motionId): array
     {
-        return $this->getAmendmentService()->getAmendmentsForMotion(motionId: $motionId);
+        return $this->amendments->getAmendmentsForMotion(motionId: $motionId);
 
     }//end getAmendmentsForMotion()
 
     /**
-     * Persist the chair-chosen amendment voting order on a motion.
-     *
-     * Validates that every supplied amendment id belongs to the motion, then
-     * stamps `votingOrder` 1..N in the supplied order. Caller-side chair
-     * authorization is enforced by MotionController::amendmentOrder() (fail
-     * closed); the actorId is still required here so bare DI-path callers
-     * cannot reorder without an authenticated actor (the #317 pattern).
+     * Stamp the parliamentary voting order on a motion's amendments.
      *
      * @param string        $motionId            UUID of the parent Motion
-     * @param array<string> $orderedAmendmentIds Amendment UUIDs in the desired voting order (index 0 = voted first)
-     * @param string        $actorId             Nextcloud user UID performing the reorder
+     * @param array<string> $orderedAmendmentIds The amendment UUIDs in voting order
+     * @param string        $actorId             The Nextcloud user ID of the chair
      *
-     * @return array<int, array<string, mixed>> The amendments with their new votingOrder values
+     * @return array<int, array<string, mixed>> The reordered amendments
      *
-     * @throws InvalidArgumentException When an id does not belong to the motion, ids repeat, or actorId is empty
-     * @throws RuntimeException         When the motion has no amendments to order
+     * @throws InvalidArgumentException When an id does not belong to the motion
      *
      * @spec openspec/specs/motion-amendment/spec.md
      */
     public function setAmendmentVotingOrder(string $motionId, array $orderedAmendmentIds, string $actorId): array
     {
-        return $this->getAmendmentService()->setAmendmentVotingOrder(
+        return $this->amendments->setAmendmentVotingOrder(
             motionId: $motionId,
             orderedAmendmentIds: $orderedAmendmentIds,
             actorId: $actorId
@@ -598,50 +585,34 @@ class MotionService
     }//end setAmendmentVotingOrder()
 
     /**
-     * Detect text overlap between a new amendment and existing amendments on a motion.
-     *
-     * Fetches all submitted/debating amendments for the motion (via the
-     * canonical getAmendmentsForMotion() resolver, so amendments linked through
-     * the flat `parentMotion` property are no longer invisible to conflict
-     * detection) and performs a naive word-overlap check. If overlap is
-     * detected, notifies secretary-role users via NotificationService.
+     * Flag amendments that overlap with a newly submitted one.
      *
      * @param string $motionId       UUID of the parent Motion
      * @param string $newAmendmentId UUID of the newly submitted Amendment
      *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
      * @return void
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
      */
     public function detectConflicts(string $motionId, string $newAmendmentId): void
     {
-        $this->getAmendmentService()->detectConflicts(
-            motionId: $motionId,
-            newAmendmentId: $newAmendmentId
-        );
+        $this->amendments->detectConflicts(motionId: $motionId, newAmendmentId: $newAmendmentId);
 
     }//end detectConflicts()
 
     /**
-     * Apply an amendment to its parent motion by appending the amendment text.
-     *
-     * Reads the Amendment text and appends it as an annotation to the Motion
-     * `text` field. Saves the updated Motion via ObjectService.
+     * Merge an adopted amendment into its parent motion's text.
      *
      * @param string $motionId    UUID of the parent Motion
-     * @param string $amendmentId UUID of the Amendment to apply
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+     * @param string $amendmentId UUID of the adopted Amendment
      *
      * @return void
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
      */
     public function applyAmendment(string $motionId, string $amendmentId): void
     {
-        $this->getAmendmentService()->applyAmendment(
-            motionId: $motionId,
-            amendmentId: $amendmentId
-        );
+        $this->amendments->applyAmendment(motionId: $motionId, amendmentId: $amendmentId);
 
     }//end applyAmendment()
 
@@ -666,7 +637,7 @@ class MotionService
      */
     public function forwardMotion(string $motionId, string $targetBodyId, string $actorId, string $justification): array
     {
-        return $this->getForwardingService()->forwardMotion(
+        return $this->forwarding->forward(
             motionId: $motionId,
             targetBodyId: $targetBodyId,
             actorId: $actorId,
