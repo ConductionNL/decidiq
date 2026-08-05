@@ -95,14 +95,35 @@ function loadAjv() {
 	return { Ajv: Ajv2020, addFormats }
 }
 
-function structuralLint(manifest) {
+// The closed page-type enum used by the Ajv-less fallback. Read it from the
+// SCHEMA the run already resolved rather than hardcoding a copy: a hardcoded
+// list silently rots against the vendored schema and then fails a manifest
+// that is correct. That is exactly what happened — the frozen v1.2 list below
+// predates `roadmap`/`search`/`wiki`/`form`/`map`, so a CI job without app
+// node_modules (hydra gate-22 runs `npm run check:manifest` with no `npm ci`)
+// reported `pages[25].type: "roadmap" not in v1.2 enum` against a manifest the
+// SAME FILE validates clean the moment Ajv is present. The literal survives
+// only as the last resort for a run that resolved no schema at all.
+const FALLBACK_PAGE_TYPES = ['index', 'detail', 'dashboard', 'logs', 'settings', 'chat', 'files', 'custom']
+
+function pageTypeEnum(schema) {
+	const fromSchema = schema
+		&& schema.$defs
+		&& schema.$defs.page
+		&& schema.$defs.page.properties
+		&& schema.$defs.page.properties.type
+		&& schema.$defs.page.properties.type.enum
+	return new Set(Array.isArray(fromSchema) && fromSchema.length > 0 ? fromSchema : FALLBACK_PAGE_TYPES)
+}
+
+function structuralLint(manifest, schema) {
 	const errors = []
 	if (!manifest.version || typeof manifest.version !== 'string') {
 		errors.push('top-level: version (string) is required')
 	}
 	if (!Array.isArray(manifest.menu)) errors.push('top-level: menu (array) is required')
 	if (!Array.isArray(manifest.pages)) errors.push('top-level: pages (array) is required')
-	const allowedTypes = new Set(['index', 'detail', 'dashboard', 'logs', 'settings', 'chat', 'files', 'custom'])
+	const allowedTypes = pageTypeEnum(schema)
 	const seenIds = new Set()
 	for (let i = 0; i < (manifest.pages || []).length; i++) {
 		const page = manifest.pages[i]
@@ -116,7 +137,7 @@ function structuralLint(manifest) {
 			}
 		}
 		if (page.type && !allowedTypes.has(page.type)) {
-			errors.push(`pages[${i}].type: "${page.type}" not in v1.2 enum`)
+			errors.push(`pages[${i}].type: "${page.type}" not in the page-type enum (${[...allowedTypes].join(', ')})`)
 		}
 		if (page.id) {
 			if (seenIds.has(page.id)) errors.push(`pages[${i}].id: duplicate "${page.id}"`)
@@ -143,7 +164,7 @@ function main() {
 	const schemaPath = findSchemaPath()
 	if (!schemaPath) {
 		console.warn('[validate-manifest] no schema candidate resolved; falling back to structural lint.')
-		const errors = structuralLint(manifest)
+		const errors = structuralLint(manifest, null)
 		if (errors.length === 0) {
 			console.log('[validate-manifest] structural lint: PASS (0 issues)')
 			process.exit(0)
@@ -158,7 +179,8 @@ function main() {
 
 	const { Ajv, addFormats } = loadAjv()
 	if (!Ajv) {
-		const errors = structuralLint(manifest)
+		// Lint against the enum of the schema we just loaded, not a frozen copy.
+		const errors = structuralLint(manifest, schema)
 		if (errors.length === 0) {
 			console.log('[validate-manifest] structural lint (no Ajv): PASS (0 issues)')
 			process.exit(0)
