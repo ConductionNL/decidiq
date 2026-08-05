@@ -183,12 +183,23 @@ test('Decision: create persists, appears in list, detail shows values, delete re
 	const tag = `e2e-${ledger.runId}`
 	const title = `${tag}-decision-crud`
 
-	// NOTE: the deployed `decision` schema (register 18 / schema 96) is the
-	// besluit-style schema (title, decisionDate, decisionType, governingBody,
-	// explanation, …) — it does NOT carry the `text`/`outcome` fields from the
-	// repo's register JSON, so we assert on the fields that actually persist.
+	// The note that used to live here recorded a hand-configured dev instance
+	// ("register 18 / schema 96") whose `decision` schema was a besluit-style
+	// variant carrying no `text`/`outcome`. That is not the schema this suite
+	// runs against any more: CI provisions the register from THIS repo's
+	// `lib/Settings/decidesk_register.json`, where Decision declares
+	// `required: [title, text, decisionDate, outcome, decisionType]`. Omitting
+	// them is a hard 400 from OpenRegister ("The required properties (text,
+	// outcome) are missing"), which surfaces as a fixture failure, not as an
+	// assertion failure — so it accuses the CRUD path rather than the payload.
+	//
+	// The assertions below are unchanged; only the payload now satisfies the
+	// schema the register actually declares.
 	const created = await createObject(page, ledger, 'decision', {
 		title,
+		text: `${tag} decision body text`,
+		outcome: 'adopted',
+		decisionType: 'meeting-outcome',
 		explanation: `${tag} decision rationale text`,
 		decisionDate: '2026-10-20T00:00:00Z',
 	})
@@ -216,9 +227,15 @@ test('Decision: create persists, appears in list, detail shows values, delete re
 	// decision — see the dedicated BUG test below), then assert persistence and
 	// that the new title surfaces in the UI list.
 	const newTitle = `${title}-edited`
+	// OpenRegister's save is PUT-semantic, so every required property has to be
+	// carried forward on an update too — omitting them nulls them, which the
+	// schema then rejects.
 	await createObject(page, ledger, 'decision', {
 		id,
 		title: newTitle,
+		text: `${tag} decision body text`,
+		outcome: 'adopted',
+		decisionType: 'meeting-outcome',
 		explanation: `${tag} decision rationale text`,
 		decisionDate: '2026-10-20T00:00:00Z',
 	})
@@ -285,6 +302,9 @@ test('Decision edit dialog saves a title change without a format error', async (
 	const title = `${tag}-decision-editbug`
 	const created = await createObject(page, ledger, 'decision', {
 		title,
+		text: 'x',
+		outcome: 'adopted',
+		decisionType: 'meeting-outcome',
 		explanation: 'x',
 		decisionDate: '2026-10-20T00:00:00Z',
 	})

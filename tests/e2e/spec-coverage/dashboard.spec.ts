@@ -15,7 +15,7 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 // @e2e openspec/specs/dashboard/spec.md#default-grid-layout-on-first-load
 // @e2e openspec/specs/dashboard/spec.md#display-active-decisions-count
