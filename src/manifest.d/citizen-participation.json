@@ -24,8 +24,7 @@
 			"route": "/participation",
 			"type": "custom",
 			"title": "Citizen participation",
-			"_note": "Citizen-facing surface of an open consultation; reachable from the hub, not a top-level menu peer.",
-			"_spec": "openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md",
+			"_note": "Citizen-facing surface of an open consultation; reachable from the hub, not a top-level menu peer. Spec: openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md",
 			"component": "ParticipationPage"
 		},
 		{
@@ -214,7 +213,7 @@
 			"route": "/moderation-queue",
 			"type": "custom",
 			"title": "Moderation queue",
-			"_spec": "openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md",
+			"_note": "Cross-consultation staff surface: mounts the shared ConsultationReactionsTab unscoped so one queue shows pending ConsultationReaction objects across ALL consultations, with the same approve/reject controls the per-consultation Reactions tab uses. A type:'index' page renders a read-oriented object table for one register+schema and cannot host that moderation interaction, so decomposition into a standard type was not feasible. Spec: openspec/changes/consultations-engagement-hub/specs/p3-citizen-participation/spec.md",
 			"component": "ModerationQueuePage"
 		}
 	]
