@@ -340,15 +340,36 @@ curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
 BUNDLE_SRC="$(grep -oE 'src="[^"]*decidesk-main[^"]*"' "$APP_HTML" \
 	| head -1 | sed 's/^src="//; s/"$//' || true)"
 
+BUNDLE_BYTES=0
 if [ -n "$BUNDLE_SRC" ]; then
 	BUNDLE_INFO="$(curl -sS -o /dev/null \
 		-w '%{http_code} %{content_type} %{size_download}' \
 		-u "${USER_NAME}:${USER_PASS}" "${BASE}${BUNDLE_SRC}" || echo '000 - 0')"
 	echo "[ci-seed] warm bundle ${BUNDLE_SRC} -> ${BUNDLE_INFO}"
+	# Third field of the -w format. Default to 0 on anything unparseable so the
+	# floor below treats "I could not measure it" as "it is too small", not as
+	# a pass.
+	BUNDLE_BYTES="$(printf '%s' "$BUNDLE_INFO" | awk '{print $3+0}')"
 else
 	echo "[ci-seed] could not locate the bundle src in the rendered app page."
 	BUNDLE_INFO=""
 fi
+
+# The floor exists because the content-type check ALONE cannot fail on the
+# case it was written for.
+#
+# `truncate -s 0 js/decidesk-main.js` leaves a file that Nextcloud still serves
+# as **HTTP 200 with Content-Type application/javascript** — length zero. So a
+# `case "$BUNDLE_INFO" in *javascript*)` gate passes a bundle that contains no
+# application at all, and every UI spec then fails on a selector timeout whose
+# message names a component. The truncation control run recorded on #378
+# (30887496886) did not catch this either: it truncated the bundle AFTER the
+# gate had already run, so the gate itself was never shown capable of failing.
+#
+# 1 MB is deliberately far below the measured 14,191,177 bytes (run
+# 31040165156) — it is a floor against emptiness and gross truncation, not a
+# size ratchet that would go red on a legitimate bundle-size change.
+BUNDLE_MIN_BYTES=1000000
 
 # On CI this is a GATE, not a warm-up.
 #
@@ -367,7 +388,7 @@ fi
 if [ "${GITHUB_ACTIONS:-}" = "true" ] || [ "${CI:-}" = "true" ]; then
 	case "$BUNDLE_INFO" in
 		*javascript*)
-			echo "[ci-seed] bundle verified as JavaScript."
+			echo "[ci-seed] bundle content-type OK (JavaScript)."
 			;;
 		*)
 			echo "::error::The Decidesk frontend bundle did not serve as JavaScript (got: ${BUNDLE_INFO:-<not found>})."
@@ -376,6 +397,14 @@ if [ "${GITHUB_ACTIONS:-}" = "true" ] || [ "${CI:-}" = "true" ]; then
 			exit 1
 			;;
 	esac
+
+	if [ "$BUNDLE_BYTES" -lt "$BUNDLE_MIN_BYTES" ]; then
+		echo "::error::The Decidesk frontend bundle served only ${BUNDLE_BYTES} bytes (floor: ${BUNDLE_MIN_BYTES})."
+		echo "::error::A truncated bundle is served as HTTP 200 application/javascript, so the content-type check above CANNOT catch it — this floor is the check that can."
+		echo "::error::The SPA will not mount and every UI spec would fail on a selector timeout naming a component rather than the bundle."
+		exit 1
+	fi
+	echo "[ci-seed] bundle size OK (${BUNDLE_BYTES} bytes >= ${BUNDLE_MIN_BYTES})."
 fi
 
 echo "[ci-seed] done."
