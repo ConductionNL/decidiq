@@ -24,6 +24,8 @@ import { execSync } from 'child_process'
 import * as path from 'path'
 import * as fs from 'fs'
 
+import { BASE_URL } from './base-url'
+
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
 const APP_ROOT = path.resolve(__dirname, '..', '..')
@@ -73,10 +75,13 @@ async function ensureNextcloudReachable(baseURL: string): Promise<void> {
 }
 
 export default async function globalSetup(config: FullConfig): Promise<void> {
+	// The config's own baseURL wins (both configs resolve it from base-url.ts,
+	// so this is the same value); base-url.ts is the fallback for a config that
+	// declares none. The old chain ended in a bare `?? 'http://localhost:8080'`,
+	// which silently pointed a login + storageState write at the SHARED dev
+	// container whenever the env was unset. See tests/e2e/base-url.ts.
 	const baseURL = (config.projects[0]?.use?.baseURL as string | undefined)
-		?? process.env.NEXTCLOUD_URL
-		?? process.env.NC_BASE_URL
-		?? 'http://localhost:8080'
+		?? BASE_URL
 	const username = process.env.NC_ADMIN_USER ?? 'admin'
 	const password = process.env.NC_ADMIN_PASS ?? 'admin'
 

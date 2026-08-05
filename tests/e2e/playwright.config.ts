@@ -55,12 +55,9 @@
 import { defineConfig, devices } from '@playwright/test'
 import * as path from 'path'
 
-const APP_ROOT = path.resolve(__dirname, '..', '..')
+import { BASE_URL } from './base-url'
 
-const BASE_URL = process.env.NEXTCLOUD_URL
-	|| process.env.BASE_URL
-	|| process.env.NC_BASE_URL
-	|| 'http://localhost:8080'
+const APP_ROOT = path.resolve(__dirname, '..', '..')
 
 export default defineConfig({
 	testDir: __dirname,
@@ -129,10 +126,22 @@ export default defineConfig({
 	outputDir: path.join(APP_ROOT, 'test-results'),
 
 	use: {
+		// Single source of truth — see tests/e2e/base-url.ts. The specs import
+		// the same resolver, so `page.goto()` (which uses this baseURL) and the
+		// specs' own `page.request` calls can never address different hosts.
 		baseURL: BASE_URL,
+		// Written by global-setup.ts after the admin login.
 		storageState: path.resolve(__dirname, '.auth', 'admin.json'),
-		trace: 'on-first-retry',
+
+		// `on-first-retry` was self-defeating next to `retries: 0`: there is no
+		// first retry, so it captured NOTHING — the uploaded trace artifact was
+		// empty on every run and each failure had to be diagnosed from its one
+		// -line message. `retain-on-failure` records every failing test and
+		// discards the passing ones, so the artifact is exactly the evidence a
+		// red run needs. Strictly more evidence, not a relaxed assertion.
+		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
+		video: 'off',
 	},
 
 	projects: [

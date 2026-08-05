@@ -77,6 +77,36 @@ jobs:
       enable-playwright: true
       playwright-test-path: tests/e2e
 
+      # OpenRegister being INSTALLED is not the same as decidesk's register
+      # being IMPORTED, and the difference is silent. `occ app:enable decidesk`
+      # runs a repair step that is supposed to import
+      # `lib/Settings/decidesk_register.json` + the 24 `register.d/` fragments,
+      # but an IRepairStep has no user session, OpenRegister's RBAC denies the
+      # write as 'Anonymous', and the step catches \Throwable and downgrades it
+      # to a warning — so `occ app:enable` exits 0 with no register at all.
+      # In that state every UI spec times out on an empty list and every
+      # `expect(resp.ok()).toBe(true)` against
+      # /apps/openregister/api/objects/decidesk/<schema> fails with a message
+      # that accuses the selector, never the missing import.
+      #
+      # ci-seed.sh does the import explicitly over the admin HTTP API (which
+      # has a real session), forced, then VERIFIES the register slug, 18 schema
+      # slugs, four object collections, and that the SPA bundle actually serves
+      # as JavaScript. A bad provision becomes ONE loud step failure instead of
+      # two dozen misleading spec failures.
+      #
+      # It also sets and reads back `htaccess.IgnoreFrontController`. Without
+      # it, `occ maintenance:install` leaves that flag FALSE, JS `generateUrl`
+      # therefore prefixes `/index.php`, and decidesk's
+      # `createWebHistory(generateUrl('/apps/decidesk'))` router base becomes
+      # `/index.php/apps/decidesk` while every spec navigates to
+      # `/apps/decidesk/...`. vue-router only strips a base the path starts
+      # with, so nothing matched and the catch-all `redirect: '/'` landed EVERY
+      # deep link on the dashboard.
+      #
+      # cwd for this step is the Nextcloud server root.
+      playwright-seed-command: 'bash apps/decidesk/tests/e2e/ci-seed.sh'
+
       # ── Frontend Check legs ──────────────────────────────────────────────
       # `frontend-checks` defaults to `[]`, and an empty list means the shared
       # workflow emits NO "Frontend Check" job at all — so these two validators
