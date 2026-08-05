@@ -210,11 +210,28 @@ test.describe('Citizen participation — participatory budgeting', () => {
 	})
 
 	test('staff publishes budget allocation results', async ({ page }) => {
+		// The round has to be seeded through its lifecycle, not straight into the
+		// end state. `PortalCreateOpenParentGuardListener` enforces
+		// portal-citizen-create-actions REQ-DKPCA-002 at the OpenRegister INSERT
+		// boundary (`ObjectCreatingEvent` + `stopPropagation()`, so
+		// `MagicMapper::insertObjectEntity()` throws before the row is written):
+		// a `budget-proposal` may only be created under a `participatory-budget`
+		// whose `status` is `submission`. Its own header records that this fires
+		// for EVERY create of the schema, not only portal-originated ones — a
+		// deliberate defence-in-depth posture, not an oversight.
+		//
+		// So creating the round already `closed` and then hanging a proposal off
+		// it was seeding a state the product cannot reach:
+		//   createObject(budget-proposal) failed: "budget-proposal requires the
+		//   parent participatory-budget to have status == 'submission'"
+		// which read as a broken publish flow when it was the fixture asking for
+		// something the guard exists to refuse.
+		const name = `E2E budget closed ${Date.now()}`
 		const round = await createObject(page, ledger, 'participatory-budget', {
-			name: `E2E budget closed ${Date.now()}`,
+			name,
 			totalAmount: 20000,
 			currency: 'EUR',
-			status: 'closed',
+			status: 'submission',
 		})
 		await createObject(page, ledger, 'budget-proposal', {
 			title: 'Top proposal',
@@ -224,6 +241,16 @@ test.describe('Citizen participation — participatory budgeting', () => {
 			votesFor: 8,
 			votesAgainst: 1,
 			relations: [{ register: 'decidesk', schema: 'participatory-budget', id: objId(round) }],
+		})
+		// Now close it, which is what this test is actually about. OpenRegister's
+		// save is PUT-semantic, so every property has to be carried forward —
+		// omitting one nulls it.
+		await createObject(page, ledger, 'participatory-budget', {
+			id: objId(round),
+			name,
+			totalAmount: 20000,
+			currency: 'EUR',
+			status: 'closed',
 		})
 
 		await gotoParticipation(page)
