@@ -152,7 +152,12 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 				data: {
 					title: `E2E ALV statutory warning ${Date.now()}`,
 					meetingType: 'general_assembly',
-					meetingMode: 'physical',
+					// `physical` is not in Meeting.meetingMode's enum — the register
+					// declares `in-person | digital | hybrid`, so the seed POST was a
+					// hard 400 and the `test.skip(!createResp.ok(), …)` below turned
+					// this test into a SILENT SKIP whose message blamed the instance
+					// ("Could not seed general_assembly meeting"). The test never ran.
+					meetingMode: 'in-person',
 					scheduledDate: '2027-06-01T14:00:00Z',
 					lifecycle: 'scheduled',
 				},
@@ -199,7 +204,9 @@ test('sub-items render nested under their parent in the agenda tab', async ({ pa
 				data: {
 					title: `E2E sub-items ${Date.now()}`,
 					meetingType: 'regular',
-					meetingMode: 'physical',
+					// See above: `physical` is not in the enum, so this seed 400'd and
+					// the test skipped itself instead of measuring anything.
+					meetingMode: 'in-person',
 					scheduledDate: '2027-07-01T10:00:00Z',
 					lifecycle: 'scheduled',
 				},
