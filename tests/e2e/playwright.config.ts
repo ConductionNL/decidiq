@@ -67,27 +67,45 @@ export default defineConfig({
 	globalSetup: path.resolve(__dirname, 'global-setup.ts'),
 
 	// ── The time budget, and why it is what it is ────────────────────────────
-	// The shared workflow caps this job at `timeout-minutes: 45`. The first run
-	// with the job enabled (31018417448) was KILLED by that cap after 43 test
-	// slots out of 171: every test in `integration-registry.spec.ts`'s
-	// parametrised `tab-button-*` block burned its full per-test timeout and
-	// then burned it AGAIN on the automatic retry, so ~21 distinct tests ate
-	// 43 minutes and the remaining 27 spec files were never reached. A run that
-	// cannot reach its own verdict measures nothing.
+	// The shared workflow caps this job at `timeout-minutes: 45`, and a job the
+	// runner kills at its cap reports **cancelled** — which is NO VERDICT. It is
+	// not a pass and it is not a failure; the PR check simply carries no
+	// information. That is the exact failure mode this whole change exists to
+	// remove, so the suite has to be sized to finish, and to fail honestly if it
+	// cannot.
 	//
-	// Two levers, both of which make the suite STRICTER, not laxer:
+	// Measured, run 31022933529 (171 collected, killed at the cap having reached
+	// 141): every test that PASSED finished in ≤ 7.6s — the slowest pass in the
+	// entire suite. The failures cluster at exactly two values, 18s (a 15s
+	// `expect` cap plus page load) and 30s (the per-test cap), 54 of them at 30s.
+	// So the caps were not protecting slow-but-healthy tests; they were the price
+	// of each failure, paid 90 times.
 	//
-	//   timeout  — 30s, the value the repo's own root config has always used.
-	//              (The first version of this file copied 60s from
-	//              opencatalogi's, which doubled the cost of every failure for
-	//              no stated reason.)
-	//   retries  — 0. A retry only ever converts red to green; dropping it
-	//              cannot hide a failure, it just stops the suite paying twice
-	//              for each genuine one. Restore `process.env.CI ? 1 : 0` once
-	//              the suite is green and the remaining cost is flake, not
-	//              failure.
-	timeout: 30_000,
-	expect: { timeout: 15_000 },
+	// Every lever below makes the suite STRICTER, never laxer:
+	//
+	//   timeout       — 20s. 2.6× the slowest observed pass, and the run before
+	//                   this one used 30s (the first version of this file copied
+	//                   60s from opencatalogi's, doubling the cost of every
+	//                   failure for no stated reason).
+	//   expect        — 10s, still 1.3× the slowest whole test.
+	//   retries       — 0. A retry only ever converts red to green, so removing
+	//                   it cannot hide a failure; it stops the suite paying
+	//                   twice for each genuine one. Restore
+	//                   `process.env.CI ? 1 : 0` once the remaining cost is
+	//                   flake rather than failure.
+	//   globalTimeout — 38 minutes, inside the job's 45. This is the one that
+	//                   guarantees a verdict: when Playwright hits it, it stops
+	//                   and exits NON-ZERO with a real summary (passed / failed /
+	//                   did not run). A red with a tally is a measurement; a
+	//                   cancelled job is not.
+	//
+	// `workers` stays at 1 deliberately. Raising it would halve the wall clock,
+	// but these specs seed and delete objects in one shared OpenRegister
+	// register — running spec files concurrently against a single instance
+	// fabricates failures that belong to the parallelism, not the code.
+	timeout: 20_000,
+	expect: { timeout: 10_000 },
+	globalTimeout: 38 * 60_000,
 	fullyParallel: false,
 	retries: 0,
 	workers: 1,
