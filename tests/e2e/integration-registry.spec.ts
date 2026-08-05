@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 Decidesk Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Integration-registry UI smoke — end-to-end proof that the
  * pluggable-integration chain (ADR-019) renders correctly inside the

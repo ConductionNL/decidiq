@@ -23,7 +23,7 @@
  * per-endpoint) without openregister. See decidesk#377.
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
- * SPDX-License-Identifier: EUPL-1.2.
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/adopt-apphost/tasks.md#task-2.2
  * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
