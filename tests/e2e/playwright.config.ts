@@ -65,15 +65,49 @@ const BASE_URL = process.env.NEXTCLOUD_URL
 export default defineConfig({
 	testDir: __dirname,
 	globalSetup: path.resolve(__dirname, 'global-setup.ts'),
-	timeout: 60_000,
+
+	// ── The time budget, and why it is what it is ────────────────────────────
+	// The shared workflow caps this job at `timeout-minutes: 45`. The first run
+	// with the job enabled (31018417448) was KILLED by that cap after 43 test
+	// slots out of 171: every test in `integration-registry.spec.ts`'s
+	// parametrised `tab-button-*` block burned its full per-test timeout and
+	// then burned it AGAIN on the automatic retry, so ~21 distinct tests ate
+	// 43 minutes and the remaining 27 spec files were never reached. A run that
+	// cannot reach its own verdict measures nothing.
+	//
+	// Two levers, both of which make the suite STRICTER, not laxer:
+	//
+	//   timeout  — 30s, the value the repo's own root config has always used.
+	//              (The first version of this file copied 60s from
+	//              opencatalogi's, which doubled the cost of every failure for
+	//              no stated reason.)
+	//   retries  — 0. A retry only ever converts red to green; dropping it
+	//              cannot hide a failure, it just stops the suite paying twice
+	//              for each genuine one. Restore `process.env.CI ? 1 : 0` once
+	//              the suite is green and the remaining cost is flake, not
+	//              failure.
+	timeout: 30_000,
 	expect: { timeout: 15_000 },
 	fullyParallel: false,
-	retries: process.env.CI ? 1 : 0,
+	retries: 0,
 	workers: 1,
-	reporter: [
-		['html', { open: 'never', outputFolder: path.join(APP_ROOT, 'playwright-report') }],
-		['list'],
-	],
+
+	// The `github` reporter is what makes a killed run legible. `list` prints
+	// its failure bodies in an end-of-run summary, so when the job is cut off
+	// at the 45-minute cap the log shows a column of ✘ marks and NOT ONE error
+	// message — the failures are invisible precisely when you most need them.
+	// `github` emits a ::error:: annotation per failure AS IT HAPPENS, with the
+	// message and the source location.
+	reporter: process.env.CI
+		? [
+			['github'],
+			['list'],
+			['html', { open: 'never', outputFolder: path.join(APP_ROOT, 'playwright-report') }],
+		]
+		: [
+			['html', { open: 'never', outputFolder: path.join(APP_ROOT, 'playwright-report') }],
+			['list'],
+		],
 	outputDir: path.join(APP_ROOT, 'test-results'),
 
 	use: {
