@@ -369,6 +369,14 @@ SEED_TAG='e2e-seed'
 
 # POST one object and echo its UUID. Fatal on any non-2xx.
 #   seed_object <schema-slug> <json-body> <human label>
+#
+# ⚠️ Every diagnostic here goes to STDERR (`>&2`), deliberately. The caller uses
+# `ID="$(seed_object …)"`, and command substitution captures STDOUT — so an error
+# message written to stdout is swallowed into the variable instead of reaching
+# the log. The first version of this function did exactly that: the Decision seed
+# failed, the ::error:: lines describing why went into $MOTION_ID, and the step
+# died with a bare "Process completed with exit code 1" and no diagnosis at all.
+# A loud failure is only loud if it is written where someone can read it.
 seed_object() {
 	local slug="$1" body="$2" label="$3"
 	local out code id
@@ -382,11 +390,13 @@ seed_object() {
 		"${BASE}/index.php/apps/openregister/api/objects/decidesk/${slug}" || echo 000)"
 
 	if [ "$code" -lt 200 ] 2>/dev/null || [ "$code" -ge 300 ] 2>/dev/null; then
-		echo "::error::Seeding ${label} (schema '${slug}') failed with HTTP ${code}."
-		echo "::error::Request body: ${body}"
-		echo "::error::Response: $(head -c 800 "$out")"
-		echo "::error::Without this object the specs that read it do not fail — they SKIP, on a message"
-		echo "::error::that blames the instance ('No ${slug} objects found') rather than this seed."
+		{
+			echo "::error::Seeding ${label} (schema '${slug}') failed with HTTP ${code}."
+			echo "::error::Request body: ${body}"
+			echo "::error::Response: $(head -c 800 "$out")"
+			echo "::error::Without this object the specs that read it do not fail — they SKIP, on a message"
+			echo "::error::that blames the instance ('No ${slug} objects found') rather than this seed."
+		} >&2
 		exit 1
 	fi
 
@@ -402,8 +412,10 @@ print(o.get("id") or (o.get("@self") or {}).get("id") or o.get("uuid") or "")
 ' "$out")"
 
 	if [ -z "$id" ]; then
-		echo "::error::Seeding ${label} returned HTTP ${code} but no id could be read from the response."
-		echo "::error::Response: $(head -c 800 "$out")"
+		{
+			echo "::error::Seeding ${label} returned HTTP ${code} but no id could be read from the response."
+			echo "::error::Response: $(head -c 800 "$out")"
+		} >&2
 		exit 1
 	fi
 
@@ -477,18 +489,25 @@ else
 	# ADR-005: motions and amendments ARE Decisions, discriminated by
 	# decisionType. There is no `motion` schema and no `amendment` schema.
 	# `outcome` and `decisionType` are both in Decision.required[].
+	# ⚠️ Decision has NO `meeting` property — a Decision is not linked to a meeting
+	# directly (checked against components.schemas.Decision.properties, which has
+	# amends/supersedes/repeals/implements/refersTo but nothing meeting-shaped;
+	# the AgendaItem carries the meeting link). And `decisionDate` is
+	# `format: date-time`, not `date` — a bare "2026-01-15" is rejected. Both
+	# mistakes were in the first version of this seed and together took the whole
+	# step down.
 	MOTION_ID="$(seed_object decision \
-		"{\"decisionType\":\"motion\",\"title\":\"${SEED_TAG} Motie duurzame energie\",\"text\":\"De raad draagt het college op te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15\",\"outcome\":\"adopted\",\"motionType\":\"motion\",\"proposer\":\"${SEED_TAG} Chair (admin)\",\"lifecycle\":\"proposed\",\"isPublished\":\"public\",\"meeting\":\"${LIVE_MEETING_ID}\"}" \
+		"{\"decisionType\":\"motion\",\"title\":\"${SEED_TAG} Motie duurzame energie\",\"text\":\"De raad draagt het college op te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15T19:30:00Z\",\"outcome\":\"adopted\",\"motionType\":\"motion\",\"proposer\":\"${SEED_TAG} Chair (admin)\",\"lifecycle\":\"proposed\",\"isPublished\":\"public\",\"submittedAt\":\"2026-01-15T19:00:00Z\"}" \
 		'the motion Decision')"
 	echo "[ci-seed]   decision (motion) ${MOTION_ID}"
 
 	AMENDMENT_ID="$(seed_object decision \
-		"{\"decisionType\":\"amendment\",\"title\":\"${SEED_TAG} Amendement op de motie\",\"text\":\"Vervang 'versnellen' door 'onmiddellijk versnellen'.\",\"proposedText\":\"De raad draagt het college op onmiddellijk te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15\",\"outcome\":\"rejected\",\"motionType\":\"amendment\",\"proposer\":\"${SEED_TAG} Member\",\"lifecycle\":\"proposed\",\"isPublished\":\"public\",\"amends\":\"${MOTION_ID}\"}" \
+		"{\"decisionType\":\"amendment\",\"title\":\"${SEED_TAG} Amendement op de motie\",\"text\":\"Vervang versnellen door onmiddellijk versnellen.\",\"proposedText\":\"De raad draagt het college op onmiddellijk te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15T19:35:00Z\",\"outcome\":\"rejected\",\"motionType\":\"amendment\",\"proposer\":\"${SEED_TAG} Member\",\"lifecycle\":\"proposed\",\"isPublished\":\"public\",\"submittedAt\":\"2026-01-15T19:05:00Z\",\"amends\":\"${MOTION_ID}\"}" \
 		'the amendment Decision')"
 	echo "[ci-seed]   decision (amendment) ${AMENDMENT_ID}"
 
 	DECISION_ID="$(seed_object decision \
-		"{\"decisionType\":\"meeting-outcome\",\"title\":\"${SEED_TAG} Vaststelling begroting 2026\",\"text\":\"De begroting 2026 wordt vastgesteld.\",\"decisionDate\":\"2026-01-15\",\"outcome\":\"adopted\",\"lifecycle\":\"enacted\",\"isPublished\":\"public\",\"meeting\":\"${LIVE_MEETING_ID}\"}" \
+		"{\"decisionType\":\"meeting-outcome\",\"title\":\"${SEED_TAG} Vaststelling begroting 2026\",\"text\":\"De begroting 2026 wordt vastgesteld.\",\"decisionDate\":\"2026-01-15T20:00:00Z\",\"outcome\":\"adopted\",\"lifecycle\":\"enacted\",\"isPublished\":\"public\",\"enactedAt\":\"2026-01-15T20:05:00Z\"}" \
 		'the enacted Decision')"
 	echo "[ci-seed]   decision (meeting-outcome, enacted) ${DECISION_ID}"
 
@@ -498,11 +517,15 @@ else
 		'the minutes')"
 	echo "[ci-seed]   minutes ${MINUTES_ID}"
 
-	ACTION_ID="$(seed_object action-item \
-		"{\"title\":\"${SEED_TAG} Terugkoppeling energieplan\",\"taskStatus\":\"open\",\"dueDate\":\"2026-03-01\",\"meeting\":\"${LIVE_MEETING_ID}\",\"decision\":\"${DECISION_ID}\"}" \
-		'the action item')"
-	echo "[ci-seed]   action-item ${ACTION_ID}"
-
+	# ⚠️ NO action-item is seeded here, deliberately. The ActionItem schema carries
+	#   "x-openregister-object-source": {"provider": "caldav-vtodo", "readOnly": true}
+	# so it is not an ordinary OpenRegister object: writes through the object API
+	# are refused and findAll() delegates to the CalDAV provider rather than
+	# reading the magic table. (That is also why the eight action-item entries in
+	# the register's seedData are never served, and why
+	# lib/Migration/MigrateActionItemsToDeckLeaf.php is an explicit no-op.)
+	# Action items are seeded per-spec through decidesk's own endpoint,
+	# POST /apps/decidesk/api/action-items → ActionItemWriter → TaskService.
 	echo "[ci-seed] governance fixture seeded."
 fi
 
@@ -521,7 +544,7 @@ required = {
     'agenda-item': 3,
     'decision': 3,
     'minutes': 1,
-    'action-item': 1,
+    # NOT action-item: CalDAV-backed and read-only through this API (see above).
 }
 
 failed = []
