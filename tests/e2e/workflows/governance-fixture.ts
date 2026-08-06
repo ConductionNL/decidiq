@@ -188,15 +188,21 @@ export async function seedGovernanceScenario(
 	// every test in this fixture's dependants was failing on.
 	//
 	// `decisionType` is the schema's one required property.
+	// Decision.required[] is [title, text, decisionDate, outcome, decisionType] —
+	// all five must be present or the POST is a 400 naming the missing ones.
+	// `lifecycle` is [draft, proposed, deliberating, voting, decided, enacted,
+	// archived, withdrawn]: there is no 'debating'. And Decision has NO `meeting`
+	// property (the AgendaItem carries that link), so passing one invents a field.
 	const motion = await createObject(page, ledger, MOTION_SCHEMA, {
 		decisionType: 'motion',
 		title: `${tag}-motion`,
 		text: `${tag} motion body text`,
+		decisionDate: '2026-09-01T10:00:00Z',
+		outcome: 'adopted',
 		motionType: 'motion',
 		proposer: `${tag}-proposer`,
-		lifecycle: 'debating',
+		lifecycle: 'deliberating',
 		submittedAt: '2026-09-01T10:00:00Z',
-		meeting: meetingId,
 	})
 	const motionId = objId(motion)
 
