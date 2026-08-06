@@ -122,6 +122,41 @@ else
 	echo "[ci-seed] no ./occ in $(pwd) — skipping the front-controller config (not a server root?)."
 fi
 
+# ── 0b. GATE: the SERVED page must actually advertise pretty URLs ────────────
+#
+# The `occ config:system:get` read-back above proves what is in config.php. It
+# does NOT prove what the SPA sees, and those are different facts: what matters
+# is the value Nextcloud renders into `OC.config.modRewriteWorking` on the page
+# the BROWSER loads, because that is what `generateUrl()` reads to build the
+# vue-router base. A config the renderer does not pick up (a cached
+# config, a second config partition, an instance whose theming/bootstrap path
+# overrides it) leaves the flag false on the page while `occ` cheerfully reports
+# true — and the `occ` check passes, so nothing says so.
+#
+# Assert on the SERVED HTML instead. Getting this wrong is invisible in exactly
+# the way that matters: the app still boots, still renders, still returns HTTP
+# 200 — it is simply on the wrong route, and every downstream failure then
+# accuses a selector rather than the router base.
+PRETTY_HTML="$(mktemp)"
+PRETTY_CODE="$(curl -sS -o "$PRETTY_HTML" -w '%{http_code}' \
+	-u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
+	"${BASE}/index.php/apps/decidesk/" || echo 000)"
+if [ "$PRETTY_CODE" != "200" ]; then
+	echo "::error::Could not fetch the Decidesk app page to verify pretty URLs (HTTP ${PRETTY_CODE})."
+	exit 1
+fi
+if grep -q '"modRewriteWorking":true\|"modRewriteWorking": *true' "$PRETTY_HTML"; then
+	echo "[ci-seed] served page reports modRewriteWorking:true — the SPA router base will be /apps/decidesk."
+else
+	echo "::error::The served Decidesk page does NOT report modRewriteWorking:true."
+	echo "::error::generateUrl() will therefore return '/index.php/apps/decidesk' as the vue-router base,"
+	echo "::error::while every spec navigates to the pretty '/apps/decidesk/...' form. Those disagree, so"
+	echo "::error::vue-router matches nothing and the view never mounts — every UI spec then fails on a"
+	echo "::error::selector timeout that names an element rather than the real cause."
+	grep -o 'modRewriteWorking[^,}]*' "$PRETTY_HTML" | head -3 || echo "  (key not present in the page at all)"
+	exit 1
+fi
+
 # ── 1. Import the Decidesk configuration ─────────────────────────────────────
 # Decidesk's `appinfo/routes.php` returns
 # `\OCA\OpenRegister\AppHost\Routes::standard([...])`, whose canonical table
@@ -295,6 +330,228 @@ for slug in meeting decision governance-body participant; do
 done
 
 echo "[ci-seed] Decidesk register + schemas provisioned."
+
+# ── 2b. Seed the governance fixture the suite actually needs ─────────────────
+#
+# WHY THIS EXISTS
+# ---------------
+# The register import above creates the REGISTER and the SCHEMAS. It creates no
+# OBJECTS: no schema in decidesk_register.json carries `x-openregister.seedData`,
+# and tests/e2e/global-setup.ts only logs in and dismisses the walkthrough — it
+# does no seeding at all, despite a comment in dashboard-layout.spec.ts asserting
+# that it provisions a "Gemeenteraad Westerkwartier" fixture. It does not, and
+# never did.
+#
+# So the suite ran against a register with ZERO objects, and the specs are
+# written to tolerate that: they fetch "the first meeting / decision / motion"
+# and then `test.skip(!first, 'No meeting objects found')`. On an empty instance
+# that guard fires every time, so those tests reported SKIPPED — not failed —
+# and a skip renders in the summary as "not a failure". That is the bulk of the
+# 62 skips in run 31083903075: they were not documenting an unsupported
+# environment, they were reporting that nobody had seeded anything, in language
+# that blamed the instance.
+#
+# Every create below is CHECKED. A malformed seed body (an out-of-enum value, a
+# missing required property) answers 400, the id interpolates to the empty
+# string, and every downstream test skips on a cause that has nothing to do with
+# the code under test — the exact failure mode this block exists to remove. So a
+# failed create is a loud, immediate, fatal error here.
+#
+# Enum values and required[] below are read VERBATIM out of
+# lib/Settings/decidesk_register.json. They are not guessable: Meeting.lifecycle
+# is [draft, scheduled, opened, paused, adjourned, closed] (not "in-progress"),
+# Minutes.lifecycle is [draft, review, approved, signed, published] (not
+# "in-review"), and Decision.required includes `outcome` AND `decisionType`.
+#
+# Idempotent: the whole block is skipped when the tagged body already exists, so
+# re-running the seed never duplicates the fixture.
+SEED_TAG='e2e-seed'
+
+# POST one object and echo its UUID. Fatal on any non-2xx.
+#   seed_object <schema-slug> <json-body> <human label>
+seed_object() {
+	local slug="$1" body="$2" label="$3"
+	local out code id
+	out="$(mktemp)"
+	code="$(curl -sS -o "$out" -w '%{http_code}' \
+		-u "${USER_NAME}:${USER_PASS}" \
+		-X POST \
+		-H 'Content-Type: application/json' \
+		-H 'OCS-APIRequest: true' \
+		--data "$body" \
+		"${BASE}/index.php/apps/openregister/api/objects/decidesk/${slug}" || echo 000)"
+
+	if [ "$code" -lt 200 ] 2>/dev/null || [ "$code" -ge 300 ] 2>/dev/null; then
+		echo "::error::Seeding ${label} (schema '${slug}') failed with HTTP ${code}."
+		echo "::error::Request body: ${body}"
+		echo "::error::Response: $(head -c 800 "$out")"
+		echo "::error::Without this object the specs that read it do not fail — they SKIP, on a message"
+		echo "::error::that blames the instance ('No ${slug} objects found') rather than this seed."
+		exit 1
+	fi
+
+	id="$(python3 -c '
+import json, sys
+try:
+    o = json.load(open(sys.argv[1]))
+except Exception:
+    print(""); raise SystemExit
+if not isinstance(o, dict):
+    print(""); raise SystemExit
+print(o.get("id") or (o.get("@self") or {}).get("id") or o.get("uuid") or "")
+' "$out")"
+
+	if [ -z "$id" ]; then
+		echo "::error::Seeding ${label} returned HTTP ${code} but no id could be read from the response."
+		echo "::error::Response: $(head -c 800 "$out")"
+		exit 1
+	fi
+
+	echo "$id"
+}
+
+EXISTING_BODY="$(curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
+	"${BASE}/index.php/apps/openregister/api/objects/decidesk/governance-body?_limit=100" 2>/dev/null \
+	| python3 -c '
+import json, sys
+try:
+    b = json.load(sys.stdin)
+except Exception:
+    print(""); raise SystemExit
+items = b if isinstance(b, list) else b.get("results", [])
+for i in items:
+    if isinstance(i, dict) and str(i.get("name", "")).startswith("e2e-seed"):
+        print(i.get("id") or (i.get("@self") or {}).get("id") or "")
+        break
+else:
+    print("")
+' || true)"
+
+if [ -n "$EXISTING_BODY" ]; then
+	echo "[ci-seed] governance fixture already present (${EXISTING_BODY}) — not re-seeding."
+else
+	echo "[ci-seed] seeding the governance fixture…"
+
+	BODY_ID="$(seed_object governance-body \
+		"{\"name\":\"${SEED_TAG} Gemeenteraad Westerkwartier\",\"bodyType\":\"legislative\",\"domain\":\"Westerkwartier municipal council\"}" \
+		'the governance body')"
+	echo "[ci-seed]   governance-body ${BODY_ID}"
+
+	# One SCHEDULED meeting (feeds the upcoming-meetings KPI/list) and one OPENED
+	# meeting (the live-meeting specs need a meeting that is actually in session;
+	# 'opened' is the register's term — there is no 'in-progress' value).
+	MEETING_ID="$(seed_object meeting \
+		"{\"title\":\"${SEED_TAG} Raadsvergadering\",\"meetingType\":\"regular\",\"scheduledDate\":\"2099-01-15T19:00:00Z\",\"meetingMode\":\"in-person\",\"lifecycle\":\"scheduled\",\"quorumRequired\":2,\"isPublic\":true,\"governanceBody\":\"${BODY_ID}\"}" \
+		'the scheduled meeting')"
+	echo "[ci-seed]   meeting (scheduled) ${MEETING_ID}"
+
+	LIVE_MEETING_ID="$(seed_object meeting \
+		"{\"title\":\"${SEED_TAG} Live raadsvergadering\",\"meetingType\":\"regular\",\"scheduledDate\":\"2026-01-15T19:00:00Z\",\"meetingMode\":\"hybrid\",\"lifecycle\":\"opened\",\"quorumRequired\":2,\"isPublic\":true,\"governanceBody\":\"${BODY_ID}\"}" \
+		'the live meeting')"
+	echo "[ci-seed]   meeting (opened) ${LIVE_MEETING_ID}"
+
+	# The admin the specs authenticate as must map to a CHAIR participant, or
+	# every chair/secretary-guarded action answers 403 and the guard tests cannot
+	# tell "correctly refused" from "nobody is chair".
+	CHAIR_ID="$(seed_object participant \
+		"{\"displayName\":\"${SEED_TAG} Chair (admin)\",\"role\":\"chair\",\"attendanceStatus\":\"present\",\"nextcloudUserId\":\"${USER_NAME}\",\"governanceBody\":\"${BODY_ID}\"}" \
+		'the chair participant')"
+	echo "[ci-seed]   participant (chair) ${CHAIR_ID}"
+
+	MEMBER_ID="$(seed_object participant \
+		"{\"displayName\":\"${SEED_TAG} Member\",\"role\":\"member\",\"attendanceStatus\":\"present\",\"governanceBody\":\"${BODY_ID}\"}" \
+		'the member participant')"
+	echo "[ci-seed]   participant (member) ${MEMBER_ID}"
+
+	for spec in "1|informational|Opening en mededelingen|${LIVE_MEETING_ID}" \
+		"2|decision|Vaststelling begroting|${LIVE_MEETING_ID}" \
+		"3|discussion|Rondvraag|${MEETING_ID}"
+	do
+		IFS='|' read -r ord itype ititle imeeting <<< "$spec"
+		AGENDA_ID="$(seed_object agenda-item \
+			"{\"title\":\"${SEED_TAG} ${ititle}\",\"itemType\":\"${itype}\",\"orderNumber\":${ord},\"meeting\":\"${imeeting}\"}" \
+			"agenda item ${ord}")"
+		echo "[ci-seed]   agenda-item ${ord} ${AGENDA_ID}"
+	done
+
+	# ADR-005: motions and amendments ARE Decisions, discriminated by
+	# decisionType. There is no `motion` schema and no `amendment` schema.
+	# `outcome` and `decisionType` are both in Decision.required[].
+	MOTION_ID="$(seed_object decision \
+		"{\"decisionType\":\"motion\",\"title\":\"${SEED_TAG} Motie duurzame energie\",\"text\":\"De raad draagt het college op te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15\",\"outcome\":\"adopted\",\"motionType\":\"motion\",\"proposer\":\"${SEED_TAG} Chair (admin)\",\"lifecycle\":\"proposed\",\"isPublished\":\"public\",\"meeting\":\"${LIVE_MEETING_ID}\"}" \
+		'the motion Decision')"
+	echo "[ci-seed]   decision (motion) ${MOTION_ID}"
+
+	AMENDMENT_ID="$(seed_object decision \
+		"{\"decisionType\":\"amendment\",\"title\":\"${SEED_TAG} Amendement op de motie\",\"text\":\"Vervang 'versnellen' door 'onmiddellijk versnellen'.\",\"proposedText\":\"De raad draagt het college op onmiddellijk te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15\",\"outcome\":\"rejected\",\"motionType\":\"amendment\",\"proposer\":\"${SEED_TAG} Member\",\"lifecycle\":\"proposed\",\"isPublished\":\"public\",\"amends\":\"${MOTION_ID}\"}" \
+		'the amendment Decision')"
+	echo "[ci-seed]   decision (amendment) ${AMENDMENT_ID}"
+
+	DECISION_ID="$(seed_object decision \
+		"{\"decisionType\":\"meeting-outcome\",\"title\":\"${SEED_TAG} Vaststelling begroting 2026\",\"text\":\"De begroting 2026 wordt vastgesteld.\",\"decisionDate\":\"2026-01-15\",\"outcome\":\"adopted\",\"lifecycle\":\"enacted\",\"isPublished\":\"public\",\"meeting\":\"${LIVE_MEETING_ID}\"}" \
+		'the enacted Decision')"
+	echo "[ci-seed]   decision (meeting-outcome, enacted) ${DECISION_ID}"
+
+	# lifecycle 'review' feeds the minutes-in-review stats-block on the dashboard.
+	MINUTES_ID="$(seed_object minutes \
+		"{\"title\":\"${SEED_TAG} Notulen raadsvergadering\",\"lifecycle\":\"review\",\"meeting\":\"${LIVE_MEETING_ID}\"}" \
+		'the minutes')"
+	echo "[ci-seed]   minutes ${MINUTES_ID}"
+
+	ACTION_ID="$(seed_object action-item \
+		"{\"title\":\"${SEED_TAG} Terugkoppeling energieplan\",\"taskStatus\":\"open\",\"dueDate\":\"2026-03-01\",\"meeting\":\"${LIVE_MEETING_ID}\",\"decision\":\"${DECISION_ID}\"}" \
+		'the action item')"
+	echo "[ci-seed]   action-item ${ACTION_ID}"
+
+	echo "[ci-seed] governance fixture seeded."
+fi
+
+# Verify the fixture is READABLE — a create that 2xx'd but is not listable would
+# leave every "first object" spec skipping exactly as before.
+python3 - "$BASE" "$USER_NAME" "$USER_PASS" <<'PY'
+import base64, json, sys, urllib.request
+
+base, user, password = sys.argv[1], sys.argv[2], sys.argv[3]
+token = base64.b64encode(f'{user}:{password}'.encode()).decode()
+
+required = {
+    'governance-body': 1,
+    'meeting': 2,
+    'participant': 2,
+    'agenda-item': 3,
+    'decision': 3,
+    'minutes': 1,
+    'action-item': 1,
+}
+
+failed = []
+for slug, minimum in required.items():
+    url = f'{base}/index.php/apps/openregister/api/objects/decidesk/{slug}?_limit=200'
+    req = urllib.request.Request(url, headers={
+        'Authorization': f'Basic {token}',
+        'OCS-APIRequest': 'true',
+        'Accept': 'application/json',
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            body = json.loads(resp.read().decode())
+    except Exception as exc:  # noqa: BLE001
+        print(f'::error::Could not list {slug}: {exc}')
+        failed.append(slug)
+        continue
+    items = body if isinstance(body, list) else body.get('results', [])
+    print(f'[ci-seed] {slug}: {len(items)} object(s)')
+    if len(items) < minimum:
+        print(f'::error::{slug} has {len(items)} object(s), need at least {minimum}.')
+        failed.append(slug)
+
+if failed:
+    print('::error::The governance fixture is incomplete: ' + ', '.join(failed))
+    print('::error::Specs that read "the first <object>" would SKIP rather than fail, reporting '
+          '"No <x> objects found" and blaming the instance.')
+    raise SystemExit(1)
+print('[ci-seed] governance fixture verified.')
+PY
 
 # ── 3. Warm the SPA so the first spec doesn't pay the cold start ─────────────
 # The shared workflow serves Nextcloud with `php -S 0.0.0.0:8080`. It sets

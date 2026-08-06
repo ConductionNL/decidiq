@@ -192,12 +192,21 @@ class BoardEvaluationScoreService
 
             $objectService->setRegister('decidesk');
             $objectService->setSchema('evaluation-response');
-            $responseEntities = $objectService->findAll(
-                [
-                    'filters' => [
-                        '_relations.board-evaluation' => $evaluationId,
-                    ],
-                ]
+            // NOT `_relations.board-evaluation`: responses are written with a
+            // structured `relations` array (BoardEvaluationResponseService), which
+            // OpenRegister flattens to `_relations` keys of the form
+            // `relations.<n>.id` — a slug-keyed filter matched zero rows, so every
+            // cycle closed with an empty response set and a vacuous score summary
+            // on a healthy 200. See ObjectRelationFilter.
+            //
+            // The filter pins the related id but not the related SCHEMA, so the
+            // set is re-checked below before it is scored.
+            $responseEntities = $this->container->get(ObjectRelationFilter::class)->matching(
+                entities: $objectService->findAll(
+                    ['filters' => ObjectRelationFilter::filterFor(targetId: $evaluationId)]
+                ),
+                schema: 'board-evaluation',
+                targetId: $evaluationId
             );
 
             $responses = array_map(

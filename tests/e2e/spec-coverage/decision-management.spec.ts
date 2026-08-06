@@ -47,13 +47,35 @@ test('Add Decision dialog opens', async ({ page }) => {
 	await expect(dialog.getByRole('heading', { name: 'Create Decision' })).toBeVisible()
 
 	// Assert the real decision form fields render (not just that a dialog opened).
+	//
+	// The rendered label is the schema property's `title`, never its key:
+	// `fieldsFromSchema()` in @conduction/nextcloud-vue builds
+	// `label: prop.title || key` and CnFormDialog renders
+	// `field.label + (field.required ? ' *' : '')`. Every Decision property in
+	// `lib/Settings/decidesk_register.json` carries a title, so the labels are
+	// "Title *", "Text *", "Decision date *", "Decision type *", "Outcome *"
+	// — the five members of the schema's `required` array.
+	//
+	// `getByText('title', { exact: true })` is case-SENSITIVE, which is why it
+	// could not match "Title *" and this test died on its first field
+	// assertion while the dialog and its heading resolved fine.
+	//
 	// decisionDate is a datetime-picker that renders two labels for the same
-	// field (the visible form label + a visually-hidden native-picker label),
-	// so scope to the first match to avoid a strict-mode violation.
-	await expect(dialog.getByText('title', { exact: true }).first()).toBeVisible()
-	await expect(dialog.getByText('decisionDate', { exact: true }).first()).toBeVisible()
-	await expect(dialog.getByText('decisionType', { exact: true }).first()).toBeVisible()
-	await expect(dialog.getByText('governingBody', { exact: true }).first()).toBeVisible()
+	// field: the visible form `<label>` ("Decision date *") plus the native
+	// picker's own hidden label ("Decision date", no asterisk). The required
+	// asterisk therefore disambiguates them without a `.first()`.
+	await expect(dialog.getByText('Title *', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Text *', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Decision date *', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Decision type *', { exact: true })).toBeVisible()
+	// `governingBody` used to be asserted here. The Decision schema has no such
+	// property — under ADR-005 a Decision is linked to a body indirectly, via
+	// its meeting/agenda item — so that assertion could never pass against this
+	// register and was not a contract. `outcome` is asserted instead: it is a
+	// real REQUIRED Decision property, so it exercises the same
+	// "the create form collects everything the schema demands" guarantee that
+	// backs the create-a-standalone-decision and fail-without-a-title scenarios.
+	await expect(dialog.getByText('Outcome *', { exact: true })).toBeVisible()
 
 	// Create button is present
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()

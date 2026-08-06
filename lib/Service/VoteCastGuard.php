@@ -344,7 +344,12 @@ class VoteCastGuard
 
         return $this->relationFilter->matching(
             entities: $objectService->findAll(
-                ['filters' => array_merge(['_relations.voting-round' => $votingRoundId], $extraFilters)]
+                [
+                    'filters' => array_merge(
+                        ObjectRelationFilter::filterFor(targetId: $votingRoundId),
+                        $extraFilters
+                    ),
+                ]
             ),
             schema: 'voting-round',
             targetId: $votingRoundId

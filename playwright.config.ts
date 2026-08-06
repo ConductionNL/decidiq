@@ -44,7 +44,13 @@ export default defineConfig({
 	use: {
 		baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
 		storageState: path.resolve(__dirname, 'tests/e2e/.auth/admin.json'),
-		trace: 'on-first-retry',
+		// `on-first-retry` captures nothing on the first attempt, so a failure that
+		// a retry then fixes is the ONLY one that gets a trace — exactly inverted.
+		// `retain-on-failure` records every failing test and discards the passing
+		// ones. Strictly more evidence; no assertion is relaxed. (The CI config in
+		// tests/e2e/playwright.config.ts already does this; this keeps local runs
+		// and `--project visual` / `docs-capture` consistent with it.)
+		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
 	},
 

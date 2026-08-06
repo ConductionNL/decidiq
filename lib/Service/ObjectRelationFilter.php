@@ -2,15 +2,40 @@
 /**
  * Decidesk Object Relation Filter
  *
- * Scopes an OpenRegister `_relations.<schema>` result set down to the objects
- * that genuinely reference a specific related id.
+ * Scopes an OpenRegister relation-filtered result set down to the objects that
+ * genuinely reference a specific related id, and supplies the one relation
+ * filter that actually matches the way decidesk writes relations.
  *
- * The OpenRegister `_relations.<schema>` filter matches any object carrying a
- * relation of that schema — it does NOT scope by the related id (the filter
- * value is ignored). Tally / quorum / dedup logic needs an exact match, so every
- * caller has to re-check the returned objects. This helper is that check, shared
- * by the statutory voting path and the advisory citizen-vote path so the two can
- * never drift apart.
+ * ── WHY `_relations.<schema-slug>` MATCHES NOTHING ──────────────────────────
+ * decidesk writes links as a STRUCTURED relations array on the object payload:
+ *
+ *     'relations' => [['register' => 'decidesk', 'schema' => 'vote', 'id' => $id]]
+ *
+ * OpenRegister's SaveObject::scanForRelations() flattens that into the
+ * `_relations` JSONB keyed by the PROPERTY PATH it walked — `relations.0.id`,
+ * `relations.0.schema`, … — never by the related schema's slug. Its
+ * MagicSearchHandler then resolves a `_relations.<field>` filter as
+ *
+ *     kv.value = <id> AND (kv.key = '<field>' OR kv.key LIKE '<field>.%')
+ *
+ * so a filter keyed on the schema slug (`_relations.voting-round`,
+ * `_relations.board-evaluation`, `_relations.public-consultation`, …) can never
+ * match a key of the form `relations.0.id`. It returns ZERO rows on a healthy
+ * HTTP 200, with no error and nothing in the log — a tally of 0/0/0, an empty
+ * evaluation list, an empty moderation digest, all indistinguishable from
+ * "there is genuinely no data".
+ *
+ * `relations` IS the correct field name for this write shape: `kv.key LIKE
+ * 'relations.%'` matches `relations.0.id`, and the value predicate pins it to
+ * the exact related UUID. Use {@see self::filterFor()} rather than hand-writing
+ * the key, so the reasoning above lives in exactly one place.
+ *
+ * NOTE the value predicate means the OpenRegister filter DOES scope by id (an
+ * earlier version of this docblock claimed it did not). What it does NOT scope
+ * by is the related SCHEMA — `relations.0.schema` is itself stored as a
+ * relation value — so tally / quorum / dedup logic still re-checks each row
+ * through {@see self::matching()}, which is shared by the statutory voting path
+ * and the advisory citizen-vote path so the two can never drift apart.
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -38,6 +63,36 @@ namespace OCA\Decidesk\Service;
  */
 class ObjectRelationFilter
 {
+
+    /**
+     * The `_relations` field name that matches decidesk's structured relation writes.
+     *
+     * See the class docblock: relations written as
+     * `['relations' => [['schema' => …, 'id' => $id]]]` land in the `_relations`
+     * JSONB under `relations.<n>.id`, so `relations` is the only field name a
+     * `_relations.<field>` filter can match them by. A schema slug never can.
+     *
+     * @var string
+     */
+    public const RELATION_FILTER_FIELD = '_relations.relations';
+
+
+    /**
+     * Build the OpenRegister findAll() filter that matches objects referencing $targetId.
+     *
+     * @param string $targetId The related object UUID that must be referenced
+     *
+     * @return array<string,string> The filter fragment to merge into a findAll() query
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     */
+    public static function filterFor(string $targetId): array
+    {
+        return [self::RELATION_FILTER_FIELD => $targetId];
+
+    }//end filterFor()
+
+
     /**
      * Keep only the entities that actually reference $targetId.
      *

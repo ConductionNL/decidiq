@@ -352,7 +352,9 @@ class VotingRoundCloser
             $objectService->setRegister('decidesk');
             $objectService->setSchema('vote');
             $voteEntities = $this->relationFilter->matching(
-                entities: $objectService->findAll(['filters' => ['_relations.voting-round' => $votingRoundId]]),
+                entities: $objectService->findAll(
+                    ['filters' => ObjectRelationFilter::filterFor(targetId: $votingRoundId)]
+                ),
                 schema: 'voting-round',
                 targetId: $votingRoundId
             );
