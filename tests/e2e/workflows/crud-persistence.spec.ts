@@ -98,7 +98,14 @@ test.beforeEach(({ page }) => {
 	traffic = recordTraffic(page)
 })
 
-test.afterEach(async (_args, testInfo) => {
+// ⚠️ The first parameter MUST be an object-destructuring pattern, even when no
+// fixture is used. Playwright parses the hook's signature statically to work out
+// which fixtures to build, and a plain identifier is a hard COLLECTION error:
+//   "First argument must use the object destructuring pattern: _args"
+// That error aborts the WHOLE SUITE before a single test runs — 0 collected, no
+// tally, and the failure names this file rather than anything under test. `{}`
+// is the documented way to say "no fixtures, but give me testInfo".
+test.afterEach(async ({}, testInfo) => {
 	if (testInfo.status === testInfo.expectedStatus) return
 	const dump = traffic
 		.map((c) => (c.method.endsWith('ERROR')
