@@ -346,7 +346,7 @@ class VoteCastGuard
             entities: $objectService->findAll(
                 [
                     'filters' => array_merge(
-                        ObjectRelationFilter::filterFor(targetId: $votingRoundId),
+                        $this->relationFilter->filterFor(targetId: $votingRoundId),
                         $extraFilters
                     ),
                 ]

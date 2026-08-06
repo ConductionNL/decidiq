@@ -63,7 +63,6 @@ namespace OCA\Decidesk\Service;
  */
 class ObjectRelationFilter
 {
-
     /**
      * The `_relations` field name that matches decidesk's structured relation writes.
      *
@@ -76,7 +75,6 @@ class ObjectRelationFilter
      */
     public const RELATION_FILTER_FIELD = '_relations.relations';
 
-
     /**
      * Build the OpenRegister findAll() filter that matches objects referencing $targetId.
      *
@@ -86,12 +84,10 @@ class ObjectRelationFilter
      *
      * @spec openspec/specs/voting-system/spec.md
      */
-    public static function filterFor(string $targetId): array
+    public function filterFor(string $targetId): array
     {
         return [self::RELATION_FILTER_FIELD => $targetId];
-
     }//end filterFor()
-
 
     /**
      * Keep only the entities that actually reference $targetId.

@@ -311,11 +311,15 @@ class ParticipationPublicationService
         // re-check is a disclosure boundary, not a nicety: this digest is public
         // output, and an unscoped row would publish another consultation's
         // reactions.
-        $entities = $this->container->get(ObjectRelationFilter::class)->matching(
+        // Resolved by FQCN string, matching objectService() above. A
+        // `ObjectRelationFilter::class` reference here counts as one more coupled
+        // type and pushes this class over phpmd's CouplingBetweenObjects ceiling.
+        $relationFilter = $this->container->get('OCA\Decidesk\Service\ObjectRelationFilter');
+        $entities       = $relationFilter->matching(
             entities: $objectService->findAll(
                 [
                     'filters' => array_merge(
-                        ObjectRelationFilter::filterFor(targetId: $consultationId),
+                        $relationFilter->filterFor(targetId: $consultationId),
                         ['moderationStatus' => 'approved']
                     ),
                 ]

@@ -201,9 +201,10 @@ class BoardEvaluationScoreService
             //
             // The filter pins the related id but not the related SCHEMA, so the
             // set is re-checked below before it is scored.
-            $responseEntities = $this->container->get(ObjectRelationFilter::class)->matching(
+            $relationFilter   = $this->container->get(ObjectRelationFilter::class);
+            $responseEntities = $relationFilter->matching(
                 entities: $objectService->findAll(
-                    ['filters' => ObjectRelationFilter::filterFor(targetId: $evaluationId)]
+                    ['filters' => $relationFilter->filterFor(targetId: $evaluationId)]
                 ),
                 schema: 'board-evaluation',
                 targetId: $evaluationId

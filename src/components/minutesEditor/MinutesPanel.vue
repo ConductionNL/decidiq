@@ -67,20 +67,29 @@
 						{{ t('decidesk', '+ Action item') }}
 					</NcButton>
 				</div>
+				<!--
+					@nextcloud/vue v9 renamed the NcTextArea model to
+					`modelValue` / `update:modelValue`. The v8 pair
+					(`:value` / `@update:value`) still RENDERS — `value`
+					falls through onto the inner <textarea> and the label
+					prop is unchanged — but `update:value` is never emitted,
+					so every keystroke was dropped and the autosave never
+					fired while the panel looked entirely healthy.
+				-->
 				<NcTextArea
-					:value="noteFor(item.id).notes"
+					:model-value="noteFor(item.id).notes"
 					:label="t('decidesk', 'Discussion notes')"
 					:placeholder="t('decidesk', 'What was discussed…')"
 					:disabled="!editable"
 					resize="vertical"
-					@update:value="onNoteInput(item.id, 'notes', $event)" />
+					@update:model-value="onNoteInput(item.id, 'notes', $event)" />
 				<NcTextArea
-					:value="noteFor(item.id).decisions"
+					:model-value="noteFor(item.id).decisions"
 					:label="t('decidesk', 'Decisions')"
 					:placeholder="t('decidesk', 'Decisions taken on this item…')"
 					:disabled="!editable"
 					resize="vertical"
-					@update:value="onNoteInput(item.id, 'decisions', $event)" />
+					@update:model-value="onNoteInput(item.id, 'decisions', $event)" />
 			</div>
 		</template>
 

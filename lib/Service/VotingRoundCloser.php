@@ -353,7 +353,7 @@ class VotingRoundCloser
             $objectService->setSchema('vote');
             $voteEntities = $this->relationFilter->matching(
                 entities: $objectService->findAll(
-                    ['filters' => ObjectRelationFilter::filterFor(targetId: $votingRoundId)]
+                    ['filters' => $this->relationFilter->filterFor(targetId: $votingRoundId)]
                 ),
                 schema: 'voting-round',
                 targetId: $votingRoundId
