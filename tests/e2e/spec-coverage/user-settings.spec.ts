@@ -28,7 +28,7 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 /**
  * Open the Decidesk personal settings panel; skip the test when this branch

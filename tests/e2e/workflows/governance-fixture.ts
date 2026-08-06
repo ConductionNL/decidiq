@@ -29,7 +29,8 @@
  */
 import type { Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
+
 const OR = `${BASE}/index.php/apps/openregister/api/objects/decidesk`
 
 export interface SeedLedger {

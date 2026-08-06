@@ -13,7 +13,7 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 async function dismissSupportDialog(page: Page): Promise<void> {
 	const dialog = page.locator('.cn-support-dialog, [data-testid^="cn-support-dialog"]').first()

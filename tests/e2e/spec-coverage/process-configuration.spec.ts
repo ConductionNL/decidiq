@@ -21,7 +21,7 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 /**
  * Open the Decidesk admin settings and wait for the process-templates section.
