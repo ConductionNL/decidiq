@@ -50,6 +50,32 @@
     <rule ref="Squiz.Commenting.DocCommentAlignment"/>
     <rule ref="Squiz.Commenting.EmptyCatchComment"/>
     <rule ref="Squiz.Commenting.InlineComment"/>
+    <!--
+        InvalidEndChar demands that every inline comment end in `.`, `!` or `?`.
+        Every one of the 97 occurrences in lib/ is the REUSE-mandated SPDX header
+
+            // SPDX-License-Identifier: EUPL-1.2
+
+        whose value is a machine-parsed SPDX expression: a trailing full stop
+        would make it a different, invalid identifier and break REUSE
+        compliance. The two requirements are in direct conflict and REUSE wins.
+
+        This is recorded as a WARNING rather than silently inherited, because the
+        state it preserves used to be accidental. Under php_codesniffer 3.13.5
+        these same 97 findings were reported as warnings, so `composer phpcs`
+        exited 1 and the gate passed. 3.13.6 — which this branch adopts to clear
+        CVE-2026-67434 — reclassifies them as errors, so the same unchanged code
+        exits 2 and the gate fails. Nothing about the code changed; only the
+        tool's severity mapping did. Declaring the severity here makes the
+        posture explicit and version-independent.
+
+        Scope is deliberately narrow: only InvalidEndChar is downgraded. Every
+        other Squiz.Commenting.InlineComment sniff (WrongStyle, NotCapital,
+        SpacingBefore, Empty, …) still fails the build as an error.
+    -->
+    <rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+        <type>warning</type>
+    </rule>
     <rule ref="Squiz.Commenting.LongConditionClosingComment"/>
     <rule ref="Squiz.Commenting.PostStatementComment"/>
     <rule ref="Squiz.Commenting.VariableComment"/>

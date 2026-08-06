@@ -368,7 +368,7 @@ class VotingRoundCloser
             $this->logger->info('Decidesk: votes anonymised', ['votingRoundId' => $votingRoundId]);
         } catch (Throwable $e) {
             $this->logger->warning('Decidesk: vote anonymisation failed', ['error' => $e->getMessage()]);
-        }
+        }//end try
 
     }//end anonymiseVotes()
 
