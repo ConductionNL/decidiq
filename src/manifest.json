@@ -116,16 +116,15 @@
 			"config": {
 				"widgets": [
 					{
+						"_note": "openspec/specs/dashboard/spec.md REQ 'KPI Cards' specifies all FOUR Row-1 cards as type 'custom' with a bespoke slot component (ActiveDecisionsKpiWidget / UpcomingMeetingsKpiWidget / PendingVotesKpiWidget / OverdueActionsKpiWidget). Only pending-votes-kpi was ever wired that way; the other three were left as declarative 'stat' widgets, so their .vue files were never mounted and the data-testids the spec asserts (active-decisions-kpi, upcoming-meetings-kpi, overdue-actions-kpi) existed nowhere in the DOM. Declarative 'stat' was also the wrong engine for these counts: as the open-toezeggingen-overdue note below records, OpenRegister's aggregation endpoint honours only scalar-equality filters, so the multi-value and relative-date filters these three declared could not be evaluated. The custom widgets self-fetch and compute client-side.",
 						"id": "active-decisions",
-						"type": "stat",
-						"title": "Decisions",
-						"content": { "label": "Decisions", "icon": "ScaleBalance", "valueColor": "#1a4a72", "route": { "name": "Decisions" }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "decision", "metric": "count", "filter": { "decisionDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
+						"type": "custom",
+						"title": "Decisions"
 					},
 					{
 						"id": "upcoming-meetings-kpi",
-						"type": "stat",
-						"title": "Upcoming meetings",
-						"content": { "label": "Upcoming meetings", "icon": "Calendar", "valueColor": "#0082c9", "route": { "name": "Meetings", "query": { "lifecycle": "scheduled" } }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "meeting", "metric": "count", "filter": { "lifecycle": "scheduled", "scheduledDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
+						"type": "custom",
+						"title": "Upcoming meetings"
 					},
 					{
 						"id": "pending-votes-kpi",
@@ -134,9 +133,8 @@
 					},
 					{
 						"id": "overdue-actions-kpi",
-						"type": "stat",
-						"title": "Open action items",
-						"content": { "label": "Open action items", "icon": "ClipboardList", "valueColor": "#c7860c", "route": { "name": "ActionItems", "query": { "taskStatus": ["open", "in-progress"] } }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "action-item", "metric": "count", "filter": { "taskStatus": ["open", "in-progress"], "dueDate": { "gte": "@workspace.dateFrom?", "lte": "@workspace.dateTo?" } } } }
+						"type": "custom",
+						"title": "Open action items"
 					},
 					{
 						"id": "open-toezeggingen-overdue",
@@ -146,10 +144,10 @@
 						"content": { "label": "Commitments over deadline", "icon": "AlertOutline", "valueColor": "#c7860c", "route": { "name": "Toezeggingen", "query": { "lifecycle": ["open", "in-uitvoering"] } }, "format": { "style": "number" }, "source": { "register": "decidesk", "schema": "toezegging", "metric": "count", "filter": { "lifecycle": { "in": ["open", "in-uitvoering"] } } } }
 					},
 					{
+						"_note": "openspec/specs/dashboard/spec.md REQ 'Upcoming Meetings Widget' requires body name and agenda-item count per row and a highlight for meetings inside 24h. A declarative object-list renders columns from one schema and can do none of that, so UpcomingMeetingsListWidget.vue was built for it — and then never referenced, leaving the component orphaned and the spec'd behaviour absent.",
 						"id": "upcoming-meetings-list",
-						"type": "object-list",
-						"title": "Upcoming meetings",
-						"content": { "register": "decidesk", "schema": "meeting", "rowRoute": "MeetingDetail", "filter": { "lifecycle": "scheduled" }, "sort": { "field": "scheduledDate", "dir": "asc" }, "limit": 6, "columns": [{ "key": "title", "label": "Meeting" }, { "key": "scheduledDate", "label": "Date" }] }
+						"type": "custom",
+						"title": "Upcoming meetings"
 					},
 					{
 						"id": "pending-votes-list",
@@ -167,10 +165,22 @@
 						"title": "My action items"
 					},
 					{
+						"_note": "openspec/specs/dashboard/spec.md REQ 'Recent Decisions Widget' requires an outcome badge (adopted/rejected/'undecided' when outcome is null) and a publication-status badge per row, over the latest 10. A declarative object-list renders plain column values and cannot express either badge, which is why RecentDecisionsWidget.vue exists; it was never referenced from here.",
 						"id": "recent-decisions",
-						"type": "object-list",
-						"title": "Recent decisions",
-						"content": { "register": "decidesk", "schema": "decision", "rowRoute": "DecisionDetail", "filter": {}, "sort": { "field": "decisionDate", "dir": "desc" }, "limit": 6, "columns": [{ "key": "title", "label": "Decision" }, { "key": "decisionDate", "label": "Date" }] }
+						"type": "custom",
+						"title": "Recent decisions"
+					},
+					{
+						"_note": "Row 5 of the spec'd v2 grid. Both entries were specified in openspec/specs/dashboard/spec.md ('Row 5 (gridY=14, gridHeight=4): minutes-in-review (6 cols, stats-block, the only stats-block in the layout) and governance-health (6 cols, custom, slot: GovernanceHealthWidget)') and neither existed in this manifest at all, so the whole row was missing from the rendered dashboard. GovernanceHealthWidget.vue was already built and orphaned; the spec records that a declarative type 'chart' was ruled out because the lib's chart dataSource cannot assemble two live series.",
+						"id": "minutes-in-review",
+						"type": "stats-block",
+						"title": "Minutes awaiting approval",
+						"content": { "entries": [{ "title": "Minutes awaiting approval", "icon": "FileDocument", "register": "decidesk", "schema": "minutes", "metric": "count", "filter": { "lifecycle": "review" } }] }
+					},
+					{
+						"id": "governance-health",
+						"type": "custom",
+						"title": "Governance health"
 					},
 					{
 						"id": "dashboard-empty-state",
@@ -278,9 +288,28 @@
 					},
 					{
 						"id": "10",
-						"widgetId": "open-toezeggingen-overdue",
+						"widgetId": "minutes-in-review",
 						"gridX": 0,
 						"gridY": 14,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "11",
+						"widgetId": "governance-health",
+						"gridX": 6,
+						"gridY": 14,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"_note": "Moved down from gridY=14 to make room for the spec'd Row 5 (minutes-in-review + governance-health, which together span all 12 columns at gridY=14). This KPI is an addition from the toezeggingen change and is not part of the five-row v2 layout in openspec/specs/dashboard/spec.md, so it gets its own band below it rather than displacing a spec'd widget.",
+						"id": "12",
+						"widgetId": "open-toezeggingen-overdue",
+						"gridX": 0,
+						"gridY": 18,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -291,6 +320,12 @@
 			},
 			"slots": {
 				"header-actions": "DashboardQuickActions",
+				"widget-active-decisions": "ActiveDecisionsKpiWidget",
+				"widget-upcoming-meetings-kpi": "UpcomingMeetingsKpiWidget",
+				"widget-overdue-actions-kpi": "OverdueActionsKpiWidget",
+				"widget-upcoming-meetings-list": "UpcomingMeetingsListWidget",
+				"widget-recent-decisions": "RecentDecisionsWidget",
+				"widget-governance-health": "GovernanceHealthWidget",
 				"widget-pending-votes-kpi": "PendingVotesKpiWidget",
 				"widget-pending-votes-list": "PendingVotesListWidget",
 				"widget-running-processes": "RunningProcessesWidget",

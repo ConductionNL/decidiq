@@ -121,6 +121,22 @@ export default {
 		PublicationWithdrawModal,
 		PublicationRectifyModal,
 	},
+	inject: {
+		/**
+		 * CnDetailPage's reactive `{ objectId, object, register, schema }`
+		 * holder.
+		 *
+		 * A manifest `type: "custom"` body widget is mounted through
+		 * CnDetailPage's `widget-<id>` slot, and that slot binds ONLY
+		 * `{ item, widget }` — it does not bind the page's object id. So the
+		 * `objectId` prop arrives empty on that mount path and every fetch
+		 * below would silently no-op (the tab renders its "Not published."
+		 * empty state with no network call at all). This is the same context
+		 * the declarative `@objectId` filter token resolves against, so it is
+		 * the documented route to the page's object.
+		 */
+		cnObjectContext: { default: null },
+	},
 	props: {
 		objectId: { type: [String, Number], default: '' },
 		// The publication source type — set by the per-schema wrapper tab.
@@ -139,6 +155,27 @@ export default {
 		}
 	},
 	computed: {
+		/**
+		 * The object this tab acts on: the explicit `objectId` prop when the tab
+		 * is mounted directly (sidebar tab / parent wrapper), otherwise the id
+		 * CnDetailPage provides on `cnObjectContext` (manifest body-widget
+		 * mount, where no id prop is bound).
+		 *
+		 * @return {string} The source object UUID, or '' when not resolvable.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		sourceObjectId() {
+			if (this.objectId) {
+				return String(this.objectId)
+			}
+			const context = this.cnObjectContext
+			// Vue unwraps an injected ref for the Options API, but the compat
+			// build can hand back the ref itself — accept both shapes.
+			const value = (context && typeof context === 'object' && 'value' in context)
+				? context.value
+				: context
+			return (value && value.objectId) ? String(value.objectId) : ''
+		},
 		/** @spec openspec/specs/public-publication/spec.md */
 		records_sorted() {
 			return [...this.records].sort((a, b) => (b.payloadVersion || 0) - (a.payloadVersion || 0))
@@ -173,7 +210,7 @@ export default {
 		},
 	},
 	watch: {
-		objectId: {
+		sourceObjectId: {
 			immediate: true,
 			/** @spec openspec/specs/public-publication/spec.md */
 			handler() { this.refresh() },
@@ -213,16 +250,16 @@ export default {
 		},
 		/** @spec openspec/specs/public-publication/spec.md */
 		async refresh() {
-			if (!this.objectId) return
+			if (!this.sourceObjectId) return
 			this.loading = true
 			this.error = ''
 			try {
 				const sourceStore = ensureRelationType(this.sourceSchemaType())
-				this.source = await sourceStore.fetchObject(this.sourceSchemaType(), this.objectId)
+				this.source = await sourceStore.fetchObject(this.sourceSchemaType(), this.sourceObjectId)
 
 				const recordStore = ensureRelationType('publication-record')
 				this.records = (await recordStore.fetchCollection('publication-record', {
-					sourceObject: this.objectId,
+					sourceObject: this.sourceObjectId,
 					_limit: 100,
 				})) || []
 			} catch (e) {
@@ -269,7 +306,7 @@ export default {
 			this.error = ''
 			this.warnings = []
 			try {
-				const result = await this.callApi('/publications', { sourceType: this.sourceType, sourceId: this.objectId })
+				const result = await this.callApi('/publications', { sourceType: this.sourceType, sourceId: this.sourceObjectId })
 				this.warnings = result?.warnings || []
 				await this.refresh()
 			} catch (e) {

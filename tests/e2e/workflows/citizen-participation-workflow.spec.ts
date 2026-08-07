@@ -86,7 +86,14 @@ test.describe('Citizen participation — consultations', () => {
 		await expect(card).toBeVisible({ timeout: 15_000 })
 
 		// Submit a reaction through the UI.
-		await card.locator('[data-testid="reaction-input"] textarea').first().fill('A constructive idea from e2e')
+		//
+		// `reaction-input` IS the <textarea>, not a wrapper around one:
+		// @nextcloud/vue v9's NcTextArea declares `inheritAttrs: false` and
+		// spreads `$attrs` onto its inner <textarea> element, so the
+		// `data-testid` written on <NcTextArea> in ParticipationPage.vue lands on
+		// the textarea itself. `[data-testid="reaction-input"] textarea` asks for
+		// a textarea DESCENDANT of the textarea and can never match.
+		await card.locator('[data-testid="reaction-input"]').first().fill('A constructive idea from e2e')
 		await card.locator('[data-testid="reaction-submit"]').click()
 
 		// The submission round-trips through the participation intake endpoint; the
@@ -122,22 +129,31 @@ test.describe('Citizen participation — consultations', () => {
 
 		await gotoModerationQueue(page)
 
-		const items = page.locator('[data-testid="moderation-queue-item"]')
+		// The queue rows are rendered by ConsultationReactionsTab, which
+		// ModerationQueuePage mounts un-scoped for the hub-wide queue. Its real
+		// test ids are `consultation-reactions-item` / `-approve` / `-reject`
+		// (src/components/tabs/ConsultationReactionsTab.vue); the
+		// `moderation-queue-*` ids this spec used exist nowhere in the app — the
+		// same component serves the per-consultation "Reactions" tab, so its ids
+		// are named after the component, not after this one page. The modal ids
+		// below (`reaction-approve-modal` etc.) were already correct.
+		const items = page.locator('[data-testid="consultation-reactions-item"]')
 		await expect(items.first()).toBeVisible({ timeout: 15_000 })
 
 		// Approve the first pending reaction.
-		await items.first().locator('[data-testid="moderation-approve"]').click()
+		await items.first().locator('[data-testid="consultation-reactions-approve"]').click()
 		await expect(page.locator('[data-testid="reaction-approve-modal"]')).toBeVisible()
 		await page.locator('[data-testid="reaction-approve-confirm"]').click()
 		await page.waitForTimeout(1_000)
 
 		// Reject the next pending reaction with a reason.
 		await gotoModerationQueue(page)
-		const remaining = page.locator('[data-testid="moderation-queue-item"]')
+		const remaining = page.locator('[data-testid="consultation-reactions-item"]')
 		if (await remaining.count() > 0) {
-			await remaining.first().locator('[data-testid="moderation-reject"]').click()
+			await remaining.first().locator('[data-testid="consultation-reactions-reject"]').click()
 			await expect(page.locator('[data-testid="reaction-reject-modal"]')).toBeVisible()
-			await page.locator('[data-testid="reaction-reject-reason"] textarea').first().fill('Off-topic')
+			// NcTextArea v9: the test id is the <textarea> (see the note above).
+			await page.locator('[data-testid="reaction-reject-reason"]').first().fill('Off-topic')
 			await page.locator('[data-testid="reaction-reject-confirm"]').click()
 			await page.waitForTimeout(1_000)
 		}

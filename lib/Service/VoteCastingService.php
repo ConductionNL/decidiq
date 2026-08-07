@@ -223,13 +223,17 @@ class VoteCastingService
             );
         }
 
-        // Both _relations filters are schema-presence-only in OR, so scope to
-        // this round first, then to this participant, to get an exact dedup match.
+        // Scope to this round in the query, then to this participant in PHP, to
+        // get an exact dedup match.
+        //
+        // The participant leg is deliberately NOT a second relation filter. Both
+        // legs would have to be keyed `_relations.relations` (see
+        // ObjectRelationFilter) and would collide into a single array key, so one
+        // of the two ids would be silently dropped — a dedup check that quietly
+        // stops deduping. matching() below re-checks the participant on the round
+        // -scoped set, which is exact and cannot collide.
         return $this->relationFilter->matching(
-            entities: $this->votesInRound(
-                votingRoundId: $votingRoundId,
-                extraFilters: ['_relations.participant' => $participantId]
-            ),
+            entities: $this->votesInRound(votingRoundId: $votingRoundId, extraFilters: []),
             schema: 'participant',
             targetId: $participantId
         );
@@ -254,7 +258,12 @@ class VoteCastingService
 
         return $this->relationFilter->matching(
             entities: $objectService->findAll(
-                ['filters' => array_merge(['_relations.voting-round' => $votingRoundId], $extraFilters)]
+                [
+                    'filters' => array_merge(
+                        $this->relationFilter->filterFor(targetId: $votingRoundId),
+                        $extraFilters
+                    ),
+                ]
             ),
             schema: 'voting-round',
             targetId: $votingRoundId

@@ -42,12 +42,32 @@ test('Add Agenda Item dialog opens with item type field', async ({ page }) => {
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
 	await expect(dialog.getByRole('heading', { name: 'Create AgendaItem' })).toBeVisible()
 
-	// Assert the real agenda-item form fields render
-	await expect(dialog.getByText('title *', { exact: false })).toBeVisible()
-	await expect(dialog.getByText('itemType *', { exact: false })).toBeVisible()
-	await expect(dialog.getByText('orderNumber *', { exact: false })).toBeVisible()
+	// Assert the real agenda-item form fields render.
+	//
+	// The label a manifest-shell form renders is NOT the raw schema property
+	// key. `fieldsFromSchema()` in @conduction/nextcloud-vue
+	// (src/utils/schema.js) builds `label: prop.title || key`, and
+	// CnFormDialog renders `field.label + (field.required ? ' *' : '')` — for
+	// NcTextField as its visible `<label class="input-field__label">`, for an
+	// enum NcSelect as its visible `<label class="select__label">`. The raw
+	// key only ever surfaces for a property with NO `title`, which is exactly
+	// the state hydra's `schema-property-titles` gate exists to prevent.
+	// `lib/Settings/decidesk_register.json` gives every AgendaItem property a
+	// human-readable title, so the rendered labels are "Title *",
+	// "Item type *", "Order *", "Estimated duration".
+	//
+	// Asserting the raw keys was only ever half-true: `getByText` defaults to
+	// a CASE-INSENSITIVE SUBSTRING match, so 'title *' happened to hit
+	// "Title *" and passed, while 'itemType *' can never match "Item type *"
+	// and failed. That split is the signature of a spec written against an
+	// untitled-schema state, not of a form that fails to mount — the dialog,
+	// its heading and the Create/Cancel buttons all resolve.
+	await expect(dialog.getByText('Title *', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Item type *', { exact: true })).toBeVisible()
+	// `orderNumber` carries the title "Order" (register: AgendaItem.orderNumber).
+	await expect(dialog.getByText('Order *', { exact: true })).toBeVisible()
 	// estimatedDuration supports the agenda-duration calculation scenario
-	await expect(dialog.getByText('estimatedDuration', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Estimated duration', { exact: true })).toBeVisible()
 
 	// Create button is present
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()

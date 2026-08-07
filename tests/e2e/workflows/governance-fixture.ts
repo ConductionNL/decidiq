@@ -39,11 +39,20 @@ export interface SeedLedger {
 	created: Record<string, string[]>
 }
 
+/**
+ * The schema a "motion" is stored in.
+ *
+ * ADR-005 (accepted, 2026-06-14) folded the standalone `motion` and `amendment`
+ * schemas into the single `Decision` supertype, discriminated by `decisionType`.
+ * There is no `motion` schema in decidesk_register.json and addressing one
+ * returns 404 "Schema not found: 'motion'".
+ */
+export const MOTION_SCHEMA = 'decision'
+
 /** Schema slugs in safe teardown order (children before parents). */
 const TEARDOWN_ORDER = [
 	'vote',
 	'voting-round',
-	'motion',
 	'decision',
 	'participant',
 	'meeting',
@@ -172,14 +181,28 @@ export async function seedGovernanceScenario(
 		participantIds.push(objId(p))
 	}
 
-	const motion = await createObject(page, ledger, 'motion', {
+	// ADR-005 (accepted): `Decision` is the universal supertype. The standalone
+	// `motion` and `amendment` schemas were REMOVED from decidesk_register.json —
+	// a motion is a Decision carrying `decisionType: 'motion'`. Seeding schema
+	// `motion` therefore 404s with "Schema not found: 'motion'", which is what
+	// every test in this fixture's dependants was failing on.
+	//
+	// `decisionType` is the schema's one required property.
+	// Decision.required[] is [title, text, decisionDate, outcome, decisionType] —
+	// all five must be present or the POST is a 400 naming the missing ones.
+	// `lifecycle` is [draft, proposed, deliberating, voting, decided, enacted,
+	// archived, withdrawn]: there is no 'debating'. And Decision has NO `meeting`
+	// property (the AgendaItem carries that link), so passing one invents a field.
+	const motion = await createObject(page, ledger, MOTION_SCHEMA, {
+		decisionType: 'motion',
 		title: `${tag}-motion`,
 		text: `${tag} motion body text`,
+		decisionDate: '2026-09-01T10:00:00Z',
+		outcome: 'adopted',
 		motionType: 'motion',
 		proposer: `${tag}-proposer`,
-		lifecycle: 'debating',
+		lifecycle: 'deliberating',
 		submittedAt: '2026-09-01T10:00:00Z',
-		meeting: meetingId,
 	})
 	const motionId = objId(motion)
 
@@ -199,7 +222,7 @@ export async function cleanupAll(page: Page, ledger: SeedLedger): Promise<void> 
 	// Sweep any stragglers tagged with this runId (e.g. votes/rounds created by
 	// the app under test, which the ledger never saw).
 	const tag = `e2e-${ledger.runId}`
-	for (const schema of ['vote', 'voting-round', 'motion', 'decision', 'participant', 'meeting', 'governance-body']) {
+	for (const schema of ['vote', 'voting-round', 'decision', 'participant', 'meeting', 'governance-body']) {
 		const objs = await listObjects(page, schema)
 		for (const o of objs) {
 			const name = (o.title ?? o.name ?? o.displayName ?? '') as string

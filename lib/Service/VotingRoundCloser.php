@@ -352,7 +352,9 @@ class VotingRoundCloser
             $objectService->setRegister('decidesk');
             $objectService->setSchema('vote');
             $voteEntities = $this->relationFilter->matching(
-                entities: $objectService->findAll(['filters' => ['_relations.voting-round' => $votingRoundId]]),
+                entities: $objectService->findAll(
+                    ['filters' => $this->relationFilter->filterFor(targetId: $votingRoundId)]
+                ),
                 schema: 'voting-round',
                 targetId: $votingRoundId
             );
@@ -366,7 +368,7 @@ class VotingRoundCloser
             $this->logger->info('Decidesk: votes anonymised', ['votingRoundId' => $votingRoundId]);
         } catch (Throwable $e) {
             $this->logger->warning('Decidesk: vote anonymisation failed', ['error' => $e->getMessage()]);
-        }
+        }//end try
 
     }//end anonymiseVotes()
 

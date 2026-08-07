@@ -115,11 +115,27 @@ class ProcessTemplateService
      */
     public function list(): array
     {
+        // The register/schema context MUST be nested under `filters`.
+        // ObjectService::prepareFindAllConfig() reads ONLY
+        // $config['filters']['register'] / ['schema'] — the top-level keys this
+        // call used to pass are never inspected, so currentRegister/currentSchema
+        // stayed null and MagicMapper::findAll() bailed out with
+        // "called without register/schema context", returning [] after nothing
+        // more than a logger->warning. HTTP 200, zero rows, no error: the
+        // template list mounted with no <li>, which Playwright reports as
+        // `hidden` (a zero-height box) rather than absent.
+        //
+        // `register`/`schema` are in MagicSearchHandler::getReservedParams(), so
+        // they are stripped before applyObjectFilters() and cannot leak into the
+        // WHERE clause as bogus property filters. Compare get() below, which
+        // works because it passes them as TYPED PARAMETERS to find().
         $rows = $this->objectService()->findAll(
             [
-                'register' => 'decidesk',
-                'schema'   => 'process-template',
-                'limit'    => 1000,
+                'filters' => [
+                    'register' => 'decidesk',
+                    'schema'   => 'process-template',
+                ],
+                'limit'   => 1000,
             ]
         );
 
@@ -395,12 +411,16 @@ class ProcessTemplateService
     private function loadTemplateByRef(string $ref): ?array
     {
         // Try the slug first (built-in catalogue ids such as 'association-alv').
+        // Register/schema nested under `filters` — see list() above for why the
+        // top-level keys silently yielded zero rows.
         $rows = $this->objectService()->findAll(
             [
-                'register' => 'decidesk',
-                'schema'   => 'process-template',
-                'limit'    => 1,
-                'filters'  => ['slug' => $ref],
+                'limit'   => 1,
+                'filters' => [
+                    'register' => 'decidesk',
+                    'schema'   => 'process-template',
+                    'slug'     => $ref,
+                ],
             ]
         );
 
