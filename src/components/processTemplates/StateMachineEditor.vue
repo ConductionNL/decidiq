@@ -12,9 +12,9 @@
  The component previously declared the VUE 2 pair (`value` prop + `input` emit),
  so `value` — declared `required` — arrived undefined and `value.stateMachine.states`
  threw during render. Vue 3 catches a render error and substitutes a comment node
- for the whole subtree, so the editor silently rendered as `<!---->`: no
- `state-machine-editor`, no `state-machine-add-state`, no console-visible crash in
- the parent.
+ for the whole subtree, so the editor silently rendered as an empty comment
+ placeholder: no `state-machine-editor`, no `state-machine-add-state`, no
+ console-visible crash in the parent.
 
  `inheritAttrs: false` because this component owns its root identity. Vue 3 merges
  fallthrough attrs AFTER the root vnode's own props, so the parent's
