@@ -44,7 +44,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"title\": \"Newman minutes meeting\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-06-12T19:00:00Z\",\n  \"lifecycle\": \"closed\",\n  \"quorumRequired\": 1\n}"
+							"raw": "{\n  \"title\": \"Newman minutes meeting\",\n  \"meetingType\": \"regular\",\n  \"meetingMode\": \"in-person\",\n  \"scheduledDate\": \"2026-06-12T19:00:00Z\",\n  \"lifecycle\": \"closed\",\n  \"quorumRequired\": 1\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/meeting",
