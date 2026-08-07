@@ -64,7 +64,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
              Optional runtime dependency: OpenConnector (eIDAS QES e-sign Source), Docudesk (signing + AI minutes),
              OpenCatalogi (decision publication) — all resolved lazily via the DI container and degrade gracefully
              when absent. -->
-        <nextcloud min-version="28" max-version="34"/>
+        <nextcloud min-version="32" max-version="34"/>
     </dependencies>
 
     <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
