@@ -300,13 +300,32 @@ class ParticipationPublicationService
         $objectService = $this->objectService();
         $objectService->setRegister('decidesk');
         $objectService->setSchema('consultation-reaction');
-        $entities = $objectService->findAll(
-            [
-                'filters' => [
-                    '_relations.public-consultation' => $consultationId,
-                    'moderationStatus'               => 'approved',
-                ],
-            ]
+        // NOT `_relations.public-consultation`: reactions are written with a
+        // structured `relations` array (ReactionIntakeService), which OpenRegister
+        // flattens to `_relations` keys of the form `relations.<n>.id` — a
+        // slug-keyed filter matched zero rows, so the digest was always empty on a
+        // healthy 200. See ObjectRelationFilter.
+        //
+        // The filter pins the related id but not the related SCHEMA, so the set is
+        // re-checked against the consultation before anything is published. That
+        // re-check is a disclosure boundary, not a nicety: this digest is public
+        // output, and an unscoped row would publish another consultation's
+        // reactions.
+        // Resolved by FQCN string, matching objectService() above. A
+        // `ObjectRelationFilter::class` reference here counts as one more coupled
+        // type and pushes this class over phpmd's CouplingBetweenObjects ceiling.
+        $relationFilter = $this->container->get('OCA\Decidesk\Service\ObjectRelationFilter');
+        $entities       = $relationFilter->matching(
+            entities: $objectService->findAll(
+                [
+                    'filters' => array_merge(
+                        $relationFilter->filterFor(targetId: $consultationId),
+                        ['moderationStatus' => 'approved']
+                    ),
+                ]
+            ),
+            schema: 'public-consultation',
+            targetId: $consultationId
         );
 
         $digest = [];

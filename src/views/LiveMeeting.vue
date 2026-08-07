@@ -261,10 +261,23 @@ export default {
 		meeting() {
 			return this.objectStore.objects?.meeting?.[this.id] ?? {}
 		},
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/**
+		 * Agenda items belonging to this meeting.
+		 *
+		 * `meeting` is the AgendaItem schema's own property (a `$ref: Meeting`
+		 * uuid), which is what the seed data and every other decidesk surface
+		 * (MeetingAgendaTab, MeetingVotesTab) write and filter on. It is checked
+		 * FIRST here; the two `relations` shapes stay as fallbacks for records
+		 * where OpenRegister materialised the link into `@self.relations` but the
+		 * scalar property was not round-tripped.
+		 *
+		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1
+		 */
 		allItems() {
 			const collection = this.objectStore.collections?.['agenda-item'] ?? []
-			return collection.filter(i => i?.['@self']?.relations?.meeting === this.id || i?.relations?.meeting === this.id)
+			return collection.filter(i => i?.meeting === this.id
+				|| i?.['@self']?.relations?.meeting === this.id
+				|| i?.relations?.meeting === this.id)
 		},
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		participants() {
@@ -423,14 +436,29 @@ export default {
 			// read straight from the store, so when the liveUpdatesPlugin
 			// re-fetches on `or-object-*` / `or-collection-*` events the
 			// rendered UI updates automatically via Vue reactivity.
+			// FILTER DIALECT (do not "restore" the dotted @self form): OpenRegister's
+			// MagicSearchHandler classifies any query key that is not exactly `@self`,
+			// not `_`-prefixed and not a reserved context param as an OBJECT-FIELD
+			// filter. `@self.relations.meeting` is no schema property, so
+			// applyObjectFilters() appends `1 = 0` — the collection came back EMPTY on
+			// a perfectly healthy HTTP 200, which read as a broken agenda/minutes panel.
+			// `meeting` IS the AgendaItem schema's property (see allItems above) and is
+			// the dialect MeetingAgendaTab / MeetingVotesTab already use.
+			//
+			// Participant carries NO meeting/meetings property at all (see
+			// decidesk_register.json), so no server-side meeting filter is expressible
+			// for it — any such key would be another silent `1 = 0`. Fetch a bounded
+			// page and let the `participants` computed do the meeting scoping, exactly
+			// as MeetingParticipantsTab does.
 			try {
 				await Promise.all([
 					this.objectStore.fetchObject('meeting', this.id),
 					this.objectStore.fetchCollection('agenda-item', {
-						'@self.relations.meeting': this.id,
+						meeting: this.id,
+						_limit: 200,
 					}),
 					this.objectStore.fetchCollection('participant', {
-						'@self.relations.meeting': this.id,
+						_limit: 200,
 					}),
 				])
 				// Meeting-efficiency: lazily fetch the linked governance body so
@@ -464,8 +492,11 @@ export default {
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
 		async refreshItems() {
 			try {
+				// Same dialect as fetchData() — see the note there on why the
+				// dotted `@self.relations.…` key silently returns zero rows.
 				await this.objectStore.fetchCollection('agenda-item', {
-					'@self.relations.meeting': this.id,
+					meeting: this.id,
+					_limit: 200,
 				})
 			} catch (e) {
 				console.error('Error refreshing items:', e)

@@ -41,11 +41,26 @@ test('Create GovernanceBody dialog opens with name, bodyType and domain required
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
 	await expect(dialog.getByRole('heading', { name: 'Create GovernanceBody' })).toBeVisible()
 
-	// Required identity fields
-	await expect(dialog.getByRole('textbox', { name: 'name *' })).toBeVisible()
-	await expect(dialog.getByRole('textbox', { name: 'domain *' })).toBeVisible()
-	// bodyType is a required combobox (council/board/assembly/committee/team semantics)
-	await expect(dialog.getByText('bodyType *', { exact: false })).toBeVisible()
+	// Required identity fields.
+	//
+	// Field labels come from the schema property `title`, not its key:
+	// `fieldsFromSchema()` in @conduction/nextcloud-vue builds
+	// `label: prop.title || key`, and CnFormDialog renders
+	// `field.label + (field.required ? ' *' : '')`. GovernanceBody's
+	// `name` / `domain` / `bodyType` carry the titles "Name" / "Domain" /
+	// "Body type" in `lib/Settings/decidesk_register.json`.
+	//
+	// The two `getByRole` assertions below passed even while spelled with the
+	// raw keys, because accessible-name matching is case-insensitive substring
+	// matching ("name *" ⊂ "Name *"). The `bodyType *` assertion could not:
+	// "bodytype *" is not a substring of "body type *". Spelling the real
+	// labels removes that accident.
+	await expect(dialog.getByRole('textbox', { name: 'Name *' })).toBeVisible()
+	await expect(dialog.getByRole('textbox', { name: 'Domain *' })).toBeVisible()
+	// bodyType is a required combobox (legislative / association /
+	// corporate-board / operational / … per the register's enum). NcSelect
+	// renders its `input-label` as a visible <label class="select__label">.
+	await expect(dialog.getByText('Body type *', { exact: true })).toBeVisible()
 
 	// Create is disabled until the required fields are filled
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeDisabled()
@@ -65,11 +80,18 @@ test('Create GovernanceBody dialog exposes the quorumRule configuration field', 
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
 
-	// quorumRule field — the quorum calculation method configured per body
-	await expect(dialog.getByRole('textbox', { name: 'quorumRule' })).toBeVisible()
+	// quorumRule field — the quorum calculation method configured per body.
+	// Rendered label = the schema property's `title` (see the sibling test
+	// above): quorumRule → "Quorum rule", votingDefault → "Default voting
+	// method", workflowTemplate → "Workflow template". None of the three is in
+	// GovernanceBody's `required` array, so none carries the ' *' suffix.
+	// Spelled as raw keys these could never match: accessible-name matching is
+	// a case-insensitive SUBSTRING match, and "quorumrule" is not a substring
+	// of "quorum rule" — the space is the difference.
+	await expect(dialog.getByRole('textbox', { name: 'Quorum rule' })).toBeVisible()
 	// votingDefault and workflowTemplate are also configurable on the body
-	await expect(dialog.getByRole('textbox', { name: 'votingDefault' })).toBeVisible()
-	await expect(dialog.getByRole('textbox', { name: 'workflowTemplate' })).toBeVisible()
+	await expect(dialog.getByRole('textbox', { name: 'Default voting method' })).toBeVisible()
+	await expect(dialog.getByRole('textbox', { name: 'Workflow template' })).toBeVisible()
 
 	await dialog.getByRole('button', { name: 'Cancel' }).click()
 	await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 5_000 })

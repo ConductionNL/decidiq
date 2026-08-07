@@ -45,12 +45,31 @@ async function openPersonalSettings(page: Page): Promise<boolean> {
 	}
 }
 
-/** Toggle helper for NcCheckboxRadioSwitch wrappers (input is visually hidden). */
+/**
+ * Toggle helper for NcCheckboxRadioSwitch.
+ *
+ * ⚠️ The `data-testid` IS the <input>, not a wrapper around one. @nextcloud/vue
+ * 9's NcCheckboxRadioSwitch declares `inheritAttrs: false` and merges `$attrs`
+ * onto the <input> element itself, so `[data-testid="x"] input` — what this
+ * helper used to ask for — matches nothing and can only ever time out. Verified
+ * against the DOM captured in the failing run's trace:
+ *
+ *   <input class="checkbox-radio-switch__input" type="checkbox"
+ *          data-testid="notification-toggle-votingOpened">
+ *
+ * The input is deliberately unreachable by a real mouse click (`opacity: 0`,
+ * `z-index: -1`, with the switch's `inert` icon painted over its box), so the
+ * toggle is actuated with a click event dispatched at the control. A checkbox's
+ * activation behaviour runs for dispatched clicks, so this flips `checked` and
+ * fires `change` — the event nc-vue binds `onToggle` to — exactly as a user
+ * clicking the switch does, and it still does nothing when the control is
+ * disabled.
+ */
 async function setSwitch(page: Page, testId: string, on: boolean): Promise<void> {
-	const input = page.locator(`[data-testid="${testId}"] input`).first()
+	const input = page.locator(`[data-testid="${testId}"]`).first()
 	const checked = await input.isChecked()
 	if (checked !== on) {
-		await input.click({ force: true })
+		await input.dispatchEvent('click')
 	}
 	await expect(input).toBeChecked({ checked: on })
 }
@@ -69,8 +88,8 @@ test('Notification preferences: enable Pending vote with both Nextcloud notifica
 	// Persistence proof: a reload shows the same enabled state.
 	await page.reload()
 	await page.locator('[data-testid="decidesk-personal-settings"]').waitFor({ state: 'visible', timeout: 15_000 })
-	await expect(page.locator('[data-testid="notification-toggle-votingOpened"] input').first()).toBeChecked()
-	await expect(page.locator('[data-testid="channel-email"] input').first()).toBeChecked()
+	await expect(page.locator('[data-testid="notification-toggle-votingOpened"]').first()).toBeChecked()
+	await expect(page.locator('[data-testid="channel-email"]').first()).toBeChecked()
 })
 
 // @e2e openspec/specs/user-settings/spec.md#configure-vote-notification-preferences
@@ -97,7 +116,7 @@ test('Meeting reminders: the toggle can be disabled and persists', async ({ page
 
 	await page.reload()
 	await page.locator('[data-testid="decidesk-personal-settings"]').waitFor({ state: 'visible', timeout: 15_000 })
-	await expect(page.locator('[data-testid="notification-toggle-meetingReminder"] input').first()).not.toBeChecked()
+	await expect(page.locator('[data-testid="notification-toggle-meetingReminder"]').first()).not.toBeChecked()
 
 	// Restore the default for subsequent runs.
 	await setSwitch(page, 'notification-toggle-meetingReminder', true)
@@ -122,9 +141,9 @@ test('Reminder timing: defaults to 24h + 1h and accepts 48h + 1h', async ({ page
 
 	await page.reload()
 	await page.locator('[data-testid="decidesk-personal-settings"]').waitFor({ state: 'visible', timeout: 15_000 })
-	await expect(page.locator('[data-testid="reminder-time-48h"] input').first()).toBeChecked()
-	await expect(page.locator('[data-testid="reminder-time-1h"] input').first()).toBeChecked()
-	await expect(page.locator('[data-testid="reminder-time-24h"] input').first()).not.toBeChecked()
+	await expect(page.locator('[data-testid="reminder-time-48h"]').first()).toBeChecked()
+	await expect(page.locator('[data-testid="reminder-time-1h"]').first()).toBeChecked()
+	await expect(page.locator('[data-testid="reminder-time-24h"]').first()).not.toBeChecked()
 
 	// Restore the spec default.
 	await setSwitch(page, 'reminder-time-24h', true)
@@ -154,13 +173,25 @@ test('Display preferences: default view Meetings redirects the app root to the m
 	await page.waitForTimeout(1500)
 	await expect(page).toHaveURL(/\/apps\/decidesk\/decisions/)
 
-	// Restore the default for subsequent runs.
-	await page.goto(`${BASE}/settings/user/decidesk`)
-	await page.locator('[data-testid="decidesk-personal-settings"]').waitFor({ state: 'visible', timeout: 15_000 })
-	await page.locator('[data-testid="display-default-view"] input').first().click()
-	await page.getByRole('option', { name: 'Dashboard', exact: true }).click()
-	await page.locator('[data-testid="display-preferences-save"]').click()
-	await expect(page.getByText('Display preferences saved.')).toBeVisible()
+	// Restore the default for subsequent runs — via the API, not the UI.
+	//
+	// ⚠️ This is the one thing that was actually wrong with this test. Every
+	// assertion above already passed on the failing run (trace: the redirect
+	// landed on /meetings at 10.6s and the deep link held at 17.6s); the test
+	// then died re-loading the settings panel for the restore. Three full app
+	// navigations plus the settings panel cost ~16s of the 20s per-test budget
+	// on their own, so the reset cannot afford a fourth page load. It goes
+	// straight at the per-user endpoint the UI itself writes
+	// (PreferencesController::setPreference, @NoCSRFRequired, session-scoped),
+	// reusing the browser context's cookies plus a CSRF token (the same
+	// `/index.php/csrftoken` handshake the workflow fixtures use). Housekeeping
+	// only — no acceptance criterion is asserted through the UI restore.
+	const csrf = await page.request.get(`${BASE}/index.php/csrftoken`)
+	const reset = await page.request.put(`${BASE}/apps/decidesk/api/preferences/default-view`, {
+		headers: { 'Content-Type': 'application/json', requesttoken: (await csrf.json()).token },
+		data: { value: 'dashboard' },
+	})
+	expect(reset.ok(), `restoring default-view returned HTTP ${reset.status()}`).toBeTruthy()
 })
 
 // @e2e openspec/specs/user-settings/spec.md#configure-date-format-preference
@@ -168,7 +199,14 @@ test('Display preferences: date format DD-MM-YYYY previews and saves', async ({ 
 	test.skip(!(await openPersonalSettings(page)), 'decidesk personal settings panel not deployed on this instance')
 
 	await page.locator('[data-testid="display-date-format"] input').first().click()
-	await page.getByRole('option', { name: 'DD-MM-YYYY', exact: true }).click()
+	// ⚠️ Matched on the option's TEXT, not its accessible name. nc-vue renders
+	// every NcSelect option through NcEllipsisedOption, which splits any label
+	// of 10+ characters into two spans inside a `display: flex` parent — so the
+	// option's accessible name gains a space at the split point and an option
+	// literally named "DD-MM-YYYY" never exists. Playwright's own aria snapshot
+	// from the failing run records it verbatim: `option "DD-MM -YYYY"`. The
+	// element's text content is unaffected, so that is what this asserts on.
+	await page.getByRole('option').filter({ hasText: /^DD-MM-YYYY$/ }).click()
 
 	// The example preview renders in the chosen format (DD-MM-YYYY).
 	await expect(page.getByText(/Example: \d{2}-\d{2}-\d{4}/)).toBeVisible()
@@ -224,7 +262,11 @@ test('Communication: governance email overrides the account default and saves', 
 	// The section documents the account-email default.
 	await expect(page.getByText('Leave empty to use your Nextcloud account email.')).toBeVisible()
 
-	const emailInput = page.locator('[data-testid="communication-email"] input').first()
+	// ⚠️ Same contract as the switches: NcTextField renders NcInputField, which
+	// declares `inheritAttrs: false` and merges `$attrs` onto its <input>, so
+	// the `data-testid` IS the input. Confirmed from the failing run's trace:
+	// <input class="input-field__input" type="email" data-testid="communication-email">
+	const emailInput = page.locator('[data-testid="communication-email"]').first()
 	await emailInput.fill('not-an-email')
 	await expect(page.getByText('Enter a valid email address.')).toBeVisible()
 	await expect(page.locator('[data-testid="communication-save"]')).toBeDisabled()
@@ -235,10 +277,10 @@ test('Communication: governance email overrides the account default and saves', 
 
 	await page.reload()
 	await page.locator('[data-testid="decidesk-personal-settings"]').waitFor({ state: 'visible', timeout: 15_000 })
-	await expect(page.locator('[data-testid="communication-email"] input').first()).toHaveValue('work@example.com')
+	await expect(page.locator('[data-testid="communication-email"]').first()).toHaveValue('work@example.com')
 
 	// Restore the account default.
-	await page.locator('[data-testid="communication-email"] input').first().fill('')
+	await page.locator('[data-testid="communication-email"]').first().fill('')
 	await page.locator('[data-testid="communication-save"]').click()
 	await expect(page.getByText('Communication preferences saved.')).toBeVisible()
 })
