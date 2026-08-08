@@ -64,7 +64,20 @@ Vrij en open source onder de EUPL-1.2-licentie.
              Optional runtime dependency: OpenConnector (eIDAS QES e-sign Source), Docudesk (signing + AI minutes),
              OpenCatalogi (decision publication) — all resolved lazily via the DI container and degrade gracefully
              when absent. -->
-        <nextcloud min-version="28" max-version="34"/>
+        <!-- min-version is 32, NOT 28. The OpenRegister dependency noted above is HARD
+             (src/manifest.json lists "openregister" under "dependencies"), and openregister
+             declares min-version="32" as of ConductionNL/openregister#2384. An app's floor
+             must be >= the maximum floor of every <app> it depends on; below that floor the
+             dependency refuses to install and every meeting, motion and decision — all of
+             which are OpenRegister objects — is unreachable. Declaring 28 advertised an
+             App Store range this app cannot deliver: the openconnector#1172/#1173 defect.
+
+             This reverses #424, which restored the 28 floor on the premise that openregister
+             had returned to 28 in openregister#2380. That premise expired: #2384 (merged
+             2026-08-08) moved it back to 32 deliberately and fleet-wide, and names decidesk
+             as one of eight consumers that must move their CI matrices to stable32. The
+             matrix move is in this same commit, so the two statements stay in agreement. -->
+        <nextcloud min-version="32" max-version="34"/>
     </dependencies>
 
     <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
