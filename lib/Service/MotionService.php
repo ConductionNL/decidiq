@@ -182,7 +182,7 @@ class MotionService
      * guard BEFORE invoking this method and pass the authenticated UID as actorId.
      *
      * @param string $objectId   UUID of the Motion or Amendment object
-     * @param string $objectType Schema slug: 'motion' or 'amendment'
+     * @param string $objectType ADR-005 decisionType discriminator: 'motion' or 'amendment'
      * @param string $newState   Target lifecycle state
      * @param string $actorId    Nextcloud user UID performing the transition, or 'system' for internal calls
      *
@@ -213,21 +213,16 @@ class MotionService
         // `$transitions = MOTION_TRANSITIONS; if ($objectType === 'amendment')`
         // shape silently applied the motion table to any other value.
         $transitions = match ($objectType) {
-            DecisionSchema::MOTION    => self::MOTION_TRANSITIONS,
-            DecisionSchema::AMENDMENT => self::AMENDMENT_TRANSITIONS,
-            default                   => throw new InvalidArgumentException(
-                sprintf(
-                    "Unknown objectType '%s'; expected one of: %s, %s",
-                    $objectType,
-                    DecisionSchema::MOTION,
-                    DecisionSchema::AMENDMENT
-                )
+            'motion'    => self::MOTION_TRANSITIONS,
+            'amendment' => self::AMENDMENT_TRANSITIONS,
+            default     => throw new InvalidArgumentException(
+                "Unknown objectType '$objectType'; expected one of: motion, amendment"
             ),
         };
 
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema(DecisionSchema::SLUG);
+        $objectService->setSchema('decision');
 
         $object      = $objectService->find($objectId);
         $objectArray = [];
@@ -236,7 +231,7 @@ class MotionService
         }
 
         if ($object === null
-            || DecisionSchema::isType(object: $objectArray, decisionType: $objectType) === false
+            || ($objectArray['decisionType'] ?? null) !== $objectType
         ) {
             throw new RuntimeException("Object $objectType/$objectId not found");
         }
@@ -260,7 +255,7 @@ class MotionService
         $objectService->saveObject(
             object: array_merge($objectArray, ['lifecycle' => $newState, 'status' => $newState]),
             register: 'decidesk',
-            schema: DecisionSchema::SLUG,
+            schema: 'decision',
             uuid: $objectId,
         );
 
@@ -279,7 +274,7 @@ class MotionService
      * the requirement and the shortfall so the proposer knows how many more
      * co-signers to gather before resubmitting. Amendments are exempt.
      *
-     * @param string               $objectType   Schema slug: 'motion' or 'amendment'
+     * @param string               $objectType   ADR-005 decisionType discriminator: 'motion' or 'amendment'
      * @param string               $currentState The current lifecycle state
      * @param string               $newState     The target lifecycle state
      * @param array<string, mixed> $objectArray  The serialized object being transitioned
@@ -330,10 +325,10 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema(DecisionSchema::SLUG);
+        $objectService->setSchema('decision');
 
-        $motionData   = $this->findMotionData(objectService: $objectService, motionId: $motionId);
-        $title        = $motionData['title'] ?? 'Motie';
+        $motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
+        $title      = $motionData['title'] ?? 'Motie';
         $pendingSignerUids = [];
 
         foreach ($participantIds as $participantId) {
@@ -371,11 +366,11 @@ class MotionService
                 )
             );
             $objectService->setRegister('decidesk');
-            $objectService->setSchema(DecisionSchema::SLUG);
+            $objectService->setSchema('decision');
             $objectService->saveObject(
                 object: array_merge($motionData, ['pendingCoSignerUids' => array_values($existing)]),
                 register: 'decidesk',
-                schema: DecisionSchema::SLUG,
+                schema: 'decision',
                 uuid: $motionId,
             );
         }
@@ -441,7 +436,7 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema(DecisionSchema::SLUG);
+        $objectService->setSchema('decision');
 
         $motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
         $coSigners  = $motionData['coSigners'] ?? [];
@@ -451,7 +446,7 @@ class MotionService
             $objectService->saveObject(
                 object: array_merge($motionData, ['coSigners' => $coSigners]),
                 register: 'decidesk',
-                schema: DecisionSchema::SLUG,
+                schema: 'decision',
                 uuid: $motionId,
             );
         }
@@ -474,7 +469,7 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema(DecisionSchema::SLUG);
+        $objectService->setSchema('decision');
 
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
@@ -482,7 +477,7 @@ class MotionService
         }
 
         $motionData = $motionObject->getObject();
-        if (DecisionSchema::isType(object: $motionData, decisionType: DecisionSchema::MOTION) === false) {
+        if (($motionData['decisionType'] ?? null) !== 'motion') {
             return false;
         }
 
@@ -510,7 +505,7 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema(DecisionSchema::SLUG);
+        $objectService->setSchema('decision');
 
         $motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
         $notes      = $motionData['notes'] ?? [];
@@ -550,7 +545,7 @@ class MotionService
         $objectService->saveObject(
             object: array_merge($motionData, ['notes' => $notes]),
             register: 'decidesk',
-            schema: DecisionSchema::SLUG,
+            schema: 'decision',
             uuid: $motionId,
         );
 
@@ -582,7 +577,7 @@ class MotionService
         }
 
         if ($motionObject === null
-            || DecisionSchema::isType(object: $motionData, decisionType: DecisionSchema::MOTION) === false
+            || ($motionData['decisionType'] ?? null) !== 'motion'
         ) {
             throw new RuntimeException("Motion $motionId not found");
         }
@@ -595,7 +590,7 @@ class MotionService
      * Resolve every Amendment that belongs to a Motion.
      *
      * Delegates to MotionAmendmentService, which honours BOTH link shapes (the
-     * flat `parentMotion` property and a structured `relations` entry) and
+     * flat `amends` property and a structured `relations` entry) and
      * dedups by id.
      *
      * @param string $motionId UUID of the parent Motion

@@ -120,15 +120,15 @@ class MinutesGenerationService
         }
 
         // Fetch related entities for the Meeting.
-        $meetingId    = $meeting['id'] ?? '';
-        $agendaItems  = $this->fetchRelatedObjects(objectService: $objectService, schema: 'agenda-item', meetingId: $meetingId);
+        $meetingId   = $meeting['id'] ?? '';
+        $agendaItems = $this->fetchRelatedObjects(objectService: $objectService, schema: 'agenda-item', meetingId: $meetingId);
         // ADR-005: motions are `decision` objects selected by the decisionType
         // discriminator; the `motion` schema no longer exists.
         $motions      = $this->fetchRelatedObjects(
             objectService: $objectService,
-            schema: DecisionSchema::SLUG,
+            schema: 'decision',
             meetingId: $meetingId,
-            extraFilters: DecisionSchema::filters(decisionType: DecisionSchema::MOTION)
+            extraFilters: ['decisionType' => 'motion']
         );
         $votingRounds = $this->fetchRelatedObjects(objectService: $objectService, schema: 'voting-round', meetingId: $meetingId);
         $decisions    = $this->fetchRelatedObjects(objectService: $objectService, schema: 'decision', meetingId: $meetingId);
@@ -463,7 +463,7 @@ class MinutesGenerationService
                     ['schema' => $schema, 'meetingId' => $meetingId, 'offset' => $offset, 'exception' => $e->getMessage()]
                 );
                 break;
-            }
+            }//end try
 
             $page = [];
             foreach ($entities as $entity) {

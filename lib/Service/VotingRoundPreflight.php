@@ -47,6 +47,12 @@ class VotingRoundPreflight
     /**
      * Accepted subject types for a voting round.
      *
+     * ADR-005 turned these from schema slugs into `decisionType` discriminator
+     * values on the unified `decision` schema. The refusal below must therefore
+     * stay ahead of any register access: a value that reaches a schema lookup
+     * on a retired slug raises DoesNotExistException, which the 400 mapper does
+     * not catch, so the endpoint answers 500 instead of 400.
+     *
      * @var string[]
      */
     private const SUBJECT_TYPES = ['motion', 'amendment'];

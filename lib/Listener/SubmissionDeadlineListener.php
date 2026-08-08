@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Listener;
 
-use OCA\Decidesk\Service\DecisionSchema;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -95,7 +94,7 @@ class SubmissionDeadlineListener implements IEventListener
 
             $row  = $this->extractRow(entity: $entity);
             $slug = $this->resolveSchemaSlug(entity: $entity, row: $row);
-            if ($slug !== DecisionSchema::SLUG) {
+            if ($slug !== 'decision') {
                 return;
             }
 
@@ -103,8 +102,8 @@ class SubmissionDeadlineListener implements IEventListener
             // discriminator — not the schema slug — says which. Every other
             // decisionType (resolution, contract, policy, …) carries no
             // submission deadline rule and is left alone.
-            $decisionType = DecisionSchema::typeOf($row);
-            if (in_array($decisionType, [DecisionSchema::MOTION, DecisionSchema::AMENDMENT], true) === false) {
+            $decisionType = (string) ($row['decisionType'] ?? '');
+            if (in_array($decisionType, ['motion', 'amendment'], true) === false) {
                 return;
             }
 
@@ -223,22 +222,22 @@ class SubmissionDeadlineListener implements IEventListener
      */
     private function resolveMeetingId(string $decisionType, array $row): ?string
     {
-        if ($decisionType === DecisionSchema::MOTION) {
+        if ($decisionType === 'motion') {
             return $this->extractReference(row: $row, property: 'meeting', relationSchema: 'meeting');
         }
 
         // Amendment: resolve parent motion first.
         $parentMotionId = $this->extractReference(
             row: $row,
-            property: DecisionSchema::AMENDS,
-            relationSchema: DecisionSchema::SLUG
+            property: 'amends',
+            relationSchema: 'decision'
         );
         if ($parentMotionId === null) {
             return null;
         }
 
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        $motionEntity  = $objectService->find(id: $parentMotionId, register: 'decidesk', schema: DecisionSchema::SLUG);
+        $motionEntity  = $objectService->find(id: $parentMotionId, register: 'decidesk', schema: 'decision');
         if ($motionEntity === null) {
             return null;
         }
@@ -252,7 +251,7 @@ class SubmissionDeadlineListener implements IEventListener
      * Extract a referenced object id from a flat property or relations entry.
      *
      * @param array<string, mixed> $row            Serialized object payload
-     * @param string               $property       Flat property name (e.g. 'meeting', 'parentMotion')
+     * @param string               $property       Flat property name (e.g. 'meeting', 'amends')
      * @param string               $relationSchema Relations schema slug to match
      *
      * @spec openspec/specs/motion-amendment/spec.md

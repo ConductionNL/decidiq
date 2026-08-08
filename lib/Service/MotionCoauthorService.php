@@ -92,14 +92,14 @@ class MotionCoauthorService
         // M4: use named-arg find() instead of setRegister/setSchema pattern.
         // ADR-005: motions live in the unified `decision` schema, so the id
         // lookup no longer proves the type — `decisionType` does.
-        $entity = $objectService->find(id: $motionId, register: 'decidesk', schema: DecisionSchema::SLUG);
+        $entity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
         $motion = [];
         if ($entity !== null) {
             $motion = $entity->jsonSerialize();
         }
 
         if ($entity === null
-            || DecisionSchema::isType(object: $motion, decisionType: DecisionSchema::MOTION) === false
+            || ($motion['decisionType'] ?? null) !== 'motion'
         ) {
             throw new RuntimeException("Motion $motionId not found");
         }
@@ -216,7 +216,7 @@ class MotionCoauthorService
             $objectService->saveObject(
                 object: $motion,
                 register: 'decidesk',
-                schema: DecisionSchema::SLUG,
+                schema: 'decision',
                 uuid: $motionId,
             );
 
@@ -266,7 +266,7 @@ class MotionCoauthorService
         $objectService->saveObject(
             object: $motion,
             register: 'decidesk',
-            schema: DecisionSchema::SLUG,
+            schema: 'decision',
             uuid: $motionId,
         );
 
@@ -341,7 +341,7 @@ class MotionCoauthorService
         $objectService->saveObject(
             object: $motion,
             register: 'decidesk',
-            schema: DecisionSchema::SLUG,
+            schema: 'decision',
             uuid: $motionId,
         );
 
@@ -505,7 +505,7 @@ class MotionCoauthorService
         $objectService->saveObject(
             object: $motion,
             register: 'decidesk',
-            schema: DecisionSchema::SLUG,
+            schema: 'decision',
             uuid: $motionId,
         );
 

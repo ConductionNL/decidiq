@@ -256,7 +256,7 @@ class VotingRoundCloser
         // Create dossier folder if an adopted MOTION.
         if ($subject['type'] === 'motion') {
             // ADR-005: the motion is a `decision` discriminated by decisionType.
-            $motion      = $this->findObject(objectId: $subject['id'], schema: DecisionSchema::SLUG);
+            $motion      = $this->findObject(objectId: $subject['id'], schema: 'decision');
             $motionTitle = (string) ($motion['title'] ?? $subject['id']);
             $this->createDossierFolder(motionId: $subject['id'], motionTitle: $motionTitle);
         }
@@ -403,7 +403,7 @@ class VotingRoundCloser
     /**
      * Incorporate an adopted amendment into its parent motion text (fail-soft).
      *
-     * Resolves the amendment's parent motion (flat parentMotion property or
+     * Resolves the amendment's parent motion (flat `amends` property or
      * structured relation) and delegates to MotionService::applyAmendment(),
      * which appends the amendment as an annotated section of the motion text.
      * Failures are logged and never undo the recorded vote result.
@@ -418,9 +418,9 @@ class VotingRoundCloser
     {
         try {
             // ADR-005: the amendment is a `decision` discriminated by decisionType.
-            $amendment = $this->findObject(objectId: $amendmentId, schema: DecisionSchema::SLUG);
+            $amendment = $this->findObject(objectId: $amendmentId, schema: 'decision');
             if ($amendment === null
-                || DecisionSchema::isType(object: $amendment, decisionType: DecisionSchema::AMENDMENT) === false
+                || ($amendment['decisionType'] ?? null) !== 'amendment'
             ) {
                 return;
             }
@@ -436,7 +436,7 @@ class VotingRoundCloser
                 'Decidesk: failed to incorporate adopted amendment into the parent motion text',
                 ['amendmentId' => $amendmentId, 'error' => $e->getMessage()]
             );
-        }
+        }//end try
 
     }//end incorporateAdoptedAmendment()
 

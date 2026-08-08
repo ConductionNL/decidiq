@@ -88,7 +88,7 @@ class MotionForwardingService
         // Fetch the source motion. ADR-005: motions are `decision` objects
         // discriminated by decisionType=motion.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema(DecisionSchema::SLUG);
+        $objectService->setSchema('decision');
         $sourceMotionObject = $objectService->find($motionId);
         $sourceMotionData   = [];
         if ($sourceMotionObject !== null) {
@@ -96,7 +96,7 @@ class MotionForwardingService
         }
 
         if ($sourceMotionObject === null
-            || DecisionSchema::isType(object: $sourceMotionData, decisionType: DecisionSchema::MOTION) === false
+            || ($sourceMotionData['decisionType'] ?? null) !== 'motion'
         ) {
             throw new RuntimeException("Motion $motionId not found");
         }
@@ -110,11 +110,11 @@ class MotionForwardingService
         );
 
         $objectService->setRegister('decidesk');
-        $objectService->setSchema(DecisionSchema::SLUG);
+        $objectService->setSchema('decision');
         $created = $objectService->saveObject(
             object: $forwardedMotion,
             register: 'decidesk',
-            schema: DecisionSchema::SLUG,
+            schema: 'decision',
         );
 
         $sourceMotionData = $this->noteForwarding(
@@ -164,19 +164,19 @@ class MotionForwardingService
             // motion identity the retired schema used to carry. It is `required`
             // on the Decision schema and defaults to `meeting-outcome`, so
             // omitting it would silently mistype every forwarded motion.
-            DecisionSchema::DISCRIMINATOR => DecisionSchema::MOTION,
-            'title'       => $sourceMotionData['title'] ?? '',
-            'text'        => $sourceMotionData['text'] ?? '',
-            'motionType'  => $sourceMotionData['motionType'] ?? 'motion',
-            'proposer'    => $sourceMotionData['proposer'] ?? '',
-            'coSigners'   => $sourceMotionData['coSigners'] ?? [],
-            'lifecycle'   => 'submitted',
-            'submittedAt' => $this->nowIso(),
-            'relations'   => [
+            'decisionType' => 'motion',
+            'title'        => $sourceMotionData['title'] ?? '',
+            'text'         => $sourceMotionData['text'] ?? '',
+            'motionType'   => $sourceMotionData['motionType'] ?? 'motion',
+            'proposer'     => $sourceMotionData['proposer'] ?? '',
+            'coSigners'    => $sourceMotionData['coSigners'] ?? [],
+            'lifecycle'    => 'submitted',
+            'submittedAt'  => $this->nowIso(),
+            'relations'    => [
                 ['register' => 'decidesk', 'schema' => 'governance-body', 'id' => $targetBodyId],
-                ['register' => 'decidesk', 'schema' => DecisionSchema::SLUG, 'id' => $motionId],
+                ['register' => 'decidesk', 'schema' => 'decision', 'id' => $motionId],
             ],
-            'notes'       => [
+            'notes'        => [
                 [
                     'title' => 'Doorgestuurd van',
                     'body'  => json_encode(
@@ -227,11 +227,11 @@ class MotionForwardingService
         ];
 
         $objectService->setRegister('decidesk');
-        $objectService->setSchema(DecisionSchema::SLUG);
+        $objectService->setSchema('decision');
         $objectService->saveObject(
             object: $sourceMotionData,
             register: 'decidesk',
-            schema: DecisionSchema::SLUG,
+            schema: 'decision',
             uuid: $motionId,
         );
 

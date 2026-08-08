@@ -147,15 +147,13 @@ class AmendmentOrderService
     {
         // ADR-005: amendments are `decision` objects; `decisionType` carries the
         // identity the retired `amendment` schema used to carry.
-        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: DecisionSchema::SLUG);
-        $amendment       = [];
-        if ($amendmentEntity !== null) {
-            $amendment = $amendmentEntity->jsonSerialize();
-        }
+        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'decision');
+        $amendment       = ($amendmentEntity?->jsonSerialize() ?? []);
 
-        if ($amendmentEntity === null
-            || DecisionSchema::isType(object: $amendment, decisionType: DecisionSchema::AMENDMENT) === false
-        ) {
+        // A missing object and a decision of the wrong type are the same answer:
+        // this id is not an amendment. An absent object has no discriminator, so
+        // the single check covers both.
+        if (($amendment['decisionType'] ?? null) !== 'amendment') {
             throw new RuntimeException("Amendment {$amendmentId} not found");
         }
 
@@ -297,7 +295,7 @@ class AmendmentOrderService
      */
     public function resolveParentMotionId(array $amendment): ?string
     {
-        $direct = $this->refId(ref: ($amendment[DecisionSchema::AMENDS] ?? null));
+        $direct = $this->refId(ref: ($amendment['amends'] ?? null));
         if ($direct !== '') {
             return $direct;
         }
@@ -326,7 +324,7 @@ class AmendmentOrderService
             return null;
         }
 
-        $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: DecisionSchema::SLUG);
+        $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: 'decision');
         if ($motionEntity === null) {
             return null;
         }
@@ -377,7 +375,7 @@ class AmendmentOrderService
             return null;
         }
 
-        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: DecisionSchema::SLUG);
+        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'decision');
         if ($amendmentEntity === null) {
             return null;
         }

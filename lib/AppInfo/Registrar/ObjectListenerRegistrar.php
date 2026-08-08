@@ -35,7 +35,6 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidesk\Listener\MeetingFolderListener;
 use OCA\Decidesk\Listener\SubmissionDeadlineListener;
-use OCA\Decidesk\Service\DecisionSchema;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
@@ -125,7 +124,7 @@ class ObjectListenerRegistrar
 
         // Submission deadline gate (motion-amendment spec). Declared interest is
         // the handler's own literal schema guard verbatim —
-        // `$slug !== DecisionSchema::SLUG` — so the declaration cannot be
+        // `$slug !== 'decision'` — so the declaration cannot be
         // narrower than the guard it fronts. ADR-005 retired the `motion` and
         // `amendment` schemas into `decision`; subscribing to the deleted slugs
         // subscribed the listener to nothing, so the deadline never fired.
@@ -136,7 +135,7 @@ class ObjectListenerRegistrar
             event: ObjectCreatingEvent::class,
             listener: SubmissionDeadlineListener::class,
             registers: null,
-            schemas: [DecisionSchema::SLUG]
+            schemas: ['decision']
         );
 
     }//end register()

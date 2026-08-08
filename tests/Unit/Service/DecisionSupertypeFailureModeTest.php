@@ -46,7 +46,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Controller\MotionController;
-use OCA\Decidesk\Service\DecisionSchema;
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProcessTemplateService;
@@ -92,6 +91,18 @@ class DecisionSupertypeFailureModeTest extends TestCase
         'governance-body',
         'action-item',
     ];
+
+    /**
+     * The schema slugs ADR-005 retired into `decision`.
+     *
+     * Kept as the exact complement of the register: `tests/Unit/RegisterJsonTest.php`
+     * asserts `Motion`, `Amendment` and `Resolution` are absent from
+     * `lib/Settings/decidesk_register.json`, and no production path may address
+     * them.
+     *
+     * @var string[]
+     */
+    private const RETIRED_SCHEMAS = ['motion', 'amendment', 'resolution'];
 
     /**
      * Every schema slug the code under test asked the register for.
@@ -481,7 +492,7 @@ class DecisionSupertypeFailureModeTest extends TestCase
         self::assertNotSame([], $requested, 'The request must actually reach the register.');
         self::assertSame(
             [],
-            array_values(array_intersect($requested, array_keys(DecisionSchema::RETIRED_SCHEMA_TYPES))),
+            array_values(array_intersect($requested, self::RETIRED_SCHEMAS)),
             'ADR-005 retired motion/amendment/resolution; requested: '.implode(', ', $requested)
         );
 
@@ -558,7 +569,7 @@ class DecisionSupertypeFailureModeTest extends TestCase
                     voteThreshold: null,
                     abstentionHandling: null,
                     tieBreakRule: null,
-                    subjectType: DecisionSchema::RESOLUTION,
+                    subjectType: 'resolution',
                 );
 
                 return new JSONResponse([], Http::STATUS_CREATED);
@@ -596,7 +607,7 @@ class DecisionSupertypeFailureModeTest extends TestCase
                 voteThreshold: null,
                 abstentionHandling: null,
                 tieBreakRule: null,
-                subjectType: DecisionSchema::RESOLUTION,
+                subjectType: 'resolution',
             );
             self::fail('resolveRules() must reject an unknown subjectType.');
         } catch (\InvalidArgumentException $e) {
@@ -605,7 +616,7 @@ class DecisionSupertypeFailureModeTest extends TestCase
 
         self::assertSame(
             [],
-            array_values(array_intersect((array) $this->schemaCalls, array_keys(DecisionSchema::RETIRED_SCHEMA_TYPES))),
+            array_values(array_intersect((array) $this->schemaCalls, self::RETIRED_SCHEMAS)),
             'A rejected subjectType must not have addressed a retired schema.'
         );
 
@@ -640,7 +651,7 @@ class DecisionSupertypeFailureModeTest extends TestCase
 
         $motionService->transitionLifecycle(
             objectId: 'decision-1',
-            objectType: DecisionSchema::RESOLUTION,
+            objectType: 'resolution',
             newState: 'voting',
             actorId: 'admin',
         );
@@ -684,7 +695,7 @@ class DecisionSupertypeFailureModeTest extends TestCase
 
         $motionService->transitionLifecycle(
             objectId: 'decision-1',
-            objectType: DecisionSchema::MOTION,
+            objectType: 'motion',
             newState: 'debating',
             actorId: 'admin',
         );

@@ -30,7 +30,6 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Service\DecisionSchema;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -68,14 +67,14 @@ class ApiController extends Controller
         'persons'           => 'participant',
         'memberships'       => 'participant',
         'meetings'          => 'meeting',
-        'motions'           => DecisionSchema::SLUG,
+        'motions'           => 'decision',
         'voting-rounds'     => 'voting-round',
         'votes'             => 'vote',
         'agenda-items'      => 'agenda-item',
         'minutes'           => 'minutes',
-        'decisions'         => DecisionSchema::SLUG,
+        'decisions'         => 'decision',
         'action-items'      => 'action-item',
-        'amendments'        => DecisionSchema::SLUG,
+        'amendments'        => 'decision',
     ];
 
     /**
@@ -90,8 +89,8 @@ class ApiController extends Controller
      * @var array<string, string>
      */
     private const RESOURCE_DECISION_TYPES = [
-        'motions'    => DecisionSchema::MOTION,
-        'amendments' => DecisionSchema::AMENDMENT,
+        'motions'    => 'motion',
+        'amendments' => 'amendment',
     ];
 
     /**
@@ -181,17 +180,17 @@ class ApiController extends Controller
             // decisionType discriminator, not by their own (retired) schema.
             $decisionType = (self::RESOURCE_DECISION_TYPES[$resource] ?? null);
             if ($decisionType !== null) {
-                $filters = DecisionSchema::filters(decisionType: $decisionType, extra: $filters);
+                $filters['decisionType'] = $decisionType;
             }
 
-            $results       = $objectService->findAll(
+            $results = $objectService->findAll(
                 [
                     'filters' => $filters,
                     'limit'   => $limit,
                     'offset'  => $offset,
                 ]
             );
-            $total         = 0;
+            $total   = 0;
             if (is_array($results) === true) {
                 $total = count($results);
             }
@@ -254,14 +253,14 @@ class ApiController extends Controller
             $decisionType = (self::RESOURCE_DECISION_TYPES[$resource] ?? null);
             if ($object !== null
                 && $decisionType !== null
-                && DecisionSchema::isType(object: $object, decisionType: $decisionType) === false
+                && ($object['decisionType'] ?? null) !== $decisionType
             ) {
                 $object = null;
             }
         } catch (Throwable $e) {
             $this->logger->error(message: 'ApiController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
 
         if ($object === null) {
             return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);

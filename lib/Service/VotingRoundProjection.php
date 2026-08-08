@@ -150,7 +150,7 @@ class VotingRoundProjection
             // ADR-005: the motion is a `decision` discriminated by decisionType;
             // the relation token above stays the subjectType VotingRoundPreflight
             // writes.
-            $motion = $this->findObject(objectId: (string) $motionId, schema: DecisionSchema::SLUG);
+            $motion = $this->findObject(objectId: (string) $motionId, schema: 'decision');
 
             return (string) ($motion['title'] ?? '');
         }

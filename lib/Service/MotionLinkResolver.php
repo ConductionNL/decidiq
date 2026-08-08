@@ -5,7 +5,7 @@
  * Reads and compares the object links a motion carries: the meeting it belongs
  * to, and whether a given amendment is a child of it. Both questions are asked
  * against data that exists in TWO shapes — a flat property (`meeting`,
- * `parentMotion`) written by the UI and the Newman fixtures, and a structured
+ * `amends`) written by the UI and the Newman fixtures, and a structured
  * `relations` entry written by OpenRegister — so the shape-tolerant matching
  * lives here once instead of being repeated per caller.
  *
@@ -72,7 +72,7 @@ class MotionLinkResolver
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $motionEntity  = $objectService->find(id: $motionId, register: 'decidesk', schema: DecisionSchema::SLUG);
+            $motionEntity  = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
             if ($motionEntity === null) {
                 return null;
             }
@@ -145,7 +145,8 @@ class MotionLinkResolver
     /**
      * Determine whether a serialized amendment references the given motion.
      *
-     * Checks the flat `parentMotion` property (string or {id} object) and the
+     * Checks the flat `amends` property (string or {id} object) — the ADR-005
+     * replacement for the retired Amendment schema's `parentMotion` — and the
      * structured `relations` list.
      *
      * @param array<string, mixed> $amendment Serialized amendment object
@@ -198,7 +199,7 @@ class MotionLinkResolver
      */
     private function parentMotionMatches(array $amendment, string $motionId): bool
     {
-        $parentRef = ($amendment[DecisionSchema::AMENDS] ?? null);
+        $parentRef = ($amendment['amends'] ?? null);
 
         if (is_string($parentRef) === true) {
             return ($parentRef === $motionId);
@@ -236,8 +237,8 @@ class MotionLinkResolver
         $relSchema = ($relation['schema'] ?? null);
 
         $schemaAccepted = ($relSchema === null
-            || $relSchema === DecisionSchema::SLUG
-            || $relSchema === DecisionSchema::MOTION);
+            || $relSchema === 'decision'
+            || $relSchema === 'motion');
 
         return ($relId === $motionId && $schemaAccepted);
 

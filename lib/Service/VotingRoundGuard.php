@@ -213,7 +213,7 @@ class VotingRoundGuard
             }
 
             // ADR-005: the motion is a `decision` discriminated by decisionType.
-            $motion = $this->findData(objectService: $objectService, id: $motionId, schema: DecisionSchema::SLUG);
+            $motion = $this->findData(objectService: $objectService, id: $motionId, schema: 'decision');
             if ($motion === null) {
                 return null;
             }
@@ -282,7 +282,7 @@ class VotingRoundGuard
     }//end resolveMotionId()
 
     /**
-     * Resolve an amendment's parent motion, from either the `parentMotion`
+     * Resolve an amendment's parent motion, from either the `amends`
      * property or a structured motion relation.
      *
      * @param object $objectService The OpenRegister ObjectService
@@ -301,14 +301,14 @@ class VotingRoundGuard
         // ADR-005: the amendment is a `decision` discriminated by decisionType,
         // and its parent link is the `amends` relation that replaced the retired
         // Amendment schema's `parentMotion` property.
-        $amendment = $this->findData(objectService: $objectService, id: $amendmentId, schema: DecisionSchema::SLUG);
+        $amendment = $this->findData(objectService: $objectService, id: $amendmentId, schema: 'decision');
         if ($amendment === null
-            || DecisionSchema::isType(object: $amendment, decisionType: DecisionSchema::AMENDMENT) === false
+            || ($amendment['decisionType'] ?? null) !== 'amendment'
         ) {
             return null;
         }
 
-        $parentRef = ($amendment[DecisionSchema::AMENDS] ?? null);
+        $parentRef = ($amendment['amends'] ?? null);
         if (is_string($parentRef) === true && $parentRef !== '') {
             return $parentRef;
         }
