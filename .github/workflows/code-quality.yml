@@ -14,7 +14,23 @@ jobs:
       app-name: decidesk
       php-version: "8.3"
       php-test-versions: '["8.3", "8.4"]'
-      nextcloud-test-refs: '["stable31", "stable32"]'
+      # stable31 is REMOVED because it tested an impossible configuration, not
+      # because we are trimming coverage. `additional-apps` below installs
+      # openregister, which declares min-version="32" (ConductionNL/openregister#2384),
+      # so on NC31 `occ app:enable openregister` refuses with "not compatible with
+      # this version of the server". The shared workflow runs that as
+      # `php occ app:enable "$name" || echo "::warning::Failed to enable $name"`,
+      # so the failure is a WARNING and the job continues without its data layer,
+      # then dies ~70s later on missing schemas — which reads like an app fault.
+      #
+      # Order mattered as much as membership: the newman, playwright and
+      # journeydoc-capture jobs each check out the server at
+      # `fromJSON(inputs.nextcloud-test-refs)[0]`, so stable31 sitting FIRST put
+      # all three on the one version openregister cannot load.
+      #
+      # stable33 is deliberately NOT added: this removes an impossible leg, it
+      # does not widen the matrix.
+      nextcloud-test-refs: '["stable32"]'
       enable-psalm: true
       enable-phpstan: true
       enable-phpmetrics: true
