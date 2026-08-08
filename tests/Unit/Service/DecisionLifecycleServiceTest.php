@@ -133,6 +133,41 @@ class DecisionLifecycleServiceTest extends TestCase
     }//end entity()
 
     /**
+     * Wire `saveObject()` to record the payload it was handed instead of
+     * asserting `never()`.
+     *
+     * A `never()` expectation makes PHPUnit throw INSIDE the service, where the
+     * catch-all turns it into the generic "Transition failed" message — so the
+     * test goes red with a message that hides what actually happened. Recording
+     * the write instead makes the failure state the defect out loud: the object
+     * that reached the terminal state.
+     *
+     * @return object A holder whose `value` is the saved payload, or null when nothing was written
+     */
+    private function captureSaves(): object
+    {
+        $holder = new class {
+            /**
+             * The payload handed to saveObject(), or null when never called.
+             *
+             * @var array<string, mixed>|null
+             */
+            public ?array $value = null;
+        };
+
+        $this->objectService->method('saveObject')->willReturnCallback(
+            function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null) use ($holder) {
+                $holder->value = $object;
+                return $this->entity($object);
+            }
+        );
+        $this->auditLogService->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
+
+        return $holder;
+
+    }//end captureSaves()
+
+    /**
      * Unknown actions are rejected before any object load.
      *
      * @spec openspec/specs/decision-management/spec.md
@@ -298,6 +333,166 @@ class DecisionLifecycleServiceTest extends TestCase
     }//end testEnactRequiresAdoptedOutcome()
 
     /**
+     * THE GATE THAT MUST NOT BE LOST.
+     *
+     * `outcome` and `decisionDate` are no longer unconditionally `required` on
+     * the Decision schema (an in-flight motion has no legal outcome), so the
+     * completeness rule binds HERE instead: a decision may not ENTER a terminal
+     * outcome state without both fields. Without this gate, relaxing the schema
+     * would make an outcome-less decided decision undetectable.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testDecideRejectedWithoutOutcomeAndDecisionDate(): void
+    {
+        $this->objectService->method('find')
+            ->willReturn($this->entity(['id' => 'dec-1', 'lifecycle' => 'voting', 'title' => 'Motie Woonlasten']));
+
+        $saved = $this->captureSaves();
+
+        $result = $this->service->transition(decisionId: 'dec-1', action: 'decide', currentUserId: 'alice');
+        self::assertNull(
+            actual: $saved->value,
+            message: 'A decision with neither outcome nor decisionDate was written into the terminal state '
+                .'"decided" — the completeness rule that used to live in the schema `required[]` has been lost.'
+        );
+        self::assertFalse(condition: $result['success']);
+        self::assertStringContainsString(needle: 'outcome', haystack: $result['message']);
+        self::assertStringContainsString(needle: 'decisionDate', haystack: $result['message']);
+
+    }//end testDecideRejectedWithoutOutcomeAndDecisionDate()
+
+    /**
+     * A decision carrying an `outcome` value outside the schema enum
+     * (the shipped `motie-woonlasten-2025` seed used `outcome: "pending"`)
+     * is not "complete" — the terminal gate rejects it just as it rejects a
+     * missing value.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testDecideRejectedWithOutOfVocabularyOutcome(): void
+    {
+        $this->objectService->method('find')->willReturn(
+            $this->entity(
+                [
+                    'id'           => 'dec-1',
+                    'lifecycle'    => 'voting',
+                    'outcome'      => 'pending',
+                    'decisionDate' => '2026-04-10T21:00:00Z',
+                ]
+            )
+        );
+
+        $saved = $this->captureSaves();
+
+        $result = $this->service->transition(decisionId: 'dec-1', action: 'decide', currentUserId: 'alice');
+        self::assertNull(
+            actual: $saved->value,
+            message: 'A decision whose outcome is outside the schema enum was written into "decided".'
+        );
+        self::assertFalse(condition: $result['success']);
+        self::assertStringContainsString(needle: 'outcome', haystack: $result['message']);
+
+    }//end testDecideRejectedWithOutOfVocabularyOutcome()
+
+    /**
+     * The other direction: a decision that DOES carry both terminal fields
+     * transitions to `decided` normally.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testDecideAcceptedWithOutcomeAndDecisionDate(): void
+    {
+        $this->objectService->method('find')->willReturn(
+            $this->entity(
+                [
+                    'id'           => 'dec-1',
+                    'lifecycle'    => 'voting',
+                    'outcome'      => 'adopted',
+                    'decisionDate' => '2026-04-10T21:00:00Z',
+                ]
+            )
+        );
+
+        $saved = null;
+        $this->objectService->method('saveObject')->willReturnCallback(
+            function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null) use (&$saved) {
+                $saved = $object;
+                return $this->entity($object);
+            }
+        );
+        $this->auditLogService->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
+
+        $result = $this->service->transition(decisionId: 'dec-1', action: 'decide', currentUserId: 'alice');
+        self::assertTrue(condition: $result['success']);
+        self::assertSame(expected: 'decided', actual: $saved['lifecycle']);
+
+    }//end testDecideAcceptedWithOutcomeAndDecisionDate()
+
+    /**
+     * The gate binds at EVERY terminal entry, not only at `decide`: an adopted
+     * decision with no `decisionDate` cannot be enacted either.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testEnactRejectedWithoutDecisionDate(): void
+    {
+        $this->objectService->method('find')
+            ->willReturn($this->entity(['id' => 'dec-1', 'lifecycle' => 'decided', 'outcome' => 'adopted']));
+
+        $saved = $this->captureSaves();
+
+        $result = $this->service->transition(decisionId: 'dec-1', action: 'enact', currentUserId: 'alice');
+        self::assertNull(
+            actual: $saved->value,
+            message: 'A decision with no decisionDate was written into the terminal state "enacted".'
+        );
+        self::assertFalse(condition: $result['success']);
+        self::assertStringContainsString(needle: 'decisionDate', haystack: $result['message']);
+
+    }//end testEnactRejectedWithoutDecisionDate()
+
+    /**
+     * In flight is NOT gated: a motion moving `deliberating → voting` carries
+     * no outcome and no decisionDate, and must be allowed through. This is the
+     * behaviour the schema change restores.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testInFlightTransitionNeedsNoOutcome(): void
+    {
+        $this->objectService->method('find')->willReturnCallback(
+            function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null) {
+                return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'title' => 'Motie Woonlasten']);
+            }
+        );
+
+        $saved = null;
+        $this->objectService->method('saveObject')->willReturnCallback(
+            function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null) use (&$saved) {
+                $saved = $object;
+                return $this->entity($object);
+            }
+        );
+        $this->auditLogService->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
+
+        $result = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'alice');
+        self::assertTrue(condition: $result['success']);
+        self::assertSame(expected: 'voting', actual: $saved['lifecycle']);
+
+    }//end testInFlightTransitionNeedsNoOutcome()
+
+    /**
      * Happy path: propose persists the new lifecycle and appends the
      * hash-chained decision-transition audit entry.
      *
@@ -351,7 +546,23 @@ class DecisionLifecycleServiceTest extends TestCase
     public function testEnactSetsEnactedAtAndGeneratesResolution(): void
     {
         $this->objectService->method('find')
-            ->willReturn($this->entity(['id' => 'dec-1', 'lifecycle' => 'decided', 'outcome' => 'adopted', 'title' => 'Budget 2026', 'text' => 'Adopt the budget.']));
+            ->willReturn(
+                $this->entity(
+                    [
+                        'id'        => 'dec-1',
+                        'lifecycle' => 'decided',
+                        'outcome'   => 'adopted',
+                        // A decision already in `decided` necessarily carries a
+                        // decisionDate — the terminal-completeness gate is what
+                        // let it get there. The fixture previously omitted it,
+                        // which is why the generated resolution's adoptionDate
+                        // asserted below used to come out empty.
+                        'decisionDate' => '2026-04-10T21:00:00Z',
+                        'title'        => 'Budget 2026',
+                        'text'         => 'Adopt the budget.',
+                    ]
+                )
+            );
 
         // Both the lifecycle update and the generated resolution record now
         // persist on the unified `decision` schema (ADR-005 folded the former
@@ -392,6 +603,11 @@ class DecisionLifecycleServiceTest extends TestCase
             expected: $decisionSave['enactedAt'],
             actual: $resolution['effectiveDate']
         );
+
+        // The generated resolution's adoptionDate is the decision's
+        // decisionDate — non-empty precisely because terminal completeness is
+        // now enforced before `enacted` can be entered.
+        self::assertSame(expected: '2026-04-10T21:00:00Z', actual: $resolution['adoptionDate']);
 
     }//end testEnactSetsEnactedAtAndGeneratesResolution()
 

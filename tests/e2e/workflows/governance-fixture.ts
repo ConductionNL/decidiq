@@ -187,9 +187,12 @@ export async function seedGovernanceScenario(
 	// `motion` therefore 404s with "Schema not found: 'motion'", which is what
 	// every test in this fixture's dependants was failing on.
 	//
-	// `decisionType` is the schema's one required property.
-	// Decision.required[] is [title, text, decisionDate, outcome, decisionType] —
-	// all five must be present or the POST is a 400 naming the missing ones.
+	// Decision.required[] is [title, text, decisionType] — those three must be
+	// present or the POST is a 400 naming the missing ones. `decisionDate` and
+	// `outcome` are NOT unconditionally required (an in-flight motion has no
+	// outcome); they are enforced at the transition boundary instead, when the
+	// decision enters decided/enacted/archived. This fixture supplies them
+	// anyway so the seeded motion can be driven all the way to a terminal state.
 	// `lifecycle` is [draft, proposed, deliberating, voting, decided, enacted,
 	// archived, withdrawn]: there is no 'debating'. And Decision has NO `meeting`
 	// property (the AgendaItem carries that link), so passing one invents a field.

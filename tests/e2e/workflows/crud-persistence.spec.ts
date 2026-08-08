@@ -324,10 +324,13 @@ test('Decision: create persists, appears in list, detail shows values, delete re
 	// variant carrying no `text`/`outcome`. That is not the schema this suite
 	// runs against any more: CI provisions the register from THIS repo's
 	// `lib/Settings/decidesk_register.json`, where Decision declares
-	// `required: [title, text, decisionDate, outcome, decisionType]`. Omitting
-	// them is a hard 400 from OpenRegister ("The required properties (text,
-	// outcome) are missing"), which surfaces as a fixture failure, not as an
-	// assertion failure — so it accuses the CRUD path rather than the payload.
+	// `required: [title, text, decisionType]`. Omitting one of those is a hard
+	// 400 from OpenRegister ("The required properties (text) are missing"),
+	// which surfaces as a fixture failure, not as an assertion failure — so it
+	// accuses the CRUD path rather than the payload. `decisionDate` and
+	// `outcome` are deliberately NOT in that list — an in-flight decision has
+	// neither — but this payload is a terminal meeting-outcome, so it carries
+	// both.
 	//
 	// The assertions below are unchanged; only the payload now satisfies the
 	// schema the register actually declares.
