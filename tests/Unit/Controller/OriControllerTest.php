@@ -405,4 +405,208 @@ class OriControllerTest extends TestCase
     }//end testUnknownResourceIs404()
 
 
+    /**
+     * Drive show() with one stored object and report the HTTP status.
+     *
+     * @param string              $resource The ORI resource slug.
+     * @param array<string,mixed> $object   The stored object as OR would return it.
+     *
+     * @return int The response status.
+     */
+    private function showStatus(string $resource, array $object): int
+    {
+        $this->objectService->method('find')->willReturn($this->makeEntity($object));
+
+        return $this->controller->show(resource: $resource, id: 'uuid-under-test')->getStatus();
+
+    }//end showStatus()
+
+
+    /**
+     * A `vote` carries no lifecycle field, and index() filters `lifecycle=published`,
+     * so the collection never returns one. The item endpoint is `#[PublicPage]`, so
+     * before the visibility gate an anonymous caller holding a UUID could read an
+     * individual ballot that the collection refused to list.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/public-publication/spec.md
+     */
+    public function testShowWithholdsAnObjectWithNoLifecycleField(): void
+    {
+        self::assertSame(
+            Http::STATUS_NOT_FOUND,
+            $this->showStatus('votes', ['uuid' => 'vote-1', 'choice' => 'for', 'voter' => 'alice'])
+        );
+
+    }//end testShowWithholdsAnObjectWithNoLifecycleField()
+
+
+    /**
+     * The same fail-closed rule covers the other lifecycle-less schemas reachable
+     * through show(): voting-round, agenda-item and governance-body.
+     *
+     * @param string $resource The ORI resource slug.
+     *
+     * @return void
+     *
+     * @dataProvider lifecyclelessResourceProvider
+     *
+     * @spec openspec/specs/public-publication/spec.md
+     */
+    public function testShowWithholdsEveryLifecyclelessResource(string $resource): void
+    {
+        self::assertSame(
+            Http::STATUS_NOT_FOUND,
+            $this->showStatus($resource, ['uuid' => 'obj-1', 'title' => 'Not listable'])
+        );
+
+    }//end testShowWithholdsEveryLifecyclelessResource()
+
+
+    /**
+     * Resources whose schema declares no lifecycle/status property.
+     *
+     * @return array<string, array{0: string}>
+     */
+    public static function lifecyclelessResourceProvider(): array
+    {
+        return [
+            'voting round'    => ['voteevents'],
+            'agenda item'     => ['agendaitems'],
+            'governance body' => ['organizations'],
+        ];
+
+    }//end lifecyclelessResourceProvider()
+
+
+    /**
+     * A decision is gated on `isPublished`, not on `lifecycle` — an `internal` or
+     * `confidential` motion is withheld even when its lifecycle is terminal.
+     *
+     * @param string $isPublished The publication state under test.
+     *
+     * @return void
+     *
+     * @dataProvider nonPublicDecisionProvider
+     *
+     * @spec openspec/specs/public-publication/spec.md
+     */
+    public function testShowWithholdsANonPublicDecision(string $isPublished): void
+    {
+        self::assertSame(
+            Http::STATUS_NOT_FOUND,
+            $this->showStatus(
+                'motions',
+                [
+                    'uuid'         => 'dec-1',
+                    'decisionType' => 'motion',
+                    'lifecycle'    => 'enacted',
+                    'isPublished'  => $isPublished,
+                    'title'        => 'Confidential land purchase',
+                ]
+            )
+        );
+
+    }//end testShowWithholdsANonPublicDecision()
+
+
+    /**
+     * The two non-public values of the Decision `isPublished` enum.
+     *
+     * @return array<string, array{0: string}>
+     */
+    public static function nonPublicDecisionProvider(): array
+    {
+        return [
+            'internal (the schema default)' => ['internal'],
+            'confidential'                  => ['confidential'],
+        ];
+
+    }//end nonPublicDecisionProvider()
+
+
+    /**
+     * Positive control for the gate: a public motion IS served. Without this the
+     * suite would pass just as well if show() denied everything — which is exactly
+     * what the replaced isLifecycleBlocked() did to motions, since `published` is
+     * not a member of the Decision lifecycle enum.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/public-publication/spec.md
+     */
+    public function testShowServesAPublicMotion(): void
+    {
+        self::assertSame(
+            Http::STATUS_OK,
+            $this->showStatus(
+                'motions',
+                [
+                    'uuid'         => 'dec-2',
+                    'decisionType' => 'motion',
+                    'lifecycle'    => 'enacted',
+                    'isPublished'  => 'public',
+                    'title'        => 'Motie vreemd aan de orde van de dag',
+                ]
+            )
+        );
+
+    }//end testShowServesAPublicMotion()
+
+
+    /**
+     * Second positive control: `persons` is deliberately ungated public reference
+     * data (NO_LIFECYCLE_GATE), and must keep passing through.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/public-publication/spec.md
+     */
+    public function testShowStillServesUngatedReferenceData(): void
+    {
+        self::assertSame(
+            Http::STATUS_OK,
+            $this->showStatus('persons', ['uuid' => 'p-1', 'name' => 'A. Raadslid'])
+        );
+
+    }//end testShowStillServesUngatedReferenceData()
+
+
+    /**
+     * Third positive control: minutes DO declare `published` in their lifecycle
+     * enum, so a published report is served while a draft one is withheld.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/public-publication/spec.md
+     */
+    public function testShowServesPublishedMinutesAndWithholdsDrafts(): void
+    {
+        self::assertSame(
+            Http::STATUS_OK,
+            $this->showStatus('reports', ['uuid' => 'm-1', 'lifecycle' => 'published', 'title' => 'Verslag'])
+        );
+
+    }//end testShowServesPublishedMinutesAndWithholdsDrafts()
+
+
+    /**
+     * Draft minutes remain withheld — the behaviour isLifecycleBlocked() already
+     * had for this resource must not regress.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/public-publication/spec.md
+     */
+    public function testShowWithholdsDraftMinutes(): void
+    {
+        self::assertSame(
+            Http::STATUS_NOT_FOUND,
+            $this->showStatus('reports', ['uuid' => 'm-2', 'lifecycle' => 'draft', 'title' => 'Concept'])
+        );
+
+    }//end testShowWithholdsDraftMinutes()
+
+
 }//end class

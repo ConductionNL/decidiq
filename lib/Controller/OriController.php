@@ -295,6 +295,76 @@ class OriController extends Controller
     }//end narrowToDecisionType()
 
     /**
+     * Drop an object the collection endpoint would never have returned.
+     *
+     * The invariant: **show() must never return an object index() would exclude.**
+     * index() expresses anonymous visibility as OpenRegister filters in
+     * buildFilters(); this is the same predicate evaluated against a fetched
+     * object, so the item endpoint and the collection endpoint cannot drift.
+     *
+     * It replaces isLifecycleBlocked(), which asked the wrong question two ways:
+     *
+     * - It gated `motions`/`amendments` on `lifecycle === 'published'`. Those are
+     *   `decision` objects, whose lifecycle enum is
+     *   `draft…proposed…decided…enacted…archived…withdrawn` — `published` is not
+     *   a member, so the check could never pass and `/motions/{id}` and
+     *   `/amendments/{id}` returned 404 for **every** motion, including public
+     *   ones. index() correctly gates decisions on `isPublished=public`.
+     * - It fell **open** when the object carried no lifecycle/status field at all
+     *   (`$lifecycle !== null && …`). `vote`, `voting-round`, `agenda-item` and
+     *   `governance-body` declare no such property, so `/votes/{id}`,
+     *   `/voteevents/{id}`, `/agendaitems/{id}` and `/organizations/{id}` served
+     *   the object to any anonymous caller holding a UUID — while index() filters
+     *   `lifecycle=published` and returns nothing for those same resources.
+     *   Individual ballots were readable one UUID at a time.
+     *
+     * Nothing downstream refused either: of the 37 schemas in
+     * `lib/Settings/decidesk_register.json` only PublicationPayload declares an
+     * `authorization` block, and OpenRegister's PermissionHandler grants `read`
+     * unconditionally for an empty block (`if (empty($authorization) === true …)
+     * { … return true; }`) — its anonymous fail-closed list covers write actions
+     * only (create/update/delete), never read.
+     *
+     * Absent gating field means withheld: the check is fail-closed, matching what
+     * index()'s filter does to an object that cannot satisfy it.
+     *
+     * PUBLICATIONS is excluded here and gated by isPayloadLive() in show(),
+     * mirroring buildFilters()'s own early return for that resource.
+     *
+     * @param string                    $resource The ORI resource slug
+     * @param array<string, mixed>|null $object   The serialized object, or null
+     *
+     * @spec openspec/specs/public-publication/spec.md
+     *
+     * @return array<string, mixed>|null The object, or null when it is not publicly visible
+     */
+    private function narrowToPublicVisibility(string $resource, ?array $object): ?array
+    {
+        if ($object === null || $resource === self::PUBLICATIONS) {
+            return $object;
+        }
+
+        if ((self::DECISION_TYPE_MAP[$resource] ?? null) !== null) {
+            if (($object['isPublished'] ?? null) !== 'public') {
+                return null;
+            }
+
+            return $object;
+        }
+
+        if (in_array(needle: $resource, haystack: self::NO_LIFECYCLE_GATE, strict: true) === true) {
+            return $object;
+        }
+
+        if (($object['lifecycle'] ?? null) !== 'published') {
+            return null;
+        }
+
+        return $object;
+
+    }//end narrowToPublicVisibility()
+
+    /**
      * Retrieve a single ORI resource by id.
      *
      * @param string $resource The ORI resource slug
@@ -323,6 +393,7 @@ class OriController extends Controller
             }
 
             $object = $this->narrowToDecisionType(resource: $resource, object: $object);
+            $object = $this->narrowToPublicVisibility(resource: $resource, object: $object);
         } catch (Throwable $e) {
             $this->logger->error(message: 'OriController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -348,36 +419,13 @@ class OriController extends Controller
             );
         }//end if
 
-        // #316: Treat non-published objects as not-found for anonymous callers.
-        // Return 404 (not 403) to avoid confirming the object exists.
-        if ($this->isLifecycleBlocked(object: (array) $object) === true) {
-            return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
-        }
-
+        // #316's visibility gate is applied by narrowToPublicVisibility() above,
+        // alongside the decisionType discriminator, so that a withheld object and
+        // a wrong-type object leave through the same 404 — never confirming that
+        // an unpublished object exists.
         return $this->jsonLdResponse(payload: $this->serializer->serialize(type: $type, object: (array) $object));
 
     }//end show()
-
-    /**
-     * Decide whether the lifecycle gate hides an object from anonymous callers.
-     *
-     * M2: only enforce the lifecycle gate when the object actually carries a
-     * lifecycle/status field; schemas without it (votes, persons, etc.) pass
-     * through.
-     *
-     * @param array<string, mixed> $object The serialized register object
-     *
-     * @return bool True when the object must be reported as not-found
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-11
-     */
-    private function isLifecycleBlocked(array $object): bool
-    {
-        $lifecycle = ($object['lifecycle'] ?? ($object['status'] ?? null));
-
-        return ($lifecycle !== null && $lifecycle !== 'published');
-
-    }//end isLifecycleBlocked()
 
     /**
      * Wrap a payload in a CORS-decorated JSON-LD response.
