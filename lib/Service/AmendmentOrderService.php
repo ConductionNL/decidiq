@@ -145,12 +145,20 @@ class AmendmentOrderService
      */
     private function assertAmendmentIsNext(string $amendmentId): void
     {
-        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'amendment');
-        if ($amendmentEntity === null) {
+        // ADR-005: amendments are `decision` objects; `decisionType` carries the
+        // identity the retired `amendment` schema used to carry.
+        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: DecisionSchema::SLUG);
+        $amendment       = [];
+        if ($amendmentEntity !== null) {
+            $amendment = $amendmentEntity->jsonSerialize();
+        }
+
+        if ($amendmentEntity === null
+            || DecisionSchema::isType(object: $amendment, decisionType: DecisionSchema::AMENDMENT) === false
+        ) {
             throw new RuntimeException("Amendment {$amendmentId} not found");
         }
 
-        $amendment      = $amendmentEntity->jsonSerialize();
         $parentMotionId = $this->resolveParentMotionId(amendment: $amendment);
         if ($parentMotionId === null) {
             // No parent motion — nothing to order against; a standalone amendment
@@ -275,8 +283,11 @@ class AmendmentOrderService
     /**
      * Resolve the parent motion UUID from a serialized amendment.
      *
-     * Honours the flat `parentMotion` property (string or {id} object) and the
+     * Honours the flat `amends` property (string or {id} object) and the
      * structured `relations` list with schema 'motion'.
+     *
+     * ADR-005 replaced the retired Amendment schema's `parentMotion` property
+     * with the `amends` relation declared on `Decision`.
      *
      * @param array<string,mixed> $amendment Serialized amendment object
      *
@@ -286,7 +297,7 @@ class AmendmentOrderService
      */
     public function resolveParentMotionId(array $amendment): ?string
     {
-        $direct = $this->refId(ref: ($amendment['parentMotion'] ?? null));
+        $direct = $this->refId(ref: ($amendment[DecisionSchema::AMENDS] ?? null));
         if ($direct !== '') {
             return $direct;
         }
@@ -315,7 +326,7 @@ class AmendmentOrderService
             return null;
         }
 
-        $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: 'motion');
+        $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: DecisionSchema::SLUG);
         if ($motionEntity === null) {
             return null;
         }
@@ -366,7 +377,7 @@ class AmendmentOrderService
             return null;
         }
 
-        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'amendment');
+        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: DecisionSchema::SLUG);
         if ($amendmentEntity === null) {
             return null;
         }

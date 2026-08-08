@@ -85,15 +85,21 @@ class MotionForwardingService
 
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-        // Fetch the source motion.
+        // Fetch the source motion. ADR-005: motions are `decision` objects
+        // discriminated by decisionType=motion.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema(DecisionSchema::SLUG);
         $sourceMotionObject = $objectService->find($motionId);
-        if ($sourceMotionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
+        $sourceMotionData   = [];
+        if ($sourceMotionObject !== null) {
+            $sourceMotionData = $sourceMotionObject->getObject();
         }
 
-        $sourceMotionData = $sourceMotionObject->getObject();
+        if ($sourceMotionObject === null
+            || DecisionSchema::isType(object: $sourceMotionData, decisionType: DecisionSchema::MOTION) === false
+        ) {
+            throw new RuntimeException("Motion $motionId not found");
+        }
 
         $forwardedMotion = $this->buildForwardedMotion(
             sourceMotionData: $sourceMotionData,
@@ -104,11 +110,11 @@ class MotionForwardingService
         );
 
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema(DecisionSchema::SLUG);
         $created = $objectService->saveObject(
             object: $forwardedMotion,
             register: 'decidesk',
-            schema: 'motion',
+            schema: DecisionSchema::SLUG,
         );
 
         $sourceMotionData = $this->noteForwarding(
@@ -154,6 +160,11 @@ class MotionForwardingService
         string $justification,
     ): array {
         return [
+            // ADR-005: the copy is a `decision`; `decisionType` carries the
+            // motion identity the retired schema used to carry. It is `required`
+            // on the Decision schema and defaults to `meeting-outcome`, so
+            // omitting it would silently mistype every forwarded motion.
+            DecisionSchema::DISCRIMINATOR => DecisionSchema::MOTION,
             'title'       => $sourceMotionData['title'] ?? '',
             'text'        => $sourceMotionData['text'] ?? '',
             'motionType'  => $sourceMotionData['motionType'] ?? 'motion',
@@ -163,7 +174,7 @@ class MotionForwardingService
             'submittedAt' => $this->nowIso(),
             'relations'   => [
                 ['register' => 'decidesk', 'schema' => 'governance-body', 'id' => $targetBodyId],
-                ['register' => 'decidesk', 'schema' => 'motion', 'id' => $motionId],
+                ['register' => 'decidesk', 'schema' => DecisionSchema::SLUG, 'id' => $motionId],
             ],
             'notes'       => [
                 [
@@ -216,11 +227,11 @@ class MotionForwardingService
         ];
 
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema(DecisionSchema::SLUG);
         $objectService->saveObject(
             object: $sourceMotionData,
             register: 'decidesk',
-            schema: 'motion',
+            schema: DecisionSchema::SLUG,
             uuid: $motionId,
         );
 

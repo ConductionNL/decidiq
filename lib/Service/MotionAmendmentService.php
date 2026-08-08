@@ -107,10 +107,21 @@ class MotionAmendmentService
 
         $found = [];
 
-        // Shape 1: flat parentMotion property (canonical UI shape).
+        // Shape 1: flat parent-decision property (canonical UI shape).
+        // ADR-005: amendments are `decision` objects discriminated by
+        // decisionType=amendment, and the retired Amendment schema's flat
+        // `parentMotion` property is now the `amends` relation declared on
+        // Decision.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $byProperty = $objectService->findAll(['filters' => ['parentMotion' => $motionId]]);
+        $objectService->setSchema(DecisionSchema::SLUG);
+        $byProperty = $objectService->findAll(
+            [
+                'filters' => DecisionSchema::filters(
+                    decisionType: DecisionSchema::AMENDMENT,
+                    extra: [DecisionSchema::AMENDS => $motionId]
+                ),
+            ]
+        );
         foreach ($byProperty as $entity) {
             $amendment = $this->getLinkResolver()->serializeAmendment(entity: $entity);
             if ($amendment !== null && $this->amendmentReferencesMotion(amendment: $amendment, motionId: $motionId) === true) {
@@ -119,12 +130,21 @@ class MotionAmendmentService
             }
         }
 
-        // Shape 2: structured relations entry. The _relations filter is
-        // schema-presence-only in OpenRegister, so each hit is re-checked for an
-        // exact motion-id reference before it counts.
+        // Shape 2: structured relations entry. OpenRegister's dotted
+        // `_relations.<field>` filter keys on the RELATION PROPERTY name (see
+        // MagicSearchHandler::applyRelationFieldFilter), which ADR-005 moved from
+        // the retired `parentMotion` to `amends`. Each hit is still re-checked
+        // for an exact motion-id reference before it counts.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $byRelation = $objectService->findAll(['filters' => ['_relations.motion' => $motionId]]);
+        $objectService->setSchema(DecisionSchema::SLUG);
+        $byRelation = $objectService->findAll(
+            [
+                'filters' => DecisionSchema::filters(
+                    decisionType: DecisionSchema::AMENDMENT,
+                    extra: ['_relations.'.DecisionSchema::AMENDS => $motionId]
+                ),
+            ]
+        );
         foreach ($byRelation as $entity) {
             $amendment = $this->getLinkResolver()->serializeAmendment(entity: $entity);
             if ($amendment === null) {
@@ -218,13 +238,14 @@ class MotionAmendmentService
         foreach (array_values($orderedAmendmentIds) as $position => $amendmentId) {
             $amendment = $byId[$amendmentId];
             $amendment['votingOrder'] = ($position + 1);
+            $amendment = DecisionSchema::stamp(object: $amendment, decisionType: DecisionSchema::AMENDMENT);
 
             $objectService->setRegister('decidesk');
-            $objectService->setSchema('amendment');
+            $objectService->setSchema(DecisionSchema::SLUG);
             $objectService->saveObject(
                 object: $amendment,
                 register: 'decidesk',
-                schema: 'amendment',
+                schema: DecisionSchema::SLUG,
                 uuid: $amendmentId,
             );
             $updated[] = $amendment;
@@ -260,15 +281,20 @@ class MotionAmendmentService
     {
         $objectService = $this->getObjectService();
 
-        // Fetch the new amendment.
+        // Fetch the new amendment. ADR-005: a `decision` lookup by id no longer
+        // proves the object is an amendment, so the discriminator is re-checked.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
+        $objectService->setSchema(DecisionSchema::SLUG);
         $newAmendment = $objectService->find($newAmendmentId);
         if ($newAmendment === null) {
             return;
         }
 
         $newData = $newAmendment->getObject();
+        if (DecisionSchema::isType(object: $newData, decisionType: DecisionSchema::AMENDMENT) === false) {
+            return;
+        }
+
         $newText = strtolower($newData['text'] ?? '');
 
         // Fetch existing amendments for this motion (both link shapes).
@@ -317,7 +343,7 @@ class MotionAmendmentService
 
         // Store conflict note on the new amendment.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
+        $objectService->setSchema(DecisionSchema::SLUG);
         $amendData = $newAmendment->getObject();
         $notes     = $amendData['notes'] ?? [];
         $notes[]   = [
@@ -325,9 +351,12 @@ class MotionAmendmentService
             'body'  => 'Mogelijk tekstconflict gedetecteerd met een ander amendement. Raadpleeg de griffier.',
         ];
         $objectService->saveObject(
-            object: array_merge($amendData, ['notes' => $notes]),
+            object: DecisionSchema::stamp(
+                object: array_merge($amendData, ['notes' => $notes]),
+                decisionType: DecisionSchema::AMENDMENT
+            ),
             register: 'decidesk',
-            schema: 'amendment',
+            schema: DecisionSchema::SLUG,
             uuid: $newAmendmentId,
         );
 
@@ -352,32 +381,46 @@ class MotionAmendmentService
     {
         $objectService = $this->getObjectService();
 
+        // ADR-005: both sides are `decision` objects; the discriminator carries
+        // the identity the retired schemas used to carry.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
+        $objectService->setSchema(DecisionSchema::SLUG);
         $amendmentObject = $objectService->find($amendmentId);
-        if ($amendmentObject === null) {
+        $amendmentData   = [];
+        if ($amendmentObject !== null) {
+            $amendmentData = $amendmentObject->getObject();
+        }
+
+        if ($amendmentObject === null
+            || DecisionSchema::isType(object: $amendmentData, decisionType: DecisionSchema::AMENDMENT) === false
+        ) {
             throw new RuntimeException("Amendment $amendmentId not found");
         }
 
-        $amendmentData = $amendmentObject->getObject();
-        $amendTitle    = $amendmentData['title'] ?? 'Amendement';
-        $amendText     = $amendmentData['text'] ?? '';
+        $amendTitle = $amendmentData['title'] ?? 'Amendement';
+        $amendText  = $amendmentData['text'] ?? '';
 
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema(DecisionSchema::SLUG);
         $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
+        $motionData   = [];
+        if ($motionObject !== null) {
+            $motionData = $motionObject->getObject();
+        }
+
+        if ($motionObject === null
+            || DecisionSchema::isType(object: $motionData, decisionType: DecisionSchema::MOTION) === false
+        ) {
             throw new RuntimeException("Motion $motionId not found");
         }
 
-        $motionData  = $motionObject->getObject();
         $currentText = $motionData['text'] ?? '';
         $updatedText = $currentText."\n\n---\n**Amendement: $amendTitle**\n$amendText";
 
         $objectService->saveObject(
             object: array_merge($motionData, ['text' => $updatedText]),
             register: 'decidesk',
-            schema: 'motion',
+            schema: DecisionSchema::SLUG,
             uuid: $motionId,
         );
 

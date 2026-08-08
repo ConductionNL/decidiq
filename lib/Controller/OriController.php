@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\DecisionSchema;
 use OCA\Decidesk\Service\OriSerializer;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -289,6 +290,19 @@ class OriController extends Controller
             $object        = null;
             if ($entity !== null) {
                 $object = $entity->jsonSerialize();
+            }
+
+            // ADR-005: /motions/{id} and /amendments/{id} both resolve through the
+            // unified `decision` schema, so the schema no longer distinguishes them
+            // — index() narrows by `decisionType` (DECISION_TYPE_MAP) and the detail
+            // endpoint must apply the same discriminator, or /amendments/{id} would
+            // serve a motion as an ORI Amendment.
+            $decisionType = (self::DECISION_TYPE_MAP[$resource] ?? null);
+            if ($object !== null
+                && $decisionType !== null
+                && DecisionSchema::isType(object: $object, decisionType: $decisionType) === false
+            ) {
+                $object = null;
             }
         } catch (Throwable $e) {
             $this->logger->error(message: 'OriController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);

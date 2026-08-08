@@ -212,7 +212,8 @@ class VotingRoundGuard
                 return null;
             }
 
-            $motion = $this->findData(objectService: $objectService, id: $motionId, schema: 'motion');
+            // ADR-005: the motion is a `decision` discriminated by decisionType.
+            $motion = $this->findData(objectService: $objectService, id: $motionId, schema: DecisionSchema::SLUG);
             if ($motion === null) {
                 return null;
             }
@@ -297,12 +298,17 @@ class VotingRoundGuard
             return null;
         }
 
-        $amendment = $this->findData(objectService: $objectService, id: $amendmentId, schema: 'amendment');
-        if ($amendment === null) {
+        // ADR-005: the amendment is a `decision` discriminated by decisionType,
+        // and its parent link is the `amends` relation that replaced the retired
+        // Amendment schema's `parentMotion` property.
+        $amendment = $this->findData(objectService: $objectService, id: $amendmentId, schema: DecisionSchema::SLUG);
+        if ($amendment === null
+            || DecisionSchema::isType(object: $amendment, decisionType: DecisionSchema::AMENDMENT) === false
+        ) {
             return null;
         }
 
-        $parentRef = ($amendment['parentMotion'] ?? null);
+        $parentRef = ($amendment[DecisionSchema::AMENDS] ?? null);
         if (is_string($parentRef) === true && $parentRef !== '') {
             return $parentRef;
         }

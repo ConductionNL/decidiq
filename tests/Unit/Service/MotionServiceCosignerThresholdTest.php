@@ -238,12 +238,14 @@ class MotionServiceCosignerThresholdTest extends TestCase
 
         return [
             'motion-1' => [
-                'schema' => 'motion',
+                // ADR-005: a motion is a `decision` carrying decisionType=motion.
+                'schema' => 'decision',
                 'object' => [
-                    'id'        => 'motion-1',
-                    'title'     => 'Duurzaamheidsbeleid',
-                    'lifecycle' => $lifecycle,
-                    'coSigners' => $coSigners,
+                    'id'           => 'motion-1',
+                    'decisionType' => 'motion',
+                    'title'        => 'Duurzaamheidsbeleid',
+                    'lifecycle'    => $lifecycle,
+                    'coSigners'    => $coSigners,
                 ],
             ],
         ];
@@ -365,10 +367,12 @@ class MotionServiceCosignerThresholdTest extends TestCase
     {
         $store = [
             'amendment-1' => [
-                'schema' => 'amendment',
+                // ADR-005: an amendment is a `decision` carrying decisionType=amendment.
+                'schema' => 'decision',
                 'object' => [
-                    'id'        => 'amendment-1',
-                    'lifecycle' => 'submitted',
+                    'id'           => 'amendment-1',
+                    'decisionType' => 'amendment',
+                    'lifecycle'    => 'submitted',
                 ],
             ],
         ];

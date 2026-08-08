@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Listener;
 
+use OCA\Decidesk\Service\DecisionSchema;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -94,11 +95,20 @@ class SubmissionDeadlineListener implements IEventListener
 
             $row  = $this->extractRow(entity: $entity);
             $slug = $this->resolveSchemaSlug(entity: $entity, row: $row);
-            if (in_array($slug, ['motion', 'amendment'], true) === false) {
+            if ($slug !== DecisionSchema::SLUG) {
                 return;
             }
 
-            $meetingId = $this->resolveMeetingId(slug: $slug, row: $row);
+            // ADR-005: motions and amendments are `decision` objects; the
+            // discriminator — not the schema slug — says which. Every other
+            // decisionType (resolution, contract, policy, …) carries no
+            // submission deadline rule and is left alone.
+            $decisionType = DecisionSchema::typeOf($row);
+            if (in_array($decisionType, [DecisionSchema::MOTION, DecisionSchema::AMENDMENT], true) === false) {
+                return;
+            }
+
+            $meetingId = $this->resolveMeetingId(decisionType: $decisionType, row: $row);
             if ($meetingId === null) {
                 return;
             }
@@ -118,7 +128,7 @@ class SubmissionDeadlineListener implements IEventListener
                 $event->stopPropagation();
                 $this->logger->info(
                     'Decidesk: rejected late submission',
-                    ['schema' => $slug, 'meetingId' => $meetingId]
+                    ['schema' => $slug, 'decisionType' => $decisionType, 'meetingId' => $meetingId]
                 );
             }
         } catch (\Throwable $e) {
@@ -201,29 +211,34 @@ class SubmissionDeadlineListener implements IEventListener
      *
      * Motions link to their meeting through the flat `meeting` property or a
      * structured relations entry; amendments resolve through their parent
-     * motion (`parentMotion` property or relations entry with schema 'motion').
+     * motion (the ADR-005 `amends` relation that replaced `parentMotion`, or a
+     * relations entry against the unified decision schema).
      *
-     * @param string               $slug Schema slug ('motion' or 'amendment')
-     * @param array<string, mixed> $row  Serialized payload of the object being created
+     * @param string               $decisionType The ADR-005 discriminator ('motion' or 'amendment')
+     * @param array<string, mixed> $row          Serialized payload of the object being created
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
      * @return string|null The meeting UUID, or null when unlinked
      */
-    private function resolveMeetingId(string $slug, array $row): ?string
+    private function resolveMeetingId(string $decisionType, array $row): ?string
     {
-        if ($slug === 'motion') {
+        if ($decisionType === DecisionSchema::MOTION) {
             return $this->extractReference(row: $row, property: 'meeting', relationSchema: 'meeting');
         }
 
         // Amendment: resolve parent motion first.
-        $parentMotionId = $this->extractReference(row: $row, property: 'parentMotion', relationSchema: 'motion');
+        $parentMotionId = $this->extractReference(
+            row: $row,
+            property: DecisionSchema::AMENDS,
+            relationSchema: DecisionSchema::SLUG
+        );
         if ($parentMotionId === null) {
             return null;
         }
 
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        $motionEntity  = $objectService->find(id: $parentMotionId, register: 'decidesk', schema: 'motion');
+        $motionEntity  = $objectService->find(id: $parentMotionId, register: 'decidesk', schema: DecisionSchema::SLUG);
         if ($motionEntity === null) {
             return null;
         }

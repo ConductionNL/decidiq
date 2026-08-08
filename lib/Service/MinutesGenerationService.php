@@ -122,7 +122,14 @@ class MinutesGenerationService
         // Fetch related entities for the Meeting.
         $meetingId    = $meeting['id'] ?? '';
         $agendaItems  = $this->fetchRelatedObjects(objectService: $objectService, schema: 'agenda-item', meetingId: $meetingId);
-        $motions      = $this->fetchRelatedObjects(objectService: $objectService, schema: 'motion', meetingId: $meetingId);
+        // ADR-005: motions are `decision` objects selected by the decisionType
+        // discriminator; the `motion` schema no longer exists.
+        $motions      = $this->fetchRelatedObjects(
+            objectService: $objectService,
+            schema: DecisionSchema::SLUG,
+            meetingId: $meetingId,
+            extraFilters: DecisionSchema::filters(decisionType: DecisionSchema::MOTION)
+        );
         $votingRounds = $this->fetchRelatedObjects(objectService: $objectService, schema: 'voting-round', meetingId: $meetingId);
         $decisions    = $this->fetchRelatedObjects(objectService: $objectService, schema: 'decision', meetingId: $meetingId);
 
@@ -412,15 +419,16 @@ class MinutesGenerationService
      * Iterates pages of 100 items until an empty page is returned, preventing silent
      * truncation for governance bodies with more than 100 items per meeting.
      *
-     * @param object $objectService The OpenRegister ObjectService instance
-     * @param string $schema        The schema slug
-     * @param string $meetingId     The meeting UUID for filtering
+     * @param object              $objectService The OpenRegister ObjectService instance
+     * @param string              $schema        The schema slug
+     * @param string              $meetingId     The meeting UUID for filtering
+     * @param array<string,mixed> $extraFilters  Additional filters, e.g. the ADR-005 decisionType discriminator
      *
      * @return array<int,array<string,mixed>> Array of object data arrays
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
-    private function fetchRelatedObjects(object $objectService, string $schema, string $meetingId): array
+    private function fetchRelatedObjects(object $objectService, string $schema, string $meetingId, array $extraFilters=[]): array
     {
         if ($meetingId === '') {
             return [];
@@ -437,11 +445,14 @@ class MinutesGenerationService
             try {
                 $entities = $objectService->findAll(
                         [
-                            'filters' => [
-                                'register'           => 'decidesk',
-                                'schema'             => $schema,
-                                '_relations.meeting' => $meetingId,
-                            ],
+                            'filters' => array_merge(
+                                $extraFilters,
+                                [
+                                    'register'           => 'decidesk',
+                                    'schema'             => $schema,
+                                    '_relations.meeting' => $meetingId,
+                                ]
+                            ),
                             'limit'   => $pageSize,
                             'offset'  => $offset,
                         ]

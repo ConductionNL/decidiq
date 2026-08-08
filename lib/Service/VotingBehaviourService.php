@@ -154,11 +154,17 @@ class VotingBehaviourService
     {
         $objectService = $this->objectService();
 
-        // Step 1: Fetch all motions for this governance body.
+        // Step 1: Fetch all motions for this governance body. ADR-005: motions
+        // are `decision` objects selected by the decisionType discriminator.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema(DecisionSchema::SLUG);
         $motionEntities = $objectService->findAll(
-            ['filters' => ['_relations.governance-body' => $governanceBodyId]]
+            [
+                'filters' => DecisionSchema::filters(
+                    decisionType: DecisionSchema::MOTION,
+                    extra: ['_relations.governance-body' => $governanceBodyId]
+                ),
+            ]
         );
 
         // Step 2: For each motion, collect all closed voting-rounds.

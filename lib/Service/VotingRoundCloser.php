@@ -255,7 +255,8 @@ class VotingRoundCloser
 
         // Create dossier folder if an adopted MOTION.
         if ($subject['type'] === 'motion') {
-            $motion      = $this->findObject(objectId: $subject['id'], schema: 'motion');
+            // ADR-005: the motion is a `decision` discriminated by decisionType.
+            $motion      = $this->findObject(objectId: $subject['id'], schema: DecisionSchema::SLUG);
             $motionTitle = (string) ($motion['title'] ?? $subject['id']);
             $this->createDossierFolder(motionId: $subject['id'], motionTitle: $motionTitle);
         }
@@ -416,8 +417,11 @@ class VotingRoundCloser
     private function incorporateAdoptedAmendment(string $amendmentId): void
     {
         try {
-            $amendment = $this->findObject(objectId: $amendmentId, schema: 'amendment');
-            if ($amendment === null) {
+            // ADR-005: the amendment is a `decision` discriminated by decisionType.
+            $amendment = $this->findObject(objectId: $amendmentId, schema: DecisionSchema::SLUG);
+            if ($amendment === null
+                || DecisionSchema::isType(object: $amendment, decisionType: DecisionSchema::AMENDMENT) === false
+            ) {
                 return;
             }
 

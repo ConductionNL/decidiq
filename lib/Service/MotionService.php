@@ -201,22 +201,47 @@ class MotionService
             throw new InvalidArgumentException('actorId must be a non-empty Nextcloud user UID or the sentinel "system"');
         }
 
+        // ADR-005: `$objectType` is a decisionType discriminator, not a schema
+        // slug — the motion/amendment schemas were retired into `decision`. Only
+        // the two types this method has a transition table for are accepted, and
+        // the rejection happens BEFORE the register is touched: a value that
+        // reached a schema lookup used to raise DoesNotExistException, which is
+        // neither InvalidArgumentException nor RuntimeException and therefore
+        // escaped every controller catch clause as a 500.
+        //
+        // The `default` arm also closes a fail-open: the previous
+        // `$transitions = MOTION_TRANSITIONS; if ($objectType === 'amendment')`
+        // shape silently applied the motion table to any other value.
+        $transitions = match ($objectType) {
+            DecisionSchema::MOTION    => self::MOTION_TRANSITIONS,
+            DecisionSchema::AMENDMENT => self::AMENDMENT_TRANSITIONS,
+            default                   => throw new InvalidArgumentException(
+                sprintf(
+                    "Unknown objectType '%s'; expected one of: %s, %s",
+                    $objectType,
+                    DecisionSchema::MOTION,
+                    DecisionSchema::AMENDMENT
+                )
+            ),
+        };
+
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema($objectType);
+        $objectService->setSchema(DecisionSchema::SLUG);
 
-        $object = $objectService->find($objectId);
-        if ($object === null) {
+        $object      = $objectService->find($objectId);
+        $objectArray = [];
+        if ($object !== null) {
+            $objectArray = $object->getObject();
+        }
+
+        if ($object === null
+            || DecisionSchema::isType(object: $objectArray, decisionType: $objectType) === false
+        ) {
             throw new RuntimeException("Object $objectType/$objectId not found");
         }
 
-        $objectArray  = $object->getObject();
         $currentState = $objectArray['lifecycle'] ?? 'submitted';
-
-        $transitions = self::MOTION_TRANSITIONS;
-        if ($objectType === 'amendment') {
-            $transitions = self::AMENDMENT_TRANSITIONS;
-        }
 
         $allowed = $transitions[$currentState] ?? [];
         if (in_array($newState, $allowed, true) === false) {
@@ -235,7 +260,7 @@ class MotionService
         $objectService->saveObject(
             object: array_merge($objectArray, ['lifecycle' => $newState, 'status' => $newState]),
             register: 'decidesk',
-            schema: $objectType,
+            schema: DecisionSchema::SLUG,
             uuid: $objectId,
         );
 
@@ -305,15 +330,10 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema(DecisionSchema::SLUG);
 
-        $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
-        }
-
-        $motionData = $motionObject->getObject();
-        $title      = $motionData['title'] ?? 'Motie';
+        $motionData   = $this->findMotionData(objectService: $objectService, motionId: $motionId);
+        $title        = $motionData['title'] ?? 'Motie';
         $pendingSignerUids = [];
 
         foreach ($participantIds as $participantId) {
@@ -351,11 +371,11 @@ class MotionService
                 )
             );
             $objectService->setRegister('decidesk');
-            $objectService->setSchema('motion');
+            $objectService->setSchema(DecisionSchema::SLUG);
             $objectService->saveObject(
                 object: array_merge($motionData, ['pendingCoSignerUids' => array_values($existing)]),
                 register: 'decidesk',
-                schema: 'motion',
+                schema: DecisionSchema::SLUG,
                 uuid: $motionId,
             );
         }
@@ -421,14 +441,9 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema(DecisionSchema::SLUG);
 
-        $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
-        }
-
-        $motionData = $motionObject->getObject();
+        $motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
         $coSigners  = $motionData['coSigners'] ?? [];
 
         if (in_array($coSignerName, $coSigners, true) === false) {
@@ -436,7 +451,7 @@ class MotionService
             $objectService->saveObject(
                 object: array_merge($motionData, ['coSigners' => $coSigners]),
                 register: 'decidesk',
-                schema: 'motion',
+                schema: DecisionSchema::SLUG,
                 uuid: $motionId,
             );
         }
@@ -459,7 +474,7 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema(DecisionSchema::SLUG);
 
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
@@ -467,6 +482,10 @@ class MotionService
         }
 
         $motionData = $motionObject->getObject();
+        if (DecisionSchema::isType(object: $motionData, decisionType: DecisionSchema::MOTION) === false) {
+            return false;
+        }
+
         return in_array($nextcloudUid, $motionData['pendingCoSignerUids'] ?? [], true);
 
     }//end isPendingCoSigner()
@@ -491,14 +510,9 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema(DecisionSchema::SLUG);
 
-        $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
-        }
-
-        $motionData = $motionObject->getObject();
+        $motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
         $notes      = $motionData['notes'] ?? [];
 
         $budgetPayload = json_encode(
@@ -536,11 +550,46 @@ class MotionService
         $objectService->saveObject(
             object: array_merge($motionData, ['notes' => $notes]),
             register: 'decidesk',
-            schema: 'motion',
+            schema: DecisionSchema::SLUG,
             uuid: $motionId,
         );
 
     }//end saveBudgetImpact()
+
+    /**
+     * Load a motion decision by id, refusing anything that is not one.
+     *
+     * ADR-005 folded the `motion` schema into `decision`, so a lookup by id no
+     * longer proves the object is a motion — the `decisionType` discriminator
+     * does. A miss raises the same RuntimeException the schema-scoped lookup
+     * used to raise, which the controllers map to 404.
+     *
+     * @param object $objectService The OpenRegister ObjectService, already scoped to the decision schema
+     * @param string $motionId      UUID of the motion decision
+     *
+     * @throws RuntimeException When no motion decision carries that id
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return array<string, mixed> The serialized motion decision
+     */
+    private function findMotionData(object $objectService, string $motionId): array
+    {
+        $motionObject = $objectService->find($motionId);
+        $motionData   = [];
+        if ($motionObject !== null) {
+            $motionData = $motionObject->getObject();
+        }
+
+        if ($motionObject === null
+            || DecisionSchema::isType(object: $motionData, decisionType: DecisionSchema::MOTION) === false
+        ) {
+            throw new RuntimeException("Motion $motionId not found");
+        }
+
+        return $motionData;
+
+    }//end findMotionData()
 
     /**
      * Resolve every Amendment that belongs to a Motion.

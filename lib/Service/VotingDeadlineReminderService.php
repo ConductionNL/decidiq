@@ -423,7 +423,8 @@ class VotingDeadlineReminderService
         }
 
         try {
-            $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+            // ADR-005: the motion is a `decision` discriminated by decisionType.
+            $motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: DecisionSchema::SLUG);
         } catch (\Throwable) {
             return null;
         }

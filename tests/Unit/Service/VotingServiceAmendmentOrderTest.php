@@ -334,12 +334,14 @@ class VotingServiceAmendmentOrderTest extends TestCase
                 ],
             ],
             'motion-1'  => [
-                'schema' => 'motion',
+                // ADR-005: a motion is a `decision` carrying decisionType=motion.
+                'schema' => 'decision',
                 'object' => [
-                    'id'        => 'motion-1',
-                    'title'     => 'Hoofdmotie',
-                    'lifecycle' => 'debating',
-                    'meeting'   => 'meeting-1',
+                    'id'           => 'motion-1',
+                    'decisionType' => 'motion',
+                    'title'        => 'Hoofdmotie',
+                    'lifecycle'    => 'debating',
+                    'meeting'      => 'meeting-1',
                 ],
             ],
         ];
@@ -358,11 +360,14 @@ class VotingServiceAmendmentOrderTest extends TestCase
      */
     private static function amendment(string $id, string $lifecycle, ?int $votingOrder, string $submittedAt='2026-06-01T10:00:00+00:00'): array
     {
+        // ADR-005: an amendment is a `decision` carrying decisionType=amendment,
+        // and its parent link is the `amends` relation that replaced `parentMotion`.
         $amendment = [
             'id'           => $id,
+            'decisionType' => 'amendment',
             'title'        => 'Amendement '.$id,
             'lifecycle'    => $lifecycle,
-            'parentMotion' => 'motion-1',
+            'amends'       => 'motion-1',
             'submittedAt'  => $submittedAt,
         ];
         if ($votingOrder !== null) {
@@ -506,8 +511,8 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testAmendmentRoundInOrderOpens(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'debating', 1)];
-        $store['amendment-2'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-2', 'submitted', 2)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'debating', 1)];
+        $store['amendment-2'] = ['schema' => 'decision', 'object' => self::amendment('amendment-2', 'submitted', 2)];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
@@ -549,8 +554,8 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testAmendmentRoundOutOfOrderRejected(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'debating', 1)];
-        $store['amendment-2'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-2', 'debating', 2)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'debating', 1)];
+        $store['amendment-2'] = ['schema' => 'decision', 'object' => self::amendment('amendment-2', 'debating', 2)];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
@@ -584,8 +589,8 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testAmendmentRoundNextAfterDecisionOpens(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'adopted', 1)];
-        $store['amendment-2'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-2', 'debating', 2)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'adopted', 1)];
+        $store['amendment-2'] = ['schema' => 'decision', 'object' => self::amendment('amendment-2', 'debating', 2)];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
@@ -624,8 +629,8 @@ class VotingServiceAmendmentOrderTest extends TestCase
         $new = self::amendment('amendment-new', 'debating', 1, '2026-06-01T10:00:00+00:00');
 
         $store                  = self::baseStore();
-        $store['amendment-old'] = ['schema' => 'amendment', 'object' => $old];
-        $store['amendment-new'] = ['schema' => 'amendment', 'object' => $new];
+        $store['amendment-old'] = ['schema' => 'decision', 'object' => $old];
+        $store['amendment-new'] = ['schema' => 'decision', 'object' => $new];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn([$old, $new]);
@@ -654,7 +659,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testDecidedAmendmentCannotBeReopened(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'adopted', 1)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'adopted', 1)];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
@@ -686,7 +691,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testCloseAmendmentRoundAdoptsAndIncorporates(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'voting', 1)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'voting', 1)];
         $store['round-1']     = [
             'schema' => 'voting-round',
             'object' => [

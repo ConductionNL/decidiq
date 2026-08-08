@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
+use OCA\Decidesk\Service\DecisionSchema;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -67,14 +68,30 @@ class ApiController extends Controller
         'persons'           => 'participant',
         'memberships'       => 'participant',
         'meetings'          => 'meeting',
-        'motions'           => 'motion',
+        'motions'           => DecisionSchema::SLUG,
         'voting-rounds'     => 'voting-round',
         'votes'             => 'vote',
         'agenda-items'      => 'agenda-item',
         'minutes'           => 'minutes',
-        'decisions'         => 'decision',
+        'decisions'         => DecisionSchema::SLUG,
         'action-items'      => 'action-item',
-        'amendments'        => 'amendment',
+        'amendments'        => DecisionSchema::SLUG,
+    ];
+
+    /**
+     * REST resource slugs sourced from the unified `decision` schema (ADR-005).
+     *
+     * `motion` and `amendment` are no longer schemas — they are `decisionType`
+     * discriminator values on `Decision`. The slug alone can no longer select
+     * the resource, so these entries carry the discriminator the list must
+     * filter on and the detail lookup must verify. `decisions` is deliberately
+     * absent: it is the whole supertype and is not narrowed by a type.
+     *
+     * @var array<string, string>
+     */
+    private const RESOURCE_DECISION_TYPES = [
+        'motions'    => DecisionSchema::MOTION,
+        'amendments' => DecisionSchema::AMENDMENT,
     ];
 
     /**
@@ -156,12 +173,20 @@ class ApiController extends Controller
         try {
             $objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
             $offset        = (($page - 1) * $limit);
+            $filters       = [
+                'register' => 'decidesk',
+                'schema'   => $schema,
+            ];
+            // ADR-005: /motions and /amendments are decisions narrowed by the
+            // decisionType discriminator, not by their own (retired) schema.
+            $decisionType = (self::RESOURCE_DECISION_TYPES[$resource] ?? null);
+            if ($decisionType !== null) {
+                $filters = DecisionSchema::filters(decisionType: $decisionType, extra: $filters);
+            }
+
             $results       = $objectService->findAll(
                 [
-                    'filters' => [
-                        'register' => 'decidesk',
-                        'schema'   => $schema,
-                    ],
+                    'filters' => $filters,
                     'limit'   => $limit,
                     'offset'  => $offset,
                 ]
@@ -220,6 +245,18 @@ class ApiController extends Controller
             $object        = null;
             if ($entity !== null) {
                 $object = $entity->jsonSerialize();
+            }
+
+            // ADR-005: /motions/{id} and /amendments/{id} resolve through the
+            // unified decision schema, so the id alone no longer proves the
+            // resource type — a decision of the wrong type is Not Found here,
+            // exactly as it was when each type had its own schema.
+            $decisionType = (self::RESOURCE_DECISION_TYPES[$resource] ?? null);
+            if ($object !== null
+                && $decisionType !== null
+                && DecisionSchema::isType(object: $object, decisionType: $decisionType) === false
+            ) {
+                $object = null;
             }
         } catch (Throwable $e) {
             $this->logger->error(message: 'ApiController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
