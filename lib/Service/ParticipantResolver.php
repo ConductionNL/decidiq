@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -81,7 +82,22 @@ class ParticipantResolver
     public function resolveGovernanceBodyId(string $meetingId): ?string
     {
         $objectService = $this->objectService();
-        $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+
+        // OpenRegister's ObjectService::find() THROWS DoesNotExistException for an
+        // unknown id; it does not return null. The `=== null` branch below could
+        // therefore never be taken, and the exception escaped every caller — up
+        // through VotingRoundGuard::requireChairOrSecretary(), whose own docblock
+        // promises "fail closed: any failure yields a 401/403". An unknown
+        // meetingId in a request body answered 500 instead of 403.
+        //
+        // "Not found" is this method's documented answer, so it is translated here
+        // and only here; every other failure still propagates.
+        try {
+            $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
+        } catch (DoesNotExistException) {
+            return null;
+        }
+
         if ($meetingEntity === null) {
             return null;
         }

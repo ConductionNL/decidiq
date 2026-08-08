@@ -269,7 +269,14 @@ class DecisionSupertypeFailureModeTest extends TestCase
 
                 $row = ($this->store[(string) $id] ?? null);
                 if ($row === null) {
-                    return null;
+                    // OpenRegister THROWS for an unknown id; it does not return
+                    // null (MagicMapper::findInRegisterSchemaTable → "Object not
+                    // found in magic table"). A double that returned null here
+                    // would hide every caller that treats not-found as a return
+                    // value, which is how an unknown id became a 500.
+                    throw new DoesNotExistException(
+                        "Object not found in magic table: {$id}"
+                    );
                 }
 
                 return $this->wrap($row);
@@ -701,6 +708,37 @@ class DecisionSupertypeFailureModeTest extends TestCase
         );
 
     }//end testTransitionLifecycleRefusesADecisionOfAnotherType()
+
+
+    /**
+     * An unknown meetingId is refused by the chair guard, not raised as a 500.
+     *
+     * VotingRoundGuard's contract is "fail closed: any failure yields a 401/403",
+     * and it reaches ParticipantResolver::resolveGovernanceBodyId(), which
+     * documents "returns null when the meeting cannot be found". OpenRegister's
+     * `find()` THROWS for an unknown id rather than returning null, so that
+     * documented answer was never delivered and the exception escaped the guard.
+     * Measured live: POST /api/voting-rounds with `"meetingId": "meeting-x"`
+     * answered 500 before the subjectType was ever validated.
+     *
+     * @spec openspec/specs/voting-system/spec.md
+     *
+     * @return void
+     */
+    public function testUnknownMeetingResolvesToNoGovernanceBodyNotAnEscapingError(): void
+    {
+        $resolver = new \OCA\Decidesk\Service\ParticipantResolver(
+            container: $this->decideskContainer($this->objectServiceDouble()),
+            logger: new NullLogger(),
+        );
+
+        self::assertNull(
+            $resolver->resolveGovernanceBodyId(meetingId: 'meeting-x'),
+            'An unknown meeting must resolve to no governance body; an escaping '
+            .'DoesNotExistException renders as 500 from inside an auth guard.'
+        );
+
+    }//end testUnknownMeetingResolvesToNoGovernanceBodyNotAnEscapingError()
 
 
     /**
