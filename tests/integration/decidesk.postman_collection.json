@@ -120,8 +120,8 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Newman Motion\",\n  \"text\": \"That this contract suite be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman Admin\",\n  \"lifecycle\": \"submitted\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{meetingId}}\"\n}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "motion" ] }
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman Motion\",\n  \"text\": \"That this contract suite be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman Admin\",\n  \"lifecycle\": \"submitted\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{meetingId}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] }
 					}
 				},
 				{
@@ -398,7 +398,7 @@
 									"const base = pm.collectionVariables.get('baseUrl');",
 									"const auth = 'Basic ' + btoa(pm.collectionVariables.get('adminUser') + ':' + pm.collectionVariables.get('adminPass'));",
 									"pm.sendRequest({",
-									"  url: base + '/index.php/apps/openregister/api/objects/decidesk/motion',",
+									"  url: base + '/index.php/apps/openregister/api/objects/decidesk/decision',",
 									"  method: 'POST',",
 									"  header: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'OCS-APIRequest': 'true', 'Authorization': auth },",
 									"  body: { mode: 'raw', raw: JSON.stringify({ title: 'Newman Open Motion', text: 'Round-open motion', motionType: 'motion', proposer: 'Newman Admin', lifecycle: 'debating', meeting: pm.collectionVariables.get('meetingId') }) }",
@@ -796,7 +796,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "DELETE",
 						"header": [ { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{motionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "motion", "{{motionId}}" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{motionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision", "{{motionId}}" ] }
 					}
 				},
 				{
