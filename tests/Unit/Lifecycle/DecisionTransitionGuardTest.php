@@ -256,6 +256,53 @@ class DecisionTransitionGuardTest extends TestCase
     }//end testTerminalOutcomeStates()
 
     /**
+     * FAIL-CLOSED PIN.
+     *
+     * The terminal gate keys off the transition's target state, so a transition
+     * added later whose target nobody classified would slip through the gate
+     * silently — the same fail-open shape that `transitionLifecycle()` had when
+     * it chose MOTION_TRANSITIONS for every objectType that was not literally
+     * 'amendment'.
+     *
+     * Every target in the transition map must be explicitly either terminal or
+     * in-flight. Adding a transition to a new state without deciding which it
+     * is fails here rather than quietly skipping the completeness check.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testEveryTransitionTargetIsClassified(): void
+    {
+        // The in-flight states — the deliberate complement of
+        // TERMINAL_OUTCOME_STATES over the whole lifecycle vocabulary.
+        $inFlight = ['draft', 'proposed', 'deliberating', 'voting', 'withdrawn'];
+
+        $targets = [];
+        foreach ($this->guard->getKnownActions() as $action) {
+            $transition = $this->guard->resolveTransition(action: $action);
+            self::assertNotNull(actual: $transition, message: "action '$action' must resolve");
+            $targets[] = $transition['to'];
+        }
+
+        self::assertNotEmpty(actual: $targets);
+
+        foreach (array_unique($targets) as $target) {
+            $isTerminal = in_array($target, DecisionTransitionGuard::TERMINAL_OUTCOME_STATES, true);
+            $isInFlight = in_array($target, $inFlight, true);
+
+            self::assertTrue(
+                condition: ($isTerminal xor $isInFlight),
+                message: "Transition target '$target' is not classified exactly once. Add it to "
+                    .'DecisionTransitionGuard::TERMINAL_OUTCOME_STATES if reaching it means the decision has been '
+                    .'decided (and so must carry outcome + decisionDate), or to this test\'s in-flight list if it '
+                    .'must not demand them. Leaving it unclassified silently skips the terminal-completeness gate.'
+            );
+        }
+
+    }//end testEveryTransitionTargetIsClassified()
+
+    /**
      * A complete decision reports nothing missing.
      *
      * @spec openspec/specs/decision-management/spec.md
