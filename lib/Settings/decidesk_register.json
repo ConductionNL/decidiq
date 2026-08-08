@@ -671,7 +671,7 @@
             "outcome": "adopted",
             "decisionDate": "2025-04-10T21:05:00Z",
             "isPublished": "public",
-            "amends": "@ref:decision:motie-duurzaamheid-2025"
+            "amends": "motie-duurzaamheid-2025"
           },
           {
             "slug": "r-2025-001-goedkeuring-jaarrekening",
@@ -753,12 +753,12 @@
             "lifecycle": "enacted",
             "enactedAt": "2026-04-16T09:00:00Z",
             "supersedes": [
-              "@ref:decision:besluit-begroting-2026"
+              "besluit-begroting-2026"
             ],
             "route": [
-              "@ref:decision-stage:stage-begroting-2027-1-prep",
-              "@ref:decision-stage:stage-begroting-2027-2-adv",
-              "@ref:decision-stage:stage-begroting-2027-3-dec"
+              "stage-begroting-2027-1-prep",
+              "stage-begroting-2027-2-adv",
+              "stage-begroting-2027-3-dec"
             ]
           },
           {
@@ -771,9 +771,9 @@
             "isPublished": "confidential",
             "lifecycle": "decided",
             "route": [
-              "@ref:decision-stage:stage-investering-acme-1-prep",
-              "@ref:decision-stage:stage-investering-acme-2-dec",
-              "@ref:decision-stage:stage-investering-acme-3-rat"
+              "stage-investering-acme-1-prep",
+              "stage-investering-acme-2-dec",
+              "stage-investering-acme-3-rat"
             ]
           }
         ],
