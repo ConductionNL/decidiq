@@ -223,6 +223,136 @@ class DecisionTransitionGuardTest extends TestCase
     }//end testIsEnactAllowedRequiresAdoptedOutcome()
 
     /**
+     * The terminal outcome states are exactly the states past the vote —
+     * `decided` and everything only reachable through it. `withdrawn` is
+     * terminal in the lifecycle graph but was never decided, so it is not one
+     * of them, and none of the in-flight states are.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testTerminalOutcomeStates(): void
+    {
+        self::assertSame(
+            expected: ['decided', 'enacted', 'archived'],
+            actual: DecisionTransitionGuard::TERMINAL_OUTCOME_STATES
+        );
+
+        foreach (['decided', 'enacted', 'archived'] as $terminal) {
+            self::assertTrue(
+                condition: $this->guard->isTerminalOutcomeState(lifecycle: $terminal),
+                message: "'$terminal' must be treated as a terminal outcome state"
+            );
+        }
+
+        foreach (['draft', 'proposed', 'deliberating', 'voting', 'withdrawn'] as $inFlight) {
+            self::assertFalse(
+                condition: $this->guard->isTerminalOutcomeState(lifecycle: $inFlight),
+                message: "'$inFlight' must NOT demand an outcome"
+            );
+        }
+
+    }//end testTerminalOutcomeStates()
+
+    /**
+     * A complete decision reports nothing missing.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testCompleteDecisionHasNoMissingTerminalFields(): void
+    {
+        foreach (['adopted', 'rejected'] as $outcome) {
+            self::assertSame(
+                expected: [],
+                actual: $this->guard->getMissingTerminalFields(
+                    decision: ['outcome' => $outcome, 'decisionDate' => '2026-04-10T21:00:00Z']
+                )
+            );
+        }
+
+    }//end testCompleteDecisionHasNoMissingTerminalFields()
+
+    /**
+     * Every way a decision can be terminally incomplete is named precisely:
+     * absent, empty, whitespace-only, or an out-of-vocabulary outcome.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testMissingTerminalFieldsAreNamed(): void
+    {
+        $cases = [
+            'both absent'            => [[], ['outcome', 'decisionDate']],
+            'outcome only'           => [['decisionDate' => '2026-04-10T21:00:00Z'], ['outcome']],
+            'decisionDate only'      => [['outcome' => 'adopted'], ['decisionDate']],
+            'empty strings'          => [['outcome' => '', 'decisionDate' => ''], ['outcome', 'decisionDate']],
+            'whitespace decisionDate' => [['outcome' => 'adopted', 'decisionDate' => '   '], ['decisionDate']],
+            'nulls'                  => [['outcome' => null, 'decisionDate' => null], ['outcome', 'decisionDate']],
+            // The shipped `motie-woonlasten-2025` seed carried this value; it is
+            // an in-flight placeholder, not a recorded result.
+            'outcome "pending"'      => [['outcome' => 'pending', 'decisionDate' => '2026-04-10T21:00:00Z'], ['outcome']],
+        ];
+
+        foreach ($cases as $label => [$decision, $expected]) {
+            self::assertSame(
+                expected: $expected,
+                actual: $this->guard->getMissingTerminalFields(decision: $decision),
+                message: "case: $label"
+            );
+        }
+
+    }//end testMissingTerminalFieldsAreNamed()
+
+    /**
+     * The terminal field list is exactly the pair that left the schema's
+     * unconditional `required[]`. If a future change adds one back to the
+     * schema without removing it here — or drops one here without restoring it
+     * to the schema — this pins the contract.
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return void
+     */
+    public function testTerminalRequiredFieldsMirrorTheRelaxedSchemaEntries(): void
+    {
+        self::assertSame(
+            expected: ['outcome', 'decisionDate'],
+            actual: DecisionTransitionGuard::TERMINAL_REQUIRED_FIELDS
+        );
+
+        $register = json_decode(
+            json: (string) file_get_contents(__DIR__.'/../../../lib/Settings/decidesk_register.json'),
+            associative: true
+        );
+        $schema = $register['components']['schemas']['Decision'];
+
+        foreach (DecisionTransitionGuard::TERMINAL_REQUIRED_FIELDS as $field) {
+            self::assertContains(
+                needle: $field,
+                haystack: array_keys($schema['properties']),
+                message: "Decision schema must still declare the '$field' property"
+            );
+            self::assertNotContains(
+                needle: $field,
+                haystack: $schema['required'],
+                message: "'$field' is enforced at the transition boundary, so it must NOT be "
+                    .'unconditionally required on the schema — an in-flight motion has neither.'
+            );
+        }
+
+        self::assertSame(
+            expected: DecisionTransitionGuard::OUTCOME_VALUES,
+            actual: $schema['properties']['outcome']['enum'],
+            message: 'The guard vocabulary must mirror the schema enum exactly.'
+        );
+
+    }//end testTerminalRequiredFieldsMirrorTheRelaxedSchemaEntries()
+
+    /**
      * STATES lists the 7 lifecycle states in machine order.
      *
      * @spec openspec/specs/decision-management/spec.md

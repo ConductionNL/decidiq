@@ -454,7 +454,31 @@ class DecisionLifecycleService
             return "Only decisions with outcome 'adopted' may be enacted.";
         }
 
-        return null;
+        // Terminal-state completeness. This gate is the reason `outcome` and
+        // `decisionDate` could safely leave the schema's unconditional
+        // `required[]`: an in-flight motion (draft/proposed/deliberating/voting)
+        // legitimately has neither and a `withdrawn` decision never acquires
+        // them, but a decision that reaches `decided`/`enacted`/`archived`
+        // without them is a real defect — and dropping the requirement outright
+        // would have made that undetectable.
+        //
+        // It is enforced HERE, at the transition boundary, rather than as a
+        // JSON-Schema `if`/`then` on the schema, because OpenRegister cannot
+        // enforce a conditional `required`: Schema::getSchemaObject() rebuilds
+        // the validated schema from a fixed key list, so the block is discarded
+        // before the validator ever runs (measured — see the register's
+        // `x-decidesk-terminal-completeness` note).
+        if ($this->transitionGuard->isTerminalOutcomeState(lifecycle: $newState) === false) {
+            return null;
+        }
+
+        $missing = $this->transitionGuard->getMissingTerminalFields(decision: $decision);
+        if ($missing === []) {
+            return null;
+        }
+
+        return "A decision cannot enter '$newState' without a recorded result. "
+            .'Missing or invalid: '.implode(', ', $missing).'.';
 
     }//end resolveStateGateRejection()
 
