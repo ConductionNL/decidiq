@@ -68,7 +68,7 @@ export default {
 		 * flow through `objectSidebarState` so the integration tabs can
 		 * fetch the right object's sub-resources.
 		 *
-		 * @spec openspec/changes/pluggable-integration-registry/tasks.md#task-1
+		 * @spec openspec/specs/nextcloud-integration/spec.md
 		 * @return {object} CnDetailPage `sidebar` prop value.
 		 */
 		sidebarConfig() {
