@@ -173,14 +173,14 @@ The dashboard MUST include a `RunningProcessesWidget` component that shows motio
 
 - GIVEN the user navigates to the dashboard
 - WHEN the `RunningProcessesWidget` loads
-- THEN it SHALL fetch motions with lifecycle in `[submitted, under-discussion, voting]`
+- THEN it SHALL fetch motions with lifecycle in `[proposed, deliberating, voting]`
 - AND display them grouped under labelled stage sections
 - AND each motion entry SHALL show its title
 - AND clicking a motion entry SHALL navigate to the motion detail view
 
 #### Scenario: Empty state for no in-flight motions
 
-- GIVEN no motions have lifecycle in `[submitted, under-discussion, voting]`
+- GIVEN no motions have lifecycle in `[proposed, deliberating, voting]`
 - WHEN the widget loads
 - THEN the widget SHALL display a message indicating no active motions
 
