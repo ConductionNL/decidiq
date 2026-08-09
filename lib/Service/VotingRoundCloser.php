@@ -198,14 +198,20 @@ class VotingRoundCloser
             return;
         }
 
-        // Only transition to defined terminal states via the guarded state machine.
-        $subjectLifecycle = match ($result) {
+        // ADR-005: a closed round produces an OUTCOME, not a lifecycle state.
+        // `adopted`/`rejected` are values of `Decision.outcome`; the state the
+        // decision enters is `decided`, and it enters it in either case — a
+        // rejected motion has been decided just as surely as an adopted one.
+        // Writing `adopted` into `lifecycle` (which is what this did) is a
+        // value outside the enum, so the save was refused and every closed
+        // round left its motion stale.
+        $subjectOutcome = match ($result) {
             'adopted'  => 'adopted',
             'rejected' => 'rejected',
             default    => null,
         };
 
-        if ($subjectLifecycle === null) {
+        if ($subjectOutcome === null) {
             return;
         }
 
@@ -213,11 +219,12 @@ class VotingRoundCloser
             $this->motionService->transitionLifecycle(
                 objectId: $subject['id'],
                 objectType: $subject['type'],
-                newState: $subjectLifecycle,
+                newState: 'decided',
                 actorId: 'system',
+                outcome: $subjectOutcome,
             );
 
-            $this->afterAdoption(subject: $subject, subjectLifecycle: $subjectLifecycle);
+            $this->afterAdoption(subject: $subject, subjectOutcome: $subjectOutcome);
         } catch (InvalidArgumentException $e) {
             // State-machine violation: re-throw so the caller can surface it.
             // #318: Previously swallowed silently.
@@ -240,22 +247,27 @@ class VotingRoundCloser
     /**
      * Side effects that only apply to an adopted subject.
      *
-     * @param array{type: string, id: string} $subject          The round's subject
-     * @param string                          $subjectLifecycle The state it transitioned to
+     * @param array{type: string, id: string} $subject        The round's subject
+     * @param string                          $subjectOutcome The recorded vote result ('adopted'|'rejected')
      *
      * @return void
      *
      * @spec openspec/specs/motion-amendment/spec.md
      */
-    private function afterAdoption(array $subject, string $subjectLifecycle): void
+    private function afterAdoption(array $subject, string $subjectOutcome): void
     {
-        if ($subjectLifecycle !== 'adopted') {
+        // Keyed on the OUTCOME, not the lifecycle state: both an adopted and a
+        // rejected motion end up in `decided`, so the state can no longer tell
+        // these apart — only the outcome can. Reading the state here would have
+        // created a dossier folder for a rejected motion.
+        if ($subjectOutcome !== 'adopted') {
             return;
         }
 
         // Create dossier folder if an adopted MOTION.
         if ($subject['type'] === 'motion') {
-            $motion      = $this->findObject(objectId: $subject['id'], schema: 'motion');
+            // ADR-005: the motion is a `decision` discriminated by decisionType.
+            $motion      = $this->findObject(objectId: $subject['id'], schema: 'decision');
             $motionTitle = (string) ($motion['title'] ?? $subject['id']);
             $this->createDossierFolder(motionId: $subject['id'], motionTitle: $motionTitle);
         }
@@ -402,7 +414,7 @@ class VotingRoundCloser
     /**
      * Incorporate an adopted amendment into its parent motion text (fail-soft).
      *
-     * Resolves the amendment's parent motion (flat parentMotion property or
+     * Resolves the amendment's parent motion (flat `amends` property or
      * structured relation) and delegates to MotionService::applyAmendment(),
      * which appends the amendment as an annotated section of the motion text.
      * Failures are logged and never undo the recorded vote result.
@@ -416,8 +428,11 @@ class VotingRoundCloser
     private function incorporateAdoptedAmendment(string $amendmentId): void
     {
         try {
-            $amendment = $this->findObject(objectId: $amendmentId, schema: 'amendment');
-            if ($amendment === null) {
+            // ADR-005: the amendment is a `decision` discriminated by decisionType.
+            $amendment = $this->findObject(objectId: $amendmentId, schema: 'decision');
+            if ($amendment === null
+                || ($amendment['decisionType'] ?? null) !== 'amendment'
+            ) {
                 return;
             }
 
@@ -432,7 +447,7 @@ class VotingRoundCloser
                 'Decidesk: failed to incorporate adopted amendment into the parent motion text',
                 ['amendmentId' => $amendmentId, 'error' => $e->getMessage()]
             );
-        }
+        }//end try
 
     }//end incorporateAdoptedAmendment()
 

@@ -88,9 +88,10 @@ class MotionAmendmentService
     /**
      * Fetch all amendments linked to a motion, honouring BOTH link shapes.
      *
-     * Amendments reference their motion either through the flat `parentMotion`
-     * property (what the UI's relation tabs write) or through a structured
-     * `relations` entry with schema 'motion' (what some backend paths write).
+     * Amendments reference their motion either through the flat `amends`
+     * property (what the UI's relation tabs write — ADR-005's replacement for the
+     * retired Amendment schema's `parentMotion`) or through a structured
+     * `relations` entry (what some backend paths write).
      * This resolver queries both shapes and dedups by id so callers (voting-order
      * enforcement, conflict detection, the chair ordering endpoint) see every
      * amendment regardless of how it was created.
@@ -107,10 +108,21 @@ class MotionAmendmentService
 
         $found = [];
 
-        // Shape 1: flat parentMotion property (canonical UI shape).
+        // Shape 1: flat parent-decision property (canonical UI shape).
+        // ADR-005: amendments are `decision` objects discriminated by
+        // decisionType=amendment, and the retired Amendment schema's flat
+        // `parentMotion` property is now the `amends` relation declared on
+        // Decision.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $byProperty = $objectService->findAll(['filters' => ['parentMotion' => $motionId]]);
+        $objectService->setSchema('decision');
+        $byProperty = $objectService->findAll(
+            [
+                'filters' => [
+                    'amends'       => $motionId,
+                    'decisionType' => 'amendment',
+                ],
+            ]
+        );
         foreach ($byProperty as $entity) {
             $amendment = $this->getLinkResolver()->serializeAmendment(entity: $entity);
             if ($amendment !== null && $this->amendmentReferencesMotion(amendment: $amendment, motionId: $motionId) === true) {
@@ -119,12 +131,21 @@ class MotionAmendmentService
             }
         }
 
-        // Shape 2: structured relations entry. The _relations filter is
-        // schema-presence-only in OpenRegister, so each hit is re-checked for an
-        // exact motion-id reference before it counts.
+        // Shape 2: structured relations entry. OpenRegister's dotted
+        // `_relations.<field>` filter keys on the RELATION PROPERTY name (see
+        // MagicSearchHandler::applyRelationFieldFilter), which ADR-005 moved from
+        // the retired `parentMotion` to `amends`. Each hit is still re-checked
+        // for an exact motion-id reference before it counts.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $byRelation = $objectService->findAll(['filters' => ['_relations.motion' => $motionId]]);
+        $objectService->setSchema('decision');
+        $byRelation = $objectService->findAll(
+            [
+                'filters' => [
+                    '_relations.amends' => $motionId,
+                    'decisionType'      => 'amendment',
+                ],
+            ]
+        );
         foreach ($byRelation as $entity) {
             $amendment = $this->getLinkResolver()->serializeAmendment(entity: $entity);
             if ($amendment === null) {
@@ -218,13 +239,18 @@ class MotionAmendmentService
         foreach (array_values($orderedAmendmentIds) as $position => $amendmentId) {
             $amendment = $byId[$amendmentId];
             $amendment['votingOrder'] = ($position + 1);
+            // `decisionType` is required on the Decision schema and defaults to
+            // `meeting-outcome`, so a write that dropped it would retype the
+            // amendment. These came from a decisionType=amendment query, so this
+            // restates what is already true rather than deciding anything.
+            $amendment['decisionType'] = 'amendment';
 
             $objectService->setRegister('decidesk');
-            $objectService->setSchema('amendment');
+            $objectService->setSchema('decision');
             $objectService->saveObject(
                 object: $amendment,
                 register: 'decidesk',
-                schema: 'amendment',
+                schema: 'decision',
                 uuid: $amendmentId,
             );
             $updated[] = $amendment;
@@ -242,7 +268,8 @@ class MotionAmendmentService
     /**
      * Detect text overlap between a new amendment and existing amendments on a motion.
      *
-     * Fetches all submitted/debating amendments for the motion (via the
+     * Fetches all not-yet-voted amendments for the motion — lifecycle
+     * draft/proposed/deliberating in the ADR-005 Decision vocabulary — (via the
      * canonical getAmendmentsForMotion() resolver, so amendments linked through
      * the flat `parentMotion` property are no longer invisible to conflict
      * detection) and performs a naive word-overlap check. If overlap is
@@ -260,56 +287,24 @@ class MotionAmendmentService
     {
         $objectService = $this->getObjectService();
 
-        // Fetch the new amendment.
+        // Fetch the new amendment. ADR-005: a `decision` lookup by id no longer
+        // proves the object is an amendment, so the discriminator is re-checked.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
+        $objectService->setSchema('decision');
         $newAmendment = $objectService->find($newAmendmentId);
-        if ($newAmendment === null) {
+        $newData      = ($newAmendment?->getObject() ?? []);
+
+        // A missing object and a decision of the wrong type are the same answer:
+        // this id is not an amendment, so there is nothing to conflict with.
+        if (($newData['decisionType'] ?? null) !== 'amendment') {
             return;
         }
 
-        $newData = $newAmendment->getObject();
-        $newText = strtolower($newData['text'] ?? '');
-
-        // Fetch existing amendments for this motion (both link shapes).
-        $existing = $this->getAmendmentsForMotion(motionId: $motionId);
-
-        $conflictFound = false;
-        foreach ($existing as $amendmentData) {
-            $amendmentId = $amendmentData['id'] ?? $amendmentData['uuid'] ?? '';
-
-            if ($amendmentId === $newAmendmentId) {
-                continue;
-            }
-
-            $lifecycle = $amendmentData['lifecycle'] ?? '';
-            if (in_array($lifecycle, ['submitted', 'debating'], true) === false) {
-                continue;
-            }
-
-            $existingText = strtolower($amendmentData['text'] ?? '');
-
-            // Naive overlap: check for common significant words (>4 chars).
-            // Use Unicode-aware split so Dutch diacritics (é, ó, ë, etc.) are treated as word characters.
-            $splitNew  = preg_split('/[^\pL\pN]+/u', $newText, -1, PREG_SPLIT_NO_EMPTY);
-            $splitExst = preg_split('/[^\pL\pN]+/u', $existingText, -1, PREG_SPLIT_NO_EMPTY);
-            if ($splitNew === false) {
-                $splitNew = [];
-            }
-
-            if ($splitExst === false) {
-                $splitExst = [];
-            }
-
-            $newWords      = array_filter($splitNew, fn($word) => mb_strlen($word) > 4);
-            $existingWords = array_filter($splitExst, fn($word) => mb_strlen($word) > 4);
-            $overlap       = array_intersect($newWords, $existingWords);
-
-            if (count($overlap) > 3) {
-                $conflictFound = true;
-                break;
-            }
-        }//end foreach
+        $conflictFound = $this->hasTextOverlap(
+            newText: strtolower($newData['text'] ?? ''),
+            newAmendmentId: $newAmendmentId,
+            existing: $this->getAmendmentsForMotion(motionId: $motionId)
+        );
 
         if ($conflictFound === false) {
             return;
@@ -317,23 +312,103 @@ class MotionAmendmentService
 
         // Store conflict note on the new amendment.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
-        $amendData = $newAmendment->getObject();
-        $notes     = $amendData['notes'] ?? [];
-        $notes[]   = [
+        $objectService->setSchema('decision');
+        $notes   = ($newData['notes'] ?? []);
+        $notes[] = [
             'title' => 'Conflict:',
             'body'  => 'Mogelijk tekstconflict gedetecteerd met een ander amendement. Raadpleeg de griffier.',
         ];
         $objectService->saveObject(
-            object: array_merge($amendData, ['notes' => $notes]),
+            object: array_merge(
+                $newData,
+                [
+                    'notes'        => $notes,
+                    // Required on the Decision schema; a write that dropped it
+                    // would fall back to the `meeting-outcome` default.
+                    'decisionType' => 'amendment',
+                ]
+            ),
             register: 'decidesk',
-            schema: 'amendment',
+            schema: 'decision',
             uuid: $newAmendmentId,
         );
 
         $this->logger->info("Decidesk: Amendment conflict detected for amendment $newAmendmentId on motion $motionId");
 
     }//end detectConflicts()
+
+    /**
+     * Naive text-overlap check against a motion's other live amendments.
+     *
+     * Two amendments conflict when they share more than three significant words
+     * (longer than four characters). Only amendments still in play — submitted or
+     * debating — are compared, and the new amendment never conflicts with itself.
+     *
+     * Extracted from detectConflicts(), which was carrying both the OpenRegister
+     * round trips and the comparison itself.
+     *
+     * @param string                           $newText        Lower-cased text of the new amendment
+     * @param string                           $newAmendmentId UUID of the new amendment
+     * @param array<int, array<string, mixed>> $existing       The motion's serialized amendments
+     *
+     * @return bool True when an overlapping amendment was found
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    private function hasTextOverlap(string $newText, string $newAmendmentId, array $existing): bool
+    {
+        $newWords = $this->significantWords(text: $newText);
+
+        foreach ($existing as $amendmentData) {
+            $amendmentId = ($amendmentData['id'] ?? $amendmentData['uuid'] ?? '');
+            if ($amendmentId === $newAmendmentId) {
+                continue;
+            }
+
+            // ADR-005 vocabulary: `submitted | debating` are the retired Motion
+            // words, neither of which `Decision.lifecycle` can hold — so this
+            // conflict check matched NOTHING and every overlapping amendment
+            // came back clean. `proposed | deliberating` are the same two
+            // states under the schema that survived the fold; `draft` joins
+            // them because an unsubmitted amendment can still collide with a
+            // sibling once it is put forward.
+            $lifecycle = ($amendmentData['lifecycle'] ?? '');
+            if (in_array($lifecycle, ['draft', 'proposed', 'deliberating'], true) === false) {
+                continue;
+            }
+
+            $existingWords = $this->significantWords(text: strtolower($amendmentData['text'] ?? ''));
+            if (count(array_intersect($newWords, $existingWords)) > 3) {
+                return true;
+            }
+        }//end foreach
+
+        return false;
+
+    }//end hasTextOverlap()
+
+    /**
+     * The words in a text long enough to count as significant.
+     *
+     * Uses a Unicode-aware split so Dutch diacritics (é, ó, ë, …) are treated as
+     * word characters rather than separators.
+     *
+     * @param string $text The lower-cased text to split
+     *
+     * @return array<int, string> Words longer than four characters
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     */
+    private function significantWords(string $text): array
+    {
+        $split = preg_split('/[^\pL\pN]+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
+        if ($split === false) {
+            return [];
+        }
+
+        return array_values(array_filter($split, static fn($word): bool => mb_strlen($word) > 4));
+
+    }//end significantWords()
 
     /**
      * Apply an amendment to its parent motion by appending the amendment text.
@@ -352,32 +427,46 @@ class MotionAmendmentService
     {
         $objectService = $this->getObjectService();
 
+        // ADR-005: both sides are `decision` objects; the discriminator carries
+        // the identity the retired schemas used to carry.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('amendment');
+        $objectService->setSchema('decision');
         $amendmentObject = $objectService->find($amendmentId);
-        if ($amendmentObject === null) {
+        $amendmentData   = [];
+        if ($amendmentObject !== null) {
+            $amendmentData = $amendmentObject->getObject();
+        }
+
+        if ($amendmentObject === null
+            || ($amendmentData['decisionType'] ?? null) !== 'amendment'
+        ) {
             throw new RuntimeException("Amendment $amendmentId not found");
         }
 
-        $amendmentData = $amendmentObject->getObject();
-        $amendTitle    = $amendmentData['title'] ?? 'Amendement';
-        $amendText     = $amendmentData['text'] ?? '';
+        $amendTitle = $amendmentData['title'] ?? 'Amendement';
+        $amendText  = $amendmentData['text'] ?? '';
 
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema('decision');
         $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
+        $motionData   = [];
+        if ($motionObject !== null) {
+            $motionData = $motionObject->getObject();
+        }
+
+        if ($motionObject === null
+            || ($motionData['decisionType'] ?? null) !== 'motion'
+        ) {
             throw new RuntimeException("Motion $motionId not found");
         }
 
-        $motionData  = $motionObject->getObject();
         $currentText = $motionData['text'] ?? '';
         $updatedText = $currentText."\n\n---\n**Amendement: $amendTitle**\n$amendText";
 
         $objectService->saveObject(
             object: array_merge($motionData, ['text' => $updatedText]),
             register: 'decidesk',
-            schema: 'motion',
+            schema: 'decision',
             uuid: $motionId,
         );
 

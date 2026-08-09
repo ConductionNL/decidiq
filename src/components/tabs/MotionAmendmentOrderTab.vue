@@ -126,6 +126,7 @@ import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
 import ArrowDown from 'vue-material-design-icons/ArrowDown.vue'
 import { suggestVotingOrder } from '../../utils/textDiff.js'
 import { ensureRelationType } from './useRelationStore.js'
+import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
 
 export default {
 	name: 'MotionAmendmentOrderTab',
@@ -148,13 +149,7 @@ export default {
 	computed: {
 		/** @spec openspec/specs/motion-amendment/spec.md */
 		lifecycleColors() {
-			return {
-				submitted: 'primary',
-				debating: 'warning',
-				voting: 'warning',
-				adopted: 'success',
-				rejected: 'error',
-			}
+			return DECISION_LIFECYCLE_COLORS
 		},
 	},
 	watch: {

@@ -5,7 +5,7 @@
  RunningProcessesWidget — motions in flight, grouped by lifecycle stage
  (REQ-001).
 
- Fetches motions with lifecycle in [submitted, under-discussion, voting] and
+ Fetches motions with lifecycle in [proposed, deliberating, voting] and
  groups them by stage in a computed property (reduce). Each stage renders a
  labelled section; clicking a motion entry navigates to the motion detail
  view. An empty state is shown when no motions are in flight.
@@ -71,12 +71,18 @@ export default {
 		/**
 		 * Stage descriptors (key + translated label) in display order.
 		 *
+		 * Keys are ADR-005 `Decision.lifecycle` values. The labels stay in the
+		 * reader's language ("Submitted", "Under discussion") because they name
+		 * what the stage MEANS to a council member, not what the schema calls it.
+		 *
+		 * @spec openspec/specs/dashboard/spec.md
+		 *
 		 * @return {Array<{key: string, label: string}>} Ordered stages.
 		 */
 		stages() {
 			const labels = {
-				submitted: t('decidesk', 'Submitted'),
-				'under-discussion': t('decidesk', 'Under discussion'),
+				proposed: t('decidesk', 'Submitted'),
+				deliberating: t('decidesk', 'Under discussion'),
 				voting: t('decidesk', 'Voting'),
 			}
 			return RUNNING_MOTION_LIFECYCLES.map((key) => ({ key, label: labels[key] }))
