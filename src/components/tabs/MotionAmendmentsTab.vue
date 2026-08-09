@@ -80,6 +80,7 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import { ensureRelationType } from './useRelationStore.js'
+import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
 
 export default {
 	name: 'MotionAmendmentsTab',
@@ -109,14 +110,7 @@ export default {
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		lifecycleColors() {
-			return {
-				submitted: 'primary',
-				debating: 'warning',
-				voting: 'warning',
-				adopted: 'success',
-				rejected: 'error',
-				withdrawn: 'default',
-			}
+			return DECISION_LIFECYCLE_COLORS
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		rowActions() {

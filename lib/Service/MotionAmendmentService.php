@@ -268,7 +268,8 @@ class MotionAmendmentService
     /**
      * Detect text overlap between a new amendment and existing amendments on a motion.
      *
-     * Fetches all submitted/debating amendments for the motion (via the
+     * Fetches all not-yet-voted amendments for the motion — lifecycle
+     * draft/proposed/deliberating in the ADR-005 Decision vocabulary — (via the
      * canonical getAmendmentsForMotion() resolver, so amendments linked through
      * the flat `parentMotion` property are no longer invisible to conflict
      * detection) and performs a naive word-overlap check. If overlap is
@@ -364,8 +365,15 @@ class MotionAmendmentService
                 continue;
             }
 
+            // ADR-005 vocabulary: `submitted | debating` are the retired Motion
+            // words, neither of which `Decision.lifecycle` can hold — so this
+            // conflict check matched NOTHING and every overlapping amendment
+            // came back clean. `proposed | deliberating` are the same two
+            // states under the schema that survived the fold; `draft` joins
+            // them because an unsubmitted amendment can still collide with a
+            // sibling once it is put forward.
             $lifecycle = ($amendmentData['lifecycle'] ?? '');
-            if (in_array($lifecycle, ['submitted', 'debating'], true) === false) {
+            if (in_array($lifecycle, ['draft', 'proposed', 'deliberating'], true) === false) {
                 continue;
             }
 

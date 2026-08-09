@@ -33,7 +33,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman motion-amendment parent motion\",\n  \"text\": \"The original motion text under consideration.\",\n  \"lifecycle\": \"debating\"\n}" }
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman motion-amendment parent motion\",\n  \"text\": \"The original motion text under consideration.\",\n  \"lifecycle\": \"deliberating\"\n}" }
 					}
 				},
 				{
@@ -58,7 +58,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"amendment\",\n  \"title\": \"Amendment A\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"Original text with a small addition\",\n  \"amends\": \"{{motionId}}\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-01T10:00:00Z\"\n}" }
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"amendment\",\n  \"title\": \"Amendment A\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"Original text with a small addition\",\n  \"amends\": \"{{motionId}}\",\n  \"lifecycle\": \"deliberating\",\n  \"submittedAt\": \"2026-06-01T10:00:00Z\"\n}" }
 					}
 				},
 				{
@@ -83,7 +83,7 @@
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
 						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"amendment\",\n  \"title\": \"Amendment B\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"A far more sweeping rewrite of the entire passage entirely\",\n  \"amends\": \"{{motionId}}\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-02T10:00:00Z\"\n}" }
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"amendment\",\n  \"title\": \"Amendment B\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"A far more sweeping rewrite of the entire passage entirely\",\n  \"amends\": \"{{motionId}}\",\n  \"lifecycle\": \"deliberating\",\n  \"submittedAt\": \"2026-06-02T10:00:00Z\"\n}" }
 					}
 				}
 			]

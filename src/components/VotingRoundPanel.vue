@@ -20,7 +20,7 @@
 				{{ t('decidesk', 'No active voting round.') }}
 			</p>
 			<NcButton
-				v-if="motionLifecycle === 'debating'"
+				v-if="motionLifecycle === 'deliberating'"
 				variant="primary"
 				:disabled="!meetingId"
 				:title="!meetingId ? t('decidesk', 'No meeting linked — the voting round cannot be opened') : undefined"

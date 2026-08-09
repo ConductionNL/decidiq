@@ -43,16 +43,40 @@ class AmendmentOrderService
     /**
      * Lifecycle states that still block the main motion from being voted.
      *
+     * ADR-005 vocabulary. Both of these lists were written in the retired
+     * Motion vocabulary, and both were therefore broken — in OPPOSITE
+     * directions, which is why neither showed up as an obvious failure:
+     *
+     * - UNDECIDED_STATES held `submitted | debating | voting`. Two of those
+     *   three are not values `Decision.lifecycle` can hold, so a real amendment
+     *   could only ever match `voting`. assertAmendmentsDecided() had quietly
+     *   become close to a no-op — it FAILED OPEN, letting a motion be voted
+     *   while its amendments were still in flight, which is the exact thing it
+     *   exists to prevent.
+     * - DECIDED_STATES held `adopted | rejected`, which under ADR-005 are
+     *   values of `outcome`, never of `lifecycle`. No real amendment could
+     *   match it, so the ordering check FAILED CLOSED and would refuse every
+     *   sibling regardless of how it had been decided.
+     *
+     * The two lists PARTITION the `Decision.lifecycle` enum: every state is in
+     * exactly one of them, and DecisionLifecycleVocabularyTest asserts that
+     * against the enum read out of the SHIPPED register, so a future state added
+     * to the schema cannot silently fall through either check.
+     *
      * @var string[]
      */
-    private const UNDECIDED_STATES = ['submitted', 'debating', 'voting'];
+    private const UNDECIDED_STATES = ['draft', 'proposed', 'deliberating', 'voting'];
 
     /**
      * Lifecycle states that count as decided for ordering purposes.
      *
+     * `withdrawn` belongs here, not in UNDECIDED_STATES: a withdrawn amendment
+     * is off the table and must not block its parent motion, even though it was
+     * never voted on. See the note on UNDECIDED_STATES above.
+     *
      * @var string[]
      */
-    private const DECIDED_STATES = ['adopted', 'rejected'];
+    private const DECIDED_STATES = ['decided', 'enacted', 'archived', 'withdrawn'];
 
     /**
      * Constructor for AmendmentOrderService.
@@ -72,7 +96,9 @@ class AmendmentOrderService
      * Enforce the parliamentary amendment-before-motion ordering (fail closed).
      *
      * For a MOTION round: every amendment of the motion must already be decided
-     * (lifecycle adopted/rejected) — amendments are voted before the main motion.
+     * (ADR-005: lifecycle `decided`/`enacted`/`archived`, or `withdrawn` — the
+     * result itself lives on the separate `outcome` axis) — amendments are voted
+     * before the main motion.
      *
      * For an AMENDMENT round: the requested amendment must be the next one in
      * the configured order.

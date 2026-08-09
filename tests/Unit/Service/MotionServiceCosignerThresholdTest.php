@@ -4,7 +4,7 @@
  * Unit tests for the motion-amendment-v1 co-signer minimum threshold in
  * MotionService::transitionLifecycle():
  *
- * - the submitted -> debating edge is blocked when the motion carries fewer
+ * - the proposed -> deliberating edge is blocked when the motion carries fewer
  *   than motion_min_cosigners co-signers (the rejection message names the
  *   minimum, the current count and the shortfall),
  * - the edge is allowed once the threshold is met,
@@ -41,7 +41,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Co-signer threshold enforcement matrix for the submitted -> debating edge.
+ * Co-signer threshold enforcement matrix for the proposed -> deliberating edge.
  *
  * @spec openspec/specs/motion-amendment/spec.md
  */
@@ -254,7 +254,7 @@ class MotionServiceCosignerThresholdTest extends TestCase
 
 
     /**
-     * The submitted -> debating edge is blocked below the threshold, naming
+     * The proposed -> deliberating edge is blocked below the threshold, naming
      * the minimum, the current count and the shortfall.
      *
      * @spec openspec/specs/motion-amendment/spec.md
@@ -263,13 +263,13 @@ class MotionServiceCosignerThresholdTest extends TestCase
      */
     public function testBelowThresholdRejected(): void
     {
-        $service = $this->buildService(self::motionStore('submitted', 1), 2);
+        $service = $this->buildService(self::motionStore('proposed', 1), 2);
 
         try {
             $service->transitionLifecycle(
                 objectId: 'motion-1',
                 objectType: 'motion',
-                newState: 'debating',
+                newState: 'deliberating',
                 actorId: 'alice',
             );
             self::fail('A motion below the co-signer threshold must be rejected');
@@ -293,17 +293,17 @@ class MotionServiceCosignerThresholdTest extends TestCase
      */
     public function testThresholdMetAllowed(): void
     {
-        $service = $this->buildService(self::motionStore('submitted', 2), 2);
+        $service = $this->buildService(self::motionStore('proposed', 2), 2);
 
         $service->transitionLifecycle(
             objectId: 'motion-1',
             objectType: 'motion',
-            newState: 'debating',
+            newState: 'deliberating',
             actorId: 'alice',
         );
 
         self::assertCount(1, $this->saves);
-        self::assertSame('debating', $this->saves[0]['lifecycle']);
+        self::assertSame('deliberating', $this->saves[0]['lifecycle']);
 
     }//end testThresholdMetAllowed()
 
@@ -317,12 +317,12 @@ class MotionServiceCosignerThresholdTest extends TestCase
      */
     public function testDefaultThresholdDisablesCheck(): void
     {
-        $service = $this->buildService(self::motionStore('submitted', 0), 0);
+        $service = $this->buildService(self::motionStore('proposed', 0), 0);
 
         $service->transitionLifecycle(
             objectId: 'motion-1',
             objectType: 'motion',
-            newState: 'debating',
+            newState: 'deliberating',
             actorId: 'alice',
         );
 
@@ -332,7 +332,7 @@ class MotionServiceCosignerThresholdTest extends TestCase
 
 
     /**
-     * The threshold only gates the submitted -> debating edge, not other edges.
+     * The threshold only gates the proposed -> deliberating edge, not other edges.
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
@@ -340,8 +340,8 @@ class MotionServiceCosignerThresholdTest extends TestCase
      */
     public function testOtherEdgeNotGated(): void
     {
-        // debating -> voting with zero co-signers and a threshold of 2 must succeed.
-        $service = $this->buildService(self::motionStore('debating', 0), 2);
+        // deliberating -> voting with zero co-signers and a threshold of 2 must succeed.
+        $service = $this->buildService(self::motionStore('deliberating', 0), 2);
 
         $service->transitionLifecycle(
             objectId: 'motion-1',
@@ -372,7 +372,7 @@ class MotionServiceCosignerThresholdTest extends TestCase
                 'object' => [
                     'id'           => 'amendment-1',
                     'decisionType' => 'amendment',
-                    'lifecycle'    => 'submitted',
+                    'lifecycle'    => 'proposed',
                 ],
             ],
         ];
@@ -382,7 +382,7 @@ class MotionServiceCosignerThresholdTest extends TestCase
         $service->transitionLifecycle(
             objectId: 'amendment-1',
             objectType: 'amendment',
-            newState: 'debating',
+            newState: 'deliberating',
             actorId: 'alice',
         );
 
@@ -400,7 +400,7 @@ class MotionServiceCosignerThresholdTest extends TestCase
      */
     public function testEmptyActorRejected(): void
     {
-        $service = $this->buildService(self::motionStore('submitted', 5), 2);
+        $service = $this->buildService(self::motionStore('proposed', 5), 2);
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageMatches('/actorId/');
@@ -408,7 +408,7 @@ class MotionServiceCosignerThresholdTest extends TestCase
         $service->transitionLifecycle(
             objectId: 'motion-1',
             objectType: 'motion',
-            newState: 'debating',
+            newState: 'deliberating',
             actorId: '',
         );
 

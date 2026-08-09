@@ -200,10 +200,43 @@ class MotionController extends Controller
     }//end hasGlobalChairAuthority()
 
     /**
+     * Read the optional `outcome` request parameter.
+     *
+     * ADR-005 split the vote result off the lifecycle axis, so the transition
+     * endpoints take it as a separate field. Absent and empty are both mapped
+     * to null so that `outcome: ""` cannot reach the service as a present-but-
+     * blank value — MotionService validates it against the closed vocabulary
+     * and would reject the blank string with a message about a bad outcome when
+     * the caller in fact supplied none.
+     *
+     * @param array<string, mixed> $params The request parameters
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return string|null The requested outcome, or null when not supplied
+     */
+    private function readOutcome(array $params): ?string
+    {
+        $outcome = ($params['outcome'] ?? null);
+        if (is_string($outcome) === false || trim($outcome) === '') {
+            return null;
+        }
+
+        return trim($outcome);
+
+    }//end readOutcome()
+
+    /**
      * Transition the lifecycle state of a Motion.
      *
      * POST /api/motions/{id}/transition
-     * Body: { "newState": "debating", "actorId": "uid" }
+     * Body: { "newState": "deliberating" }
+     * Body: { "newState": "decided", "outcome": "adopted" }
+     *
+     * ADR-005: `newState` is a `Decision.lifecycle` value
+     * (draft|proposed|deliberating|voting|decided|enacted|archived|withdrawn).
+     * The vote result travels in `outcome` (`adopted`|`rejected`), which is a
+     * separate axis and is required only when entering a terminal state.
      *
      * @param string $id The motion UUID
      *
@@ -223,6 +256,7 @@ class MotionController extends Controller
 
         $params   = $this->request->getParams();
         $newState = ($params['newState'] ?? '');
+        $outcome  = $this->readOutcome(params: $params);
         $actorId  = ($this->userSession->getUser()?->getUID() ?? '');
 
         try {
@@ -230,9 +264,10 @@ class MotionController extends Controller
                 objectId: $id,
                 objectType: 'motion',
                 newState: $newState,
-                actorId: $actorId
+                actorId: $actorId,
+                outcome: $outcome
             );
-            return new JSONResponse(['success' => true, 'newState' => $newState]);
+            return new JSONResponse(['success' => true, 'newState' => $newState, 'outcome' => $outcome]);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {
@@ -368,7 +403,11 @@ class MotionController extends Controller
      * Transition the lifecycle state of an Amendment.
      *
      * POST /api/amendments/{id}/transition
-     * Body: { "newState": "debating" }
+     * Body: { "newState": "deliberating" }
+     * Body: { "newState": "decided", "outcome": "adopted" }
+     *
+     * ADR-005: see transition() — `newState` is a lifecycle value, the vote
+     * result travels separately in `outcome`.
      *
      * @param string $id The amendment UUID
      *
@@ -388,6 +427,7 @@ class MotionController extends Controller
 
         $params   = $this->request->getParams();
         $newState = ($params['newState'] ?? '');
+        $outcome  = $this->readOutcome(params: $params);
         $actorId  = ($this->userSession->getUser()?->getUID() ?? '');
 
         try {
@@ -395,9 +435,10 @@ class MotionController extends Controller
                 objectId: $id,
                 objectType: 'amendment',
                 newState: $newState,
-                actorId: $actorId
+                actorId: $actorId,
+                outcome: $outcome
             );
-            return new JSONResponse(['success' => true, 'newState' => $newState]);
+            return new JSONResponse(['success' => true, 'newState' => $newState, 'outcome' => $outcome]);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {

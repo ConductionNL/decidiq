@@ -75,8 +75,8 @@ export default {
 		 */
 		stages() {
 			const labels = {
-				submitted: t('decidesk', 'Submitted'),
-				'under-discussion': t('decidesk', 'Under discussion'),
+				proposed: t('decidesk', 'Submitted'),
+				deliberating: t('decidesk', 'Under discussion'),
 				voting: t('decidesk', 'Voting'),
 			}
 			return RUNNING_MOTION_LIFECYCLES.map((key) => ({ key, label: labels[key] }))

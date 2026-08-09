@@ -170,7 +170,11 @@ class MotionForwardingService
             'motionType'   => $sourceMotionData['motionType'] ?? 'motion',
             'proposer'     => $sourceMotionData['proposer'] ?? '',
             'coSigners'    => $sourceMotionData['coSigners'] ?? [],
-            'lifecycle'    => 'submitted',
+            // ADR-005: `submitted` is the retired Motion vocabulary and is
+            // outside the Decision.lifecycle enum, so this write was refused
+            // outright. The forwarded copy HAS been submitted to the receiving
+            // body, which is exactly what this schema calls `proposed`.
+            'lifecycle'    => 'proposed',
             'submittedAt'  => $this->nowIso(),
             'relations'    => [
                 ['register' => 'decidesk', 'schema' => 'governance-body', 'id' => $targetBodyId],

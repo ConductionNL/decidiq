@@ -44,7 +44,7 @@ class SettingsService
      * Includes the main register slug plus schema slugs for Minutes, Decision,
      * and ActionItem so the frontend initializeStores() can register object stores.
      * motion_min_cosigners (motion-amendment spec) is the configurable minimum
-     * co-signer count enforced on the motion submitted→debating transition
+     * co-signer count enforced on the motion proposed→deliberating transition
      * (0 = disabled).
      *
      * @var array<string>

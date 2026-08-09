@@ -188,7 +188,7 @@
 			"name": "Motion Lifecycle",
 			"item": [
 				{
-					"name": "POST /api/motions/{id}/transition — submitted → debating",
+					"name": "POST /api/motions/{id}/transition — proposed → deliberating",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -207,7 +207,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"newState\": \"debating\"}"
+							"raw": "{\"newState\": \"deliberating\"}"
 						},
 						"url": "{{base_url}}/index.php/apps/decidesk/api/motions/{{motion_id}}/transition"
 					},
@@ -219,7 +219,7 @@
 									"pm.test('Motion transitioned to debating', function () {",
 									"    pm.response.to.have.status(200);",
 									"    const body = pm.response.json();",
-									"    pm.expect(body.newState).to.equal('debating');",
+									"    pm.expect(body.newState).to.equal('deliberating');",
 									"});"
 								],
 								"type": "text/javascript"
@@ -390,7 +390,7 @@
 			"name": "Amendment Lifecycle",
 			"item": [
 				{
-					"name": "POST /api/amendments/{id}/transition — submitted → debating",
+					"name": "POST /api/amendments/{id}/transition — proposed → deliberating",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -409,7 +409,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"newState\": \"debating\"}"
+							"raw": "{\"newState\": \"deliberating\"}"
 						},
 						"url": "{{base_url}}/index.php/apps/decidesk/api/amendments/{{amendment_id}}/transition"
 					},
@@ -421,7 +421,7 @@
 									"pm.test('Amendment transitioned to debating', function () {",
 									"    pm.response.to.have.status(200);",
 									"    const body = pm.response.json();",
-									"    pm.expect(body.newState).to.equal('debating');",
+									"    pm.expect(body.newState).to.equal('deliberating');",
 									"});"
 								],
 								"type": "text/javascript"

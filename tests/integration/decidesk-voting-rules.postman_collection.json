@@ -381,7 +381,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman VR Rules Motion\",\n  \"text\": \"That configurable rules be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{vrMeetingId}}\"\n}"
+       "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman VR Rules Motion\",\n  \"text\": \"That configurable rules be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"deliberating\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{vrMeetingId}}\"\n}"
       }
      }
     },

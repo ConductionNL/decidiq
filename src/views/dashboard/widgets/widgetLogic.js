@@ -20,8 +20,21 @@ export const DAY_MS = 24 * 60 * 60 * 1000
 /** Action-item statuses that take an item out of the "overdue" pool. */
 export const CLOSED_TASK_STATUSES = ['completed', 'cancelled']
 
-/** Motion lifecycle stages shown on the running-processes widget, in order. */
-export const RUNNING_MOTION_LIFECYCLES = ['submitted', 'under-discussion', 'voting']
+/**
+ * Motion lifecycle stages shown on the running-processes widget, in order.
+ *
+ * ADR-005 Decision.lifecycle vocabulary. This list previously read
+ * `['submitted', 'under-discussion', 'voting']` — a THIRD vocabulary, matching
+ * neither the retired Motion states nor the Decision enum ('under-discussion'
+ * appears nowhere else in the codebase). Since the widget passes this array
+ * straight to `getMotions({ lifecycle: ... })`, it filtered on values no stored
+ * object can hold, and the running-processes widget was permanently empty.
+ *
+ * `draft` is deliberately excluded: an unsubmitted motion is not yet a running
+ * process. Terminal states (decided/enacted/archived/withdrawn) are excluded
+ * for the same reason in the other direction.
+ */
+export const RUNNING_MOTION_LIFECYCLES = ['proposed', 'deliberating', 'voting']
 
 /**
  * Parse a date-ish value to epoch milliseconds, or NaN when unparseable.
