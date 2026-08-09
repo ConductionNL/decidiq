@@ -83,7 +83,25 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
     <!-- @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-2 -->
     <background-jobs>
-        <job>OCA\Decidesk\BackgroundJob\OverdueActionItemsJob</job>
+        <!--
+            OverdueActionItemsJob is GONE, not commented out. It was retired when
+            action items became a read-only VTODO projection ("overdue" is derived
+            at read time from dueDate), but the retirement only emptied its run()
+            body and left the declaration HERE — so Nextcloud re-registered it on
+            every app update and cron ran an empty job every 24 hours, forever.
+            The class comment claimed it was "kept as a no-op so the registered
+            oc_jobs row reaps cleanly"; while this line stood, that row could
+            never reap.
+
+            No repair step is needed to clear existing rows. MEASURED, not
+            assumed — read from the running server's own source,
+            lib/private/BackgroundJob/JobList.php::buildJob(): when a stored job
+            class cannot be resolved it logs "failed to create instance of
+            background job", then calls removeById($row['id']) with the comment
+            "Remove job from disabled app or old version of an app". Deleting the
+            class and this declaration is therefore the whole retirement; the
+            first cron tick after the upgrade drops the row.
+        -->
         <!-- @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3 -->
         <job>OCA\Decidesk\BackgroundJob\TranslationQueueJob</job>
         <!-- @spec openspec/specs/nextcloud-integration/spec.md -->

@@ -26,6 +26,8 @@ use OCA\Decidesk\Service\DecisionLifecycleService;
 use OCA\Decidesk\Service\DecisionPublicationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCA\Decidesk\Settings\AdminSettings;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -205,9 +207,21 @@ class DecisionController extends Controller
      *
      * @return JSONResponse
      *
+     * AUTH POSTURE. This carried `#[NoAdminRequired]` — "any authenticated
+     * user" — while the very next statements refuse anyone who is not an
+     * administrator, and the docblock above already said "Requires Nextcloud
+     * admin role". The attribute is what a reader, an auditor and the
+     * framework's middleware all see first, so a contradiction there is the
+     * kind that gets believed. `AuthorizedAdminSetting` is this repo's existing
+     * idiom for an admin-only REST endpoint (MemberImportController,
+     * SettingsController) and additionally lets an admin DELEGATE publication
+     * authority to a group rather than hardcoding "is a server admin". The
+     * in-body `isAdmin()` check is kept as defence in depth for any non-HTTP
+     * caller that bypasses the middleware.
+     *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function publish(string $decisionId): JSONResponse
     {
         $user = $this->userSession->getUser();
