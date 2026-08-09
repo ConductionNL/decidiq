@@ -99,7 +99,7 @@ class Application extends App implements IBootstrap
         // $this->userSession->getUser()?->getUID(), so that the shared instance
         // never caches a null uid from an early unauthenticated bootstrap.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
-        // @spec openspec/specs/decision-management/spec.md.
+        // @spec openspec/specs/decision-management/spec.md
         //
         // TaskService / DelegationService and their controllers were retired in
         // migrate-action-items-to-deck-leaf (ADR-022); WorkspaceService and
@@ -113,12 +113,15 @@ class Application extends App implements IBootstrap
         // constructor dependencies are autowired when Nextcloud instantiates
         // them.
         // @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1.
-        // @spec openspec/specs/user-settings/spec.md.
+        // @spec openspec/specs/user-settings/spec.md
         (new DomainServiceRegistrar())->register(context: $context);
 
         // Board portal Phase 2 services (audit log, conflict of interest,
         // quorum verification and their controllers) are autowired.
-        // @spec openspec/changes/board-meeting-resolutions/tasks.md.
+        // board-meeting-resolutions is archived (openspec/changes/archive/
+        // 2026-06-12-board-meeting-resolutions), so its tasks.md is not a live
+        // target. @spec points at the CANONICAL spec that survived the change.
+        // @spec openspec/specs/decision-management/spec.md
         (new PlatformIntegrationRegistrar())->register(context: $context);
 
     }//end register()
