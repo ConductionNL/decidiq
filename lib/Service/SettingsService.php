@@ -76,7 +76,7 @@ class SettingsService
         // Cosmetic UI hint only — drives no authorization decision.
         'organisatie_modus',
         // Citizen-participation instance defaults.
-        // @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md.
+        // @spec openspec/specs/citizen-participation/spec.md
         'participation_default_moderation_policy',
         'participation_catalog',
         'participation_anon_rate_limit',

@@ -135,7 +135,7 @@ class OriPublicationService
         // never publishable. VotingRound is publishable today; the guard is the
         // single enforcement seam so the deny-list home stays exercised and the
         // publish-decisions change extends the same list.
-        // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md.
+        // @spec openspec/specs/meeting-transcription/spec.md
         try {
             $eligibility = $this->container->get(\OCA\Decidesk\Service\PublicationEligibilityService::class);
             $eligibility->assertPublishable(schemaSlug: 'voting-round');

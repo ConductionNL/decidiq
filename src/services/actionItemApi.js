@@ -22,7 +22,7 @@ const base = '/apps/decidesk/api/action-items'
  *
  * @param {object} payload The action-item fields (title, assignee, dueDate, …).
  * @return {Promise<object>} The created action item.
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-2.x
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
 export async function createActionItem(payload) {
 	const { data } = await axios.post(generateUrl(base), payload)
