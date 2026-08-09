@@ -32,12 +32,24 @@
 			<table v-if="preview.length" class="csv-import__table" data-testid="csv-import-preview">
 				<thead>
 					<tr>
-						<th>{{ t('decidesk', 'Line') }}</th>
-						<th>{{ t('decidesk', 'Name') }}</th>
-						<th>{{ t('decidesk', 'Email') }}</th>
-						<th>{{ t('decidesk', 'Role') }}</th>
-						<th>{{ t('decidesk', 'Account') }}</th>
-						<th>{{ t('decidesk', 'Status') }}</th>
+						<th scope="col">
+							{{ t('decidesk', 'Line') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Name') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Email') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Role') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Account') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Status') }}
+						</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -115,7 +127,13 @@ export default {
 		},
 	},
 	methods: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Translated status text for one previewed CSV row.
+		 *
+		 * @param {object} row A validated preview row (status + reason).
+		 * @return {string} The translated status label.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		statusLabel(row) {
 			if (row.status === 'ok') {
 				return this.t('decidesk', 'Will be imported')
@@ -132,7 +150,13 @@ export default {
 			}
 			return reasons[row.reason] || this.t('decidesk', 'Invalid row')
 		},
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Parse, validate and account-match a newly chosen CSV file.
+		 *
+		 * @param {Event} event The file input's change event.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		async onFile(event) {
 			this.error = ''
 			this.doneMessage = ''
@@ -158,7 +182,13 @@ export default {
 			const validated = validateMemberRows(rows, this.existingMembers)
 			this.preview = await this.matchAccounts(validated)
 		},
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Resolve each row's email to a Nextcloud account, best-effort.
+		 *
+		 * @param {Array<object>} rows Validated preview rows.
+		 * @return {Promise<Array<object>>} The rows, each with a matchedUid.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		async matchAccounts(rows) {
 			const emails = rows.filter((r) => r.status === 'ok').map((r) => r.email)
 			if (emails.length === 0) {

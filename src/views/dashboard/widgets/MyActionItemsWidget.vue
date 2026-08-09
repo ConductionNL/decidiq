@@ -29,7 +29,11 @@
 				:class="{ 'dashboard-list-widget__row--overdue': item._overdue }"
 				:data-testid="`my-action-item-row-${item.id}`"
 				class="dashboard-list-widget__row"
-				@click="openItem(item)">
+				role="button"
+				tabindex="0"
+				@click="openItem(item)"
+				@keydown.enter.prevent="openItem(item)"
+				@keydown.space.prevent="openItem(item)">
 				<div class="dashboard-list-widget__main">
 					<span class="dashboard-list-widget__title">{{ item.title || item.name }}</span>
 					<span class="dashboard-list-widget__meta">{{ formatDate(item.dueDate) }}</span>
@@ -162,6 +166,15 @@ export default {
 
 .dashboard-list-widget__row:hover {
 	background: var(--color-background-hover, #f5f5f5);
+}
+
+/* The row is keyboard-focusable, so its focus must be VISIBLE (WCAG 2.4.7).
+   Without this the row could be tabbed to but not seen, which is worse than
+   not being reachable at all. */
+.dashboard-list-widget__row:focus-visible {
+	background: var(--color-background-hover, #f5f5f5);
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
 }
 
 .dashboard-list-widget__row--overdue {
