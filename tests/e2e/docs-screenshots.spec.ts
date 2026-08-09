@@ -47,6 +47,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import * as path from 'path'
 import * as fs from 'fs'
+import { waitForContentReady } from './visual/_visual-helpers'
 
 const SHOT_ROOT = path.resolve(__dirname, '..', '..', 'docs', 'static', 'screenshots', 'tutorials')
 const APP = '/apps/decidesk'
@@ -91,8 +92,24 @@ async function dismissOverlays(page: Page): Promise<void> {
 /** Navigate to a Decidesk (or absolute) route and settle. */
 async function go(page: Page, route: string): Promise<void> {
 	const url = route.startsWith('/apps/') ? route : `${APP}${route}`
-	await page.goto(url).catch(() => { /* tolerate a 404 — caller decides */ })
-	await page.waitForLoadState('networkidle').catch(() => { /* idle never fires on some pages */ })
+
+	// ADR-074 rule 4: 'networkidle' NEVER settles on Nextcloud — long-polling
+	// endpoints and the notification stream keep a request open indefinitely.
+	// The old line was `waitForLoadState('networkidle').catch(() => {})`, whose
+	// own comment admitted "idle never fires on some pages": it therefore
+	// burned the FULL timeout on every navigation and then swallowed the
+	// failure, so it bought a delay rather than a guarantee — and the
+	// screenshot's real precondition (content painted) was never actually
+	// asserted, only waited out.
+	//
+	// Replaced with the settle the rest of this repo already uses and trusts:
+	// domcontentloaded on the navigation, then waitForContentReady(), which
+	// asserts the header and content root are visible and polls spinners and
+	// "Loading …" placeholders away. That is a positive signal about the page
+	// rather than the absence of a signal about the network.
+	await page.goto(url, { waitUntil: 'domcontentloaded' })
+		.catch(() => { /* tolerate a 404 — caller decides */ })
+	await waitForContentReady(page).catch(() => { /* a 404 has no app chrome */ })
 	await dismissOverlays(page)
 	await page.waitForTimeout(900)
 }
