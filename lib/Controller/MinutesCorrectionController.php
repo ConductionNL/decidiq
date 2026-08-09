@@ -36,6 +36,7 @@ use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MinutesAccessGuard;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -112,6 +113,18 @@ class MinutesCorrectionController extends Controller
         }
 
         try {
+            // OpenRegister's find() THROWS DoesNotExistException for an unknown
+            // id; it does not return null. DoesNotExistException extends
+            // \Exception, so it was swallowed by the `catch (Exception)` at the
+            // bottom of this method and answered 500 "Internal server error" —
+            // while the `=== null` branch below, written to answer 404, could
+            // never run. An ordinary "no such minutes" request produced a
+            // server error.
+            //
+            // The null check is KEPT rather than replaced: find() is typed
+            // `?ObjectEntity`, so null remains reachable in principle, and a
+            // guard that costs nothing should not be removed on the strength of
+            // current behaviour alone.
             $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
             if ($minutesEntity === null) {
                 return new JSONResponse(
@@ -154,6 +167,14 @@ class MinutesCorrectionController extends Controller
             );
 
             return new JSONResponse(['corrections' => $corrections]);
+        } catch (DoesNotExistException) {
+            // Must precede the Exception arm: DoesNotExistException extends
+            // \Exception, so an unknown id would otherwise be reported as a
+            // server error rather than as the 404 it is.
+            return new JSONResponse(
+                ['message' => 'Minutes not found.'],
+                Http::STATUS_NOT_FOUND
+            );
         } catch (Exception $e) {
             return new JSONResponse(
                 ['message' => 'Internal server error.'],
@@ -204,6 +225,14 @@ class MinutesCorrectionController extends Controller
                 minutesId: $minutesId,
                 correctionId: $correctionId,
                 status: $status
+            );
+        } catch (DoesNotExistException) {
+            // Must precede the Exception arm: DoesNotExistException extends
+            // \Exception, so an unknown id would otherwise be reported as a
+            // server error rather than as the 404 it is.
+            return new JSONResponse(
+                ['message' => 'Minutes not found.'],
+                Http::STATUS_NOT_FOUND
             );
         } catch (Exception $e) {
             return new JSONResponse(
