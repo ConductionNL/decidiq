@@ -33,6 +33,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
 use OCA\Decidesk\Service\MotionService;
 use OCP\IAppConfig;
 use OCP\IUserManager;
@@ -199,13 +201,27 @@ class MotionServiceCosignerThresholdTest extends TestCase
 
         $container = $this->createMock(ContainerInterface::class);
         $container->method('get')->willReturnCallback(
-            static function (string $id) use ($objectService, $appConfig): object {
+            static function (string $id) use ($objectService, $appConfig, &$container): object {
                 if ($id === 'OCA\OpenRegister\Service\ObjectService') {
                     return $objectService;
                 }
 
                 if ($id === IAppConfig::class) {
                     return $appConfig;
+                }
+
+                // The state machine moved out of MotionService into
+                // MotionLifecycleTransitioner; MotionService now delegates to
+                // it. The REAL transitioner is wired here rather than a double,
+                // because the whole subject of this file is the co-signer gate
+                // that lives inside it — a double would have this suite assert
+                // against a stand-in for the code it exists to test.
+                if ($id === MotionLifecycleTransitioner::class) {
+                    return new MotionLifecycleTransitioner(
+                        container: $container,
+                        logger: new NullLogger(),
+                        guard: new DecisionTransitionGuard(),
+                    );
                 }
 
                 throw new \RuntimeException('not wired in test: '.$id);

@@ -429,11 +429,24 @@ class DecisionSupertypeFailureModeTest extends TestCase
             \OCP\IAppConfig::class => $this->createMock(IAppConfig::class),
         ];
 
-        // MotionLinkResolver takes the container itself, so it is built last and
-        // handed the very container that will serve it.
+        // MotionLinkResolver and MotionLifecycleTransitioner both take the
+        // container itself, so they are built last and handed the very container
+        // that will serve them.
+        //
+        // The transitioner is the REAL class, not a double: the assertions in
+        // this file are about the failure modes of the state machine — an
+        // unknown decisionType refused before the register is touched, a
+        // decision of another type answering Not Found — and all of that logic
+        // lives inside it. A double would make these tests assert against a
+        // stand-in for the code under test.
         $self = $this->containerFor($services);
         $services[\OCA\Decidesk\Service\MotionLinkResolver::class] = new \OCA\Decidesk\Service\MotionLinkResolver(
             container: $self
+        );
+        $services[\OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner::class] = new \OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner(
+            container: $self,
+            logger: new NullLogger(),
+            guard: new \OCA\Decidesk\Lifecycle\DecisionTransitionGuard(),
         );
 
         return $this->containerFor($services);
@@ -685,7 +698,7 @@ class DecisionSupertypeFailureModeTest extends TestCase
                     'decision-1' => [
                         'id'           => 'decision-1',
                         'decisionType' => 'contract',
-                        'lifecycle'    => 'submitted',
+                        'lifecycle'    => 'proposed',
                     ],
                 ]
             )
@@ -703,7 +716,7 @@ class DecisionSupertypeFailureModeTest extends TestCase
         $motionService->transitionLifecycle(
             objectId: 'decision-1',
             objectType: 'motion',
-            newState: 'debating',
+            newState: 'deliberating',
             actorId: 'admin',
         );
 

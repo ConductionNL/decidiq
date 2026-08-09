@@ -22,7 +22,7 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidesk\Service\AmendmentOrderService;
-use OCA\Decidesk\Service\MotionService;
+use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -111,7 +111,7 @@ final class DecisionLifecycleVocabularyTest extends TestCase
         $repoRoot = realpath(__DIR__.'/../../..');
         self::assertIsString($repoRoot);
 
-        foreach ([MotionService::class, AmendmentOrderService::class, DecisionTransitionGuard::class] as $class) {
+        foreach ([MotionLifecycleTransitioner::class, AmendmentOrderService::class, DecisionTransitionGuard::class] as $class) {
             $file = (new ReflectionClass($class))->getFileName();
             self::assertIsString($file, "$class must be loadable from a file");
             self::assertStringStartsWith(
@@ -132,7 +132,7 @@ final class DecisionLifecycleVocabularyTest extends TestCase
     public function testMotionTransitionTablesUseOnlySchemaStates(): void
     {
         foreach (['MOTION_TRANSITIONS', 'AMENDMENT_TRANSITIONS'] as $constant) {
-            $table = $this->constantOf(MotionService::class, $constant);
+            $table = $this->constantOf(MotionLifecycleTransitioner::class, $constant);
 
             foreach ($table as $from => $targets) {
                 self::assertContains(
@@ -169,7 +169,7 @@ final class DecisionLifecycleVocabularyTest extends TestCase
     public function testOutcomeValuesAreNotLifecycleStates(): void
     {
         foreach (['MOTION_TRANSITIONS', 'AMENDMENT_TRANSITIONS'] as $constant) {
-            $table  = $this->constantOf(MotionService::class, $constant);
+            $table  = $this->constantOf(MotionLifecycleTransitioner::class, $constant);
             $states = array_unique(array_merge(array_keys($table), ...array_values($table)));
 
             foreach (DecisionTransitionGuard::OUTCOME_VALUES as $outcome) {
