@@ -16,7 +16,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
- * @spec openspec/changes/spec/tasks.md#task-1
+ * @spec openspec/specs/meeting-management/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -74,7 +74,7 @@ class MeetingService
      * @param GovernanceScopeGuard   $scopeGuard         Consumes the OR-projected chair scope for chair-only transitions
      *
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
-     * @spec openspec/changes/spec/tasks.md#task-1
+     * @spec openspec/specs/meeting-management/spec.md
      * @spec openspec/specs/meeting-efficiency/spec.md
      */
     public function __construct(
@@ -124,7 +124,7 @@ class MeetingService
      * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
      * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
-     * @spec openspec/changes/spec/tasks.md#task-1
+     * @spec openspec/specs/meeting-management/spec.md
      *
      * @return array{success: bool, meeting: array|null, message: string}
      */
