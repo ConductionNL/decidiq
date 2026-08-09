@@ -67,13 +67,11 @@ class TranscriptRepository
      */
     public function fetchMeeting(string $meetingId): array
     {
-        $objectService = $this->getObjectService();
-        $entity        = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
-        if ($entity === null) {
-            throw new MissingObjectException(message: sprintf('Meeting "%s" not found.', $meetingId));
-        }
-
-        return (array) $entity->jsonSerialize();
+        return $this->fetchObject(
+            id: $meetingId,
+            schema: 'meeting',
+            absentMessage: sprintf('Meeting "%s" not found.', $meetingId)
+        );
 
     }//end fetchMeeting()
 
@@ -90,15 +88,64 @@ class TranscriptRepository
      */
     public function fetchTranscript(string $transcriptId): array
     {
+        return $this->fetchObject(
+            id: $transcriptId,
+            schema: 'transcript',
+            absentMessage: sprintf('Transcript "%s" not found.', $transcriptId)
+        );
+
+    }//end fetchTranscript()
+
+    /**
+     * Fetch one decidesk object by id, or raise MissingObjectException.
+     *
+     * THE SEAM THIS REPAIRS. This repository is the place the transcription
+     * surface converts "absent object" into the app's own
+     * MissingObjectException, which every TranscriptionController action
+     * already catches and renders as 404. It was written as
+     * `if ($entity === null) throw …` — but OpenRegister's find() THROWS
+     * DoesNotExistException for an unknown id and never returns null, so the
+     * conversion never happened. DoesNotExistException escaped the repository,
+     * the service and the controller, and Nextcloud answered 500 with a stack
+     * trace. Every `catch (MissingObjectException) → 404` on the transcription
+     * endpoints was therefore unreachable for the case it exists to serve.
+     *
+     * The null branch is KEPT as well as the catch: find() is typed
+     * `?ObjectEntity`, so null stays reachable in principle, and both answers
+     * mean the same thing to the caller.
+     *
+     * Only DoesNotExistException is converted. Any other failure — a broken
+     * register, an OpenRegister outage — still propagates, because turning
+     * that into "not found" would tell the caller, and monitoring, that the
+     * data is absent when the data layer is simply down.
+     *
+     * @param string $id            The object UUID.
+     * @param string $schema        The decidesk schema slug.
+     * @param string $absentMessage Message for the MissingObjectException.
+     *
+     * @return array<string,mixed> The object.
+     *
+     * @throws MissingObjectException When the object does not exist.
+     *
+     * @spec openspec/specs/meeting-transcription/spec.md
+     */
+    private function fetchObject(string $id, string $schema, string $absentMessage): array
+    {
         $objectService = $this->getObjectService();
-        $entity        = $objectService->find(id: $transcriptId, register: 'decidesk', schema: 'transcript');
+
+        try {
+            $entity = $objectService->find(id: $id, register: 'decidesk', schema: $schema);
+        } catch (\OCP\AppFramework\Db\DoesNotExistException) {
+            throw new MissingObjectException(message: $absentMessage);
+        }
+
         if ($entity === null) {
-            throw new MissingObjectException(message: sprintf('Transcript "%s" not found.', $transcriptId));
+            throw new MissingObjectException(message: $absentMessage);
         }
 
         return (array) $entity->jsonSerialize();
 
-    }//end fetchTranscript()
+    }//end fetchObject()
 
     /**
      * Fetch the agenda items linked to a meeting.
@@ -180,6 +227,49 @@ class TranscriptRepository
         return $transcript;
 
     }//end saveTranscript()
+
+    /**
+     * Write the transcript/recording retention policy onto a governance body.
+     *
+     * Lives here rather than in TranscriptionController because a controller
+     * doing plain object CRUD is the thing ADR-022 exists to stop — and,
+     * concretely, because the controller's own copy of this lookup carried the
+     * dead-null-branch defect that fetchObject() above repairs. One lookup, one
+     * conversion, one place to get it right.
+     *
+     * Reads through fetchObject(), so an unknown body id raises
+     * MissingObjectException — which TranscriptionController already renders as
+     * 404 for every other action.
+     *
+     * @param string $bodyId The governance body UUID.
+     * @param string $policy One of keep|delete-recording|delete-both.
+     * @param int    $days   Retention window in days.
+     *
+     * @return void
+     *
+     * @throws MissingObjectException When the governance body does not exist.
+     *
+     * @spec openspec/specs/meeting-transcription/spec.md
+     */
+    public function saveRetentionPolicy(string $bodyId, string $policy, int $days): void
+    {
+        $body = $this->fetchObject(
+            id: $bodyId,
+            schema: 'governance-body',
+            absentMessage: sprintf('Governance body "%s" not found.', $bodyId)
+        );
+
+        $body['transcriptRetentionPolicy'] = $policy;
+        $body['transcriptRetentionDays']   = $days;
+
+        $this->getObjectService()->saveObject(
+            object: $body,
+            register: 'decidesk',
+            schema: 'governance-body',
+            uuid: $bodyId
+        );
+
+    }//end saveRetentionPolicy()
 
     /**
      * Extract the transcript object UUID (id or @self.id), or null.
