@@ -2922,6 +2922,37 @@
               "en": "Decision outcome available: {{title}}"
             }
           },
+          "decisionPublished": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "isPublished",
+                "operator": "equals",
+                "value": "public"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Besluit gepubliceerd: {{title}}",
+              "en": "Decision published: {{title}}"
+            },
+            "_note": "Publication is the one Decision event that had NO declarative rule, while an imperative DecisionNotificationService::notifyOnPublish() sat beside it with zero callers, no tests and no DI registration — so nobody was ever notified that a decision had become public. ADR-031 keeps notifications declarative (gate-18 flagged the imperative class by name), so the rule lands here and the dead service is removed rather than wired up. isPublished is FLOW-OWNED: it only reaches 'public' through the guarded publication flow (PublicationEligibilityService::guardDirectPublicationWrite rejects a direct object write), so this trigger cannot be fired by an ordinary object update. Recipients mirror decisionProposed/decisionRecorded rather than inventing a third shape."
+          },
           "voteRequested": {
             "trigger": {
               "type": "updated",

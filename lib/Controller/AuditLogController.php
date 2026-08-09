@@ -24,8 +24,10 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\AuditLogService;
+use OCA\Decidesk\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
@@ -74,6 +76,7 @@ class AuditLogController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function index(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -120,6 +123,7 @@ class AuditLogController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function verify(string $id): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -138,6 +142,7 @@ class AuditLogController extends Controller
      *
      * @return Response
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function export(): Response
     {
         $deny = $this->requireAdmin();
