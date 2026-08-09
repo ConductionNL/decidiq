@@ -52,30 +52,38 @@ test('Add Decision dialog opens', async ({ page }) => {
 	// `fieldsFromSchema()` in @conduction/nextcloud-vue builds
 	// `label: prop.title || key` and CnFormDialog renders
 	// `field.label + (field.required ? ' *' : '')`. Every Decision property in
-	// `lib/Settings/decidesk_register.json` carries a title, so the labels are
-	// "Title *", "Text *", "Decision date *", "Decision type *", "Outcome *"
-	// — the five members of the schema's `required` array.
+	// `lib/Settings/decidesk_register.json` carries a title, so the asterisk is
+	// a direct, UI-observable read of the schema's `required` array.
 	//
 	// `getByText('title', { exact: true })` is case-SENSITIVE, which is why it
-	// could not match "Title *" and this test died on its first field
+	// could not match "Title *" and this test once died on its first field
 	// assertion while the dialog and its heading resolved fine.
-	//
-	// decisionDate is a datetime-picker that renders two labels for the same
-	// field: the visible form `<label>` ("Decision date *") plus the native
-	// picker's own hidden label ("Decision date", no asterisk). The required
-	// asterisk therefore disambiguates them without a `.first()`.
 	await expect(dialog.getByText('Title *', { exact: true })).toBeVisible()
 	await expect(dialog.getByText('Text *', { exact: true })).toBeVisible()
-	await expect(dialog.getByText('Decision date *', { exact: true })).toBeVisible()
 	await expect(dialog.getByText('Decision type *', { exact: true })).toBeVisible()
-	// `governingBody` used to be asserted here. The Decision schema has no such
-	// property — under ADR-005 a Decision is linked to a body indirectly, via
-	// its meeting/agenda item — so that assertion could never pass against this
-	// register and was not a contract. `outcome` is asserted instead: it is a
-	// real REQUIRED Decision property, so it exercises the same
-	// "the create form collects everything the schema demands" guarantee that
-	// backs the create-a-standalone-decision and fail-without-a-title scenarios.
-	await expect(dialog.getByText('Outcome *', { exact: true })).toBeVisible()
+
+	// THE IN-FLIGHT CONTRACT, read off the form.
+	//
+	// `decisionDate` and `outcome` used to be asserted here WITH asterisks, as
+	// members of `required`. They are required only in terminal states now — an
+	// in-flight motion has no legal outcome — so the create form must NOT demand
+	// them, or a motion could not be drafted at all. Asserting their absence is
+	// the UI-level counterpart of the schema assertion in
+	// RegisterJsonTest::testDecisionSupertypeSchema and of the transition-boundary
+	// gate in DecisionTransitionGuard::getMissingTerminalFields().
+	await expect(dialog.getByText('Decision date *', { exact: true })).toHaveCount(0)
+	await expect(dialog.getByText('Outcome *', { exact: true })).toHaveCount(0)
+
+	// Both fields are still ON the form — optional, not removed. `governingBody`
+	// used to be asserted here instead; the Decision schema has no such property
+	// (under ADR-005 a Decision reaches a body indirectly, via its meeting /
+	// agenda item), so that assertion could never pass and was not a contract.
+	//
+	// decisionDate is a datetime-picker that renders two labels for the same
+	// field (the form `<label>` plus the native picker's own), so it needs
+	// `.first()` now that the asterisk no longer disambiguates them.
+	await expect(dialog.getByText('Decision date', { exact: true }).first()).toBeVisible()
+	await expect(dialog.getByText('Outcome', { exact: true }).first()).toBeVisible()
 
 	// Create button is present
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()

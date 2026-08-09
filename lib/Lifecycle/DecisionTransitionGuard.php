@@ -57,6 +57,62 @@ class DecisionTransitionGuard
     ];
 
     /**
+     * Lifecycle states in which a decision has actually been DECIDED.
+     *
+     * Derived from the `Decision` schema's own `lifecycle` description in
+     * `lib/Settings/decidesk_register.json` — *"orthogonal to 'outcome' (the
+     * voting result, set when reaching 'decided')"* — and from the ordered
+     * state list above: `decided` is the first state past the vote, and
+     * `enacted` / `archived` are only reachable through it.
+     *
+     * `withdrawn` is deliberately NOT here. It is terminal in the
+     * `x-openregister-lifecycle` sense (nothing follows it) but a withdrawn
+     * decision was never decided, so it has no `adopted|rejected` outcome to
+     * record. Requiring one there would forbid withdrawing a draft.
+     *
+     * @var string[]
+     */
+    public const TERMINAL_OUTCOME_STATES = [
+        'decided',
+        'enacted',
+        'archived',
+    ];
+
+    /**
+     * Fields a decision MUST carry once it reaches a terminal outcome state.
+     *
+     * These are exactly the two properties that used to sit unconditionally in
+     * the `Decision` schema's `required[]`. They were moved here because an
+     * in-flight motion has no legal outcome and the schema could not express
+     * "required only at the end": OpenRegister builds the validated schema in
+     * `Schema::getSchemaObject()` from a fixed key list
+     * (title/description/version/type/required/$schema/$id/properties), so a
+     * JSON-Schema `if`/`then` block never reaches the validator at all.
+     * Measured, not assumed — see the register's
+     * `x-decidesk-terminal-completeness` note.
+     *
+     * @var string[]
+     */
+    public const TERMINAL_REQUIRED_FIELDS = [
+        'outcome',
+        'decisionDate',
+    ];
+
+    /**
+     * The closed `outcome` vocabulary, mirroring the schema enum.
+     *
+     * A value outside this set (the shipped `motie-woonlasten-2025` seed once
+     * carried `outcome: "pending"`) is not a recorded outcome — it is an
+     * in-flight placeholder — so it does not satisfy terminal completeness.
+     *
+     * @var string[]
+     */
+    public const OUTCOME_VALUES = [
+        'adopted',
+        'rejected',
+    ];
+
+    /**
      * Valid lifecycle transitions keyed by action name.
      *
      * Each entry defines:
@@ -339,4 +395,58 @@ class DecisionTransitionGuard
         return ($decision['outcome'] ?? '') === 'adopted';
 
     }//end isEnactAllowed()
+
+    /**
+     * Whether entering this lifecycle state means the decision has been decided.
+     *
+     * @param string $lifecycle The lifecycle state being entered
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return bool True when the state is a terminal outcome state
+     */
+    public function isTerminalOutcomeState(string $lifecycle): bool
+    {
+        return in_array(needle: $lifecycle, haystack: self::TERMINAL_OUTCOME_STATES, strict: true);
+
+    }//end isTerminalOutcomeState()
+
+    /**
+     * List the terminal-completeness fields a decision is still missing.
+     *
+     * This is the enforcement that replaces the unconditional `required[]`
+     * entries on the schema. An empty list means the decision may enter a
+     * terminal outcome state; anything else names precisely what is absent so
+     * the caller can say so.
+     *
+     * A present-but-out-of-vocabulary `outcome` counts as missing: recording
+     * `pending` as the result of a vote is the same defect as recording
+     * nothing.
+     *
+     * @param array<string, mixed> $decision Decision object array
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     *
+     * @return string[] The names of the absent (or unusable) terminal fields
+     */
+    public function getMissingTerminalFields(array $decision): array
+    {
+        $missing = [];
+        foreach (self::TERMINAL_REQUIRED_FIELDS as $field) {
+            $value = ($decision[$field] ?? null);
+            if (is_string($value) === false || trim($value) === '') {
+                $missing[] = $field;
+                continue;
+            }
+
+            if ($field === 'outcome'
+                && in_array(needle: $value, haystack: self::OUTCOME_VALUES, strict: true) === false
+            ) {
+                $missing[] = $field;
+            }
+        }
+
+        return $missing;
+
+    }//end getMissingTerminalFields()
 }//end class
