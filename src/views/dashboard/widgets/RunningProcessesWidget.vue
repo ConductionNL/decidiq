@@ -37,7 +37,11 @@
 						:key="motion.id"
 						:data-testid="`running-motion-row-${motion.id}`"
 						class="running-processes__row"
-						@click="openMotion(motion)">
+						role="button"
+						tabindex="0"
+						@click="openMotion(motion)"
+						@keydown.enter.prevent="openMotion(motion)"
+						@keydown.space.prevent="openMotion(motion)">
 						{{ motion.title || motion.name }}
 					</li>
 				</ul>
@@ -185,5 +189,14 @@ export default {
 
 .running-processes__row:hover {
 	background: var(--color-background-hover, #f5f5f5);
+}
+
+/* The row is keyboard-focusable, so its focus must be VISIBLE (WCAG 2.4.7).
+   Without this the row could be tabbed to but not seen, which is worse than
+   not being reachable at all. */
+.running-processes__row:focus-visible {
+	background: var(--color-background-hover, #f5f5f5);
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
 }
 </style>

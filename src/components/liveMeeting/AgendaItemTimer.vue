@@ -271,6 +271,25 @@ export default {
 	50% { opacity: 0.4; }
 }
 
+/*
+ * The over-time clock pulses indefinitely, which is precisely the pattern
+ * vestibular-disorder and migraine users need to be able to switch off.
+ *
+ * Removing the animation loses NO information here: "over time" is already
+ * carried by --color-error on the clock and by the visible
+ * .agenda-timer__over-tag text beside it, so the state stays perceivable
+ * without motion (WCAG 1.4.1 — colour and motion are not the only channels).
+ * The clock is pinned to full opacity rather than left mid-keyframe, because
+ * an interrupted animation can otherwise settle at opacity 0.4 and read as
+ * disabled.
+ */
+@media (prefers-reduced-motion: reduce) {
+	.agenda-timer__clock--over {
+		animation: none;
+		opacity: 1;
+	}
+}
+
 .agenda-timer__paused-tag,
 .agenda-timer__over-tag {
 	font-size: 0.875rem;
