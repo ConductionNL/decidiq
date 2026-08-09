@@ -92,7 +92,7 @@
 		},
 		{
 			"id": "SettingsMenu",
-			"label": "App configuration",
+			"label": "Settings",
 			"icon": "CogOutline",
 			"route": "Settings",
 			"section": "settings",
