@@ -26,6 +26,7 @@
 import LiveMeetingView from './views/LiveMeeting.vue'
 import DecisionIntegrations from './views/DecisionIntegrations.vue'
 import AgendaItemIntegrations from './views/AgendaItemIntegrations.vue'
+import MotionIntegrations from './views/MotionIntegrations.vue'
 
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
 // slot components registered under kind: "widget".
@@ -164,6 +165,11 @@ export default {
 	// linking is now held by the registry, not an {app}_email_links store.
 	DecisionIntegrations: page(DecisionIntegrations),
 	AgendaItemIntegrations: page(AgendaItemIntegrations),
+	// src/manifest.json page 15 names this component on the route
+	// /motions/:id/integrations, but nothing registered it — resolution fell
+	// through and the page rendered NOTHING. The component itself already
+	// existed; only the registration was missing.
+	MotionIntegrations: page(MotionIntegrations),
 
 	// --- Detail-tab components (one per cross-schema relation). ---
 	// Each lives in /components/tabs/. Full-CRUD (or read-only where

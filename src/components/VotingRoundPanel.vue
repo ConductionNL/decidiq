@@ -190,7 +190,20 @@
 					role="dialog"
 					:aria-label="t('decidesk', 'Grant proxy')">
 					<h4>{{ t('decidesk', 'Grant proxy to') }}</h4>
-					<input v-model="proxyToId" type="text" :placeholder="t('decidesk', 'Participant UUID')">
+					<!--
+						A placeholder is not a label: it is not exposed as the
+						input's accessible name, and it disappears the moment the
+						user types, so the field loses its only description
+						exactly when a screen-reader user is filling it in (WCAG
+						3.3.2 Labels or Instructions, 4.1.2 Name Role Value).
+						NcTextField carries a real <label for> association, which
+						is why it is used here rather than an aria-label bolted
+						onto a raw <input> — it is also the idiom the rest of
+						this repo already uses.
+					-->
+					<NcTextField v-model="proxyToId"
+						:label="t('decidesk', 'Participant UUID')"
+						:placeholder="t('decidesk', 'Participant UUID')" />
 					<div class="decidesk-dialog-actions">
 						<NcButton variant="primary" @click="grantProxy">
 							{{ t('decidesk', 'Grant') }}
@@ -309,7 +322,7 @@
 
 <script>
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
-import { NcButton } from '@nextcloud/vue'
+import { NcButton, NcTextField } from '@nextcloud/vue'
 import { useObjectStore, useSettingsStore } from '../store/store.js'
 import {
 	ABSTENTION_MODES,
@@ -322,7 +335,7 @@ import {
 
 export default {
 	name: 'VotingRoundPanel',
-	components: { CnDetailCard, CnStatusBadge, NcButton },
+	components: { CnDetailCard, CnStatusBadge, NcButton, NcTextField },
 	props: {
 		motionId: { type: String, required: true },
 		motionLifecycle: { type: String, default: '' },
