@@ -99,7 +99,7 @@ Seed objects ship in the `x-openregister.seedData` block of `55-governing-docume
 ### Schema: `governing-document`
 | Field | Object 1 (statuten van een vereniging) | Object 2 (reglement van orde van een gemeenteraad) | Object 3 (VvE splitsingsakte) |
 |-------|----------|----------|----------|
-| slug | statuten-vng | reglement-van-orde-gemeenteraad-amsterdam | splitsingsakte-vve-parkstaete |
+| slug | statuten-vng | reglement-van-orde-raad-amsterdam | splitsingsakte-vve-parkstaete |
 | type | statuten | reglement-van-orde | splitsingsakte |
 | citeertitel | Statuten Vereniging van Nederlandse Gemeenten | Reglement van orde gemeenteraad Amsterdam | Splitsingsakte VvE Parkstaete |
 | governingBody | ledenraad-vng | gemeenteraad-amsterdam | vve-parkstaete |
@@ -110,7 +110,7 @@ Seed objects ship in the `x-openregister.seedData` block of `55-governing-docume
 | Field | Object 1 | Object 2 | Object 3 | Object 4 |
 |-------|----------|----------|----------|----------|
 | slug | statuten-vng-v1 | statuten-vng-v2 | rvo-amsterdam-v1 | splitsingsakte-parkstaete-v1 |
-| document | statuten-vng | statuten-vng | reglement-van-orde-gemeenteraad-amsterdam | splitsingsakte-vve-parkstaete |
+| document | statuten-vng | statuten-vng | reglement-van-orde-raad-amsterdam | splitsingsakte-vve-parkstaete |
 | versienummer | 1 | 2 | 1 | 1 |
 | vastgesteldDoor | (empty — constitutive) | besluit-statutenwijziging-vng-2021 | besluit-vaststelling-rvo-amsterdam | (empty — constitutive) |
 | inwerkingtreding | 1990-05-01 | 2022-01-01 | 2023-03-01 | 2005-06-01 |

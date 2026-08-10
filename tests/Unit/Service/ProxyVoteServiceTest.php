@@ -91,10 +91,32 @@ class ProxyVoteServiceTest extends TestCase
                     return $out;
                 }
 
+                // ObjectService::prepareFindAllConfig() reads filters.register /
+                // filters.schema as the register/schema CONTEXT, not as object
+                // fields — a top-level 'register'/'schema' key is ignored and the
+                // query then runs with no context and returns nothing. This mock
+                // previously treated every filter key as a row field, so a caller
+                // using the top-level (broken) shape still got rows here: the mock
+                // could not tell the working call from the one that silently
+                // returns [] in production. Model the real contract instead.
+                $context = ['register', 'schema'];
+                if (isset($filters['register'], $filters['schema']) === false) {
+                    // No register/schema context reached the engine: production
+                    // returns an empty array here (it does NOT throw), so the
+                    // caller cannot tell "no proxies" from "never looked". Repeat
+                    // that here so a regression to the top-level shape turns this
+                    // suite red instead of passing on fixture data.
+                    return [];
+                }
+
                 $out = [];
                 foreach ($rowsRef as $row) {
                     $matches = true;
                     foreach ($filters as $k => $v) {
+                        if (in_array($k, $context, true) === true) {
+                            continue;
+                        }
+
                         if (($row[$k] ?? null) !== $v) {
                             $matches = false;
                             break;

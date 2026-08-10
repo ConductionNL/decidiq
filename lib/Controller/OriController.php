@@ -30,6 +30,7 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\OriSerializer;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
@@ -323,6 +324,15 @@ class OriController extends Controller
             }
 
             $object = $this->narrowToDecisionType(resource: $resource, object: $object);
+        } catch (DoesNotExistException $e) {
+            // OpenRegister's published-predicate RBAC hides a future-dated or
+            // depublished payload from an anonymous caller by making find() THROW,
+            // not by returning null — so the not-live 404 branch below was never
+            // reached and the blanket Throwable catch turned it into a 500. A 500
+            // is itself a disclosure (it separates "exists but hidden" from
+            // "unknown id"), which is exactly what this endpoint must not do.
+            // An id we cannot read is not-found, full stop.
+            return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
         } catch (Throwable $e) {
             $this->logger->error(message: 'OriController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);

@@ -91,7 +91,7 @@
             "lifecycle": "behandeld",
             "raadsbesluitDatum": "2026-05-12",
             "behandeldIn": "raadsvergadering-2025-01-15",
-            "agendaItem": "interpellatie-stationsgebied-2025-01-15",
+            "agendaItem": "interpellatie-stationsgebied-2025",
             "behandelingVerslag": "Interpellatiedebat gevoerd; wethouder zegt extern onderzoek toe naar de veiligheidssituatie en informeert de raad per raadsbrief voor het zomerreces."
           },
           {
@@ -144,7 +144,7 @@
             "meeting": "raadsvergadering-2025-01-15"
           },
           {
-            "slug": "interpellatie-stationsgebied-2025-01-15",
+            "slug": "interpellatie-stationsgebied-2025",
             "title": "Interpellatie: veiligheid stationsgebied",
             "itemType": "discussion",
             "orderNumber": 7,
@@ -388,9 +388,7 @@
           "fractie": {
             "title": "Fraction",
             "type": "string",
-            "format": "uuid",
-            "$ref": "Fractie",
-            "description": "Reference to the submitter's Fractie (fractievoorzitter-fractie-koppeling — hard depends_on, that change owns the schema). Required. Seeded as a nil-UUID placeholder until that change lands (design D6)."
+            "description": "Reference to the submitter's Fractie (fractievoorzitter-fractie-koppeling — hard depends_on, that change owns the schema). Required. Seeded as a nil-UUID placeholder until that change lands (design D6). Declared as a PLAIN STRING, not format:uuid + $ref: the Fractie schema does not exist in this register yet, so a $ref to it is a dangling target (ADR-062 rule f) while dropping the $ref but keeping format:uuid is a relation-shaped property with no $ref (rule 7) — the pair is unsatisfiable until that change lands. Restore format:uuid + $ref: Fractie in the same commit that introduces the schema."
           },
           "onderwerp": {
             "title": "Subject",
@@ -481,16 +479,12 @@
           "vervolgSchriftelijkeVraag": {
             "title": "Follow-up written question",
             "type": "string",
-            "format": "uuid",
-            "$ref": "SchriftelijkeVraag",
-            "description": "Optional reference to a follow-up SchriftelijkeVraag (fractievoorzitter-fractie-koppeling) created from a niet-behandeld or beantwoord oral question. Its answering workflow stays in that change (REQ-VRI-006)."
+            "description": "Optional reference to a follow-up SchriftelijkeVraag (fractievoorzitter-fractie-koppeling) created from a niet-behandeld or beantwoord oral question. Its answering workflow stays in that change (REQ-VRI-006). Declared as a PLAIN STRING — see the note on MondelingeVraag.fractie: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it."
           },
           "bronSchriftelijkeVraag": {
             "title": "Source written question",
             "type": "string",
-            "format": "uuid",
-            "$ref": "SchriftelijkeVraag",
-            "description": "Optional reference to the SchriftelijkeVraag this oral question escalates from (fractievoorzitter-fractie-koppeling). Set on written → oral escalation; when the oral question reaches beantwoord, OralQuestionService sets the linked SV to 'vervallen-door-mondelinge-beantwoording' via a PUT-semantic save carrying all other SV fields forward (design D6, REQ-VRI-006). No field mirroring or shared lifecycle."
+            "description": "Declared as a PLAIN STRING — see the note on MondelingeVraag.fractie: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it. Optional reference to the SchriftelijkeVraag this oral question escalates from (fractievoorzitter-fractie-koppeling). Set on written → oral escalation; when the oral question reaches beantwoord, OralQuestionService sets the linked SV to 'vervallen-door-mondelinge-beantwoording' via a PUT-semantic save carrying all other SV fields forward (design D6, REQ-VRI-006). No field mirroring or shared lifecycle."
           }
         }
       },
@@ -701,9 +695,7 @@
           "fractie": {
             "title": "Fraction",
             "type": "string",
-            "format": "uuid",
-            "$ref": "Fractie",
-            "description": "Reference to the requester's Fractie (fractievoorzitter-fractie-koppeling — hard depends_on). Required. Seeded as a nil-UUID placeholder until that change lands (design D6)."
+            "description": "Reference to the requester's Fractie (fractievoorzitter-fractie-koppeling — hard depends_on). Required. Seeded as a nil-UUID placeholder until that change lands (design D6). Declared as a PLAIN STRING — see the note on MondelingeVraag.fractie: the Fractie schema does not exist in this register yet. Restore format:uuid + $ref: Fractie in the commit that introduces it."
           },
           "onderwerp": {
             "title": "Subject",

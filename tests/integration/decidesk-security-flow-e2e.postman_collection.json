@@ -8,6 +8,30 @@
 	"auth": {
 		"type": "noauth"
 	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Four different accounts (admin, grantor, unrelated, anonymous) drive this",
+					"// collection over ONE host, and Newman keeps ONE cookie jar per host.",
+					"// Nextcloud resolves a logged-in session from that jar BEFORE it reads the",
+					"// Basic auth header, so a request carrying both runs as whoever authenticated",
+					"// last — not as the account in its own Authorization header.",
+					"//",
+					"// That silently disarmed the IDOR guard this collection exists to prove:",
+					"// 'register on behalf of an unrelated grantor' and 'revoke by an unrelated",
+					"// participant' ran as the GRANTOR, so they succeeded and the 403 assertions",
+					"// looked like a missing authorization check (decidesk#443, same shape).",
+					"//",
+					"// Drop the jar before every request so the Basic credentials are the only",
+					"// identity on the wire. The 'Identity guard' request proves this holds.",
+					"pm.cookies.jar().clear(pm.variables.replaceIn('{{baseUrl}}'), function () {});"
+				]
+			}
+		}
+	],
 	"variable": [
 		{
 			"key": "baseUrl",
@@ -349,6 +373,70 @@
 									"const id = b.id || b.uuid || (b['@self'] && b['@self'].id);",
 									"pm.expect(id, 'proxy id captured').to.be.a('string');",
 									"pm.collectionVariables.set('sfecProxyId', id);"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Identity guard: the IDOR probes really run as the unrelated participant",
+					"request": {
+						"method": "GET",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{sfecUnrelatedUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{sfecUnrelatedPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ocs/v2.php/cloud/user?format=json",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ocs",
+								"v2.php",
+								"cloud",
+								"user"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('identity guard: whoami read succeeded (200)', () => pm.response.to.have.status(200));",
+									"const who = pm.response.json()?.ocs?.data?.id;",
+									"pm.test('identity guard: IDOR probes act as the unrelated participant', () => {",
+									"    pm.expect(who, 'authenticated account id').to.eql(pm.variables.replaceIn('{{sfecUnrelatedUser}}'));",
+									"});"
 								]
 							}
 						}

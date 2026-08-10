@@ -22,7 +22,7 @@
             "publicatiedatum": "2026-02-21T09:00:00Z"
           },
           {
-            "slug": "rib-2026-013-stand-van-zaken-energietransitie",
+            "slug": "rib-2026-013-energietransitie",
             "number": "RIB-2026-013",
             "onderwerp": "Voortgang energietransitie gebouwde omgeving",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
@@ -72,7 +72,7 @@
           },
           {
             "slug": "tv-rib-2026-013-netcapaciteit",
-            "rib": "rib-2026-013-stand-van-zaken-energietransitie",
+            "rib": "rib-2026-013-energietransitie",
             "vraag": "Welke wijken lopen vertraging op door netcapaciteit?",
             "gesteldDoor": "00000000-0000-0000-0000-000000000000",
             "fractie": "D66",
@@ -253,9 +253,8 @@
           "relatedDossier": {
             "title": "Related dossier",
             "type": "string",
-            "format": "uuid",
             "nullable": true,
-            "description": "Optional reference to an archival dossier (targets the ArchivalDossier planned in records-management-archiving). Nullable — until that change lands it degrades to a plain link (design D6). Tightening it to a hard $ref later is an additive schema-version bump."
+            "description": "Optional reference to an archival dossier (targets the ArchivalDossier planned in records-management-archiving). Nullable — until that change lands it degrades to a plain link (design D6). Tightening it to a hard $ref later is an additive schema-version bump. Declared WITHOUT format:uuid for the same reason: format:uuid plus a relation description with no $ref is a relation-shaped property that ADR-062 rule 7 rejects, and the $ref has no target to point at yet. Restore format:uuid + $ref together in the commit that introduces ArchivalDossier."
           },
           "relatedDecision": {
             "title": "Related decision",

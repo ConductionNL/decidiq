@@ -126,7 +126,7 @@ Two board members of the NOZ bestuur seeded as Person + Membership (REQ-GBD-011)
 
 | Field | Object 1 | Object 2 |
 |-------|----------|----------|
-| slug | zienswijzeronde-ontwerpbegroting-2027 | zienswijzeronde-wijziging-gr-2026 |
+| slug | zienswijzeronde-begroting-2027 | zienswijzeronde-wijziging-gr-2026 |
 | title | "Zienswijzeronde ontwerpbegroting 2027 NOZ organisatie" | "Zienswijzeronde wijziging gemeenschappelijke regeling" |
 | sharedBody | (bestuur-noz-organisatie ref) | (bestuur-noz-organisatie ref) |
 | subjectType | ontwerpbegroting | wijziging-regeling |
