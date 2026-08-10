@@ -212,27 +212,67 @@ export async function seedGovernanceScenario(
 	return { governanceBodyId, meetingId, motionId, participantIds }
 }
 
+/**
+ * How many deletes are in flight at once.
+ *
+ * Cleanup used to issue every DELETE serially — one full HTTP round-trip per
+ * object, plus six listObjects() sweeps, all inside an afterAll hook that
+ * inherits the 20s test timeout. On CI that hook timed out, and because a
+ * failing afterAll is attributed to the LAST test in the file it kept
+ * re-accusing whichever spec happened to sit at the bottom
+ * (voting-quorum-workflow: first the tally-tie case, then "casting a vote
+ * returns the persisted vote"). Neither test was broken; the teardown was.
+ *
+ * Deleting in bounded batches keeps the wall time proportional to
+ * ceil(n / CLEANUP_CONCURRENCY) round-trips instead of n, which is what puts
+ * teardown back inside the budget. The budget itself is UNCHANGED — nothing
+ * here relaxes a timeout or an assertion; the work simply stops being serial.
+ *
+ * Bounded rather than unbounded (`Promise.all` over everything) on purpose: an
+ * unbounded fan-out against a single-worker `php -S` CI server trades a slow
+ * teardown for a connection-starved one.
+ */
+const CLEANUP_CONCURRENCY = 8
+
+/** Issue DELETEs in bounded-concurrency batches. Best-effort, never throws. */
+async function deleteAll(page: Page, urls: string[], headers: Record<string, string>): Promise<void> {
+	for (let i = 0; i < urls.length; i += CLEANUP_CONCURRENCY) {
+		await Promise.all(
+			urls.slice(i, i + CLEANUP_CONCURRENCY).map((url) =>
+				page.request.delete(url, { headers }).catch(() => undefined),
+			),
+		)
+	}
+}
+
 /** Delete every object this run created, children first. Best-effort. */
 export async function cleanupAll(page: Page, ledger: SeedLedger): Promise<void> {
 	const headers = await writeHeaders(page)
+
+	// Children first: TEARDOWN_ORDER is a dependency order, so the batches stay
+	// per-schema. Parallelism WITHIN a schema is safe; across schemas it is not.
 	for (const schema of TEARDOWN_ORDER) {
-		for (const id of ledger.created[schema] ?? []) {
-			await page.request
-				.delete(`${OR}/${schema}/${id}`, { headers })
-				.catch(() => undefined)
-		}
+		const ids = ledger.created[schema] ?? []
+		await deleteAll(page, ids.map((id) => `${OR}/${schema}/${id}`), headers)
 	}
+
 	// Sweep any stragglers tagged with this runId (e.g. votes/rounds created by
 	// the app under test, which the ledger never saw).
 	const tag = `e2e-${ledger.runId}`
-	for (const schema of ['vote', 'voting-round', 'decision', 'participant', 'meeting', 'governance-body']) {
-		const objs = await listObjects(page, schema)
-		for (const o of objs) {
-			const name = (o.title ?? o.name ?? o.displayName ?? '') as string
-			if (name.startsWith(tag)) {
-				await page.request.delete(`${OR}/${schema}/${objId(o)}`, { headers }).catch(() => undefined)
-			}
-		}
+	const sweepSchemas = ['vote', 'voting-round', 'decision', 'participant', 'meeting', 'governance-body']
+
+	// The six listObjects() reads have no ordering constraint between them —
+	// only the deletes do — so they run concurrently and the per-schema deletes
+	// then proceed in dependency order as before.
+	const listings = await Promise.all(
+		sweepSchemas.map(async (schema) => ({ schema, objs: await listObjects(page, schema) })),
+	)
+
+	for (const { schema, objs } of listings) {
+		const urls = objs
+			.filter((o) => String((o.title ?? o.name ?? o.displayName ?? '') as string).startsWith(tag))
+			.map((o) => `${OR}/${schema}/${objId(o)}`)
+		await deleteAll(page, urls, headers)
 	}
 }
 
