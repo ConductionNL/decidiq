@@ -358,6 +358,36 @@ class OriControllerTest extends TestCase
 
 
     /**
+     * show() returns 404 — not 500 — when OpenRegister's published-predicate RBAC
+     * hides the payload by making find() THROW instead of returning null.
+     *
+     * The test above only covers the case where the row comes back and the
+     * not-live branch rejects it. On a real instance the anonymous caller never
+     * gets the row at all: find() raises DoesNotExistException, which the blanket
+     * Throwable catch turned into HTTP 500. A 500 is itself a disclosure here — it
+     * separates "exists but hidden" from "unknown id", which is exactly what this
+     * endpoint must never confirm.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
+     */
+    public function testShowIs404WhenFindThrowsDoesNotExist(): void
+    {
+        $this->objectService->method('find')->willThrowException(
+            new \OCP\AppFramework\Db\DoesNotExistException(
+                "Object with identifier 'pub-hidden' not found in any magic table"
+            )
+        );
+
+        $response = $this->controller->show(resource: 'publications', id: 'pub-hidden');
+        self::assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+        self::assertSame('Not found', $response->getData()['message']);
+
+    }//end testShowIs404WhenFindThrowsDoesNotExist()
+
+
+    /**
      * show() returns the ORI JSON-LD entity for a live payload.
      *
      * @return void
