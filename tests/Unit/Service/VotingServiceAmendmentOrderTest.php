@@ -34,7 +34,19 @@ namespace OCA\Decidesk\Tests\Unit\Service;
 
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\OriPublicationService;
+use OCA\Decidesk\Service\AmendmentOrderService;
+use OCA\Decidesk\Service\ObjectRelationFilter;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ParticipantUuidLookup;
+use OCA\Decidesk\Service\ProcessTemplateService;
+use OCA\Decidesk\Service\VoteCastingService;
+use OCA\Decidesk\Service\VotingOpenedNotifier;
+use OCA\Decidesk\Service\VotingRoundCloser;
+use OCA\Decidesk\Service\VotingRoundOpener;
+use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidesk\Service\VotingRoundProjection;
+use OCA\Decidesk\Service\VotingRoundResults;
+use OCA\Decidesk\Service\VotingRoundRules;
 use OCA\Decidesk\Service\VotingService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -255,13 +267,53 @@ class VotingServiceAmendmentOrderTest extends TestCase
         $participantResolver = $this->createMock(ParticipantResolver::class);
         $participantResolver->method('resolveMeetingParticipants')->willReturn([]);
 
+        // VotingService is a thin facade: every operation is delegated to a
+        // single-purpose collaborator, so the graph is built explicitly here
+        // where production relies on Nextcloud's constructor auto-wiring.
+        $logger         = new NullLogger();
+        $amendmentOrder = new AmendmentOrderService(container: $container, motionService: $this->motionService);
+        $relationFilter = new ObjectRelationFilter();
+
         return new VotingService(
-            container: $container,
-            logger: new NullLogger(),
-            oriPublicationService: $this->createMock(OriPublicationService::class),
-            motionService: $this->motionService,
-            participantResolver: $participantResolver,
-            templateService: $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class),
+            opener: new VotingRoundOpener(
+                container: $container,
+                motionService: $this->motionService,
+                participantResolver: $participantResolver,
+                preflight: new VotingRoundPreflight(
+                    container: $container,
+                    logger: $logger,
+                    motionService: $this->motionService,
+                    participantResolver: $participantResolver,
+                    templateService: $this->createMock(ProcessTemplateService::class)
+                ),
+                notifier: new VotingOpenedNotifier(
+                    container: $container,
+                    logger: $logger,
+                    participantResolver: $participantResolver
+                )
+            ),
+            caster: new VoteCastingService(
+                container: $container,
+                logger: $logger,
+                participantResolver: $participantResolver,
+                amendmentOrder: $amendmentOrder,
+                relationFilter: $relationFilter
+            ),
+            closer: new VotingRoundCloser(
+                container: $container,
+                logger: $logger,
+                oriService: $this->createMock(OriPublicationService::class),
+                motionService: $this->motionService,
+                amendmentOrder: $amendmentOrder,
+                relationFilter: $relationFilter
+            ),
+            results: new VotingRoundResults(
+                container: $container,
+                motionService: $this->motionService,
+                participantResolver: $participantResolver
+            ),
+            projection: new VotingRoundProjection(container: $container),
+            participants: new ParticipantUuidLookup(container: $container),
         );
 
     }//end buildService()
@@ -282,12 +334,14 @@ class VotingServiceAmendmentOrderTest extends TestCase
                 ],
             ],
             'motion-1'  => [
-                'schema' => 'motion',
+                // ADR-005: a motion is a `decision` carrying decisionType=motion.
+                'schema' => 'decision',
                 'object' => [
-                    'id'        => 'motion-1',
-                    'title'     => 'Hoofdmotie',
-                    'lifecycle' => 'debating',
-                    'meeting'   => 'meeting-1',
+                    'id'           => 'motion-1',
+                    'decisionType' => 'motion',
+                    'title'        => 'Hoofdmotie',
+                    'lifecycle'    => 'deliberating',
+                    'meeting'      => 'meeting-1',
                 ],
             ],
         ];
@@ -298,21 +352,38 @@ class VotingServiceAmendmentOrderTest extends TestCase
      * Amendment fixture helper.
      *
      * @param string   $id          Amendment id
-     * @param string   $lifecycle   Lifecycle state
-     * @param int|null $votingOrder Chair-set order or null
-     * @param string   $submittedAt Submission timestamp
+     * @param string      $lifecycle   Lifecycle state (Decision.lifecycle vocabulary)
+     * @param int|null    $votingOrder Chair-set order or null
+     * @param string      $submittedAt Submission timestamp
+     * @param string|null $outcome     Vote result on the separate outcome axis ('adopted'|'rejected')
      *
      * @return array<string, mixed>
      */
-    private static function amendment(string $id, string $lifecycle, ?int $votingOrder, string $submittedAt='2026-06-01T10:00:00+00:00'): array
-    {
+    private static function amendment(
+        string $id,
+        string $lifecycle,
+        ?int $votingOrder,
+        string $submittedAt='2026-06-01T10:00:00+00:00',
+        ?string $outcome=null,
+    ): array {
+        // ADR-005: an amendment is a `decision` carrying decisionType=amendment,
+        // and its parent link is the `amends` relation that replaced `parentMotion`.
+        //
+        // `lifecycle` and `outcome` are two axes, not one. A decided amendment
+        // is `lifecycle: decided` PLUS `outcome: adopted|rejected` — fixtures
+        // that put `adopted` in the lifecycle slot were describing an object
+        // shape the schema cannot hold.
         $amendment = [
             'id'           => $id,
+            'decisionType' => 'amendment',
             'title'        => 'Amendement '.$id,
             'lifecycle'    => $lifecycle,
-            'parentMotion' => 'motion-1',
+            'amends'       => 'motion-1',
             'submittedAt'  => $submittedAt,
         ];
+        if ($outcome !== null) {
+            $amendment['outcome'] = $outcome;
+        }
         if ($votingOrder !== null) {
             $amendment['votingOrder'] = $votingOrder;
         }
@@ -332,7 +403,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
     {
         $service = $this->buildService(self::baseStore());
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
-            [self::amendment('amendment-1', 'submitted', null)]
+            [self::amendment('amendment-1', 'proposed', null)]
         );
 
         $this->expectException(\RuntimeException::class);
@@ -349,7 +420,13 @@ class VotingServiceAmendmentOrderTest extends TestCase
     }//end testMotionRoundRejectedWhileAmendmentUndecided()
 
     /**
-     * Each pending lifecycle (submitted/debating/voting) blocks the motion round.
+     * Each pending lifecycle blocks the motion round.
+     *
+     * ADR-005 vocabulary: this loop used to iterate `submitted/debating/voting`,
+     * two of which `Decision.lifecycle` cannot hold — so two thirds of this
+     * matrix asserted on states no stored amendment could be in, and would have
+     * gone on passing if the guard had stopped working for them. It now walks
+     * the real in-flight enum, `draft` included.
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
@@ -357,7 +434,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
      */
     public function testMotionRoundRejectedForEveryPendingLifecycle(): void
     {
-        foreach (['submitted', 'debating', 'voting'] as $lifecycle) {
+        foreach (['draft', 'proposed', 'deliberating', 'voting'] as $lifecycle) {
             $service = $this->buildService(self::baseStore());
             $this->motionService->method('getAmendmentsForMotion')->willReturn(
                 [self::amendment('amendment-1', $lifecycle, 1)]
@@ -391,8 +468,8 @@ class VotingServiceAmendmentOrderTest extends TestCase
         $service = $this->buildService(self::baseStore());
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
             [
-                self::amendment('amendment-1', 'adopted', 1),
-                self::amendment('amendment-2', 'rejected', 2),
+                self::amendment('amendment-1', 'decided', 1, outcome: 'adopted'),
+                self::amendment('amendment-2', 'decided', 2, outcome: 'rejected'),
             ]
         );
         $this->motionService->expects(self::once())
@@ -437,7 +514,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'resolution',
+            roundRules: new VotingRoundRules(subjectType: 'resolution'),
         );
 
     }//end testUnknownSubjectTypeRejected()
@@ -454,14 +531,14 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testAmendmentRoundInOrderOpens(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'debating', 1)];
-        $store['amendment-2'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-2', 'submitted', 2)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'deliberating', 1)];
+        $store['amendment-2'] = ['schema' => 'decision', 'object' => self::amendment('amendment-2', 'proposed', 2)];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
             [
-                self::amendment('amendment-1', 'debating', 1),
-                self::amendment('amendment-2', 'submitted', 2),
+                self::amendment('amendment-1', 'deliberating', 1),
+                self::amendment('amendment-2', 'proposed', 2),
             ]
         );
         $this->motionService->expects(self::once())
@@ -479,7 +556,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
         self::assertSame('amendment', $round['relations'][0]['schema']);
@@ -497,14 +574,14 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testAmendmentRoundOutOfOrderRejected(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'debating', 1)];
-        $store['amendment-2'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-2', 'debating', 2)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'deliberating', 1)];
+        $store['amendment-2'] = ['schema' => 'decision', 'object' => self::amendment('amendment-2', 'deliberating', 2)];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
             [
-                self::amendment('amendment-1', 'debating', 1),
-                self::amendment('amendment-2', 'debating', 2),
+                self::amendment('amendment-1', 'deliberating', 1),
+                self::amendment('amendment-2', 'deliberating', 2),
             ]
         );
 
@@ -517,7 +594,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
     }//end testAmendmentRoundOutOfOrderRejected()
@@ -532,14 +609,14 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testAmendmentRoundNextAfterDecisionOpens(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'adopted', 1)];
-        $store['amendment-2'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-2', 'debating', 2)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'decided', 1, outcome: 'adopted')];
+        $store['amendment-2'] = ['schema' => 'decision', 'object' => self::amendment('amendment-2', 'deliberating', 2)];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
             [
-                self::amendment('amendment-1', 'adopted', 1),
-                self::amendment('amendment-2', 'debating', 2),
+                self::amendment('amendment-1', 'decided', 1, outcome: 'adopted'),
+                self::amendment('amendment-2', 'deliberating', 2),
             ]
         );
 
@@ -549,7 +626,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
         self::assertSame('amendment-2', $round['relations'][0]['id']);
@@ -568,12 +645,12 @@ class VotingServiceAmendmentOrderTest extends TestCase
     {
         // amendment-old was submitted first but carries no votingOrder;
         // amendment-new has votingOrder 1, so it must be voted first.
-        $old = self::amendment('amendment-old', 'debating', null, '2026-05-01T10:00:00+00:00');
-        $new = self::amendment('amendment-new', 'debating', 1, '2026-06-01T10:00:00+00:00');
+        $old = self::amendment('amendment-old', 'deliberating', null, '2026-05-01T10:00:00+00:00');
+        $new = self::amendment('amendment-new', 'deliberating', 1, '2026-06-01T10:00:00+00:00');
 
         $store                  = self::baseStore();
-        $store['amendment-old'] = ['schema' => 'amendment', 'object' => $old];
-        $store['amendment-new'] = ['schema' => 'amendment', 'object' => $new];
+        $store['amendment-old'] = ['schema' => 'decision', 'object' => $old];
+        $store['amendment-new'] = ['schema' => 'decision', 'object' => $new];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn([$old, $new]);
@@ -587,7 +664,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
     }//end testVotingOrderBeatsSubmissionAge()
@@ -602,11 +679,11 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testDecidedAmendmentCannotBeReopened(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'adopted', 1)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'decided', 1, outcome: 'adopted')];
 
         $service = $this->buildService($store);
         $this->motionService->method('getAmendmentsForMotion')->willReturn(
-            [self::amendment('amendment-1', 'adopted', 1)]
+            [self::amendment('amendment-1', 'decided', 1, outcome: 'adopted')]
         );
 
         $this->expectException(\RuntimeException::class);
@@ -618,7 +695,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
             votingMethod: 'for-against-abstain',
             isSecret: false,
             closedAt: null,
-            subjectType: 'amendment',
+            roundRules: new VotingRoundRules(subjectType: 'amendment'),
         );
 
     }//end testDecidedAmendmentCannotBeReopened()
@@ -634,7 +711,7 @@ class VotingServiceAmendmentOrderTest extends TestCase
     public function testCloseAmendmentRoundAdoptsAndIncorporates(): void
     {
         $store                = self::baseStore();
-        $store['amendment-1'] = ['schema' => 'amendment', 'object' => self::amendment('amendment-1', 'voting', 1)];
+        $store['amendment-1'] = ['schema' => 'decision', 'object' => self::amendment('amendment-1', 'voting', 1)];
         $store['round-1']     = [
             'schema' => 'voting-round',
             'object' => [
@@ -666,8 +743,13 @@ class VotingServiceAmendmentOrderTest extends TestCase
             ->with(
                 self::callback(fn(string $id): bool => $id === 'amendment-1'),
                 self::callback(fn(string $type): bool => $type === 'amendment'),
-                self::callback(fn(string $state): bool => $state === 'adopted'),
+                // ADR-005: the STATE entered is `decided` for an adopted and a
+                // rejected amendment alike; adoption is carried by the separate
+                // `outcome` argument below. Asserting on the state alone can no
+                // longer tell the two apart, so both are asserted.
+                self::callback(fn(string $state): bool => $state === 'decided'),
                 self::anything(),
+                self::callback(fn(?string $outcome): bool => $outcome === 'adopted'),
             );
         $this->motionService->expects(self::once())
             ->method('applyAmendment')

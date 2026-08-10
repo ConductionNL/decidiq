@@ -95,7 +95,7 @@
 							:label="t('decidesk', 'Requested amount')" />
 						<NcButton
 							variant="primary"
-							native-type="submit"
+							type="submit"
 							data-testid="proposal-submit"
 							:disabled="!(proposalDrafts[b.id].title || '').trim()">
 							{{ t('decidesk', 'Submit proposal') }}

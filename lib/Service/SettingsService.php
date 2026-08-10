@@ -17,7 +17,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -44,7 +44,7 @@ class SettingsService
      * Includes the main register slug plus schema slugs for Minutes, Decision,
      * and ActionItem so the frontend initializeStores() can register object stores.
      * motion_min_cosigners (motion-amendment spec) is the configurable minimum
-     * co-signer count enforced on the motion submitted→debating transition
+     * co-signer count enforced on the motion proposed→deliberating transition
      * (0 = disabled).
      *
      * @var array<string>
@@ -72,11 +72,11 @@ class SettingsService
         'organisation_currency',
         'organisation_retention_days',
         // Mode-aware label selection: gov|corp|assoc|ops|citizen.
-        // Cosmetic UI hint only — drives no authorization decision.
         // @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
+        // Cosmetic UI hint only — drives no authorization decision.
         'organisatie_modus',
         // Citizen-participation instance defaults.
-        // @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md.
+        // @spec openspec/specs/citizen-participation/spec.md
         'participation_default_moderation_policy',
         'participation_catalog',
         'participation_anon_rate_limit',
@@ -150,10 +150,10 @@ class SettingsService
      */
     public function getSettings(): array
     {
-        // Default schema slugs match the slugs defined in decidesk_register.json.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.
-        // organisatie_modus defaults to 'gov' (government/municipal mode).
         // @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
+        // Default schema slugs match the slugs defined in decidesk_register.json.
+        // organisatie_modus defaults to 'gov' (government/municipal mode).
         $defaults = [
             'minutesSchema'     => 'minutes',
             'decisionSchema'    => 'decision',
@@ -168,11 +168,10 @@ class SettingsService
                 continue;
             }
 
-            $value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $value          = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+            $settings[$key] = ($defaults[$key] ?? '');
             if ($value !== '') {
                 $settings[$key] = $value;
-            } else {
-                $settings[$key] = ($defaults[$key] ?? '');
             }
         }
 
@@ -215,7 +214,9 @@ class SettingsService
     /**
      * Load configuration from decidesk_register.json via OpenRegister.
      *
-     * @param bool $force Force re-import even if already configured.
+     * Import is skipped when the register is already configured at the same
+     * version/fragment signature. Use {@see reloadConfiguration()} to force a
+     * re-import.
      *
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
      * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
@@ -223,7 +224,42 @@ class SettingsService
      *
      * @return array<string,mixed> Result with success flag, message, and version.
      */
-    public function loadConfiguration(bool $force=false): array
+    public function loadConfiguration(): array
+    {
+        return $this->importConfiguration(force: false);
+
+    }//end loadConfiguration()
+
+    /**
+     * Re-import configuration from decidesk_register.json, ignoring the
+     * already-configured check.
+     *
+     * The forcing counterpart of {@see loadConfiguration()}; both delegate to
+     * the same import routine.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     */
+    public function reloadConfiguration(): array
+    {
+        return $this->importConfiguration(force: true);
+
+    }//end reloadConfiguration()
+
+    /**
+     * Shared configuration import used by loadConfiguration()/reloadConfiguration().
+     *
+     * @param bool $force Force re-import even if already configured.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     */
+    private function importConfiguration(bool $force): array
     {
         if ($this->isOpenRegisterAvailable() === false) {
             $this->logger->warning('Decidesk: OpenRegister not available, skipping register initialization');
@@ -234,91 +270,18 @@ class SettingsService
         }
 
         try {
-            $configPath = __DIR__.'/../Settings/decidesk_register.json';
-            if (file_exists($configPath) === false) {
-                $this->logger->error('Decidesk: decidesk_register.json not found at '.$configPath);
-                return [
-                    'success' => false,
-                    'message' => 'Configuration file decidesk_register.json not found.',
-                ];
+            [$configData, $failure] = $this->readBaseRegisterConfig();
+            if ($failure !== null) {
+                return $failure;
             }
 
-            $configContent = file_get_contents($configPath);
-            if ($configContent === false) {
-                $this->logger->error('Decidesk: failed to read decidesk_register.json');
-                return [
-                    'success' => false,
-                    'message' => 'Failed to read configuration file.',
-                ];
-            }
+            [$configData, $fragmentSig] = $this->mergeRegisterFragments(configData: $configData);
 
-            $configData = json_decode($configContent, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                $this->logger->error('Decidesk: failed to parse decidesk_register.json: '.json_last_error_msg());
-                return [
-                    'success' => false,
-                    'message' => 'Failed to parse configuration file: '.json_last_error_msg(),
-                ];
-            }
-
-            // ADR-037: merge modular register fragments from Settings/register.d/*.json.
-            // Each OpenSpec change drops its own fragment file instead of editing this
-            // monolith, so concurrent builds touch disjoint files (no merge conflicts).
-            // OpenAPI `components.schemas` / `paths` are keyed objects, so disjoint
-            // fragments union cleanly by key.
-            $fragmentDir = __DIR__.'/../Settings/register.d';
-            $fragmentSig = '';
-            if (is_dir($fragmentDir) === true) {
-                $fragmentFiles = glob($fragmentDir.'/*.json');
-                sort($fragmentFiles);
-                foreach ($fragmentFiles as $fragmentFile) {
-                    $fragmentContent = file_get_contents($fragmentFile);
-                    if ($fragmentContent === false) {
-                        continue;
-                    }
-
-                    $fragmentData = json_decode($fragmentContent, true);
-                    if (json_last_error() !== JSON_ERROR_NONE) {
-                        $this->logger->warning(
-                            'Decidesk: skipping malformed register fragment '.basename($fragmentFile)
-                            .': '.json_last_error_msg()
-                        );
-                        continue;
-                    }
-
-                    $configData   = self::deepMergeConfig(base: $configData, overlay: $fragmentData);
-                    $fragmentSig .= basename($fragmentFile).':'.md5($fragmentContent).';';
-                }
-            }//end if
-
-            // Fold the fragment signature into the version so OpenRegister's
-            // version-gated importFromApp re-imports whenever fragments change.
-            $configVersion = ($configData['info']['version'] ?? '0.0.0');
-            if ($fragmentSig !== '') {
-                $configVersion .= '+frag.'.substr(md5($fragmentSig), 0, 8);
-            }
-
-            $configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
-            $result = $configurationService->importFromApp(
-                appId: Application::APP_ID,
-                data: $configData,
-                version: $configVersion,
+            return $this->importRegisterConfig(
+                configData: $configData,
+                fragmentSig: $fragmentSig,
                 force: $force
             );
-
-            if (empty($result) === false) {
-                $this->logger->info('Decidesk: register configuration imported successfully');
-                return [
-                    'success' => true,
-                    'message' => 'Configuration imported successfully.',
-                    'version' => ($result['version'] ?? 'unknown'),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Import returned an empty result.',
-            ];
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: configuration import failed',
@@ -329,7 +292,148 @@ class SettingsService
                 'message' => 'Configuration import failed. See server log for details.',
             ];
         }//end try
-    }//end loadConfiguration()
+    }//end importConfiguration()
+
+    /**
+     * Read and decode the monolithic decidesk_register.json.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array{0: array<string,mixed>, 1: array<string,mixed>|null} [configData, failureResult]
+     */
+    private function readBaseRegisterConfig(): array
+    {
+        $configPath = __DIR__.'/../Settings/decidesk_register.json';
+        if (file_exists($configPath) === false) {
+            $this->logger->error('Decidesk: decidesk_register.json not found at '.$configPath);
+            return [
+                [],
+                [
+                    'success' => false,
+                    'message' => 'Configuration file decidesk_register.json not found.',
+                ],
+            ];
+        }
+
+        $configContent = file_get_contents($configPath);
+        if ($configContent === false) {
+            $this->logger->error('Decidesk: failed to read decidesk_register.json');
+            return [
+                [],
+                [
+                    'success' => false,
+                    'message' => 'Failed to read configuration file.',
+                ],
+            ];
+        }
+
+        $configData = json_decode($configContent, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->error('Decidesk: failed to parse decidesk_register.json: '.json_last_error_msg());
+            return [
+                [],
+                [
+                    'success' => false,
+                    'message' => 'Failed to parse configuration file: '.json_last_error_msg(),
+                ],
+            ];
+        }
+
+        return [$configData, null];
+    }//end readBaseRegisterConfig()
+
+    /**
+     * Merge modular register fragments from Settings/register.d/*.json (ADR-037).
+     *
+     * Each OpenSpec change drops its own fragment file instead of editing the
+     * monolith, so concurrent builds touch disjoint files (no merge conflicts).
+     * OpenAPI `components.schemas` / `paths` are keyed objects, so disjoint
+     * fragments union cleanly by key.
+     *
+     * @param array<string,mixed> $configData The decoded base configuration.
+     *
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array{0: array<string,mixed>, 1: string} [mergedConfig, fragmentSignature]
+     */
+    private function mergeRegisterFragments(array $configData): array
+    {
+        $fragmentDir = __DIR__.'/../Settings/register.d';
+        $fragmentSig = '';
+        if (is_dir($fragmentDir) === false) {
+            return [$configData, $fragmentSig];
+        }
+
+        $fragmentFiles = glob($fragmentDir.'/*.json');
+        sort($fragmentFiles);
+        foreach ($fragmentFiles as $fragmentFile) {
+            $fragmentContent = file_get_contents($fragmentFile);
+            if ($fragmentContent === false) {
+                continue;
+            }
+
+            $fragmentData = json_decode($fragmentContent, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->logger->warning(
+                    'Decidesk: skipping malformed register fragment '.basename($fragmentFile)
+                    .': '.json_last_error_msg()
+                );
+                continue;
+            }
+
+            $configData   = self::deepMergeConfig(base: $configData, overlay: $fragmentData);
+            $fragmentSig .= basename($fragmentFile).':'.md5($fragmentContent).';';
+        }//end foreach
+
+        return [$configData, $fragmentSig];
+    }//end mergeRegisterFragments()
+
+    /**
+     * Hand the merged configuration to OpenRegister's version-gated importer.
+     *
+     * The fragment signature is folded into the version so importFromApp
+     * re-imports whenever any fragment changes.
+     *
+     * @param array<string,mixed> $configData  The merged configuration.
+     * @param string              $fragmentSig Signature of the merged fragments.
+     * @param bool                $force       Force re-import even if already configured.
+     *
+     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     */
+    private function importRegisterConfig(array $configData, string $fragmentSig, bool $force): array
+    {
+        $configVersion = ($configData['info']['version'] ?? '0.0.0');
+        if ($fragmentSig !== '') {
+            $configVersion .= '+frag.'.substr(md5($fragmentSig), 0, 8);
+        }
+
+        $configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
+        $result = $configurationService->importFromApp(
+            appId: Application::APP_ID,
+            data: $configData,
+            version: $configVersion,
+            force: $force
+        );
+
+        if (empty($result) === true) {
+            return [
+                'success' => false,
+                'message' => 'Import returned an empty result.',
+            ];
+        }
+
+        $this->logger->info('Decidesk: register configuration imported successfully');
+
+        return [
+            'success' => true,
+            'message' => 'Configuration imported successfully.',
+            'version' => ($result['version'] ?? 'unknown'),
+        ];
+    }//end importRegisterConfig()
 
     /**
      * Deep-merge a register fragment onto the base config (ADR-037).
@@ -346,21 +450,27 @@ class SettingsService
     private static function deepMergeConfig(array $base, array $overlay): array
     {
         foreach ($overlay as $key => $value) {
-            if (is_array($value) === true
-                && isset($base[$key]) === true
-                && is_array($base[$key]) === true
+            // A scalar overlay, or a key the base does not hold as an array,
+            // overwrites the base outright.
+            if (is_array($value) === false
+                || isset($base[$key]) === false
+                || is_array($base[$key]) === false
             ) {
-                $baseIsList    = ($base[$key] === [] || array_keys($base[$key]) === range(0, (count($base[$key]) - 1)));
-                $overlayIsList = ($value === [] || array_keys($value) === range(0, (count($value) - 1)));
-                if ($baseIsList === true && $overlayIsList === true) {
-                    $base[$key] = array_merge($base[$key], $value);
-                } else {
-                    $base[$key] = self::deepMergeConfig(base: $base[$key], overlay: $value);
-                }
-            } else {
                 $base[$key] = $value;
+                continue;
             }
-        }
+
+            $baseIsList    = ($base[$key] === [] || array_keys($base[$key]) === range(0, (count($base[$key]) - 1)));
+            $overlayIsList = ($value === [] || array_keys($value) === range(0, (count($value) - 1)));
+
+            // Two list arrays concatenate; anything else recurses by key union.
+            if ($baseIsList === true && $overlayIsList === true) {
+                $base[$key] = array_merge($base[$key], $value);
+                continue;
+            }
+
+            $base[$key] = self::deepMergeConfig(base: $base[$key], overlay: $value);
+        }//end foreach
 
         return $base;
 

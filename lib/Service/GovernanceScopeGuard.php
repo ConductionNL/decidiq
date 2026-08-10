@@ -97,7 +97,7 @@ class GovernanceScopeGuard
      *
      * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
      */
-    public static function scopeGroupId(string $bodyId, string $scope): string
+    public function scopeGroupId(string $bodyId, string $scope): string
     {
         return 'decidesk:body:'.$bodyId.':'.$scope;
     }//end scopeGroupId()
@@ -123,7 +123,7 @@ class GovernanceScopeGuard
             return false;
         }
 
-        return $this->groupManager->isInGroup($userId, self::scopeGroupId(bodyId: $bodyId, scope: $scope));
+        return $this->groupManager->isInGroup($userId, $this->scopeGroupId(bodyId: $bodyId, scope: $scope));
     }//end isInBodyScope()
 
     /**

@@ -14,8 +14,16 @@
  * one overrides it (used here to add the publication-config sub-routes under
  * the canonical `settings#*` controller without re-declaring it).
  *
+ * ⚠️ The AppHost builder is invoked through a `class_exists()` guard. This file
+ * is `include`d by Nextcloud's router for EVERY decidesk request, so an
+ * unguarded static call to a class in another app makes every route in the app
+ * fatal with HTTP 500 when openregister is absent — not just the AppHost ones.
+ * The `$fallback` branch below is a byte-equivalent local copy of
+ * `Routes::standard()`'s output so decidesk still routes (and degrades
+ * per-endpoint) without openregister. See decidesk#377.
+ *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
- * SPDX-License-Identifier: EUPL-1.2.
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/adopt-apphost/tasks.md#task-2.2
  * @spec openspec/changes/adopt-apphost/specs/apphost-adoption/spec.md
@@ -23,8 +31,7 @@
 
 declare(strict_types=1);
 
-return \OCA\OpenRegister\AppHost\Routes::standard(
-    [
+$extra = [
         // Publication configuration (publish-decisions-via-opencatalogi).
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
@@ -87,8 +94,8 @@ return \OCA\OpenRegister\AppHost\Routes::standard(
 
         // Minutes approval workflow + document generation (minutes-ui-v1).
         // @spec openspec/specs/resolution-minutes/spec.md
-        ['name' => 'minutes#addCorrection',     'url' => '/api/minutes/{minutesId}/corrections',                  'verb' => 'POST'],
-        ['name' => 'minutes#resolveCorrection', 'url' => '/api/minutes/{minutesId}/corrections/{correctionId}',   'verb' => 'PUT'],
+        ['name' => 'minutesCorrection#addCorrection',     'url' => '/api/minutes/{minutesId}/corrections',                'verb' => 'POST'],
+        ['name' => 'minutesCorrection#resolveCorrection', 'url' => '/api/minutes/{minutesId}/corrections/{correctionId}', 'verb' => 'PUT'],
         ['name' => 'minutes#reject',            'url' => '/api/minutes/{minutesId}/reject',                       'verb' => 'POST'],
         ['name' => 'minutes#generateDocument',  'url' => '/api/minutes/{minutesId}/generate-document',            'verb' => 'POST'],
 
@@ -265,10 +272,60 @@ return \OCA\OpenRegister\AppHost\Routes::standard(
         ['name' => 'participation#approveReaction',            'url' => '/api/participation/reactions/{reactionId}/approve',                  'verb' => 'POST'],
         ['name' => 'participation#rejectReaction',             'url' => '/api/participation/reactions/{reactionId}/reject',                   'verb' => 'POST'],
         ['name' => 'participation#publishReaction',            'url' => '/api/participation/reactions/{reactionId}/publish',                  'verb' => 'POST'],
-        ['name' => 'participation#transitionBudgetRound',      'url' => '/api/participation/budgets/{budgetId}/transition',                   'verb' => 'POST'],
-        ['name' => 'participation#submitProposal',             'url' => '/api/participation/budgets/{budgetId}/proposals',                    'verb' => 'POST'],
-        ['name' => 'participation#publishBudgetResults',       'url' => '/api/participation/budgets/{budgetId}/publish',                      'verb' => 'POST'],
-        ['name' => 'participation#validateProposal',           'url' => '/api/participation/proposals/{proposalId}/validate',                 'verb' => 'POST'],
-        ['name' => 'participation#castAdvisoryVote',           'url' => '/api/participation/proposals/{proposalId}/vote',                     'verb' => 'POST'],
-    ]
-);
+        // Participatory budget — same URLs, handled by ParticipationBudgetController.
+        ['name' => 'participationBudget#transitionBudgetRound', 'url' => '/api/participation/budgets/{budgetId}/transition',                  'verb' => 'POST'],
+        ['name' => 'participationBudget#submitProposal',        'url' => '/api/participation/budgets/{budgetId}/proposals',                   'verb' => 'POST'],
+        ['name' => 'participationBudget#publishBudgetResults',  'url' => '/api/participation/budgets/{budgetId}/publish',                     'verb' => 'POST'],
+        ['name' => 'participationBudget#validateProposal',      'url' => '/api/participation/proposals/{proposalId}/validate',                'verb' => 'POST'],
+        ['name' => 'participationBudget#castAdvisoryVote',      'url' => '/api/participation/proposals/{proposalId}/vote',                    'verb' => 'POST'],
+];
+
+// Preferred path: the OpenRegister AppHost owns the canonical route table.
+// `class_exists()` autoloads without fatalling when the class is unavailable.
+if (class_exists('OCA\OpenRegister\AppHost\Routes') === true) {
+    return \OCA\OpenRegister\AppHost\Routes::standard($extra);
+}
+
+// Fallback: openregister is not installed. Reproduce `Routes::standard()`
+// locally — canonical routes first (minus any name `$extra` overrides), then
+// `$extra`, then the SPA catch-all LAST so it never shadows a real route.
+$canonicalRoutes = [
+    ['name' => 'dashboard#page', 'url' => '/', 'verb' => 'GET'],
+    ['name' => 'settings#index', 'url' => '/api/settings', 'verb' => 'GET'],
+    ['name' => 'settings#create', 'url' => '/api/settings', 'verb' => 'POST'],
+    ['name' => 'settings#update', 'url' => '/api/settings', 'verb' => 'PUT'],
+    ['name' => 'settings#load', 'url' => '/api/settings/load', 'verb' => 'POST'],
+    ['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
+    ['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],
+    ['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
+    ['name' => 'health#index', 'url' => '/api/health', 'verb' => 'GET'],
+];
+
+$catchAllRoute = [
+    'name'         => 'dashboard#catchAll',
+    'url'          => '/{path}',
+    'verb'         => 'GET',
+    'requirements' => ['path' => '.+'],
+    'defaults'     => ['path' => ''],
+];
+
+$extraNames = [];
+foreach ($extra as $extraRoute) {
+    if (isset($extraRoute['name']) === true) {
+        $extraNames[(string) $extraRoute['name']] = true;
+    }
+}
+
+$mergedRoutes = [];
+foreach ($canonicalRoutes as $canonicalRoute) {
+    if (isset($extraNames[$canonicalRoute['name']]) === true) {
+        continue;
+    }
+
+    $mergedRoutes[] = $canonicalRoute;
+}
+
+$mergedRoutes   = array_merge($mergedRoutes, $extra);
+$mergedRoutes[] = $catchAllRoute;
+
+return ['routes' => $mergedRoutes];

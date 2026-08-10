@@ -22,20 +22,14 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCA\Decidesk\Exception\MissingObjectException;
-use OCA\Decidesk\Exception\MissingRelationException;
-use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\MinutesAccessGuard;
 use OCA\Decidesk\Service\MinutesDocumentService;
 use OCA\Decidesk\Service\MinutesGenerationService;
-use OCA\Decidesk\Service\MinutesService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\OpenRegister\Service\ObjectService;
+use OCA\Decidesk\Service\MinutesWorkflowService;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -45,6 +39,11 @@ use OCP\IUserSession;
  * Provides endpoints for generating a structured Dutch draft from
  * a linked meeting's data and for enforcing server-side lifecycle
  * transitions with signatory attribution.
+ *
+ * Every endpoint is the same three steps: authorise, delegate, respond. The
+ * authorisation lives in MinutesAccessGuard, the work in a service, and the
+ * exception-to-status mapping in MinutesResponder — so what is left here is
+ * only the routing surface, which is exactly the part that must not drift.
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
@@ -58,30 +57,26 @@ class MinutesController extends Controller
      * time would freeze it as null when the container is first built in a cron or
      * pre-flight context. The UID is resolved per-request via $this->userSession.
      *
-     * @param IRequest                    $request                  The HTTP request
-     * @param MinutesGenerationService    $minutesGenerationService The generation service
-     * @param ALVMinutesService           $alvMinutesService        The ALV minutes service
-     * @param ActionItemExtractionService $extractionService        The extraction service
-     * @param MinutesService              $minutesService           The minutes service
-     * @param IUserSession                $userSession              The current user session
-     * @param IGroupManager               $groupManager             Group manager for role checks
-     * @param ObjectService               $objectService            The object service for direct data access
-     * @param ParticipantResolver         $participantResolver      Participant resolver for meeting-based role checks
-     * @param MinutesDocumentService      $minutesDocumentService   Document generation + persistence service
+     * @param IRequest                 $request           The HTTP request
+     * @param MinutesGenerationService $generationService The generation service
+     * @param ALVMinutesService        $alvMinutesService The ALV minutes service
+     * @param MinutesWorkflowService   $workflowService   Action items + approval submission
+     * @param IUserSession             $userSession       The current user session
+     * @param MinutesAccessGuard       $accessGuard       Per-object minutes authorisation
+     * @param MinutesDocumentService   $documentService   Document generation + persistence service
+     * @param MinutesResponder         $responder         Maps operation failures to HTTP statuses
      *
      * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
      */
     public function __construct(
         IRequest $request,
-        private MinutesGenerationService $minutesGenerationService,
+        private MinutesGenerationService $generationService,
         private ALVMinutesService $alvMinutesService,
-        private ActionItemExtractionService $extractionService,
-        private MinutesService $minutesService,
+        private MinutesWorkflowService $workflowService,
         private IUserSession $userSession,
-        private IGroupManager $groupManager,
-        private ObjectService $objectService,
-        private ParticipantResolver $participantResolver,
-        private MinutesDocumentService $minutesDocumentService,
+        private readonly MinutesAccessGuard $accessGuard,
+        private MinutesDocumentService $documentService,
+        private readonly MinutesResponder $responder,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -100,62 +95,27 @@ class MinutesController extends Controller
      */
     private function requireChairOrAdminForMinutes(string $minutesId): ?JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                ['message' => 'Unauthenticated.'],
-                Http::STATUS_UNAUTHORIZED
-            );
-        }
-
-        $userId = $user->getUID();
-
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
-
-        // Resolve the meeting UUID from the minutes object.
-        $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-        if ($minutesEntity === null) {
-            // Let the calling method handle the 404; return null so the caller can produce the 404 response.
-            return null;
-        }
-
-        $minutes   = $minutesEntity->jsonSerialize();
-        $meetingId = null;
-
-        $meetingRelation = $minutes['relations']['meeting'] ?? $minutes['meeting'] ?? null;
-        if ($meetingRelation !== null) {
-            if (is_array($meetingRelation) === true) {
-                $meetingId = $meetingRelation['id'] ?? null;
-            } else {
-                $meetingId = (string) $meetingRelation;
-            }
-        }
-
-        if ($meetingId === null || $meetingId === '') {
-            // No meeting linked — deny non-admins.
-            return new JSONResponse(
-                ['message' => 'Forbidden: could not resolve meeting for authorisation.'],
-                Http::STATUS_FORBIDDEN
-            );
-        }
-
-        if ($this->participantResolver->hasRole(
-            meetingId: $meetingId,
-            nextcloudUid: $userId,
-            roles: ['chair', 'secretary'],
-        ) === true
-        ) {
-            return null;
-        }
-
-        return new JSONResponse(
-            ['message' => 'Forbidden: chair or secretary role required for this minutes record.'],
-            Http::STATUS_FORBIDDEN
-        );
+        return $this->accessGuard->requireChairOrAdmin(minutesId: $minutesId);
 
     }//end requireChairOrAdminForMinutes()
+
+    /**
+     * Resolve the display name of the authenticated user, or an empty string.
+     *
+     * @return string The display name
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+     */
+    private function currentDisplayName(): string
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return '';
+        }
+
+        return $user->getDisplayName();
+
+    }//end currentDisplayName()
 
     /**
      * Generate a Dutch draft text for the given Minutes object.
@@ -183,25 +143,9 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            $preview = $this->minutesGenerationService->generateDraft($minutesId);
-            return new JSONResponse(['preview' => $preview]);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (MissingRelationException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }//end try
+        return $this->responder->runDraft(
+            operation: fn(): array => ['preview' => $this->generationService->generateDraft($minutesId)]
+        );
 
     }//end generateDraft()
 
@@ -240,44 +184,20 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        $user = $this->userSession->getUser();
-
         $newLifecycle = $this->request->getParam('lifecycle');
-        if ($newLifecycle === null || is_string($newLifecycle) === false || $newLifecycle === '') {
-            return new JSONResponse(
-                ['message' => 'Missing or invalid lifecycle parameter.'],
-                Http::STATUS_BAD_REQUEST
-            );
+        if (is_string($newLifecycle) === false || $newLifecycle === '') {
+            return $this->responder->badRequest(message: 'Missing or invalid lifecycle parameter.');
         }
 
-        $displayName = '';
-        if ($user !== null) {
-            $displayName = $user->getDisplayName();
-        }
+        $displayName = $this->currentDisplayName();
 
-        try {
-            $updated = $this->minutesGenerationService->transition(
+        return $this->responder->runLifecycle(
+            operation: fn(): array => $this->generationService->transition(
                 minutesId: $minutesId,
                 newLifecycle: $newLifecycle,
                 displayName: $displayName,
-            );
-            return new JSONResponse($updated);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }//end try
+            )
+        );
 
     }//end transition()
 
@@ -306,28 +226,13 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            $result = $this->alvMinutesService->generateALVDraft($minutesId);
-            return new JSONResponse(['preview' => $result['content']]);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (\Exception $e) {
-            $code = (int) $e->getCode();
-            if ($code === 422) {
-                return new JSONResponse(
-                    ['message' => $e->getMessage()],
-                    Http::STATUS_UNPROCESSABLE_ENTITY
-                );
-            }
+        return $this->responder->runCoded(
+            operation: fn(): array => [
+                'preview' => $this->alvMinutesService->generateALVDraft($minutesId)['content'],
+            ],
+            honouredStatus: 422
+        );
 
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_BAD_REQUEST
-            );
-        }//end try
     }//end generateALVDraft()
 
     /**
@@ -354,28 +259,11 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            $count = $this->alvMinutesService->distribute($minutesId);
-            return new JSONResponse(['notified' => $count]);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (\Exception $e) {
-            $code = (int) $e->getCode();
-            if ($code === 403) {
-                return new JSONResponse(
-                    ['message' => $e->getMessage()],
-                    Http::STATUS_FORBIDDEN
-                );
-            }
+        return $this->responder->runCoded(
+            operation: fn(): array => ['notified' => $this->alvMinutesService->distribute($minutesId)],
+            honouredStatus: 403
+        );
 
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_BAD_REQUEST
-            );
-        }//end try
     }//end distributeALVMinutes()
 
     /**
@@ -399,31 +287,12 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            // Fetch the Minutes object to get content.
-            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
+        return $this->responder->runInternal(
+            operation: fn(): array => [
+                'candidates' => $this->workflowService->extractActionItems(minutesId: $minutesId),
+            ]
+        );
 
-            if ($minutes === null) {
-                return new JSONResponse(
-                    ['message' => 'Minutes not found.'],
-                    Http::STATUS_NOT_FOUND
-                );
-            }
-
-            $content    = $minutes['content'] ?? '';
-            $candidates = $this->extractionService->extractFromContent(content: $content);
-
-            return new JSONResponse(['candidates' => $candidates]);
-        } catch (\Exception $e) {
-            return new JSONResponse(
-                ['message' => 'Internal server error.'],
-                Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
     }//end extractActionItems()
 
     /**
@@ -451,43 +320,17 @@ class MinutesController extends Controller
             return $denied;
         }
 
-        try {
-            $confirmed = $this->request->getParam('confirmed', []);
+        $confirmed = $this->request->getParam('confirmed', []);
 
-            // Fetch Minutes to verify lifecycle before saving.
-            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
+        return $this->responder->runInternal(
+            operation: fn(): array => [
+                'saved' => $this->workflowService->saveExtractedActionItems(
+                    minutesId: $minutesId,
+                    confirmed: $confirmed
+                ),
+            ]
+        );
 
-            if ($minutes === null) {
-                return new JSONResponse(
-                    ['message' => 'Minutes not found.'],
-                    Http::STATUS_NOT_FOUND
-                );
-            }
-
-            $lifecycle = $minutes['lifecycle'] ?? null;
-            if ($lifecycle === 'published') {
-                return new JSONResponse(
-                    ['message' => 'Cannot save action items for published minutes.'],
-                    Http::STATUS_BAD_REQUEST
-                );
-            }
-
-            $count = $this->extractionService->saveExtracted(
-                minutesId: $minutesId,
-                confirmed: $confirmed
-            );
-
-            return new JSONResponse(['saved' => $count]);
-        } catch (\Exception $e) {
-            return new JSONResponse(
-                ['message' => 'Internal server error.'],
-                Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
     }//end saveExtractedActionItems()
 
     /**
@@ -498,8 +341,8 @@ class MinutesController extends Controller
      * Transitions lifecycle from draft to review and sends approval notifications.
      *
      * Returns 200 with updated lifecycle on success.
-     * Returns 400 when lifecycle is not draft.
      * Returns 404 when Minutes not found.
+     * Returns 409 when lifecycle is not draft.
      *
      * @param string $minutesId The UUID of the Minutes object
      *
@@ -517,335 +360,14 @@ class MinutesController extends Controller
 
         $user = $this->userSession->getUser();
 
-        try {
-            // Fetch Minutes.
-            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
-
-            if ($minutes === null) {
-                return new JSONResponse(
-                    ['message' => 'Minutes not found.'],
-                    Http::STATUS_NOT_FOUND
-                );
-            }
-
-            // Verify lifecycle is draft.
-            if (($minutes['lifecycle'] ?? null) !== 'draft') {
-                return new JSONResponse(
-                    ['message' => 'Minutes must be in draft state to submit for approval.'],
-                    Http::STATUS_CONFLICT
-                );
-            }
-
-            // Transition lifecycle to review.
-            $minutes['lifecycle'] = 'review';
-            $this->objectService->saveObject(
-                register: 'decidesk',
-                schema: 'minutes',
-                object: $minutes
-            );
-
-            // Send approval notifications.
-            $notified = $this->minutesService->notifyApproversOnSubmit(
+        return $this->responder->runInternal(
+            operation: fn(): array => $this->workflowService->submitForApproval(
                 minutesId: $minutesId,
                 actorId: $user->getUID()
-            );
-
-            return new JSONResponse(
-                    [
-                        'lifecycle' => 'review',
-                        'notified'  => $notified,
-                    ]
-                    );
-        } catch (\Exception $e) {
-            return new JSONResponse(
-                ['message' => 'Internal server error.'],
-                Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
-    }//end submitForApproval()
-
-    /**
-     * Resolve the linked meeting UUID from a Minutes record.
-     *
-     * @param string $minutesId UUID of the Minutes object
-     *
-     * @return string|null The meeting UUID, or null when not resolvable
-     *
-     * @spec openspec/specs/resolution-minutes/spec.md
-     */
-    private function resolveMeetingIdForMinutes(string $minutesId): ?string
-    {
-        $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-        if ($minutesEntity === null) {
-            return null;
-        }
-
-        $minutes   = $minutesEntity->jsonSerialize();
-        $meetingId = null;
-
-        $meetingRelation = $minutes['relations']['meeting'] ?? $minutes['meeting'] ?? null;
-        if ($meetingRelation !== null) {
-            if (is_array($meetingRelation) === true) {
-                $meetingId = $meetingRelation['id'] ?? null;
-            } else {
-                $meetingId = (string) $meetingRelation;
-            }
-        }
-
-        if (is_string($meetingId) === false || $meetingId === '') {
-            return null;
-        }
-
-        return $meetingId;
-
-    }//end resolveMeetingIdForMinutes()
-
-    /**
-     * Require that the caller is a participant of the meeting linked to the
-     * Minutes record (any role), a chair/secretary, or an NC admin.
-     *
-     * Used by the correction-suggestion endpoint: per the resolution-minutes
-     * spec, every meeting participant may suggest corrections during review,
-     * while resolution of suggestions stays chair/secretary-gated. Fails
-     * CLOSED: an unresolvable meeting yields 403 for non-admins.
-     *
-     * @param string $minutesId UUID of the Minutes object
-     *
-     * @return JSONResponse|null Null if authorised, a 401/403 JSONResponse otherwise.
-     *
-     * @spec openspec/specs/resolution-minutes/spec.md
-     */
-    private function requireParticipantForMinutes(string $minutesId): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                ['message' => 'Unauthenticated.'],
-                Http::STATUS_UNAUTHORIZED
-            );
-        }
-
-        $userId = $user->getUID();
-
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
-
-        $meetingId = $this->resolveMeetingIdForMinutes(minutesId: $minutesId);
-        if ($meetingId === null) {
-            return new JSONResponse(
-                ['message' => 'Forbidden: could not resolve meeting for authorisation.'],
-                Http::STATUS_FORBIDDEN
-            );
-        }
-
-        if ($this->participantResolver->isParticipant(meetingId: $meetingId, nextcloudUid: $userId) === true) {
-            return null;
-        }
-
-        return new JSONResponse(
-            ['message' => 'Forbidden: meeting participation required to suggest corrections.'],
-            Http::STATUS_FORBIDDEN
+            )
         );
 
-    }//end requireParticipantForMinutes()
-
-    /**
-     * Submit a correction suggestion on a Minutes record.
-     *
-     * POST /api/minutes/{minutesId}/corrections
-     *
-     * Body: { "text": "<the suggested correction>" }
-     *
-     * The author is attributed server-side from the authenticated session —
-     * any client-sent author fields are ignored. Corrections are accepted
-     * while the lifecycle is draft or review only.
-     *
-     * Returns 200 with { corrections: [...] } on success.
-     * Returns 400 when the text is missing/empty.
-     * Returns 401 when not authenticated.
-     * Returns 403 when the caller is not a participant of the linked meeting.
-     * Returns 404 when the Minutes object is not found.
-     * Returns 409 when the lifecycle no longer accepts corrections.
-     *
-     * @param string $minutesId The UUID of the Minutes object
-     *
-     * @return JSONResponse
-     *
-     * @spec openspec/specs/resolution-minutes/spec.md
-     */
-    #[NoAdminRequired]
-    public function addCorrection(string $minutesId): JSONResponse
-    {
-        $denied = $this->requireParticipantForMinutes(minutesId: $minutesId);
-        if ($denied !== null) {
-            return $denied;
-        }
-
-        $text = $this->request->getParam('text');
-        if (is_string($text) === false || trim($text) === '') {
-            return new JSONResponse(
-                ['message' => 'A non-empty correction text is required.'],
-                Http::STATUS_BAD_REQUEST
-            );
-        }
-
-        try {
-            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            if ($minutesEntity === null) {
-                return new JSONResponse(
-                    ['message' => 'Minutes not found.'],
-                    Http::STATUS_NOT_FOUND
-                );
-            }
-
-            $minutes   = $minutesEntity->jsonSerialize();
-            $lifecycle = $minutes['lifecycle'] ?? 'draft';
-            if (in_array($lifecycle, ['draft', 'review'], true) === false) {
-                return new JSONResponse(
-                    ['message' => 'Corrections can only be suggested while the minutes are in draft or review.'],
-                    Http::STATUS_CONFLICT
-                );
-            }
-
-            $user = $this->userSession->getUser();
-
-            if (is_array($minutes['corrections'] ?? null) === true) {
-                $corrections = $minutes['corrections'];
-            } else {
-                $corrections = [];
-            }
-
-            $corrections[] = [
-                'id'         => bin2hex(random_bytes(8)),
-                'author'     => $user->getUID(),
-                'authorName' => $user->getDisplayName(),
-                'text'       => trim($text),
-                'status'     => 'proposed',
-                'createdAt'  => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-            ];
-
-            $minutes['corrections'] = $corrections;
-            $this->objectService->saveObject(
-                object: $minutes,
-                register: 'decidesk',
-                schema: 'minutes',
-                uuid: $minutesId
-            );
-
-            return new JSONResponse(['corrections' => $corrections]);
-        } catch (\Exception $e) {
-            return new JSONResponse(
-                ['message' => 'Internal server error.'],
-                Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
-
-    }//end addCorrection()
-
-    /**
-     * Accept or reject a correction suggestion (chair/secretary only).
-     *
-     * PUT /api/minutes/{minutesId}/corrections/{correctionId}
-     *
-     * Body: { "status": "accepted" | "rejected" }
-     *
-     * Returns 200 with the updated correction on success.
-     * Returns 400 when the status value is invalid.
-     * Returns 401/403 per the chair/secretary guard.
-     * Returns 404 when the Minutes object or the correction is not found.
-     * Returns 409 when the correction was already resolved.
-     *
-     * @param string $minutesId    The UUID of the Minutes object
-     * @param string $correctionId The correction identifier
-     *
-     * @return JSONResponse
-     *
-     * @spec openspec/specs/resolution-minutes/spec.md
-     */
-    #[NoAdminRequired]
-    public function resolveCorrection(string $minutesId, string $correctionId): JSONResponse
-    {
-        $denied = $this->requireChairOrAdminForMinutes(minutesId: $minutesId);
-        if ($denied !== null) {
-            return $denied;
-        }
-
-        $status = $this->request->getParam('status');
-        if (in_array($status, ['accepted', 'rejected'], true) === false) {
-            return new JSONResponse(
-                ['message' => 'Status must be "accepted" or "rejected".'],
-                Http::STATUS_BAD_REQUEST
-            );
-        }
-
-        try {
-            $minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            if ($minutesEntity === null) {
-                return new JSONResponse(
-                    ['message' => 'Minutes not found.'],
-                    Http::STATUS_NOT_FOUND
-                );
-            }
-
-            $minutes = $minutesEntity->jsonSerialize();
-            if (is_array($minutes['corrections'] ?? null) === true) {
-                $corrections = $minutes['corrections'];
-            } else {
-                $corrections = [];
-            }
-
-            $user    = $this->userSession->getUser();
-            $updated = null;
-            foreach ($corrections as $index => $correction) {
-                if (is_array($correction) === false || ($correction['id'] ?? '') !== $correctionId) {
-                    continue;
-                }
-
-                if (($correction['status'] ?? 'proposed') !== 'proposed') {
-                    return new JSONResponse(
-                        ['message' => 'This correction has already been resolved.'],
-                        Http::STATUS_CONFLICT
-                    );
-                }
-
-                $correction['status']     = $status;
-                $correction['resolvedBy'] = $user->getUID();
-                $correction['resolvedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
-
-                $corrections[$index] = $correction;
-                $updated = $correction;
-                break;
-            }
-
-            if ($updated === null) {
-                return new JSONResponse(
-                    ['message' => 'Correction not found.'],
-                    Http::STATUS_NOT_FOUND
-                );
-            }
-
-            $minutes['corrections'] = $corrections;
-            $this->objectService->saveObject(
-                object: $minutes,
-                register: 'decidesk',
-                schema: 'minutes',
-                uuid: $minutesId
-            );
-
-            return new JSONResponse(['correction' => $updated]);
-        } catch (\Exception $e) {
-            return new JSONResponse(
-                ['message' => 'Internal server error.'],
-                Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
-
-    }//end resolveCorrection()
+    }//end submitForApproval()
 
     /**
      * Reject Minutes in review back to draft with a mandatory comment.
@@ -881,29 +403,13 @@ class MinutesController extends Controller
 
         $user = $this->userSession->getUser();
 
-        try {
-            $updated = $this->minutesGenerationService->reject(
+        return $this->responder->runLifecycle(
+            operation: fn(): array => $this->generationService->reject(
                 minutesId: $minutesId,
                 comment: $comment,
                 userId: $user->getUID(),
-            );
-            return new JSONResponse($updated);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }//end try
+            )
+        );
 
     }//end reject()
 
@@ -944,40 +450,15 @@ class MinutesController extends Controller
             $format = 'markdown';
         }
 
-        $user        = $this->userSession->getUser();
-        $displayName = '';
-        if ($user !== null) {
-            $displayName = $user->getDisplayName();
-        }
+        $displayName = $this->currentDisplayName();
 
-        try {
-            $result = $this->minutesDocumentService->generate(
+        return $this->responder->runLifecycle(
+            operation: fn(): array => $this->documentService->generate(
                 minutesId: $minutesId,
                 format: $format,
                 displayName: $displayName,
-            );
-            return new JSONResponse($result);
-        } catch (MissingObjectException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_NOT_FOUND
-            );
-        } catch (MissingRelationException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(
-                ['message' => $e->getMessage()],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }//end try
+            )
+        );
 
     }//end generateDocument()
 }//end class

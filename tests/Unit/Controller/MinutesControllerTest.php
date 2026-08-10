@@ -23,13 +23,15 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\MinutesController;
+use OCA\Decidesk\Controller\MinutesCorrectionController;
+use OCA\Decidesk\Controller\MinutesResponder;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
-use OCA\Decidesk\Service\ActionItemExtractionService;
 use OCA\Decidesk\Service\ALVMinutesService;
+use OCA\Decidesk\Service\MinutesAccessGuard;
 use OCA\Decidesk\Service\MinutesDocumentService;
 use OCA\Decidesk\Service\MinutesGenerationService;
-use OCA\Decidesk\Service\MinutesService;
+use OCA\Decidesk\Service\MinutesWorkflowService;
 use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
@@ -79,18 +81,11 @@ class MinutesControllerTest extends TestCase
     private ALVMinutesService&MockObject $alvMinutesService;
 
     /**
-     * Mock ActionItemExtractionService.
+     * Mock MinutesWorkflowService.
      *
-     * @var ActionItemExtractionService&MockObject
+     * @var MinutesWorkflowService&MockObject
      */
-    private ActionItemExtractionService&MockObject $extractionService;
-
-    /**
-     * Mock MinutesService.
-     *
-     * @var MinutesService&MockObject
-     */
-    private MinutesService&MockObject $minutesService;
+    private MinutesWorkflowService&MockObject $workflowService;
 
     /**
      * Mock IUserSession.
@@ -135,7 +130,14 @@ class MinutesControllerTest extends TestCase
     private MinutesDocumentService&MockObject $minutesDocumentService;
 
     /**
-     * Set up test fixtures.
+     * The correction half of the Minutes API, under test for the correction cases.
+     *
+     * @var MinutesCorrectionController
+     */
+    private MinutesCorrectionController $correctionController;
+
+    /**
+     * Set up the test fixtures.
      *
      * @return void
      */
@@ -146,8 +148,7 @@ class MinutesControllerTest extends TestCase
         $this->request                  = $this->createMock(originalClassName: IRequest::class);
         $this->minutesGenerationService = $this->createMock(originalClassName: MinutesGenerationService::class);
         $this->alvMinutesService        = $this->createMock(originalClassName: ALVMinutesService::class);
-        $this->extractionService        = $this->createMock(originalClassName: ActionItemExtractionService::class);
-        $this->minutesService           = $this->createMock(originalClassName: MinutesService::class);
+        $this->workflowService          = $this->createMock(originalClassName: MinutesWorkflowService::class);
         $this->userSession              = $this->createMock(originalClassName: IUserSession::class);
         $this->groupManager             = $this->createMock(originalClassName: IGroupManager::class);
         $this->objectService            = $this->createMock(originalClassName: ObjectService::class);
@@ -159,17 +160,39 @@ class MinutesControllerTest extends TestCase
         $this->user->method('getDisplayName')->willReturn('Test User');
         $this->userSession->method('getUser')->willReturn($this->user);
 
+        // The responder is a pure exception-to-status mapper with no
+        // dependencies, so the real one is used: these tests assert on the
+        // status codes it produces, which a mock could not demonstrate.
         $this->controller = new MinutesController(
             request: $this->request,
-            minutesGenerationService: $this->minutesGenerationService,
+            generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
-            extractionService: $this->extractionService,
-            minutesService: $this->minutesService,
+            workflowService: $this->workflowService,
             userSession: $this->userSession,
-            groupManager: $this->groupManager,
+            accessGuard: new MinutesAccessGuard(
+                objectService: $this->objectService,
+                participantResolver: $this->participantResolver,
+                userSession: $this->userSession,
+                groupManager: $this->groupManager,
+            ),
+            documentService: $this->minutesDocumentService,
+            responder: new MinutesResponder(),
+        );
+
+        // The correction endpoints moved to MinutesCorrectionController; it is
+        // built from the SAME mocks and the SAME (real) MinutesAccessGuard, so
+        // the correction tests below still exercise the identical
+        // authorisation + persistence behaviour they always did.
+        $this->correctionController = new MinutesCorrectionController(
+            request: $this->request,
+            accessGuard: new MinutesAccessGuard(
+                objectService: $this->objectService,
+                participantResolver: $this->participantResolver,
+                userSession: $this->userSession,
+                groupManager: $this->groupManager,
+            ),
             objectService: $this->objectService,
-            participantResolver: $this->participantResolver,
-            minutesDocumentService: $this->minutesDocumentService,
+            userSession: $this->userSession,
         );
 
     }//end setUp()
@@ -337,15 +360,18 @@ class MinutesControllerTest extends TestCase
 
         $unauthController = new MinutesController(
             request: $this->request,
-            minutesGenerationService: $this->minutesGenerationService,
+            generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
-            extractionService: $this->extractionService,
-            minutesService: $this->minutesService,
+            workflowService: $this->workflowService,
             userSession: $unauthSession,
-            groupManager: $this->groupManager,
-            objectService: $this->objectService,
-            participantResolver: $this->participantResolver,
-            minutesDocumentService: $this->minutesDocumentService,
+            accessGuard: new MinutesAccessGuard(
+                objectService: $this->objectService,
+                participantResolver: $this->participantResolver,
+                userSession: $unauthSession,
+                groupManager: $this->groupManager,
+            ),
+            documentService: $this->minutesDocumentService,
+            responder: new MinutesResponder(),
         );
 
         // The service must NOT be called for an unauthenticated request.
@@ -503,15 +529,18 @@ class MinutesControllerTest extends TestCase
 
         $unauthController = new MinutesController(
             request: $this->request,
-            minutesGenerationService: $this->minutesGenerationService,
+            generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
-            extractionService: $this->extractionService,
-            minutesService: $this->minutesService,
+            workflowService: $this->workflowService,
             userSession: $unauthSession,
-            groupManager: $this->groupManager,
-            objectService: $this->objectService,
-            participantResolver: $this->participantResolver,
-            minutesDocumentService: $this->minutesDocumentService,
+            accessGuard: new MinutesAccessGuard(
+                objectService: $this->objectService,
+                participantResolver: $this->participantResolver,
+                userSession: $unauthSession,
+                groupManager: $this->groupManager,
+            ),
+            documentService: $this->minutesDocumentService,
+            responder: new MinutesResponder(),
         );
 
         $this->alvMinutesService->expects($this->never())->method('generateALVDraft');
@@ -585,15 +614,18 @@ class MinutesControllerTest extends TestCase
 
         $unauthController = new MinutesController(
             request: $this->request,
-            minutesGenerationService: $this->minutesGenerationService,
+            generationService: $this->minutesGenerationService,
             alvMinutesService: $this->alvMinutesService,
-            extractionService: $this->extractionService,
-            minutesService: $this->minutesService,
+            workflowService: $this->workflowService,
             userSession: $unauthSession,
-            groupManager: $this->groupManager,
-            objectService: $this->objectService,
-            participantResolver: $this->participantResolver,
-            minutesDocumentService: $this->minutesDocumentService,
+            accessGuard: new MinutesAccessGuard(
+                objectService: $this->objectService,
+                participantResolver: $this->participantResolver,
+                userSession: $unauthSession,
+                groupManager: $this->groupManager,
+            ),
+            documentService: $this->minutesDocumentService,
+            responder: new MinutesResponder(),
         );
 
         $this->alvMinutesService->expects($this->never())->method('distribute');
@@ -678,6 +710,8 @@ class MinutesControllerTest extends TestCase
     {
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $this->objectService->method('find')->willReturn(null);
+        $this->workflowService->method('extractActionItems')
+            ->willThrowException(new MissingObjectException(message: 'Minutes not found.'));
 
         $result = $this->controller->extractActionItems('minutes-uuid-999');
 
@@ -698,7 +732,7 @@ class MinutesControllerTest extends TestCase
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'content' => 'Actie: Jan doet X']);
         $this->objectService->method('find')->willReturn($minutesEntity);
-        $this->extractionService->method('extractFromContent')->willReturn(
+        $this->workflowService->method('extractActionItems')->willReturn(
             [['title' => 'Jan doet X', 'suggestedAssignee' => 'Jan']]
         );
 
@@ -768,6 +802,10 @@ class MinutesControllerTest extends TestCase
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'lifecycle' => 'review']);
         $this->objectService->method('find')->willReturn($minutesEntity);
+        $this->workflowService->method('submitForApproval')
+            ->willThrowException(
+                new \RuntimeException('Minutes must be in draft state to submit for approval.', 409)
+            );
 
         $result = $this->controller->submitForApproval('minutes-uuid-001');
 
@@ -788,8 +826,14 @@ class MinutesControllerTest extends TestCase
         $this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
         $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'lifecycle' => 'draft']);
         $this->objectService->method('find')->willReturn($minutesEntity);
-        $this->objectService->expects($this->once())->method('saveObject');
-        $this->minutesService->method('notifyApproversOnSubmit')->willReturn(2);
+        $this->workflowService->expects($this->once())
+            ->method('submitForApproval')
+            ->willReturn(
+                [
+                    'lifecycle' => 'review',
+                    'notified'  => 2,
+                ]
+            );
 
         $result = $this->controller->submitForApproval('minutes-uuid-001');
 
@@ -826,7 +870,7 @@ class MinutesControllerTest extends TestCase
         $this->objectService->method('find')->willReturn($minutesEntity);
         $this->objectService->expects($this->once())->method('saveObject');
 
-        $result = $this->controller->addCorrection('minutes-uuid-001');
+        $result = $this->correctionController->addCorrection('minutes-uuid-001');
 
         self::assertSame(Http::STATUS_OK, $result->getStatus());
         $corrections = $result->getData()['corrections'];
@@ -851,7 +895,7 @@ class MinutesControllerTest extends TestCase
 
         $this->objectService->expects($this->never())->method('saveObject');
 
-        $result = $this->controller->addCorrection('minutes-uuid-001');
+        $result = $this->correctionController->addCorrection('minutes-uuid-001');
 
         self::assertSame(Http::STATUS_BAD_REQUEST, $result->getStatus());
 
@@ -879,7 +923,7 @@ class MinutesControllerTest extends TestCase
         $this->objectService->method('find')->willReturn($minutesEntity);
         $this->objectService->expects($this->never())->method('saveObject');
 
-        $result = $this->controller->addCorrection('minutes-uuid-001');
+        $result = $this->correctionController->addCorrection('minutes-uuid-001');
 
         self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
 
@@ -904,7 +948,7 @@ class MinutesControllerTest extends TestCase
         $this->participantResolver->expects($this->never())->method('isParticipant');
         $this->objectService->expects($this->never())->method('saveObject');
 
-        $result = $this->controller->addCorrection('minutes-uuid-001');
+        $result = $this->correctionController->addCorrection('minutes-uuid-001');
 
         self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
 
@@ -932,7 +976,7 @@ class MinutesControllerTest extends TestCase
         $this->objectService->method('find')->willReturn($minutesEntity);
         $this->objectService->expects($this->never())->method('saveObject');
 
-        $result = $this->controller->addCorrection('minutes-uuid-001');
+        $result = $this->correctionController->addCorrection('minutes-uuid-001');
 
         self::assertSame(Http::STATUS_CONFLICT, $result->getStatus());
 
@@ -951,7 +995,7 @@ class MinutesControllerTest extends TestCase
         $this->request->method('getParam')->with('text')->willReturn('Fix it.');
         $this->objectService->method('find')->willReturn(null);
 
-        $result = $this->controller->addCorrection('minutes-uuid-404');
+        $result = $this->correctionController->addCorrection('minutes-uuid-404');
 
         self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
 
@@ -983,7 +1027,7 @@ class MinutesControllerTest extends TestCase
         $this->objectService->method('find')->willReturn($minutesEntity);
         $this->objectService->expects($this->once())->method('saveObject');
 
-        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-1');
+        $result = $this->correctionController->resolveCorrection('minutes-uuid-001', 'corr-1');
 
         self::assertSame(Http::STATUS_OK, $result->getStatus());
         $correction = $result->getData()['correction'];
@@ -1006,7 +1050,7 @@ class MinutesControllerTest extends TestCase
 
         $this->objectService->expects($this->never())->method('saveObject');
 
-        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-1');
+        $result = $this->correctionController->resolveCorrection('minutes-uuid-001', 'corr-1');
 
         self::assertSame(Http::STATUS_BAD_REQUEST, $result->getStatus());
 
@@ -1035,7 +1079,7 @@ class MinutesControllerTest extends TestCase
         $this->objectService->method('find')->willReturn($minutesEntity);
         $this->objectService->expects($this->never())->method('saveObject');
 
-        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-1');
+        $result = $this->correctionController->resolveCorrection('minutes-uuid-001', 'corr-1');
 
         self::assertSame(Http::STATUS_CONFLICT, $result->getStatus());
 
@@ -1056,7 +1100,7 @@ class MinutesControllerTest extends TestCase
         $minutesEntity = $this->makeEntity(['id' => 'minutes-uuid-001', 'corrections' => []]);
         $this->objectService->method('find')->willReturn($minutesEntity);
 
-        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-x');
+        $result = $this->correctionController->resolveCorrection('minutes-uuid-001', 'corr-x');
 
         self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
 
@@ -1084,7 +1128,7 @@ class MinutesControllerTest extends TestCase
         $this->objectService->method('find')->willReturn($minutesEntity);
         $this->objectService->expects($this->never())->method('saveObject');
 
-        $result = $this->controller->resolveCorrection('minutes-uuid-001', 'corr-1');
+        $result = $this->correctionController->resolveCorrection('minutes-uuid-001', 'corr-1');
 
         self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
 

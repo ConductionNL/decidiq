@@ -65,7 +65,7 @@ class ActionItemController extends Controller
      *
      * @return JSONResponse The created action item, or an error.
      *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-2.x
+     * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
      */
     #[NoAdminRequired]
     public function create(): JSONResponse

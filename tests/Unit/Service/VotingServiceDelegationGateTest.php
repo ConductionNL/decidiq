@@ -32,10 +32,21 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Service\AmendmentOrderService;
 use OCA\Decidesk\Service\MotionService;
 use OCA\Decidesk\Service\NotificationPreferenceService;
+use OCA\Decidesk\Service\ObjectRelationFilter;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ParticipantUuidLookup;
+use OCA\Decidesk\Service\ProcessTemplateService;
+use OCA\Decidesk\Service\VoteCastingService;
+use OCA\Decidesk\Service\VotingOpenedNotifier;
+use OCA\Decidesk\Service\VotingRoundCloser;
+use OCA\Decidesk\Service\VotingRoundOpener;
+use OCA\Decidesk\Service\VotingRoundPreflight;
+use OCA\Decidesk\Service\VotingRoundProjection;
+use OCA\Decidesk\Service\VotingRoundResults;
 use OCA\Decidesk\Service\VotingService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -135,16 +146,73 @@ class VotingServiceDelegationGateTest extends TestCase
             }
         );
 
-        return new VotingService(
-            container: $container,
-            logger: new NullLogger(),
-            oriPublicationService: $this->createMock(OriPublicationService::class),
-            motionService: $this->createMock(MotionService::class),
-            participantResolver: $this->createMock(ParticipantResolver::class),
-            templateService: $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class),
-        );
+        return $this->assembleVotingService(container: $container);
 
     }//end buildService()
+
+    /**
+     * Assemble the VotingService facade from its collaborators.
+     *
+     * VotingService is a thin facade: every operation is delegated to a
+     * single-purpose collaborator, so the graph has to be built explicitly here
+     * where production relies on Nextcloud's constructor auto-wiring.
+     *
+     * @param ContainerInterface $container The (mocked) DI container.
+     *
+     * @return VotingService
+     */
+    private function assembleVotingService(ContainerInterface $container): VotingService
+    {
+        $logger              = new NullLogger();
+        $motionService       = $this->createMock(MotionService::class);
+        $participantResolver = $this->createMock(ParticipantResolver::class);
+        $templateService     = $this->createMock(ProcessTemplateService::class);
+        $amendmentOrder      = new AmendmentOrderService(container: $container, motionService: $motionService);
+        $relationFilter      = new ObjectRelationFilter();
+
+        return new VotingService(
+            opener: new VotingRoundOpener(
+                container: $container,
+                motionService: $motionService,
+                participantResolver: $participantResolver,
+                preflight: new VotingRoundPreflight(
+                    container: $container,
+                    logger: $logger,
+                    motionService: $motionService,
+                    participantResolver: $participantResolver,
+                    templateService: $templateService
+                ),
+                notifier: new VotingOpenedNotifier(
+                    container: $container,
+                    logger: $logger,
+                    participantResolver: $participantResolver
+                )
+            ),
+            caster: new VoteCastingService(
+                container: $container,
+                logger: $logger,
+                participantResolver: $participantResolver,
+                amendmentOrder: $amendmentOrder,
+                relationFilter: $relationFilter
+            ),
+            closer: new VotingRoundCloser(
+                container: $container,
+                logger: $logger,
+                oriService: $this->createMock(OriPublicationService::class),
+                motionService: $motionService,
+                amendmentOrder: $amendmentOrder,
+                relationFilter: $relationFilter
+            ),
+            results: new VotingRoundResults(
+                container: $container,
+                motionService: $motionService,
+                participantResolver: $participantResolver
+            ),
+            projection: new VotingRoundProjection(container: $container),
+            participants: new ParticipantUuidLookup(container: $container),
+        );
+
+    }//end assembleVotingService()
 
     /**
      * An absence delegate without a formal proxy gets the spec-mandated rejection
@@ -352,14 +420,7 @@ class VotingServiceDelegationGateTest extends TestCase
             }
         );
 
-        $service = new VotingService(
-            container: $container,
-            logger: new NullLogger(),
-            oriPublicationService: $this->createMock(OriPublicationService::class),
-            motionService: $this->createMock(MotionService::class),
-            participantResolver: $this->createMock(ParticipantResolver::class),
-            templateService: $this->createMock(\OCA\Decidesk\Service\ProcessTemplateService::class),
-        );
+        $service = $this->assembleVotingService(container: $container);
 
         $vote = $service->castVote(
             votingRoundId: 'round-1',

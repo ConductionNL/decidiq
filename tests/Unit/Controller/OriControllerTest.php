@@ -14,13 +14,14 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Controller;
 
 use OCA\Decidesk\Controller\OriController;
+use OCA\Decidesk\Service\OriSerializer;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
 use OCP\IConfig;
@@ -112,6 +113,7 @@ class OriControllerTest extends TestCase
             $this->config,
             $this->container,
             $this->logger,
+            new OriSerializer(),
         );
 
     }//end setUp()

@@ -27,6 +27,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use InvalidArgumentException;
+use RuntimeException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Exception\MissingRelationException;
 use Psr\Container\ContainerInterface;
@@ -49,6 +53,18 @@ class MinutesDocumentService
     public const FORMATS = [
         'markdown',
         'pdf',
+    ];
+
+    /**
+     * Block-level markdown patterns mapped to their HTML template, in match order.
+     *
+     * @var array<string, string>
+     */
+    private const BLOCK_PATTERNS = [
+        '/^### (.*)$/'   => '<h3>%s</h3>',
+        '/^## (.*)$/'    => '<h2>%s</h2>',
+        '/^# (.*)$/'     => '<h1>%s</h1>',
+        '/^\d+\. (.*)$/' => '<p class="list-item">%s</p>',
     ];
 
     /**
@@ -85,8 +101,8 @@ class MinutesDocumentService
      *
      * @throws MissingObjectException    When the Minutes object is not found
      * @throws MissingRelationException  When no Meeting is linked to the Minutes
-     * @throws \InvalidArgumentException When the format is not supported
-     * @throws \RuntimeException         When OpenRegister or Files is unavailable
+     * @throws InvalidArgumentException When the format is not supported
+     * @throws RuntimeException         When OpenRegister or Files is unavailable
      *
      * @return array<string,mixed> { path, format, docudesk, note? }
      *
@@ -95,7 +111,7 @@ class MinutesDocumentService
     public function generate(string $minutesId, string $format, string $displayName): array
     {
         if (in_array($format, self::FORMATS, true) === false) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Unsupported format "%s". Supported: %s.', $format, implode(', ', self::FORMATS)),
                 422
             );
@@ -130,28 +146,97 @@ class MinutesDocumentService
 
         $title    = (string) ($minutes['title'] ?? 'Minutes');
         $version  = (int) ($minutes['version'] ?? 1);
-        $stamp    = (new \DateTimeImmutable())->format('Y-m-d Hi');
+        $stamp    = (new DateTimeImmutable())->format('Y-m-d Hi');
         $baseName = sprintf('%s v%d %s', $title, $version, $stamp);
 
+        $document = $this->storeDocument(
+            meeting: $meeting,
+            baseName: $baseName,
+            markdown: $markdown,
+            title: $title,
+            format: $format
+        );
+
+        $path = $document['path'];
+        if ($path === null) {
+            throw new RuntimeException(
+                'The minutes document could not be stored: the Files backend is unavailable.',
+                503
+            );
+        }
+
+        $this->appendGeneratedDocument(
+            minutes: $minutes,
+            minutesId: $minutesId,
+            record: [
+                'path'        => $path,
+                'format'      => $document['format'],
+                'generatedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+                'generatedBy' => $displayName,
+                'docudesk'    => $document['docudesk'],
+            ],
+            objectService: $objectService
+        );
+
+        $result = [
+            'path'     => $path,
+            'format'   => $document['format'],
+            'docudesk' => $document['docudesk'],
+        ];
+
+        if ($document['note'] !== null) {
+            $result['note'] = $document['note'];
+        }
+
+        return $result;
+
+    }//end generate()
+
+    /**
+     * Render and persist the document, degrading from PDF to markdown honestly.
+     *
+     * A PDF is attempted only when it was asked for AND Docudesk rendered bytes;
+     * whenever no PDF path was produced the markdown document is written instead.
+     *
+     * @param array<string,mixed> $meeting  The linked Meeting data
+     * @param string              $baseName File name without extension
+     * @param string              $markdown The markdown document body
+     * @param string              $title    The document title (PDF metadata)
+     * @param string              $format   Requested format ('markdown' or 'pdf')
+     *
+     * @return array{path: string|null, format: string, docudesk: bool, note: string|null}
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     */
+    private function storeDocument(
+        array $meeting,
+        string $baseName,
+        string $markdown,
+        string $title,
+        string $format,
+    ): array {
         $produced = 'markdown';
         $note     = null;
         $docudesk = false;
         $path     = null;
+        $pdfBytes = null;
 
         if ($format === 'pdf') {
             $pdfBytes = $this->tryDocudeskPdf(markdown: $markdown, title: $title);
-            if ($pdfBytes !== null) {
-                $path     = $this->folderService->writeMeetingFile(
-                    meeting: $meeting,
-                    subfolder: 'Minutes',
-                    fileName: $baseName.'.pdf',
-                    content: $pdfBytes
-                );
-                $produced = 'pdf';
-                $docudesk = true;
-            } else {
+            if ($pdfBytes === null) {
                 $note = 'Docudesk is not available on this instance — a markdown document was produced instead of a PDF.';
             }
+        }
+
+        if ($pdfBytes !== null) {
+            $path     = $this->folderService->writeMeetingFile(
+                meeting: $meeting,
+                subfolder: 'Minutes',
+                fileName: $baseName.'.pdf',
+                content: $pdfBytes
+            );
+            $produced = 'pdf';
+            $docudesk = true;
         }
 
         if ($path === null) {
@@ -164,41 +249,14 @@ class MinutesDocumentService
             $produced = 'markdown';
         }
 
-        if ($path === null) {
-            throw new \RuntimeException(
-                'The minutes document could not be stored: the Files backend is unavailable.',
-                503
-            );
-        }
-
-        $record = [
-            'path'        => $path,
-            'format'      => $produced,
-            'generatedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-            'generatedBy' => $displayName,
-            'docudesk'    => $docudesk,
-        ];
-
-        $this->appendGeneratedDocument(
-            minutes: $minutes,
-            minutesId: $minutesId,
-            record: $record,
-            objectService: $objectService
-        );
-
-        $result = [
+        return [
             'path'     => $path,
             'format'   => $produced,
             'docudesk' => $docudesk,
+            'note'     => $note,
         ];
 
-        if ($note !== null) {
-            $result['note'] = $note;
-        }
-
-        return $result;
-
-    }//end generate()
+    }//end storeDocument()
 
     /**
      * Resolve the document body: minutes content, draft fallback, live notes.
@@ -222,36 +280,60 @@ class MinutesDocumentService
         }
 
         $itemNotes = ($minutes['itemNotes'] ?? []);
-        if (is_array($itemNotes) === true && count($itemNotes) > 0) {
-            $content .= "\n\n---\n\n## Aantekeningen per agendapunt\n";
-            foreach ($itemNotes as $entry) {
-                if (is_array($entry) === false) {
-                    continue;
-                }
+        if (is_array($itemNotes) === false || $itemNotes === []) {
+            return $content;
+        }
 
-                $agendaItemId = (string) ($entry['agendaItem'] ?? '');
-                $notes        = trim((string) ($entry['notes'] ?? ''));
-                $decisions    = trim((string) ($entry['decisions'] ?? ''));
+        $content .= "\n\n---\n\n## Aantekeningen per agendapunt\n";
+        foreach ($itemNotes as $entry) {
+            if (is_array($entry) === false) {
+                continue;
+            }
 
-                if ($notes === '' && $decisions === '') {
-                    continue;
-                }
-
-                $itemTitle = $this->resolveAgendaItemTitle(agendaItemId: $agendaItemId, objectService: $objectService);
-                $content  .= "\n### ".$itemTitle."\n";
-                if ($notes !== '') {
-                    $content .= "\n".$notes."\n";
-                }
-
-                if ($decisions !== '') {
-                    $content .= "\n**Besluiten:** ".$decisions."\n";
-                }
-            }//end foreach
-        }//end if
+            $content .= $this->renderItemNote(entry: $entry, objectService: $objectService);
+        }
 
         return $content;
 
     }//end resolveContent()
+
+    /**
+     * Render one agenda-item note block; empty string when it carries nothing.
+     *
+     * @param array<string,mixed> $entry         One itemNotes entry
+     * @param object              $objectService OpenRegister ObjectService
+     *
+     * @return string Markdown block (empty when notes and decisions are blank)
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     */
+    private function renderItemNote(array $entry, object $objectService): string
+    {
+        $notes     = trim((string) ($entry['notes'] ?? ''));
+        $decisions = trim((string) ($entry['decisions'] ?? ''));
+
+        // Both parts are already trimmed, so an empty concatenation means both are blank.
+        if (($notes.$decisions) === '') {
+            return '';
+        }
+
+        $itemTitle = $this->resolveAgendaItemTitle(
+            agendaItemId: (string) ($entry['agendaItem'] ?? ''),
+            objectService: $objectService
+        );
+
+        $block = "\n### ".$itemTitle."\n";
+        if ($notes !== '') {
+            $block .= "\n".$notes."\n";
+        }
+
+        if ($decisions !== '') {
+            $block .= "\n**Besluiten:** ".$decisions."\n";
+        }
+
+        return $block;
+
+    }//end renderItemNote()
 
     /**
      * Resolve an agenda item's display title (fail-soft to the UUID).
@@ -329,36 +411,54 @@ class MinutesDocumentService
      */
     private function markdownToHtml(string $markdown): string
     {
-        $lines = explode("\n", $markdown);
-        $html  = [];
-
-        foreach ($lines as $line) {
-            $escaped = htmlspecialchars($line, ENT_QUOTES, 'UTF-8');
-            $escaped = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $escaped) ?? $escaped;
-            $escaped = preg_replace('/_(.+?)_/', '<em>$1</em>', $escaped) ?? $escaped;
-
-            if (preg_match('/^### (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h3>'.$m[1].'</h3>';
-            } else if (preg_match('/^## (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h2>'.$m[1].'</h2>';
-            } else if (preg_match('/^# (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h1>'.$m[1].'</h1>';
-            } else if (trim($escaped) === '---') {
-                $html[] = '<hr/>';
-            } else if (preg_match('/^\d+\. (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<p class="list-item">'.$m[1].'</p>';
-            } else if (trim($escaped) === '') {
-                $html[] = '';
-            } else {
-                $html[] = '<p>'.$escaped.'</p>';
-            }
-        }//end foreach
+        $html = [];
+        foreach (explode("\n", $markdown) as $line) {
+            $html[] = $this->markdownLineToHtml(line: $line);
+        }
 
         return '<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body>'
             .implode("\n", $html)
             .'</body></html>';
 
     }//end markdownToHtml()
+
+    /**
+     * Convert a single markdown line into its HTML equivalent.
+     *
+     * The line is HTML-escaped first, then inline emphasis is substituted and
+     * the block-level patterns in BLOCK_PATTERNS are tried in declaration order;
+     * anything left over becomes a horizontal rule, a blank line, or a paragraph.
+     *
+     * @param string $line One raw markdown line
+     *
+     * @return string The HTML fragment for that line
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     */
+    private function markdownLineToHtml(string $line): string
+    {
+        $escaped = htmlspecialchars($line, ENT_QUOTES, 'UTF-8');
+        $escaped = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $escaped) ?? $escaped;
+        $escaped = preg_replace('/_(.+?)_/', '<em>$1</em>', $escaped) ?? $escaped;
+
+        foreach (self::BLOCK_PATTERNS as $pattern => $template) {
+            if (preg_match($pattern, $escaped, $matches) === 1) {
+                return sprintf($template, $matches[1]);
+            }
+        }
+
+        $trimmed = trim($escaped);
+        if ($trimmed === '---') {
+            return '<hr/>';
+        }
+
+        if ($trimmed === '') {
+            return '';
+        }
+
+        return '<p>'.$escaped.'</p>';
+
+    }//end markdownLineToHtml()
 
     /**
      * Append a generated-document record on the Minutes object (fail-soft).
@@ -373,10 +473,9 @@ class MinutesDocumentService
     private function appendGeneratedDocument(array $minutes, string $minutesId, array $record, object $objectService): void
     {
         try {
+            $documents = [];
             if (is_array($minutes['generatedDocuments'] ?? null) === true) {
                 $documents = $minutes['generatedDocuments'];
-            } else {
-                $documents = [];
             }
 
             $documents[] = $record;
@@ -404,11 +503,8 @@ class MinutesDocumentService
      */
     private function resolveMeeting(array $minutes, object $objectService): ?array
     {
+        // A null relation casts to '' further down and is rejected there.
         $meetingRelation = $minutes['relations']['meeting'] ?? $minutes['meeting'] ?? null;
-
-        if ($meetingRelation === null) {
-            return null;
-        }
 
         if (is_array($meetingRelation) === true) {
             if (isset($meetingRelation['id']) === true && $meetingRelation['id'] !== '') {
@@ -435,7 +531,7 @@ class MinutesDocumentService
                 'Decidesk: failed to fetch linked Meeting for document generation',
                 ['meetingId' => $meetingId, 'error' => $e->getMessage()]
             );
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'OpenRegister service is temporarily unavailable. Please try again later.',
                 503,
                 $e
@@ -447,7 +543,7 @@ class MinutesDocumentService
     /**
      * Lazy-load the OpenRegister ObjectService from the container.
      *
-     * @throws \RuntimeException When OpenRegister is not installed
+     * @throws RuntimeException When OpenRegister is not installed
      *
      * @return object The OpenRegister ObjectService instance
      */
@@ -456,7 +552,7 @@ class MinutesDocumentService
         try {
             return $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable $e) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'OpenRegister ObjectService is not available. '
                 .'Please ensure the OpenRegister app is installed and enabled.',
                 0,

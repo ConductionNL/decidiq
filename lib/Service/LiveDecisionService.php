@@ -125,7 +125,7 @@ class LiveDecisionService
             $this->logger->info("Decision recorded in live mode for meeting $meetingId: $decisionSlug");
 
             // Activity feed (fail-soft): a decision was recorded.
-            // @spec openspec/specs/nextcloud-integration/spec.md.
+            // @spec openspec/specs/nextcloud-integration/spec.md
             try {
                 $this->container->get(\OCA\Decidesk\Service\ActivityPublisherService::class)->publishGovernanceEvent(
                     subject: \OCA\Decidesk\Activity\DecideskProvider::SUBJECT_DECISION_RECORDED,
@@ -174,9 +174,9 @@ class LiveDecisionService
             ];
             $objectService->setRegister('decidesk');
             $objectService->setSchema('minutes');
-            $existingMinutesEntities = $objectService->findAll(['filters' => $params]);
+            $existingMinutes = $objectService->findAll(['filters' => $params]);
 
-            foreach ($existingMinutesEntities as $minutesEntity) {
+            foreach ($existingMinutes as $minutesEntity) {
                 $minutes = $minutesEntity->jsonSerialize();
                 // Check if linked to the Meeting.
                 if (empty($minutes['relations']['Meeting']) === false) {

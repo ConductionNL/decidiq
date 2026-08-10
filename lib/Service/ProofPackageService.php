@@ -27,6 +27,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use RuntimeException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -79,7 +82,7 @@ class ProofPackageService
      * @param string $generatedBy Display name of the requesting user (server session)
      *
      * @throws MissingObjectException When the meeting is not found
-     * @throws \RuntimeException      When OpenRegister or Files is unavailable
+     * @throws RuntimeException      When OpenRegister or Files is unavailable
      *
      * @return array<string,mixed> { files: string[], sha256: string, generatedAt: string }
      *
@@ -118,7 +121,7 @@ class ProofPackageService
             'decisions'   => $this->buildDecisionTexts(decisions: $decisions),
         ];
 
-        $generatedAt = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $generatedAt = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
         $canonical   = $this->canonicalJson(data: $package);
         $sha256      = hash('sha256', $canonical);
 
@@ -134,12 +137,12 @@ class ProofPackageService
             'generatedBy' => $generatedBy,
         ];
 
-        $stamp    = (new \DateTimeImmutable())->format('Y-m-d Hi');
+        $stamp    = (new DateTimeImmutable())->format('Y-m-d Hi');
         $baseName = 'Proof package '.$stamp;
 
         $jsonContent = json_encode($envelope, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ($jsonContent === false) {
-            throw new \RuntimeException('Failed to encode the proof package.', 500);
+            throw new RuntimeException('Failed to encode the proof package.', 500);
         }
 
         $jsonPath = $this->folderService->writeMeetingFile(
@@ -157,7 +160,7 @@ class ProofPackageService
         );
 
         if ($jsonPath === null || $mdPath === null) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'The proof package could not be stored: the Files backend is unavailable.',
                 503
             );
@@ -353,14 +356,13 @@ class ProofPackageService
             $lines[] = sprintf('%s. %s', (string) ($item['orderNumber'] ?? '-'), $item['title']);
         }
 
-        $lines[] = '';
-        $lines[] = '## 2. Quorum';
-        $lines[] = '';
-        $quorum  = $package['quorum'];
+        $lines[]  = '';
+        $lines[]  = '## 2. Quorum';
+        $lines[]  = '';
+        $quorum   = $package['quorum'];
+        $metLabel = 'NEE / niet vastgesteld';
         if ($quorum['met'] === true) {
             $metLabel = 'JA';
-        } else {
-            $metLabel = 'NEE / niet vastgesteld';
         }
 
         $lines[] = sprintf(
@@ -375,14 +377,42 @@ class ProofPackageService
             $lines[] = '_Let op: er is geen aanwezigheidsregistratie vastgelegd voor deze vergadering._';
         }
 
+        $lines = array_merge(
+            $lines,
+            $this->renderVotesSection(votes: $package['votes']),
+            $this->renderDecisionsSection(decisions: $package['decisions'])
+        );
+
+        $lines[] = '---';
+        $lines[] = '';
+        $lines[] = '_De machineleesbare versie van dit pakket (JSON, naast dit bestand) bevat de SHA-256 '
+            .'integriteitshash; herbereken de hash over het canonieke JSON van het "package"-element '
+            .'om manipulatie uit te sluiten._';
+
+        return implode("\n", $lines);
+
+    }//end renderMarkdown()
+
+    /**
+     * Render section 3 (Stemmingen) of the markdown rendition.
+     *
+     * @param array<int, array<string, mixed>> $votes The package's voting rounds
+     *
+     * @return string[] Markdown lines
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     */
+    private function renderVotesSection(array $votes): array
+    {
+        $lines   = [];
         $lines[] = '';
         $lines[] = '## 3. Stemmingen';
         $lines[] = '';
-        if (count($package['votes']) === 0) {
+        if (count($votes) === 0) {
             $lines[] = '_Geen stemrondes geregistreerd._';
         }
 
-        foreach ($package['votes'] as $round) {
+        foreach ($votes as $round) {
             $lines[] = sprintf(
                 '- Methode: %s — voor: %s, tegen: %s, onthouding: %s — uitslag: %s',
                 $round['votingMethod'],
@@ -393,14 +423,30 @@ class ProofPackageService
             );
         }
 
+        return $lines;
+
+    }//end renderVotesSection()
+
+    /**
+     * Render section 4 (Besluiten) of the markdown rendition.
+     *
+     * @param array<int, array<string, mixed>> $decisions The package's decision texts
+     *
+     * @return string[] Markdown lines
+     *
+     * @spec openspec/specs/resolution-minutes/spec.md
+     */
+    private function renderDecisionsSection(array $decisions): array
+    {
+        $lines   = [];
         $lines[] = '';
         $lines[] = '## 4. Besluiten';
         $lines[] = '';
-        if (count($package['decisions']) === 0) {
+        if (count($decisions) === 0) {
             $lines[] = '_Geen besluiten geregistreerd._';
         }
 
-        foreach ($package['decisions'] as $decision) {
+        foreach ($decisions as $decision) {
             $lines[] = '### '.$decision['title'];
             if ($decision['legalBasis'] !== '') {
                 $lines[] = 'Gelet op: '.$decision['legalBasis'];
@@ -415,15 +461,9 @@ class ProofPackageService
             $lines[] = '';
         }
 
-        $lines[] = '---';
-        $lines[] = '';
-        $lines[] = '_De machineleesbare versie van dit pakket (JSON, naast dit bestand) bevat de SHA-256 '
-            .'integriteitshash; herbereken de hash over het canonieke JSON van het "package"-element '
-            .'om manipulatie uit te sluiten._';
+        return $lines;
 
-        return implode("\n", $lines);
-
-    }//end renderMarkdown()
+    }//end renderDecisionsSection()
 
     /**
      * Canonical JSON: recursively key-sorted, no whitespace — the stable
@@ -438,7 +478,7 @@ class ProofPackageService
         $sorted  = $this->ksortRecursive(data: $data);
         $encoded = json_encode($sorted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ($encoded === false) {
-            throw new \RuntimeException('Failed to canonicalise the proof package.', 500);
+            throw new RuntimeException('Failed to canonicalise the proof package.', 500);
         }
 
         return $encoded;
@@ -530,7 +570,7 @@ class ProofPackageService
     /**
      * Lazy-load the OpenRegister ObjectService from the container.
      *
-     * @throws \RuntimeException When OpenRegister is not installed
+     * @throws RuntimeException When OpenRegister is not installed
      *
      * @return object The OpenRegister ObjectService instance
      */
@@ -539,7 +579,7 @@ class ProofPackageService
         try {
             return $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable $e) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'OpenRegister ObjectService is not available. '
                 .'Please ensure the OpenRegister app is installed and enabled.',
                 0,

@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 Decidesk Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Integration-registry UI smoke — end-to-end proof that the
  * pluggable-integration chain (ADR-019) renders correctly inside the
@@ -182,6 +182,33 @@ async function openMeetingIntegrations(page: Page): Promise<string> {
 	await page.waitForFunction(() => {
 		return !!document.querySelector('aside.app-sidebar')
 	}, { timeout: 4_000 }).catch(() => { /* sidebar absent — caller skips */ })
+
+	// The sidebar mounts COLLAPSED on this route, and NcAppSidebar keeps its tab
+	// buttons in the DOM while it is closed. So `tab.count()` is > 0 and the
+	// `test.skip(!present, …)` guards below pass, and then `toBeVisible()` fails
+	// with `Received: hidden` — a failure that names the tab and says nothing
+	// about the sidebar. Measured in run 31040165156, error-context.md:
+	//
+	//   23 × locator resolved to <button role="tab" tabindex="-1"
+	//        aria-selected="false" id="tab-button-tasks" aria-controls="tab-tasks"
+	//        class="… app-sidebar-tabs__tab">
+	//      - unexpected value "hidden"
+	//
+	// and the same snapshot ends with `- button "Open sidebar"`, i.e. the page
+	// was showing the OPEN control the whole time. Opening it is the navigation
+	// this helper always intended — the spec header describes "DOM check on
+	// [role=tab] INSIDE THE SIDEBAR" — not a weakened assertion; every
+	// expectation downstream is unchanged and still has to hold.
+	//
+	// Deliberately not guarded with a skip: if the control is missing the
+	// assertions below fail honestly rather than reporting a false absence.
+	const openSidebar = page.getByRole('button', { name: 'Open sidebar' })
+	if (await openSidebar.isVisible({ timeout: 2_000 }).catch(() => false)) {
+		await openSidebar.click()
+		await page.locator('aside.app-sidebar [role="tab"]').first()
+			.waitFor({ state: 'visible', timeout: 5_000 })
+			.catch(() => { /* no tabs at all — caller's count()===0 guard skips */ })
+	}
 	return meetingId as string
 }
 
@@ -335,8 +362,17 @@ test.describe('Integration registry — OCS / JS agreement', () => {
 		// registered something OR doesn't know about). OCS side
 		// MUST be a subset of JS side; every PHP-side provider must
 		// also be registered in JS.
-		for (const id of ocsIds) {
-			expect(jsIds, `OCS provider "${id}" not in JS registry`).toContain(id)
-		}
+		//
+		// Report the WHOLE drifting set, not just the alphabetically first.
+		// The previous per-id loop threw on the first mismatch, so a run in
+		// which three providers had drifted named only one — and the fix looked
+		// one-third the size it actually was.
+		const missing = ocsIds.filter((id: string) => !jsIds.includes(id))
+		expect(
+			missing,
+			`OCS advertises provider(s) the JS registry does not declare: ${missing.join(', ')}\n`
+			+ `  OCS ids: ${ocsIds.join(', ')}\n`
+			+ `  JS  ids: ${jsIds.join(', ')}`,
+		).toEqual([])
 	})
 })

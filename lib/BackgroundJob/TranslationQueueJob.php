@@ -53,13 +53,13 @@ class TranslationQueueJob extends TimedJob
     /**
      * Constructor.
      *
-     * @param ITimeFactory                      $time                  Nextcloud time factory
-     * @param MultilingualReconciliationService $reconciliationService Reconciliation service
-     * @param LoggerInterface                   $logger                Logger
+     * @param ITimeFactory                      $time       Nextcloud time factory
+     * @param MultilingualReconciliationService $reconciler Reconciliation service
+     * @param LoggerInterface                   $logger     Logger
      */
     public function __construct(
         ITimeFactory $time,
-        private readonly MultilingualReconciliationService $reconciliationService,
+        private readonly MultilingualReconciliationService $reconciler,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(time: $time);
@@ -74,13 +74,17 @@ class TranslationQueueJob extends TimedJob
      * @return void
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
+     * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with
+     * no argument, so the parameter cannot be removed.
      */
     protected function run(mixed $argument): void
     {
         $this->logger->info('Decidesk: TranslationQueueJob started');
 
         try {
-            $result = $this->reconciliationService->processQueue(maxEntries: self::BATCH_SIZE);
+            $result = $this->reconciler->processQueue(maxEntries: self::BATCH_SIZE);
             $this->logger->info(
                 sprintf(
                     'Decidesk: TranslationQueueJob finished — processed %d (%d completed, %d failed)',

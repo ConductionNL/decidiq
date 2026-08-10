@@ -18,7 +18,7 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 /**
  * Helper: get first object of given schema from OR API.

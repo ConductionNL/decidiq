@@ -57,18 +57,11 @@ if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === f
     include_once __DIR__.'/Stubs/Event/DeepLinkRegistrationEvent.php';
 }
 
-if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
-    include_once __DIR__.'/Stubs/Service/ObjectService.php';
-}
-
-if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
-    include_once __DIR__.'/Stubs/Db/ObjectEntity.php';
-}
-
-if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
-    include_once __DIR__.'/Stubs/ObjectService.php';
-}
-
-if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
-    include_once __DIR__.'/Stubs/ObjectEntity.php';
+// ObjectService, ObjectEntity, Register and Schema need no include_once: the
+// PSR-4 root registered above resolves them to tests/Stubs/Service/ and
+// tests/Stubs/Db/ whenever the real OpenRegister app is absent, and to the real
+// app when it is present. See tests/Stubs/Service/ObjectService.php for the
+// signature-parity contract these stubs are held to (#399).
+if (class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false) {
+    include_once __DIR__.'/Stubs/OpenRegisterServices.php';
 }

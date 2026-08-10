@@ -82,7 +82,10 @@ async function openEvaluationsTab(page, bodyId: string) {
 
 test.describe('board self-evaluation flow', () => {
 	test('a body opens an evaluation cycle and members submit anonymously; completion tracks without de-anonymising', async ({ page }) => {
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Evaluation Board', bodyType: 'supervisory-board' })
+		// `domain` is in GovernanceBody's `required` list — omitting it is a hard
+		// 400 from OpenRegister, which reads as a broken evaluation flow rather
+		// than an incomplete fixture.
+		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Evaluation Board', bodyType: 'supervisory-board', domain: 'corporate' })
 		const chair = await createObject(page, ledger, 'participant', { displayName: 'E2E Chair', role: 'chair', nextcloudUserId: 'admin', governanceBody: objId(body) })
 		const memberTwo = await createObject(page, ledger, 'participant', { displayName: 'E2E Member Two', role: 'member', governanceBody: objId(body) })
 		const memberThree = await createObject(page, ledger, 'participant', { displayName: 'E2E Member Three', role: 'member', governanceBody: objId(body) })
@@ -128,7 +131,7 @@ test.describe('board self-evaluation flow', () => {
 	})
 
 	test('closing a cycle computes scores; small-body breakdown is suppressed below threshold', async ({ page }) => {
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Suppression Board', bodyType: 'supervisory-board' })
+		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Suppression Board', bodyType: 'supervisory-board', domain: 'corporate' })
 		const chair = await createObject(page, ledger, 'participant', { displayName: 'E2E Chair', role: 'chair', nextcloudUserId: 'admin', governanceBody: objId(body) })
 		const template = await seedTemplate(page)
 
@@ -163,7 +166,7 @@ test.describe('board self-evaluation flow', () => {
 	})
 
 	test('results render on the GovernanceBody results tab; publishing exposes only the aggregate', async ({ page }) => {
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Publish Board', bodyType: 'supervisory-board' })
+		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E Publish Board', bodyType: 'supervisory-board', domain: 'corporate' })
 		const chair = await createObject(page, ledger, 'participant', { displayName: 'E2E Chair', role: 'chair', nextcloudUserId: 'admin', governanceBody: objId(body) })
 		const memberTwo = await createObject(page, ledger, 'participant', { displayName: 'E2E Member Two', role: 'member', governanceBody: objId(body) })
 		const memberThree = await createObject(page, ledger, 'participant', { displayName: 'E2E Member Three', role: 'member', governanceBody: objId(body) })
@@ -210,7 +213,7 @@ test.describe('board self-evaluation flow', () => {
 	})
 
 	test('lifecycle gating is OpenRegister RBAC, not app-local: a non-chair/secretary is denied', async ({ page }) => {
-		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E RBAC Board', bodyType: 'supervisory-board' })
+		const body = await createObject(page, ledger, 'governance-body', { name: 'E2E RBAC Board', bodyType: 'supervisory-board', domain: 'corporate' })
 		const template = await seedTemplate(page)
 
 		// chairUserId deliberately set to someone other than the logged-in admin

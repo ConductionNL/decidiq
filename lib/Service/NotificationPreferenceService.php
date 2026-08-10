@@ -21,11 +21,12 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -172,21 +173,13 @@ class NotificationPreferenceService
 
     }//end updatePreference()
 
-    /**
-     * Create a NotificationPreference object for a person (alias).
-     *
-     * @param string               $personId    Person UUID or user ID
-     * @param array<string, mixed> $preferences Preference fields
-     *
-     * @return array<string, mixed>
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
-     */
-    public function createPreference(string $personId, array $preferences): array
-    {
-        return $this->updatePreference(personId: $personId, preferences: $preferences);
-
-    }//end createPreference()
+    // Removed: createPreference() was a self-described "(alias)" whose whole
+    // body delegated to updatePreference(), which is itself an upsert ("Create
+    // or update"). It had no callers anywhere in lib/, src/ or tests/, so
+    // nothing wrote through it and nothing can be orphaned by its removal —
+    // the one storage path is unchanged and still reached by everything that
+    // was already using it, including NotificationPreferenceController.
+    // Two names for one write is how the two drift apart later.
 
     /**
      * Determine if a given event type should produce a notification for the person.
@@ -238,14 +231,14 @@ class NotificationPreferenceService
      * "already started"). Expiry is therefore automatic — every consult is a
      * date comparison against today, no cron or cleanup job involved.
      *
-     * @param string                  $personId Person UUID or user ID of the absent user
-     * @param \DateTimeImmutable|null $today    Clock override for tests (defaults to today)
+     * @param string                 $personId Person UUID or user ID of the absent user
+     * @param DateTimeImmutable|null $today    Clock override for tests (defaults to today)
      *
      * @return string|null The delegate identifier (NC UID), or null when no delegation is active
      *
      * @spec openspec/specs/user-settings/spec.md
      */
-    public function getActiveDelegate(string $personId, ?\DateTimeImmutable $today=null): ?string
+    public function getActiveDelegate(string $personId, ?DateTimeImmutable $today=null): ?string
     {
         $pref     = $this->findPreference(personId: $personId);
         $delegate = ($pref['delegate'] ?? null);
@@ -261,7 +254,7 @@ class NotificationPreferenceService
             return null;
         }
 
-        $todayStr = ($today ?? new \DateTimeImmutable())->format('Y-m-d');
+        $todayStr = ($today ?? new DateTimeImmutable())->format('Y-m-d');
 
         $from = ($pref['delegationFrom'] ?? null);
         if (is_string($from) === true && $from !== '' && substr($from, 0, 10) > $todayStr) {
@@ -284,15 +277,15 @@ class NotificationPreferenceService
      * stored identifier, which is the NC UID picked in the settings UI;
      * callers may pass either the NC UID or a participant UUID.
      *
-     * @param string                  $delegatorId The absent user (preference owner)
-     * @param string                  $delegateId  The acting user (NC UID or participant UUID)
-     * @param \DateTimeImmutable|null $today       Clock override for tests
+     * @param string                 $delegatorId The absent user (preference owner)
+     * @param string                 $delegateId  The acting user (NC UID or participant UUID)
+     * @param DateTimeImmutable|null $today       Clock override for tests
      *
      * @return bool
      *
      * @spec openspec/specs/user-settings/spec.md
      */
-    public function hasActiveDelegationTo(string $delegatorId, string $delegateId, ?\DateTimeImmutable $today=null): bool
+    public function hasActiveDelegationTo(string $delegatorId, string $delegateId, ?DateTimeImmutable $today=null): bool
     {
         if ($delegateId === '') {
             return false;

@@ -100,7 +100,7 @@ class SettingsControllerTest extends TestCase
             request: $this->request,
             settingsService: $this->settingsService,
             userSession: $this->userSession,
-            publicationConfigService: $this->publicationConfigService,
+            publicationConfig: $this->publicationConfigService,
         );
 
     }//end setUp()
@@ -164,7 +164,10 @@ class SettingsControllerTest extends TestCase
     }//end testCreateCallsUpdateSettingsAndReturnsSuccess()
 
     /**
-     * Test that load() returns the result of loadConfiguration.
+     * Test that load() returns the result of reloadConfiguration.
+     *
+     * load() is the forcing endpoint, so it must call the forcing named method
+     * (reloadConfiguration) rather than the non-forcing loadConfiguration().
      *
      * Admin enforcement is handled by the #[AuthorizedAdminSetting] framework attribute,
      * not by the controller itself.
@@ -179,9 +182,11 @@ class SettingsControllerTest extends TestCase
             'version' => '0.1.0',
         ];
 
+        $this->settingsService->expects($this->never())
+            ->method('loadConfiguration');
+
         $this->settingsService->expects($this->once())
-            ->method('loadConfiguration')
-            ->with(force: true)
+            ->method('reloadConfiguration')
             ->willReturn($loadResult);
 
         $result = $this->controller->load();

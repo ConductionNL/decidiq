@@ -21,11 +21,14 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use RuntimeException;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
@@ -120,7 +123,7 @@ class ParticipationPublicationService
      *
      * @return array<string, mixed> Publication result (see publishSummary()).
      *
-     * @throws \RuntimeException When the consultation is not found.
+     * @throws RuntimeException When the consultation is not found.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -129,7 +132,7 @@ class ParticipationPublicationService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $consultationId, register: 'decidesk', schema: 'public-consultation');
         if ($entity === null) {
-            throw new \RuntimeException("PublicConsultation {$consultationId} not found");
+            throw new RuntimeException("PublicConsultation {$consultationId} not found");
         }
 
         $consultation = $entity->jsonSerialize();
@@ -144,7 +147,7 @@ class ParticipationPublicationService
             'reactionCount' => count($digest),
             'reactions'     => $digest,
             'sourceId'      => $consultationId,
-            'generatedAt'   => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'generatedAt'   => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
         ];
 
         return $this->publishSummary(
@@ -167,7 +170,7 @@ class ParticipationPublicationService
      *
      * @return array<string, mixed> Publication result (see publishSummary()).
      *
-     * @throws \RuntimeException When the round is not found.
+     * @throws RuntimeException When the round is not found.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -176,7 +179,7 @@ class ParticipationPublicationService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
         if ($entity === null) {
-            throw new \RuntimeException("ParticipatoryBudget {$budgetId} not found");
+            throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
         }
 
         $round         = $entity->jsonSerialize();
@@ -195,7 +198,7 @@ class ParticipationPublicationService
             'participationCount' => $participation,
             'proposals'          => ($allocation['proposals'] ?? []),
             'sourceId'           => $budgetId,
-            'generatedAt'        => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'generatedAt'        => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
         ];
 
         // Mark the round as having published results.
@@ -224,7 +227,7 @@ class ParticipationPublicationService
      *
      * @return array<string, mixed> Publication result (see publishSummary()).
      *
-     * @throws \RuntimeException When the evaluation is not found or not closed.
+     * @throws RuntimeException When the evaluation is not found or not closed.
      *
      * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
      */
@@ -233,12 +236,12 @@ class ParticipationPublicationService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $evaluationId, register: 'decidesk', schema: 'board-evaluation');
         if ($entity === null) {
-            throw new \RuntimeException("BoardEvaluation {$evaluationId} not found");
+            throw new RuntimeException("BoardEvaluation {$evaluationId} not found");
         }
 
         $evaluation = $entity->jsonSerialize();
         if (in_array((string) ($evaluation['lifecycle'] ?? ''), ['closed', 'published'], true) === false) {
-            throw new \RuntimeException('Only a closed evaluation may be published');
+            throw new RuntimeException('Only a closed evaluation may be published');
         }
 
         $raw     = (string) ($evaluation['scoreSummary'] ?? '');
@@ -264,7 +267,7 @@ class ParticipationPublicationService
             'themes'          => $scoreSummary['themes'] ?? null,
             'suppressed'      => $scoreSummary['suppressed'] ?? true,
             'sourceId'        => $evaluationId,
-            'generatedAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'generatedAt'     => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
         ];
 
         // Mark the evaluation as published.
@@ -297,13 +300,32 @@ class ParticipationPublicationService
         $objectService = $this->objectService();
         $objectService->setRegister('decidesk');
         $objectService->setSchema('consultation-reaction');
-        $entities = $objectService->findAll(
-            [
-                'filters' => [
-                    '_relations.public-consultation' => $consultationId,
-                    'moderationStatus'               => 'approved',
-                ],
-            ]
+        // NOT `_relations.public-consultation`: reactions are written with a
+        // structured `relations` array (ReactionIntakeService), which OpenRegister
+        // flattens to `_relations` keys of the form `relations.<n>.id` — a
+        // slug-keyed filter matched zero rows, so the digest was always empty on a
+        // healthy 200. See ObjectRelationFilter.
+        //
+        // The filter pins the related id but not the related SCHEMA, so the set is
+        // re-checked against the consultation before anything is published. That
+        // re-check is a disclosure boundary, not a nicety: this digest is public
+        // output, and an unscoped row would publish another consultation's
+        // reactions.
+        // Resolved by FQCN string, matching objectService() above. A
+        // `ObjectRelationFilter::class` reference here counts as one more coupled
+        // type and pushes this class over phpmd's CouplingBetweenObjects ceiling.
+        $relationFilter = $this->container->get('OCA\Decidesk\Service\ObjectRelationFilter');
+        $entities       = $relationFilter->matching(
+            entities: $objectService->findAll(
+                [
+                    'filters' => array_merge(
+                        $relationFilter->filterFor(targetId: $consultationId),
+                        ['moderationStatus' => 'approved']
+                    ),
+                ]
+            ),
+            schema: 'public-consultation',
+            targetId: $consultationId
         );
 
         $digest = [];
@@ -368,14 +390,14 @@ class ParticipationPublicationService
         // RBAC rule (publicatiedatum <= $now) on the schema makes the object
         // anonymously readable through the OR published-predicate surface.
         $sourceObject['resultsSummary']    = json_encode($summary);
-        $sourceObject['publicatiedatum']   = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $sourceObject['publicatiedatum']   = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
         $sourceObject['depublicatiedatum'] = null;
 
-        $publishedPredicateSet = false;
+        $predicateSet = false;
         try {
-            $saved   = $objectService->saveObject(register: 'decidesk', schema: $sourceSchema, object: $sourceObject);
-            $summary = array_merge($summary, ['sourceObject' => $this->normaliseSaved(saved: $saved, fallback: $sourceObject)]);
-            $publishedPredicateSet = true;
+            $saved        = $objectService->saveObject(register: 'decidesk', schema: $sourceSchema, object: $sourceObject);
+            $summary      = array_merge($summary, ['sourceObject' => $this->normaliseSaved(saved: $saved, fallback: $sourceObject)]);
+            $predicateSet = true;
         } catch (\Throwable $e) {
             $this->logger->warning(
                 'Decidesk participation: failed to persist published summary',
@@ -383,28 +405,30 @@ class ParticipationPublicationService
             );
         }
 
-        $openCatalogiInstalled = $this->isOpenCatalogiInstalled();
-        $openCatalogiRouted    = false;
-        $warning = null;
+        $catalogiInstalled  = $this->isOpenCatalogiInstalled();
+        $openCatalogiRouted = false;
 
-        if ($openCatalogiInstalled === true) {
+        // Default to the "not installed" warning; the branch below refines it.
+        $warning = 'OpenCatalogi is not installed; the catalog routing step was skipped. '
+            .'The summary carries the published predicate only.';
+
+        if ($catalogiInstalled === true) {
+            $warning            = null;
             $openCatalogiRouted = $this->routeToOpenCatalogi(summary: $summary, governanceBodyId: $governanceBodyId);
             if ($openCatalogiRouted === false) {
                 $warning = 'OpenCatalogi is installed but no target catalog is configured for this governance body; '
                     .'the summary was not routed to a catalog.';
             }
-        } else {
-            $warning = 'OpenCatalogi is not installed; the catalog routing step was skipped. The summary carries the published predicate only.';
         }
 
         return [
             'summary'                => $summary,
-            'publishedPredicateSet'  => $publishedPredicateSet,
+            'publishedPredicateSet'  => $predicateSet,
             // Anonymous visibility is governed by the public-group RBAC rule on
             // the published schema (publicatiedatum <= $now); when the predicate
             // write succeeded the object is publicly readable.
-            'anonVisibilityVerified' => $publishedPredicateSet,
-            'openCatalogiInstalled'  => $openCatalogiInstalled,
+            'anonVisibilityVerified' => $predicateSet,
+            'openCatalogiInstalled'  => $catalogiInstalled,
             'openCatalogiRouted'     => $openCatalogiRouted,
             'warning'                => $warning,
         ];
@@ -422,7 +446,7 @@ class ParticipationPublicationService
      *
      * @return array<string, mixed> The updated reaction object.
      *
-     * @throws \RuntimeException When the reaction is missing or not approved.
+     * @throws RuntimeException When the reaction is missing or not approved.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -431,15 +455,15 @@ class ParticipationPublicationService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $reactionId, register: 'decidesk', schema: 'consultation-reaction');
         if ($entity === null) {
-            throw new \RuntimeException("ConsultationReaction {$reactionId} not found");
+            throw new RuntimeException("ConsultationReaction {$reactionId} not found");
         }
 
         $reaction = $entity->jsonSerialize();
         if ((string) ($reaction['moderationStatus'] ?? '') !== 'approved') {
-            throw new \RuntimeException('Only approved reactions may be published');
+            throw new RuntimeException('Only approved reactions may be published');
         }
 
-        $reaction['publicatiedatum']   = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $reaction['publicatiedatum']   = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
         $reaction['depublicatiedatum'] = null;
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
 
@@ -503,8 +527,8 @@ class ParticipationPublicationService
                 'summary'         => (string) ($summary['description'] ?? ''),
                 'catalog'         => $catalogId,
                 'sourceId'        => (string) ($summary['sourceId'] ?? ''),
-                'publishedAt'     => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-                'publicatiedatum' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                'publishedAt'     => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+                'publicatiedatum' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
             ];
             $objectService->saveObject(register: 'opencatalogi', schema: 'publication', object: $publication);
             return true;

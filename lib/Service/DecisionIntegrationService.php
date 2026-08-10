@@ -18,7 +18,7 @@
  * @link https://conduction.nl
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
- * SPDX-License-Identifier: EUPL-1.2.
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
  */
@@ -51,6 +51,67 @@ class DecisionIntegrationService
      * @var list<string>
      */
     private const APPROVED_LIFECYCLES = ['decided', 'enacted'];
+
+    /**
+     * Decision types the integration hub accepts on create-decision.
+     *
+     * @var list<string>
+     */
+    private const ALLOWED_TYPES = [
+        'motion',
+        'amendment',
+        'resolution',
+        'contract',
+        'contract-renewal',
+        'report-adoption',
+        'appointment',
+        'management-point',
+        'policy',
+        'meeting-outcome',
+    ];
+
+    /**
+     * Additive provenance fields copied onto a created Decision (REQ-DCDH-001).
+     *
+     * @var list<string>
+     */
+    private const PROVENANCE_FIELDS = [
+        'sourceApp',
+        'subjectRegister',
+        'subjectSchema',
+        'subjectId',
+        'subjectLabel',
+        'outcomeCallbackUrl',
+        'externalReference',
+    ];
+
+    /**
+     * Provenance fields that form the create-decision idempotency tuple.
+     *
+     * `subjectLabel` and `outcomeCallbackUrl` are deliberately excluded — they
+     * are descriptive, not identifying (REQ-DCDH-002).
+     *
+     * @var list<string>
+     */
+    private const IDEMPOTENCY_FIELDS = [
+        'sourceApp',
+        'subjectId',
+        'subjectRegister',
+        'subjectSchema',
+        'externalReference',
+    ];
+
+    /**
+     * Hostnames that always identify the local machine (SSRF mitigation).
+     *
+     * @var list<string>
+     */
+    private const LOOPBACK_HOSTS = [
+        'localhost',
+        '127.0.0.1',
+        '::1',
+        '0.0.0.0',
+    ];
 
     /**
      * Construct the service.
@@ -91,69 +152,34 @@ class DecisionIntegrationService
         }
 
         // Validate decisionType against the integration-hub supported types.
-        $allowedTypes = [
-            'motion',
-            'amendment',
-            'resolution',
-            'contract',
-            'contract-renewal',
-            'report-adoption',
-            'appointment',
-            'management-point',
-            'policy',
-            'meeting-outcome',
-        ];
         $decisionType = (string) ($decisionData['decisionType'] ?? '');
-        if (in_array($decisionType, $allowedTypes, true) === false) {
+        if (in_array($decisionType, self::ALLOWED_TYPES, true) === false) {
             return ['success' => false, 'message' => "Unrecognised decisionType: '{$decisionType}'."];
         }
 
+        // Additive provenance fields (REQ-DCDH-001) — empty/absent values are omitted.
+        $provenance = array_filter(
+            array_map(
+                static fn (mixed $value): string => (string) ($value ?? ''),
+                array_intersect_key($decisionData, array_flip(self::PROVENANCE_FIELDS))
+            ),
+            static fn (string $value): bool => ($value !== '')
+        );
+
+        $sourceApp = (string) ($provenance['sourceApp'] ?? '');
+        $subjectId = (string) ($provenance['subjectId'] ?? '');
+
         // Idempotency: search for an existing decision with the same provenance tuple.
-        $sourceApp         = (string) ($decisionData['sourceApp'] ?? '');
-        $subjectRegister   = (string) ($decisionData['subjectRegister'] ?? '');
-        $subjectSchema     = (string) ($decisionData['subjectSchema'] ?? '');
-        $subjectId         = (string) ($decisionData['subjectId'] ?? '');
-        $externalReference = (string) ($decisionData['externalReference'] ?? '');
+        if ($sourceApp !== '' && $subjectId !== '') {
+            $existingId = $this->findExistingDecisionId(
+                objectService: $objectService,
+                filters: array_intersect_key($provenance, array_flip(self::IDEMPOTENCY_FIELDS))
+            );
 
-        $hasTuple = ($sourceApp !== '' && $subjectId !== '');
-        if ($hasTuple === true) {
-            $filters = ['sourceApp' => $sourceApp, 'subjectId' => $subjectId];
-            if ($subjectRegister !== '') {
-                $filters['subjectRegister'] = $subjectRegister;
+            if ($existingId !== null) {
+                return ['success' => true, 'decisionId' => $existingId, 'created' => false];
             }
-
-            if ($subjectSchema !== '') {
-                $filters['subjectSchema'] = $subjectSchema;
-            }
-
-            if ($externalReference !== '') {
-                $filters['externalReference'] = $externalReference;
-            }
-
-            try {
-                $existing = $objectService->findAll(
-                    [
-                        'register' => 'decidesk',
-                        'schema'   => 'decision',
-                        'filters'  => $filters,
-                    ]
-                );
-            } catch (\Throwable $e) {
-                $existing = [];
-            }
-
-            if (is_array($existing) === true && count($existing) > 0) {
-                $first = reset($existing);
-                if (is_array($first) === true) {
-                    $firstData = $first;
-                } else {
-                    $firstData = (array) $first->jsonSerialize();
-                }
-
-                $id = (string) ($firstData['id'] ?? ($firstData['uuid'] ?? ''));
-                return ['success' => true, 'decisionId' => $id, 'created' => false];
-            }
-        }//end if
+        }
 
         // Build the Decision object with provenance fields.
         $object = [
@@ -165,23 +191,66 @@ class DecisionIntegrationService
             'lifecycle'    => 'draft',
         ];
 
-        // Additive provenance fields (REQ-DCDH-001).
-        $provenanceFields = [
-            'sourceApp',
-            'subjectRegister',
-            'subjectSchema',
-            'subjectId',
-            'subjectLabel',
-            'outcomeCallbackUrl',
-            'externalReference',
-        ];
-        foreach ($provenanceFields as $field) {
-            $val = (string) ($decisionData[$field] ?? '');
-            if ($val !== '') {
-                $object[$field] = $val;
-            }
+        return $this->persistDecision(
+            objectService: $objectService,
+            object: ($object + $provenance),
+            actorId: $actorId,
+            auditPayload: ['sourceApp' => $sourceApp, 'subjectId' => $subjectId, 'decisionType' => $decisionType]
+        );
+
+    }//end createDecision()
+
+    /**
+     * Look up the id of an existing Decision matching the provenance tuple.
+     *
+     * A registry failure is treated as "no match" so create-decision degrades to
+     * a plain create rather than erroring out.
+     *
+     * @param mixed                 $objectService OpenRegister ObjectService instance
+     * @param array<string, string> $filters       The provenance tuple filters
+     *
+     * @return string|null The existing decision id, or null when there is no match
+     *
+     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+     */
+    private function findExistingDecisionId(mixed $objectService, array $filters): ?string
+    {
+        try {
+            $existing = $objectService->findAll(
+                [
+                    'register' => 'decidesk',
+                    'schema'   => 'decision',
+                    'filters'  => $filters,
+                ]
+            );
+        } catch (\Throwable) {
+            return null;
         }
 
+        if (is_array($existing) === false || count($existing) === 0) {
+            return null;
+        }
+
+        $firstData = $this->toArray(value: reset($existing));
+
+        return (string) ($firstData['id'] ?? ($firstData['uuid'] ?? ''));
+
+    }//end findExistingDecisionId()
+
+    /**
+     * Persist a new Decision through OpenRegister and append the audit entry.
+     *
+     * @param mixed                $objectService OpenRegister ObjectService instance
+     * @param array<string, mixed> $object        The Decision payload to save
+     * @param string               $actorId       Nextcloud UID of the creating user
+     * @param array<string, mixed> $auditPayload  Audit-log context for the create
+     *
+     * @return array{success: bool, decisionId?: string, created?: bool, message?: string}
+     *
+     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+     */
+    private function persistDecision(mixed $objectService, array $object, string $actorId, array $auditPayload): array
+    {
         try {
             $saved = $objectService->saveObject(
                 object: $object,
@@ -189,19 +258,14 @@ class DecisionIntegrationService
                 schema: 'decision'
             );
 
-            if (is_array($saved) === true) {
-                $savedArr = $saved;
-            } else {
-                $savedArr = (array) $saved->jsonSerialize();
-            }
-
+            $savedArr   = $this->toArray(value: $saved);
             $decisionId = (string) ($savedArr['id'] ?? ($savedArr['uuid'] ?? ''));
 
             $this->auditLog->append(
                 actor: $actorId,
                 action: 'integration-create',
                 objectUids: [$decisionId],
-                payload: ['sourceApp' => $sourceApp, 'subjectId' => $subjectId, 'decisionType' => $decisionType]
+                payload: $auditPayload
             );
 
             return ['success' => true, 'decisionId' => $decisionId, 'created' => true];
@@ -213,7 +277,26 @@ class DecisionIntegrationService
             return ['success' => false, 'message' => 'Failed to persist decision: '.$e->getMessage()];
         }//end try
 
-    }//end createDecision()
+    }//end persistDecision()
+
+    /**
+     * Normalise an OpenRegister result entry to a plain property array.
+     *
+     * @param mixed $value An array payload or an entity exposing jsonSerialize()
+     *
+     * @return array<string, mixed> The plain property map
+     *
+     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+     */
+    private function toArray(mixed $value): array
+    {
+        if (is_array($value) === true) {
+            return $value;
+        }
+
+        return (array) $value->jsonSerialize();
+
+    }//end toArray()
 
     /**
      * Assemble and return the outcome envelope for a Decision (REQ-DCDH-003).
@@ -253,25 +336,13 @@ class DecisionIntegrationService
             return null;
         }
 
-        if (is_array($entity) === true) {
-            $decision = $entity;
-        } else {
-            $decision = (array) $entity->jsonSerialize();
-        }
-
-        $lifecycle = (string) ($decision['lifecycle'] ?? 'draft');
-        $outcome   = (string) ($decision['outcome'] ?? '');
+        $decision = $this->toArray(value: $entity);
 
         // Derive status (ADR-031 — declarative, no new state machine).
-        if ($lifecycle === 'withdrawn') {
-            $status = 'withdrawn';
-        } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome === 'adopted') {
-            $status = 'approved';
-        } else if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === true && $outcome !== '') {
-            $status = 'rejected';
-        } else {
-            $status = 'pending';
-        }
+        $status = $this->deriveStatus(
+            lifecycle: (string) ($decision['lifecycle'] ?? 'draft'),
+            outcome: (string) ($decision['outcome'] ?? '')
+        );
 
         $decidedAt = null;
         if ($status !== 'pending') {
@@ -297,6 +368,40 @@ class DecisionIntegrationService
         ];
 
     }//end getOutcomeEnvelope()
+
+    /**
+     * Derive the outcome status from the Decision lifecycle + outcome fields.
+     *
+     * ADR-031 — declarative derivation, no new state machine:
+     *   withdrawn = lifecycle=withdrawn
+     *   approved  = lifecycle in {decided, enacted} with outcome=adopted
+     *   rejected  = lifecycle in {decided, enacted} with any other set outcome
+     *   pending   = anything else
+     *
+     * @param string $lifecycle The Decision lifecycle state
+     * @param string $outcome   The Decision outcome, when set
+     *
+     * @return string One of withdrawn|approved|rejected|pending
+     *
+     * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+     */
+    private function deriveStatus(string $lifecycle, string $outcome): string
+    {
+        if ($lifecycle === 'withdrawn') {
+            return 'withdrawn';
+        }
+
+        if (in_array($lifecycle, self::APPROVED_LIFECYCLES, true) === false || $outcome === '') {
+            return 'pending';
+        }
+
+        if ($outcome === 'adopted') {
+            return 'approved';
+        }
+
+        return 'rejected';
+
+    }//end deriveStatus()
 
     /**
      * Register an outcome callback for a Decision.
@@ -345,15 +450,9 @@ class DecisionIntegrationService
             return ['success' => false, 'code' => 'not_found', 'message' => "Decision '{$decisionId}' not found."];
         }
 
-        if (is_array($entity) === true) {
-            $decision = $entity;
-        } else {
-            $decision = (array) $entity->jsonSerialize();
-        }
-
         // Persist the callback URL on the Decision object (declarative delivery
         // is then handled by x-openregister-notifications outcomeEmitted trigger).
-        $updated = $decision;
+        $updated = $this->toArray(value: $entity);
         $updated['outcomeCallbackUrl'] = $callbackUrl;
 
         try {
@@ -428,7 +527,10 @@ class DecisionIntegrationService
         try {
             $registry = $this->container->get('OCA\\OpenConnector\\Service\\IntegrationService');
             if (method_exists($registry, 'isRegisteredConsumer') === true) {
-                return (bool) $registry->isRegisteredConsumer(callbackUrl: $url);
+                // Positional, not named: the registry is resolved from a class-name
+                // string at runtime, so its parameter names are not part of any
+                // contract decidesk can rely on.
+                return (bool) $registry->isRegisteredConsumer($url);
             }
         } catch (\Throwable) {
             // Registry unavailable — fall through to the domain allowlist.
@@ -452,20 +554,20 @@ class DecisionIntegrationService
     private function isPrivateHost(string $host): bool
     {
         // IP literal check.
-        $ip = filter_var($host, FILTER_VALIDATE_IP);
-        if ($ip !== false) {
+        $ipAddress = filter_var($host, FILTER_VALIDATE_IP);
+        if ($ipAddress !== false) {
             return filter_var(
-                $ip,
+                $ipAddress,
                 FILTER_VALIDATE_IP,
                 FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
             ) === false;
         }
 
-        // Hostname — block explicit localhost/loopback variants.
+        // Hostname — block explicit localhost/loopback variants, including the
+        // `.local` (mDNS) and `.localhost` reserved suffixes.
         $lower = strtolower($host);
-        return in_array($lower, ['localhost', '127.0.0.1', '::1', '0.0.0.0'], true) === true
-            || str_ends_with($lower, '.local') === true
-            || str_ends_with($lower, '.localhost') === true;
+        return in_array($lower, self::LOOPBACK_HOSTS, true) === true
+            || preg_match('/\.local(host)?$/', $lower) === 1;
 
     }//end isPrivateHost()
 
@@ -502,16 +604,12 @@ class DecisionIntegrationService
             return $default;
         }
 
-        if (is_array($stages) === false || count($stages) === 0) {
+        if (is_array($stages) === false) {
             return $default;
         }
 
         foreach ($stages as $stage) {
-            if (is_array($stage) === true) {
-                $stageData = $stage;
-            } else {
-                $stageData = (array) $stage->jsonSerialize();
-            }
+            $stageData = $this->toArray(value: $stage);
 
             if (($stageData['outcome'] ?? '') === 'adopted' || ($stageData['status'] ?? '') === 'decided') {
                 // At least one signature stage is resolved.

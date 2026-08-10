@@ -19,7 +19,7 @@
  * @link https://conduction.nl
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
- * SPDX-License-Identifier: EUPL-1.2.
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/p4-integration/tasks.md#task-1
  * @spec openspec/changes/p4-integration/tasks.md#task-2
@@ -67,14 +67,30 @@ class ApiController extends Controller
         'persons'           => 'participant',
         'memberships'       => 'participant',
         'meetings'          => 'meeting',
-        'motions'           => 'motion',
+        'motions'           => 'decision',
         'voting-rounds'     => 'voting-round',
         'votes'             => 'vote',
         'agenda-items'      => 'agenda-item',
         'minutes'           => 'minutes',
         'decisions'         => 'decision',
         'action-items'      => 'action-item',
-        'amendments'        => 'amendment',
+        'amendments'        => 'decision',
+    ];
+
+    /**
+     * REST resource slugs sourced from the unified `decision` schema (ADR-005).
+     *
+     * `motion` and `amendment` are no longer schemas — they are `decisionType`
+     * discriminator values on `Decision`. The slug alone can no longer select
+     * the resource, so these entries carry the discriminator the list must
+     * filter on and the detail lookup must verify. `decisions` is deliberately
+     * absent: it is the whole supertype and is not narrowed by a type.
+     *
+     * @var array<string, string>
+     */
+    private const RESOURCE_DECISION_TYPES = [
+        'motions'    => 'motion',
+        'amendments' => 'amendment',
     ];
 
     /**
@@ -156,17 +172,25 @@ class ApiController extends Controller
         try {
             $objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
             $offset        = (($page - 1) * $limit);
-            $results       = $objectService->findAll(
+            $filters       = [
+                'register' => 'decidesk',
+                'schema'   => $schema,
+            ];
+            // ADR-005: /motions and /amendments are decisions narrowed by the
+            // decisionType discriminator, not by their own (retired) schema.
+            $decisionType = (self::RESOURCE_DECISION_TYPES[$resource] ?? null);
+            if ($decisionType !== null) {
+                $filters['decisionType'] = $decisionType;
+            }
+
+            $results = $objectService->findAll(
                 [
-                    'filters' => [
-                        'register' => 'decidesk',
-                        'schema'   => $schema,
-                    ],
+                    'filters' => $filters,
                     'limit'   => $limit,
                     'offset'  => $offset,
                 ]
             );
-            $total         = 0;
+            $total   = 0;
             if (is_array($results) === true) {
                 $total = count($results);
             }
@@ -221,10 +245,22 @@ class ApiController extends Controller
             if ($entity !== null) {
                 $object = $entity->jsonSerialize();
             }
+
+            // ADR-005: /motions/{id} and /amendments/{id} resolve through the
+            // unified decision schema, so the id alone no longer proves the
+            // resource type — a decision of the wrong type is Not Found here,
+            // exactly as it was when each type had its own schema.
+            $decisionType = (self::RESOURCE_DECISION_TYPES[$resource] ?? null);
+            if ($object !== null
+                && $decisionType !== null
+                && ($object['decisionType'] ?? null) !== $decisionType
+            ) {
+                $object = null;
+            }
         } catch (Throwable $e) {
             $this->logger->error(message: 'ApiController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
 
         if ($object === null) {
             return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);

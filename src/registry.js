@@ -26,11 +26,20 @@
 import LiveMeetingView from './views/LiveMeeting.vue'
 import DecisionIntegrations from './views/DecisionIntegrations.vue'
 import AgendaItemIntegrations from './views/AgendaItemIntegrations.vue'
+import MotionIntegrations from './views/MotionIntegrations.vue'
 
-// Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Eleven bespoke
-// CnDashboardPage slot components registered under kind: "widget". They are
-// NOT yet referenced from src/manifest.json — the follow-up config change
-// decidesk-dashboard-v2-layout inserts the widgets/layout/dataSources.
+// Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
+// slot components registered under kind: "widget".
+//
+// The follow-up config change decidesk-dashboard-v2-layout was supposed to
+// reference them from src/manifest.json, and only ever did so for six of them.
+// The other six .vue files sat in the tree ORPHANED: never imported here, never
+// named by a `slots` entry, therefore never mounted and never rendered — while
+// openspec/specs/dashboard/spec.md specifies each one by id, type and slot name.
+// A component that no slot maps to produces no markup and no warning, so the
+// dashboard simply rendered fewer widgets than the spec requires and nothing
+// anywhere said so. All twelve are registered below; manifest.json now carries
+// the matching `slots` entries.
 import CreateMeetingAction from './views/dashboard/widgets/CreateMeetingAction.vue'
 import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue'
 import DashboardQuickActions from './views/dashboard/widgets/DashboardQuickActions.vue'
@@ -39,6 +48,12 @@ import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWi
 import RunningProcessesWidget from './views/dashboard/widgets/RunningProcessesWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
 import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
+import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
+import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
+import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
+import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
+import RecentDecisionsWidget from './views/dashboard/widgets/RecentDecisionsWidget.vue'
+import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWidget.vue'
 
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
@@ -150,6 +165,11 @@ export default {
 	// linking is now held by the registry, not an {app}_email_links store.
 	DecisionIntegrations: page(DecisionIntegrations),
 	AgendaItemIntegrations: page(AgendaItemIntegrations),
+	// src/manifest.json page 15 names this component on the route
+	// /motions/:id/integrations, but nothing registered it — resolution fell
+	// through and the page rendered NOTHING. The component itself already
+	// existed; only the registration was missing.
+	MotionIntegrations: page(MotionIntegrations),
 
 	// --- Detail-tab components (one per cross-schema relation). ---
 	// Each lives in /components/tabs/. Full-CRUD (or read-only where
@@ -211,6 +231,28 @@ export default {
 	// state span wider.
 	PendingVotesKpiWidget: widget(PendingVotesKpiWidget, {
 		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+	}),
+	// The other three KPI cards of the spec'd four-card Row 1. Same geometry as
+	// PendingVotesKpiWidget above — they are the same kind of card.
+	ActiveDecisionsKpiWidget: widget(ActiveDecisionsKpiWidget, {
+		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+	}),
+	UpcomingMeetingsKpiWidget: widget(UpcomingMeetingsKpiWidget, {
+		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+	}),
+	OverdueActionsKpiWidget: widget(OverdueActionsKpiWidget, {
+		defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, allowedSlots: ['dashboard', 'kpi'],
+	}),
+	// List / chart widgets — same geometry as the already-registered
+	// PendingVotesListWidget they share a row with.
+	UpcomingMeetingsListWidget: widget(UpcomingMeetingsListWidget, {
+		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+	}),
+	RecentDecisionsWidget: widget(RecentDecisionsWidget, {
+		defaultSize: { w: 12, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
+	}),
+	GovernanceHealthWidget: widget(GovernanceHealthWidget, {
+		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],
 	}),
 	PendingVotesListWidget: widget(PendingVotesListWidget, {
 		defaultSize: { w: 6, h: 4 }, minSize: { w: 4, h: 3 }, maxSize: { w: 12, h: 8 }, allowedSlots: ['dashboard'],

@@ -3,14 +3,17 @@
 /**
  * Decidesk Metrics Controller
  *
- * Thin AppHost adopter: subclasses the OpenRegister AppHost
- * {@see \OCA\OpenRegister\AppHost\Controller\GenericMetricsController}, which
- * renders the manifest-declared Prometheus metrics (admin-only, ADR-006). The
- * subclass exists only to keep the `metrics#index` route target concrete
- * (gate-5 / gate-14) while the implementation lives in the generic. Decidesk
- * had no metrics endpoint before AppHost adoption; this is an additive
- * compliance upgrade serving the implicit `decidesk_info` / `decidesk_up`
- * gauges from the `observability` block of `src/manifest.json`.
+ * AppHost adopter by COMPOSITION, not inheritance: the OpenRegister AppHost
+ * metrics engine is resolved lazily out of the DI container by FQCN string and
+ * renders the manifest-declared Prometheus metrics (admin-only, ADR-006).
+ * Decidesk had no metrics endpoint before AppHost adoption; this serves the
+ * implicit `decidesk_info` / `decidesk_up` gauges from the `observability`
+ * block of `src/manifest.json`.
+ *
+ * ⚠️ This class MUST NOT `extends` — nor name in any resolved position — a
+ * class from another app. Nextcloud's router `ReflectionClass()`es every file
+ * in `lib/Controller/` while MATCHING a route, so an unresolvable parent makes
+ * EVERY route in decidesk return HTTP 500, not just this one. See decidesk#377.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -24,7 +27,7 @@
  * @link https://conduction.nl
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
- * SPDX-License-Identifier: EUPL-1.2.
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/adopt-apphost/tasks.md#task-2.1
  * @spec openspec/specs/apphost-adoption/spec.md
@@ -35,38 +38,97 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
-use OCA\OpenRegister\AppHost\Controller\GenericMetricsController;
-use OCA\OpenRegister\AppHost\Observability\ManifestLoader;
-use OCA\OpenRegister\AppHost\Observability\MetricsEngine;
+use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\TextPlainResponse;
 use OCP\IRequest;
+use Psr\Container\ContainerInterface;
 
 /**
- * Admin-only Prometheus metrics endpoint — delegates to the AppHost generic.
+ * Admin-only Prometheus metrics endpoint — drives the AppHost engine.
+ *
+ * No `#[NoAdminRequired]`: the absence of that attribute means NC requires an
+ * admin session, which is the intended ADR-006 posture for metrics. Anonymous
+ * callers get the NC login redirect / 401, never metric data.
  *
  * @spec openspec/specs/apphost-adoption/spec.md
  */
-class MetricsController extends GenericMetricsController
+class MetricsController extends Controller
 {
+
+    /**
+     * FQCN of the AppHost observability manifest loader.
+     *
+     * Referenced as a string, never imported: the class only exists when
+     * openregister is installed.
+     *
+     * @var string
+     */
+    private const MANIFEST_LOADER = 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader';
+
+    /**
+     * FQCN of the AppHost Prometheus metrics engine.
+     *
+     * Referenced as a string, never imported: the class only exists when
+     * openregister is installed.
+     *
+     * @var string
+     */
+    private const METRICS_ENGINE = 'OCA\\OpenRegister\\AppHost\\Observability\\MetricsEngine';
+
+    /**
+     * Prometheus text exposition content type (mirrors the engine's renderer).
+     *
+     * @var string
+     */
+    private const CONTENT_TYPE = 'text/plain; version=0.0.4; charset=utf-8';
+
     /**
      * Constructor.
      *
-     * @param IRequest       $request        The request object.
-     * @param ManifestLoader $manifestLoader Loads the observability config.
-     * @param MetricsEngine  $engine         Renders the Prometheus exposition.
+     * @param IRequest           $request   The request object.
+     * @param ContainerInterface $container DI container — resolves the AppHost engine lazily.
      *
      * @return void
      */
     public function __construct(
         IRequest $request,
-        ManifestLoader $manifestLoader,
-        MetricsEngine $engine,
+        private readonly ContainerInterface $container,
     ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request,
-            manifestLoader: $manifestLoader,
-            engine: $engine
-        );
+        parent::__construct(appName: Application::APP_ID, request: $request);
 
     }//end __construct()
+
+    /**
+     * GET /api/metrics — declarative Prometheus metrics (admin-only, ADR-006).
+     *
+     * Returns HTTP 503 with a Prometheus comment line when the AppHost engine
+     * is unavailable (openregister absent or disabled) — never a 500.
+     *
+     * @return TextPlainResponse Prometheus text exposition 0.0.4.
+     *
+     * @spec openspec/specs/apphost-adoption/spec.md
+     */
+    #[NoCSRFRequired]
+    public function index(): TextPlainResponse
+    {
+        try {
+            $manifestLoader = $this->container->get(self::MANIFEST_LOADER);
+            $engine         = $this->container->get(self::METRICS_ENGINE);
+
+            $manifest = $manifestLoader->load(appId: $this->appName);
+            $body     = (string) $engine->render(manifest: $manifest);
+            $status   = Http::STATUS_OK;
+        } catch (\Throwable $e) {
+            $body   = '# metrics unavailable: the OpenRegister AppHost observability engine is not installed'."\n";
+            $status = Http::STATUS_SERVICE_UNAVAILABLE;
+        }//end try
+
+        $response = new TextPlainResponse($body, $status);
+        $response->addHeader('Content-Type', self::CONTENT_TYPE);
+
+        return $response;
+
+    }//end index()
 }//end class

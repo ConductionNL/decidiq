@@ -19,7 +19,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
@@ -27,15 +27,14 @@ namespace OCA\Decidesk\Controller;
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\MeetingPackageService;
+use OCA\Decidesk\Service\MeetingRoleGate;
 use OCA\Decidesk\Service\MeetingSeriesService;
 use OCA\Decidesk\Service\MeetingService;
-use OCA\Decidesk\Service\ParticipantResolver;
 use OCA\Decidesk\Service\ProofPackageService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -73,14 +72,13 @@ class MeetingController extends Controller
     /**
      * Constructor for MeetingController.
      *
-     * @param IRequest              $request               The HTTP request
-     * @param MeetingService        $meetingService        The meeting service
-     * @param MeetingSeriesService  $meetingSeriesService  Recurring-series generation service
-     * @param MeetingPackageService $meetingPackageService Document package assembly service
-     * @param IUserSession          $userSession           The user session
-     * @param IGroupManager         $groupManager          Group manager for the NC-admin fallback
-     * @param ParticipantResolver   $participantResolver   Meeting-role resolver (chair/secretary gate)
-     * @param ProofPackageService   $proofPackageService   Notarial proof package assembly
+     * @param IRequest              $request              The HTTP request
+     * @param MeetingService        $meetingService       The meeting service
+     * @param MeetingSeriesService  $meetingSeriesService Recurring-series generation service
+     * @param MeetingPackageService $packageService       Document package assembly service
+     * @param IUserSession          $userSession          The user session
+     * @param MeetingRoleGate       $roleGate             Chair/secretary authorization (NC-admin fallback)
+     * @param ProofPackageService   $proofPackageService  Notarial proof package assembly
      *
      * @return void
      */
@@ -88,10 +86,9 @@ class MeetingController extends Controller
         IRequest $request,
         private readonly MeetingService $meetingService,
         private readonly MeetingSeriesService $meetingSeriesService,
-        private readonly MeetingPackageService $meetingPackageService,
+        private readonly MeetingPackageService $packageService,
         private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-        private readonly ParticipantResolver $participantResolver,
+        private readonly MeetingRoleGate $roleGate,
         private readonly ProofPackageService $proofPackageService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
@@ -180,13 +177,7 @@ class MeetingController extends Controller
 
         $userId = $user->getUID();
 
-        if ($this->groupManager->isAdmin($userId) === false
-            && $this->participantResolver->hasRole(
-                meetingId: $id,
-                nextcloudUid: $userId,
-                roles: ['chair', 'secretary'],
-            ) === false
-        ) {
+        if ($this->roleGate->isChairOrSecretary(meetingId: $id, userId: $userId) === false) {
             return new JSONResponse(
                 ['message' => 'Forbidden: chair or secretary role required to generate a proof package.'],
                 Http::STATUS_FORBIDDEN
@@ -298,7 +289,7 @@ class MeetingController extends Controller
         // Per-object guard (OWASP A01 / ADR-005): MeetingPackageService loads the
         // meeting via ObjectService::find() — OpenRegister RBAC returns null for
         // callers without read access, which surfaces as a 422 "Meeting not found".
-        $result = $this->meetingPackageService->assemble(meetingId: $id, userId: $user->getUID());
+        $result = $this->packageService->assemble(meetingId: $id, userId: $user->getUID());
 
         if ($result['success'] === false) {
             return new JSONResponse(

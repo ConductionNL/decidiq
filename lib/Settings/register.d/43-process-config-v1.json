@@ -391,6 +391,9 @@
         "version": "0.1.0",
         "title": "ProcessTemplate",
         "description": "A reusable governance process template: the state machine, default voting rule, and quorum policy a governance body follows for its decisions and meetings.",
+        "configuration": {
+          "x-openregister-shareable": true
+        },
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:ProcessTemplate",

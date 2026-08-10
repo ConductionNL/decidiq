@@ -27,7 +27,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import { cleanupAll, createObject, newLedger, objId, type SeedLedger } from '../workflows/governance-fixture'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 let ledger: SeedLedger
 let meetingId = ''
@@ -135,7 +135,11 @@ test('live meeting: action-item capture shortcut creates a tracked action item',
 	const modal = page.getByTestId('minutes-action-item-modal')
 	await expect(modal).toBeVisible()
 	const actionTitle = `e2e-minutes-${ledger.runId} prepare budget proposal`
-	await modal.getByTestId('minutes-action-item-title').locator('input').fill(actionTitle)
+	// @nextcloud/vue v9: NcInputField (NcTextField's root) declares
+	// `inheritAttrs: false` and spreads `$attrs` onto the inner <input>, so a
+	// `data-testid` written on <NcTextField> lands ON the input element — there is
+	// no input DESCENDANT of the test id to target.
+	await modal.getByTestId('minutes-action-item-title').fill(actionTitle)
 	await modal.getByTestId('minutes-action-item-save').click()
 	await expect(modal).not.toBeVisible({ timeout: 10_000 })
 
@@ -174,7 +178,9 @@ test('approval tab: submit for review, then reject back to draft with a mandator
 	const rejectModal = page.getByTestId('minutes-reject-modal')
 	await expect(rejectModal).toBeVisible()
 	await expect(rejectModal.getByTestId('minutes-reject-confirm')).toBeDisabled()
-	await rejectModal.getByTestId('minutes-reject-comment').locator('textarea').fill('Attendance list incomplete')
+	// NcTextArea (v9) also spreads $attrs onto the inner <textarea>, so the test
+	// id IS the textarea — see the NcTextField note above.
+	await rejectModal.getByTestId('minutes-reject-comment').fill('Attendance list incomplete')
 	await rejectModal.getByTestId('minutes-reject-confirm').click()
 
 	// Back in draft: the rejection comment is surfaced and submit is offered again.
@@ -194,7 +200,7 @@ test('approval tab: participants can suggest corrections and the chair resolves 
 	const modal = page.getByTestId('minutes-correction-modal')
 	await expect(modal).toBeVisible()
 	await expect(modal.getByTestId('minutes-correction-confirm')).toBeDisabled()
-	await modal.getByTestId('minutes-correction-text').locator('textarea')
+	await modal.getByTestId('minutes-correction-text')
 		.fill('The vote count for item 5 should read 12 in favour')
 	await modal.getByTestId('minutes-correction-confirm').click()
 

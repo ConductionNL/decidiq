@@ -132,47 +132,19 @@ class ActionItemExtractionService
             $savedCount = 0;
 
             foreach ($confirmed as $candidate) {
-                $title = $candidate['title'] ?? null;
-                if (empty($title) === true) {
+                $actionItem = $this->buildActionItem(minutesId: $minutesId, candidate: $candidate);
+                if ($actionItem === null) {
                     continue;
-                }
-
-                $actionItem = [
-                    'title'      => $title,
-                    'taskStatus' => 'open',
-                    'relations'  => [
-                        'Minutes' => [$minutesId],
-                    ],
-                ];
-
-                if (empty($candidate['assignee']) === false) {
-                    $actionItem['assignee'] = $candidate['assignee'];
-                }
-
-                if (empty($candidate['dueDate']) === false) {
-                    // Accept only ISO-8601 date strings to prevent strtotime relative-expression injection
-                    // (e.g. "yesterday", "next Monday") that produce silently wrong deadline values.
-                    $isoDatePattern = '/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?Z?)?$/';
-                    $isValidDate    = preg_match($isoDatePattern, (string) $candidate['dueDate']) === 1;
-                    if ($isValidDate === false) {
-                        $this->logger->warning(
-                            'ActionItemExtractionService: rejected non-ISO-8601 dueDate',
-                            ['dueDate' => $candidate['dueDate']]
-                        );
-                    }
-
-                    if ($isValidDate === true) {
-                        $actionItem['dueDate'] = $candidate['dueDate'];
-                    }
                 }
 
                 try {
                     $created = $writer->create(item: $actionItem);
-                    if ($created !== null) {
-                        $savedCount++;
-                    } else {
+                    if ($created === null) {
                         $this->logger->warning('Failed to save ActionItem VTODO for minutes '.$minutesId);
+                        continue;
                     }
+
+                    $savedCount++;
                 } catch (\Exception $e) {
                     $this->logger->warning("Failed to save ActionItem: ".$e->getMessage());
                 }
@@ -186,6 +158,58 @@ class ActionItemExtractionService
             return 0;
         }//end try
     }//end saveExtracted()
+
+    /**
+     * Build the ActionItem payload for one confirmed candidate.
+     *
+     * Only ISO-8601 `dueDate` strings are accepted, to prevent strtotime
+     * relative-expression injection (e.g. "yesterday", "next Monday") that
+     * would produce silently wrong deadline values.
+     *
+     * @param string $minutesId The Minutes ID the item links back to
+     * @param array  $candidate Confirmed candidate: { title, assignee?, dueDate? }
+     *
+     * @return array|null The ActionItem payload, or null when the candidate has no title
+     *
+     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
+     */
+    private function buildActionItem(string $minutesId, array $candidate): ?array
+    {
+        $title = $candidate['title'] ?? null;
+        if (empty($title) === true) {
+            return null;
+        }
+
+        $actionItem = [
+            'title'      => $title,
+            'taskStatus' => 'open',
+            'relations'  => [
+                'Minutes' => [$minutesId],
+            ],
+        ];
+
+        if (empty($candidate['assignee']) === false) {
+            $actionItem['assignee'] = $candidate['assignee'];
+        }
+
+        if (empty($candidate['dueDate']) === true) {
+            return $actionItem;
+        }
+
+        $isoDatePattern = '/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?Z?)?$/';
+        if (preg_match($isoDatePattern, (string) $candidate['dueDate']) !== 1) {
+            $this->logger->warning(
+                'ActionItemExtractionService: rejected non-ISO-8601 dueDate',
+                ['dueDate' => $candidate['dueDate']]
+            );
+            return $actionItem;
+        }
+
+        $actionItem['dueDate'] = $candidate['dueDate'];
+
+        return $actionItem;
+
+    }//end buildActionItem()
 
     /**
      * Extract a suggested assignee name from the line text.

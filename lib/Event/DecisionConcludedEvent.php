@@ -59,6 +59,18 @@ class DecisionConcludedEvent extends Event
      * @param string|null       $subjectId         OpenRegister id of the originating object
      * @param string            $externalReference Consumer's own reference
      * @param string            $correlationId     Correlation id from the request event
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList) This parameter list is a
+     * PUBLISHED CROSS-APP CONTRACT, not an internal signature. Consumer apps
+     * mirror it verbatim and construct the event POSITIONALLY — see procest
+     * tests/Stubs/Decidesk/Event/DecisionConcludedEvent.php (a byte-for-byte
+     * mirror of this constructor) and
+     * procest tests/Unit/Listener/DecisionConcludedListenerTest.php, which
+     * builds the event with all fourteen arguments in this exact order.
+     * Grouping the parameters into value objects would break those consumers at
+     * runtime and cannot be done from this repository alone; it needs a
+     * coordinated, versioned change to the decidesk-decision-events contract. See
+     * openspec/specs/decidesk-decision-events/spec.md.
      */
     public function __construct(
         private readonly string $decisionId,

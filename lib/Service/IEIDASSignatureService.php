@@ -28,7 +28,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -80,11 +80,11 @@ interface IEIDASSignatureService
     /**
      * Verify the certificate chain against the EU eIDAS Trusted List.
      *
-     * @param string $certificateThumbprint SHA-256 thumbprint of the cert
+     * @param string $certThumbprint SHA-256 thumbprint of the cert
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
      *
      * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
      */
-    public function validateCertificateChain(string $certificateThumbprint): array;
+    public function validateCertificateChain(string $certThumbprint): array;
 }//end interface

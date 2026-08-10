@@ -19,7 +19,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
@@ -139,20 +139,11 @@ class EngagementController extends Controller
         // OWASP A01 — verify participant identity matches the authenticated session.
         // Admins, and the meeting's chair/secretary, may record engagement for any
         // participant; everyone else may only record for their own participant record.
-        $callerUid    = $user->getUID();
-        $isPrivileged = ($this->groupManager->isAdmin($callerUid) === true)
-            || ($this->participantResolver->hasRole(
-                meetingId: $meeting,
-                nextcloudUid: $callerUid,
-                roles: ['chair', 'secretary']
-            ) === true);
-        if ($isPrivileged === false) {
-            $callerParticipantId = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
-            if ($callerParticipantId === null || $callerParticipantId !== $participant) {
-                return new JSONResponse(
-                    ['message' => 'You may only record engagement for your own participant record.'],
-                    Http::STATUS_FORBIDDEN
-                );
+        $callerUid = $user->getUID();
+        if ($this->mayRecordForOthers(callerUid: $callerUid, meetingId: $meeting) === false) {
+            $denied = $this->denyForeignParticipant(callerUid: $callerUid, participant: $participant);
+            if ($denied !== null) {
+                return $denied;
             }
         }
 
@@ -171,6 +162,62 @@ class EngagementController extends Controller
         }
 
     }//end capture()
+
+    /**
+     * Decide whether the caller may record engagement for any participant.
+     *
+     * NC admins (the original p4 fallback) and the meeting's chair/secretary
+     * (meeting-efficiency widening) may log every speech; everyone else is
+     * restricted to their own participant record.
+     *
+     * @param string $callerUid Nextcloud UID of the authenticated caller
+     * @param string $meetingId Meeting UUID the engagement belongs to
+     *
+     * @return bool True when the caller may record for other participants
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+     * @spec openspec/specs/meeting-efficiency/spec.md
+     */
+    private function mayRecordForOthers(string $callerUid, string $meetingId): bool
+    {
+        if ($this->groupManager->isAdmin($callerUid) === true) {
+            return true;
+        }
+
+        return ($this->participantResolver->hasRole(
+            meetingId: $meetingId,
+            nextcloudUid: $callerUid,
+            roles: ['chair', 'secretary']
+        ) === true);
+
+    }//end mayRecordForOthers()
+
+    /**
+     * Refuse an unprivileged caller recording for someone else's participant record.
+     *
+     * OWASP A01:2021 — prevents accountability record spoofing.
+     *
+     * @param string $callerUid   Nextcloud UID of the authenticated caller
+     * @param string $participant The participant UUID the caller is recording for
+     *
+     * @return JSONResponse|null A 403 response, or null when the record is the caller's own
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+     * @spec openspec/specs/meeting-efficiency/spec.md
+     */
+    private function denyForeignParticipant(string $callerUid, string $participant): ?JSONResponse
+    {
+        $callerParticipantId = $this->resolveParticipantUuid(nextcloudUid: $callerUid);
+        if ($callerParticipantId === null || $callerParticipantId !== $participant) {
+            return new JSONResponse(
+                ['message' => 'You may only record engagement for your own participant record.'],
+                Http::STATUS_FORBIDDEN
+            );
+        }
+
+        return null;
+
+    }//end denyForeignParticipant()
 
     /**
      * List engagement records for a meeting.

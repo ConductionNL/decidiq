@@ -338,10 +338,21 @@ class RegisterJsonTest extends TestCase
     {
         $schema = $this->schemas['Decision'];
 
+        // `decisionDate` and `outcome` are deliberately NOT here. They are
+        // required only in terminal states (decided/enacted/archived); an
+        // in-flight motion has neither, and listing them unconditionally made
+        // OpenRegister refuse to create one at all
+        // ("400 The required properties (decisionDate, outcome) are missing").
+        // The completeness rule is enforced at the transition boundary instead —
+        // see DecisionTransitionGuard::getMissingTerminalFields().
         self::assertSame(
-            expected: ['title', 'text', 'decisionDate', 'outcome', 'decisionType'],
+            expected: ['title', 'text', 'decisionType'],
             actual: $schema['required']
         );
+
+        // The relaxation must stay documented on the schema itself, so a future
+        // reader does not "restore" the unconditional requirement.
+        self::assertArrayHasKey(key: 'x-decidesk-terminal-completeness', array: $schema);
 
         // The decisionType discriminator folds in the former standalone schemas.
         $decisionType = $schema['properties']['decisionType']['enum'];
@@ -463,6 +474,81 @@ class RegisterJsonTest extends TestCase
         }//end foreach
 
     }//end testSeedDataPresent()
+
+    /**
+     * The shipped decision seeds obey the rule the schema can no longer state.
+     *
+     * Relaxing `required[]` is what lets an in-flight motion exist; it must not
+     * become a licence to ship a decided decision with no result. Every seed in
+     * a terminal outcome state carries `outcome` (from the schema enum) and
+     * `decisionDate`; every in-flight seed carries neither, so the demo data
+     * actually demonstrates the case that used to be refused.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/decision-management/spec.md
+     */
+    public function testDecisionSeedsRespectTerminalCompleteness(): void
+    {
+        $seeds = ($this->register['x-openregister']['seedData']['objects']['decision'] ?? []);
+        self::assertNotEmpty(actual: $seeds, message: 'Register must seed decision objects');
+
+        $terminalStates = ['decided', 'enacted', 'archived'];
+        $outcomeEnum    = $this->schemas['Decision']['properties']['outcome']['enum'];
+
+        $inFlightSeen = 0;
+        $terminalSeen = 0;
+
+        foreach ($seeds as $seed) {
+            $slug      = ($seed['slug'] ?? '?');
+            $lifecycle = ($seed['lifecycle'] ?? null);
+
+            if ($lifecycle !== null && in_array($lifecycle, $terminalStates, true) === true) {
+                $terminalSeen++;
+                self::assertContains(
+                    needle: ($seed['outcome'] ?? null),
+                    haystack: $outcomeEnum,
+                    message: "Terminal seed '{$slug}' (lifecycle {$lifecycle}) must record an outcome from the schema enum"
+                );
+                self::assertNotEmpty(
+                    actual: ($seed['decisionDate'] ?? ''),
+                    message: "Terminal seed '{$slug}' (lifecycle {$lifecycle}) must record a decisionDate"
+                );
+                continue;
+            }
+
+            if ($lifecycle === null) {
+                // Seeds that never declare a lifecycle are not asserted either way.
+                continue;
+            }
+
+            $inFlightSeen++;
+            self::assertArrayNotHasKey(
+                key: 'outcome',
+                array: $seed,
+                message: "In-flight seed '{$slug}' (lifecycle {$lifecycle}) must NOT carry an outcome — "
+                    .'lifecycle and outcome are orthogonal (ADR-005) and there is no placeholder value in the enum'
+            );
+            self::assertArrayNotHasKey(
+                key: 'decisionDate',
+                array: $seed,
+                message: "In-flight seed '{$slug}' (lifecycle {$lifecycle}) must NOT carry a decisionDate"
+            );
+        }//end foreach
+
+        self::assertGreaterThan(
+            expected: 0,
+            actual: $terminalSeen,
+            message: 'The seeds must include at least one terminal decision'
+        );
+        self::assertGreaterThan(
+            expected: 0,
+            actual: $inFlightSeen,
+            message: 'The seeds must include at least one IN-FLIGHT decision — that is the case this change unblocks, '
+                .'and without one the register would never exercise it'
+        );
+
+    }//end testDecisionSeedsRespectTerminalCompleteness()
 
     /**
      * Guard the phantom: the out-of-vocabulary seed annotation must never come back.

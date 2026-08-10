@@ -27,6 +27,7 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\MeetingController;
 use OCA\Decidesk\Exception\MissingObjectException;
 use OCA\Decidesk\Service\MeetingPackageService;
+use OCA\Decidesk\Service\MeetingRoleGate;
 use OCA\Decidesk\Service\MeetingSeriesService;
 use OCA\Decidesk\Service\MeetingService;
 use OCA\Decidesk\Service\ParticipantResolver;
@@ -142,10 +143,12 @@ class MeetingControllerTest extends TestCase
             request: $this->request,
             meetingService: $this->meetingService,
             meetingSeriesService: $this->seriesService,
-            meetingPackageService: $this->packageService,
+            packageService: $this->packageService,
             userSession: $this->userSession,
-            groupManager: $this->groupManager,
-            participantResolver: $this->participantResolver,
+            roleGate: new MeetingRoleGate(
+                groupManager: $this->groupManager,
+                participantResolver: $this->participantResolver
+            ),
             proofPackageService: $this->proofPackageService,
         );
 
@@ -276,10 +279,12 @@ class MeetingControllerTest extends TestCase
             request: $this->request,
             meetingService: $this->meetingService,
             meetingSeriesService: $this->seriesService,
-            meetingPackageService: $this->packageService,
+            packageService: $this->packageService,
             userSession: $unauthSession,
-            groupManager: $this->groupManager,
-            participantResolver: $this->participantResolver,
+            roleGate: new MeetingRoleGate(
+                groupManager: $this->groupManager,
+                participantResolver: $this->participantResolver
+            ),
             proofPackageService: $this->proofPackageService,
         );
 
@@ -391,10 +396,12 @@ class MeetingControllerTest extends TestCase
             request: $this->request,
             meetingService: $this->meetingService,
             meetingSeriesService: $this->seriesService,
-            meetingPackageService: $this->packageService,
+            packageService: $this->packageService,
             userSession: $unauthSession,
-            groupManager: $this->groupManager,
-            participantResolver: $this->participantResolver,
+            roleGate: new MeetingRoleGate(
+                groupManager: $this->groupManager,
+                participantResolver: $this->participantResolver
+            ),
             proofPackageService: $this->proofPackageService,
         );
 
@@ -513,10 +520,12 @@ class MeetingControllerTest extends TestCase
             request: $this->request,
             meetingService: $this->meetingService,
             meetingSeriesService: $this->seriesService,
-            meetingPackageService: $this->packageService,
+            packageService: $this->packageService,
             userSession: $unauthSession,
-            groupManager: $this->groupManager,
-            participantResolver: $this->participantResolver,
+            roleGate: new MeetingRoleGate(
+                groupManager: $this->groupManager,
+                participantResolver: $this->participantResolver
+            ),
             proofPackageService: $this->proofPackageService,
         );
 
@@ -623,10 +632,12 @@ class MeetingControllerTest extends TestCase
             request: $this->request,
             meetingService: $this->meetingService,
             meetingSeriesService: $this->seriesService,
-            meetingPackageService: $this->packageService,
+            packageService: $this->packageService,
             userSession: $unauthSession,
-            groupManager: $this->groupManager,
-            participantResolver: $this->participantResolver,
+            roleGate: new MeetingRoleGate(
+                groupManager: $this->groupManager,
+                participantResolver: $this->participantResolver
+            ),
             proofPackageService: $this->proofPackageService,
         );
 

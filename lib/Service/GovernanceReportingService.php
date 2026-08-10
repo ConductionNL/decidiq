@@ -22,7 +22,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -80,67 +80,20 @@ class GovernanceReportingService
         $start = $year.'-01-01T00:00:00Z';
         $end   = $year.'-12-31T23:59:59Z';
 
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-
-            $meetings    = $this->normalize(
-                rows: $objectService->findAll(
-                    [
-                        'register' => 'decidesk',
-                        'schema'   => 'meeting',
-                        'filters'  => ['boardKoppeling' => $boardId],
-                        'limit'    => 5000,
-                    ]
-                )
-            );
-            $resolutions = $this->normalize(
-                rows: $objectService->findAll(
-                    [
-                        'register' => 'decidesk',
-                        'schema'   => 'decision',
-                        'limit'    => 5000,
-                    ]
-                )
-            );
-            $votes       = $this->normalize(
-                rows: $objectService->findAll(
-                    [
-                        'register' => 'decidesk',
-                        'schema'   => 'vote',
-                        'limit'    => 50000,
-                    ]
-                )
-            );
-            $members     = $this->normalize(
-                rows: $objectService->findAll(
-                    [
-                        'register' => 'decidesk',
-                        'schema'   => 'membership',
-                        'filters'  => ['boardKoppeling' => $boardId],
-                        'limit'    => 1000,
-                    ]
-                )
-            );
-            $conflicts   = $this->normalize(
-                rows: $objectService->findAll(
-                    [
-                        'register' => 'decidesk',
-                        'schema'   => 'conflict-of-interest',
-                        'limit'    => 5000,
-                    ]
-                )
-            );
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                'Decidesk: GovernanceReportingService::generateAnnualReport failed',
-                ['exception' => $e->getMessage()]
-            );
+        $data = $this->loadGovernanceData(boardId: $boardId);
+        if ($data === null) {
             return [
                 'success' => false,
                 'report'  => null,
                 'message' => 'Failed to load governance data.',
             ];
-        }//end try
+        }
+
+        $meetings    = $data['meetings'];
+        $resolutions = $data['resolutions'];
+        $votes       = $data['votes'];
+        $members     = $data['members'];
+        $conflicts   = $data['conflicts'];
 
         $meetingsInYear      = $this->filterByDate(rows: $meetings, field: 'meetingDate', start: $start, end: $end);
         $meetingIdsInYear    = array_column($meetingsInYear, 'id');
@@ -188,31 +141,122 @@ class GovernanceReportingService
             'generatedAt'       => gmdate('Y-m-d\TH:i:s\Z'),
         ];
 
+        return [
+            'success' => true,
+            'report'  => $this->persistReport(report: $report),
+            'message' => 'Annual report generated.',
+        ];
+
+    }//end generateAnnualReport()
+
+    /**
+     * Load every governance rowset the annual report is computed from.
+     *
+     * @param string $boardId UUID of the board
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+     *
+     * @return array<string, array<int, array<string, mixed>>>|null Rowsets keyed
+     *         by meetings/resolutions/votes/members/conflicts, or null on failure
+     */
+    private function loadGovernanceData(string $boardId): ?array
+    {
         try {
-            $saved   = $objectService->saveObject(
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+
+            return [
+                'meetings'    => $this->normalize(
+                    rows: $objectService->findAll(
+                        [
+                            'register' => 'decidesk',
+                            'schema'   => 'meeting',
+                            'filters'  => ['boardKoppeling' => $boardId],
+                            'limit'    => 5000,
+                        ]
+                    )
+                ),
+                'resolutions' => $this->normalize(
+                    rows: $objectService->findAll(
+                        [
+                            'register' => 'decidesk',
+                            'schema'   => 'decision',
+                            'limit'    => 5000,
+                        ]
+                    )
+                ),
+                'votes'       => $this->normalize(
+                    rows: $objectService->findAll(
+                        [
+                            'register' => 'decidesk',
+                            'schema'   => 'vote',
+                            'limit'    => 50000,
+                        ]
+                    )
+                ),
+                'members'     => $this->normalize(
+                    rows: $objectService->findAll(
+                        [
+                            'register' => 'decidesk',
+                            'schema'   => 'membership',
+                            'filters'  => ['boardKoppeling' => $boardId],
+                            'limit'    => 1000,
+                        ]
+                    )
+                ),
+                'conflicts'   => $this->normalize(
+                    rows: $objectService->findAll(
+                        [
+                            'register' => 'decidesk',
+                            'schema'   => 'conflict-of-interest',
+                            'limit'    => 5000,
+                        ]
+                    )
+                ),
+            ];
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                'Decidesk: GovernanceReportingService::generateAnnualReport failed',
+                ['exception' => $e->getMessage()]
+            );
+            return null;
+        }//end try
+
+    }//end loadGovernanceData()
+
+    /**
+     * Persist the report row; returns the saved payload, or the input on failure.
+     *
+     * A failed bookkeeping write must not fail the generation itself, so the
+     * in-memory report is handed back unchanged when persistence throws.
+     *
+     * @param array<string, mixed> $report The generated report payload
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+     *
+     * @return array<string, mixed> The persisted payload or the input report
+     */
+    private function persistReport(array $report): array
+    {
+        try {
+            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+            $saved         = $objectService->saveObject(
                 object: $report,
                 register: 'decidesk',
                 schema: self::SCHEMA
             );
-            $payload = $report;
             if (is_object($saved) === true) {
-                $payload = (array) $saved->jsonSerialize();
+                return (array) $saved->jsonSerialize();
             }
         } catch (\Throwable $e) {
             $this->logger->warning(
                 'Decidesk: GovernanceReportingService failed to persist report',
                 ['exception' => $e->getMessage()]
             );
-            $payload = $report;
-        }
+        }//end try
 
-        return [
-            'success' => true,
-            'report'  => $payload,
-            'message' => 'Annual report generated.',
-        ];
+        return $report;
 
-    }//end generateAnnualReport()
+    }//end persistReport()
 
     /**
      * Export a previously generated report.
@@ -420,12 +464,12 @@ class GovernanceReportingService
             array_filter(
                 $rows,
                 static function (array $row) use ($field, $start, $end): bool {
-                    $ts = (string) ($row[$field] ?? '');
-                    if ($ts === '') {
+                    $timestamp = (string) ($row[$field] ?? '');
+                    if ($timestamp === '') {
                         return false;
                     }
 
-                    return ($ts >= $start && $ts <= $end);
+                    return ($timestamp >= $start && $timestamp <= $end);
                 }
             )
         );

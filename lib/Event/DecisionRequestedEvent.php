@@ -71,6 +71,20 @@ class DecisionRequestedEvent extends Event
      * @param array<string, mixed> $payload           Additional decision body fields (title/text/...)
      * @param string               $externalReference Consumer's own reference (idempotency/linking)
      * @param string               $correlationId     Correlation id echoed on the conclusion event
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList) This parameter list is a
+     * PUBLISHED CROSS-APP CONTRACT, not an internal signature. Consumer apps
+     * construct the event POSITIONALLY through a class-string so they stay
+     * installable without decidesk — see procest
+     * lib/Service/ContractDecisionDelegationService.php, which resolves
+     * `\OCA\Decidesk\Event\DecisionRequestedEvent` via `class_exists()` and then
+     * calls `new $eventClass(...)` with all ten arguments in this exact order
+     * (its own comment records the order), and mirrors the signature in
+     * procest tests/Stubs/Decidesk/Event/DecisionRequestedEvent.php. Grouping
+     * the parameters into a value object would silently break every consumer at
+     * runtime and cannot be done from this repository alone; it needs a
+     * coordinated, versioned change to the decidesk-decision-events contract. See
+     * openspec/specs/decidesk-decision-events/spec.md.
      */
     public function __construct(
         private readonly string $sourceApp,

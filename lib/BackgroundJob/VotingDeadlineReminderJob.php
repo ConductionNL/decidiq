@@ -71,6 +71,10 @@ class VotingDeadlineReminderJob extends TimedJob
      * @spec openspec/specs/nextcloud-integration/spec.md
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
+     * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with
+     * no argument, so the parameter cannot be removed.
      */
     protected function run(mixed $argument): void
     {

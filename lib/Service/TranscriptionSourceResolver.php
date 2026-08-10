@@ -188,10 +188,14 @@ class TranscriptionSourceResolver
 
         $sources = [];
         foreach ($recordings as $recording) {
+            $path = '';
+            $name = '';
             if (is_array($recording) === true) {
                 $path = (string) ($recording['path'] ?? '');
                 $name = (string) ($recording['name'] ?? basename($path));
-            } else {
+            }
+
+            if (is_array($recording) === false) {
                 $path = (string) $recording;
                 $name = basename($path);
             }
@@ -205,7 +209,7 @@ class TranscriptionSourceResolver
                 'path' => $path,
                 'name' => $name,
             ];
-        }
+        }//end foreach
 
         return $sources;
 

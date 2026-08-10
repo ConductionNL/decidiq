@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -113,15 +114,36 @@ class DashboardWidgetService
             return 0;
         }
 
+        $openRoundIds = $this->collectOpenRoundIds(objectService: $objectService);
+        if (count($openRoundIds) === 0) {
+            return 0;
+        }
+
+        // Remove rounds this user's participant record has already voted in.
+        $remaining = $this->withoutVotedRounds(
+            objectService: $objectService,
+            openRoundIds: $openRoundIds,
+            participantIds: $participantIds
+        );
+
+        return count($remaining);
+
+    }//end countPendingVotes()
+
+    /**
+     * Collect the ids of every voting-round that is still open.
+     *
+     * @param object $objectService OpenRegister ObjectService instance
+     *
+     * @spec openspec/specs/dashboard/spec.md
+     *
+     * @return array<string, true> Open round ids as keys
+     */
+    private function collectOpenRoundIds(object $objectService): array
+    {
         $openRoundIds = [];
         foreach ($this->fetch(objectService: $objectService, schema: 'voting-round') as $round) {
-            $isOpen = (($round['closedAt'] ?? '') === '' || ($round['closedAt'] ?? null) === null);
-            if ($isOpen === false) {
-                continue;
-            }
-
-            $lifecycle = (string) ($round['lifecycle'] ?? 'open');
-            if ($lifecycle !== '' && $lifecycle !== 'open') {
+            if ($this->isRoundOpen(round: $round) === false) {
                 continue;
             }
 
@@ -131,14 +153,47 @@ class DashboardWidgetService
             }
         }
 
-        if (count($openRoundIds) === 0) {
-            return 0;
+        return $openRoundIds;
+
+    }//end collectOpenRoundIds()
+
+    /**
+     * Whether a voting-round row is still open for votes.
+     *
+     * @param array<string, mixed> $round The voting-round payload
+     *
+     * @spec openspec/specs/dashboard/spec.md
+     *
+     * @return bool True when the round has no closedAt and an open lifecycle
+     */
+    private function isRoundOpen(array $round): bool
+    {
+        $closedAt = ($round['closedAt'] ?? null);
+        if ($closedAt !== null && $closedAt !== '') {
+            return false;
         }
 
-        // Remove rounds this user's participant record has already voted in.
+        return in_array((string) ($round['lifecycle'] ?? 'open'), ['', 'open'], true);
+
+    }//end isRoundOpen()
+
+    /**
+     * Drop the rounds the given participant records have already voted in.
+     *
+     * @param object              $objectService  OpenRegister ObjectService instance
+     * @param array<string, true> $openRoundIds   Open round ids as keys
+     * @param string[]            $participantIds Participant record ids for the current user
+     *
+     * @spec openspec/specs/dashboard/spec.md
+     *
+     * @return array<string, true> The rounds still awaiting the user's vote
+     */
+    private function withoutVotedRounds(object $objectService, array $openRoundIds, array $participantIds): array
+    {
         foreach ($this->fetch(objectService: $objectService, schema: 'vote') as $vote) {
+            // Participant ids are never '', so a blank ref can never match.
             $participant = $this->refId(ref: $vote['participant'] ?? null);
-            if ($participant === '' || in_array($participant, $participantIds, true) === false) {
+            if (in_array($participant, $participantIds, true) === false) {
                 continue;
             }
 
@@ -148,9 +203,9 @@ class DashboardWidgetService
             }
         }
 
-        return count($openRoundIds);
+        return $openRoundIds;
 
-    }//end countPendingVotes()
+    }//end withoutVotedRounds()
 
     /**
      * Resolve the soonest future lifecycle=scheduled meeting the user is in.
@@ -170,34 +225,13 @@ class DashboardWidgetService
         $best     = null;
         $bestTime = null;
         foreach ($this->fetch(objectService: $objectService, schema: 'meeting') as $meeting) {
-            if ((string) ($meeting['lifecycle'] ?? '') !== 'scheduled') {
+            $timestamp = $this->upcomingMeetingTime(meeting: $meeting, meetingIds: $meetingIds, now: $now);
+            if ($timestamp === null) {
                 continue;
             }
 
-            $scheduled = (string) ($meeting['scheduledDate'] ?? '');
-            if ($scheduled === '') {
-                continue;
-            }
-
-            try {
-                $ts = (new \DateTimeImmutable($scheduled))->getTimestamp();
-            } catch (\Throwable) {
-                continue;
-            }
-
-            if ($ts < $now) {
-                continue;
-            }
-
-            // When the user has participant records, restrict to meetings they
-            // are in; otherwise (no participant records) show none.
-            $meetingId = $this->idOf(row: $meeting);
-            if (count($meetingIds) === 0 || in_array($meetingId, $meetingIds, true) === false) {
-                continue;
-            }
-
-            if ($bestTime === null || $ts < $bestTime) {
-                $bestTime = $ts;
+            if ($bestTime === null || $timestamp < $bestTime) {
+                $bestTime = $timestamp;
                 $best     = $meeting;
             }
         }//end foreach
@@ -205,6 +239,50 @@ class DashboardWidgetService
         return $best;
 
     }//end resolveNextMeeting()
+
+    /**
+     * Timestamp of a meeting that is scheduled, still in the future and one of
+     * the user's own — or null when the meeting does not qualify.
+     *
+     * @param array<string, mixed> $meeting    The meeting payload
+     * @param string[]             $meetingIds Meeting ids the user participates in
+     * @param int                  $now        Current unix timestamp
+     *
+     * @spec openspec/specs/dashboard/spec.md
+     *
+     * @return int|null The meeting's unix timestamp, or null when it does not qualify
+     */
+    private function upcomingMeetingTime(array $meeting, array $meetingIds, int $now): ?int
+    {
+        if ((string) ($meeting['lifecycle'] ?? '') !== 'scheduled') {
+            return null;
+        }
+
+        $scheduled = (string) ($meeting['scheduledDate'] ?? '');
+        if ($scheduled === '') {
+            return null;
+        }
+
+        try {
+            $timestamp = (new DateTimeImmutable($scheduled))->getTimestamp();
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if ($timestamp < $now) {
+            return null;
+        }
+
+        // Restrict to meetings the user participates in; with no participant
+        // records the id list is empty, so nothing matches and none are shown.
+        $meetingId = $this->idOf(row: $meeting);
+        if (in_array($meetingId, $meetingIds, true) === false) {
+            return null;
+        }
+
+        return $timestamp;
+
+    }//end upcomingMeetingTime()
 
     /**
      * Participant record ids linked to the current Nextcloud user.
@@ -220,8 +298,10 @@ class DashboardWidgetService
     {
         $ids = [];
         foreach ($this->fetch(objectService: $objectService, schema: 'participant') as $participant) {
+            // Strict comparison against a string parameter already implies the
+            // link is a string, so no separate type check is needed.
             $link = ($participant['nextcloudUserId'] ?? ($participant['owner'] ?? null));
-            if (is_string($link) === true && $link === $userId) {
+            if ($link === $userId) {
                 $pid = $this->idOf(row: $participant);
                 if ($pid !== '') {
                     $ids[] = $pid;
@@ -251,8 +331,9 @@ class DashboardWidgetService
 
         $meetingIds = [];
         foreach ($this->fetch(objectService: $objectService, schema: 'participant') as $participant) {
+            // Participant ids are never '', so a blank id can never match.
             $pid = $this->idOf(row: $participant);
-            if ($pid === '' || in_array($pid, $participantIds, true) === false) {
+            if (in_array($pid, $participantIds, true) === false) {
                 continue;
             }
 

@@ -92,21 +92,22 @@ class SubmissionDeadlineListener implements IEventListener
                 return;
             }
 
-            $row = [];
-            if (method_exists($entity, 'getObject') === true) {
-                $row = (array) $entity->getObject();
-            }
-
-            if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-                $row = (array) $entity->jsonSerialize();
-            }
-
+            $row  = $this->extractRow(entity: $entity);
             $slug = $this->resolveSchemaSlug(entity: $entity, row: $row);
-            if (in_array($slug, ['motion', 'amendment'], true) === false) {
+            if ($slug !== 'decision') {
                 return;
             }
 
-            $meetingId = $this->resolveMeetingId(slug: $slug, row: $row);
+            // ADR-005: motions and amendments are `decision` objects; the
+            // discriminator — not the schema slug — says which. Every other
+            // decisionType (resolution, contract, policy, …) carries no
+            // submission deadline rule and is left alone.
+            $decisionType = (string) ($row['decisionType'] ?? '');
+            if (in_array($decisionType, ['motion', 'amendment'], true) === false) {
+                return;
+            }
+
+            $meetingId = $this->resolveMeetingId(decisionType: $decisionType, row: $row);
             if ($meetingId === null) {
                 return;
             }
@@ -126,7 +127,7 @@ class SubmissionDeadlineListener implements IEventListener
                 $event->stopPropagation();
                 $this->logger->info(
                     'Decidesk: rejected late submission',
-                    ['schema' => $slug, 'meetingId' => $meetingId]
+                    ['schema' => $slug, 'decisionType' => $decisionType, 'meetingId' => $meetingId]
                 );
             }
         } catch (\Throwable $e) {
@@ -141,6 +142,33 @@ class SubmissionDeadlineListener implements IEventListener
     }//end handle()
 
     /**
+     * Extract the serialized payload from an OR object entity.
+     *
+     * Prefers `getObject()`; falls back to `jsonSerialize()` when the former
+     * is absent or yields nothing.
+     *
+     * @param object $entity OR object entity
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return array<string, mixed> Serialized payload, or [] when unavailable
+     */
+    private function extractRow(object $entity): array
+    {
+        $row = [];
+        if (method_exists($entity, 'getObject') === true) {
+            $row = (array) $entity->getObject();
+        }
+
+        if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
+            $row = (array) $entity->jsonSerialize();
+        }
+
+        return $row;
+
+    }//end extractRow()
+
+    /**
      * Resolve the schema slug from the canonical OR entity surface
      * (same candidates as MeetingFolderListener).
      *
@@ -149,32 +177,27 @@ class SubmissionDeadlineListener implements IEventListener
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
-     * @return string Schema slug, or '' when unresolvable
+     * @return string Schema slug (lower-cased), or '' when unresolvable
      */
     private function resolveSchemaSlug(object $entity, array $row): string
     {
-        $candidates = [
-            $row['_schemaSlug'] ?? null,
-            $row['_schema'] ?? null,
-            $row['schema'] ?? null,
-        ];
-        foreach ($candidates as $candidate) {
+        foreach (['_schemaSlug', '_schema', 'schema'] as $key) {
+            $candidate = ($row[$key] ?? null);
             if (is_string($candidate) === true && $candidate !== '') {
                 return strtolower($candidate);
             }
         }
 
-        if (method_exists($entity, 'getSchemaSlug') === true) {
-            $slug = $entity->getSchemaSlug();
-            if (is_string($slug) === true && $slug !== '') {
-                return strtolower($slug);
+        // Same order as the row keys above; each getter is consulted only when
+        // the entity actually exposes it.
+        foreach (['getSchemaSlug', 'getSchema'] as $getter) {
+            if (method_exists($entity, $getter) === false) {
+                continue;
             }
-        }
 
-        if (method_exists($entity, 'getSchema') === true) {
-            $schema = $entity->getSchema();
-            if (is_string($schema) === true && $schema !== '') {
-                return strtolower($schema);
+            $value = $entity->{$getter}();
+            if (is_string($value) === true && $value !== '') {
+                return strtolower($value);
             }
         }
 
@@ -187,29 +210,34 @@ class SubmissionDeadlineListener implements IEventListener
      *
      * Motions link to their meeting through the flat `meeting` property or a
      * structured relations entry; amendments resolve through their parent
-     * motion (`parentMotion` property or relations entry with schema 'motion').
+     * motion (the ADR-005 `amends` relation that replaced `parentMotion`, or a
+     * relations entry against the unified decision schema).
      *
-     * @param string               $slug Schema slug ('motion' or 'amendment')
-     * @param array<string, mixed> $row  Serialized payload of the object being created
+     * @param string               $decisionType The ADR-005 discriminator ('motion' or 'amendment')
+     * @param array<string, mixed> $row          Serialized payload of the object being created
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
      * @return string|null The meeting UUID, or null when unlinked
      */
-    private function resolveMeetingId(string $slug, array $row): ?string
+    private function resolveMeetingId(string $decisionType, array $row): ?string
     {
-        if ($slug === 'motion') {
+        if ($decisionType === 'motion') {
             return $this->extractReference(row: $row, property: 'meeting', relationSchema: 'meeting');
         }
 
         // Amendment: resolve parent motion first.
-        $parentMotionId = $this->extractReference(row: $row, property: 'parentMotion', relationSchema: 'motion');
+        $parentMotionId = $this->extractReference(
+            row: $row,
+            property: 'amends',
+            relationSchema: 'decision'
+        );
         if ($parentMotionId === null) {
             return null;
         }
 
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        $motionEntity  = $objectService->find(id: $parentMotionId, register: 'decidesk', schema: 'motion');
+        $motionEntity  = $objectService->find(id: $parentMotionId, register: 'decidesk', schema: 'decision');
         if ($motionEntity === null) {
             return null;
         }
@@ -223,7 +251,7 @@ class SubmissionDeadlineListener implements IEventListener
      * Extract a referenced object id from a flat property or relations entry.
      *
      * @param array<string, mixed> $row            Serialized object payload
-     * @param string               $property       Flat property name (e.g. 'meeting', 'parentMotion')
+     * @param string               $property       Flat property name (e.g. 'meeting', 'amends')
      * @param string               $relationSchema Relations schema slug to match
      *
      * @spec openspec/specs/motion-amendment/spec.md

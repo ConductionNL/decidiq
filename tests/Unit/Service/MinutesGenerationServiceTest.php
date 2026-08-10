@@ -22,7 +22,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Service\MinutesDraftRenderer;
 use OCA\Decidesk\Service\MinutesGenerationService;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -92,9 +94,13 @@ class MinutesGenerationServiceTest extends TestCase
             ->with('OCA\OpenRegister\Service\ObjectService')
             ->willReturn($this->objectService);
 
+        // The renderer is a pure, dependency-free collaborator, so the real one
+        // is used here: these tests assert on the rendered text, and a mock
+        // would only assert that a mock was called.
         $this->service = new MinutesGenerationService(
             container: $this->container,
             logger: $this->logger,
+            renderer: new MinutesDraftRenderer(),
         );
 
     }//end setUp()
@@ -275,6 +281,7 @@ class MinutesGenerationServiceTest extends TestCase
         $service = new MinutesGenerationService(
             container: $containerNoOR,
             logger: $this->logger,
+            renderer: new MinutesDraftRenderer(),
         );
 
         $this->expectException(\RuntimeException::class);
@@ -307,9 +314,11 @@ class MinutesGenerationServiceTest extends TestCase
         $savedObject = null;
         $this->objectService->expects($this->once())
             ->method('saveObject')
-            ->willReturnCallback(static function (array $object) use (&$savedObject): array {
+            // saveObject() is typed `: ObjectEntity` in production and can never
+            // return the payload array it was handed (#399).
+            ->willReturnCallback(function (array $object) use (&$savedObject): ObjectEntity {
                 $savedObject = $object;
-                return $object;
+                return $this->createEntityMock($object);
             });
 
         $result = $this->service->reject(
@@ -356,9 +365,11 @@ class MinutesGenerationServiceTest extends TestCase
 
         $savedObject = null;
         $this->objectService->method('saveObject')
-            ->willReturnCallback(static function (array $object) use (&$savedObject): array {
+            // saveObject() is typed `: ObjectEntity` in production and can never
+            // return the payload array it was handed (#399).
+            ->willReturnCallback(function (array $object) use (&$savedObject): ObjectEntity {
                 $savedObject = $object;
-                return $object;
+                return $this->createEntityMock($object);
             });
 
         $this->service->reject(minutesId: 'minutes-011', comment: 'Second round', userId: 'chair-user');
@@ -432,17 +443,19 @@ class MinutesGenerationServiceTest extends TestCase
     }//end testRejectUnknownMinutesThrowsMissingObjectException()
 
     /**
-     * Helper: create a mock ObjectEntity with getObject().
+     * Helper: create an ObjectEntity double with getObject().
+     *
+     * Must be an ObjectEntity double, not a stdClass one: ObjectService::find()
+     * is typed `?ObjectEntity` in production, so a stdClass mock is a value the
+     * service can never hand the code under test (#399).
      *
      * @param array<string,mixed> $data Object data
      *
-     * @return object
+     * @return ObjectEntity&MockObject
      */
-    private function createEntityMock(array $data): object
+    private function createEntityMock(array $data): ObjectEntity&MockObject
     {
-        $mock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['getObject'])
-            ->getMock();
+        $mock = $this->createMock(ObjectEntity::class);
         $mock->method('getObject')->willReturn($data);
         return $mock;
 

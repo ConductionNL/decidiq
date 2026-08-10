@@ -18,7 +18,7 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 // @e2e openspec/specs/motion-amendment/spec.md#submit-a-motion-with-co-signers
 test('motions list renders with Add Motion button', async ({ page }) => {
@@ -78,16 +78,21 @@ test('motions list shows existing motions', async ({ page }) => {
 // @e2e openspec/specs/motion-amendment/spec.md#submit-multiple-amendments-to-the-same-motion
 // Amendments are added via the MotionAmendmentsTab on a motion detail page.
 test('motion detail route renders with amendments tab accessible', async ({ page }) => {
+	// ADR-005 (accepted): the standalone `motion` schema was folded into the
+	// `Decision` supertype under `decisionType: 'motion'`. Addressing
+	// /objects/decidesk/motion returns 404 "Schema not found: 'motion'", which is
+	// what this test was failing on — note the manifest already routes
+	// /motions/:id at schema `decision`, so only this URL was stale.
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/motion?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=motion&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
-	expect(resp.ok()).toBe(true)
+	expect(resp.ok(), `motion listing must be readable (HTTP ${resp.status()})`).toBe(true)
 	const body = await resp.json()
 	const first = (body.results ?? body.items ?? [])[0]
-	test.skip(!first, 'No motion objects found')
+	expect(first, 'at least one decisionType=motion Decision must be seeded').toBeTruthy()
 	const motionId = first.id ?? first['@self']?.id
-	test.skip(!motionId, 'First motion has no id')
+	expect(motionId, 'the seeded motion must carry an id').toBeTruthy()
 
 	await page.goto(`${BASE}/apps/decidesk/motions/${motionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
@@ -99,16 +104,19 @@ test('motion detail route renders with amendments tab accessible', async ({ page
 // Verify the amendment detail route mounts (the diff tab renders the word-level
 // additions-in-green / removals-in-red view, falling back to amendment text).
 test('amendment detail route renders for the diff view', async ({ page }) => {
+	// ADR-005: an amendment is a Decision with decisionType='amendment' (the
+	// standalone `amendment` schema was removed); /amendments/:id is already
+	// routed at schema `decision` in the manifest.
 	const resp = await page.request.get(
-		`${BASE}/index.php/apps/openregister/api/objects/decidesk/amendment?_limit=1`,
+		`${BASE}/index.php/apps/openregister/api/objects/decidesk/decision?decisionType=amendment&_limit=1`,
 		{ headers: { Accept: 'application/json' } },
 	)
-	expect(resp.ok()).toBe(true)
+	expect(resp.ok(), `amendment listing must be readable (HTTP ${resp.status()})`).toBe(true)
 	const body = await resp.json()
 	const first = (body.results ?? body.items ?? [])[0]
-	test.skip(!first, 'No amendment objects found')
+	expect(first, 'at least one decisionType=amendment Decision must be seeded').toBeTruthy()
 	const amendmentId = first.id ?? first['@self']?.id
-	test.skip(!amendmentId, 'First amendment has no id')
+	expect(amendmentId, 'the seeded amendment must carry an id').toBeTruthy()
 
 	await page.goto(`${BASE}/apps/decidesk/amendments/${amendmentId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })

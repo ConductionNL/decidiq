@@ -30,9 +30,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use InvalidArgumentException;
 use OCA\Decidesk\Lifecycle\ProcessTemplatePolicyResolver;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Service for process-template management and template-driven policy resolution.
@@ -48,12 +50,7 @@ class ProcessTemplateService
      *
      * @var string[]
      */
-    public const KNOWN_GUARDS = [
-        'quorum_met',
-        'chair_only',
-        'all_amendments_resolved',
-        'legal_review_complete',
-    ];
+    public const KNOWN_GUARDS = StateMachineValidator::KNOWN_GUARDS;
 
     /**
      * Constructor for ProcessTemplateService.
@@ -61,6 +58,7 @@ class ProcessTemplateService
      * @param ContainerInterface            $container The DI container (lazy-loads OpenRegister's ObjectService)
      * @param LoggerInterface               $logger    The logger
      * @param ProcessTemplatePolicyResolver $resolver  Pure template -> guard policy translator
+     * @param StateMachineValidator         $validator Pure transition-graph validator
      *
      * @spec openspec/specs/process-configuration/spec.md
      */
@@ -68,6 +66,7 @@ class ProcessTemplateService
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
         private readonly ProcessTemplatePolicyResolver $resolver,
+        private readonly StateMachineValidator $validator,
     ) {
     }//end __construct()
 
@@ -116,11 +115,27 @@ class ProcessTemplateService
      */
     public function list(): array
     {
+        // The register/schema context MUST be nested under `filters`.
+        // ObjectService::prepareFindAllConfig() reads ONLY
+        // $config['filters']['register'] / ['schema'] — the top-level keys this
+        // call used to pass are never inspected, so currentRegister/currentSchema
+        // stayed null and MagicMapper::findAll() bailed out with
+        // "called without register/schema context", returning [] after nothing
+        // more than a logger->warning. HTTP 200, zero rows, no error: the
+        // template list mounted with no <li>, which Playwright reports as
+        // `hidden` (a zero-height box) rather than absent.
+        //
+        // `register`/`schema` are in MagicSearchHandler::getReservedParams(), so
+        // they are stripped before applyObjectFilters() and cannot leak into the
+        // WHERE clause as bogus property filters. Compare get() below, which
+        // works because it passes them as TYPED PARAMETERS to find().
         $rows = $this->objectService()->findAll(
             [
-                'register' => 'decidesk',
-                'schema'   => 'process-template',
-                'limit'    => 1000,
+                'filters' => [
+                    'register' => 'decidesk',
+                    'schema'   => 'process-template',
+                ],
+                'limit'   => 1000,
             ]
         );
 
@@ -158,7 +173,7 @@ class ProcessTemplateService
      *
      * @param array<string, mixed> $template The template payload
      *
-     * @throws \InvalidArgumentException When the state-machine graph is invalid (fail closed)
+     * @throws InvalidArgumentException When the state-machine graph is invalid (fail closed)
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -184,8 +199,8 @@ class ProcessTemplateService
      * @param string               $templateId The template UUID
      * @param array<string, mixed> $template   The full template payload to persist
      *
-     * @throws \InvalidArgumentException When the state-machine graph is invalid (fail closed)
-     * @throws \RuntimeException         When the template is built-in (read-only) or missing
+     * @throws InvalidArgumentException When the state-machine graph is invalid (fail closed)
+     * @throws RuntimeException         When the template is built-in (read-only) or missing
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -195,11 +210,11 @@ class ProcessTemplateService
     {
         $existing = $this->get(templateId: $templateId);
         if ($existing === null) {
-            throw new \RuntimeException("Process template '$templateId' not found.");
+            throw new RuntimeException("Process template '$templateId' not found.");
         }
 
         if (($existing['builtIn'] ?? false) === true) {
-            throw new \RuntimeException('Built-in templates are read-only; duplicate it to customise.');
+            throw new RuntimeException('Built-in templates are read-only; duplicate it to customise.');
         }
 
         $this->assertValidStateMachine(template: $template);
@@ -222,7 +237,7 @@ class ProcessTemplateService
      * @param string      $templateId The template UUID to duplicate
      * @param string|null $newName    Optional name for the copy (defaults to "<name> (copy)")
      *
-     * @throws \RuntimeException When the source template is missing
+     * @throws RuntimeException When the source template is missing
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -232,7 +247,7 @@ class ProcessTemplateService
     {
         $source = $this->get(templateId: $templateId);
         if ($source === null) {
-            throw new \RuntimeException("Process template '$templateId' not found.");
+            throw new RuntimeException("Process template '$templateId' not found.");
         }
 
         $copy = $source;
@@ -250,7 +265,7 @@ class ProcessTemplateService
      *
      * @param string $templateId The template UUID
      *
-     * @throws \RuntimeException When the template is built-in (read-only) or missing
+     * @throws RuntimeException When the template is built-in (read-only) or missing
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -260,11 +275,11 @@ class ProcessTemplateService
     {
         $existing = $this->get(templateId: $templateId);
         if ($existing === null) {
-            throw new \RuntimeException("Process template '$templateId' not found.");
+            throw new RuntimeException("Process template '$templateId' not found.");
         }
 
         if (($existing['builtIn'] ?? false) === true) {
-            throw new \RuntimeException('Built-in templates are read-only and cannot be deleted.');
+            throw new RuntimeException('Built-in templates are read-only and cannot be deleted.');
         }
 
         $this->objectService()->deleteObject(uuid: $templateId, register: 'decidesk', schema: 'process-template');
@@ -287,87 +302,7 @@ class ProcessTemplateService
      */
     public function validateStateMachine(array $template): array
     {
-        $errors = [];
-
-        $stateMachine = ($template['stateMachine'] ?? null);
-        if (is_array($stateMachine) === false) {
-            return ['valid' => false, 'errors' => ['stateMachine is required and must be an object.']];
-        }
-
-        $stateNames = [];
-        foreach ((array) ($stateMachine['states'] ?? []) as $state) {
-            if (is_array($state) === true) {
-                $name = ($state['name'] ?? null);
-            } else {
-                $name = null;
-            }
-
-            if (is_string($name) === true && $name !== '') {
-                $stateNames[$name] = true;
-            }
-        }
-
-        if ($stateNames === []) {
-            $errors[] = 'states[] must declare at least one named state.';
-        }
-
-        $initialState = ($template['initialState'] ?? null);
-        if (is_string($initialState) === false || $initialState === '') {
-            $errors[] = 'initialState is required.';
-        } else if (isset($stateNames[$initialState]) === false && $stateNames !== []) {
-            $errors[] = "initialState '$initialState' is not declared in states[].";
-        }
-
-        $inbound  = [];
-        $outbound = [];
-        foreach ((array) ($stateMachine['transitions'] ?? []) as $transition) {
-            if (is_array($transition) === false) {
-                $errors[] = 'Each transition must be an object.';
-                continue;
-            }
-
-            $from = ($transition['from'] ?? null);
-            $to   = ($transition['to'] ?? null);
-
-            if (is_string($from) === false || $from === '' || is_string($to) === false || $to === '') {
-                $errors[] = 'Each transition must declare non-empty from and to states.';
-                continue;
-            }
-
-            if (isset($stateNames[$from]) === false) {
-                $errors[] = "Transition references dangling from-state '$from' not declared in states[].";
-            }
-
-            if (isset($stateNames[$to]) === false) {
-                $errors[] = "Transition references dangling to-state '$to' not declared in states[].";
-            }
-
-            $outbound[$from] = true;
-            $inbound[$to]    = true;
-
-            foreach ((array) ($transition['guards'] ?? []) as $guard) {
-                if (in_array($guard, self::KNOWN_GUARDS, true) === false) {
-                    if (is_string($guard) === true) {
-                        $guardLabel = $guard;
-                    } else {
-                        $guardLabel = '?';
-                    }
-
-                    $errors[] = "Unknown guard token '".$guardLabel."'.";
-                }
-            }
-        }//end foreach
-
-        // Unreachable: a state with neither inbound nor outbound transitions that
-        // is not the initial state.
-        foreach (array_keys($stateNames) as $name) {
-            $hasEdge = (isset($inbound[$name]) === true || isset($outbound[$name]) === true);
-            if ($hasEdge === false && $name !== $initialState) {
-                $errors[] = "State '$name' is unreachable: no transitions reference it.";
-            }
-        }
-
-        return ['valid' => ($errors === []), 'errors' => $errors];
+        return $this->validator->validate(template: $template);
 
     }//end validateStateMachine()
 
@@ -376,7 +311,7 @@ class ProcessTemplateService
      *
      * @param array<string, mixed> $template The template payload
      *
-     * @throws \InvalidArgumentException When the graph is invalid
+     * @throws InvalidArgumentException When the graph is invalid
      *
      * @spec openspec/specs/process-configuration/spec.md
      *
@@ -386,7 +321,7 @@ class ProcessTemplateService
     {
         $result = $this->validateStateMachine(template: $template);
         if ($result['valid'] === false) {
-            throw new \InvalidArgumentException('Invalid state machine: '.implode(' ', $result['errors']));
+            throw new InvalidArgumentException('Invalid state machine: '.implode(' ', $result['errors']));
         }
 
     }//end assertValidStateMachine()
@@ -476,12 +411,16 @@ class ProcessTemplateService
     private function loadTemplateByRef(string $ref): ?array
     {
         // Try the slug first (built-in catalogue ids such as 'association-alv').
+        // Register/schema nested under `filters` — see list() above for why the
+        // top-level keys silently yielded zero rows.
         $rows = $this->objectService()->findAll(
             [
-                'register' => 'decidesk',
-                'schema'   => 'process-template',
-                'limit'    => 1,
-                'filters'  => ['slug' => $ref],
+                'limit'   => 1,
+                'filters' => [
+                    'register' => 'decidesk',
+                    'schema'   => 'process-template',
+                    'slug'     => $ref,
+                ],
             ]
         );
 

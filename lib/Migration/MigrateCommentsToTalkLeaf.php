@@ -40,11 +40,12 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Migration;
 
+use DateTimeImmutable;
 use OCA\Decidesk\Service\SettingsService;
 use OCP\App\IAppManager;
 use OCP\Migration\IOutput;
@@ -248,7 +249,6 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
         try {
             if ($talkManager !== null && $talkChatManager !== null && $target !== '') {
                 $this->replayIntoTalk(
-                    objectService: $objectService,
                     talkManager: $talkManager,
                     talkChatManager: $talkChatManager,
                     comment: $comment,
@@ -285,7 +285,6 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
      * then posts the comment text with author + timestamp prefix so the audit
      * record is preserved in the Talk chat log (design D3).
      *
-     * @param object              $objectService   The OR ObjectService.
      * @param object              $talkManager     NC Talk Manager.
      * @param object              $talkChatManager NC Talk ChatManager.
      * @param array<string,mixed> $comment         The legacy Comment object.
@@ -297,7 +296,6 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
      * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.3
      */
     private function replayIntoTalk(
-        object $objectService,
         object $talkManager,
         object $talkChatManager,
         array $comment,
@@ -338,10 +336,9 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
         }
 
         // Post as a system message in the admin actor context.
+        $creationDateStr = 'now';
         if ($timestamp !== '') {
             $creationDateStr = $timestamp;
-        } else {
-            $creationDateStr = 'now';
         }
 
         $talkChatManager->addSystemMessage(
@@ -349,7 +346,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep
             actorType: 'guests',
             actorId: 'decidesk-migration',
             message: $messageBody,
-            creationDateTime: new \DateTimeImmutable($creationDateStr),
+            creationDateTime: new DateTimeImmutable($creationDateStr),
         );
 
     }//end replayIntoTalk()

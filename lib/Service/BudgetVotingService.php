@@ -20,19 +20,20 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Stateless service for participatory-budget proposals + advisory voting.
  *
  * Advisory voting NEVER produces a statutory decision outcome; the tally is
- * delegated to VotingService::applyAdvisoryTally() so there is no parallel
+ * delegated to AdvisoryVoteService::applyAdvisoryTally() so there is no parallel
  * tally implementation and citizen tallies stay separate from VotingRound
  * tallies.
  *
@@ -43,10 +44,9 @@ class BudgetVotingService
     /**
      * Constructor for BudgetVotingService.
      *
-     * @param ContainerInterface            $container        DI container (lazy ObjectService)
-     * @param LoggerInterface               $logger           The logger
-     * @param ParticipationLifecycleService $lifecycleService Status/deadline guards
-     * @param VotingService                 $votingService    Shared advisory tally machinery
+     * @param ContainerInterface            $container           DI container (lazy ObjectService)
+     * @param ParticipationLifecycleService $lifecycleService    Status/deadline guards
+     * @param AdvisoryVoteService           $advisoryVoteService Advisory citizen-vote tally machinery
      *
      * @return void
      *
@@ -54,9 +54,8 @@ class BudgetVotingService
      */
     public function __construct(
         private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
         private readonly ParticipationLifecycleService $lifecycleService,
-        private readonly VotingService $votingService,
+        private readonly AdvisoryVoteService $advisoryVoteService,
     ) {
     }//end __construct()
 
@@ -112,8 +111,8 @@ class BudgetVotingService
      *
      * @return array<string, mixed> The created BudgetProposal object.
      *
-     * @throws \RuntimeException         When the round is missing or not accepting proposals.
-     * @throws \InvalidArgumentException When the amount is invalid.
+     * @throws RuntimeException         When the round is missing or not accepting proposals.
+     * @throws InvalidArgumentException When the amount is invalid.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -127,28 +126,28 @@ class BudgetVotingService
     ): array {
         $title = trim($title);
         if ($title === '') {
-            throw new \InvalidArgumentException('Proposal title must not be empty');
+            throw new InvalidArgumentException('Proposal title must not be empty');
         }
 
         $objectService = $this->objectService();
         $roundEntity   = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
         if ($roundEntity === null) {
-            throw new \RuntimeException("ParticipatoryBudget {$budgetId} not found");
+            throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
         }
 
         $round = $roundEntity->jsonSerialize();
 
         if ($this->lifecycleService->budgetAcceptsProposals(round: $round) === false) {
-            throw new \RuntimeException('This budget round is not open for proposal submission');
+            throw new RuntimeException('This budget round is not open for proposal submission');
         }
 
         if ($requested <= 0) {
-            throw new \InvalidArgumentException('requestedAmount must be a positive number');
+            throw new InvalidArgumentException('requestedAmount must be a positive number');
         }
 
         $total = (float) ($round['totalAmount'] ?? 0);
         if ($total > 0 && $requested > $total) {
-            throw new \InvalidArgumentException('requestedAmount exceeds the round total amount');
+            throw new InvalidArgumentException('requestedAmount exceeds the round total amount');
         }
 
         $proposal = [
@@ -184,8 +183,8 @@ class BudgetVotingService
      *
      * @return array<string, mixed> The updated proposal object.
      *
-     * @throws \RuntimeException         When the proposal is not found.
-     * @throws \InvalidArgumentException When the proposal is not in 'submitted'.
+     * @throws RuntimeException         When the proposal is not found.
+     * @throws InvalidArgumentException When the proposal is not in 'submitted'.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -194,18 +193,17 @@ class BudgetVotingService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
         if ($entity === null) {
-            throw new \RuntimeException("BudgetProposal {$proposalId} not found");
+            throw new RuntimeException("BudgetProposal {$proposalId} not found");
         }
 
         $proposal = $entity->jsonSerialize();
         if ((string) ($proposal['status'] ?? '') !== 'submitted') {
-            throw new \InvalidArgumentException('Only a submitted proposal can be validated or rejected');
+            throw new InvalidArgumentException('Only a submitted proposal can be validated or rejected');
         }
 
+        $proposal['status'] = 'rejected';
         if ($approve === true) {
             $proposal['status'] = 'validated';
-        } else {
-            $proposal['status'] = 'rejected';
         }
 
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'budget-proposal', object: $proposal);
@@ -219,7 +217,7 @@ class BudgetVotingService
      *
      * Enforces the window guard (round in 'voting' + before votingDeadline,
      * server-side) and that the proposal is 'validated', then delegates the
-     * one-vote integrity + atomic tally to the shared VotingService.
+     * one-vote integrity + atomic tally to the shared AdvisoryVoteService.
      *
      * @param string $proposalId The BudgetProposal UUID.
      * @param string $voterId    The authenticated citizen NC UID.
@@ -227,8 +225,8 @@ class BudgetVotingService
      *
      * @return array<string, mixed> ['vote' => ..., 'votesFor' => int, 'votesAgainst' => int].
      *
-     * @throws \RuntimeException         When the proposal/round is missing, closed, or not validated.
-     * @throws \InvalidArgumentException When the value is invalid.
+     * @throws RuntimeException         When the proposal/round is missing, closed, or not validated.
+     * @throws InvalidArgumentException When the value is invalid.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      * @spec openspec/specs/voting-system/spec.md
@@ -238,12 +236,12 @@ class BudgetVotingService
         $objectService = $this->objectService();
         $entity        = $objectService->find(id: $proposalId, register: 'decidesk', schema: 'budget-proposal');
         if ($entity === null) {
-            throw new \RuntimeException("BudgetProposal {$proposalId} not found");
+            throw new RuntimeException("BudgetProposal {$proposalId} not found");
         }
 
         $proposal = $entity->jsonSerialize();
         if ((string) ($proposal['status'] ?? '') !== 'validated') {
-            throw new \RuntimeException('Only validated proposals can be voted on');
+            throw new RuntimeException('Only validated proposals can be voted on');
         }
 
         $budgetId = $this->resolveBudgetId(proposal: $proposal);
@@ -252,12 +250,12 @@ class BudgetVotingService
             if ($roundEntity !== null) {
                 $round = $roundEntity->jsonSerialize();
                 if ($this->lifecycleService->budgetAcceptsVotes(round: $round) === false) {
-                    throw new \RuntimeException('Voting is closed for this budget round');
+                    throw new RuntimeException('Voting is closed for this budget round');
                 }
             }
         }
 
-        return $this->votingService->applyAdvisoryTally(proposalId: $proposalId, voterId: $voterId, value: $value);
+        return $this->advisoryVoteService->applyAdvisoryTally(proposalId: $proposalId, voterId: $voterId, value: $value);
 
     }//end castAdvisoryVote()
 
@@ -274,7 +272,7 @@ class BudgetVotingService
      *
      * @return array<string, mixed> Allocation summary with ranked proposals.
      *
-     * @throws \RuntimeException When the round is not found.
+     * @throws RuntimeException When the round is not found.
      *
      * @spec openspec/specs/citizen-participation/spec.md
      */
@@ -283,7 +281,7 @@ class BudgetVotingService
         $objectService = $this->objectService();
         $roundEntity   = $objectService->find(id: $budgetId, register: 'decidesk', schema: 'participatory-budget');
         if ($roundEntity === null) {
-            throw new \RuntimeException("ParticipatoryBudget {$budgetId} not found");
+            throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
         }
 
         $round = $roundEntity->jsonSerialize();
@@ -407,13 +405,9 @@ class BudgetVotingService
      */
     private function resolveBudgetId(array $proposal): ?string
     {
-        foreach (($proposal['relations'] ?? []) as $relation) {
-            if (is_array($relation) === true && ($relation['schema'] ?? '') === 'participatory-budget') {
-                $id = ($relation['id'] ?? null);
-                if ($id !== null && $id !== '') {
-                    return (string) $id;
-                }
-            }
+        $related = $this->budgetIdFromRelations(relations: ($proposal['relations'] ?? []));
+        if ($related !== null) {
+            return $related;
         }
 
         $flat = ($proposal['participatoryBudget'] ?? null);
@@ -431,4 +425,30 @@ class BudgetVotingService
         return null;
 
     }//end resolveBudgetId()
+
+    /**
+     * Resolve the ParticipatoryBudget UUID from a proposal's relations.
+     *
+     * @param mixed $relations The proposal's relations collection.
+     *
+     * @return string|null The budget UUID, or null when no usable relation exists.
+     *
+     * @spec openspec/specs/citizen-participation/spec.md
+     */
+    private function budgetIdFromRelations(mixed $relations): ?string
+    {
+        foreach ($relations as $relation) {
+            if (is_array($relation) === false || ($relation['schema'] ?? '') !== 'participatory-budget') {
+                continue;
+            }
+
+            $id = ($relation['id'] ?? null);
+            if ($id !== null && $id !== '') {
+                return (string) $id;
+            }
+        }
+
+        return null;
+
+    }//end budgetIdFromRelations()
 }//end class

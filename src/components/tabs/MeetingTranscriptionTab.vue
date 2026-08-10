@@ -181,6 +181,22 @@ import { ensureRelationType } from './useRelationStore.js'
 export default {
 	name: 'MeetingTranscriptionTab',
 	components: { CnNoteCard, CnStatusBadge, NcButton, NcSelect, NcTextArea, TranscriptionConsentModal },
+	inject: {
+		/**
+		 * CnDetailPage's reactive `{ objectId, object, register, schema }`
+		 * holder.
+		 *
+		 * This panel is declared in the manifest as a `type: "custom"` body
+		 * widget on MeetingDetail, and CnDetailPage's `widget-<id>` slot binds
+		 * ONLY `{ item, widget }` — never the page's object id. Without this
+		 * injection the `objectId` prop is empty on that mount path, `refresh()`
+		 * returns before calling the transcription API, `loaded` stays false and
+		 * neither the provider-unavailable note nor the transcript ever renders.
+		 * This is the same holder the declarative `@objectId` filter token
+		 * resolves against.
+		 */
+		cnObjectContext: { default: null },
+	},
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -200,6 +216,27 @@ export default {
 		}
 	},
 	computed: {
+		/**
+		 * The meeting this panel acts on: the explicit `objectId` prop when
+		 * mounted directly, otherwise the id CnDetailPage provides on
+		 * `cnObjectContext` (manifest body-widget mount, where no id prop is
+		 * bound).
+		 *
+		 * @return {string} The meeting UUID, or '' when not resolvable.
+		 * @spec openspec/specs/meeting-transcription/spec.md
+		 */
+		resolvedObjectId() {
+			if (this.objectId) {
+				return String(this.objectId)
+			}
+			const context = this.cnObjectContext
+			// Vue unwraps an injected ref for the Options API, but the compat
+			// build can hand back the ref itself — accept both shapes.
+			const value = (context && typeof context === 'object' && 'value' in context)
+				? context.value
+				: context
+			return (value && value.objectId) ? String(value.objectId) : ''
+		},
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		statusColors() {
 			return { pending: 'primary', processing: 'warning', done: 'success', failed: 'error' }
@@ -251,15 +288,15 @@ export default {
 		},
 	},
 	watch: {
-		objectId: { immediate: true, handler() { this.refresh() } },
+		resolvedObjectId: { immediate: true, handler() { this.refresh() } },
 	},
 	methods: {
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async refresh() {
-			if (!this.objectId) return
+			if (!this.resolvedObjectId) return
 			this.error = ''
 			try {
-				const data = await this.callApi(`/meetings/${this.objectId}/transcription/sources`, {}, 'GET')
+				const data = await this.callApi(`/meetings/${this.resolvedObjectId}/transcription/sources`, {}, 'GET')
 				this.providerAvailable = !!data.providerAvailable
 				this.aiAvailable = !!data.aiAvailable
 				this.sourceOptions = (data.sources || []).map((s) => ({
@@ -278,7 +315,7 @@ export default {
 		async loadExistingTranscript() {
 			try {
 				const store = ensureRelationType('transcript')
-				const items = await store.fetchCollection('transcript', { meeting: this.objectId, _limit: 1 })
+				const items = await store.fetchCollection('transcript', { meeting: this.resolvedObjectId, _limit: 1 })
 				this.transcript = (items && items[0]) || null
 			} catch (e) {
 				this.transcript = null
@@ -288,7 +325,7 @@ export default {
 		async loadAgendaTitles() {
 			try {
 				const store = ensureRelationType('agenda-item')
-				const items = await store.fetchCollection('agenda-item', { meeting: this.objectId, _limit: 200 })
+				const items = await store.fetchCollection('agenda-item', { meeting: this.resolvedObjectId, _limit: 200 })
 				const map = {}
 				;(items || []).forEach((it) => { map[it.id || it.uuid] = it.title || it.name })
 				this.agendaTitles = map
@@ -318,7 +355,7 @@ export default {
 			this.error = ''
 			try {
 				this.transcript = await this.callApi(
-					`/meetings/${this.objectId}/transcription/attach`,
+					`/meetings/${this.resolvedObjectId}/transcription/attach`,
 					{
 						sourceType: this.selectedSource.type,
 						sourcePath: this.selectedSource.path,

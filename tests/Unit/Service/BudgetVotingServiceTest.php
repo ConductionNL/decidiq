@@ -19,15 +19,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Service;
 
+use OCA\Decidesk\Service\AdvisoryVoteService;
 use OCA\Decidesk\Service\BudgetVotingService;
 use OCA\Decidesk\Service\ParticipationLifecycleService;
-use OCA\Decidesk\Service\VotingService;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Tests proposal submission/validation guards and greedy allocation.
@@ -67,12 +66,10 @@ class BudgetVotingServiceTest extends TestCase
 
         $this->service = new BudgetVotingService(
             container: $container,
-            logger: $this->createMock(LoggerInterface::class),
             lifecycleService: new ParticipationLifecycleService(
                 container: $container,
-                logger: $this->createMock(LoggerInterface::class),
             ),
-            votingService: $this->createMock(VotingService::class),
+            advisoryVoteService: $this->createMock(AdvisoryVoteService::class),
         );
 
     }//end setUp()

@@ -3,7 +3,8 @@
  * Decidesk Agenda Controller
  *
  * Thin REST controller exposing agenda lifecycle operations.
- * Delegates all business logic to AgendaService.
+ * Delegates all business logic to AgendaService and all authorization to
+ * AgendaAuthorizationGuard.
  *
  * @category Controller
  * @package  OCA\Decidesk\Controller
@@ -20,23 +21,20 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Exception\NotFoundException;
+use OCA\Decidesk\Service\AgendaAuthorizationGuard;
 use OCA\Decidesk\Service\AgendaService;
-use OCA\Decidesk\Service\ParticipantResolver;
-use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -55,13 +53,10 @@ class AgendaController extends Controller
     /**
      * Constructor for AgendaController.
      *
-     * @param IRequest            $request             The HTTP request
-     * @param AgendaService       $agendaService       The agenda service
-     * @param ObjectService       $objectService       OpenRegister object service (used for auth checks)
-     * @param IUserSession        $userSession         The current user session
-     * @param IGroupManager       $groupManager        Group manager for admin checks
-     * @param LoggerInterface     $logger              PSR-3 logger
-     * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
+     * @param IRequest                 $request       The HTTP request
+     * @param AgendaService            $agendaService The agenda service
+     * @param AgendaAuthorizationGuard $guard         Authentication + chair/secretary authorization
+     * @param LoggerInterface          $logger        PSR-3 logger
      *
      * @return void
      *
@@ -70,52 +65,31 @@ class AgendaController extends Controller
     public function __construct(
         IRequest $request,
         private readonly AgendaService $agendaService,
-        private readonly ObjectService $objectService,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
+        private readonly AgendaAuthorizationGuard $guard,
         private readonly LoggerInterface $logger,
-        private readonly ParticipantResolver $participantResolver,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
 
     /**
-     * Verify the current user is an admin or holds a chair/secretary role for a meeting.
+     * Authenticate the caller and authorise them as chair/secretary/admin on a meeting.
      *
      * @param string $meetingId UUID of the meeting to check
      *
-     * @return JSONResponse|null Null if authorised, 403 JSONResponse if not.
+     * @return JSONResponse|null Null if authorised, 401/403 JSONResponse if not.
      *
      * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
      */
-    private function requireChairOrAdmin(string $meetingId): ?JSONResponse
+    private function denyUnlessChairOrAdmin(string $meetingId): ?JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+        $denied = $this->guard->requireUser();
+        if ($denied !== null) {
+            return $denied;
         }
 
-        $userId = $user->getUID();
+        return $this->guard->requireChairOrAdmin(meetingId: $meetingId);
 
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
-
-        if ($this->participantResolver->hasRole(
-            meetingId: $meetingId,
-            nextcloudUid: $userId,
-            roles: ['chair', 'secretary'],
-        ) === true
-        ) {
-            return null;
-        }
-
-        return new JSONResponse(
-            ['message' => 'Chair or secretary role required for this meeting'],
-            Http::STATUS_FORBIDDEN
-        );
-
-    }//end requireChairOrAdmin()
+    }//end denyUnlessChairOrAdmin()
 
     /**
      * Publish the agenda for a meeting.
@@ -133,11 +107,7 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function publish(string $meetingId): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
+        $denied = $this->denyUnlessChairOrAdmin(meetingId: $meetingId);
         if ($denied !== null) {
             return $denied;
         }
@@ -171,26 +141,13 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function advanceBobPhase(string $id): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+        $denied = $this->guard->requireUser();
+        if ($denied !== null) {
+            return $denied;
         }
 
         try {
-            // Resolve the meeting for authorization; 404 if item does not exist.
-            $item = $this->objectService->find($id);
-            if ($item === null) {
-                return new JSONResponse(['message' => 'Agenda item not found.'], Http::STATUS_NOT_FOUND);
-            }
-
-            $itemData = (array) $item;
-
-            $meetingId = $itemData['@self']['relations']['meeting'] ?? null;
-
-            if ($meetingId === null) {
-                return new JSONResponse(['message' => 'Could not resolve meeting for authorization.'], Http::STATUS_FORBIDDEN);
-            }
-
-            $denied = $this->requireChairOrAdmin(meetingId: (string) $meetingId);
+            $denied = $this->guard->requireChairOrAdminForAgendaItem(agendaItemId: $id);
             if ($denied !== null) {
                 return $denied;
             }
@@ -227,11 +184,7 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function processHamerstukken(string $meetingId): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
+        $denied = $this->denyUnlessChairOrAdmin(meetingId: $meetingId);
         if ($denied !== null) {
             return $denied;
         }
@@ -266,11 +219,7 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function revise(string $meetingId): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
+        $denied = $this->denyUnlessChairOrAdmin(meetingId: $meetingId);
         if ($denied !== null) {
             return $denied;
         }
@@ -305,11 +254,7 @@ class AgendaController extends Controller
     #[NoAdminRequired]
     public function reorder(string $meetingId): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $denied = $this->requireChairOrAdmin(meetingId: $meetingId);
+        $denied = $this->denyUnlessChairOrAdmin(meetingId: $meetingId);
         if ($denied !== null) {
             return $denied;
         }

@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidesk\Service;
 
 use OCA\Decidesk\Exception\MissingObjectException;
+use RuntimeException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -79,8 +80,10 @@ class BoardEvaluationReportService
         $bodyName   = $this->resolveBodyName(evaluation: $evaluation, objectService: $objectService);
         $markdown   = $this->renderMarkdown(evaluation: $evaluation, bodyName: $bodyName);
 
-        $title    = sprintf('Board evaluation %s', (string) ($evaluation['cycleLabel'] ?? $evaluationId));
-        $note     = null;
+        $title = sprintf('Board evaluation %s', (string) ($evaluation['cycleLabel'] ?? $evaluationId));
+
+        // Assume the markdown fallback; the Docudesk branch below clears the note.
+        $note     = 'Docudesk is not available on this instance — a markdown document was produced instead of a PDF.';
         $docudesk = false;
         $path     = null;
 
@@ -88,8 +91,7 @@ class BoardEvaluationReportService
         if ($pdfBytes !== null) {
             $path     = $this->writeFile(bodyName: $bodyName, evaluation: $evaluation, fileName: $title.'.pdf', content: $pdfBytes);
             $docudesk = true;
-        } else {
-            $note = 'Docudesk is not available on this instance — a markdown document was produced instead of a PDF.';
+            $note     = null;
         }
 
         $format = 'pdf';
@@ -99,7 +101,7 @@ class BoardEvaluationReportService
         }
 
         if ($path === null) {
-            throw new \RuntimeException('The evaluation report could not be stored: the Files backend is unavailable.', 503);
+            throw new RuntimeException('The evaluation report could not be stored: the Files backend is unavailable.', 503);
         }
 
         $result = ['path' => $path, 'format' => $format, 'docudesk' => $docudesk];
@@ -126,14 +128,7 @@ class BoardEvaluationReportService
     private function renderMarkdown(array $evaluation, string $bodyName): string
     {
         $cycleLabel = (string) ($evaluation['cycleLabel'] ?? '');
-        $summary    = [];
-        $raw        = (string) ($evaluation['scoreSummary'] ?? '');
-        if ($raw !== '') {
-            $decoded = json_decode($raw, true);
-            if (is_array($decoded) === true) {
-                $summary = $decoded;
-            }
-        }
+        $summary    = $this->decodeSummary(evaluation: $evaluation);
 
         $bodyDisplayName = 'Governance body';
         if ($bodyName !== '') {
@@ -171,6 +166,49 @@ class BoardEvaluationReportService
             return implode("\n", $lines);
         }
 
+        return implode("\n", array_merge($lines, $this->renderBreakdown(summary: $summary)));
+
+    }//end renderMarkdown()
+
+    /**
+     * Decode the materialised `scoreSummary` JSON blob into an array.
+     *
+     * @param array<string, mixed> $evaluation The BoardEvaluation payload
+     *
+     * @return array<string, mixed> Decoded summary, or [] when absent/unparsable
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+     */
+    private function decodeSummary(array $evaluation): array
+    {
+        $raw = (string) ($evaluation['scoreSummary'] ?? '');
+        if ($raw === '') {
+            return [];
+        }
+
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded) === true) {
+            return $decoded;
+        }
+
+        return [];
+
+    }//end decodeSummary()
+
+    /**
+     * Render the per-dimension and free-text-theme sections.
+     *
+     * Only reached when REQ-EVAL-004 threshold suppression is NOT in force.
+     *
+     * @param array<string, mixed> $summary The decoded score summary
+     *
+     * @return string[] Markdown lines for the breakdown sections
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+     */
+    private function renderBreakdown(array $summary): array
+    {
+        $lines   = [];
         $lines[] = '## Per-dimension scores';
         foreach ((array) ($summary['dimensionScores'] ?? []) as $dimension => $score) {
             $lines[] = sprintf('- **%s**: %s', $dimension, $score);
@@ -179,7 +217,7 @@ class BoardEvaluationReportService
         $lines[] = '';
         $lines[] = '## Recurring free-text themes';
         foreach ((array) ($summary['themes'] ?? []) as $dimension => $words) {
-            $wordList = implode(', ', array_map(static fn ($w) => (string) ($w['word'] ?? ''), (array) $words));
+            $wordList = implode(', ', array_map(static fn ($entry) => (string) ($entry['word'] ?? ''), (array) $words));
             if ($wordList === '') {
                 $wordList = '_none_';
             }
@@ -187,9 +225,9 @@ class BoardEvaluationReportService
             $lines[] = sprintf('- **%s**: %s', $dimension, $wordList);
         }
 
-        return implode("\n", $lines);
+        return $lines;
 
-    }//end renderMarkdown()
+    }//end renderBreakdown()
 
     /**
      * Try to render a PDF via Docudesk; return null when Docudesk is absent
@@ -235,23 +273,47 @@ class BoardEvaluationReportService
         $html  = [];
 
         foreach ($lines as $line) {
-            $escaped = htmlspecialchars($line, ENT_QUOTES, 'UTF-8');
-            if (preg_match('/^## (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h2>'.$m[1].'</h2>';
-            } else if (preg_match('/^# (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<h1>'.$m[1].'</h1>';
-            } else if (preg_match('/^- (.*)$/', $escaped, $m) === 1) {
-                $html[] = '<p class="list-item">'.$m[1].'</p>';
-            } else if (trim($escaped) === '') {
-                $html[] = '';
-            } else {
-                $html[] = '<p>'.$escaped.'</p>';
-            }
+            $html[] = $this->markdownLineToHtml(line: $line);
         }
 
         return '<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body>'.implode("\n", $html).'</body></html>';
 
     }//end markdownToHtml()
+
+    /**
+     * Convert a single markdown line to its HTML equivalent.
+     *
+     * The line is HTML-escaped before any markup substitution.
+     *
+     * @param string $line Raw markdown line
+     *
+     * @return string HTML fragment for the line ('' for a blank line)
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
+     */
+    private function markdownLineToHtml(string $line): string
+    {
+        $escaped = htmlspecialchars($line, ENT_QUOTES, 'UTF-8');
+
+        if (preg_match('/^## (.*)$/', $escaped, $matches) === 1) {
+            return '<h2>'.$matches[1].'</h2>';
+        }
+
+        if (preg_match('/^# (.*)$/', $escaped, $matches) === 1) {
+            return '<h1>'.$matches[1].'</h1>';
+        }
+
+        if (preg_match('/^- (.*)$/', $escaped, $matches) === 1) {
+            return '<p class="list-item">'.$matches[1].'</p>';
+        }
+
+        if (trim($escaped) === '') {
+            return '';
+        }
+
+        return '<p>'.$escaped.'</p>';
+
+    }//end markdownLineToHtml()
 
     /**
      * Write the report file into the body's evaluation folder tree
@@ -281,10 +343,10 @@ class BoardEvaluationReportService
 
             $path = '';
             foreach ($segments as $segment) {
-                if ($path === '') {
-                    $path = $segment;
-                } else {
-                    $path = $path.'/'.$segment;
+                $prefix = $path;
+                $path   = $segment;
+                if ($prefix !== '') {
+                    $path = $prefix.'/'.$segment;
                 }
 
                 $fileService->createFolder($path);

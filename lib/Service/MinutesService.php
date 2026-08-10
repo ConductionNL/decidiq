@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -29,21 +28,38 @@ use Psr\Log\LoggerInterface;
  *
  * Handles approval notifications and other minutes-specific workflows.
  *
+ * OpenRegister lookups are delegated to MinutesContextResolver and notification
+ * delivery to ParticipantNotifier, so what remains here is the approval rule
+ * itself: which roles are asked to approve, and what they are told.
+ *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6
  */
 class MinutesService
 {
+
+    /**
+     * The governance roles asked to approve minutes.
+     *
+     * @var array<int,string>
+     */
+    private const APPROVER_ROLES = [
+        'chair',
+        'secretary',
+    ];
+
     /**
      * Constructor.
      *
-     * @param ContainerInterface $container The DI container
-     * @param LoggerInterface    $logger    The logger
+     * @param LoggerInterface        $logger   The logger
+     * @param MinutesContextResolver $context  Resolves Minutes/Meeting/Participant context
+     * @param ParticipantNotifier    $notifier Delivers notifications to participants
      *
      * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6
      */
     public function __construct(
-        private ContainerInterface $container,
         private LoggerInterface $logger,
+        private MinutesContextResolver $context,
+        private ParticipantNotifier $notifier,
     ) {
     }//end __construct()
 
@@ -65,102 +81,30 @@ class MinutesService
     public function notifyApproversOnSubmit(string $minutesId, string $actorId): int
     {
         try {
-            $objectService       = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $notificationService = $this->container->get('OpenRegisterNotificationService');
-
-            // Fetch Minutes.
-            $minutesEntity = $objectService->find(id: $minutesId, register: 'decidesk', schema: 'minutes');
-            $minutes       = null;
-            if ($minutesEntity !== null) {
-                $minutes = $minutesEntity->jsonSerialize();
-            }
-
+            $minutes = $this->context->findMinutes(minutesId: $minutesId);
             if ($minutes === null) {
                 $this->logger->warning("Minutes not found: $minutesId");
                 return 0;
             }
 
-            // Get linked Meeting.
-            $meetingId = null;
-            if (empty($minutes['relations']['Meeting']) === false) {
-                $meetingRels = $minutes['relations']['Meeting'];
-                $meetingId   = $meetingRels;
-                if (is_array($meetingRels) === true) {
-                    $meetingId = $meetingRels[0];
-                }
-            }
-
-            // Get GovernanceBody from Meeting.
-            $bodyId = null;
-            if ($meetingId !== null) {
-                $meetingEntity = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
-                $meeting       = null;
-                if ($meetingEntity !== null) {
-                    $meeting = $meetingEntity->jsonSerialize();
-                }
-
-                if ($meeting !== null && empty($meeting['relations']['GovernanceBody']) === false) {
-                    $bodyRels = $meeting['relations']['GovernanceBody'];
-                    $bodyId   = $bodyRels;
-                    if (is_array($bodyRels) === true) {
-                        $bodyId = $bodyRels[0];
-                    }
-                }
-            }
-
-            if (empty($bodyId) === true) {
+            // A Minutes record with no resolvable GovernanceBody has no approver
+            // roll to notify — that is a no-op, not a failure.
+            $bodyId = $this->context->governanceBodyIdForMinutes(minutes: $minutes);
+            if ($bodyId === null) {
                 $this->logger->info("No GovernanceBody linked to Minutes $minutesId");
                 return 0;
             }
 
-            // Query Memberships with chair/secretary roles.
-            $params = [
-                'role'   => ['chair', 'secretary'],
-                '_limit' => 999,
-            ];
-
-            $objectService->setRegister('decidesk');
-            $objectService->setSchema('participant');
-            $membershipEntities = $objectService->findAll(['filters' => $params]);
-
-            $userManager = $this->container->get(\OCP\IUserManager::class);
-            $sentCount   = 0;
-            foreach ($membershipEntities as $membershipEntity) {
-                $membership = $membershipEntity->jsonSerialize();
-                $ncUid      = $membership['nextcloudUserId'] ?? null;
-                if (empty($ncUid) === true) {
-                    $displayName = $membership['displayName'] ?? null;
-                    if (empty($displayName) === false) {
-                        $users = $userManager->search(pattern: $displayName, limit: 1);
-                        if (empty($users) === false) {
-                            $ncUid = array_values($users)[0]->getUID();
-                        }
-                    }
-                }
-
-                if (empty($ncUid) === true) {
-                    $memberName = $membership['displayName'] ?? '?';
-                    $this->logger->warning('MinutesService: cannot resolve Nextcloud UID', ['displayName' => $memberName]);
-                    continue;
-                }
-
-                try {
-                    $notificationService->sendNotification(
-                        userId: $ncUid,
-                        title: "Notulen ter goedkeuring: ".($minutes['title'] ?? 'Untitled'),
-                        message: "De notulen zijn ter goedkeuring ingediend.",
-                        deepLink: "/minutes/$minutesId"
-                    );
-                    $sentCount++;
-                } catch (\Exception $e) {
-                    $this->logger->warning("Failed to send approval notification: ".$e->getMessage());
-                }
-            }//end foreach
-
-            return $sentCount;
+            return $this->notifier->notifyAll(
+                participants: $this->context->participantsByRole(roles: self::APPROVER_ROLES),
+                title: "Notulen ter goedkeuring: ".($minutes['title'] ?? 'Untitled'),
+                message: "De notulen zijn ter goedkeuring ingediend.",
+                deepLink: "/minutes/$minutesId"
+            );
         } catch (\Exception $e) {
             $this->logger->error("MinutesService::notifyApproversOnSubmit failed: ".$e->getMessage());
             return 0;
         }//end try
+
     }//end notifyApproversOnSubmit()
 }//end class

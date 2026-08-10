@@ -92,9 +92,14 @@ class PublicationServiceTest extends TestCase
                 $row = array_merge(['id' => $uuid], $object);
                 $this->store[$uuid] = $row;
 
+                // No ->method('getUuid'): production declares getUuid() only as
+                // an `@method` tag served through Entity::__call, so it is not a
+                // real method — method_exists() is false for it and PHPUnit
+                // refuses to configure it. PublicationRepository::extractObjectId()
+                // therefore always takes its jsonSerialize() fallback, which is
+                // what $row['id'] exercises here (#399).
                 $entity = $this->createMock(ObjectEntity::class);
                 $entity->method('jsonSerialize')->willReturn($row);
-                $entity->method('getUuid')->willReturn($uuid);
                 return $entity;
             }
         );

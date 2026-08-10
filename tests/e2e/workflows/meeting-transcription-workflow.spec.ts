@@ -7,11 +7,34 @@
  * Playwright-UI / Newman-API split: the API/RBAC/data-shape scenarios are
  * @e2e-excluded inline in the spec deltas and covered by PHPUnit.
  *
- * Deterministic by design: every decidesk transcription API call and the
- * OpenRegister object reads the panel makes are intercepted with page.route so
- * the run does not depend on a live SpeechToText/AI provider or seeded backend
- * data. This is the "mocked provider fixture" the change's tasks call for; the
- * live-engine chain is deferred (see tasks.md task 5.5).
+ * PROVIDER determinism, DATA reality
+ * ----------------------------------
+ * Every decidesk transcription API call and the Transcript / AgendaItem reads
+ * the panel makes are still intercepted with `page.route`, so the run never
+ * depends on a live SpeechToText/AI provider. That is the "mocked provider
+ * fixture" the change's tasks call for and it is unchanged.
+ *
+ * What changed (run 31083903075 burndown) is the MEETING the panel is mounted
+ * on. The spec used to navigate to
+ *
+ *     ${BASE}/index.php/apps/decidesk/meetings/e2e-transcription-meeting
+ *
+ * — a hard-coded id for an object that has never existed, behind an
+ * `/index.php/` prefix the SPA router cannot match. `src/main.js` builds its
+ * history as `createWebHistory(generateUrl('/apps/decidesk'))`, and on the CI
+ * instance `generateUrl` resolves to `/apps/decidesk` (no `index.php`), so the
+ * requested path fell through to the router's catch-all
+ * `{ path: '/:pathMatch(.*)*', redirect: '/' }` and the browser sat on the
+ * DASHBOARD. The trace for that run confirms it: the only requests after the
+ * navigation are dashboard KPI aggregations, and NOT ONE call to the
+ * transcription `sources` endpoint. Every assertion then
+ * spent the whole 20s per-test budget waiting on a panel that was never on the
+ * page, which is why two of the three failures reported `Received: undefined`
+ * (a timeout kills the expect before it ever resolves a value) and the third
+ * reported "Target page … has been closed".
+ *
+ * So the panel is now mounted the way a user reaches it: a REAL seeded Meeting,
+ * opened on its real detail route, with the transcription API still mocked.
  *
  * @e2e openspec/specs/meeting-transcription/spec.md#attach-an-uploaded-recording-with-consent
  * @e2e openspec/specs/meeting-transcription/spec.md#no-provider-degrades-gracefully
@@ -27,17 +50,65 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
-const MEETING_ID = 'e2e-transcription-meeting'
+import {
+	BASE,
+	newLedger,
+	createObject,
+	cleanupAll,
+	objId,
+	type SeedLedger,
+} from './governance-fixture'
+
+let ledger: SeedLedger
+
+test.beforeAll(() => {
+	ledger = newLedger()
+})
+
+test.afterAll(async ({ browser }) => {
+	const page = await browser.newPage()
+	await cleanupAll(page, ledger)
+	await page.close()
+})
+
+/** A transcript the panel treats as finished, used by the read-side mocks. */
+const DONE_TRANSCRIPT = {
+	id: 'e2e-transcript',
+	status: 'done',
+	segments: [
+		{ agendaItem: 'item-a', speakerLabel: 'Speaker 1', text: 'Bespreking agendapunt A.' },
+		{ agendaItem: '', speakerLabel: 'Speaker 2', text: 'Losse opmerking.' },
+	],
+}
+
+/**
+ * Seed a real Meeting for the panel to mount on and return its UUID.
+ *
+ * `meetingType` / `meetingMode` / `lifecycle` are all closed enums in
+ * decidesk_register.json and all three are in Meeting's `required` list, so any
+ * value outside them is a hard 400 that would read as a broken transcription
+ * flow rather than an incomplete fixture.
+ */
+async function seedMeeting(page: Page): Promise<string> {
+	const meeting = await createObject(page, ledger, 'meeting', {
+		title: `e2e-${ledger.runId}-transcription-meeting`,
+		meetingType: 'regular',
+		meetingMode: 'in-person',
+		scheduledDate: '2026-09-01T10:00:00Z',
+		lifecycle: 'closed',
+	})
+	return objId(meeting)
+}
 
 /**
  * Install the mocked-provider fixture: intercept the transcription action API
  * and the OR object reads the panel issues. `providerAvailable` / `aiAvailable`
- * toggle the graceful-degradation paths.
+ * toggle the graceful-degradation paths; `existingTranscript` decides whether
+ * the panel finds a finished transcript already attached to the meeting.
  */
 async function mockTranscriptionApi(
 	page: Page,
-	opts: { providerAvailable: boolean; aiAvailable: boolean },
+	opts: { providerAvailable: boolean; aiAvailable: boolean; existingTranscript?: boolean },
 ): Promise<void> {
 	// Source list + provider availability.
 	await page.route('**/apps/decidesk/api/meetings/*/transcription/sources', (route) =>
@@ -52,20 +123,12 @@ async function mockTranscriptionApi(
 		}),
 	)
 
-	// Attach (consent precondition lives server-side; here we echo a pending transcript).
+	// Attach (consent precondition lives server-side; here we echo a done transcript).
 	await page.route('**/apps/decidesk/api/meetings/*/transcription/attach', (route) =>
 		route.fulfill({
 			status: 201,
 			contentType: 'application/json',
-			body: JSON.stringify({
-				id: 'e2e-transcript',
-				status: 'done',
-				segments: [
-					{ agendaItem: 'item-a', speakerLabel: 'Speaker 1', text: 'Bespreking agendapunt A.' },
-					{ agendaItem: '', speakerLabel: 'Speaker 2', text: 'Losse opmerking.' },
-				],
-				relations: { meeting: MEETING_ID },
-			}),
+			body: JSON.stringify(DONE_TRANSCRIPT),
 		}),
 	)
 
@@ -97,7 +160,11 @@ async function mockTranscriptionApi(
 
 	// OR object reads the panel does (existing transcript + agenda titles).
 	await page.route('**/apps/openregister/api/objects/decidesk/transcript**', (route) =>
-		route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ results: [] }) }),
+		route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({ results: opts.existingTranscript === true ? [DONE_TRANSCRIPT] : [] }),
+		}),
 	)
 	await page.route('**/apps/openregister/api/objects/decidesk/agenda-item**', (route) =>
 		route.fulfill({
@@ -108,26 +175,58 @@ async function mockTranscriptionApi(
 	)
 }
 
-/** Mount the transcription tab component shell directly via the SPA route. */
-async function gotoTranscription(page: Page): Promise<void> {
-	await page.goto(`${BASE}/index.php/apps/decidesk/meetings/${MEETING_ID}?tab=transcription`)
-	// The manifest shell mounts the tab; wait for our root test id.
-	await page.waitForSelector('[data-testid="meeting-transcription-tab"]', { timeout: 15000 }).catch(() => {})
+/**
+ * Open the meeting detail page and wait for the transcription panel.
+ *
+ * The wait is deliberately NOT swallowed: a `.catch(() => {})` here is what
+ * turned "the panel never mounted" into three unreadable timeouts instead of
+ * one honest failure naming the missing panel.
+ */
+async function gotoTranscription(page: Page, meetingId: string): Promise<void> {
+	await page.goto(`${BASE}/apps/decidesk/meetings/${meetingId}`)
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 10_000 })
+	await page.waitForSelector('[data-testid="meeting-transcription-tab"]', { timeout: 10_000 })
+}
+
+/**
+ * Pick the (single) mocked recording source in the NcSelect.
+ *
+ * The option is matched by ROLE and asserted on with `toContainText`, not by an
+ * exact accessible name: NcSelect renders every option through
+ * `NcEllipsisedOption`, which splits the label across two spans, and an
+ * `{ exact: true }` name match against that split is what makes
+ * `user-settings.spec.ts:171` hang on its own option lookup.
+ */
+async function selectRecordingSource(page: Page): Promise<void> {
+	await page.getByTestId('transcription-source-select').locator('input').first().click()
+	const option = page.getByRole('option').first()
+	await expect(option).toContainText('recording.mp3')
+	await option.click()
+	// The selection is observable, not assumed: Attach is bound to
+	// `:disabled="!selectedSource"`, so it only enables once the pick committed.
+	await expect(page.getByTestId('transcription-attach')).toBeEnabled()
 }
 
 test.describe('meeting transcription UI', () => {
 	test('provider-unavailable messaging is shown instead of an error', async ({ page }) => {
+		const meetingId = await seedMeeting(page)
 		await mockTranscriptionApi(page, { providerAvailable: false, aiAvailable: false })
-		await gotoTranscription(page)
+		await gotoTranscription(page, meetingId)
 		// Graceful degradation: attach still possible, transcribe shown unavailable.
 		await expect(page.getByTestId('transcription-unavailable')).toBeVisible()
+		await expect(page.getByTestId('transcription-attach')).toBeVisible()
 	})
 
 	test('attach with consent, transcript grouped by agenda item, generate draft + markers', async ({ page }) => {
+		const meetingId = await seedMeeting(page)
 		await mockTranscriptionApi(page, { providerAvailable: true, aiAvailable: true })
-		await gotoTranscription(page)
+		await gotoTranscription(page, meetingId)
 
-		// Attach requires the consent dialog (consent precondition surfaced in UI).
+		// Attach requires a chosen source AND the consent dialog (the consent
+		// precondition surfaced in the UI). The Attach button stays disabled
+		// until a source is picked, so the source selection is part of the flow.
+		await expect(page.getByTestId('transcription-attach')).toBeDisabled()
+		await selectRecordingSource(page)
 		await page.getByTestId('transcription-attach').click()
 		await expect(page.getByTestId('transcription-consent-modal')).toBeVisible()
 		// Confirm button disabled until consent is checked.
@@ -152,10 +251,14 @@ test.describe('meeting transcription UI', () => {
 	})
 
 	test('AI generation hidden when no AI provider is available', async ({ page }) => {
-		await mockTranscriptionApi(page, { providerAvailable: true, aiAvailable: false })
-		await gotoTranscription(page)
+		const meetingId = await seedMeeting(page)
+		// A finished transcript IS attached — otherwise `toHaveCount(0)` below
+		// would pass for the wrong reason (no transcript at all also hides the
+		// generate action), asserting nothing about AI-provider gating.
+		await mockTranscriptionApi(page, { providerAvailable: true, aiAvailable: false, existingTranscript: true })
+		await gotoTranscription(page, meetingId)
 		// Done transcript renders, but the generate-draft action is absent.
-		await expect(page.getByTestId('transcript-view')).toBeVisible().catch(() => {})
+		await expect(page.getByTestId('transcript-view')).toBeVisible()
 		await expect(page.getByTestId('transcription-generate-draft')).toHaveCount(0)
 	})
 })

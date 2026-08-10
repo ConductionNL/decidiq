@@ -82,15 +82,7 @@ class MeetingFolderListener implements IEventListener
                 return;
             }
 
-            $row = [];
-            if (method_exists($entity, 'getObject') === true) {
-                $row = (array) $entity->getObject();
-            }
-
-            if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-                $row = (array) $entity->jsonSerialize();
-            }
-
+            $row = $this->extractRow(entity: $entity);
             if ($this->resolveSchemaSlug(entity: $entity, row: $row) !== self::SCHEMA_MEETING) {
                 return;
             }
@@ -111,6 +103,33 @@ class MeetingFolderListener implements IEventListener
     }//end handle()
 
     /**
+     * Extract the serialized payload from an OR object entity.
+     *
+     * Prefers `getObject()`; falls back to `jsonSerialize()` when the former
+     * is absent or yields nothing.
+     *
+     * @param object $entity OR object entity
+     *
+     * @spec openspec/specs/nextcloud-integration/spec.md
+     *
+     * @return array<string, mixed> Serialized payload, or [] when unavailable
+     */
+    private function extractRow(object $entity): array
+    {
+        $row = [];
+        if (method_exists($entity, 'getObject') === true) {
+            $row = (array) $entity->getObject();
+        }
+
+        if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
+            $row = (array) $entity->jsonSerialize();
+        }
+
+        return $row;
+
+    }//end extractRow()
+
+    /**
      * Resolve the schema slug from the canonical OR entity surface
      * (the canonical meeting entity candidates).
      *
@@ -123,28 +142,23 @@ class MeetingFolderListener implements IEventListener
      */
     private function resolveSchemaSlug(object $entity, array $row): string
     {
-        $candidates = [
-            $row['_schemaSlug'] ?? null,
-            $row['_schema'] ?? null,
-            $row['schema'] ?? null,
-        ];
-        foreach ($candidates as $candidate) {
+        foreach (['_schemaSlug', '_schema', 'schema'] as $key) {
+            $candidate = ($row[$key] ?? null);
             if (is_string($candidate) === true && $candidate !== '') {
                 return $candidate;
             }
         }
 
-        if (method_exists($entity, 'getSchemaSlug') === true) {
-            $slug = $entity->getSchemaSlug();
-            if (is_string($slug) === true && $slug !== '') {
-                return $slug;
+        // Same order as the row keys above; each getter is consulted only when
+        // the entity actually exposes it.
+        foreach (['getSchemaSlug', 'getSchema'] as $getter) {
+            if (method_exists($entity, $getter) === false) {
+                continue;
             }
-        }
 
-        if (method_exists($entity, 'getSchema') === true) {
-            $schema = $entity->getSchema();
-            if (is_string($schema) === true && $schema !== '') {
-                return $schema;
+            $value = $entity->{$getter}();
+            if (is_string($value) === true && $value !== '') {
+                return $value;
             }
         }
 

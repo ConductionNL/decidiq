@@ -65,35 +65,84 @@ class ProcessTemplatePolicyResolver
             return null;
         }
 
-        $chairOnly = [];
-        foreach ($transitions as $transition) {
-            if (is_array($transition) === false) {
-                continue;
-            }
-
-            $from = ($transition['from'] ?? null);
-            $to   = ($transition['to'] ?? null);
-            if (is_string($from) === false || is_string($to) === false || $from === '' || $to === '') {
-                continue;
-            }
-
-            $isChairOnly = (($transition['chairOnly'] ?? false) === true);
-            if ($isChairOnly === false && in_array('chair_only', (array) ($transition['guards'] ?? []), true) === true) {
-                $isChairOnly = true;
-            }
-
-            if ($isChairOnly === true) {
-                $chairOnly[] = "$from:$to";
-            }
-        }//end foreach
-
         return [
             'quorumEnforced'         => (($template['quorumRequired'] ?? true) === true),
-            'chairOnlyTransitions'   => $chairOnly,
+            'chairOnlyTransitions'   => $this->chairOnlyTransitions(transitions: $transitions),
             'allowDecideWithoutVote' => (($template['allowDecideWithoutVote'] ?? false) === true),
         ];
 
     }//end resolve()
+
+    /**
+     * Collect the `from:to` edges that only the chair may traverse.
+     *
+     * @param array<int|string, mixed> $transitions The declared transitions
+     *
+     * @spec openspec/specs/process-configuration/spec.md
+     *
+     * @return list<string> The chair-only transition edges
+     */
+    private function chairOnlyTransitions(array $transitions): array
+    {
+        $chairOnly = [];
+        foreach ($transitions as $transition) {
+            $edge = $this->transitionEdge(transition: $transition);
+            if ($edge === null) {
+                continue;
+            }
+
+            if ($this->isChairOnly(transition: $transition) === true) {
+                $chairOnly[] = $edge;
+            }
+        }
+
+        return $chairOnly;
+
+    }//end chairOnlyTransitions()
+
+    /**
+     * Render a transition as its `from:to` edge key, or null when malformed.
+     *
+     * @param mixed $transition A single transitions[] entry
+     *
+     * @spec openspec/specs/process-configuration/spec.md
+     *
+     * @return string|null The edge key, or null when the transition is unusable
+     */
+    private function transitionEdge(mixed $transition): ?string
+    {
+        if (is_array($transition) === false) {
+            return null;
+        }
+
+        $from = ($transition['from'] ?? null);
+        $to   = ($transition['to'] ?? null);
+        if (is_string($from) === false || is_string($to) === false || $from === '' || $to === '') {
+            return null;
+        }
+
+        return "$from:$to";
+
+    }//end transitionEdge()
+
+    /**
+     * Decide whether a transition is chair-only, via the flag or the guard token.
+     *
+     * @param array<string, mixed> $transition A well-formed transitions[] entry
+     *
+     * @spec openspec/specs/process-configuration/spec.md
+     *
+     * @return bool True when only the chair may traverse the transition
+     */
+    private function isChairOnly(array $transition): bool
+    {
+        if (($transition['chairOnly'] ?? false) === true) {
+            return true;
+        }
+
+        return in_array('chair_only', (array) ($transition['guards'] ?? []), true);
+
+    }//end isChairOnly()
 
     /**
      * Extract the template's default voting rule, or null when not configured.

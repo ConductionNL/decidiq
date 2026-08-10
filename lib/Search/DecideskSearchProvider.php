@@ -120,6 +120,10 @@ class DecideskSearchProvider implements IProvider
      * @spec openspec/specs/nextcloud-integration/spec.md
      *
      * @return int|null
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $routeParameters is mandated by
+     * the OCP\Search\IProvider::getOrder() signature; ordering depends only on the
+     * route name, so the parameter cannot be removed.
      */
     public function getOrder(string $route, array $routeParameters): ?int
     {
@@ -143,6 +147,19 @@ class DecideskSearchProvider implements IProvider
      * @spec openspec/specs/nextcloud-integration/spec.md
      *
      * @return SearchResult
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $user is mandated by the
+     * OCP\Search\IProvider::search() signature. Per-object visibility is enforced
+     * by OpenRegister RBAC from the session user inside ObjectService::findAll(),
+     * so this method never reads the parameter directly.
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess) OCP\Search\SearchResult is a `final`
+     * class with a PRIVATE constructor; SearchResult::complete() /
+     * ::paginated() are the only ways to build the value object that
+     * OCP\Search\IProvider::search() is required to return. Nextcloud exposes no
+     * injectable factory for it, so the static call cannot be replaced without
+     * breaking the interface contract — it is not hidden coupling that a seam
+     * could remove. Verified against nextcloud lib/public/Search/SearchResult.php.
      */
     public function search(IUser $user, ISearchQuery $query): SearchResult
     {

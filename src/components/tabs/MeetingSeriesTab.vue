@@ -70,7 +70,7 @@
 
 			<NcButton
 				variant="primary"
-				native-type="submit"
+				type="submit"
 				data-testid="series-generate"
 				:disabled="generating || preview.error !== null || preview.dates.length === 0"
 				:aria-label="t('decidesk', 'Generate meeting series')">

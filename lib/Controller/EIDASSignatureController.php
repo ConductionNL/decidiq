@@ -97,9 +97,9 @@ class EIDASSignatureController extends Controller
         $signatories = array_values(array_map('strval', $signatories));
 
         $result = $this->signatureService->initializeSigningRequest($minutesId, $signatories);
-        if (($result['success'] ?? false) === false) {
+        if ($result['success'] === false) {
             return new JSONResponse(
-                ['message' => (string) ($result['message'] ?? 'Failed to initiate signing.')],
+                ['message' => $result['message']],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
         }
@@ -147,10 +147,10 @@ class EIDASSignatureController extends Controller
 
         return new JSONResponse(
             [
-                'valid'                 => (bool) ($result['valid'] ?? false),
-                'certificateThumbprint' => ($result['certificateThumbprint'] ?? null),
-                'timestamp'             => ($result['timestamp'] ?? null),
-                'message'               => (string) ($result['message'] ?? ''),
+                'valid'                 => $result['valid'],
+                'certificateThumbprint' => $result['certificateThumbprint'],
+                'timestamp'             => $result['timestamp'],
+                'message'               => $result['message'],
                 'minutesId'             => $minutesId,
             ]
         );
@@ -179,9 +179,9 @@ class EIDASSignatureController extends Controller
         $signatures = (array) $this->request->getParam('signatures', []);
 
         $result = $this->signatureService->finalizeMinutes($minutesId, $signatures);
-        if (($result['success'] ?? false) === false) {
+        if ($result['success'] === false) {
             return new JSONResponse(
-                ['message' => (string) ($result['message'] ?? 'Failed to finalize minutes.')],
+                ['message' => $result['message']],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
         }
@@ -227,10 +227,10 @@ class EIDASSignatureController extends Controller
 
         return new JSONResponse(
             [
-                'valid'          => (bool) ($result['valid'] ?? false),
-                'issuer'         => ($result['issuer'] ?? null),
-                'trustListLevel' => ($result['trustListLevel'] ?? null),
-                'message'        => (string) ($result['message'] ?? ''),
+                'valid'          => $result['valid'],
+                'issuer'         => $result['issuer'],
+                'trustListLevel' => $result['trustListLevel'],
+                'message'        => $result['message'],
             ]
         );
 

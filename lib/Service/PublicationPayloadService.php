@@ -18,11 +18,12 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -77,7 +78,7 @@ class PublicationPayloadService
             case 'minutes':
                 return $this->buildMinutesPayload(source: $source, bodyId: $bodyId, version: $version);
             default:
-                throw new \InvalidArgumentException('Unknown publication source type: '.$sourceType);
+                throw new InvalidArgumentException('Unknown publication source type: '.$sourceType);
         }
 
     }//end build()

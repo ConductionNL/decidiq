@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -108,9 +110,9 @@ class BoardEvaluationScoreService
      *
      * Each response is shaped ['answers' => [ ['dimension'=>, 'likertValue'=>?, 'freeText'=>?], ... ]].
      *
-     * @param array<int, array<string, mixed>> $responses              The response payloads
-     * @param int                              $invitedMemberCount     Number of invited members (roster size)
-     * @param int                              $minRespondentThreshold Minimum respondents required to expose breakdowns
+     * @param array<int, array<string, mixed>> $responses          The response payloads
+     * @param int                              $invitedMemberCount Number of invited members (roster size)
+     * @param int                              $minRespondents     Minimum respondents required to expose breakdowns
      *
      * @return array<string, mixed> {
      *   overallScore: float|null, respondentCount: int, invitedMemberCount: int,
@@ -124,10 +126,10 @@ class BoardEvaluationScoreService
     public function computeScoreSummary(
         array $responses,
         int $invitedMemberCount,
-        int $minRespondentThreshold=self::DEFAULT_MIN_RESPONDENT_THRESHOLD
+        int $minRespondents=self::DEFAULT_MIN_RESPONDENT_THRESHOLD
     ): array {
         $respondentCount = count($responses);
-        $threshold       = max(1, $minRespondentThreshold);
+        $threshold       = max(1, $minRespondents);
         $thresholdMet    = ($respondentCount >= $threshold);
 
         [$dimensionScores, $overallScore] = $this->computeDimensionScores(responses: $responses);
@@ -136,11 +138,11 @@ class BoardEvaluationScoreService
         // Below threshold: NO per-dimension or free-text breakdown is ever
         // materialised — not merely hidden from a renderer — so a small
         // board cannot de-anonymise an answer by inference (design D2).
-        $exposedDimensionScores = null;
-        $exposedThemes          = null;
+        $exposedScores = null;
+        $exposedThemes = null;
         if ($thresholdMet === true) {
-            $exposedDimensionScores = $dimensionScores;
-            $exposedThemes          = $themes;
+            $exposedScores = $dimensionScores;
+            $exposedThemes = $themes;
         }
 
         $summary = [
@@ -150,9 +152,9 @@ class BoardEvaluationScoreService
             'minRespondentThreshold' => $threshold,
             'thresholdMet'           => $thresholdMet,
             'suppressed'             => ($thresholdMet === false),
-            'dimensionScores'        => $exposedDimensionScores,
+            'dimensionScores'        => $exposedScores,
             'themes'                 => $exposedThemes,
-            'computedAt'             => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'computedAt'             => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
         ];
 
         return $summary;
@@ -190,12 +192,22 @@ class BoardEvaluationScoreService
 
             $objectService->setRegister('decidesk');
             $objectService->setSchema('evaluation-response');
-            $responseEntities = $objectService->findAll(
-                [
-                    'filters' => [
-                        '_relations.board-evaluation' => $evaluationId,
-                    ],
-                ]
+            // NOT `_relations.board-evaluation`: responses are written with a
+            // structured `relations` array (BoardEvaluationResponseService), which
+            // OpenRegister flattens to `_relations` keys of the form
+            // `relations.<n>.id` — a slug-keyed filter matched zero rows, so every
+            // cycle closed with an empty response set and a vacuous score summary
+            // on a healthy 200. See ObjectRelationFilter.
+            //
+            // The filter pins the related id but not the related SCHEMA, so the
+            // set is re-checked below before it is scored.
+            $relationFilter   = $this->container->get(ObjectRelationFilter::class);
+            $responseEntities = $relationFilter->matching(
+                entities: $objectService->findAll(
+                    ['filters' => $relationFilter->filterFor(targetId: $evaluationId)]
+                ),
+                schema: 'board-evaluation',
+                targetId: $evaluationId
             );
 
             $responses = array_map(
@@ -203,18 +215,18 @@ class BoardEvaluationScoreService
                 $responseEntities
             );
 
-            $invitedMemberCount     = (int) ($evaluation['invitedMemberCount'] ?? count(($evaluation['invitedParticipantIds'] ?? [])));
-            $minRespondentThreshold = (int) ($evaluation['minRespondentThreshold'] ?? self::DEFAULT_MIN_RESPONDENT_THRESHOLD);
+            $invitedMemberCount = (int) ($evaluation['invitedMemberCount'] ?? count(($evaluation['invitedParticipantIds'] ?? [])));
+            $minRespondents     = (int) ($evaluation['minRespondentThreshold'] ?? self::DEFAULT_MIN_RESPONDENT_THRESHOLD);
 
             $summary = $this->computeScoreSummary(
                 responses: $responses,
                 invitedMemberCount: $invitedMemberCount,
-                minRespondentThreshold: $minRespondentThreshold
+                minRespondents: $minRespondents
             );
 
             $evaluation['scoreSummary']   = json_encode($summary);
             $evaluation['lifecycle']      = 'closed';
-            $evaluation['closedAt']       = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+            $evaluation['closedAt']       = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
             $evaluation['respondedCount'] = $summary['respondentCount'];
 
             $saved = $objectService->saveObject(register: 'decidesk', schema: 'board-evaluation', object: $evaluation);
@@ -304,47 +316,14 @@ class BoardEvaluationScoreService
      */
     private function computeThemes(array $responses): array
     {
-        $wordCountsByDimension = [];
+        $dimensionWords = [];
 
         foreach ($responses as $response) {
-            $answers = [];
-            if (is_array($response['answers'] ?? null) === true) {
-                $answers = $response['answers'];
-            }
-
-            foreach ($answers as $answer) {
-                if (is_array($answer) === false) {
-                    continue;
-                }
-
-                $freeText = (string) ($answer['freeText'] ?? '');
-                if (trim($freeText) === '') {
-                    continue;
-                }
-
-                $dimension = (string) ($answer['dimension'] ?? '');
-                if ($dimension === '') {
-                    continue;
-                }
-
-                $words = preg_split('/[^\p{L}]+/u', mb_strtolower($freeText));
-                if (is_array($words) === false) {
-                    $words = [];
-                }
-
-                foreach ($words as $word) {
-                    $isStopword = in_array($word, self::THEME_STOPWORDS, true);
-                    if (mb_strlen($word) <= 3 || $isStopword === true) {
-                        continue;
-                    }
-
-                    $wordCountsByDimension[$dimension][$word] = ($wordCountsByDimension[$dimension][$word] ?? 0) + 1;
-                }
-            }//end foreach
-        }//end foreach
+            $this->collectThemeWords(response: $response, dimensionWords: $dimensionWords);
+        }
 
         $themes = [];
-        foreach ($wordCountsByDimension as $dimension => $wordCounts) {
+        foreach ($dimensionWords as $dimension => $wordCounts) {
             arsort($wordCounts);
             $top = [];
             foreach (array_slice($wordCounts, 0, 3, true) as $word => $count) {
@@ -357,6 +336,70 @@ class BoardEvaluationScoreService
         return $themes;
 
     }//end computeThemes()
+
+    /**
+     * Accumulate the significant free-text words of a single response into the
+     * per-dimension word-frequency tally.
+     *
+     * @param array<string, mixed>              $response       One response payload
+     * @param array<string, array<string, int>> $dimensionWords Tally accumulated across responses (by reference)
+     *
+     * @return void
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+     */
+    private function collectThemeWords(array $response, array &$dimensionWords): void
+    {
+        $answers = [];
+        if (is_array($response['answers'] ?? null) === true) {
+            $answers = $response['answers'];
+        }
+
+        foreach ($answers as $answer) {
+            if (is_array($answer) === false) {
+                continue;
+            }
+
+            $freeText  = (string) ($answer['freeText'] ?? '');
+            $dimension = (string) ($answer['dimension'] ?? '');
+            if (trim($freeText) === '' || $dimension === '') {
+                continue;
+            }
+
+            foreach ($this->significantWords(text: $freeText) as $word) {
+                $dimensionWords[$dimension][$word] = ($dimensionWords[$dimension][$word] ?? 0) + 1;
+            }
+        }//end foreach
+
+    }//end collectThemeWords()
+
+    /**
+     * Split free text into lowercase word tokens, dropping stopwords and
+     * tokens of four characters or fewer.
+     *
+     * @param string $text The free-text answer
+     *
+     * @return array<int, string> The significant tokens, in order of appearance
+     *
+     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
+     */
+    private function significantWords(string $text): array
+    {
+        $words = preg_split('/[^\p{L}]+/u', mb_strtolower($text));
+        if (is_array($words) === false) {
+            return [];
+        }
+
+        $significant = array_filter(
+            $words,
+            static function (string $word): bool {
+                return mb_strlen($word) > 3 && in_array($word, self::THEME_STOPWORDS, true) === false;
+            }
+        );
+
+        return array_values($significant);
+
+    }//end significantWords()
 
     /**
      * Normalise a saved ObjectEntity (or array) to an array.

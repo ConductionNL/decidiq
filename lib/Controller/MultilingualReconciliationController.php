@@ -26,8 +26,10 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MultilingualReconciliationService;
+use OCA\Decidesk\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -47,14 +49,14 @@ class MultilingualReconciliationController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest                          $request               HTTP request
-     * @param MultilingualReconciliationService $reconciliationService Reconciliation service
-     * @param IUserSession                      $userSession           User session
-     * @param IGroupManager                     $groupManager          Group manager
+     * @param IRequest                          $request      HTTP request
+     * @param MultilingualReconciliationService $reconciler   Reconciliation service
+     * @param IUserSession                      $userSession  User session
+     * @param IGroupManager                     $groupManager Group manager
      */
     public function __construct(
         IRequest $request,
-        private readonly MultilingualReconciliationService $reconciliationService,
+        private readonly MultilingualReconciliationService $reconciler,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
     ) {
@@ -73,6 +75,7 @@ class MultilingualReconciliationController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function queue(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -91,10 +94,10 @@ class MultilingualReconciliationController extends Controller
             );
         }
 
-        $result = $this->reconciliationService->queue($minutesId, $sourceLocale, $targetLocales);
-        if (($result['success'] ?? false) === false) {
+        $result = $this->reconciler->queue($minutesId, $sourceLocale, $targetLocales);
+        if ($result['success'] === false) {
             return new JSONResponse(
-                ['message' => (string) ($result['message'] ?? 'Failed to queue translation.')],
+                ['message' => $result['message']],
                 Http::STATUS_UNPROCESSABLE_ENTITY
             );
         }
@@ -116,6 +119,7 @@ class MultilingualReconciliationController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function status(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -124,7 +128,7 @@ class MultilingualReconciliationController extends Controller
         }
 
         $limit  = (int) $this->request->getParam('limit', 50);
-        $result = $this->reconciliationService->status($limit);
+        $result = $this->reconciler->status($limit);
         return new JSONResponse(
             [
                 'summary' => $result['summary'],
@@ -141,6 +145,7 @@ class MultilingualReconciliationController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function process(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -149,18 +154,18 @@ class MultilingualReconciliationController extends Controller
         }
 
         $maxEntries = (int) $this->request->getParam('maxEntries', 10);
-        $result     = $this->reconciliationService->processQueue($maxEntries);
+        $result     = $this->reconciler->processQueue($maxEntries);
         $status     = Http::STATUS_UNPROCESSABLE_ENTITY;
-        if (($result['success'] ?? false) === true) {
+        if ($result['success'] === true) {
             $status = Http::STATUS_OK;
         }
 
         return new JSONResponse(
             [
-                'processed' => $result['processed'] ?? 0,
-                'completed' => $result['completed'] ?? 0,
-                'failed'    => $result['failed'] ?? 0,
-                'message'   => $result['message'] ?? '',
+                'processed' => $result['processed'],
+                'completed' => $result['completed'],
+                'failed'    => $result['failed'],
+                'message'   => $result['message'],
             ],
             $status
         );

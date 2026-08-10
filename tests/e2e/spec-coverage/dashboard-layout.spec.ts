@@ -17,7 +17,7 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
 
 /**
  * Navigate to the Decidesk dashboard root and wait for the SPA shell to mount.

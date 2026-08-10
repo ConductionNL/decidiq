@@ -21,7 +21,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -87,9 +87,9 @@ class QuorumVerificationService
             }
         }
 
-        $threshold = (int) ($report['threshold'] ?? 0);
+        $threshold = $report['threshold'];
         return [
-            'total'     => (int) $report['total'],
+            'total'     => $report['total'],
             'present'   => $present,
             'threshold' => $threshold,
             'met'       => ($threshold > 0 && $present >= $threshold),
@@ -106,56 +106,127 @@ class QuorumVerificationService
      *  - `attendance` (array of { boardMemberKoppeling, mode })
      *  - `quorumRequired` (optional, overrides board-level computation)
      *
+     * Returns an empty array when the meeting cannot be resolved or the
+     * OpenRegister lookup fails; callers must treat `[]` as "unknown".
+     *
      * @param string $meetingId UUID of the board meeting
      *
      * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
      *
-     * @return array{total: int, threshold: int, members: array<int, array{boardMemberKoppeling: string, status: string}>}
+     * @return array{}|array{total: int, threshold: int, members: array<int, array{boardMemberKoppeling: string, status: string}>}
      */
     public function getAttendanceReport(string $meetingId): array
+    {
+        $context = $this->loadAttendanceContext(meetingId: $meetingId);
+        if ($context === null) {
+            return [];
+        }
+
+        $members = $this->buildMemberRows(
+            rows: $context['members'],
+            boardId: $context['boardId'],
+            attendanceMap: $this->buildAttendanceMap(meetingData: $context['meeting'])
+        );
+
+        $total = count($members);
+
+        return [
+            'total'     => $total,
+            'threshold' => $this->resolveThreshold(meetingData: $context['meeting'], total: $total),
+            'members'   => $members,
+        ];
+
+    }//end getAttendanceReport()
+
+    /**
+     * Load the meeting and its board's membership rows from OpenRegister.
+     *
+     * Returns null when the meeting cannot be resolved or the lookup fails —
+     * callers translate that into the "unknown" empty report.
+     *
+     * @param string $meetingId UUID of the board meeting
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+     *
+     * @return array{meeting: array<string, mixed>, boardId: string, members: mixed}|null
+     */
+    private function loadAttendanceContext(string $meetingId): ?array
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
             $meeting = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
             if ($meeting === null) {
-                return [];
+                return null;
             }
 
             $meetingData = $this->toArray(row: $meeting);
             $boardId     = (string) ($meetingData['boardKoppeling'] ?? '');
 
-            $allMembers = $objectService->findAll(
-                [
-                    'register' => 'decidesk',
-                    'schema'   => 'membership',
-                    'filters'  => ['boardKoppeling' => $boardId],
-                    'limit'    => 1000,
-                ]
-            );
+            return [
+                'meeting' => $meetingData,
+                'boardId' => $boardId,
+                'members' => $objectService->findAll(
+                    [
+                        'register' => 'decidesk',
+                        'schema'   => 'membership',
+                        'filters'  => ['boardKoppeling' => $boardId],
+                        'limit'    => 1000,
+                    ]
+                ),
+            ];
         } catch (\Throwable $e) {
             $this->logger->error(
                 'Decidesk: failed to build attendance report',
                 ['meetingId' => $meetingId, 'exception' => $e->getMessage()]
             );
-            return [];
+            return null;
         }//end try
 
+    }//end loadAttendanceContext()
+
+    /**
+     * Index the meeting's attendance entries by board-member uuid.
+     *
+     * @param array<string, mixed> $meetingData Meeting object data
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+     *
+     * @return array<string, string> Board-member uuid => attendance mode
+     */
+    private function buildAttendanceMap(array $meetingData): array
+    {
         $attendanceMap = [];
         foreach ((array) ($meetingData['attendance'] ?? []) as $entry) {
             if (is_array($entry) === false) {
                 continue;
             }
 
-            $uid  = (string) ($entry['boardMemberKoppeling'] ?? '');
-            $mode = (string) ($entry['mode'] ?? 'absent');
+            $uid = (string) ($entry['boardMemberKoppeling'] ?? '');
             if ($uid !== '') {
-                $attendanceMap[$uid] = $mode;
+                $attendanceMap[$uid] = (string) ($entry['mode'] ?? 'absent');
             }
         }
 
+        return $attendanceMap;
+
+    }//end buildAttendanceMap()
+
+    /**
+     * Project the board's membership rows onto the attendance report shape.
+     *
+     * @param mixed                 $rows          Membership rows as returned by findAll()
+     * @param string                $boardId       Board uuid the meeting belongs to
+     * @param array<string, string> $attendanceMap Board-member uuid => attendance mode
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+     *
+     * @return array<int, array{boardMemberKoppeling: string, status: string}>
+     */
+    private function buildMemberRows(mixed $rows, string $boardId, array $attendanceMap): array
+    {
         $members = [];
-        foreach ((array) $allMembers as $row) {
+        foreach ((array) $rows as $row) {
             if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
                 $row = (array) $row->jsonSerialize();
             }
@@ -182,16 +253,9 @@ class QuorumVerificationService
             ];
         }//end foreach
 
-        $total     = count($members);
-        $threshold = $this->resolveThreshold(meetingData: $meetingData, total: $total);
+        return $members;
 
-        return [
-            'total'     => $total,
-            'threshold' => $threshold,
-            'members'   => $members,
-        ];
-
-    }//end getAttendanceReport()
+    }//end buildMemberRows()
 
     /**
      * Resolve the integer quorum threshold for the meeting.

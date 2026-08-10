@@ -5,7 +5,7 @@
  RunningProcessesWidget — motions in flight, grouped by lifecycle stage
  (REQ-001).
 
- Fetches motions with lifecycle in [submitted, under-discussion, voting] and
+ Fetches motions with lifecycle in [proposed, deliberating, voting] and
  groups them by stage in a computed property (reduce). Each stage renders a
  labelled section; clicking a motion entry navigates to the motion detail
  view. An empty state is shown when no motions are in flight.
@@ -37,7 +37,11 @@
 						:key="motion.id"
 						:data-testid="`running-motion-row-${motion.id}`"
 						class="running-processes__row"
-						@click="openMotion(motion)">
+						role="button"
+						tabindex="0"
+						@click="openMotion(motion)"
+						@keydown.enter.prevent="openMotion(motion)"
+						@keydown.space.prevent="openMotion(motion)">
 						{{ motion.title || motion.name }}
 					</li>
 				</ul>
@@ -71,12 +75,18 @@ export default {
 		/**
 		 * Stage descriptors (key + translated label) in display order.
 		 *
+		 * Keys are ADR-005 `Decision.lifecycle` values. The labels stay in the
+		 * reader's language ("Submitted", "Under discussion") because they name
+		 * what the stage MEANS to a council member, not what the schema calls it.
+		 *
+		 * @spec openspec/specs/dashboard/spec.md
+		 *
 		 * @return {Array<{key: string, label: string}>} Ordered stages.
 		 */
 		stages() {
 			const labels = {
-				submitted: t('decidesk', 'Submitted'),
-				'under-discussion': t('decidesk', 'Under discussion'),
+				proposed: t('decidesk', 'Submitted'),
+				deliberating: t('decidesk', 'Under discussion'),
 				voting: t('decidesk', 'Voting'),
 			}
 			return RUNNING_MOTION_LIFECYCLES.map((key) => ({ key, label: labels[key] }))
@@ -179,5 +189,14 @@ export default {
 
 .running-processes__row:hover {
 	background: var(--color-background-hover, #f5f5f5);
+}
+
+/* The row is keyboard-focusable, so its focus must be VISIBLE (WCAG 2.4.7).
+   Without this the row could be tabbed to but not seen, which is worse than
+   not being reachable at all. */
+.running-processes__row:focus-visible {
+	background: var(--color-background-hover, #f5f5f5);
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
 }
 </style>

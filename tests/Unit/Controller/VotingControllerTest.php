@@ -14,7 +14,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 
 declare(strict_types=1);
 
@@ -23,6 +23,10 @@ namespace OCA\Decidesk\Tests\Unit\Controller;
 use OCA\Decidesk\Controller\VotingController;
 use OCA\Decidesk\Service\OriPublicationService;
 use OCA\Decidesk\Service\ParticipantResolver;
+use OCA\Decidesk\Service\ProxyDelegationService;
+use OCA\Decidesk\Service\VotingErrorResponder;
+use OCA\Decidesk\Service\VotingOpenRequestHandler;
+use OCA\Decidesk\Service\VotingRoundGuard;
 use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -131,13 +135,18 @@ class VotingControllerTest extends TestCase
         return new VotingController(
             request: $this->request,
             votingService: $this->votingService,
-            oriPublicationService: $this->oriPublicationService,
+            oriService: $this->oriPublicationService,
             userSession: $session,
-            groupManager: $this->groupManager,
-            appConfig: $this->appConfig,
-            logger: $this->logger,
-            participantResolver: $participantResolver,
-            container: $container,
+            guard: new VotingRoundGuard(
+                userSession: $session,
+                groupManager: $this->groupManager,
+                appConfig: $this->appConfig,
+                participantResolver: $participantResolver,
+                container: $container
+            ),
+            openHandler: new VotingOpenRequestHandler(votingService: $this->votingService),
+            proxyService: new ProxyDelegationService(container: $container, logger: $this->logger),
+            errors: new VotingErrorResponder(logger: $this->logger),
         );
 
     }//end buildController()
@@ -217,7 +226,11 @@ class VotingControllerTest extends TestCase
      */
     public function testProxyUnauthenticatedReturns401(): void
     {
-        $this->votingService->expects($this->never())->method('grantProxy');
+        // Negative control: proxy() resolves the acting participant through
+        // VotingService immediately AFTER the auth check and before it reaches
+        // ProxyDelegationService, so "resolveParticipantUuid was never called"
+        // proves the 401 was raised by the guard and not by later work.
+        $this->votingService->expects($this->never())->method('resolveParticipantUuid');
 
         $result = $this->buildController($this->unauthSession)->proxy('round-uuid-001');
 
@@ -251,7 +264,11 @@ class VotingControllerTest extends TestCase
      */
     public function testRevokeProxyUnauthenticatedReturns401(): void
     {
-        $this->votingService->expects($this->never())->method('revokeProxy');
+        // Negative control: revokeProxy() resolves the acting participant through
+        // VotingService immediately AFTER the auth check and before it reaches
+        // ProxyDelegationService, so "resolveParticipantUuid was never called"
+        // proves the 401 was raised by the guard and not by later work.
+        $this->votingService->expects($this->never())->method('resolveParticipantUuid');
 
         $result = $this->buildController($this->unauthSession)->revokeProxy('round-uuid-001');
 

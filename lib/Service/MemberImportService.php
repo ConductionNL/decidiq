@@ -18,11 +18,12 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use InvalidArgumentException;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 
@@ -122,7 +123,7 @@ class MemberImportService
      *
      * @spec openspec/specs/admin-settings/spec.md
      *
-     * @throws \InvalidArgumentException When the batch exceeds MAX_MATCH_ROWS.
+     * @throws InvalidArgumentException When the batch exceeds MAX_MATCH_ROWS.
      *
      * @return array<string,array{uid:string,displayName:string}|null>
      *         Map of input email => matched account (null when unmatched or
@@ -131,7 +132,7 @@ class MemberImportService
     public function matchEmails(array $emails): array
     {
         if (count($emails) > self::MAX_MATCH_ROWS) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'At most '.self::MAX_MATCH_ROWS.' emails can be matched per request.'
             );
         }

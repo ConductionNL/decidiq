@@ -23,7 +23,8 @@
  */
 import { test, expect, request as pwRequest, type APIRequestContext, type Page } from '@playwright/test'
 
-const BASE = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+import { BASE_URL as BASE } from '../base-url'
+import { MOTION_SCHEMA } from '../workflows/governance-fixture'
 const ADMIN_USER = process.env.NC_ADMIN_USER || 'admin'
 const ADMIN_PASS = process.env.NC_ADMIN_PASS || 'admin'
 
@@ -42,10 +43,24 @@ async function newApiContext(): Promise<APIRequestContext> {
 	})
 }
 
-/** Create a decidesk object via the OR object API; null when seeding is unavailable. */
+/**
+ * Create a decidesk object via the OR object API.
+ *
+ * ⚠️ This used to `return null` on any non-2xx, and every caller then did
+ * `test.skip(!id, 'OpenRegister seeding API unavailable on this instance')`. That
+ * turned a MALFORMED REQUEST into a skip that blamed the instance: the motion
+ * seeds below addressed schema `motion`, which ADR-005 deleted, so the POST
+ * answered 404 "Schema not found: 'motion'" on every run and three tests
+ * reported SKIPPED — never once telling anyone the request was wrong.
+ *
+ * A seed that cannot succeed must fail loudly, with the status and the body, the
+ * way tests/e2e/workflows/governance-fixture.ts already does.
+ */
 async function createObject(api: APIRequestContext, schema: string, body: object): Promise<string | null> {
 	const resp = await api.post(`/index.php/apps/openregister/api/objects/decidesk/${schema}`, { data: body })
-	if (!resp.ok()) return null
+	if (!resp.ok()) {
+		throw new Error(`createObject(${schema}) failed ${resp.status()}: ${await resp.text()}`)
+	}
 	const json = await resp.json()
 	return json?.['@self']?.id ?? json?.id ?? null
 }
@@ -102,18 +117,26 @@ test('open-round dialog offers threshold, abstention and tie-break selectors wit
 			lifecycle: 'opened',
 			quorumRequired: 1,
 		})
-		test.skip(!meetingId, 'OpenRegister seeding API unavailable on this instance')
+		expect(meetingId, 'the seeded meeting must carry an id').toBeTruthy()
 
-		motionId = await createObject(api, 'motion', {
+		// ADR-005: a motion IS a Decision (decisionType='motion'). The `motion`
+		// schema no longer exists. `decisionDate`, `outcome` and `decisionType` are
+		// all in Decision.required[]; `lifecycle` is
+		// [draft, proposed, deliberating, voting, decided, enacted, archived,
+		// withdrawn] — there is no 'debating'. Decision has no `meeting` property
+		// (the AgendaItem carries that link), so passing one invents a field.
+		motionId = await createObject(api, MOTION_SCHEMA, {
+			decisionType: 'motion',
 			title: 'E2E VR Rules Motion',
 			text: 'That voting rules be configurable.',
+			decisionDate: '2026-06-20T10:00:00+00:00',
+			outcome: 'adopted',
 			motionType: 'motion',
 			proposer: 'E2E VR',
-			lifecycle: 'debating',
+			lifecycle: 'deliberating',
 			submittedAt: '2026-06-19T09:00:00+00:00',
-			meeting: meetingId,
 		})
-		test.skip(!motionId, 'OpenRegister seeding API unavailable on this instance')
+		expect(motionId, 'the seeded motion Decision must carry an id').toBeTruthy()
 
 		test.skip(!(await openVotingRoundTab(page, motionId as string)),
 			'Voting round tab not deployed on this instance (deploy mismatch)')
@@ -153,7 +176,7 @@ test('open-round dialog offers threshold, abstention and tie-break selectors wit
 		await tieBreak.selectOption('chair-decides')
 		await expect(tieBreak).toHaveValue('chair-decides')
 	} finally {
-		await deleteObject(api, 'motion', motionId)
+		await deleteObject(api, MOTION_SCHEMA, motionId)
 		await deleteObject(api, 'meeting', meetingId)
 		await api.dispose()
 	}
@@ -166,15 +189,19 @@ test('closed-round result shows the active rules and the computed base', async (
 	let motionId: string | null = null
 	let roundId: string | null = null
 	try {
-		motionId = await createObject(api, 'motion', {
+		// 'adopted' is an `outcome`, not a `lifecycle`; the decided state is 'decided'.
+		motionId = await createObject(api, MOTION_SCHEMA, {
+			decisionType: 'motion',
 			title: 'E2E VR Result Motion',
 			text: 'Closed-round rules display host motion.',
+			decisionDate: '2026-06-20T10:00:00+00:00',
+			outcome: 'adopted',
 			motionType: 'motion',
 			proposer: 'E2E VR',
-			lifecycle: 'adopted',
+			lifecycle: 'decided',
 			submittedAt: '2026-06-19T09:00:00+00:00',
 		})
-		test.skip(!motionId, 'OpenRegister seeding API unavailable on this instance')
+		expect(motionId, 'the seeded motion Decision must carry an id').toBeTruthy()
 
 		// Closed two-thirds round with the spec's worked example (14/5/1 → base 19).
 		roundId = await createObject(api, 'voting-round', {
@@ -205,7 +232,7 @@ test('closed-round result shows the active rules and the computed base', async (
 		await expect(rules).toContainText('base: 19')
 	} finally {
 		await deleteObject(api, 'voting-round', roundId)
-		await deleteObject(api, 'motion', motionId)
+		await deleteObject(api, MOTION_SCHEMA, motionId)
 		await api.dispose()
 	}
 })
@@ -217,15 +244,18 @@ test('live tally shows the active rules and the computed base while the round is
 	let motionId: string | null = null
 	let roundId: string | null = null
 	try {
-		motionId = await createObject(api, 'motion', {
+		motionId = await createObject(api, MOTION_SCHEMA, {
+			decisionType: 'motion',
 			title: 'E2E VR Live Motion',
 			text: 'Live-tally rules display host motion.',
+			decisionDate: '2026-06-20T10:00:00+00:00',
+			outcome: 'adopted',
 			motionType: 'motion',
 			proposer: 'E2E VR',
 			lifecycle: 'voting',
 			submittedAt: '2026-06-19T09:00:00+00:00',
 		})
-		test.skip(!motionId, 'OpenRegister seeding API unavailable on this instance')
+		expect(motionId, 'the seeded motion Decision must carry an id').toBeTruthy()
 
 		// OPEN round in count mode: base = for + against + abstain = 10.
 		roundId = await createObject(api, 'voting-round', {
@@ -253,7 +283,7 @@ test('live tally shows the active rules and the computed base while the round is
 		await expect(rules).toContainText('base: 10')
 	} finally {
 		await deleteObject(api, 'voting-round', roundId)
-		await deleteObject(api, 'motion', motionId)
+		await deleteObject(api, MOTION_SCHEMA, motionId)
 		await api.dispose()
 	}
 })

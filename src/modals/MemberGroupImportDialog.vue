@@ -36,9 +36,15 @@
 			<table v-else-if="preview.length" class="group-import__table" data-testid="group-import-preview">
 				<thead>
 					<tr>
-						<th>{{ t('decidesk', 'Name') }}</th>
-						<th>{{ t('decidesk', 'Email') }}</th>
-						<th>{{ t('decidesk', 'Status') }}</th>
+						<th scope="col">
+							{{ t('decidesk', 'Name') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Email') }}
+						</th>
+						<th scope="col">
+							{{ t('decidesk', 'Status') }}
+						</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -122,7 +128,13 @@ export default {
 		},
 	},
 	watch: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Load the chosen group's members, or clear the preview when cleared.
+		 *
+		 * @param {object|null} group The newly selected group option.
+		 * @return {void}
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		selectedGroup(group) {
 			this.doneMessage = ''
 			if (group) {
@@ -156,7 +168,13 @@ export default {
 				this.loadingGroups = false
 			}
 		},
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Fetch a group's members and flag those already in the body.
+		 *
+		 * @param {string} groupId The Nextcloud group id.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		async loadMembers(groupId) {
 			this.loadingMembers = true
 			this.error = ''

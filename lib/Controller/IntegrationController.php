@@ -16,7 +16,7 @@
  * @link https://conduction.nl
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
- * SPDX-License-Identifier: EUPL-1.2.
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
  */
@@ -146,7 +146,7 @@ class IntegrationController extends Controller
             return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
 
-        if (($result['success'] ?? false) === false) {
+        if ($result['success'] === false) {
             return new JSONResponse(
                 ['message' => $result['message'] ?? 'Failed to create decision.'],
                 Http::STATUS_UNPROCESSABLE_ENTITY
@@ -258,7 +258,7 @@ class IntegrationController extends Controller
             return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
         }
 
-        if (($result['success'] ?? false) === false) {
+        if ($result['success'] === false) {
             $status = Http::STATUS_UNPROCESSABLE_ENTITY;
             if (($result['code'] ?? '') === 'not_found') {
                 $status = Http::STATUS_NOT_FOUND;

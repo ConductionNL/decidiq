@@ -217,22 +217,36 @@ describe('sortByDueDate (REQ-002)', () => {
 
 describe('groupMotionsByLifecycle (REQ-001)', () => {
 	it('groups motions under each running lifecycle, always present', () => {
+		// ADR-005 Decision.lifecycle vocabulary. These fixtures used to read
+		// `submitted` / `under-discussion` — values no stored decision can hold —
+		// so this test agreed with a widget that filtered on the same impossible
+		// words, and neither half could see that the widget was always empty.
 		const motions = [
-			{ id: '1', lifecycle: 'submitted' },
+			{ id: '1', lifecycle: 'proposed' },
 			{ id: '2', lifecycle: 'voting' },
-			{ id: '3', lifecycle: 'submitted' },
+			{ id: '3', lifecycle: 'proposed' },
 			{ id: '4', lifecycle: 'archived' },
 		]
 		const groups = groupMotionsByLifecycle(motions)
 		expect(Object.keys(groups)).toEqual(RUNNING_MOTION_LIFECYCLES)
-		expect(groups.submitted.map((m) => m.id)).toEqual(['1', '3'])
+		expect(groups.proposed.map((m) => m.id)).toEqual(['1', '3'])
 		expect(groups.voting.map((m) => m.id)).toEqual(['2'])
-		expect(groups['under-discussion']).toEqual([])
+		expect(groups.deliberating).toEqual([])
 	})
 
 	it('drops motions whose lifecycle is not a running stage', () => {
 		const groups = groupMotionsByLifecycle([{ id: 'x', lifecycle: 'archived' }])
-		expect(groups.submitted.concat(groups.voting, groups['under-discussion'])).toEqual([])
+		expect(groups.proposed.concat(groups.voting, groups.deliberating)).toEqual([])
+	})
+
+	it('every running stage is a real Decision.lifecycle value', () => {
+		// The defect this file missed was a vocabulary that existed nowhere but
+		// here. Asserting the stage keys against the schema's own enum is the
+		// only check that could have caught it.
+		const schemaStates = ['draft', 'proposed', 'deliberating', 'voting', 'decided', 'enacted', 'archived', 'withdrawn']
+		for (const stage of RUNNING_MOTION_LIFECYCLES) {
+			expect(schemaStates).toContain(stage)
+		}
 	})
 })
 

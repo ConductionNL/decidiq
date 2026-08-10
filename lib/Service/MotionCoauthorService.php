@@ -23,7 +23,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -90,12 +90,21 @@ class MotionCoauthorService
     {
         $objectService = $this->getObjectService();
         // M4: use named-arg find() instead of setRegister/setSchema pattern.
-        $entity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
-        if ($entity === null) {
+        // ADR-005: motions live in the unified `decision` schema, so the id
+        // lookup no longer proves the type — `decisionType` does.
+        $entity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
+        $motion = [];
+        if ($entity !== null) {
+            $motion = $entity->jsonSerialize();
+        }
+
+        if ($entity === null
+            || ($motion['decisionType'] ?? null) !== 'motion'
+        ) {
             throw new RuntimeException("Motion $motionId not found");
         }
 
-        return $entity->jsonSerialize();
+        return $motion;
 
     }//end findMotion()
 
@@ -207,7 +216,7 @@ class MotionCoauthorService
             $objectService->saveObject(
                 object: $motion,
                 register: 'decidesk',
-                schema: 'motion',
+                schema: 'decision',
                 uuid: $motionId,
             );
 
@@ -257,7 +266,7 @@ class MotionCoauthorService
         $objectService->saveObject(
             object: $motion,
             register: 'decidesk',
-            schema: 'motion',
+            schema: 'decision',
             uuid: $motionId,
         );
 
@@ -332,7 +341,7 @@ class MotionCoauthorService
         $objectService->saveObject(
             object: $motion,
             register: 'decidesk',
-            schema: 'motion',
+            schema: 'decision',
             uuid: $motionId,
         );
 
@@ -367,57 +376,105 @@ class MotionCoauthorService
         array $history,
         string $currentAuthor
     ): ?string {
-        if (count($history) === 0) {
+        if ($this->isConcurrentForeignEdit(history: $history, currentAuthor: $currentAuthor) === false) {
             return null;
+        }
+
+        // Within 5 min, different author — diff paragraphs.
+        return $this->firstChangedParagraph(previousText: $previousText, newText: $newText);
+
+    }//end detectParagraphConflict()
+
+    /**
+     * Whether the latest history entry is another author's edit within 5 minutes.
+     *
+     * `$history` is declared as `array<int, mixed>` rather than
+     * `array<int, array<string, mixed>>` on purpose: it arrives as
+     * `$motion['versionHistory']`, straight off an OpenRegister object, so an
+     * entry that is not an array is a shape the store can actually hand us.
+     * The narrower docblock made the `is_array()` guard below provably dead —
+     * phpstan reported it as a comparison that can never be true — which is a
+     * docblock that over-promises, not a guard that is redundant.
+     *
+     * @param array<int, mixed> $history       Existing version history
+     * @param string            $currentAuthor Author of the new change
+     *
+     * @return bool True when the new change collides with a recent foreign edit.
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+     */
+    private function isConcurrentForeignEdit(array $history, string $currentAuthor): bool
+    {
+        if (count($history) === 0) {
+            return false;
         }
 
         $latest = end($history);
         if (is_array($latest) === false) {
-            return null;
+            return false;
         }
 
-        $latestAuthor    = ($latest['author'] ?? '');
         $latestTimestamp = ($latest['timestamp'] ?? null);
-        if ($latestAuthor === $currentAuthor || $latestTimestamp === null) {
-            return null;
+        if (($latest['author'] ?? '') === $currentAuthor || $latestTimestamp === null) {
+            return false;
         }
 
         try {
             $latestTime = new DateTimeImmutable((string) $latestTimestamp);
         } catch (Throwable $e) {
-            return null;
+            return false;
         }
 
-        $diff = (new DateTimeImmutable())->getTimestamp() - $latestTime->getTimestamp();
-        if ($diff > 300) {
-            return null;
-        }
+        return ((new DateTimeImmutable())->getTimestamp() - $latestTime->getTimestamp()) <= 300;
 
-        // Within 5 min, different author — diff paragraphs.
-        $prevPars = preg_split('/\n\s*\n/', $previousText);
-        if ($prevPars === false) {
-            $prevPars = [];
-        }
+    }//end isConcurrentForeignEdit()
 
-        $newPars = preg_split('/\n\s*\n/', $newText);
-        if ($newPars === false) {
-            $newPars = [];
-        }
-
-        $count = max(count($prevPars), count($newPars));
+    /**
+     * The index and opening snippet of the first paragraph that differs.
+     *
+     * @param string $previousText Previous full text
+     * @param string $newText      New full text
+     *
+     * @return string|null The "<index>:<snippet>" marker, or null when identical.
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+     */
+    private function firstChangedParagraph(string $previousText, string $newText): ?string
+    {
+        $prevPars = $this->paragraphs(text: $previousText);
+        $newPars  = $this->paragraphs(text: $newText);
+        $count    = max(count($prevPars), count($newPars));
 
         for ($i = 0; $i < $count; $i++) {
-            $prev    = ($prevPars[$i] ?? '');
             $current = ($newPars[$i] ?? '');
-            if ($prev !== $current) {
-                $snippet = substr(trim($current), 0, 60);
-                return "$i:$snippet";
+            if (($prevPars[$i] ?? '') !== $current) {
+                return $i.':'.substr(trim($current), 0, 60);
             }
         }
 
         return null;
 
-    }//end detectParagraphConflict()
+    }//end firstChangedParagraph()
+
+    /**
+     * Split a text into paragraphs on blank lines.
+     *
+     * @param string $text The full text
+     *
+     * @return array<int, string> The paragraphs.
+     *
+     * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+     */
+    private function paragraphs(string $text): array
+    {
+        $paragraphs = preg_split('/\n\s*\n/', $text);
+        if ($paragraphs === false) {
+            return [];
+        }
+
+        return $paragraphs;
+
+    }//end paragraphs()
 
     /**
      * Capture a manual version snapshot without changing the text.
@@ -448,7 +505,7 @@ class MotionCoauthorService
         $objectService->saveObject(
             object: $motion,
             register: 'decidesk',
-            schema: 'motion',
+            schema: 'decision',
             uuid: $motionId,
         );
 

@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\BackgroundJob;
 
+use DateTimeImmutable;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Container\ContainerInterface;
@@ -62,6 +63,20 @@ class TranscriptRetentionJob extends TimedJob
     private const DEFAULT_POLICY = 'delete-both';
 
     /**
+     * The retention policies a governance body may declare.
+     *
+     * @var string[]
+     */
+    private const POLICIES = ['keep', 'delete-recording', 'delete-both'];
+
+    /**
+     * Entity methods tried, in order, when normalising an OR entity to an array.
+     *
+     * @var string[]
+     */
+    private const ENTITY_ARRAY_METHODS = ['jsonSerialize', 'getObject'];
+
+    /**
      * Constructor.
      *
      * @param ITimeFactory       $time      NC time factory (injected by TimedJob).
@@ -88,6 +103,10 @@ class TranscriptRetentionJob extends TimedJob
      * @return void
      *
      * @spec openspec/specs/meeting-transcription/spec.md
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
+     * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with
+     * no argument, so the parameter cannot be removed.
      */
     protected function run(mixed $argument): void
     {
@@ -101,7 +120,7 @@ class TranscriptRetentionJob extends TimedJob
             return;
         }
 
-        $now         = new \DateTimeImmutable();
+        $now         = new DateTimeImmutable();
         $transcripts = $this->fetchActiveDoneTranscripts(objectService: $objectService);
 
         foreach ($transcripts as $transcript) {
@@ -127,13 +146,13 @@ class TranscriptRetentionJob extends TimedJob
      *
      * @param object              $objectService The OR ObjectService.
      * @param array<string,mixed> $transcript    The Transcript object.
-     * @param \DateTimeImmutable  $now           Current time (injectable for tests).
+     * @param DateTimeImmutable   $now           Current time (injectable for tests).
      *
      * @return string The resulting retention state.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
-    public function enforceForTranscript(object $objectService, array $transcript, \DateTimeImmutable $now): string
+    public function enforceForTranscript(object $objectService, array $transcript, DateTimeImmutable $now): string
     {
         $currentState = (string) ($transcript['retentionState'] ?? 'active');
         if ($currentState === 'purged') {
@@ -166,30 +185,11 @@ class TranscriptRetentionJob extends TimedJob
             return $currentState;
         }
 
-        $deleted = [];
-
-        // Delete the source recording (both policies).
-        $recordingPath = (string) ($transcript['sourceFilePath'] ?? '');
-        if ($recordingPath !== '' && $currentState === 'active') {
-            if ($this->deleteFile(path: $recordingPath) === true) {
-                $deleted[] = $recordingPath;
-                $transcript['sourceFilePath'] = '';
-                $currentState = 'recording-deleted';
-            }
-        }
-
-        // Delete-both also removes the raw transcript text file.
-        if ($policy === 'delete-both') {
-            $transcriptPath = (string) ($transcript['transcriptFilePath'] ?? '');
-            if ($transcriptPath !== '') {
-                if ($this->deleteFile(path: $transcriptPath) === true) {
-                    $deleted[] = $transcriptPath;
-                    $transcript['transcriptFilePath'] = '';
-                }
-            }
-
-            $currentState = 'purged';
-        }
+        [$transcript, $currentState, $deleted] = $this->applyDeletions(
+            transcript: $transcript,
+            state: $currentState,
+            policy: $policy
+        );
 
         if ($deleted === []) {
             return $currentState;
@@ -210,6 +210,49 @@ class TranscriptRetentionJob extends TimedJob
     }//end enforceForTranscript()
 
     /**
+     * Delete the files the policy calls for and advance the retention state.
+     *
+     * The source recording goes on both deleting policies but only while the
+     * transcript is still `active`; `delete-both` additionally removes the raw
+     * transcript text file and always ends in `purged` — a transcript with no
+     * remaining raw text is purged whether or not a file had to be removed.
+     *
+     * @param array<string,mixed> $transcript The Transcript object.
+     * @param string              $state      The current retention state.
+     * @param string              $policy     The resolved retention policy.
+     *
+     * @return array{0:array<string,mixed>,1:string,2:string[]} [transcript, state, deletedPaths].
+     *
+     * @spec openspec/specs/meeting-transcription/spec.md
+     */
+    private function applyDeletions(array $transcript, string $state, string $policy): array
+    {
+        $deleted = [];
+
+        // Delete the source recording (both deleting policies).
+        $recordingPath = (string) ($transcript['sourceFilePath'] ?? '');
+        if ($recordingPath !== '' && $state === 'active' && $this->deleteFile(path: $recordingPath) === true) {
+            $deleted[] = $recordingPath;
+            $transcript['sourceFilePath'] = '';
+            $state = 'recording-deleted';
+        }
+
+        if ($policy !== 'delete-both') {
+            return [$transcript, $state, $deleted];
+        }
+
+        // Delete-both also removes the raw transcript text file.
+        $transcriptPath = (string) ($transcript['transcriptFilePath'] ?? '');
+        if ($transcriptPath !== '' && $this->deleteFile(path: $transcriptPath) === true) {
+            $deleted[] = $transcriptPath;
+            $transcript['transcriptFilePath'] = '';
+        }
+
+        return [$transcript, 'purged', $deleted];
+
+    }//end applyDeletions()
+
+    /**
      * Resolve the per-body retention policy and window (days).
      *
      * @param object              $objectService The OR ObjectService.
@@ -226,21 +269,19 @@ class TranscriptRetentionJob extends TimedJob
             $bodyId = ($bodyId['id'] ?? ($bodyId[0] ?? null));
         }
 
-        if ($bodyId === null || $bodyId === '') {
-            return [self::DEFAULT_POLICY, self::DEFAULT_DAYS];
+        // An unresolvable body leaves $body null, which falls through to the
+        // defaults below exactly as a body without an explicit policy does.
+        $body = null;
+        if ((string) ($bodyId ?? '') !== '') {
+            $body = $this->fetchObject(objectService: $objectService, id: (string) $bodyId, schema: 'governance-body');
         }
 
-        $body = $this->fetchObject(objectService: $objectService, id: (string) $bodyId, schema: 'governance-body');
-        if ($body === null) {
-            return [self::DEFAULT_POLICY, self::DEFAULT_DAYS];
-        }
-
-        $policy = (string) ($body['transcriptRetentionPolicy'] ?? self::DEFAULT_POLICY);
-        if (in_array($policy, ['keep', 'delete-recording', 'delete-both'], true) === false) {
+        $policy = (string) (($body['transcriptRetentionPolicy'] ?? null) ?? self::DEFAULT_POLICY);
+        if (in_array($policy, self::POLICIES, true) === false) {
             $policy = self::DEFAULT_POLICY;
         }
 
-        $days = (int) ($body['transcriptRetentionDays'] ?? self::DEFAULT_DAYS);
+        $days = (int) (($body['transcriptRetentionDays'] ?? null) ?? self::DEFAULT_DAYS);
         if ($days < 0) {
             $days = self::DEFAULT_DAYS;
         }
@@ -255,11 +296,11 @@ class TranscriptRetentionJob extends TimedJob
      * @param object $objectService The OR ObjectService.
      * @param string $meetingId     Meeting UUID.
      *
-     * @return \DateTimeImmutable|null The approval time, or null when not approved.
+     * @return DateTimeImmutable|null The approval time, or null when not approved.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
-    private function resolveMinutesApprovedAt(object $objectService, string $meetingId): ?\DateTimeImmutable
+    private function resolveMinutesApprovedAt(object $objectService, string $meetingId): ?DateTimeImmutable
     {
         $entities = $objectService->findAll(
             [
@@ -286,7 +327,7 @@ class TranscriptRetentionJob extends TimedJob
             }
 
             try {
-                return new \DateTimeImmutable($approvedAt);
+                return new DateTimeImmutable($approvedAt);
             } catch (\Throwable) {
                 continue;
             }
@@ -427,12 +468,14 @@ class TranscriptRetentionJob extends TimedJob
             return $entity;
         }
 
-        if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-            return (array) $entity->jsonSerialize();
+        if (is_object($entity) === false) {
+            return [];
         }
 
-        if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-            return (array) $entity->getObject();
+        foreach (self::ENTITY_ARRAY_METHODS as $method) {
+            if (method_exists($entity, $method) === true) {
+                return (array) $entity->$method();
+            }
         }
 
         return [];
@@ -455,11 +498,12 @@ class TranscriptRetentionJob extends TimedJob
             $relation = ($relation['id'] ?? ($relation[0] ?? null));
         }
 
-        if ($relation === null || $relation === '') {
+        $meetingId = (string) ($relation ?? '');
+        if ($meetingId === '') {
             return null;
         }
 
-        return (string) $relation;
+        return $meetingId;
 
     }//end resolveMeetingId()
 
@@ -474,12 +518,12 @@ class TranscriptRetentionJob extends TimedJob
      */
     private function objectId(array $object): ?string
     {
-        $id = ($object['id'] ?? ($object['@self']['id'] ?? null));
-        if ($id === null || $id === '') {
+        $id = (string) (($object['id'] ?? ($object['@self']['id'] ?? null)) ?? '');
+        if ($id === '') {
             return null;
         }
 
-        return (string) $id;
+        return $id;
 
     }//end objectId()
 }//end class

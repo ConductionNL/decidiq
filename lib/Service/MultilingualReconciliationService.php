@@ -22,7 +22,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -126,19 +126,7 @@ class MultilingualReconciliationService
             ];
         }
 
-        $targets = [];
-        foreach ($targetLocales as $locale) {
-            $locale = strtolower((string) $locale);
-            if ($locale === '' || $locale === $sourceLocale) {
-                continue;
-            }
-
-            if (in_array($locale, self::SUPPORTED_LOCALES, true) === false) {
-                continue;
-            }
-
-            $targets[$locale] = true;
-        }
+        $targets = $this->collectTargetLocales(targetLocales: $targetLocales, sourceLocale: $sourceLocale);
 
         if ($targets === []) {
             return [
@@ -164,7 +152,7 @@ class MultilingualReconciliationService
 
         $now     = gmdate('Y-m-d\TH:i:s\Z');
         $entries = [];
-        foreach (array_keys($targets) as $targetLocale) {
+        foreach ($targets as $targetLocale) {
             $entry = [
                 'minutesKoppeling' => $minutesId,
                 'sourceLocale'     => $sourceLocale,
@@ -202,6 +190,37 @@ class MultilingualReconciliationService
         ];
 
     }//end queue()
+
+    /**
+     * Reduce a raw target-locale list to the supported locales worth queueing.
+     *
+     * Lower-cases every entry, drops anything outside SUPPORTED_LOCALES, drops
+     * the source locale itself and de-duplicates while preserving first-seen order.
+     *
+     * @param string[] $targetLocales Raw requested target locales
+     * @param string   $sourceLocale  Lower-cased source locale
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+     *
+     * @return string[]
+     */
+    private function collectTargetLocales(array $targetLocales, string $sourceLocale): array
+    {
+        $normalised = array_map(
+            static fn (mixed $locale): string => strtolower((string) $locale),
+            $targetLocales
+        );
+
+        return array_values(
+            array_unique(
+                array_diff(
+                    array_intersect($normalised, self::SUPPORTED_LOCALES),
+                    [$sourceLocale]
+                )
+            )
+        );
+
+    }//end collectTargetLocales()
 
     /**
      * Return current queue status grouped by status value plus a queue listing.
@@ -242,10 +261,7 @@ class MultilingualReconciliationService
             ];
         }//end try
 
-        $summary = [];
-        foreach (self::STATUSES as $s) {
-            $summary[$s] = 0;
-        }
+        $summary = array_fill_keys(self::STATUSES, 0);
 
         foreach ($rows as $row) {
             $status = (string) ($row['status'] ?? '');
@@ -324,114 +340,18 @@ class MultilingualReconciliationService
 
         $adapter   = $this->resolveAdapter();
         $processed = 0;
-        $completed = 0;
         $failed    = 0;
 
         foreach ($queued as $entry) {
             $processed++;
-            $entryId      = (string) ($entry['id'] ?? '');
-            $minutesId    = (string) ($entry['minutesKoppeling'] ?? '');
-            $sourceLocale = (string) ($entry['sourceLocale'] ?? '');
-            $targetLocale = (string) ($entry['targetLocale'] ?? '');
-            $attempts     = (int) ($entry['attempts'] ?? 0);
-            $now          = gmdate('Y-m-d\TH:i:s\Z');
-
-            if ($entryId === '' || $minutesId === '' || $sourceLocale === '' || $targetLocale === '') {
-                $failed++;
-                $this->updateEntry(
-                    objectService: $objectService,
-                    entryId: $entryId,
-                    payload: array_merge(
-                        $entry,
-                        [
-                            'status'    => 'failed',
-                            'attempts'  => ($attempts + 1),
-                            'lastError' => 'Malformed queue entry.',
-                        ]
-                    )
-                );
-                continue;
-            }
-
-            $sourceMinutes = $this->loadMinutes(objectService: $objectService, minutesId: $minutesId);
-            if ($sourceMinutes === null) {
-                $failed++;
-                $this->updateEntry(
-                    objectService: $objectService,
-                    entryId: $entryId,
-                    payload: array_merge(
-                        $entry,
-                        [
-                            'status'    => 'failed',
-                            'attempts'  => ($attempts + 1),
-                            'lastError' => 'Source minutes not found.',
-                            'updatedAt' => $now,
-                        ]
-                    )
-                );
-                continue;
-            }
-
-            $this->updateEntry(
+            $failed += (int) ($this->processEntry(
                 objectService: $objectService,
-                entryId: $entryId,
-                payload: array_merge(
-                    $entry,
-                    [
-                        'status'    => 'processing',
-                        'attempts'  => ($attempts + 1),
-                        'updatedAt' => $now,
-                    ]
-                )
-            );
+                adapter: $adapter,
+                entry: $entry
+            ) === false);
+        }
 
-            $source      = (string) ($sourceMinutes['content'] ?? '');
-            $translation = $adapter->translate($source, $sourceLocale, $targetLocale);
-
-            if (($translation['success'] ?? false) !== true) {
-                $failed++;
-                $this->updateEntry(
-                    objectService: $objectService,
-                    entryId: $entryId,
-                    payload: array_merge(
-                        $entry,
-                        [
-                            'status'    => 'failed',
-                            'attempts'  => ($attempts + 1),
-                            'provider'  => (string) ($translation['provider'] ?? 'unknown'),
-                            'lastError' => (string) ($translation['message'] ?? 'Translation failed.'),
-                            'updatedAt' => $now,
-                        ]
-                    )
-                );
-                continue;
-            }
-
-            $newMinutesId = $this->writeTranslatedMinutes(
-                objectService: $objectService,
-                sourceMinutes: $sourceMinutes,
-                translatedText: (string) $translation['text'],
-                targetLocale: $targetLocale
-            );
-
-            $completed++;
-            $this->updateEntry(
-                objectService: $objectService,
-                entryId: $entryId,
-                payload: array_merge(
-                    $entry,
-                    [
-                        'status'                     => 'completed',
-                        'attempts'                   => ($attempts + 1),
-                        'provider'                   => (string) ($translation['provider'] ?? 'log'),
-                        'lastError'                  => null,
-                        'translatedMinutesKoppeling' => $newMinutesId,
-                        'completedAt'                => $now,
-                        'updatedAt'                  => $now,
-                    ]
-                )
-            );
-        }//end foreach
+        $completed = ($processed - $failed);
 
         return [
             'success'   => true,
@@ -447,6 +367,137 @@ class MultilingualReconciliationService
         ];
 
     }//end processQueue()
+
+    /**
+     * Translate a single queue entry and persist its resulting state.
+     *
+     * @param object              $objectService Lazy ObjectService
+     * @param ITranslationAdapter $adapter       Resolved translation adapter
+     * @param array<string,mixed> $entry         Queue entry row
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+     *
+     * @return bool True when the entry completed, false when it failed
+     */
+    private function processEntry(object $objectService, ITranslationAdapter $adapter, array $entry): bool
+    {
+        $entryId  = (string) ($entry['id'] ?? '');
+        $attempts = (int) ($entry['attempts'] ?? 0);
+        $now      = gmdate('Y-m-d\TH:i:s\Z');
+        $required = [
+            (string) ($entry['minutesKoppeling'] ?? ''),
+            (string) ($entry['sourceLocale'] ?? ''),
+            (string) ($entry['targetLocale'] ?? ''),
+        ];
+
+        if ($entryId === '' || in_array('', $required, true) === true) {
+            $this->failEntry(
+                objectService: $objectService,
+                entry: $entry,
+                changes: ['lastError' => 'Malformed queue entry.']
+            );
+            return false;
+        }
+
+        [$minutesId, $sourceLocale, $targetLocale] = $required;
+
+        $sourceMinutes = $this->loadMinutes(objectService: $objectService, minutesId: $minutesId);
+        if ($sourceMinutes === null) {
+            $this->failEntry(
+                objectService: $objectService,
+                entry: $entry,
+                changes: [
+                    'lastError' => 'Source minutes not found.',
+                    'updatedAt' => $now,
+                ]
+            );
+            return false;
+        }
+
+        $this->updateEntry(
+            objectService: $objectService,
+            entryId: $entryId,
+            payload: array_merge(
+                $entry,
+                [
+                    'status'    => 'processing',
+                    'attempts'  => ($attempts + 1),
+                    'updatedAt' => $now,
+                ]
+            )
+        );
+
+        $source      = (string) ($sourceMinutes['content'] ?? '');
+        $translation = $adapter->translate($source, $sourceLocale, $targetLocale);
+
+        if ($translation['success'] !== true) {
+            $this->failEntry(
+                objectService: $objectService,
+                entry: $entry,
+                changes: [
+                    'provider'  => $translation['provider'],
+                    'lastError' => $translation['message'],
+                    'updatedAt' => $now,
+                ]
+            );
+            return false;
+        }
+
+        $newMinutesId = $this->writeTranslatedMinutes(
+            objectService: $objectService,
+            sourceMinutes: $sourceMinutes,
+            translatedText: (string) $translation['text'],
+            targetLocale: $targetLocale
+        );
+
+        $this->updateEntry(
+            objectService: $objectService,
+            entryId: $entryId,
+            payload: array_merge(
+                $entry,
+                [
+                    'status'                     => 'completed',
+                    'attempts'                   => ($attempts + 1),
+                    'provider'                   => $translation['provider'],
+                    'lastError'                  => null,
+                    'translatedMinutesKoppeling' => $newMinutesId,
+                    'completedAt'                => $now,
+                    'updatedAt'                  => $now,
+                ]
+            )
+        );
+
+        return true;
+
+    }//end processEntry()
+
+    /**
+     * Flip a queue entry to `failed`, bumping its attempt counter.
+     *
+     * @param object              $objectService Lazy ObjectService
+     * @param array<string,mixed> $entry         Queue entry row
+     * @param array<string,mixed> $changes       Extra fields merged before the status flip
+     *
+     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+     *
+     * @return void
+     */
+    private function failEntry(object $objectService, array $entry, array $changes): void
+    {
+        $this->updateEntry(
+            objectService: $objectService,
+            entryId: (string) ($entry['id'] ?? ''),
+            payload: array_merge(
+                $entry,
+                [
+                    'status'   => 'failed',
+                    'attempts' => (((int) ($entry['attempts'] ?? 0)) + 1),
+                ],
+                $changes
+            )
+        );
+
+    }//end failEntry()
 
     /**
      * Lazy-resolve the translation adapter (test seam falls back to DI).
@@ -496,12 +547,10 @@ class MultilingualReconciliationService
             }
 
             if (method_exists($entity, 'getObject') === true) {
-                $row = (array) $entity->getObject();
-            } else {
-                $row = (array) $entity->jsonSerialize();
+                return (array) $entity->getObject();
             }
 
-            return $row;
+            return (array) $entity->jsonSerialize();
         } catch (\Throwable $e) {
             $this->logger->warning(
                 'Decidesk: MultilingualReconciliationService failed to load minutes',

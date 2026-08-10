@@ -23,7 +23,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -240,10 +240,9 @@ class MeetingCostService
         try {
             $start    = new DateTimeImmutable((string) $openedAt);
             $closedAt = ($meeting['closedAt'] ?? null);
+            $end      = new DateTimeImmutable('now');
             if ($closedAt !== null && $closedAt !== '') {
                 $end = new DateTimeImmutable((string) $closedAt);
-            } else {
-                $end = new DateTimeImmutable('now');
             }
 
             return max(0, $end->getTimestamp() - $start->getTimestamp());

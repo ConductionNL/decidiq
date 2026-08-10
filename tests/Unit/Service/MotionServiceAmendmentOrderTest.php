@@ -4,7 +4,8 @@
  * Unit tests for the motion-amendment-v1 amendment resolution + chair-set
  * voting order in MotionService:
  *
- * - getAmendmentsForMotion() resolves BOTH the flat parentMotion property and
+ * - getAmendmentsForMotion() resolves BOTH the flat `amends` property (ADR-005,
+ *   replacing the retired Amendment schema's `parentMotion`) and
  *   the structured relations shape, deduped,
  * - setAmendmentVotingOrder() validates ids belong to the motion, rejects
  *   duplicates / unknown ids / empty input, and persists votingOrder 1..N.
@@ -55,8 +56,8 @@ class MotionServiceAmendmentOrderTest extends TestCase
 
     /**
      * Build a MotionService over an in-memory object store double whose
-     * findAll() honours plain-field filters (parentMotion) and the
-     * relations-presence filter (_relations.motion).
+     * findAll() honours plain-field filters (amends, decisionType) and the
+     * dotted relation-field filter (_relations.amends).
      *
      * @param array<string, array{schema: string, object: array<string, mixed>}> $store Seed objects by id
      *
@@ -176,9 +177,13 @@ class MotionServiceAmendmentOrderTest extends TestCase
             /**
              * Find all objects of the selected schema matching the filters.
              *
-             * Plain-field filters match the object property exactly. The
-             * `_relations.<schema>` filter is presence-only (matches any object
-             * that carries a relation of that schema), mirroring OpenRegister.
+             * Plain-field filters match the object property exactly. The dotted
+             * `_relations.<field>` filter mirrors OpenRegister's
+             * MagicSearchHandler::applyRelationFieldFilter(): it keys on the
+             * RELATION PROPERTY name and requires the referenced id to MATCH the
+             * filter value — it is not presence-only, and it is not keyed on a
+             * schema slug. Both the flat `$ref` property and a `relations` list
+             * entry satisfy it, which is how OpenRegister derives `_relations`.
              *
              * @param array<string, mixed> $config Query config
              *
@@ -195,12 +200,17 @@ class MotionServiceAmendmentOrderTest extends TestCase
                     $matches = true;
                     foreach (($config['filters'] ?? []) as $key => $value) {
                         if (str_starts_with((string) $key, '_relations.') === true) {
-                            $relSchema = substr((string) $key, strlen('_relations.'));
-                            $present   = false;
+                            $field   = substr((string) $key, strlen('_relations.'));
+                            $present = (($row['object'][$field] ?? null) === $value);
                             foreach (($row['object']['relations'] ?? []) as $relation) {
-                                if (is_array($relation) === true && ($relation['schema'] ?? '') === $relSchema) {
-                                    $present = true;
+                                if ($present === true) {
                                     break;
+                                }
+
+                                if (is_array($relation) === true
+                                    && (($relation['id'] ?? $relation['uuid'] ?? null) === $value)
+                                ) {
+                                    $present = true;
                                 }
                             }
 
@@ -247,9 +257,27 @@ class MotionServiceAmendmentOrderTest extends TestCase
 
         $container = $this->createMock(ContainerInterface::class);
         $container->method('get')->willReturnCallback(
-            static function (string $id) use ($objectService): object {
+            static function (string $id) use ($objectService, &$container): object {
                 if ($id === 'OCA\OpenRegister\Service\ObjectService') {
                     return $objectService;
+                }
+
+                // MotionService resolves its collaborators lazily from the
+                // container; MotionLinkResolver is a pure resolver over the same
+                // ObjectService, so wiring the real one keeps this test
+                // end-to-end rather than stubbing the behaviour under test.
+                if ($id === \OCA\Decidesk\Service\MotionLinkResolver::class) {
+                    return new \OCA\Decidesk\Service\MotionLinkResolver(container: $container);
+                }
+
+                // MotionService delegates amendment resolution / ordering /
+                // conflict detection to MotionAmendmentService; wiring the real
+                // one over the same container keeps this test end-to-end.
+                if ($id === \OCA\Decidesk\Service\MotionAmendmentService::class) {
+                    return new \OCA\Decidesk\Service\MotionAmendmentService(
+                        container: $container,
+                        logger: new NullLogger(),
+                    );
                 }
 
                 throw new \RuntimeException('not wired in test: '.$id);
@@ -266,8 +294,12 @@ class MotionServiceAmendmentOrderTest extends TestCase
 
 
     /**
-     * Resolution honours both the flat parentMotion property and the
-     * structured relations shape, deduped.
+     * Resolution honours both the flat `amends` property and the structured
+     * relations shape, deduped.
+     *
+     * ADR-005: amendments are `decision` objects carrying decisionType=amendment,
+     * and the parent link is the `amends` relation that replaced the retired
+     * Amendment schema's `parentMotion` property.
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
@@ -278,21 +310,41 @@ class MotionServiceAmendmentOrderTest extends TestCase
         $store = [
             // Flat-property shape.
             'amendment-flat'     => [
-                'schema' => 'amendment',
-                'object' => ['id' => 'amendment-flat', 'parentMotion' => 'motion-1'],
+                'schema' => 'decision',
+                'object' => [
+                    'id'           => 'amendment-flat',
+                    'decisionType' => 'amendment',
+                    'amends'       => 'motion-1',
+                ],
             ],
             // Structured-relations shape.
             'amendment-relation' => [
-                'schema' => 'amendment',
+                'schema' => 'decision',
                 'object' => [
-                    'id'        => 'amendment-relation',
-                    'relations' => [['schema' => 'motion', 'id' => 'motion-1']],
+                    'id'           => 'amendment-relation',
+                    'decisionType' => 'amendment',
+                    'relations'    => [['schema' => 'decision', 'id' => 'motion-1']],
                 ],
             ],
             // Belongs to a different motion — excluded.
             'amendment-other'    => [
-                'schema' => 'amendment',
-                'object' => ['id' => 'amendment-other', 'parentMotion' => 'motion-2'],
+                'schema' => 'decision',
+                'object' => [
+                    'id'           => 'amendment-other',
+                    'decisionType' => 'amendment',
+                    'amends'       => 'motion-2',
+                ],
+            ],
+            // A decision of another type that points at the same motion —
+            // excluded by the decisionType discriminator, which is the whole
+            // point of the ADR-005 fold.
+            'resolution-other'   => [
+                'schema' => 'decision',
+                'object' => [
+                    'id'           => 'resolution-other',
+                    'decisionType' => 'resolution',
+                    'amends'       => 'motion-1',
+                ],
             ],
         ];
 
@@ -317,9 +369,9 @@ class MotionServiceAmendmentOrderTest extends TestCase
     public function testSetVotingOrderPersists1ToN(): void
     {
         $store = [
-            'amendment-a' => ['schema' => 'amendment', 'object' => ['id' => 'amendment-a', 'parentMotion' => 'motion-1']],
-            'amendment-b' => ['schema' => 'amendment', 'object' => ['id' => 'amendment-b', 'parentMotion' => 'motion-1']],
-            'amendment-c' => ['schema' => 'amendment', 'object' => ['id' => 'amendment-c', 'parentMotion' => 'motion-1']],
+            'amendment-a' => ['schema' => 'decision', 'object' => ['id' => 'amendment-a', 'decisionType' => 'amendment', 'amends' => 'motion-1']],
+            'amendment-b' => ['schema' => 'decision', 'object' => ['id' => 'amendment-b', 'decisionType' => 'amendment', 'amends' => 'motion-1']],
+            'amendment-c' => ['schema' => 'decision', 'object' => ['id' => 'amendment-c', 'decisionType' => 'amendment', 'amends' => 'motion-1']],
         ];
 
         $service = $this->buildService($store);
@@ -352,7 +404,7 @@ class MotionServiceAmendmentOrderTest extends TestCase
     public function testUnknownAmendmentRejected(): void
     {
         $store = [
-            'amendment-a' => ['schema' => 'amendment', 'object' => ['id' => 'amendment-a', 'parentMotion' => 'motion-1']],
+            'amendment-a' => ['schema' => 'decision', 'object' => ['id' => 'amendment-a', 'decisionType' => 'amendment', 'amends' => 'motion-1']],
         ];
 
         $service = $this->buildService($store);
@@ -379,7 +431,7 @@ class MotionServiceAmendmentOrderTest extends TestCase
     public function testDuplicateIdsRejected(): void
     {
         $store = [
-            'amendment-a' => ['schema' => 'amendment', 'object' => ['id' => 'amendment-a', 'parentMotion' => 'motion-1']],
+            'amendment-a' => ['schema' => 'decision', 'object' => ['id' => 'amendment-a', 'decisionType' => 'amendment', 'amends' => 'motion-1']],
         ];
 
         $service = $this->buildService($store);
@@ -429,7 +481,7 @@ class MotionServiceAmendmentOrderTest extends TestCase
     public function testEmptyActorRejected(): void
     {
         $store = [
-            'amendment-a' => ['schema' => 'amendment', 'object' => ['id' => 'amendment-a', 'parentMotion' => 'motion-1']],
+            'amendment-a' => ['schema' => 'decision', 'object' => ['id' => 'amendment-a', 'decisionType' => 'amendment', 'amends' => 'motion-1']],
         ];
 
         $service = $this->buildService($store);

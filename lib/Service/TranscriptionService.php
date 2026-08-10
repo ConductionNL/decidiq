@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
 
+use DomainException;
+use InvalidArgumentException;
 use OCA\Decidesk\Exception\MissingObjectException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -43,6 +45,21 @@ use Psr\Log\LoggerInterface;
  */
 class TranscriptionService
 {
+
+    /**
+     * Object + file access for the transcription pipeline.
+     *
+     * @var TranscriptRepository
+     */
+    private readonly TranscriptRepository $repository;
+
+    /**
+     * Pure segment parsing / timeline alignment derivations.
+     *
+     * @var TranscriptAlignmentService
+     */
+    private readonly TranscriptAlignmentService $aligner;
+
     /**
      * Constructor.
      *
@@ -59,6 +76,9 @@ class TranscriptionService
         private readonly TranscriptionSourceResolver $sourceResolver,
         private readonly MeetingFolderService $folderService,
     ) {
+        $this->repository = new TranscriptRepository(container: $container);
+        $this->aligner    = new TranscriptAlignmentService(repository: $this->repository);
+
     }//end __construct()
 
     /**
@@ -110,7 +130,7 @@ class TranscriptionService
      */
     public function listSources(string $meetingId): array
     {
-        $meeting = $this->fetchMeeting(meetingId: $meetingId);
+        $meeting = $this->repository->fetchMeeting(meetingId: $meetingId);
         return $this->sourceResolver->listSources(meeting: $meeting);
 
     }//end listSources()
@@ -132,7 +152,7 @@ class TranscriptionService
      * @return array<string,mixed> The created Transcript object.
      *
      * @throws MissingObjectException    When the meeting cannot be found.
-     * @throws \InvalidArgumentException When source type/path is invalid.
+     * @throws InvalidArgumentException When source type/path is invalid.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
@@ -144,18 +164,18 @@ class TranscriptionService
         string $language=''
     ): array {
         if (in_array($sourceType, ['talk-recording', 'uploaded-file'], true) === false) {
-            throw new \InvalidArgumentException('Invalid source type.', 422);
+            throw new InvalidArgumentException('Invalid source type.', 422);
         }
 
         if (trim($sourcePath) === '') {
-            throw new \InvalidArgumentException('A source file path is required.', 422);
+            throw new InvalidArgumentException('A source file path is required.', 422);
         }
 
         if (trim($confirmedBy) === '') {
-            throw new \InvalidArgumentException('A consent confirmation is required.', 422);
+            throw new InvalidArgumentException('A consent confirmation is required.', 422);
         }
 
-        $meeting = $this->fetchMeeting(meetingId: $meetingId);
+        $meeting = $this->repository->fetchMeeting(meetingId: $meetingId);
 
         $transcript = [
             'title'          => (string) ($meeting['title'] ?? ($meeting['name'] ?? 'Transcript')),
@@ -166,12 +186,12 @@ class TranscriptionService
             'retentionState' => 'active',
             'consent'        => [
                 'confirmedBy' => $confirmedBy,
-                'confirmedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+                'confirmedAt' => date(DATE_ATOM),
             ],
             'relations'      => ['meeting' => $meetingId],
         ];
 
-        return $this->saveTranscript(transcript: $transcript);
+        return $this->repository->saveTranscript(transcript: $transcript);
 
     }//end attach()
 
@@ -190,21 +210,21 @@ class TranscriptionService
      * @return array<string,mixed> The Transcript object (status unchanged at submit).
      *
      * @throws MissingObjectException    When the Transcript cannot be found.
-     * @throws \DomainException          When consent is missing (code 422) or no provider (code 503).
+     * @throws DomainException          When consent is missing (code 422) or no provider (code 503).
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
     public function submit(string $transcriptId): array
     {
-        $transcript = $this->fetchTranscript(transcriptId: $transcriptId);
+        $transcript = $this->repository->fetchTranscript(transcriptId: $transcriptId);
 
         $consent = ($transcript['consent'] ?? null);
         if (is_array($consent) === false || trim((string) ($consent['confirmedBy'] ?? '')) === '') {
-            throw new \DomainException('Consent is required before a transcription can be requested.', 422);
+            throw new DomainException('Consent is required before a transcription can be requested.', 422);
         }
 
         if ($this->isProviderAvailable() === false) {
-            throw new \DomainException('No SpeechToText provider is available on this instance.', 503);
+            throw new DomainException('No SpeechToText provider is available on this instance.', 503);
         }
 
         // Preconditions satisfied; the queued TranscriptionJob will move the
@@ -232,7 +252,7 @@ class TranscriptionService
      */
     public function process(string $transcriptId): array
     {
-        $transcript = $this->fetchTranscript(transcriptId: $transcriptId);
+        $transcript = $this->repository->fetchTranscript(transcriptId: $transcriptId);
 
         $consent = ($transcript['consent'] ?? null);
         if (is_array($consent) === false || trim((string) ($consent['confirmedBy'] ?? '')) === '') {
@@ -240,13 +260,13 @@ class TranscriptionService
         }
 
         $transcript['status'] = 'processing';
-        $transcript           = $this->saveTranscript(transcript: $transcript);
+        $transcript           = $this->repository->saveTranscript(transcript: $transcript);
 
         try {
             $manager  = $this->container->get(\OCP\SpeechToText\ISpeechToTextManager::class);
-            $file     = $this->resolveSourceNode(path: (string) ($transcript['sourceFilePath'] ?? ''));
+            $file     = $this->repository->resolveSourceNode(path: (string) ($transcript['sourceFilePath'] ?? ''));
             $rawText  = $manager->transcribeFile($file, null, 'decidesk');
-            $segments = $this->parseSegments(raw: $rawText);
+            $segments = $this->aligner->parseSegments(raw: $rawText);
         } catch (\Throwable $e) {
             $this->logger->warning(
                 'Decidesk TranscriptionService: transcription failed',
@@ -277,10 +297,10 @@ class TranscriptionService
         $transcript['segments']      = $segments;
         $transcript['transcriptFilePath'] = ($transcriptPath ?? '');
 
-        $transcript = $this->saveTranscript(transcript: $transcript);
+        $transcript = $this->repository->saveTranscript(transcript: $transcript);
 
         // Agenda alignment is a derivation over stored data; run it now and on demand.
-        return $this->align(transcriptId: (string) $this->transcriptId(transcript: $transcript));
+        return $this->align(transcriptId: (string) $this->repository->transcriptId(transcript: $transcript));
 
     }//end process()
 
@@ -301,52 +321,7 @@ class TranscriptionService
      */
     public function parseSegments(string $raw): array
     {
-        $trimmed = trim($raw);
-        if ($trimmed === '') {
-            return [];
-        }
-
-        $decoded = json_decode($trimmed, true);
-        if (is_array($decoded) === true && $decoded !== [] && isset($decoded[0]) === true) {
-            $segments = [];
-            $counter  = 0;
-            $labels   = [];
-            foreach ($decoded as $entry) {
-                if (is_array($entry) === false) {
-                    continue;
-                }
-
-                $rawSpeaker = (string) ($entry['speaker'] ?? ($entry['speakerLabel'] ?? ''));
-                if ($rawSpeaker === '') {
-                    $rawSpeaker = 'default';
-                }
-
-                // Map any provider-side speaker key to a neutral sequential label.
-                if (isset($labels[$rawSpeaker]) === false) {
-                    $counter++;
-                    $labels[$rawSpeaker] = 'Speaker '.$counter;
-                }
-
-                $segments[] = [
-                    'startTime'    => (float) ($entry['startTime'] ?? ($entry['start'] ?? 0)),
-                    'endTime'      => (float) ($entry['endTime'] ?? ($entry['end'] ?? 0)),
-                    'speakerLabel' => $labels[$rawSpeaker],
-                    'text'         => (string) ($entry['text'] ?? ''),
-                ];
-            }//end foreach
-
-            return $segments;
-        }//end if
-
-        // Plain-text fallback: one neutral-label segment covering the result.
-        return [
-            [
-                'startTime'    => 0.0,
-                'endTime'      => 0.0,
-                'speakerLabel' => 'Speaker 1',
-                'text'         => $trimmed,
-            ],
-        ];
+        return $this->aligner->parseSegments(raw: $raw);
 
     }//end parseSegments()
 
@@ -369,12 +344,12 @@ class TranscriptionService
      */
     public function align(string $transcriptId): array
     {
-        $transcript = $this->fetchTranscript(transcriptId: $transcriptId);
-        $meetingId  = $this->resolveMeetingId(transcript: $transcript);
+        $transcript = $this->repository->fetchTranscript(transcriptId: $transcriptId);
+        $meetingId  = $this->repository->resolveMeetingId(transcript: $transcript);
 
         $timeline = [];
         if ($meetingId !== null) {
-            $timeline = $this->buildTimeline(meetingId: $meetingId);
+            $timeline = $this->aligner->buildTimeline(meetingId: $meetingId);
         }
 
         $segments = ($transcript['segments'] ?? []);
@@ -382,10 +357,10 @@ class TranscriptionService
             $segments = [];
         }
 
-        $transcript['segments']  = $this->alignSegments(segments: $segments, timeline: $timeline);
-        $transcript['alignedAt'] = (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+        $transcript['segments']  = $this->aligner->alignSegments(segments: $segments, timeline: $timeline);
+        $transcript['alignedAt'] = date(DATE_ATOM);
 
-        return $this->saveTranscript(transcript: $transcript);
+        return $this->repository->saveTranscript(transcript: $transcript);
 
     }//end align()
 
@@ -405,98 +380,28 @@ class TranscriptionService
      */
     public function alignSegments(array $segments, array $timeline): array
     {
-        $aligned = [];
-        foreach ($segments as $segment) {
-            if (is_array($segment) === false) {
-                continue;
-            }
-
-            // Drop any prior assignment so re-runs reflect the current timeline.
-            unset($segment['agendaItem']);
-
-            $start = (float) ($segment['startTime'] ?? 0);
-            foreach ($timeline as $window) {
-                $wStart = (float) ($window['start'] ?? 0);
-                $wEnd   = (float) ($window['end'] ?? 0);
-                if ($start >= $wStart && ($wEnd === 0.0 || $start < $wEnd)) {
-                    $segment['agendaItem'] = (string) ($window['agendaItem'] ?? '');
-                    break;
-                }
-            }
-
-            $aligned[] = $segment;
-        }//end foreach
-
-        return $aligned;
+        return $this->aligner->alignSegments(segments: $segments, timeline: $timeline);
 
     }//end alignSegments()
 
     /**
-     * Build the conduct timeline windows from a meeting's agenda items.
+     * Set the transcript/recording retention policy for a governance body.
      *
-     * Each item contributes a window `[start, start+actualDuration)` in seconds
-     * relative to the meeting start. Items without a recorded start are skipped;
-     * an empty result means there is no usable timeline (flat-transcript case).
+     * @param string $bodyId The governance body UUID.
+     * @param string $policy One of keep|delete-recording|delete-both.
+     * @param int    $days   Retention window in days.
      *
-     * @param string $meetingId Meeting UUID.
+     * @return void
      *
-     * @return array<int,array<string,mixed>> Ordered timeline windows.
+     * @throws MissingObjectException When the governance body cannot be found.
      *
      * @spec openspec/specs/meeting-transcription/spec.md
      */
-    private function buildTimeline(string $meetingId): array
+    public function setRetentionPolicy(string $bodyId, string $policy, int $days): void
     {
-        $items = $this->fetchAgendaItems(meetingId: $meetingId);
+        $this->repository->saveRetentionPolicy(bodyId: $bodyId, policy: $policy, days: $days);
 
-        $meetingStart = null;
-        $windows      = [];
-        foreach ($items as $item) {
-            $rawStart = ($item['actualStart'] ?? ($item['startTime'] ?? ($item['startedAt'] ?? null)));
-            if ($rawStart === null || $rawStart === '') {
-                continue;
-            }
-
-            try {
-                $itemStart = (new \DateTimeImmutable((string) $rawStart))->getTimestamp();
-            } catch (\Throwable) {
-                continue;
-            }
-
-            if ($meetingStart === null || $itemStart < $meetingStart) {
-                $meetingStart = $itemStart;
-            }
-
-            $duration  = (float) ($item['actualDuration'] ?? 0);
-            $windows[] = [
-                'agendaItem' => (string) ($item['id'] ?? ($item['uuid'] ?? '')),
-                'absStart'   => (float) $itemStart,
-                'duration'   => $duration,
-            ];
-        }//end foreach
-
-        if ($meetingStart === null) {
-            return [];
-        }
-
-        // Normalise to seconds-from-meeting-start to match segment offsets.
-        $timeline = [];
-        foreach ($windows as $window) {
-            $relStart = ($window['absStart'] - (float) $meetingStart);
-            $relEnd   = 0.0;
-            if ($window['duration'] > 0) {
-                $relEnd = ($relStart + $window['duration']);
-            }
-
-            $timeline[] = [
-                'agendaItem' => $window['agendaItem'],
-                'start'      => $relStart,
-                'end'        => $relEnd,
-            ];
-        }
-
-        return $timeline;
-
-    }//end buildTimeline()
+    }//end setRetentionPolicy()
 
     /**
      * Mark a Transcript failed with a stored reason and persist it.
@@ -512,7 +417,7 @@ class TranscriptionService
     {
         $transcript['status']        = 'failed';
         $transcript['failureReason'] = $reason;
-        return $this->saveTranscript(transcript: $transcript);
+        return $this->repository->saveTranscript(transcript: $transcript);
 
     }//end markFailed()
 
@@ -528,34 +433,31 @@ class TranscriptionService
      */
     private function writeTranscriptFile(array $transcript, array $segments): ?string
     {
-        $meetingId = $this->resolveMeetingId(transcript: $transcript);
+        $meetingId = $this->repository->resolveMeetingId(transcript: $transcript);
         if ($meetingId === null) {
             return null;
         }
 
         try {
-            $meeting = $this->fetchMeeting(meetingId: $meetingId);
+            $meeting = $this->repository->fetchMeeting(meetingId: $meetingId);
         } catch (\Throwable) {
             return null;
         }
 
         $lines = [];
         foreach ($segments as $segment) {
-            if (is_array($segment) === false) {
-                continue;
+            $label  = (string) ($segment['speakerLabel'] ?? '');
+            $text   = (string) ($segment['text'] ?? '');
+            $prefix = '';
+            if ($label !== '') {
+                $prefix = $label.': ';
             }
 
-            $label = (string) ($segment['speakerLabel'] ?? '');
-            $text  = (string) ($segment['text'] ?? '');
-            if ($label !== '') {
-                $lines[] = $label.': '.$text;
-            } else {
-                $lines[] = $text;
-            }
+            $lines[] = $prefix.$text;
         }
 
         $content  = implode("\n", $lines);
-        $fileName = 'transcript-'.((string) $this->transcriptId(transcript: $transcript)).'.txt';
+        $fileName = 'transcript-'.((string) $this->repository->transcriptId(transcript: $transcript)).'.txt';
 
         return $this->folderService->writeMeetingFile(
             meeting: $meeting,
@@ -565,220 +467,4 @@ class TranscriptionService
         );
 
     }//end writeTranscriptFile()
-
-    /**
-     * Resolve the source File node from a Files path.
-     *
-     * @param string $path Path of the source file in the meeting folder.
-     *
-     * @return \OCP\Files\File The resolved file node.
-     *
-     * @throws \RuntimeException When the file cannot be resolved.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function resolveSourceNode(string $path): \OCP\Files\File
-    {
-        if ($path === '') {
-            throw new \RuntimeException('Transcript has no source file path.');
-        }
-
-        $fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
-        $dir         = dirname($path);
-        $base        = basename($path);
-        $folderNode  = $fileService->createFolder($dir);
-        $node        = $folderNode->get($base);
-
-        if (($node instanceof \OCP\Files\File) === false) {
-            throw new \RuntimeException('Source path is not a file: '.$path);
-        }
-
-        return $node;
-
-    }//end resolveSourceNode()
-
-    /**
-     * Fetch a meeting object by id (throws when absent).
-     *
-     * @param string $meetingId Meeting UUID.
-     *
-     * @return array<string,mixed> The meeting object.
-     *
-     * @throws MissingObjectException When not found.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function fetchMeeting(string $meetingId): array
-    {
-        $objectService = $this->getObjectService();
-        $entity        = $objectService->find(id: $meetingId, register: 'decidesk', schema: 'meeting');
-        if ($entity === null) {
-            throw new MissingObjectException(message: sprintf('Meeting "%s" not found.', $meetingId));
-        }
-
-        return (array) $entity->jsonSerialize();
-
-    }//end fetchMeeting()
-
-    /**
-     * Fetch a transcript object by id (throws when absent).
-     *
-     * @param string $transcriptId Transcript UUID.
-     *
-     * @return array<string,mixed> The transcript object.
-     *
-     * @throws MissingObjectException When not found.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function fetchTranscript(string $transcriptId): array
-    {
-        $objectService = $this->getObjectService();
-        $entity        = $objectService->find(id: $transcriptId, register: 'decidesk', schema: 'transcript');
-        if ($entity === null) {
-            throw new MissingObjectException(message: sprintf('Transcript "%s" not found.', $transcriptId));
-        }
-
-        return (array) $entity->jsonSerialize();
-
-    }//end fetchTranscript()
-
-    /**
-     * Fetch the agenda items linked to a meeting.
-     *
-     * @param string $meetingId Meeting UUID.
-     *
-     * @return array<int,array<string,mixed>> Agenda item objects.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function fetchAgendaItems(string $meetingId): array
-    {
-        $objectService = $this->getObjectService();
-        $entities      = $objectService->findAll(
-            [
-                'register' => 'decidesk',
-                'schema'   => 'agenda-item',
-                'filters'  => [
-                    'register'           => 'decidesk',
-                    'schema'             => 'agenda-item',
-                    '_relations.meeting' => $meetingId,
-                ],
-            ]
-        );
-
-        $items = [];
-        foreach ($entities as $entity) {
-            if (is_array($entity) === true) {
-                $items[] = $entity;
-            } else if (method_exists($entity, 'getObject') === true) {
-                $items[] = $entity->getObject();
-            } else if (method_exists($entity, 'jsonSerialize') === true) {
-                $items[] = (array) $entity->jsonSerialize();
-            }
-        }
-
-        return $items;
-
-    }//end fetchAgendaItems()
-
-    /**
-     * Persist a Transcript object via the OpenRegister object API.
-     *
-     * @param array<string,mixed> $transcript The Transcript object.
-     *
-     * @return array<string,mixed> The persisted object.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function saveTranscript(array $transcript): array
-    {
-        $objectService = $this->getObjectService();
-        $uuid          = $this->transcriptId(transcript: $transcript);
-
-        $saved = $objectService->saveObject(
-            object: $transcript,
-            register: 'decidesk',
-            schema: 'transcript',
-            uuid: $uuid
-        );
-
-        if (is_array($saved) === true) {
-            return $saved;
-        }
-
-        if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
-            return (array) $saved->jsonSerialize();
-        }
-
-        if (is_object($saved) === true && method_exists($saved, 'getObject') === true) {
-            return (array) $saved->getObject();
-        }
-
-        return $transcript;
-
-    }//end saveTranscript()
-
-    /**
-     * Extract the transcript object UUID (id or @self.id), or null.
-     *
-     * @param array<string,mixed> $transcript The Transcript object.
-     *
-     * @return string|null The UUID.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function transcriptId(array $transcript): ?string
-    {
-        $id = ($transcript['id'] ?? ($transcript['@self']['id'] ?? null));
-        if ($id === null || $id === '') {
-            return null;
-        }
-
-        return (string) $id;
-
-    }//end transcriptId()
-
-    /**
-     * Resolve the linked meeting UUID from a Transcript object.
-     *
-     * @param array<string,mixed> $transcript The Transcript object.
-     *
-     * @return string|null The meeting UUID, or null when not linked.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function resolveMeetingId(array $transcript): ?string
-    {
-        $relation = ($transcript['relations']['meeting'] ?? ($transcript['meeting'] ?? null));
-        if (is_array($relation) === true) {
-            $relation = ($relation['id'] ?? ($relation[0] ?? null));
-        }
-
-        if ($relation === null || $relation === '') {
-            return null;
-        }
-
-        return (string) $relation;
-
-    }//end resolveMeetingId()
-
-    /**
-     * Lazy-load the OpenRegister ObjectService.
-     *
-     * @return object The ObjectService instance.
-     *
-     * @throws \RuntimeException When OpenRegister is not installed.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function getObjectService(): object
-    {
-        try {
-            return $this->container->get('OCA\OpenRegister\Service\ObjectService');
-        } catch (\Throwable $e) {
-            throw new \RuntimeException('OpenRegister ObjectService is not available.', 0, $e);
-        }
-
-    }//end getObjectService()
 }//end class

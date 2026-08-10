@@ -19,7 +19,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
@@ -35,7 +35,6 @@ use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
 
 /**
  * Thin controller for motion lifecycle and co-signature API endpoints.
@@ -53,7 +52,6 @@ class MotionController extends Controller
      * @param IGroupManager       $groupManager        The group manager
      * @param IAppConfig          $appConfig           The app config
      * @param ParticipantResolver $participantResolver Per-meeting participant/role resolver
-     * @param ContainerInterface  $container           DI container (lazy-loads ObjectService)
      *
      * @return void
      *
@@ -66,7 +64,6 @@ class MotionController extends Controller
         private readonly IGroupManager $groupManager,
         private readonly IAppConfig $appConfig,
         private readonly ParticipantResolver $participantResolver,
-        private readonly ContainerInterface $container,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -93,45 +90,12 @@ class MotionController extends Controller
      */
     private function requireChairOrSecretary(?string $motionId=null): ?JSONResponse
     {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
-
-        $uid = $user->getUID();
-
-        // Per-meeting role check: resolve the meeting linked to this motion and verify
-        // that the caller holds a chair or secretary role in that meeting's governance body.
-        if ($motionId !== null) {
-            $meetingId = $this->resolveMeetingIdFromMotion(motionId: $motionId);
-            if ($meetingId !== null) {
-                $authorized = $this->participantResolver->hasRole(
-                    meetingId: $meetingId,
-                    nextcloudUid: $uid,
-                    roles: ['chair', 'secretary']
-                );
-                if ($authorized === false) {
-                    return new JSONResponse(['message' => 'Chair or secretary role required for this meeting'], Http::STATUS_FORBIDDEN);
-                }
-
-                return null;
-            }
-        }
-
-        // Fallback: global chair_group or system-admin check (no meeting context available).
-        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
-
-        if ($chairGroup !== '') {
-            $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
-        } else {
-            $authorized = $this->groupManager->isAdmin($uid);
-        }
-
-        if ($authorized === false) {
-            return new JSONResponse(['message' => 'Chair or secretary role required'], Http::STATUS_FORBIDDEN);
-        }
-
-        return null;
+        return $this->requireMeetingRole(
+            motionId: $motionId,
+            roles: ['chair', 'secretary'],
+            scopedMessage: 'Chair or secretary role required for this meeting',
+            globalMessage: 'Chair or secretary role required'
+        );
 
     }//end requireChairOrSecretary()
 
@@ -152,99 +116,127 @@ class MotionController extends Controller
      */
     private function requireChair(?string $motionId=null): ?JSONResponse
     {
+        return $this->requireMeetingRole(
+            motionId: $motionId,
+            roles: ['chair'],
+            scopedMessage: 'Chair role required for this meeting',
+            globalMessage: 'Chair role required'
+        );
+
+    }//end requireChair()
+
+    /**
+     * Shared per-meeting role guard behind requireChair() / requireChairOrSecretary().
+     *
+     * Resolves the meeting linked to the motion and verifies the caller holds
+     * one of $roles in that meeting's governance body, preventing cross-body
+     * privilege escalation. When no meeting can be resolved (or no motion id was
+     * supplied) it falls back to the global chair_group / system-admin check.
+     * Fail closed: any failure yields a 401/403.
+     *
+     * @param string|null   $motionId      UUID of the motion to scope the check (optional)
+     * @param array<string> $roles         Participant roles that satisfy the guard
+     * @param string        $scopedMessage 403 message for the per-meeting denial
+     * @param string        $globalMessage 403 message for the global-fallback denial
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return JSONResponse|null A 401/403 response on failure, null when authorized
+     */
+    private function requireMeetingRole(?string $motionId, array $roles, string $scopedMessage, string $globalMessage): ?JSONResponse
+    {
         $user = $this->userSession->getUser();
         if ($user === null) {
             return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
         }
 
-        $uid = $user->getUID();
-
+        $uid       = $user->getUID();
+        $meetingId = null;
         if ($motionId !== null) {
-            $meetingId = $this->resolveMeetingIdFromMotion(motionId: $motionId);
-            if ($meetingId !== null) {
-                $authorized = $this->participantResolver->hasRole(
-                    meetingId: $meetingId,
-                    nextcloudUid: $uid,
-                    roles: ['chair']
-                );
-                if ($authorized === false) {
-                    return new JSONResponse(['message' => 'Chair role required for this meeting'], Http::STATUS_FORBIDDEN);
-                }
+            $meetingId = $this->motionService->resolveMeetingId(motionId: $motionId);
+        }
 
+        // Per-meeting role check when the motion resolves to a meeting.
+        if ($meetingId !== null) {
+            $authorized = $this->participantResolver->hasRole(
+                meetingId: $meetingId,
+                nextcloudUid: $uid,
+                roles: $roles
+            );
+            if ($authorized === true) {
                 return null;
             }
+
+            return new JSONResponse(['message' => $scopedMessage], Http::STATUS_FORBIDDEN);
         }
 
-        // Fallback: global chair_group or system-admin check (existing pattern).
-        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
-
-        if ($chairGroup !== '') {
-            $authorized = $this->groupManager->isInGroup($uid, $chairGroup);
-        } else {
-            $authorized = $this->groupManager->isAdmin($uid);
-        }
-
-        if ($authorized === false) {
-            return new JSONResponse(['message' => 'Chair role required'], Http::STATUS_FORBIDDEN);
+        // Fallback: global chair_group or system-admin check (no meeting context available).
+        if ($this->hasGlobalChairAuthority(uid: $uid) === false) {
+            return new JSONResponse(['message' => $globalMessage], Http::STATUS_FORBIDDEN);
         }
 
         return null;
 
-    }//end requireChair()
+    }//end requireMeetingRole()
 
     /**
-     * Resolve the meeting UUID linked to a motion.
+     * Global chair authority: chair_group membership, or system admin when unset.
      *
-     * Honours BOTH link shapes: the flat `meeting` property (what the UI and
-     * the Newman fixtures write) and the structured `relations` entry.
-     * Previously only relations were read, so property-linked motions always
-     * fell back to the global chair guard instead of the per-meeting check.
-     *
-     * @param string $motionId The motion UUID
+     * @param string $uid The Nextcloud UID to evaluate
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
-     * @return string|null The meeting UUID or null if not found
+     * @return bool True when the user holds global chair authority
      */
-    private function resolveMeetingIdFromMotion(string $motionId): ?string
+    private function hasGlobalChairAuthority(string $uid): bool
     {
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $motionEntity  = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
-            if ($motionEntity === null) {
-                return null;
-            }
+        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
+        if ($chairGroup === '') {
+            return $this->groupManager->isAdmin($uid);
+        }
 
-            $motion = $motionEntity->jsonSerialize();
+        return $this->groupManager->isInGroup($uid, $chairGroup);
 
-            // Flat meeting property (canonical UI shape).
-            $meetingRef = ($motion['meeting'] ?? null);
-            if (is_string($meetingRef) === true && $meetingRef !== '') {
-                return $meetingRef;
-            }
+    }//end hasGlobalChairAuthority()
 
-            if (is_array($meetingRef) === true && (($meetingRef['id'] ?? $meetingRef['uuid'] ?? '') !== '')) {
-                return ($meetingRef['id'] ?? $meetingRef['uuid']);
-            }
+    /**
+     * Read the optional `outcome` request parameter.
+     *
+     * ADR-005 split the vote result off the lifecycle axis, so the transition
+     * endpoints take it as a separate field. Absent and empty are both mapped
+     * to null so that `outcome: ""` cannot reach the service as a present-but-
+     * blank value — MotionService validates it against the closed vocabulary
+     * and would reject the blank string with a message about a bad outcome when
+     * the caller in fact supplied none.
+     *
+     * @param array<string, mixed> $params The request parameters
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return string|null The requested outcome, or null when not supplied
+     */
+    private function readOutcome(array $params): ?string
+    {
+        $outcome = ($params['outcome'] ?? null);
+        if (is_string($outcome) === false || trim($outcome) === '') {
+            return null;
+        }
 
-            foreach (($motion['relations'] ?? []) as $relation) {
-                if (($relation['schema'] ?? '') === 'meeting') {
-                    return ($relation['id'] ?? null);
-                }
-            }
-        } catch (\Throwable) {
-            // Silently fall through to global check.
-        }//end try
+        return trim($outcome);
 
-        return null;
-
-    }//end resolveMeetingIdFromMotion()
+    }//end readOutcome()
 
     /**
      * Transition the lifecycle state of a Motion.
      *
      * POST /api/motions/{id}/transition
-     * Body: { "newState": "debating", "actorId": "uid" }
+     * Body: { "newState": "deliberating" }
+     * Body: { "newState": "decided", "outcome": "adopted" }
+     *
+     * ADR-005: `newState` is a `Decision.lifecycle` value
+     * (draft|proposed|deliberating|voting|decided|enacted|archived|withdrawn).
+     * The vote result travels in `outcome` (`adopted`|`rejected`), which is a
+     * separate axis and is required only when entering a terminal state.
      *
      * @param string $id The motion UUID
      *
@@ -264,6 +256,7 @@ class MotionController extends Controller
 
         $params   = $this->request->getParams();
         $newState = ($params['newState'] ?? '');
+        $outcome  = $this->readOutcome(params: $params);
         $actorId  = ($this->userSession->getUser()?->getUID() ?? '');
 
         try {
@@ -271,9 +264,10 @@ class MotionController extends Controller
                 objectId: $id,
                 objectType: 'motion',
                 newState: $newState,
-                actorId: $actorId
+                actorId: $actorId,
+                outcome: $outcome
             );
-            return new JSONResponse(['success' => true, 'newState' => $newState]);
+            return new JSONResponse(['success' => true, 'newState' => $newState, 'outcome' => $outcome]);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {
@@ -356,7 +350,7 @@ class MotionController extends Controller
         }
 
         try {
-            $this->motionService->addCoSigner(motionId: $id, participantDisplayName: $displayName);
+            $this->motionService->addCoSigner(motionId: $id, coSignerName: $displayName);
             return new JSONResponse(['success' => true]);
         } catch (\RuntimeException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
@@ -409,7 +403,11 @@ class MotionController extends Controller
      * Transition the lifecycle state of an Amendment.
      *
      * POST /api/amendments/{id}/transition
-     * Body: { "newState": "debating" }
+     * Body: { "newState": "deliberating" }
+     * Body: { "newState": "decided", "outcome": "adopted" }
+     *
+     * ADR-005: see transition() — `newState` is a lifecycle value, the vote
+     * result travels separately in `outcome`.
      *
      * @param string $id The amendment UUID
      *
@@ -429,6 +427,7 @@ class MotionController extends Controller
 
         $params   = $this->request->getParams();
         $newState = ($params['newState'] ?? '');
+        $outcome  = $this->readOutcome(params: $params);
         $actorId  = ($this->userSession->getUser()?->getUID() ?? '');
 
         try {
@@ -436,9 +435,10 @@ class MotionController extends Controller
                 objectId: $id,
                 objectType: 'amendment',
                 newState: $newState,
-                actorId: $actorId
+                actorId: $actorId,
+                outcome: $outcome
             );
-            return new JSONResponse(['success' => true, 'newState' => $newState]);
+            return new JSONResponse(['success' => true, 'newState' => $newState, 'outcome' => $outcome]);
         } catch (\InvalidArgumentException $e) {
             return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
         } catch (\RuntimeException $e) {

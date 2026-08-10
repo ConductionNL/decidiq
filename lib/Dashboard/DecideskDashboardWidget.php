@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Dashboard;
 
+use DateTimeImmutable;
 use OCA\Decidesk\Service\DashboardWidgetService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Dashboard\IAPIWidgetV2;
@@ -209,7 +210,7 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
         $iconUrl = $this->getIconUrl();
         $items   = [];
 
-        $pending = (int) ($summary['pendingVotes'] ?? 0);
+        $pending = $summary['pendingVotes'];
         $items[] = new WidgetItem(
             $this->l10n->t('Pending votes: %s', [(string) $pending]),
             $this->l10n->t('Decisions awaiting your vote'),
@@ -218,26 +219,11 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
             'decidesk-pending-votes'
         );
 
-        $nextMeeting = ($summary['nextMeeting'] ?? null);
-        if (is_array($nextMeeting) === true) {
-            $title    = (string) ($nextMeeting['title'] ?? ($nextMeeting['name'] ?? $this->l10n->t('Next meeting')));
-            $subtitle = $this->formatMeetingSubtitle(scheduledDate: (string) ($nextMeeting['scheduledDate'] ?? ''));
-            $items[]  = new WidgetItem(
-                $title,
-                $subtitle,
-                $appUrl,
-                $iconUrl,
-                'decidesk-next-meeting'
-            );
-        } else {
-            $items[] = new WidgetItem(
-                $this->l10n->t('No upcoming meetings'),
-                '',
-                $appUrl,
-                $iconUrl,
-                'decidesk-next-meeting'
-            );
-        }//end if
+        $items[] = $this->buildNextMeetingItem(
+            nextMeeting: ($summary['nextMeeting'] ?? null),
+            appUrl: $appUrl,
+            iconUrl: $iconUrl
+        );
 
         return new WidgetItems(
             $items,
@@ -245,6 +231,39 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
         );
 
     }//end getItemsV2()
+
+    /**
+     * Build the next-meeting widget item, or its "nothing scheduled" placeholder.
+     *
+     * @param mixed  $nextMeeting The summary's nextMeeting entry (a meeting array, or null/absent)
+     * @param string $appUrl      Deep link to the Decidesk app root
+     * @param string $iconUrl     Widget icon url
+     *
+     * @spec openspec/specs/dashboard/spec.md
+     *
+     * @return WidgetItem The next-meeting item
+     */
+    private function buildNextMeetingItem(mixed $nextMeeting, string $appUrl, string $iconUrl): WidgetItem
+    {
+        if (is_array($nextMeeting) === false) {
+            return new WidgetItem(
+                $this->l10n->t('No upcoming meetings'),
+                '',
+                $appUrl,
+                $iconUrl,
+                'decidesk-next-meeting'
+            );
+        }
+
+        return new WidgetItem(
+            (string) ($nextMeeting['title'] ?? ($nextMeeting['name'] ?? $this->l10n->t('Next meeting'))),
+            $this->formatMeetingSubtitle(scheduledDate: (string) ($nextMeeting['scheduledDate'] ?? '')),
+            $appUrl,
+            $iconUrl,
+            'decidesk-next-meeting'
+        );
+
+    }//end buildNextMeetingItem()
 
     /**
      * Absolute url to the Decidesk app root (in-app dashboard).
@@ -279,12 +298,12 @@ class DecideskDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidge
         }
 
         try {
-            $dt = new \DateTimeImmutable($scheduledDate);
+            $date = new DateTimeImmutable($scheduledDate);
         } catch (\Throwable) {
             return $this->l10n->t('Your next meeting');
         }
 
-        return $dt->format('Y-m-d H:i');
+        return $date->format('Y-m-d H:i');
 
     }//end formatMeetingSubtitle()
 }//end class

@@ -242,14 +242,16 @@ class QuorumDeclarativeTest extends TestCase
      */
     private function createTestGovernanceBody(): string
     {
-        $body = $this->objectService->saveObject(
-            object: [
-                'name'     => 'Test Governance Body '.uniqid(prefix: '', more_entropy: true),
-                'bodyType' => 'legislative',
-                'domain'   => 'test',
-            ],
-            register: 'decidesk',
-            schema: 'governance-body',
+        $body = $this->objectService->runAsSystem(
+            fn () => $this->objectService->saveObject(
+                object: [
+                    'name'     => 'Test Governance Body '.uniqid(prefix: '', more_entropy: true),
+                    'bodyType' => 'legislative',
+                    'domain'   => 'test',
+                ],
+                register: 'decidesk',
+                schema: 'governance-body',
+            )
         );
 
         if (is_object($body) && method_exists($body, 'jsonSerialize')) {
@@ -283,10 +285,12 @@ class QuorumDeclarativeTest extends TestCase
             $data['quorumRequired'] = $quorumRequired;
         }
 
-        $meeting = $this->objectService->saveObject(
-            object: $data,
-            register: 'decidesk',
-            schema: 'meeting',
+        $meeting = $this->objectService->runAsSystem(
+            fn () => $this->objectService->saveObject(
+                object: $data,
+                register: 'decidesk',
+                schema: 'meeting',
+            )
         );
 
         if (is_object($meeting) && method_exists($meeting, 'jsonSerialize')) {
@@ -317,15 +321,17 @@ class QuorumDeclarativeTest extends TestCase
                 $status = 'present';
             }
 
-            $this->objectService->saveObject(
-                object: [
-                    'displayName'      => 'Test Participant '.uniqid(prefix: '', more_entropy: true),
-                    'role'             => 'member',
-                    'governanceBody'   => $governanceBodyId,
-                    'attendanceStatus' => $status,
-                ],
-                register: 'decidesk',
-                schema: 'participant',
+            $this->objectService->runAsSystem(
+                fn () => $this->objectService->saveObject(
+                    object: [
+                        'displayName'      => 'Test Participant '.uniqid(prefix: '', more_entropy: true),
+                        'role'             => 'member',
+                        'governanceBody'   => $governanceBodyId,
+                        'attendanceStatus' => $status,
+                    ],
+                    register: 'decidesk',
+                    schema: 'participant',
+                )
             );
         }
 
@@ -380,23 +386,33 @@ class QuorumDeclarativeTest extends TestCase
                 $p = method_exists($pEntity, 'jsonSerialize') ? $pEntity->jsonSerialize() : [];
                 $pid = (string) ($p['id'] ?? $p['uuid'] ?? '');
                 if ($pid !== '') {
-                    $this->objectService->deleteObject(
-                        register: 'decidesk',
-                        schema: 'participant',
-                        id: $pid
+                    // The UUID parameter is named `uuid`, not `id` — this used
+                    // to pass `id:` and raise "Unknown named parameter", which
+                    // the best-effort catch below swallowed, so cleanup had
+                    // never once removed a row (#399).
+                    $this->objectService->runAsSystem(
+                        fn () => $this->objectService->deleteObject(
+                            uuid: $pid,
+                            register: 'decidesk',
+                            schema: 'participant',
+                        )
                     );
                 }
             }
 
-            $this->objectService->deleteObject(
-                register: 'decidesk',
-                schema: 'meeting',
-                id: $meetingId
+            $this->objectService->runAsSystem(
+                fn () => $this->objectService->deleteObject(
+                    uuid: $meetingId,
+                    register: 'decidesk',
+                    schema: 'meeting',
+                )
             );
-            $this->objectService->deleteObject(
-                register: 'decidesk',
-                schema: 'governance-body',
-                id: $governanceBodyId
+            $this->objectService->runAsSystem(
+                fn () => $this->objectService->deleteObject(
+                    uuid: $governanceBodyId,
+                    register: 'decidesk',
+                    schema: 'governance-body',
+                )
             );
         } catch (\Throwable) {
             // Best-effort cleanup.

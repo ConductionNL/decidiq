@@ -17,7 +17,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2.
+// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Controller;
@@ -44,10 +44,10 @@ class SettingsController extends Controller
     /**
      * Constructor for the SettingsController.
      *
-     * @param IRequest                 $request                  The request object
-     * @param SettingsService          $settingsService          The settings service
-     * @param IUserSession             $userSession              The user session
-     * @param PublicationConfigService $publicationConfigService The publication configuration service
+     * @param IRequest                 $request           The request object
+     * @param SettingsService          $settingsService   The settings service
+     * @param IUserSession             $userSession       The user session
+     * @param PublicationConfigService $publicationConfig The publication configuration service
      *
      * @return void
      */
@@ -55,7 +55,7 @@ class SettingsController extends Controller
         IRequest $request,
         private SettingsService $settingsService,
         private IUserSession $userSession,
-        private \OCA\Decidesk\Service\PublicationConfigService $publicationConfigService,
+        private \OCA\Decidesk\Service\PublicationConfigService $publicationConfig,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -85,15 +85,33 @@ class SettingsController extends Controller
     /**
      * Update settings with provided data.
      *
-     * Requires admin privileges — enforced via the AuthorizedAdminSetting
-     * attribute (NC28+ settings panel).
+     * This is the canonical write, matching
+     * `\OCA\OpenRegister\AppHost\Controller\GenericSettingsControllerBase::update()`.
+     * The AppHost canonical route table routes `PUT /api/settings` to
+     * `settings#update`, and because decidesk ships its own SettingsController
+     * the generic is never aliased in (see
+     * `AppHost\Bootstrap::aliasControllerUnlessLeafDefinesIt()`) — so this
+     * method has to exist here or the request dies with a 500, not a 404.
+     * Measured 2026-08-08 on the dev instance: `PUT /apps/decidesk/api/settings`
+     * returned 500 with `ReflectionException: Method
+     * OCA\Decidesk\Controller\SettingsController::update() does not exist`.
      *
-     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
+     * Writes the whitelisted `SettingsService::CONFIG_KEYS` into the
+     * instance-wide `IAppConfig` and returns the refreshed settings map
+     * (secrets omitted by `getSettings()`).
+     *
+     * Requires admin privileges — enforced via the AuthorizedAdminSetting
+     * attribute (NC28+ settings panel). The write reaches instance-wide app
+     * config, so the posture is deliberately identical to the POST alias
+     * below; it is NOT the `#[NoAdminRequired]` posture of the read routes.
+     *
+     * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
+     * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
      *
      * @return JSONResponse
      */
     #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function create(): JSONResponse
+    public function update(): JSONResponse
     {
         $data   = $this->request->getParams();
         $config = $this->settingsService->updateSettings($data);
@@ -104,6 +122,29 @@ class SettingsController extends Controller
                 'config'  => $config,
             ]
         );
+    }//end update()
+
+    /**
+     * Legacy POST alias for {@see update()}.
+     *
+     * The canonical AppHost route table still ships `settings#create`
+     * (POST /api/settings), and decidesk's own
+     * `src/store/modules/settings.js::saveSettings()` posts to it, so it stays
+     * reachable and byte-identical in behaviour (ADR-029).
+     *
+     * The attribute is repeated deliberately: Nextcloud's middleware evaluates
+     * auth attributes on the DISPATCHED method only, so delegating to
+     * `update()` does not inherit its posture.
+     *
+     * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
+     * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
+     *
+     * @return JSONResponse
+     */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
+    public function create(): JSONResponse
+    {
+        return $this->update();
     }//end create()
 
     /**
@@ -124,7 +165,7 @@ class SettingsController extends Controller
     #[AuthorizedAdminSetting(AdminSettings::class)]
     public function load(): JSONResponse
     {
-        $result = $this->settingsService->loadConfiguration(force: true);
+        $result = $this->settingsService->reloadConfiguration();
 
         return new JSONResponse($result);
     }//end load()
@@ -146,7 +187,7 @@ class SettingsController extends Controller
             return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
         }
 
-        return new JSONResponse(['config' => $this->publicationConfigService->getAll()]);
+        return new JSONResponse(['config' => $this->publicationConfig->getAll()]);
     }//end getPublicationConfig()
 
     /**
@@ -166,7 +207,7 @@ class SettingsController extends Controller
             $config = [];
         }
 
-        $saved = $this->publicationConfigService->save($config);
+        $saved = $this->publicationConfig->save($config);
 
         return new JSONResponse(['success' => true, 'config' => $saved]);
     }//end setPublicationConfig()
