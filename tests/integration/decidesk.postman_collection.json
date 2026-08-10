@@ -195,7 +195,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Newman Decision\",\n  \"text\": \"Adopted by the assembly.\",\n  \"decisionDate\": \"2026-06-20T10:00:00+00:00\",\n  \"outcome\": \"adopted\",\n  \"isPublished\": \"internal\"\n}" },
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"meeting-outcome\",\n  \"title\": \"Newman Decision\",\n  \"text\": \"Adopted by the assembly.\",\n  \"lifecycle\": \"decided\",\n  \"decisionDate\": \"2026-06-20T10:00:00+00:00\",\n  \"outcome\": \"adopted\",\n  \"isPublished\": \"internal\"\n}" },
 						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] }
 					}
 				}
