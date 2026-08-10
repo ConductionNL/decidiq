@@ -139,8 +139,8 @@ class VotingRoundOpener
      *
      * Parliamentary ordering (motion-amendment spec, fail closed):
      * - subjectType 'motion': rejected while any amendment of the motion is still
-     *   in lifecycle submitted/debating/voting — amendments are voted before the
-     *   main motion.
+     *   in an in-flight lifecycle (draft/proposed/deliberating/voting) — amendments
+     *   are voted before the main motion.
      * - subjectType 'amendment': $motionId is the AMENDMENT UUID; rejected when a
      *   sibling amendment earlier in the configured order (votingOrder ascending,
      *   unordered last by submittedAt) is still undecided.

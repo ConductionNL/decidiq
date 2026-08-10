@@ -173,21 +173,13 @@ class NotificationPreferenceService
 
     }//end updatePreference()
 
-    /**
-     * Create a NotificationPreference object for a person (alias).
-     *
-     * @param string               $personId    Person UUID or user ID
-     * @param array<string, mixed> $preferences Preference fields
-     *
-     * @return array<string, mixed>
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
-     */
-    public function createPreference(string $personId, array $preferences): array
-    {
-        return $this->updatePreference(personId: $personId, preferences: $preferences);
-
-    }//end createPreference()
+    // Removed: createPreference() was a self-described "(alias)" whose whole
+    // body delegated to updatePreference(), which is itself an upsert ("Create
+    // or update"). It had no callers anywhere in lib/, src/ or tests/, so
+    // nothing wrote through it and nothing can be orphaned by its removal —
+    // the one storage path is unchanged and still reached by everything that
+    // was already using it, including NotificationPreferenceController.
+    // Two names for one write is how the two drift apart later.
 
     /**
      * Determine if a given event type should produce a notification for the person.

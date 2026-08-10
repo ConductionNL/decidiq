@@ -32,8 +32,8 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "motion" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Newman motion-amendment parent motion\",\n  \"text\": \"The original motion text under consideration.\",\n  \"lifecycle\": \"debating\"\n}" }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman motion-amendment parent motion\",\n  \"text\": \"The original motion text under consideration.\",\n  \"lifecycle\": \"deliberating\"\n}" }
 					}
 				},
 				{
@@ -57,8 +57,8 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Amendment A\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"Original text with a small addition\",\n  \"parentMotion\": \"{{motionId}}\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-01T10:00:00Z\"\n}" }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"amendment\",\n  \"title\": \"Amendment A\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"Original text with a small addition\",\n  \"amends\": \"{{motionId}}\",\n  \"lifecycle\": \"deliberating\",\n  \"submittedAt\": \"2026-06-01T10:00:00Z\"\n}" }
 					}
 				},
 				{
@@ -82,8 +82,8 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "POST",
 						"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment" ] },
-						"body": { "mode": "raw", "raw": "{\n  \"title\": \"Amendment B\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"A far more sweeping rewrite of the entire passage entirely\",\n  \"parentMotion\": \"{{motionId}}\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-02T10:00:00Z\"\n}" }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision" ] },
+						"body": { "mode": "raw", "raw": "{\n  \"decisionType\": \"amendment\",\n  \"title\": \"Amendment B\",\n  \"text\": \"Original text\",\n  \"proposedText\": \"A far more sweeping rewrite of the entire passage entirely\",\n  \"amends\": \"{{motionId}}\",\n  \"lifecycle\": \"deliberating\",\n  \"submittedAt\": \"2026-06-02T10:00:00Z\"\n}" }
 					}
 				}
 			]
@@ -228,7 +228,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "DELETE",
 						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment/{{amendmentA}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment", "{{amendmentA}}" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{amendmentA}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision", "{{amendmentA}}" ] }
 					}
 				},
 				{
@@ -238,7 +238,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "DELETE",
 						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/amendment/{{amendmentB}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "amendment", "{{amendmentB}}" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{amendmentB}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision", "{{amendmentB}}" ] }
 					}
 				},
 				{
@@ -248,7 +248,7 @@
 						"auth": { "type": "basic", "basic": [ { "key": "username", "value": "{{adminUser}}", "type": "string" }, { "key": "password", "value": "{{adminPass}}", "type": "string" } ] },
 						"method": "DELETE",
 						"header": [ { "key": "OCS-APIRequest", "value": "true" } ],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{motionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "motion", "{{motionId}}" ] }
+						"url": { "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{motionId}}", "host": [ "{{baseUrl}}" ], "path": [ "index.php", "apps", "openregister", "api", "objects", "decidesk", "decision", "{{motionId}}" ] }
 					}
 				}
 			]

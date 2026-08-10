@@ -362,8 +362,17 @@ test.describe('Integration registry — OCS / JS agreement', () => {
 		// registered something OR doesn't know about). OCS side
 		// MUST be a subset of JS side; every PHP-side provider must
 		// also be registered in JS.
-		for (const id of ocsIds) {
-			expect(jsIds, `OCS provider "${id}" not in JS registry`).toContain(id)
-		}
+		//
+		// Report the WHOLE drifting set, not just the alphabetically first.
+		// The previous per-id loop threw on the first mismatch, so a run in
+		// which three providers had drifted named only one — and the fix looked
+		// one-third the size it actually was.
+		const missing = ocsIds.filter((id: string) => !jsIds.includes(id))
+		expect(
+			missing,
+			`OCS advertises provider(s) the JS registry does not declare: ${missing.join(', ')}\n`
+			+ `  OCS ids: ${ocsIds.join(', ')}\n`
+			+ `  JS  ids: ${jsIds.join(', ')}`,
+		).toEqual([])
 	})
 })

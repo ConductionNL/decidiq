@@ -18,22 +18,27 @@
  *   POST /api/voting-rounds/{id}/tally (show-of-hands aggregate tally)
  * Fixtures are seeded via the OpenRegister object API (real verbs).
  *
- * ── DEPLOY REALITY (confirmed 2026-06-10; see the BUG LIST in the run report) ──
- * Two backend defects make most of the happy-path workflow unreachable in this
- * deployment, so the math/transition assertions are written precisely but
- * marked test.fixme, while the security-relevant guard behaviour is asserted
- * green:
- *   BUG-A  decidesk filters related objects with `findAll(['filters' =>
- *          ['relations.<schema>' => <id>]])`, but in the current OpenRegister
- *          only the `_relations.<schema>` key matches — `relations.<schema>`
- *          returns ZERO rows. Consequence: resolveMeetingParticipants /
- *          checkQuorum / tallyResults / castVote-dedup all see an empty set, so
- *          quorum is never satisfiable, the chair role never resolves, and the
- *          vote tally is always 0/0/0 = "invalid".
- *   BUG-B  VotingService::saveShowOfHandsTally() and castVote() are typed
- *          `: array` but return the ObjectEntity from saveObject() (which
- *          returns ObjectEntity, never array/null) — a TypeError 500 on every
- *          show-of-hands tally and every real vote cast.
+ * ── DEPLOY REALITY (re-measured 2026-08-06 against CI run 31083903075) ────────
+ * The older header here described "BUG-A" as decidesk filtering on
+ * `relations.<schema>` where OpenRegister wanted `_relations.<schema>`. That
+ * diagnosis was wrong in its second half, and the wrong half is why the tally
+ * assertions kept failing after the "fix": the call sites HAD been changed to
+ * `_relations.<schema-slug>`, and a slug-keyed filter still matches nothing.
+ *
+ * The real mechanism: decidesk writes links as a structured
+ * `relations: [{register, schema, id}]` array, and OpenRegister's
+ * SaveObject::scanForRelations() flattens that into the `_relations` JSONB keyed
+ * by the PROPERTY PATH it walked — `relations.0.id` — never by the related
+ * schema's slug. Its `_relations.<field>` filter resolves to
+ * `kv.value = <id> AND (kv.key = '<field>' OR kv.key LIKE '<field>.%')`, so
+ * `_relations.voting-round` cannot match a key named `relations.0.id`. Every
+ * such query returned ZERO rows on a healthy HTTP 200, with nothing logged:
+ * tallyResults saw no ballots and computed 0/0/0 = "invalid" no matter what was
+ * cast. Fixed by keying the filter on `relations` (ObjectRelationFilter).
+ *
+ * "BUG-B" (saveShowOfHandsTally/castVote typed `: array` but returning an
+ * ObjectEntity) is asserted directly by the last two tests below rather than
+ * described here — if it regresses they go red on the 500.
  *
  * @e2e openspec/specs/meeting-management/spec.md#quorum-not-met-meeting-cannot-proceed-to-voting
  * @e2e openspec/specs/decision-management/spec.md#transition-a-decision-from-draft-to-proposed
@@ -49,6 +54,7 @@ import {
 	writeHeaders,
 	cleanupAll,
 	objId,
+	MOTION_SCHEMA,
 	type SeedLedger,
 } from './governance-fixture'
 
@@ -168,7 +174,9 @@ test('quorum-not-met / preconditions-unmet meeting cannot open a voting round', 
 	expect(after, 'no voting-round may be created for a quorum-blocked meeting').toBe(before)
 
 	// The motion must NOT have been advanced to "voting" by a blocked open.
-	const motion = await getObject(page, 'motion', s.motionId)
+	// ADR-005: a motion IS a Decision (decisionType='motion'); there is no
+	// standalone `motion` schema to read it back from.
+	const motion = await getObject(page, MOTION_SCHEMA, s.motionId)
 	expect(motion?.lifecycle, 'motion lifecycle must not advance on a blocked open').not.toBe('voting')
 })
 
@@ -197,9 +205,10 @@ const TALLY_CASES: TallyCase[] = [
 
 for (const c of TALLY_CASES) {
 	// @e2e openspec/specs/decision-management/spec.md#view-decision-detail-with-voting-results
-	// BUG-A: votes are linked to the round but tallyResults() filters with
-	// `relations.voting-round` which matches 0 rows in this deployment, so the
-	// computed tally is always 0/0/0 = invalid regardless of the votes cast.
+	// These are the assertions that caught the relation-filter defect described in
+	// the file header: the votes below are linked to the round exactly the way the
+	// app links them (VoteBallotFactory writes the same structured `relations`
+	// array), so a tally of 0 here means the read-back query matched nothing.
 	test(`tally math — ${c.name}`, async ({ page }) => {
 		// Orphan round (no motion link) so close()'s auth falls back to the
 		// global-admin path and the round is actually closable.

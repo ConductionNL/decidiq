@@ -150,6 +150,23 @@ export default {
 
 	components: { NcButton, CnNoteCard, EvaluationRespondModal },
 
+	inject: {
+		/**
+		 * CnDetailPage's reactive `{ objectId, object, register, schema }`
+		 * holder.
+		 *
+		 * This tab is declared in the manifest as a `type: "custom"` body
+		 * widget, and CnDetailPage's `widget-<id>` slot binds ONLY
+		 * `{ item, widget }` — never the page's object id. Without this
+		 * injection the `objectId` prop is empty on that mount path, `refresh()`
+		 * returns before issuing a single request, and the tab renders "No
+		 * self-evaluation cycles yet for this body." for a body that has them.
+		 * This is the same holder the declarative `@objectId` filter token
+		 * resolves against.
+		 */
+		cnObjectContext: { default: null },
+	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 		objectType: { type: String, default: '' },
@@ -170,6 +187,27 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The GovernanceBody this tab acts on: the explicit `objectId` prop when
+		 * mounted directly, otherwise the id CnDetailPage provides on
+		 * `cnObjectContext` (manifest body-widget mount, where no id prop is
+		 * bound).
+		 *
+		 * @return {string} The governance-body UUID, or '' when not resolvable.
+		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-001-board-evaluation-cycle-bound-to-a-governance-body
+		 */
+		resolvedObjectId() {
+			if (this.objectId) {
+				return String(this.objectId)
+			}
+			const context = this.cnObjectContext
+			// Vue unwraps an injected ref for the Options API, but the compat
+			// build can hand back the ref itself — accept both shapes.
+			const value = (context && typeof context === 'object' && 'value' in context)
+				? context.value
+				: context
+			return (value && value.objectId) ? String(value.objectId) : ''
+		},
 		/** @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-001-board-evaluation-cycle-bound-to-a-governance-body */
 		sortedEvaluations() {
 			return [...this.evaluations].sort((a, b) => (b.cycleLabel || '').localeCompare(a.cycleLabel || ''))
@@ -183,7 +221,7 @@ export default {
 	},
 
 	watch: {
-		objectId: {
+		resolvedObjectId: {
 			immediate: true,
 			/** @spec openspec/specs/board-self-evaluation/spec.md */
 			handler() { this.refresh() },
@@ -193,15 +231,16 @@ export default {
 	methods: {
 		/** @spec openspec/specs/board-self-evaluation/spec.md */
 		async refresh() {
-			if (!this.objectId) return
+			if (!this.resolvedObjectId) return
+			const bodyId = this.resolvedObjectId
 			this.loading = true
 			this.error = ''
 			try {
 				const evaluationStore = ensureRelationType('board-evaluation')
 				const evaluations = await evaluationStore.fetchCollection('board-evaluation', { _limit: 100 })
 				this.evaluations = (evaluations || []).filter((e) =>
-					e?.governanceBody === this.objectId
-					|| e?.['@self']?.relations?.governanceBody === this.objectId,
+					e?.governanceBody === bodyId
+					|| e?.['@self']?.relations?.governanceBody === bodyId,
 				)
 
 				const templateStore = ensureRelationType('evaluation-template')
@@ -209,7 +248,7 @@ export default {
 
 				const participantStore = ensureRelationType('participant')
 				const participants = await participantStore.fetchCollection('participant', { _limit: 500 })
-				this.participants = (participants || []).filter((p) => p?.governanceBody === this.objectId)
+				this.participants = (participants || []).filter((p) => p?.governanceBody === bodyId)
 			} catch (e) {
 				this.error = e?.message || this.t('decidesk', 'Failed to load evaluations.')
 			} finally {
@@ -258,7 +297,7 @@ export default {
 			try {
 				const store = ensureRelationType('board-evaluation')
 				await store.saveObject('board-evaluation', {
-					governanceBody: this.objectId,
+					governanceBody: this.resolvedObjectId,
 					template: template.id,
 					cycleLabel: String(new Date().getFullYear()),
 					lifecycle: 'draft',

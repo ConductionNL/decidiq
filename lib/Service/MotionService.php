@@ -26,6 +26,7 @@ namespace OCA\Decidesk\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\Decidesk\Lifecycle\MotionLifecycleTransitioner;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -40,35 +41,6 @@ use Throwable;
  */
 class MotionService
 {
-
-    /**
-     * Allowed lifecycle transitions for Motion objects.
-     *
-     * Maps each state to the list of valid target states.
-     *
-     * @var array<string, array<string>>
-     */
-    private const MOTION_TRANSITIONS = [
-        'submitted' => ['debating', 'withdrawn'],
-        'debating'  => ['voting', 'withdrawn'],
-        'voting'    => ['adopted', 'rejected', 'withdrawn'],
-        'adopted'   => [],
-        'rejected'  => [],
-        'withdrawn' => [],
-    ];
-
-    /**
-     * Allowed lifecycle transitions for Amendment objects.
-     *
-     * @var array<string, array<string>>
-     */
-    private const AMENDMENT_TRANSITIONS = [
-        'submitted' => ['debating'],
-        'debating'  => ['voting'],
-        'voting'    => ['adopted', 'rejected'],
-        'adopted'   => [],
-        'rejected'  => [],
-    ];
 
     /**
      * The amendment side of a motion.
@@ -166,27 +138,32 @@ class MotionService
     }//end resolveMeetingId()
 
     /**
-     * Transition a Motion or Amendment to a new lifecycle state.
+     * Transition a motion- or amendment-typed Decision to a new lifecycle state.
      *
-     * Validates that the transition is allowed for the object type, then
-     * updates the `lifecycle` and `status` fields via ObjectService and logs
-     * the event to ActivityService (via OpenRegister automatic audit trail).
+     * Delegates to MotionLifecycleTransitioner, which owns the transition
+     * tables, the co-signer gate, the ADR-005 outcome axis and the
+     * terminal-completeness check. The seam stays here because every caller and
+     * every test addresses the state machine through MotionService; only the
+     * implementation moved.
      *
-     * #317: The actorId must be a non-empty Nextcloud user UID or the reserved
-     * sentinel 'system' (used only for internal service-to-service calls such as
-     * VotingService closing a round). An empty actorId is rejected to prevent
-     * unauthenticated DI-path callers from transitioning lifecycle without
-     * first performing their own auth check.
+     * Controllers that expose this via HTTP must call their own
+     * requireChairOrSecretary() guard BEFORE invoking this method and pass the
+     * authenticated UID as actorId.
      *
-     * Controllers that expose this via HTTP must call their own requireChairOrSecretary()
-     * guard BEFORE invoking this method and pass the authenticated UID as actorId.
+     * ADR-005: `$outcome` carries the vote result — `adopted` or `rejected` —
+     * which is a value of `Decision.outcome`, NOT a lifecycle state. It is
+     * required when, and only when, the transition enters a terminal outcome
+     * state (`decided | enacted | archived`); passing it on an in-flight
+     * transition is a caller error and is refused, because an in-flight motion
+     * has no result yet and recording one would be a lie about what happened.
      *
-     * @param string $objectId   UUID of the Motion or Amendment object
-     * @param string $objectType Schema slug: 'motion' or 'amendment'
-     * @param string $newState   Target lifecycle state
-     * @param string $actorId    Nextcloud user UID performing the transition, or 'system' for internal calls
+     * @param string      $objectId   UUID of the motion- or amendment-typed Decision
+     * @param string      $objectType ADR-005 decisionType discriminator: 'motion' or 'amendment'
+     * @param string      $newState   Target lifecycle state (Decision.lifecycle vocabulary)
+     * @param string      $actorId    Nextcloud user UID performing the transition, or 'system' for internal calls
+     * @param string|null $outcome    Vote result ('adopted'|'rejected'), terminal states only
      *
-     * @throws InvalidArgumentException When the transition is not allowed, the co-signer minimum is not met, or actorId is empty
+     * @throws InvalidArgumentException When the transition, actor, co-signer count or outcome is refused
      * @throws RuntimeException         When the object cannot be found or saved
      *
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
@@ -194,99 +171,22 @@ class MotionService
      *
      * @return void
      */
-    public function transitionLifecycle(string $objectId, string $objectType, string $newState, string $actorId): void
-    {
-        // #317: Reject calls without an authenticated actor to prevent bare DI-path abuse.
-        if ($actorId === '') {
-            throw new InvalidArgumentException('actorId must be a non-empty Nextcloud user UID or the sentinel "system"');
-        }
-
-        $objectService = $this->getObjectService();
-        $objectService->setRegister('decidesk');
-        $objectService->setSchema($objectType);
-
-        $object = $objectService->find($objectId);
-        if ($object === null) {
-            throw new RuntimeException("Object $objectType/$objectId not found");
-        }
-
-        $objectArray  = $object->getObject();
-        $currentState = $objectArray['lifecycle'] ?? 'submitted';
-
-        $transitions = self::MOTION_TRANSITIONS;
-        if ($objectType === 'amendment') {
-            $transitions = self::AMENDMENT_TRANSITIONS;
-        }
-
-        $allowed = $transitions[$currentState] ?? [];
-        if (in_array($newState, $allowed, true) === false) {
-            throw new InvalidArgumentException(
-                "Transition from '$currentState' to '$newState' is not allowed for $objectType"
-            );
-        }
-
-        $this->assertCoSignerThreshold(
+    public function transitionLifecycle(
+        string $objectId,
+        string $objectType,
+        string $newState,
+        string $actorId,
+        ?string $outcome=null,
+    ): void {
+        $this->container->get(MotionLifecycleTransitioner::class)->transition(
+            objectId: $objectId,
             objectType: $objectType,
-            currentState: $currentState,
             newState: $newState,
-            objectArray: $objectArray
-        );
-
-        $objectService->saveObject(
-            object: array_merge($objectArray, ['lifecycle' => $newState, 'status' => $newState]),
-            register: 'decidesk',
-            schema: $objectType,
-            uuid: $objectId,
-        );
-
-        $this->logger->info(
-            "Decidesk: $objectType $objectId transitioned from $currentState to $newState by $actorId"
+            actorId: $actorId,
+            outcome: $outcome,
         );
 
     }//end transitionLifecycle()
-
-    /**
-     * Enforce the co-signer minimum before a motion may enter debate.
-     *
-     * Motion-amendment spec: a motion may only leave 'submitted' for 'debating'
-     * when it carries at least the configured number of co-signers (app config
-     * motion_min_cosigners, default 0 = disabled). The rejection message names
-     * the requirement and the shortfall so the proposer knows how many more
-     * co-signers to gather before resubmitting. Amendments are exempt.
-     *
-     * @param string               $objectType   Schema slug: 'motion' or 'amendment'
-     * @param string               $currentState The current lifecycle state
-     * @param string               $newState     The target lifecycle state
-     * @param array<string, mixed> $objectArray  The serialized object being transitioned
-     *
-     * @throws InvalidArgumentException When the co-signer minimum is not met
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return void
-     */
-    private function assertCoSignerThreshold(string $objectType, string $currentState, string $newState, array $objectArray): void
-    {
-        if ($objectType === 'amendment' || $currentState !== 'submitted' || $newState !== 'debating') {
-            return;
-        }
-
-        $appConfig     = $this->container->get(\OCP\IAppConfig::class);
-        $minCoSigners  = (int) $appConfig->getValueString('decidesk', 'motion_min_cosigners', '0');
-        $coSignerCount = count($objectArray['coSigners'] ?? []);
-
-        if ($minCoSigners > 0 && $coSignerCount < $minCoSigners) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Motion requires at least %d co-signers before it can proceed to debate; it currently has %d (%d more needed)',
-                    $minCoSigners,
-                    $coSignerCount,
-                    ($minCoSigners - $coSignerCount)
-                )
-            );
-        }
-
-    }//end assertCoSignerThreshold()
 
     /**
      * Send co-signature request notifications to listed Participants.
@@ -305,14 +205,9 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema('decision');
 
-        $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
-        }
-
-        $motionData = $motionObject->getObject();
+        $motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
         $title      = $motionData['title'] ?? 'Motie';
         $pendingSignerUids = [];
 
@@ -351,11 +246,11 @@ class MotionService
                 )
             );
             $objectService->setRegister('decidesk');
-            $objectService->setSchema('motion');
+            $objectService->setSchema('decision');
             $objectService->saveObject(
                 object: array_merge($motionData, ['pendingCoSignerUids' => array_values($existing)]),
                 register: 'decidesk',
-                schema: 'motion',
+                schema: 'decision',
                 uuid: $motionId,
             );
         }
@@ -421,14 +316,9 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema('decision');
 
-        $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
-        }
-
-        $motionData = $motionObject->getObject();
+        $motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
         $coSigners  = $motionData['coSigners'] ?? [];
 
         if (in_array($coSignerName, $coSigners, true) === false) {
@@ -436,7 +326,7 @@ class MotionService
             $objectService->saveObject(
                 object: array_merge($motionData, ['coSigners' => $coSigners]),
                 register: 'decidesk',
-                schema: 'motion',
+                schema: 'decision',
                 uuid: $motionId,
             );
         }
@@ -459,7 +349,7 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema('decision');
 
         $motionObject = $objectService->find($motionId);
         if ($motionObject === null) {
@@ -467,6 +357,10 @@ class MotionService
         }
 
         $motionData = $motionObject->getObject();
+        if (($motionData['decisionType'] ?? null) !== 'motion') {
+            return false;
+        }
+
         return in_array($nextcloudUid, $motionData['pendingCoSignerUids'] ?? [], true);
 
     }//end isPendingCoSigner()
@@ -491,14 +385,9 @@ class MotionService
     {
         $objectService = $this->getObjectService();
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema('decision');
 
-        $motionObject = $objectService->find($motionId);
-        if ($motionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
-        }
-
-        $motionData = $motionObject->getObject();
+        $motionData = $this->findMotionData(objectService: $objectService, motionId: $motionId);
         $notes      = $motionData['notes'] ?? [];
 
         $budgetPayload = json_encode(
@@ -536,17 +425,52 @@ class MotionService
         $objectService->saveObject(
             object: array_merge($motionData, ['notes' => $notes]),
             register: 'decidesk',
-            schema: 'motion',
+            schema: 'decision',
             uuid: $motionId,
         );
 
     }//end saveBudgetImpact()
 
     /**
+     * Load a motion decision by id, refusing anything that is not one.
+     *
+     * ADR-005 folded the `motion` schema into `decision`, so a lookup by id no
+     * longer proves the object is a motion — the `decisionType` discriminator
+     * does. A miss raises the same RuntimeException the schema-scoped lookup
+     * used to raise, which the controllers map to 404.
+     *
+     * @param object $objectService The OpenRegister ObjectService, already scoped to the decision schema
+     * @param string $motionId      UUID of the motion decision
+     *
+     * @throws RuntimeException When no motion decision carries that id
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return array<string, mixed> The serialized motion decision
+     */
+    private function findMotionData(object $objectService, string $motionId): array
+    {
+        $motionObject = $objectService->find($motionId);
+        $motionData   = [];
+        if ($motionObject !== null) {
+            $motionData = $motionObject->getObject();
+        }
+
+        if ($motionObject === null
+            || ($motionData['decisionType'] ?? null) !== 'motion'
+        ) {
+            throw new RuntimeException("Motion $motionId not found");
+        }
+
+        return $motionData;
+
+    }//end findMotionData()
+
+    /**
      * Resolve every Amendment that belongs to a Motion.
      *
      * Delegates to MotionAmendmentService, which honours BOTH link shapes (the
-     * flat `parentMotion` property and a structured `relations` entry) and
+     * flat `amends` property and a structured `relations` entry) and
      * dedups by id.
      *
      * @param string $motionId UUID of the parent Motion
@@ -622,7 +546,7 @@ class MotionService
      * Checks the actor's role against the motion_forwarding_roles config. Creates a new
      * Motion in the target body and stores a relation between the forwarded and source
      * motions. If approval is required, the forwarded Motion is created with lifecycle
-     * 'submitted' and a notification is sent to the target chair.
+     * 'proposed' (ADR-005 Decision vocabulary) and a notification is sent to the target chair.
      *
      * @param string $motionId      The motion UUID to forward
      * @param string $targetBodyId  The target governance body UUID

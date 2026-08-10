@@ -160,7 +160,7 @@ class SubmissionDeadlineListenerTest extends TestCase
             ['meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $pastDeadline]]
         );
 
-        $event = $this->eventFor(['_schemaSlug' => 'motion', 'meeting' => 'meeting-1']);
+        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
         $listener->handle($event);
 
         self::assertTrue($event->isPropagationStopped());
@@ -183,7 +183,7 @@ class SubmissionDeadlineListenerTest extends TestCase
             ['meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $futureDeadline]]
         );
 
-        $event = $this->eventFor(['_schemaSlug' => 'motion', 'meeting' => 'meeting-1']);
+        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
         $listener->handle($event);
 
         self::assertFalse($event->isPropagationStopped());
@@ -202,7 +202,7 @@ class SubmissionDeadlineListenerTest extends TestCase
     {
         $listener = $this->buildListener(['meeting-1' => ['id' => 'meeting-1']]);
 
-        $event = $this->eventFor(['_schemaSlug' => 'motion', 'meeting' => 'meeting-1']);
+        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
         $listener->handle($event);
 
         self::assertFalse($event->isPropagationStopped());
@@ -228,7 +228,7 @@ class SubmissionDeadlineListenerTest extends TestCase
             ]
         );
 
-        $event = $this->eventFor(['_schemaSlug' => 'amendment', 'parentMotion' => 'motion-1']);
+        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'amendment', 'amends' => 'motion-1']);
         $listener->handle($event);
 
         self::assertTrue($event->isPropagationStopped());
@@ -237,25 +237,31 @@ class SubmissionDeadlineListenerTest extends TestCase
 
 
     /**
-     * A non-motion/amendment schema is ignored entirely.
+     * A decision whose decisionType is neither motion nor amendment is ignored
+     * entirely.
+     *
+     * ADR-005 folded motion/amendment into `decision`, so the schema slug alone
+     * no longer narrows this listener — the discriminator does. `meeting-outcome`
+     * is the Decision schema's own default decisionType, which is exactly the
+     * value a non-motion decision carries.
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
      * @return void
      */
-    public function testOtherSchemaIgnored(): void
+    public function testOtherDecisionTypeIgnored(): void
     {
         $pastDeadline = (new \DateTimeImmutable('-1 day'))->format(\DateTimeInterface::ATOM);
         $listener     = $this->buildListener(
             ['meeting-1' => ['id' => 'meeting-1', 'submissionDeadline' => $pastDeadline]]
         );
 
-        $event = $this->eventFor(['_schemaSlug' => 'decision', 'meeting' => 'meeting-1']);
+        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'meeting-outcome', 'meeting' => 'meeting-1']);
         $listener->handle($event);
 
         self::assertFalse($event->isPropagationStopped());
 
-    }//end testOtherSchemaIgnored()
+    }//end testOtherDecisionTypeIgnored()
 
 
     /**
@@ -294,7 +300,7 @@ class SubmissionDeadlineListenerTest extends TestCase
             logger: new NullLogger(),
         );
 
-        $event = $this->eventFor(['_schemaSlug' => 'motion', 'meeting' => 'meeting-1']);
+        $event = $this->eventFor(['_schemaSlug' => 'decision', 'decisionType' => 'motion', 'meeting' => 'meeting-1']);
         $listener->handle($event);
 
         self::assertFalse($event->isPropagationStopped());

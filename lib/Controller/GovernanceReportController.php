@@ -26,8 +26,10 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\GovernanceReportingService;
+use OCA\Decidesk\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
@@ -70,6 +72,7 @@ class GovernanceReportController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function generate(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -101,6 +104,7 @@ class GovernanceReportController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function index(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -135,6 +139,7 @@ class GovernanceReportController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function show(string $id): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -172,6 +177,7 @@ class GovernanceReportController extends Controller
      *
      * @return Response
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function export(string $id, string $format): Response
     {
         $deny = $this->requireAdmin();

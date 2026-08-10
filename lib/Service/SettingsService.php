@@ -44,7 +44,7 @@ class SettingsService
      * Includes the main register slug plus schema slugs for Minutes, Decision,
      * and ActionItem so the frontend initializeStores() can register object stores.
      * motion_min_cosigners (motion-amendment spec) is the configurable minimum
-     * co-signer count enforced on the motion submitted→debating transition
+     * co-signer count enforced on the motion proposed→deliberating transition
      * (0 = disabled).
      *
      * @var array<string>
@@ -76,7 +76,7 @@ class SettingsService
         // Cosmetic UI hint only — drives no authorization decision.
         'organisatie_modus',
         // Citizen-participation instance defaults.
-        // @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md.
+        // @spec openspec/specs/citizen-participation/spec.md
         'participation_default_moderation_policy',
         'participation_catalog',
         'participation_anon_rate_limit',

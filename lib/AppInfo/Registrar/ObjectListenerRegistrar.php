@@ -123,15 +123,19 @@ class ObjectListenerRegistrar
         }
 
         // Submission deadline gate (motion-amendment spec). Declared interest is
-        // the handler's own literal guard verbatim —
-        // `in_array($slug, ['motion', 'amendment'], true) === false` — so the
-        // declaration cannot be narrower than the guard it fronts.
+        // the handler's own literal schema guard verbatim —
+        // `$slug !== 'decision'` — so the declaration cannot be
+        // narrower than the guard it fronts. ADR-005 retired the `motion` and
+        // `amendment` schemas into `decision`; subscribing to the deleted slugs
+        // subscribed the listener to nothing, so the deadline never fired.
+        // The motion/amendment narrowing now happens inside the handler on the
+        // `decisionType` discriminator, which no schema subscription can express.
         $this->subscribe(
             dispatcher: $dispatcher,
             event: ObjectCreatingEvent::class,
             listener: SubmissionDeadlineListener::class,
             registers: null,
-            schemas: ['motion', 'amendment']
+            schemas: ['decision']
         );
 
     }//end register()

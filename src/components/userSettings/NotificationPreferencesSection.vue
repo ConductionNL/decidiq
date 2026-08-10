@@ -7,6 +7,19 @@
  Per-event toggles, two independent delivery-channel switches (mapped onto
  the deliveryMethod enum) and meeting-reminder timing checkboxes.
 
+ ⚠️ @nextcloud/vue 9 contract for NcCheckboxRadioSwitch:
+   - the state prop is `model-value` and the event is `update:model-value`.
+     The Vue-2-era `:checked` / `@update:checked` pair is NOT declared on the
+     v9 component, so it falls through to `$attrs` — `checked` lands on the
+     raw <input> (making the native control look right) while the component's
+     own `modelValue` stays at its `false` default, and `onUpdate:checked` is
+     registered on the <input> as a listener for an event the DOM never
+     fires. Result: every switch renders visually "off" and no click is ever
+     handled. That is exactly what shipped before this was corrected.
+   - the component sets `inheritAttrs: false` and merges `$attrs` onto the
+     <input>, so the `data-testid` below IS the input element — not a wrapper
+     around it. The e2e suite targets it accordingly.
+
  @spec openspec/specs/user-settings/spec.md
 -->
 <template>
@@ -22,9 +35,9 @@
 				v-for="event in eventToggles"
 				:key="event.key"
 				type="switch"
-				:checked="form[event.key]"
+				:model-value="form[event.key]"
 				:data-testid="`notification-toggle-${event.key}`"
-				@update:checked="form[event.key] = $event">
+				@update:model-value="form[event.key] = $event">
 				{{ event.label }}
 			</NcCheckboxRadioSwitch>
 		</fieldset>
@@ -33,16 +46,16 @@
 			<legend>{{ t('decidesk', 'Delivery channels') }}</legend>
 			<NcCheckboxRadioSwitch
 				type="switch"
-				:checked="channels.inApp"
+				:model-value="channels.inApp"
 				data-testid="channel-in-app"
-				@update:checked="channels.inApp = $event">
+				@update:model-value="channels.inApp = $event">
 				{{ t('decidesk', 'Nextcloud notification') }}
 			</NcCheckboxRadioSwitch>
 			<NcCheckboxRadioSwitch
 				type="switch"
-				:checked="channels.email"
+				:model-value="channels.email"
 				data-testid="channel-email"
-				@update:checked="channels.email = $event">
+				@update:model-value="channels.email = $event">
 				{{ t('decidesk', 'Email') }}
 			</NcCheckboxRadioSwitch>
 			<NcNoteCard v-if="channelError" type="warning">
@@ -58,10 +71,10 @@
 			<NcCheckboxRadioSwitch
 				v-for="time in reminderOptions"
 				:key="time.value"
-				:checked="form.reminderTimes.includes(time.value)"
+				:model-value="form.reminderTimes.includes(time.value)"
 				:disabled="!form.meetingReminder"
 				:data-testid="`reminder-time-${time.value}`"
-				@update:checked="toggleReminderTime(time.value, $event)">
+				@update:model-value="toggleReminderTime(time.value, $event)">
 				{{ time.label }}
 			</NcCheckboxRadioSwitch>
 		</fieldset>

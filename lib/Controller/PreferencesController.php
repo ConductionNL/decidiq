@@ -62,7 +62,7 @@ class PreferencesController extends Controller
      *
      * @return JSONResponse `{value: string|null}`.
      *
-     * @spec openspec/changes/retrofit-2026-05-26-preferences-api/tasks.md#task-1
+     * @spec openspec/specs/user-settings/spec.md
      *
      * @NoAdminRequired
      * @NoCSRFRequired
@@ -103,7 +103,7 @@ class PreferencesController extends Controller
      *
      * @return JSONResponse `{value: string|null}`.
      *
-     * @spec openspec/changes/retrofit-2026-05-26-preferences-api/tasks.md#task-2
+     * @spec openspec/specs/user-settings/spec.md
      *
      * @NoAdminRequired
      * @NoCSRFRequired

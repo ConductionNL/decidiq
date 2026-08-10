@@ -110,6 +110,57 @@ The system MUST enforce a configurable state machine for decision lifecycle mana
 
 ---
 
+### Requirement: Terminal-state completeness of outcome and decision date
+
+`outcome` and `decisionDate` MUST be required **only in terminal outcome states**, never in flight. A decision in `draft`, `proposed`, `deliberating` or `voting` MUST be creatable and savable with neither field — an in-flight motion has no legal outcome, and `lifecycle` is orthogonal to `outcome` (ADR-005). A `withdrawn` decision MUST likewise never require them: it is terminal in the lifecycle graph but was never decided, so it has no `adopted`/`rejected` result. Accordingly the `Decision` schema's `required[]` MUST list only `title`, `text` and `decisionType`.
+
+The terminal outcome states are `decided`, `enacted` and `archived` — `decided` is the first state past the vote (the schema's own `lifecycle` description states that `outcome` is "the voting result, set when reaching `decided`"), and the other two are reachable only through it. A decision MUST NOT be able to ENTER any of those states without both an `outcome` drawn from the schema enum (`adopted`|`rejected`) and a non-empty `decisionDate`; a value outside the enum (e.g. a `pending` placeholder) MUST NOT satisfy the requirement. The rejection MUST name the missing fields.
+
+This rule MUST NOT be expressed as a JSON-Schema `if`/`then` block on the schema, because OpenRegister does not enforce conditional `required`: `Schema::getSchemaObject()` rebuilds the validated schema from a fixed key list, so the block never reaches the validator and the constraint would be decorative. Enforcement MUST therefore live at the transition boundary, where the state is actually entered.
+
+**Feature tier**: MVP
+**Legal reference**: Awb 3:40-3:45 (a besluit takes effect on its decision date)
+
+#### Scenario: An in-flight motion is created without an outcome
+
+@e2e exclude schema-contract invariant — verified by PHPUnit over the register `required[]` plus a live OpenRegister validation probe; not browser-observable
+- GIVEN a motion in lifecycle `voting` carrying neither `outcome` nor `decisionDate`
+- WHEN it is written to the `decision` schema
+- THEN it MUST be accepted
+- AND the register MUST NOT report "The required properties (decisionDate, outcome) are missing"
+
+#### Scenario: A decision cannot reach a terminal state without its result
+
+@e2e exclude transition-guard contract — covered by PHPUnit on the guard and the lifecycle service; the UI only offers server-allowed actions
+- GIVEN a decision in lifecycle `voting` carrying neither `outcome` nor `decisionDate`
+- WHEN the `decide` transition is attempted
+- THEN the transition MUST be rejected with a message naming `outcome` and `decisionDate`
+- AND the decision MUST NOT be persisted in the `decided` state
+
+#### Scenario: A placeholder outcome does not count as a result
+
+@e2e exclude transition-guard contract — covered by PHPUnit on the guard's outcome vocabulary check
+- GIVEN a decision in lifecycle `voting` whose `outcome` is `pending` (outside the schema enum)
+- WHEN the `decide` transition is attempted
+- THEN the transition MUST be rejected naming `outcome`
+
+#### Scenario: Withdrawal never demands an outcome
+
+@e2e exclude lifecycle-graph invariant — covered by PHPUnit on the terminal-state list
+- GIVEN a decision in any non-terminal state
+- WHEN it is withdrawn
+- THEN no `outcome` or `decisionDate` MUST be demanded
+
+#### Scenario: Shipped demo data obeys the rule
+
+@e2e exclude seed-data invariant — verified by PHPUnit over the seeded decision objects, not browser-observable
+- GIVEN the shipped decision seed objects
+- WHEN each is inspected
+- THEN every seed in a terminal outcome state MUST carry an enum `outcome` and a `decisionDate`
+- AND at least one seed MUST be in flight carrying neither
+
+---
+
 ### Requirement: Decision Audit Trail
 
 The system MUST maintain a complete audit trail for every decision, recording all state transitions, modifications, votes, and comments with timestamps and actor identities. The audit trail MUST be immutable.

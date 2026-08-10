@@ -47,13 +47,43 @@ test('Add Decision dialog opens', async ({ page }) => {
 	await expect(dialog.getByRole('heading', { name: 'Create Decision' })).toBeVisible()
 
 	// Assert the real decision form fields render (not just that a dialog opened).
+	//
+	// The rendered label is the schema property's `title`, never its key:
+	// `fieldsFromSchema()` in @conduction/nextcloud-vue builds
+	// `label: prop.title || key` and CnFormDialog renders
+	// `field.label + (field.required ? ' *' : '')`. Every Decision property in
+	// `lib/Settings/decidesk_register.json` carries a title, so the asterisk is
+	// a direct, UI-observable read of the schema's `required` array.
+	//
+	// `getByText('title', { exact: true })` is case-SENSITIVE, which is why it
+	// could not match "Title *" and this test once died on its first field
+	// assertion while the dialog and its heading resolved fine.
+	await expect(dialog.getByText('Title *', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Text *', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Decision type *', { exact: true })).toBeVisible()
+
+	// THE IN-FLIGHT CONTRACT, read off the form.
+	//
+	// `decisionDate` and `outcome` used to be asserted here WITH asterisks, as
+	// members of `required`. They are required only in terminal states now — an
+	// in-flight motion has no legal outcome — so the create form must NOT demand
+	// them, or a motion could not be drafted at all. Asserting their absence is
+	// the UI-level counterpart of the schema assertion in
+	// RegisterJsonTest::testDecisionSupertypeSchema and of the transition-boundary
+	// gate in DecisionTransitionGuard::getMissingTerminalFields().
+	await expect(dialog.getByText('Decision date *', { exact: true })).toHaveCount(0)
+	await expect(dialog.getByText('Outcome *', { exact: true })).toHaveCount(0)
+
+	// Both fields are still ON the form — optional, not removed. `governingBody`
+	// used to be asserted here instead; the Decision schema has no such property
+	// (under ADR-005 a Decision reaches a body indirectly, via its meeting /
+	// agenda item), so that assertion could never pass and was not a contract.
+	//
 	// decisionDate is a datetime-picker that renders two labels for the same
-	// field (the visible form label + a visually-hidden native-picker label),
-	// so scope to the first match to avoid a strict-mode violation.
-	await expect(dialog.getByText('title', { exact: true }).first()).toBeVisible()
-	await expect(dialog.getByText('decisionDate', { exact: true }).first()).toBeVisible()
-	await expect(dialog.getByText('decisionType', { exact: true }).first()).toBeVisible()
-	await expect(dialog.getByText('governingBody', { exact: true }).first()).toBeVisible()
+	// field (the form `<label>` plus the native picker's own), so it needs
+	// `.first()` now that the asterisk no longer disambiguates them.
+	await expect(dialog.getByText('Decision date', { exact: true }).first()).toBeVisible()
+	await expect(dialog.getByText('Outcome', { exact: true }).first()).toBeVisible()
 
 	// Create button is present
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()

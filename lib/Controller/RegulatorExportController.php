@@ -27,8 +27,10 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\RegulatorExportService;
+use OCA\Decidesk\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
@@ -76,6 +78,7 @@ class RegulatorExportController extends Controller
      *
      * @return Response
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function generate(): Response
     {
         $deny = $this->requireAdmin();
@@ -128,6 +131,7 @@ class RegulatorExportController extends Controller
      *
      * @return Response
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function download(string $id): Response
     {
         $deny = $this->requireAdmin();
@@ -169,6 +173,7 @@ class RegulatorExportController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function index(): JSONResponse
     {
         $deny = $this->requireAdmin();

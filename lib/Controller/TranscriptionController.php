@@ -32,7 +32,6 @@ use OCA\Decidesk\Service\MinutesDraftService;
 use OCA\Decidesk\Service\TranscriptionQueue;
 use OCA\Decidesk\Service\TranscriptionService;
 use OCA\Decidesk\Service\TranscriptionStaffGuard;
-use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -57,7 +56,6 @@ class TranscriptionController extends Controller
      * @param IRequest                $request              The HTTP request.
      * @param TranscriptionService    $transcriptionService Transcription orchestration.
      * @param MinutesDraftService     $minutesDraftService  AI draft generation.
-     * @param ObjectService           $objectService        OR object service (retention reads/writes).
      * @param TranscriptionStaffGuard $staffGuard           Per-object staff authorization.
      * @param TranscriptionQueue      $queue                Asynchronous transcription hand-off.
      *
@@ -67,7 +65,6 @@ class TranscriptionController extends Controller
         IRequest $request,
         private readonly TranscriptionService $transcriptionService,
         private readonly MinutesDraftService $minutesDraftService,
-        private readonly ObjectService $objectService,
         private readonly TranscriptionStaffGuard $staffGuard,
         private readonly TranscriptionQueue $queue,
     ) {
@@ -301,21 +298,22 @@ class TranscriptionController extends Controller
             return new JSONResponse(['message' => 'Retention days must be zero or positive.'], Http::STATUS_UNPROCESSABLE_ENTITY);
         }
 
-        $entity = $this->objectService->find(id: $bodyId, register: 'decidesk', schema: 'governance-body');
-        if ($entity === null) {
-            return new JSONResponse(['message' => 'Governance body not found.'], Http::STATUS_NOT_FOUND);
+        // The read-modify-write moved to TranscriptRepository. Two reasons, and
+        // the second is the one that mattered: a controller doing plain object
+        // CRUD is what ADR-022 exists to stop, AND this method's own copy of
+        // the lookup carried the dead-null-branch defect — OpenRegister's
+        // find() THROWS for an unknown id rather than returning null, so the
+        // `=== null` branch that answered 404 was unreachable and an unknown
+        // bodyId escaped the controller as a 500 with a stack trace.
+        //
+        // Going through the repository means this action now fails the same way
+        // every other action in this controller already does: MissingObjectException
+        // → 404, one conversion, in one place.
+        try {
+            $this->transcriptionService->setRetentionPolicy(bodyId: $bodyId, policy: $policy, days: $days);
+        } catch (MissingObjectException $e) {
+            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
         }
-
-        $body = (array) $entity->jsonSerialize();
-        $body['transcriptRetentionPolicy'] = $policy;
-        $body['transcriptRetentionDays']   = $days;
-
-        $this->objectService->saveObject(
-            object: $body,
-            register: 'decidesk',
-            schema: 'governance-body',
-            uuid: $bodyId
-        );
 
         return new JSONResponse(['policy' => $policy, 'days' => $days]);
 

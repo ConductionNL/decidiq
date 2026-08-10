@@ -35,6 +35,17 @@ export default defineConfig({
 	fullyParallel: false,
 	retries: process.env.CI ? 1 : 0,
 	workers: 1,
+	// The shared quality.yml Playwright job is `timeout-minutes: 45`, and a job
+	// cancelled by that cap produces NO verdict: Playwright never prints its
+	// tally, the `if: failure()` trace upload never fires, and the
+	// `if: always()` report upload does not run on a cancelled job either — the
+	// run you most need to read is the one that leaves nothing behind, and it
+	// still renders as "fail" in `gh pr checks` while carrying no information.
+	// Runs cancelled at ~45m16s have been observed in this fleet. Measured
+	// overhead before `Run Playwright tests` starts is 2.0-2.4 min and the
+	// uploads after it take seconds, so 38m keeps ~7 min of margin while
+	// guaranteeing both a tally and the artifacts that explain it.
+	globalTimeout: 38 * 60_000,
 	reporter: [
 		['html', { open: 'never', outputFolder: 'tests/e2e/playwright-report' }],
 		['list'],
@@ -44,7 +55,13 @@ export default defineConfig({
 	use: {
 		baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
 		storageState: path.resolve(__dirname, 'tests/e2e/.auth/admin.json'),
-		trace: 'on-first-retry',
+		// `on-first-retry` captures nothing on the first attempt, so a failure that
+		// a retry then fixes is the ONLY one that gets a trace — exactly inverted.
+		// `retain-on-failure` records every failing test and discards the passing
+		// ones. Strictly more evidence; no assertion is relaxed. (The CI config in
+		// tests/e2e/playwright.config.ts already does this; this keeps local runs
+		// and `--project visual` / `docs-capture` consistent with it.)
+		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
 	},
 

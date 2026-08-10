@@ -327,4 +327,84 @@ class VotingBehaviourControllerTest extends TestCase
 
     }//end testGetStatsForbiddenWhenParticipantNotFound()
 
+
+    /**
+     * An unknown participant id is 403, not an uncaught 500.
+     *
+     * The test above mocks `find()` returning null, which is what the
+     * controller USED to assume. OpenRegister actually THROWS
+     * DoesNotExistException for an unknown id, so that test could pass while
+     * the real endpoint answered 500 — the mock was describing a contract the
+     * collaborator does not have. This one asserts the real shape.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     *
+     * @return void
+     */
+    public function testGetStatsIsForbiddenWhenTheParticipantLookupThrows(): void
+    {
+        $this->objectService->method('find')
+            ->willThrowException(new \OCP\AppFramework\Db\DoesNotExistException('no such participant'));
+        $this->groupManager->method('isAdmin')->willReturn(false);
+
+        $this->behaviourService->expects($this->never())->method('getStats');
+
+        $result = $this->controller->getStats(participantId: 'nonexistent-uuid', governanceBodyId: 'gb1');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(
+            Http::STATUS_FORBIDDEN,
+            $result->getStatus(),
+            'an unknown participant must fail closed as 403, never leak existence as 404 and never escape as 500'
+        );
+
+    }//end testGetStatsIsForbiddenWhenTheParticipantLookupThrows()
+
+
+    /**
+     * An unknown governance body is 404 rather than an uncaught 500.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     *
+     * @return void
+     */
+    public function testGetStatsIsNotFoundWhenTheServiceCannotResolveTheBody(): void
+    {
+        $this->objectService->method('find')->willReturn($this->makeParticipantEntity('user-1'));
+        $this->behaviourService->method('getStats')
+            ->willThrowException(new \OCP\AppFramework\Db\DoesNotExistException('no such governance body'));
+
+        $result = $this->controller->getStats(participantId: 'p1', governanceBodyId: 'missing-gb');
+
+        self::assertInstanceOf(JSONResponse::class, $result);
+        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+
+    }//end testGetStatsIsNotFoundWhenTheServiceCannotResolveTheBody()
+
+
+    /**
+     * A failure that is NOT an unknown id still propagates.
+     *
+     * This is the assertion that keeps the two catches above honest. Narrowing
+     * an exception type is only a fix if the narrowing is real; a catch that
+     * quietly absorbed an OpenRegister outage would turn a broken data layer
+     * into a tidy 403/404 and hide it from monitoring, which is the failure
+     * mode #425 was repairing elsewhere in this codebase.
+     *
+     * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+     *
+     * @return void
+     */
+    public function testGetStatsLetsANonNotFoundFailurePropagate(): void
+    {
+        $this->objectService->method('find')
+            ->willThrowException(new \RuntimeException('OpenRegister is unreachable'));
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('OpenRegister is unreachable');
+
+        $this->controller->getStats(participantId: 'p1', governanceBodyId: 'gb1');
+
+    }//end testGetStatsLetsANonNotFoundFailurePropagate()
+
 }//end class

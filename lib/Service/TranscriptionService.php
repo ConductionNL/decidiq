@@ -385,6 +385,25 @@ class TranscriptionService
     }//end alignSegments()
 
     /**
+     * Set the transcript/recording retention policy for a governance body.
+     *
+     * @param string $bodyId The governance body UUID.
+     * @param string $policy One of keep|delete-recording|delete-both.
+     * @param int    $days   Retention window in days.
+     *
+     * @return void
+     *
+     * @throws MissingObjectException When the governance body cannot be found.
+     *
+     * @spec openspec/specs/meeting-transcription/spec.md
+     */
+    public function setRetentionPolicy(string $bodyId, string $policy, int $days): void
+    {
+        $this->repository->saveRetentionPolicy(bodyId: $bodyId, policy: $policy, days: $days);
+
+    }//end setRetentionPolicy()
+
+    /**
      * Mark a Transcript failed with a stored reason and persist it.
      *
      * @param array<string,mixed> $transcript The Transcript object.

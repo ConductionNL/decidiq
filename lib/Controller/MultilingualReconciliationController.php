@@ -26,8 +26,10 @@ namespace OCA\Decidesk\Controller;
 
 use OCA\Decidesk\AppInfo\Application;
 use OCA\Decidesk\Service\MultilingualReconciliationService;
+use OCA\Decidesk\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -73,6 +75,7 @@ class MultilingualReconciliationController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function queue(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -116,6 +119,7 @@ class MultilingualReconciliationController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function status(): JSONResponse
     {
         $deny = $this->requireAdmin();
@@ -141,6 +145,7 @@ class MultilingualReconciliationController extends Controller
      *
      * @return JSONResponse
      */
+    #[AuthorizedAdminSetting(AdminSettings::class)]
     public function process(): JSONResponse
     {
         $deny = $this->requireAdmin();

@@ -365,7 +365,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
        "host": [
         "{{baseUrl}}"
        ],
@@ -381,7 +381,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"title\": \"Newman VR Rules Motion\",\n  \"text\": \"That configurable rules be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"debating\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{vrMeetingId}}\"\n}"
+       "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman VR Rules Motion\",\n  \"text\": \"That configurable rules be adopted.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"deliberating\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{vrMeetingId}}\"\n}"
       }
      }
     },
@@ -434,7 +434,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
        "host": [
         "{{baseUrl}}"
        ],
@@ -450,7 +450,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"title\": \"Newman VR Tally Motion\",\n  \"text\": \"Tally-math host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
+       "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman VR Tally Motion\",\n  \"text\": \"Tally-math host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
       }
      }
     },
@@ -503,7 +503,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision",
        "host": [
         "{{baseUrl}}"
        ],
@@ -519,7 +519,7 @@
       },
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"title\": \"Newman VR Chair Motion\",\n  \"text\": \"Chair casting-vote host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
+       "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman VR Chair Motion\",\n  \"text\": \"Chair casting-vote host motion (no meeting).\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman VR Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\"\n}"
       }
      }
     },
@@ -3161,7 +3161,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{vrRulesMotionId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{vrRulesMotionId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3172,7 +3172,7 @@
         "api",
         "objects",
         "decidesk",
-        "motion",
+        "decision",
         "{{vrRulesMotionId}}"
        ]
       }
@@ -3212,7 +3212,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{vrTallyMotionId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{vrTallyMotionId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3223,7 +3223,7 @@
         "api",
         "objects",
         "decidesk",
-        "motion",
+        "decision",
         "{{vrTallyMotionId}}"
        ]
       }
@@ -3263,7 +3263,7 @@
        }
       ],
       "url": {
-       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/motion/{{vrChairMotionId}}",
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidesk/decision/{{vrChairMotionId}}",
        "host": [
         "{{baseUrl}}"
        ],
@@ -3274,7 +3274,7 @@
         "api",
         "objects",
         "decidesk",
-        "motion",
+        "decision",
         "{{vrChairMotionId}}"
        ]
       }

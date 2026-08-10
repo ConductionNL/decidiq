@@ -5,7 +5,7 @@
  * Reads and compares the object links a motion carries: the meeting it belongs
  * to, and whether a given amendment is a child of it. Both questions are asked
  * against data that exists in TWO shapes — a flat property (`meeting`,
- * `parentMotion`) written by the UI and the Newman fixtures, and a structured
+ * `amends`) written by the UI and the Newman fixtures, and a structured
  * `relations` entry written by OpenRegister — so the shape-tolerant matching
  * lives here once instead of being repeated per caller.
  *
@@ -72,7 +72,7 @@ class MotionLinkResolver
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $motionEntity  = $objectService->find(id: $motionId, register: 'decidesk', schema: 'motion');
+            $motionEntity  = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
             if ($motionEntity === null) {
                 return null;
             }
@@ -145,7 +145,8 @@ class MotionLinkResolver
     /**
      * Determine whether a serialized amendment references the given motion.
      *
-     * Checks the flat `parentMotion` property (string or {id} object) and the
+     * Checks the flat `amends` property (string or {id} object) — the ADR-005
+     * replacement for the retired Amendment schema's `parentMotion` — and the
      * structured `relations` list.
      *
      * @param array<string, mixed> $amendment Serialized amendment object
@@ -180,20 +181,25 @@ class MotionLinkResolver
     }//end amendmentReferencesMotion()
 
     /**
-     * Determine whether the flat `parentMotion` property points at the motion.
+     * Determine whether the flat parent-decision property points at the motion.
      *
      * Honours both the string form and the {id}/{uuid} object form.
+     *
+     * ADR-005 retired the Amendment schema together with its flat `parentMotion`
+     * property; the parent link is now the `amends` relation declared on
+     * `Decision` ("replaces the retired Amendment → Motion relation"). Reading
+     * `parentMotion` here would read a property the register no longer declares.
      *
      * @param array<string, mixed> $amendment Serialized amendment object
      * @param string               $motionId  UUID of the motion
      *
      * @spec openspec/specs/motion-amendment/spec.md
      *
-     * @return bool True when the parentMotion property matches
+     * @return bool True when the amends property matches
      */
     private function parentMotionMatches(array $amendment, string $motionId): bool
     {
-        $parentRef = ($amendment['parentMotion'] ?? null);
+        $parentRef = ($amendment['amends'] ?? null);
 
         if (is_string($parentRef) === true) {
             return ($parentRef === $motionId);
@@ -213,6 +219,11 @@ class MotionLinkResolver
      * A relation with no `schema` key is accepted (legacy shape); a relation
      * carrying a different schema is not.
      *
+     * ADR-005 folded the `motion` schema into `decision`, so a relation written
+     * against the unified schema records `decision`. The `motion` token is still
+     * accepted: VotingRoundPreflight::buildRoundPayload() writes the subject
+     * relation under the decisionType token, and pre-migration rows carry it too.
+     *
      * @param array<string, mixed> $relation One entry from the amendment's relations list
      * @param string               $motionId UUID of the motion
      *
@@ -225,7 +236,11 @@ class MotionLinkResolver
         $relId     = ($relation['id'] ?? $relation['uuid'] ?? '');
         $relSchema = ($relation['schema'] ?? null);
 
-        return ($relId === $motionId && ($relSchema === null || $relSchema === 'motion'));
+        $schemaAccepted = ($relSchema === null
+            || $relSchema === 'decision'
+            || $relSchema === 'motion');
+
+        return ($relId === $motionId && $schemaAccepted);
 
     }//end relationEntryMatches()
 }//end class

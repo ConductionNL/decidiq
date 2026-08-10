@@ -73,7 +73,7 @@ class AdminSettings implements IDelegatedSettings
         // Provide the publication configuration (per-body catalog/policy/attendance)
         // and policy enums to the admin settings page via IInitialState — rendered
         // by the NC settings framework, NOT added to the in-app vue-router.
-        // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md.
+        // @spec openspec/specs/public-publication/spec.md
         $this->initialState->provideInitialState('publicationConfig', $this->publicationConfig->getAll());
         $this->initialState->provideInitialState(
             'publicationPolicies',
@@ -87,7 +87,7 @@ class AdminSettings implements IDelegatedSettings
         // (meeting-transcription-ai-minutes). Bodies inherit these defaults
         // until a chair/secretary overrides them on the body detail view; the
         // frontend reads them via loadState (NOT DOM data-attributes).
-        // @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md.
+        // @spec openspec/specs/meeting-transcription/spec.md
         $this->initialState->provideInitialState('transcriptRetentionDefaultPolicy', 'delete-both');
         $this->initialState->provideInitialState('transcriptRetentionDefaultDays', 30);
 
@@ -129,7 +129,7 @@ class AdminSettings implements IDelegatedSettings
     /**
      * Human-readable name of the delegated settings section.
      *
-     * @spec openspec/changes/authorizedadminsetting-fix-fleet/tasks.md
+     * @spec openspec/specs/admin-settings/spec.md
      *
      * @return string|null The section name, or null to use the section default.
      */
@@ -145,7 +145,7 @@ class AdminSettings implements IDelegatedSettings
      * exposes no delegatable sub-keys yet, so this is intentionally empty;
      * the attribute still scopes the endpoint to full admins.
      *
-     * @spec openspec/changes/authorizedadminsetting-fix-fleet/tasks.md
+     * @spec openspec/specs/admin-settings/spec.md
      *
      * @return array<string,string[]> Map of appId to allowed config keys.
      */

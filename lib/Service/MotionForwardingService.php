@@ -85,15 +85,21 @@ class MotionForwardingService
 
         $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-        // Fetch the source motion.
+        // Fetch the source motion. ADR-005: motions are `decision` objects
+        // discriminated by decisionType=motion.
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema('decision');
         $sourceMotionObject = $objectService->find($motionId);
-        if ($sourceMotionObject === null) {
-            throw new RuntimeException("Motion $motionId not found");
+        $sourceMotionData   = [];
+        if ($sourceMotionObject !== null) {
+            $sourceMotionData = $sourceMotionObject->getObject();
         }
 
-        $sourceMotionData = $sourceMotionObject->getObject();
+        if ($sourceMotionObject === null
+            || ($sourceMotionData['decisionType'] ?? null) !== 'motion'
+        ) {
+            throw new RuntimeException("Motion $motionId not found");
+        }
 
         $forwardedMotion = $this->buildForwardedMotion(
             sourceMotionData: $sourceMotionData,
@@ -104,11 +110,11 @@ class MotionForwardingService
         );
 
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema('decision');
         $created = $objectService->saveObject(
             object: $forwardedMotion,
             register: 'decidesk',
-            schema: 'motion',
+            schema: 'decision',
         );
 
         $sourceMotionData = $this->noteForwarding(
@@ -154,18 +160,27 @@ class MotionForwardingService
         string $justification,
     ): array {
         return [
-            'title'       => $sourceMotionData['title'] ?? '',
-            'text'        => $sourceMotionData['text'] ?? '',
-            'motionType'  => $sourceMotionData['motionType'] ?? 'motion',
-            'proposer'    => $sourceMotionData['proposer'] ?? '',
-            'coSigners'   => $sourceMotionData['coSigners'] ?? [],
-            'lifecycle'   => 'submitted',
-            'submittedAt' => $this->nowIso(),
-            'relations'   => [
+            // ADR-005: the copy is a `decision`; `decisionType` carries the
+            // motion identity the retired schema used to carry. It is `required`
+            // on the Decision schema and defaults to `meeting-outcome`, so
+            // omitting it would silently mistype every forwarded motion.
+            'decisionType' => 'motion',
+            'title'        => $sourceMotionData['title'] ?? '',
+            'text'         => $sourceMotionData['text'] ?? '',
+            'motionType'   => $sourceMotionData['motionType'] ?? 'motion',
+            'proposer'     => $sourceMotionData['proposer'] ?? '',
+            'coSigners'    => $sourceMotionData['coSigners'] ?? [],
+            // ADR-005: `submitted` is the retired Motion vocabulary and is
+            // outside the Decision.lifecycle enum, so this write was refused
+            // outright. The forwarded copy HAS been submitted to the receiving
+            // body, which is exactly what this schema calls `proposed`.
+            'lifecycle'    => 'proposed',
+            'submittedAt'  => $this->nowIso(),
+            'relations'    => [
                 ['register' => 'decidesk', 'schema' => 'governance-body', 'id' => $targetBodyId],
-                ['register' => 'decidesk', 'schema' => 'motion', 'id' => $motionId],
+                ['register' => 'decidesk', 'schema' => 'decision', 'id' => $motionId],
             ],
-            'notes'       => [
+            'notes'        => [
                 [
                     'title' => 'Doorgestuurd van',
                     'body'  => json_encode(
@@ -216,11 +231,11 @@ class MotionForwardingService
         ];
 
         $objectService->setRegister('decidesk');
-        $objectService->setSchema('motion');
+        $objectService->setSchema('decision');
         $objectService->saveObject(
             object: $sourceMotionData,
             register: 'decidesk',
-            schema: 'motion',
+            schema: 'decision',
             uuid: $motionId,
         );
 

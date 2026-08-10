@@ -21,9 +21,17 @@
 					:key="rItem.id"
 					class="recurring-dialog__item"
 					role="listitem">
+					<!-- nc-vue v9: NcCheckboxRadioSwitch's prop is `modelValue`, not
+					     `checked`. The Vue-2-era `:checked` / `@update:checked` pair is
+					     undeclared, so BOTH fall through `inheritAttrs: false` onto the
+					     raw <input>: `checked` sets the native attribute (the box looks
+					     right) while the component's own modelValue stays false, and
+					     `onUpdate:checked` is registered for a DOM event that is never
+					     fired — so toggling did nothing at all here. Same defect as the
+					     one fixed in userSettings/NotificationPreferencesSection.vue. -->
 					<NcCheckboxRadioSwitch
-						:checked="selected.includes(rItem.id)"
-						@update:checked="toggle(rItem.id)">
+						:model-value="selected.includes(rItem.id)"
+						@update:model-value="toggle(rItem.id)">
 						{{ rItem.title }}
 					</NcCheckboxRadioSwitch>
 				</li>

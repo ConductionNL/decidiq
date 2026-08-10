@@ -642,7 +642,7 @@
             "decisionType": "motion",
             "title": "Motie Duurzaamheid: zonnepanelen op gemeentelijke daken",
             "text": "De raad verzoekt het college om voor 1 januari 2026 een concreet plan van aanpak op te stellen voor de plaatsing van zonnepanelen op alle gemeentelijke daken, inclusief een kostenraming en tijdlijn.",
-            "motionType": "motie",
+            "motionType": "motion",
             "proposer": "Roos de Vries",
             "lifecycle": "decided",
             "outcome": "adopted",
@@ -654,20 +654,22 @@
             "slug": "motie-woonlasten-2025",
             "decisionType": "motion",
             "title": "Motie Woonlasten verlagen",
-            "motionType": "motie",
+            "text": "De raad verzoekt het college de gemeentelijke woonlasten voor 2027 niet verder te verhogen dan de inflatiecorrectie en daartoe bij de Kadernota een dekkingsvoorstel voor te leggen.",
+            "motionType": "motion",
             "proposer": "Jan de Boer",
             "lifecycle": "voting",
-            "outcome": "pending",
             "isPublished": "public"
           },
           {
             "slug": "amendement-cultuursubsidie",
             "decisionType": "amendment",
             "title": "Amendement Cultuursubsidie verhogen",
+            "text": "De raad besluit post 6.1 (cultuursubsidies) in de programmabegroting te verhogen met €50.000, ten laste van de post onvoorzien.",
             "proposer": "Fatima El-Amrani",
             "proposedText": "Verhoog post 6.1 met €50.000",
             "lifecycle": "decided",
             "outcome": "adopted",
+            "decisionDate": "2025-04-10T21:05:00Z",
             "isPublished": "public",
             "amends": "motie-duurzaamheid-2025"
           },
@@ -677,22 +679,25 @@
             "title": "Goedkeuring jaarrekening 2024",
             "text": "De RvC verleent goedkeuring aan de jaarrekening 2024.",
             "resolutionNumber": "R-2025-001",
-            "voteType": "open",
+            "voteType": "named",
             "voteThreshold": "simple-majority",
             "legalBasis": "art. 2:101 BW",
             "lifecycle": "enacted",
             "outcome": "adopted",
+            "decisionDate": "2025-05-14T10:30:00Z",
             "isPublished": "internal"
           },
           {
             "slug": "r-2025-002-benoeming-cfo",
             "decisionType": "resolution",
             "title": "Benoeming CFO",
+            "text": "De RvC benoemt met ingang van 1 juli 2025 mevrouw A. Jansen tot Chief Financial Officer van de vennootschap.",
             "resolutionNumber": "R-2025-002",
-            "voteType": "secret",
+            "voteType": "anonymous",
             "voteThreshold": "simple-majority",
             "lifecycle": "enacted",
             "outcome": "adopted",
+            "decisionDate": "2025-05-14T11:15:00Z",
             "isPublished": "confidential"
           },
           {
@@ -703,30 +708,37 @@
             "legalBasis": "Aanbestedingswet 2012",
             "lifecycle": "decided",
             "outcome": "adopted",
+            "decisionDate": "2026-01-22T14:00:00Z",
             "isPublished": "confidential"
           },
           {
             "slug": "besluit-benoeming-penningmeester",
             "decisionType": "appointment",
             "title": "Benoeming penningmeester",
+            "text": "De algemene ledenvergadering benoemt de heer K. de Wit tot penningmeester van de vereniging voor een termijn van drie jaar.",
             "lifecycle": "enacted",
             "outcome": "adopted",
+            "decisionDate": "2026-02-05T20:15:00Z",
             "isPublished": "internal"
           },
           {
             "slug": "mt-go-nogo-zonnepark",
             "decisionType": "management-point",
             "title": "Go/No-go zonnepark fase 2",
+            "text": "Het MT besluit fase 2 van het zonnepark vrij te geven voor realisatie, onder voorbehoud van de definitieve netaansluiting.",
             "lifecycle": "decided",
             "outcome": "adopted",
+            "decisionDate": "2026-03-03T09:45:00Z",
             "isPublished": "internal"
           },
           {
             "slug": "beleid-thuiswerkregeling",
             "decisionType": "policy",
             "title": "Vaststelling thuiswerkregeling",
+            "text": "De organisatie stelt de thuiswerkregeling 2026 vast: standaard twee thuiswerkdagen per week, met een vergoeding conform de fiscale onbelaste norm.",
             "lifecycle": "enacted",
             "outcome": "adopted",
+            "decisionDate": "2026-03-18T11:00:00Z",
             "isPublished": "public"
           },
           {
@@ -2910,6 +2922,37 @@
               "en": "Decision outcome available: {{title}}"
             }
           },
+          "decisionPublished": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "isPublished",
+                "operator": "equals",
+                "value": "public"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidesk-members"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Besluit gepubliceerd: {{title}}",
+              "en": "Decision published: {{title}}"
+            },
+            "_note": "Publication is the one Decision event that had NO declarative rule, while an imperative DecisionNotificationService::notifyOnPublish() sat beside it with zero callers, no tests and no DI registration — so nobody was ever notified that a decision had become public. ADR-031 keeps notifications declarative (gate-18 flagged the imperative class by name), so the rule lands here and the dead service is removed rather than wired up. isPublished is FLOW-OWNED: it only reaches 'public' through the guarded publication flow (PublicationEligibilityService::guardDirectPublicationWrite rejects a direct object write), so this trigger cannot be fired by an ordinary object update. Recipients mirror decisionProposed/decisionRecorded rather than inventing a third shape."
+          },
           "voteRequested": {
             "trigger": {
               "type": "updated",
@@ -2955,7 +2998,7 @@
         },
         "slug": "decision",
         "icon": "Gavel",
-        "version": "0.6.0",
+        "version": "0.7.0",
         "title": "Decision",
         "description": "The universal governance-decision supertype (ADR-005). A single schema for every decision outcome — motion, amendment, resolution, contract, appointment, management point, policy and generic meeting outcome — distinguished by the required decisionType discriminator. Type-specific fields are folded in and revealed via progressive disclosure keyed on decisionType (ADR-006).",
         "type": "object",
@@ -2967,11 +3010,10 @@
           "mailEnabled": true,
           "x-mail-security-audit": "mailEnabled activates inbound email ingestion. Before production: verify OpenRegister sanitizes HTML/headers, validate sender identity, and ensure Decision views never use v-html for mail-sourced content. Tracked in issue #6."
         },
+        "x-decidesk-terminal-completeness": "`outcome` and `decisionDate` are REQUIRED ONLY IN TERMINAL STATES (lifecycle decided | enacted | archived), never in flight (draft | proposed | deliberating | voting) and never for `withdrawn` — a withdrawn decision was never decided, so it has no adopted/rejected result. They are therefore NOT in required[] above, which would refuse to create any in-flight motion ('400 The required properties (decisionDate, outcome) are missing') and contradicts this schema's own lifecycle description: outcome is 'the voting result, set when reaching decided'. The rule is NOT expressed as JSON-Schema if/then because OpenRegister does not enforce conditional required — MEASURED, not assumed: Db/Schema.php has no if/then field, and Schema::getSchemaObject() rebuilds the validated schema object from the fixed key list title/description/version/type/required/$schema/$id/properties, so the block is discarded before the validator runs. A live in-memory probe against the installed OpenRegister confirmed an object with lifecycle=decided and no outcome/decisionDate validates TRUE under an if/then schema, while the same probe correctly rejects an unconditional missing required and an out-of-enum value. Enforcement instead lives at the transition boundary, where the state is actually entered: DecisionTransitionGuard::getMissingTerminalFields() + DecisionLifecycleService::resolveTerminalCompletenessRejection(). KNOWN GAP: a raw write straight to OpenRegister's object API bypasses that gate, exactly as it already bypasses the chair-only and quorum gates.",
         "required": [
           "title",
           "text",
-          "decisionDate",
-          "outcome",
           "decisionType"
         ],
         "properties": {
@@ -3009,12 +3051,12 @@
             "title": "Decision date",
             "type": "string",
             "format": "date-time",
-            "description": "When the decision was made"
+            "description": "When the decision was made. Absent while the decision is in flight (draft/proposed/deliberating/voting) and for a withdrawn decision; REQUIRED once the decision enters a terminal outcome state (decided/enacted/archived). See x-decidesk-terminal-completeness on this schema — the rule is enforced at the transition boundary, not in required[]."
           },
           "outcome": {
             "title": "Outcome",
             "type": "string",
-            "description": "Decision outcome",
+            "description": "Decision outcome — the voting result. Orthogonal to `lifecycle`: an in-flight motion has NO outcome (leave the property absent rather than writing a placeholder such as 'pending', which is not in this enum), and a withdrawn decision never acquires one. REQUIRED once the decision enters a terminal outcome state (decided/enacted/archived). See x-decidesk-terminal-completeness on this schema.",
             "enum": [
               "adopted",
               "rejected"

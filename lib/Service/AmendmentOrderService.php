@@ -43,16 +43,40 @@ class AmendmentOrderService
     /**
      * Lifecycle states that still block the main motion from being voted.
      *
+     * ADR-005 vocabulary. Both of these lists were written in the retired
+     * Motion vocabulary, and both were therefore broken — in OPPOSITE
+     * directions, which is why neither showed up as an obvious failure:
+     *
+     * - UNDECIDED_STATES held `submitted | debating | voting`. Two of those
+     *   three are not values `Decision.lifecycle` can hold, so a real amendment
+     *   could only ever match `voting`. assertAmendmentsDecided() had quietly
+     *   become close to a no-op — it FAILED OPEN, letting a motion be voted
+     *   while its amendments were still in flight, which is the exact thing it
+     *   exists to prevent.
+     * - DECIDED_STATES held `adopted | rejected`, which under ADR-005 are
+     *   values of `outcome`, never of `lifecycle`. No real amendment could
+     *   match it, so the ordering check FAILED CLOSED and would refuse every
+     *   sibling regardless of how it had been decided.
+     *
+     * The two lists PARTITION the `Decision.lifecycle` enum: every state is in
+     * exactly one of them, and DecisionLifecycleVocabularyTest asserts that
+     * against the enum read out of the SHIPPED register, so a future state added
+     * to the schema cannot silently fall through either check.
+     *
      * @var string[]
      */
-    private const UNDECIDED_STATES = ['submitted', 'debating', 'voting'];
+    private const UNDECIDED_STATES = ['draft', 'proposed', 'deliberating', 'voting'];
 
     /**
      * Lifecycle states that count as decided for ordering purposes.
      *
+     * `withdrawn` belongs here, not in UNDECIDED_STATES: a withdrawn amendment
+     * is off the table and must not block its parent motion, even though it was
+     * never voted on. See the note on UNDECIDED_STATES above.
+     *
      * @var string[]
      */
-    private const DECIDED_STATES = ['adopted', 'rejected'];
+    private const DECIDED_STATES = ['decided', 'enacted', 'archived', 'withdrawn'];
 
     /**
      * Constructor for AmendmentOrderService.
@@ -72,7 +96,9 @@ class AmendmentOrderService
      * Enforce the parliamentary amendment-before-motion ordering (fail closed).
      *
      * For a MOTION round: every amendment of the motion must already be decided
-     * (lifecycle adopted/rejected) — amendments are voted before the main motion.
+     * (ADR-005: lifecycle `decided`/`enacted`/`archived`, or `withdrawn` — the
+     * result itself lives on the separate `outcome` axis) — amendments are voted
+     * before the main motion.
      *
      * For an AMENDMENT round: the requested amendment must be the next one in
      * the configured order.
@@ -145,12 +171,18 @@ class AmendmentOrderService
      */
     private function assertAmendmentIsNext(string $amendmentId): void
     {
-        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'amendment');
-        if ($amendmentEntity === null) {
+        // ADR-005: amendments are `decision` objects; `decisionType` carries the
+        // identity the retired `amendment` schema used to carry.
+        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'decision');
+        $amendment       = ($amendmentEntity?->jsonSerialize() ?? []);
+
+        // A missing object and a decision of the wrong type are the same answer:
+        // this id is not an amendment. An absent object has no discriminator, so
+        // the single check covers both.
+        if (($amendment['decisionType'] ?? null) !== 'amendment') {
             throw new RuntimeException("Amendment {$amendmentId} not found");
         }
 
-        $amendment      = $amendmentEntity->jsonSerialize();
         $parentMotionId = $this->resolveParentMotionId(amendment: $amendment);
         if ($parentMotionId === null) {
             // No parent motion — nothing to order against; a standalone amendment
@@ -275,8 +307,11 @@ class AmendmentOrderService
     /**
      * Resolve the parent motion UUID from a serialized amendment.
      *
-     * Honours the flat `parentMotion` property (string or {id} object) and the
+     * Honours the flat `amends` property (string or {id} object) and the
      * structured `relations` list with schema 'motion'.
+     *
+     * ADR-005 replaced the retired Amendment schema's `parentMotion` property
+     * with the `amends` relation declared on `Decision`.
      *
      * @param array<string,mixed> $amendment Serialized amendment object
      *
@@ -286,7 +321,7 @@ class AmendmentOrderService
      */
     public function resolveParentMotionId(array $amendment): ?string
     {
-        $direct = $this->refId(ref: ($amendment['parentMotion'] ?? null));
+        $direct = $this->refId(ref: ($amendment['amends'] ?? null));
         if ($direct !== '') {
             return $direct;
         }
@@ -315,7 +350,7 @@ class AmendmentOrderService
             return null;
         }
 
-        $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: 'motion');
+        $motionEntity = $this->objectService()->find(id: $motionId, register: 'decidesk', schema: 'decision');
         if ($motionEntity === null) {
             return null;
         }
@@ -366,7 +401,7 @@ class AmendmentOrderService
             return null;
         }
 
-        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'amendment');
+        $amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidesk', schema: 'decision');
         if ($amendmentEntity === null) {
             return null;
         }

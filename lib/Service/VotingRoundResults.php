@@ -194,8 +194,12 @@ class VotingRoundResults
     /**
      * Return every ballot that genuinely belongs to the given round.
      *
-     * The OpenRegister `_relations.<schema>` filter is presence-only — it does not
-     * scope by the related id — so the result set is re-checked against the round.
+     * The filter is keyed via {@see ObjectRelationFilter::filterFor()}, NOT on the
+     * `voting-round` schema slug: decidesk writes ballots with a structured
+     * `relations` array, which OpenRegister flattens to `_relations` keys of the
+     * form `relations.<n>.id`, so a slug-keyed filter matched zero rows and every
+     * tally computed 0/0/0 on a healthy 200. The filter pins the related id but
+     * not the related SCHEMA, so the result set is still re-checked here.
      *
      * @param string $votingRoundId The voting round UUID
      *
@@ -210,7 +214,9 @@ class VotingRoundResults
         $objectService->setSchema('vote');
 
         return $this->relationFilter->matching(
-            entities: $objectService->findAll(['filters' => ['_relations.voting-round' => $votingRoundId]]),
+            entities: $objectService->findAll(
+                ['filters' => $this->relationFilter->filterFor(targetId: $votingRoundId)]
+            ),
             schema: 'voting-round',
             targetId: $votingRoundId
         );

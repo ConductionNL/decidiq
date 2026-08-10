@@ -264,15 +264,46 @@ class OriController extends Controller
     }//end buildFilters()
 
     /**
+     * Drop an object whose `decisionType` does not match the ORI resource.
+     *
+     * ADR-005 folded motion and amendment into the one `decision` schema, so
+     * `/motions/{id}` and `/amendments/{id}` resolve through the same schema and
+     * the schema no longer distinguishes them. index() narrows by `decisionType`
+     * (DECISION_TYPE_MAP); the detail endpoint must apply the same discriminator,
+     * or `/amendments/{id}` would serve a motion as an ORI Amendment.
+     *
+     * @param string                    $resource The ORI resource slug
+     * @param array<string, mixed>|null $object   The serialized object, or null
+     *
+     * @spec openspec/specs/motion-amendment/spec.md
+     *
+     * @return array<string, mixed>|null The object, or null when it is the wrong type
+     */
+    private function narrowToDecisionType(string $resource, ?array $object): ?array
+    {
+        $decisionType = (self::DECISION_TYPE_MAP[$resource] ?? null);
+        if ($object === null || $decisionType === null) {
+            return $object;
+        }
+
+        if (($object['decisionType'] ?? null) !== $decisionType) {
+            return null;
+        }
+
+        return $object;
+
+    }//end narrowToDecisionType()
+
+    /**
      * Retrieve a single ORI resource by id.
      *
      * @param string $resource The ORI resource slug
      * @param string $id       The entity UUID
      *
-     * @return JSONResponse The JSON-LD entity or error
-     *
      * @spec openspec/changes/p4-integration/tasks.md#task-11
      * @spec openspec/specs/public-publication/spec.md
+     *
+     * @return JSONResponse The JSON-LD entity or error
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -290,10 +321,12 @@ class OriController extends Controller
             if ($entity !== null) {
                 $object = $entity->jsonSerialize();
             }
+
+            $object = $this->narrowToDecisionType(resource: $resource, object: $object);
         } catch (Throwable $e) {
             $this->logger->error(message: 'OriController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
             return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        }//end try
 
         if ($object === null) {
             return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
