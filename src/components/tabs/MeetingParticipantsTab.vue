@@ -47,27 +47,12 @@
 			</template>
 		</CnDataTable>
 
-		<NcDialog
+		<MeetingParticipantAddDialog
 			v-if="addDialogOpen"
-			:name="t('decidesk', 'Add participant')"
-			@closing="addDialogOpen = false">
-			<template #default>
-				<p>{{ t('decidesk', 'Pick a participant to link to this meeting.') }}</p>
-				<div v-if="loadingCandidates" class="decidesk-tab__loading">
-					{{ t('decidesk', 'Loading participants…') }}
-				</div>
-				<ul v-else-if="candidates.length" class="decidesk-tab__list">
-					<li v-for="cand in candidates" :key="cand.id">
-						<NcButton @click="linkParticipant(cand)">
-							{{ candidateLabel(cand) }}
-						</NcButton>
-					</li>
-				</ul>
-				<p v-else class="decidesk-tab__empty">
-					{{ t('decidesk', 'No more participants available to link.') }}
-				</p>
-			</template>
-		</NcDialog>
+			:candidates="candidates"
+			:loading="loadingCandidates"
+			@select="linkParticipant"
+			@close="addDialogOpen = false" />
 
 		<CnDeleteDialog
 			v-if="removeTarget"
@@ -82,14 +67,15 @@
 
 <script>
 import { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions } from '@conduction/nextcloud-vue'
-import { NcButton, NcDialog } from '@nextcloud/vue'
+import { NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
+import MeetingParticipantAddDialog from '../../dialogs/MeetingParticipantAddDialog.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingParticipantsTab',
-	components: { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions, NcButton, NcDialog, Plus },
+	components: { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions, MeetingParticipantAddDialog, NcButton, Plus },
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -166,10 +152,6 @@ export default {
 			}
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		candidateLabel(p) {
-			return p.displayName || p.name || p.id
-		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async loadCandidates() {
 			this.loadingCandidates = true
 			try {
@@ -231,18 +213,5 @@ export default {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
-}
-.decidesk-tab__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
-.decidesk-tab__empty,
-.decidesk-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
 }
 </style>

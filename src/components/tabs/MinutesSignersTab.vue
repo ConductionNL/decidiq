@@ -67,27 +67,12 @@
 			</p>
 		</div>
 
-		<NcDialog
+		<MinutesSignerAddDialog
 			v-if="addDialogOpen"
-			:name="t('decidesk', 'Add signer')"
-			@closing="addDialogOpen = false">
-			<template #default>
-				<p>{{ t('decidesk', 'Pick a participant to request a signature from.') }}</p>
-				<div v-if="loadingCandidates" class="decidesk-tab__loading">
-					{{ t('decidesk', 'Loading participants…') }}
-				</div>
-				<ul v-else-if="candidates.length" class="decidesk-tab__list">
-					<li v-for="cand in candidates" :key="cand.id">
-						<NcButton @click="addSigner(cand)">
-							{{ candidateLabel(cand) }}
-						</NcButton>
-					</li>
-				</ul>
-				<p v-else class="decidesk-tab__empty">
-					{{ t('decidesk', 'All participants already added as signers.') }}
-				</p>
-			</template>
-		</NcDialog>
+			:candidates="candidates"
+			:loading="loadingCandidates"
+			@select="addSigner"
+			@close="addDialogOpen = false" />
 
 		<CnDeleteDialog
 			v-if="removeTarget"
@@ -102,16 +87,17 @@
 
 <script>
 import { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions, CnStatusBadge } from '@conduction/nextcloud-vue'
-import { NcButton, NcDialog } from '@nextcloud/vue'
+import { NcButton } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
+import MinutesSignerAddDialog from '../../dialogs/MinutesSignerAddDialog.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MinutesSignersTab',
-	components: { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions, CnStatusBadge, NcButton, NcDialog, Plus },
+	components: { CnDataTable, CnDeleteDialog, CnNoteCard, CnRowActions, CnStatusBadge, MinutesSignerAddDialog, NcButton, Plus },
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -189,10 +175,6 @@ export default {
 					handler: () => { this.removeTarget = { ...row } },
 				},
 			]
-		},
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		candidateLabel(p) {
-			return p.displayName || p.name || p.id
 		},
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async refresh() {
@@ -316,14 +298,6 @@ export default {
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
-.decidesk-tab__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
 .decidesk-tab__pending {
 	color: var(--color-text-maxcontrast);
 }
@@ -333,10 +307,5 @@ export default {
 .decidesk-tab__error {
 	color: var(--color-error);
 	margin: 4px 0 0;
-}
-.decidesk-tab__empty,
-.decidesk-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
 }
 </style>
