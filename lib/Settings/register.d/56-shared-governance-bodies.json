@@ -98,7 +98,7 @@
         ],
         "zienswijzeronde": [
           {
-            "slug": "zienswijzeronde-ontwerpbegroting-2027",
+            "slug": "zienswijzeronde-begroting-2027",
             "title": "Zienswijzeronde ontwerpbegroting 2027 NOZ organisatie",
             "sharedBody": "bestuur-noz-organisatie",
             "subjectType": "ontwerpbegroting",
@@ -120,7 +120,7 @@
         "zienswijze": [
           {
             "slug": "zienswijze-noorderbrug-begroting-2027",
-            "ronde": "zienswijzeronde-ontwerpbegroting-2027",
+            "ronde": "zienswijzeronde-begroting-2027",
             "participant": "gemeenteraad-noorderbrug",
             "deadline": "2026-06-15",
             "standpunt": "positief-met-kanttekeningen",
@@ -133,7 +133,7 @@
           },
           {
             "slug": "zienswijze-oostwoud-begroting-2027",
-            "ronde": "zienswijzeronde-ontwerpbegroting-2027",
+            "ronde": "zienswijzeronde-begroting-2027",
             "participant": "gemeenteraad-oostwoud",
             "deadline": "2026-06-15",
             "standpunt": "positief",
@@ -145,7 +145,7 @@
           },
           {
             "slug": "zienswijze-zuidermeer-begroting-2027",
-            "ronde": "zienswijzeronde-ontwerpbegroting-2027",
+            "ronde": "zienswijzeronde-begroting-2027",
             "participant": "gemeenteraad-zuidermeer",
             "deadline": "2026-06-15",
             "status": "niet-ingediend"

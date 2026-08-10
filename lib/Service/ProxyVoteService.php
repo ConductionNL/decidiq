@@ -7,9 +7,12 @@
  * suspended when the grantor joins the meeting remotely, and revoked either
  * at meeting close or by secretary action.
  *
- * Proxy rows are persisted on the unified `vote` schema
- * (`voteMethod=proxy`, `proxyHolder` set, additional `proxyStatus` field)
- * so the audit log always shows the cast trail (ADR-006).
+ * Proxy rows are persisted on the `board-proxy` schema (meetingKoppeling /
+ * grantorKoppeling / holderKoppeling / proxyStatus), which is what this service
+ * has always written. It previously pointed at the `vote` schema, whose required
+ * `value` + `castAt` are not part of a delegation, so every registration threw
+ * and returned 422; `board-proxy` is the schema the row actually describes.
+ * Every transition is mirrored to the audit log (ADR-006).
  *
  * @category Service
  * @package  OCA\Decidesk\Service
@@ -54,7 +57,7 @@ class ProxyVoteService
      *
      * @var string
      */
-    public const SCHEMA = 'vote';
+    public const SCHEMA = 'board-proxy';
 
     /**
      * App config key holding the per-holder per-meeting ACTIVE-proxy cap.
@@ -397,12 +400,21 @@ class ProxyVoteService
     {
         try {
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $rows          = $objectService->findAll(
+            // ObjectService::prepareFindAllConfig() only reads the register/schema
+            // context from filters.register / filters.schema — a TOP-LEVEL
+            // 'register'/'schema' key is silently ignored, findAll() then runs with
+            // no register/schema context and returns an empty array. It does not
+            // throw, so the caller cannot tell "no proxies" from "never looked",
+            // and the per-holder cap below counted 0 every time (decidesk#443
+            // follow-up: a third proxy was accepted at a cap of 2).
+            $rows = $objectService->findAll(
                 [
-                    'register' => 'decidesk',
-                    'schema'   => self::SCHEMA,
-                    'filters'  => ['meetingKoppeling' => $meetingId],
-                    'limit'    => 1000,
+                    'filters' => [
+                        'register'         => 'decidesk',
+                        'schema'           => self::SCHEMA,
+                        'meetingKoppeling' => $meetingId,
+                    ],
+                    'limit'   => 1000,
                 ]
             );
         } catch (\Throwable $e) {

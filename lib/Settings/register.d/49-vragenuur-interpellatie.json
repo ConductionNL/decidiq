@@ -91,7 +91,7 @@
             "lifecycle": "behandeld",
             "raadsbesluitDatum": "2026-05-12",
             "behandeldIn": "raadsvergadering-2025-01-15",
-            "agendaItem": "interpellatie-stationsgebied-2025-01-15",
+            "agendaItem": "interpellatie-stationsgebied-2025",
             "behandelingVerslag": "Interpellatiedebat gevoerd; wethouder zegt extern onderzoek toe naar de veiligheidssituatie en informeert de raad per raadsbrief voor het zomerreces."
           },
           {
@@ -144,7 +144,7 @@
             "meeting": "raadsvergadering-2025-01-15"
           },
           {
-            "slug": "interpellatie-stationsgebied-2025-01-15",
+            "slug": "interpellatie-stationsgebied-2025",
             "title": "Interpellatie: veiligheid stationsgebied",
             "itemType": "discussion",
             "orderNumber": 7,

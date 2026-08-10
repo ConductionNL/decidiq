@@ -1158,7 +1158,7 @@
         ],
         "evaluation-template": [
           {
-            "slug": "template-bestuurlijke-effectiviteit-nl-cgc",
+            "slug": "template-bestuurlijke-effectiviteit",
             "title": "Board effectiveness self-evaluation (NL Corporate Governance Code)",
             "description": "Default reusable annual board self-evaluation (zelfevaluatie) covering the five standard effectiveness dimensions. Editable per body.",
             "dimensions": [
@@ -1265,7 +1265,7 @@
             "secretaryUserId": "jan.devries",
             "scoreSummary": "{\"overallScore\":3.6,\"respondentCount\":2,\"invitedMemberCount\":3,\"minRespondentThreshold\":3,\"thresholdMet\":false,\"suppressed\":true,\"dimensionScores\":null,\"themes\":null,\"computedAt\":\"2025-12-20T17:05:00Z\"}",
             "governanceBody": "rvc-waterschap-amstel",
-            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
+            "template": "template-bestuurlijke-effectiviteit"
           },
           {
             "slug": "evaluatie-acme-rvc-2026",
@@ -1289,7 +1289,7 @@
             "chairUserId": "acme.chair",
             "secretaryUserId": "acme.secretary",
             "governanceBody": "raad-van-commissarissen-acme-bv",
-            "template": "template-bestuurlijke-effectiviteit-nl-cgc"
+            "template": "template-bestuurlijke-effectiviteit"
           }
         ],
         "evaluation-response": [
@@ -1394,6 +1394,7 @@
           "agenda-item",
           "bevoegdheidstoedeling",
           "board-evaluation",
+          "board-proxy",
           "body-participation",
           "budget-proposal",
           "citizen-panel",
@@ -1415,6 +1416,7 @@
           "geheimhouding-grond",
           "geschenk",
           "governance-body",
+          "governance-report",
           "governing-document",
           "governing-document-versie",
           "ingekomen-stuk",
@@ -2207,21 +2209,18 @@
             "title": "Opened at",
             "type": "string",
             "format": "date-time",
-            "description": "Timestamp of the first 'open' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency). Basis for the live cost calculator and duration analytics.",
-            "readOnly": true
+            "description": "Timestamp of the first 'open' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency). Basis for the live cost calculator and duration analytics. NOT readOnly: OpenRegister reads readOnly as immutable-after-create and rejects the UPDATE for every writer, including MeetingService itself — a meeting is created before it is opened, so a readOnly stamp can never be written."
           },
           "closedAt": {
             "title": "Closed at",
             "type": "string",
             "format": "date-time",
-            "description": "Timestamp of the 'close' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency).",
-            "readOnly": true
+            "description": "Timestamp of the 'close' lifecycle transition, stamped server-side by MeetingService (meeting-efficiency). NOT readOnly — see openedAt: readOnly made every opened -> closed transition fail with 'Cannot modify readOnly property: closedAt' (422)."
           },
           "meetingCost": {
             "title": "Meeting cost",
             "type": "number",
-            "description": "Total meeting cost in EUR, computed server-side on close from elapsed time x attendee count x the governance body's hourlyRate (meeting-efficiency). Schema.org MonetaryAmount value.",
-            "readOnly": true
+            "description": "Total meeting cost in EUR, computed server-side on close from elapsed time x attendee count x the governance body's hourlyRate (meeting-efficiency). Schema.org MonetaryAmount value. NOT readOnly — see openedAt: it is stamped on close, i.e. always after create."
           }
         },
         "x-openregister-aggregations": {
@@ -2701,6 +2700,149 @@
             "$ref": "DecisionStage",
             "title": "Decision stage",
             "description": "The DecisionStage of method=vote that this VotingRound resolves. Retargeted from the retired motion schema (C5 decision-methods D1). The stage's outcome is derived declaratively from this round's result."
+          }
+        }
+      },
+      "GovernanceReport": {
+        "slug": "governance-report",
+        "icon": "ChartBoxOutline",
+        "version": "0.1.0",
+        "title": "GovernanceReport",
+        "description": "A generated annual governance report for one board and year (meeting/resolution counts, vote tally, independence ratio, attendance rate, conflict count and the compliance flags derived from them). This is the row GovernanceReportingService persists so /api/governance-reports/{id} and /{id}/export/{format} have something to address.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:GovernanceReport",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "boardKoppeling",
+          "year"
+        ],
+        "properties": {
+          "boardKoppeling": {
+            "title": "Board",
+            "type": "string",
+            "description": "Identifier of the governance body the report covers."
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer",
+            "description": "Calendar year the report covers.",
+            "example": 2026
+          },
+          "meetingCount": {
+            "title": "Meeting count",
+            "type": "integer",
+            "description": "Number of meetings held in the reporting year."
+          },
+          "resolutionCount": {
+            "title": "Resolution count",
+            "type": "integer",
+            "description": "Number of resolutions taken in the reporting year."
+          },
+          "voteTally": {
+            "title": "Vote tally",
+            "type": "object",
+            "description": "Votes cast in the reporting year, counted per outcome (in-favor, against, abstain, absent, recused-due-to-conflict)."
+          },
+          "memberCount": {
+            "title": "Member count",
+            "type": "integer",
+            "description": "Number of board members in the reporting year."
+          },
+          "independenceRatio": {
+            "title": "Independence ratio",
+            "type": "number",
+            "description": "Share of board members classified as independent."
+          },
+          "attendanceRate": {
+            "title": "Attendance rate",
+            "type": "number",
+            "description": "Share of possible member-meeting attendances actually recorded."
+          },
+          "conflictCount": {
+            "title": "Conflict count",
+            "type": "integer",
+            "description": "Number of conflict-of-interest declarations in the reporting year."
+          },
+          "flags": {
+            "title": "Compliance flags",
+            "type": "object",
+            "description": "Compliance verdict for the report: whether every threshold passed, plus the list of thresholds that did not."
+          },
+          "generatedAt": {
+            "title": "Generated at",
+            "type": "string",
+            "description": "Moment the report was generated."
+          }
+        }
+      },
+      "BoardProxy": {
+        "slug": "board-proxy",
+        "icon": "AccountArrowRightOutline",
+        "version": "0.1.0",
+        "title": "BoardProxy",
+        "description": "A proxy (volmacht) granted by one board member to another for a single meeting. This is the row ProxyVoteService writes through /api/proxies and the row the per-holder proxy cap counts; the signed-document side of a volmacht lives on ProxyAuthorization.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "custom:BoardProxy",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "meetingKoppeling",
+          "grantorKoppeling",
+          "holderKoppeling",
+          "proxyStatus"
+        ],
+        "properties": {
+          "meetingKoppeling": {
+            "title": "Meeting",
+            "type": "string",
+            "description": "Identifier of the meeting this proxy applies to. The per-holder cap is counted per meeting."
+          },
+          "grantorKoppeling": {
+            "title": "Grantor",
+            "type": "string",
+            "description": "Identifier of the participant delegating their vote (the volmachtgever)."
+          },
+          "holderKoppeling": {
+            "title": "Holder",
+            "type": "string",
+            "description": "Identifier of the participant receiving the delegation (the gevolmachtigde)."
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string",
+            "description": "Which resolutions the delegation covers.",
+            "example": "all-resolutions"
+          },
+          "expiresAt": {
+            "title": "Expires at",
+            "type": "string",
+            "description": "Optional moment the delegation lapses. Empty when the proxy runs for the whole meeting."
+          },
+          "proxyStatus": {
+            "title": "Proxy status",
+            "type": "string",
+            "description": "Lifecycle state of the delegation. A freshly registered proxy starts pending-approval; only active proxies count toward the per-holder cap.",
+            "enum": [
+              "pending-approval",
+              "active",
+              "suspended",
+              "revoked"
+            ],
+            "example": "pending-approval"
+          },
+          "registeredAt": {
+            "title": "Registered at",
+            "type": "string",
+            "description": "Moment the delegation was registered."
           }
         }
       },

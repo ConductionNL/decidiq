@@ -160,12 +160,20 @@ class RegisterJsonTest extends TestCase
             'EvaluationTemplate',
             'BoardEvaluation',
             'EvaluationResponse',
+            // Rows the services already wrote but the register never declared:
+            // ProxyVoteService persisted proxies (it pointed at 'vote', whose
+            // required value/castAt made every /api/proxies register 422) and
+            // GovernanceReportingService persisted annual reports (its
+            // 'governance-report' write threw "Schema not found", was swallowed,
+            // and left /api/governance-reports/{id}/export unaddressable).
+            'BoardProxy',
+            'GovernanceReport',
         ];
 
         self::assertCount(
-            expectedCount: 37,
+            expectedCount: 39,
             haystack: $this->schemas,
-            message: 'Register must contain exactly 37 schemas (unified Decision supertype model, board portal retired, board-self-evaluation added)'
+            message: 'Register must contain exactly 39 schemas (unified Decision supertype model, board portal retired, board-self-evaluation added, BoardProxy + GovernanceReport declared for the services that already write them)'
         );
 
         foreach ($expected as $name) {

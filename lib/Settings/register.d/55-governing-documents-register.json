@@ -1,7 +1,7 @@
 {
   "x-openregister": {
     "seedData": {
-      "description": "Seed objects for the governing-documents register (constitutive/internal governing documents — statuten, reglement van orde, splitsingsakte). Objects grouped by schema slug (governing-document, governing-document-versie), plus one new governance-body (vve-parkstaete) and two enacting Decisions merged additively into the existing decision seed set. References resolve by slug against existing decidesk seed objects (governance-body ledenraad-vng and gemeenteraad-amsterdam from decidesk_register.json; the two same-fragment Decisions for the amendment versions' vastgesteldDoor). Chain: statuten-vng carries v1 (vervangen, constitutive — no vastgesteldDoor, notarial-deed metadata documents its origin) → v2 (in-werking, traced to besluit-statutenwijziging-vng-2021) to demonstrate in-force resolution (REQ-GDR-004) and seal-on-effective immutability (REQ-GDR-003); statuten-vng has isPublic=true so the public predicate is demonstrable on a fresh install (REQ-GDR-007). reglement-van-orde-gemeenteraad-amsterdam has one vastgesteld-by-decision version (rvo-amsterdam-v1, traced to besluit-vaststelling-rvo-amsterdam). splitsingsakte-vve-parkstaete has one constitutive notarial version (no decision link). The statutenwijziging Decision carries a citesGoverningDocuments entry (document statuten-vng, artikel 'art. 20') so the citation UI is demoable on install (REQ-GDR-005). NOTE (app-wide limitation, consistent with sibling fragments 45/54): relation refs stored as slugs may not resolve on detail pages until the register import maps them to UUIDs.",
+      "description": "Seed objects for the governing-documents register (constitutive/internal governing documents — statuten, reglement van orde, splitsingsakte). Objects grouped by schema slug (governing-document, governing-document-versie), plus one new governance-body (vve-parkstaete) and two enacting Decisions merged additively into the existing decision seed set. References resolve by slug against existing decidesk seed objects (governance-body ledenraad-vng and gemeenteraad-amsterdam from decidesk_register.json; the two same-fragment Decisions for the amendment versions' vastgesteldDoor). Chain: statuten-vng carries v1 (vervangen, constitutive — no vastgesteldDoor, notarial-deed metadata documents its origin) → v2 (in-werking, traced to besluit-statutenwijziging-vng-2021) to demonstrate in-force resolution (REQ-GDR-004) and seal-on-effective immutability (REQ-GDR-003); statuten-vng has isPublic=true so the public predicate is demonstrable on a fresh install (REQ-GDR-007). reglement-van-orde-raad-amsterdam has one vastgesteld-by-decision version (rvo-amsterdam-v1, traced to besluit-vaststelling-rvo-amsterdam). splitsingsakte-vve-parkstaete has one constitutive notarial version (no decision link). The statutenwijziging Decision carries a citesGoverningDocuments entry (document statuten-vng, artikel 'art. 20') so the citation UI is demoable on install (REQ-GDR-005). NOTE (app-wide limitation, consistent with sibling fragments 45/54): relation refs stored as slugs may not resolve on detail pages until the register import maps them to UUIDs.",
       "objects": {
         "governance-body": [
           {
@@ -24,7 +24,7 @@
             "status": "geldend"
           },
           {
-            "slug": "reglement-van-orde-gemeenteraad-amsterdam",
+            "slug": "reglement-van-orde-raad-amsterdam",
             "type": "reglement-van-orde",
             "citeertitel": "Reglement van orde gemeenteraad Amsterdam",
             "omschrijving": "Reglement van orde van de gemeenteraad (Gemeentewet art. 16), vastgesteld bij raadsbesluit.",
@@ -66,7 +66,7 @@
           },
           {
             "slug": "rvo-amsterdam-v1",
-            "document": "reglement-van-orde-gemeenteraad-amsterdam",
+            "document": "reglement-van-orde-raad-amsterdam",
             "versienummer": 1,
             "vastgesteldDoor": "besluit-vaststelling-rvo-amsterdam",
             "inwerkingtreding": "2023-03-01",
