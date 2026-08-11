@@ -342,6 +342,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "governance-body",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"name",
 					"bodyType",
@@ -409,6 +411,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "meeting",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"title",
 					"meetingType",
@@ -593,6 +597,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "participant",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"displayName",
 					"role",
@@ -643,6 +649,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "agenda-item",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"orderNumber",
 					"title",
@@ -714,6 +722,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"filter": {
 					"decisionType": "motion"
 				},
@@ -849,6 +859,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "minutes",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"title",
 					"lifecycle",
@@ -909,6 +921,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilters": [
 					{
 						"label": "Decisions",
@@ -1054,6 +1068,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "action-item",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"title",
 					"assignee",
@@ -1108,6 +1124,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "engagement-record",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"meeting",
 					"participant",

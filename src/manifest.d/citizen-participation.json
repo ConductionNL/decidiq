@@ -35,6 +35,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "public-consultation",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -154,6 +156,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "participatory-budget",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"columns": [
 					"name",
 					"totalAmount",

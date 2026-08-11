@@ -34,6 +34,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "nevenfunctie",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Current-user filtering (own declarations only) is applied client-side / via OR owner-scoped RBAC; the manifest cannot express a 'current user' filter token declaratively.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -68,6 +70,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "nevenfunctie",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -130,6 +134,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "geschenk",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [

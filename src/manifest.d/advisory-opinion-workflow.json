@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "adviesaanvraag",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [

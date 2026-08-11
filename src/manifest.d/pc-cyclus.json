@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "pc-cyclus",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "PCCycli list (REQ-PCC-009). Progress reads from the declarative completedStepCount/stepCount aggregations, never recomputed client-side.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,

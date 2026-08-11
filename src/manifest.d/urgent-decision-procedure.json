@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Urgent-decisions list (REQ-006). Default-filtered to isUrgent=true; quick filters split awaiting-ratification vs ratified via the materialised awaitingRatification calculation (no per-row N+1 — resolved as a pure OR list query). The awaitingRatification and lifecycle columns render as badges (icon + text, CSS variables — never colour alone). The view action navigates to the existing DecisionDetail page. CSV export via the shared ExportService + CnMassExportDialog.",
 				"filter": { "isUrgent": true },
 				"quickFilterMode": "dropdown",

@@ -42,6 +42,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "vve-decision-template",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Schema ref by slug (vve-decision-template), never PascalCase.",
 				"columns": [
 					{ "key": "name", "label": "Name", "widget": "link" },
@@ -93,6 +95,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "modelreglement-preset",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Schema ref by slug (modelreglement-preset), never PascalCase.",
 				"columns": [
 					{ "key": "name", "label": "Name", "widget": "link" },
@@ -140,6 +144,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "vve-configuration",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Schema ref by slug (vve-configuration), never PascalCase.",
 				"columns": [
 					{ "key": "governanceBody", "label": "Governance body", "widget": "link" },
@@ -190,6 +196,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "kascommissie-verklaring",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Schema ref by slug (kascommissie-verklaring), never PascalCase.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,

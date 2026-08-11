@@ -28,6 +28,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "toezegging",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Toezeggingenlijst (REQ-006). Columns text/madeBy/directedTo/deadline/lifecycle; quick filters on lifecycle and governance body. CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome). The overdue-KPI deep-link (Dashboard) targets this page pre-filtered to non-terminal lifecycle (design D6).",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -92,6 +94,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "ingekomen-stuk",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Lijst ingekomen stukken (REQ-006). Columns title/sender/category/receivedAt/routingAdvice/lifecycle; quick filters on lifecycle, category and governance body. CSV export via ExportService + CnMassExportDialog.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,

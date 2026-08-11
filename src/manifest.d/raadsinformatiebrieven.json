@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "raadsinformatiebrief",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Raadsinformatiebrieven index (REQ-RIB-007). Columns number/onderwerp/portefeuillehouder/category/sentAt/lifecycle; quick filters on lifecycle, category, governance body and portefeuillehouder; index _search matches number and onderwerp. CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome) including number/onderwerp/portefeuillehouder/category/sentAt/lifecycle. Sorted by number so duplicate letter numbers are immediately visible (design D5).",
 				"search": true,
 				"searchFields": [

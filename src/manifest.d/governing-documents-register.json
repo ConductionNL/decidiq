@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "governing-document",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Governing-documents list (REQ-GDR-006). Columns citeertitel/type/governingBody/status; quick filters on type and status; full-text search over citeertitel. The current-version inwerkingtreding column and the per-document in-force resolution come from the consolidation service (no per-row N+1 — resolved as a pure OR list query by the page task). CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome).",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
