@@ -17,17 +17,32 @@ governance law, so this app is where the statutory rule does most of its work.
       procest declares both slugs too, and both apps' changes independently plan the same
       English name. Resolving these belongs to the fleet change.
 
+## 1c. MEASURED 2026-08-11 — the statutory schemas all hold data
+
+- [ ] 1c.1 **61 live objects across all 20 statutory schemas**, measured on the dev
+      instance via the shard tables for schema ids 4933–4974 (register 18), excluding
+      soft-deleted rows: Toezegging 3, TermijnagendaItem 5, Raadsinformatiebrief 3,
+      Bevoegdheidstoedeling 5, Voordracht 3, TermijnRegeling 2, RoosterVanAftreden 2,
+      RoosterRegel 5, Nevenfunctie 5, MondelingeVraag 4, Interpellatieverzoek 2,
+      RegelingExportPackage 1, GoverningDocumentVersie 3, Regeling 3, RegelingVersie 4,
+      Zienswijze 1, KascommissieVerklaring 2, OnboardingTraject 3, OffboardingTraject 2,
+      Geheimhouding 3.
+      **Not one of them is greenfield.** The schema renames therefore cannot land until
+      the migration in task 2.3 exists and has been exercised — a renamed schema orphans
+      its objects exactly as thoroughly as a renamed property does.
+- [ ] 1c.2 A schema rename also moves the SLUG, and slug resolution is instance-global.
+      Before adopting any English schema name, check it against every app's declared
+      slugs — `Adviesaanvraag` and `Decision` are already known collisions with procest.
+
 ## 2. Count stored objects and plan the migration
 
-- [ ] 2.1 Count objects per schema across all 36 — far too many to assume greenfield.
-      Resolve numeric register and schema ids through `oc_openregister_schemas`, then read
-      the `oc_openregister_table_<reg>_<schema>` shards; matching shard table names against
-      the schema title matches nothing and reports zero for every app. Exclude `_deleted`,
-      and sum across every register each schema is registered in.
-- [ ] 2.2 Prove the counting query can return non-zero before recording any zero. The
-      openbuild pilot was assumed greenfield and held 12 live objects across two registers;
-      only the positive control caught it.
-- [ ] 2.3 Write the migration for every non-zero schema, covering **schema renames as well
+- [ ] 2.1 Extend the 1c.1 count to the remaining schemas (36 total). Resolve numeric
+      register and schema ids through `oc_openregister_schemas`, read the
+      `oc_openregister_table_<reg>_<schema>` shards (matching shard names against the
+      schema title matches nothing and reports zero for every app), exclude `_deleted`,
+      sum across every register, and prove the query can return non-zero before recording
+      any zero — the openbuild pilot was assumed greenfield and held 12.
+- [ ] 2.2 Write the migration for every non-zero schema, covering **schema renames as well
       as property renames** — a renamed schema orphans its objects just as thoroughly.
 
 ## 3. Rename schemas with statute markers
