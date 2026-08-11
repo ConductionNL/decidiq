@@ -30,14 +30,19 @@
 			{{ t('decidesk', 'Choose what happens to this body\'s meeting recordings and raw transcripts after the minutes are approved. The approved minutes always remain the official record.') }}
 		</p>
 
+		<!--
+			v9 model pair (`modelValue` / `update:modelValue`). The v8
+			`:value` / `@input` form still renders, so the policy dropdown
+			looked healthy while no choice ever reached `onPolicy`.
+		-->
 		<NcSelect
 			input-id="retention-policy-select"
 			data-testid="retention-policy-select"
 			:input-label="t('decidesk', 'Retention policy')"
 			:options="policyOptions"
-			:value="selectedPolicy"
+			:model-value="selectedPolicy"
 			label="label"
-			@input="onPolicy" />
+			@update:model-value="onPolicy" />
 
 		<NcTextField
 			type="number"

@@ -15,7 +15,6 @@
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
 // SPDX-License-Identifier: EUPL-1.2
-
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Tests\Unit\Controller;
@@ -25,7 +24,6 @@ use OCA\Decidesk\Service\BoardEvaluationReportService;
 use OCA\Decidesk\Service\BoardEvaluationResponseService;
 use OCA\Decidesk\Service\BoardEvaluationScoreService;
 use OCA\Decidesk\Service\ParticipationPublicationService;
-use OCA\Decidesk\Service\VotingService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
@@ -63,12 +61,12 @@ class BoardEvaluationControllerTest extends TestCase
      */
     private BoardEvaluationResponseService&MockObject $responseService;
 
-    /**
-     * Mock VotingService (NC uid -> participant UUID resolution).
-     *
-     * @var VotingService&MockObject
-     */
-    private VotingService&MockObject $votingService;
+    // NOTE: the NC-uid -> participant-UUID resolution used to come from
+    // VotingService and is now BoardEvaluationResponseService::resolveResponder(),
+    // because the identity has to be scoped to the evaluation's own governance
+    // body. The controller no longer takes VotingService at all, so these tests
+    // stub the resolution on $responseService instead. The behaviours asserted
+    // below are unchanged.
 
     /**
      * Mock IUserSession.
@@ -84,7 +82,6 @@ class BoardEvaluationControllerTest extends TestCase
      */
     private BoardEvaluationController $controller;
 
-
     /**
      * Set up mocks and the controller.
      *
@@ -96,7 +93,6 @@ class BoardEvaluationControllerTest extends TestCase
 
         $this->request         = $this->createMock(IRequest::class);
         $this->responseService = $this->createMock(BoardEvaluationResponseService::class);
-        $this->votingService   = $this->createMock(VotingService::class);
         $this->userSession     = $this->createMock(IUserSession::class);
 
         $this->controller = new BoardEvaluationController(
@@ -105,12 +101,10 @@ class BoardEvaluationControllerTest extends TestCase
             $this->createMock(BoardEvaluationScoreService::class),
             $this->createMock(BoardEvaluationReportService::class),
             $this->createMock(ParticipationPublicationService::class),
-            $this->votingService,
             $this->userSession,
         );
 
     }//end setUp()
-
 
     /**
      * Sign a user into the mocked session.
@@ -126,7 +120,6 @@ class BoardEvaluationControllerTest extends TestCase
         $this->userSession->method('getUser')->willReturn($user);
 
     }//end signIn()
-
 
     /**
      * An anonymous caller gets 401 and no response is recorded.
@@ -146,7 +139,6 @@ class BoardEvaluationControllerTest extends TestCase
 
     }//end testRespondWithoutSessionIs401()
 
-
     /**
      * A signed-in user with no participant profile on the board is 403 — the
      * evaluation is not open to arbitrary instance users.
@@ -158,7 +150,8 @@ class BoardEvaluationControllerTest extends TestCase
     public function testRespondWithoutParticipantProfileIs403(): void
     {
         $this->signIn(uid: 'outsider');
-        $this->votingService->method('resolveParticipantUuid')->with('outsider')->willReturn(null);
+        $this->responseService->method('resolveResponder')
+            ->with('evaluation-1', 'outsider')->willReturn(null);
         $this->responseService->expects($this->never())->method('submitResponse');
 
         $response = $this->controller->respond(id: 'evaluation-1');
@@ -166,7 +159,6 @@ class BoardEvaluationControllerTest extends TestCase
         self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 
     }//end testRespondWithoutParticipantProfileIs403()
-
 
     /**
      * A valid submission answers 201 with the stored response under the
@@ -180,7 +172,8 @@ class BoardEvaluationControllerTest extends TestCase
     public function testRespondResolvesParticipantFromSessionAndReturns201(): void
     {
         $this->signIn(uid: 'bestuurslid');
-        $this->votingService->method('resolveParticipantUuid')->with('bestuurslid')->willReturn('participant-9');
+        $this->responseService->method('resolveResponder')
+            ->with('evaluation-1', 'bestuurslid')->willReturn('participant-9');
 
         $answers = [['dimension' => 'strategy', 'score' => 4]];
         $this->request->method('getParam')->with('answers', [])->willReturn($answers);
@@ -197,7 +190,6 @@ class BoardEvaluationControllerTest extends TestCase
 
     }//end testRespondResolvesParticipantFromSessionAndReturns201()
 
-
     /**
      * A `participantId` in the request body is IGNORED — identity comes from
      * the session only. Without this the anonymity guarantee is decoration:
@@ -210,7 +202,8 @@ class BoardEvaluationControllerTest extends TestCase
     public function testRespondIgnoresClientSuppliedParticipantId(): void
     {
         $this->signIn(uid: 'bestuurslid');
-        $this->votingService->method('resolveParticipantUuid')->with('bestuurslid')->willReturn('participant-9');
+        $this->responseService->method('resolveResponder')
+            ->with('evaluation-1', 'bestuurslid')->willReturn('participant-9');
 
         $this->request->method('getParam')->willReturnMap(
             [
@@ -235,7 +228,6 @@ class BoardEvaluationControllerTest extends TestCase
 
     }//end testRespondIgnoresClientSuppliedParticipantId()
 
-
     /**
      * A non-array `answers` payload degrades to an empty array rather than
      * reaching the service as a scalar and exploding into a 500.
@@ -247,7 +239,7 @@ class BoardEvaluationControllerTest extends TestCase
     public function testRespondCoercesNonArrayAnswers(): void
     {
         $this->signIn(uid: 'bestuurslid');
-        $this->votingService->method('resolveParticipantUuid')->willReturn('participant-9');
+        $this->responseService->method('resolveResponder')->willReturn('participant-9');
         $this->request->method('getParam')->with('answers', [])->willReturn('not-an-array');
 
         $this->responseService->expects($this->once())
@@ -261,7 +253,6 @@ class BoardEvaluationControllerTest extends TestCase
 
     }//end testRespondCoercesNonArrayAnswers()
 
-
     /**
      * An unknown evaluation surfaces as 404, not the generic 422 every other
      * service rejection maps to.
@@ -273,7 +264,7 @@ class BoardEvaluationControllerTest extends TestCase
     public function testRespondUnknownEvaluationIs404(): void
     {
         $this->signIn();
-        $this->votingService->method('resolveParticipantUuid')->willReturn('participant-9');
+        $this->responseService->method('resolveResponder')->willReturn('participant-9');
         $this->request->method('getParam')->willReturn([]);
         $this->responseService->method('submitResponse')
             ->willReturn(['success' => false, 'message' => 'Evaluation not found.']);
@@ -284,6 +275,4 @@ class BoardEvaluationControllerTest extends TestCase
         );
 
     }//end testRespondUnknownEvaluationIs404()
-
-
 }//end class

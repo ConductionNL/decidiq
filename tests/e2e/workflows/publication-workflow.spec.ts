@@ -117,7 +117,13 @@ test.describe('public publication flow', () => {
 		await page.getByTestId('publication-withdraw').click()
 		// Reason is mandatory: confirm stays disabled until filled.
 		await expect(page.getByTestId('publication-withdraw-confirm')).toBeDisabled()
-		await page.getByTestId('publication-withdraw-reason').locator('textarea').fill('Contained an error')
+		// @nextcloud/vue v9's NcTextArea sets `inheritAttrs: false` and merges
+		// `$attrs` onto the inner <textarea>, so the `data-testid` written on
+		// <NcTextArea> in PublicationWithdrawModal.vue IS the textarea — there is
+		// no wrapper to descend through, and `.locator('textarea')` can never
+		// resolve. citizen-participation-workflow.spec.ts and
+		// resolution-minutes.spec.ts already address these controls this way.
+		await page.getByTestId('publication-withdraw-reason').fill('Contained an error')
 		await page.getByTestId('publication-withdraw-confirm').click()
 		await expect(page.getByTestId('publication-status')).toContainText(/Not published/i, { timeout: 15_000 })
 	})
