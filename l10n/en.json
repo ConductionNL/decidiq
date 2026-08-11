@@ -1340,6 +1340,14 @@
         "Start evaluation": "Start evaluation",
         "Submit anonymously": "Submit anonymously",
         "Your response is anonymous. It cannot be traced back to you, even by an administrator.": "Your response is anonymous. It cannot be traced back to you, even by an administrator.",
-        "+ Action item for {title}": "+ Action item for {title}"
+        "+ Action item for {title}": "+ Action item for {title}",
+        "Association (assoc)": "Association (assoc)",
+        "Citizen portal (citizen)": "Citizen portal (citizen)",
+        "Controls mode-specific labels across the app — for example what a governance body is called. Default: government.": "Controls mode-specific labels across the app — for example what a governance body is called. Default: government.",
+        "Corporate (corp)": "Corporate (corp)",
+        "Government (gov)": "Government (gov)",
+        "Operations (ops)": "Operations (ops)",
+        "Organisation mode": "Organisation mode",
+        "Welcome to Decidesk! Get started by setting up your first governing body.": "Welcome to Decidesk! Get started by setting up your first governing body."
     }
 }
