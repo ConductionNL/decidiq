@@ -493,9 +493,8 @@
 		{
 			"id": "MeetingIntegrations",
 			"route": "/meetings/:id/integrations",
-			"type": "custom",
+			"type": "detail",
 			"title": "Meeting integrations",
-			"component": "MeetingIntegrations",
 			"config": {
 				"register": "decidesk",
 				"schema": "meeting",
@@ -525,7 +524,7 @@
 		{
 			"id": "DecisionIntegrations",
 			"route": "/decisions/:id/integrations",
-			"type": "custom",
+			"type": "detail",
 			"title": "Decision integrations",
 			"component": "DecisionIntegrations",
 			"config": {
@@ -555,7 +554,7 @@
 		{
 			"id": "AgendaItemIntegrations",
 			"route": "/agenda-items/:id/integrations",
-			"type": "custom",
+			"type": "detail",
 			"title": "Agenda item integrations",
 			"component": "AgendaItemIntegrations",
 			"config": {
