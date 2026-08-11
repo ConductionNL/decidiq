@@ -435,4 +435,75 @@ class OriControllerTest extends TestCase
     }//end testUnknownResourceIs404()
 
 
+    /**
+     * Read the headers the controller itself set on a response.
+     *
+     * `Response::getHeaders()` merges in framework headers by asking
+     * `\OC::$server` for the request, and `\OC` does not exist in a standalone
+     * unit run. For a CORS preflight the status is not the contract, so this
+     * reads the private `headers` array that `Response::addHeader()` writes to.
+     *
+     * @param \OCP\AppFramework\Http\Response $response The response to inspect.
+     *
+     * @return array<string, string> The controller-set headers.
+     */
+    private function controllerHeaders(\OCP\AppFramework\Http\Response $response): array
+    {
+        $property = new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'headers');
+        $property->setAccessible(true);
+
+        return (array) $property->getValue($response);
+
+    }//end controllerHeaders()
+
+
+    /**
+     * The harvest-feed list preflight answers 200 with an empty body and the
+     * full CORS header triple.
+     *
+     * The ORI feed exists to be read cross-origin by harvesters and by
+     * browser-based catalogue clients; without these headers the preflight
+     * succeeds at the status line and the real GET is never sent.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+     */
+    public function testPreflightReturnsCorsHeaders(): void
+    {
+        $response = $this->controller->preflight(resource: 'publications');
+
+        self::assertSame(Http::STATUS_OK, $response->getStatus());
+        self::assertSame([], $response->getData());
+
+        $headers = $this->controllerHeaders($response);
+        self::assertSame('https://gemeente.example', $headers['Access-Control-Allow-Origin']);
+        self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
+        self::assertStringContainsString('Authorization', $headers['Access-Control-Allow-Headers']);
+
+    }//end testPreflightReturnsCorsHeaders()
+
+
+    /**
+     * The item preflight (`/api/ori/v1/{resource}/{id}`) carries the same
+     * header triple as the list preflight.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+     */
+    public function testPreflightItemReturnsCorsHeaders(): void
+    {
+        $response = $this->controller->preflightItem(resource: 'publications', id: 'pub-1');
+
+        self::assertSame(Http::STATUS_OK, $response->getStatus());
+        self::assertSame([], $response->getData());
+
+        $headers = $this->controllerHeaders($response);
+        self::assertSame('https://gemeente.example', $headers['Access-Control-Allow-Origin']);
+        self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
+
+    }//end testPreflightItemReturnsCorsHeaders()
+
+
 }//end class
