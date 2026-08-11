@@ -98,7 +98,7 @@
 			"route": "/roosters",
 			"type": "index",
 			"title": "Retirement schedules",
-			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-007/009/012). One rooster van aftreden per governance body. Columns body (link) / gegenereerdOp / publicatiedatum; regenerate, CSV export, and publication actions live on the detail page (imperative RoosterService endpoints, out of scope for this declarative core).",
+			"_note": "spec: openspec/changes/appointments-and-terms/specs/appointments-and-terms/spec.md (REQ-APT-007/009/012). One rooster van aftreden per governance body. Columns body (link) / gegenereerdOp / publicationDate; regenerate, CSV export, and publication actions live on the detail page (imperative RoosterService endpoints, out of scope for this declarative core).",
 			"config": {
 				"register": "decidesk",
 				"schema": "rooster-van-aftreden",
@@ -112,7 +112,7 @@
 				"columns": [
 					{ "key": "body", "label": "Governance body", "widget": "link" },
 					{ "key": "gegenereerdOp", "label": "Generated at" },
-					{ "key": "publicatiedatum", "label": "Published" }
+					{ "key": "publicationDate", "label": "Published" }
 				],
 				"actions": [
 					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "RoosterDetail", "primary": true }

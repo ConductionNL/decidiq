@@ -19,7 +19,7 @@
             "agendaItem": "lijst-ingekomen-stukken-2025-01-15",
             "afgedaneToezegging": "toezegging-raadsbrief-jeugdzorg",
             "lifecycle": "geagendeerd",
-            "publicatiedatum": "2026-02-21T09:00:00Z"
+            "publicationDate": "2026-02-21T09:00:00Z"
           },
           {
             "slug": "rib-2026-013-energietransitie",
@@ -44,7 +44,7 @@
             "agendaItem": "lijst-ingekomen-stukken-2025-01-15",
             "relatedMotion": "00000000-0000-0000-0000-000000000000",
             "lifecycle": "betrokken-bij-behandeling",
-            "publicatiedatum": "2026-03-13T09:00:00Z"
+            "publicationDate": "2026-03-13T09:00:00Z"
           }
         ],
         "technische-vraag": [
@@ -59,7 +59,7 @@
             "beantwoordDoor": "Afdeling Sociaal Domein",
             "beantwoordOp": "2026-03-02",
             "lifecycle": "beantwoord",
-            "publicatiedatum": "2026-03-03T09:00:00Z"
+            "publicationDate": "2026-03-03T09:00:00Z"
           },
           {
             "slug": "tv-rib-2026-012-regiocijfers",
@@ -90,7 +90,7 @@
         "icon": "EmailArrowRightOutline",
         "version": "0.1.0",
         "title": "Raadsinformatiebrief",
-        "description": "A raadsinformatiebrief (RIB / collegebrief): the college's formal outbound information letter to the council under its actieve informatieplicht (Gemeentewet art. 169), tracked from verzending through optional agendering ter kennisname to betrokken-bij-behandeling, with a per-RIB technische-vragen thread (TechnischeVraag), an optional toezegging-afdoening cross-reference, and WOO-aware public publication via the OpenRegister published-predicate. A RIB is outbound and college-issued — it is explicitly NOT an IngekomenStuk (ingekomen-stukken-register owns inbound external mail) and college-internal drafting/parafering stays out of decidesk (procest domain); decidesk registers the sent letter only. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no drafts, no parafen, no addresses, no citizen PII) — portefeuillehouders are public officeholders. Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicatiedatum <= $now.",
+        "description": "A raadsinformatiebrief (RIB / collegebrief): the college's formal outbound information letter to the council under its actieve informatieplicht (Gemeentewet art. 169), tracked from verzending through optional agendering ter kennisname to betrokken-bij-behandeling, with a per-RIB technische-vragen thread (TechnischeVraag), an optional toezegging-afdoening cross-reference, and WOO-aware public publication via the OpenRegister published-predicate. A RIB is outbound and college-issued — it is explicitly NOT an IngekomenStuk (ingekomen-stukken-register owns inbound external mail) and college-internal drafting/parafering stays out of decidesk (procest domain); decidesk registers the sent letter only. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no drafts, no parafen, no addresses, no citizen PII) — portefeuillehouders are public officeholders. Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicationDate <= $now.",
         "type": "object",
         "x-schema-org": "schema:Message",
         "x-openregister": {
@@ -160,7 +160,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -282,14 +282,14 @@
             ],
             "example": "verzonden"
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the live RIB is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicatiedatum <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public list reflects lifecycle changes (agendering/behandeling) without republication (REQ-RIB-006 / design D4). A confidential RIB is handled by simply never setting this predicate."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the live RIB is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public list reflects lifecycle changes (agendering/behandeling) without republication (REQ-RIB-006 / design D4). A confidential RIB is handled by simply never setting this predicate."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
@@ -303,7 +303,7 @@
         "icon": "CommentQuestionOutline",
         "version": "0.1.0",
         "title": "TechnischeVraag",
-        "description": "A technische vraag: a short informational Q&A entry scoped to one raadsinformatiebrief — a brief question from a council member and the organisation's answer, rendered as a thread on the RIB detail. A technische vraag is explicitly NOT the formal art. 33 schriftelijke-vragen instrument (the planned SchriftelijkeVraag of fractievoorzitter-fractie-koppeling owns that): it carries NO answer deadlines/termijnbewaking, NO college-workflow states, and NO fractie-quorum machinery, and it is never auto-converted — escalation is a manual re-filing once SchriftelijkeVraag lands (REQ-RIB-005). CONSTRAINT (design D4): only publishable fields by construction (council members are public officeholders); an answered question is anonymously readable through the compound published-predicate (publicatiedatum <= $now AND lifecycle = beantwoord), so an unanswered question is never exposed even if its predicate is set prematurely.",
+        "description": "A technische vraag: a short informational Q&A entry scoped to one raadsinformatiebrief — a brief question from a council member and the organisation's answer, rendered as a thread on the RIB detail. A technische vraag is explicitly NOT the formal art. 33 schriftelijke-vragen instrument (the planned SchriftelijkeVraag of fractievoorzitter-fractie-koppeling owns that): it carries NO answer deadlines/termijnbewaking, NO college-workflow states, and NO fractie-quorum machinery, and it is never auto-converted — escalation is a manual re-filing once SchriftelijkeVraag lands (REQ-RIB-005). CONSTRAINT (design D4): only publishable fields by construction (council members are public officeholders); an answered question is anonymously readable through the compound published-predicate (publicationDate <= $now AND lifecycle = beantwoord), so an unanswered question is never exposed even if its predicate is set prematurely.",
         "type": "object",
         "x-schema-org": "schema:Question",
         "x-openregister": {
@@ -336,7 +336,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 },
                 "lifecycle": "beantwoord"
@@ -419,14 +419,14 @@
             ],
             "example": "gesteld"
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past AND the lifecycle is beantwoord, the answered question is anonymously readable through the OpenRegister compound published-predicate (public-group authorization.read rule publicatiedatum <= $now AND lifecycle = beantwoord). The structural lifecycle condition guarantees a mistakenly set predicate can never expose an unanswered question (REQ-RIB-006 / design D4). Publish is an explicit staff action offered only on beantwoord questions."
+            "description": "Publication date (WOO/DIWOO). When set in the past AND the lifecycle is beantwoord, the answered question is anonymously readable through the OpenRegister compound published-predicate (public-group authorization.read rule publicationDate <= $now AND lifecycle = beantwoord). The structural lifecycle condition guarantees a mistakenly set predicate can never expose an unanswered question (REQ-RIB-006 / design D4). Publish is an explicit staff action offered only on beantwoord questions."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",

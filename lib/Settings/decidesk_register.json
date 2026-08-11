@@ -5058,7 +5058,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -5073,14 +5073,14 @@
           "status"
         ],
         "properties": {
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the PII-free resultsSummary is anonymously readable via the public-group RBAC rule (publicatiedatum <= $now). Set by ParticipationPublicationService on publish."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the PII-free resultsSummary is anonymously readable via the public-group RBAC rule (publicationDate <= $now). Set by ParticipationPublicationService on publish."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
@@ -5147,7 +5147,7 @@
           "resultsSummary": {
             "title": "Results summary",
             "type": "string",
-            "description": "JSON-encoded, PII-free result summary (ranked proposals + greedy allocation + participation count) attached when results are published; publicatiedatum is set alongside it so the public-group RBAC rule makes the object anonymously readable. Carries aggregate vote counts only, never voter identities."
+            "description": "JSON-encoded, PII-free result summary (ranked proposals + greedy allocation + participation count) attached when results are published; publicationDate is set alongside it so the public-group RBAC rule makes the object anonymously readable. Carries aggregate vote counts only, never voter identities."
           },
           "governanceBody": {
             "type": "string",
@@ -5324,7 +5324,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -5337,14 +5337,14 @@
           "status"
         ],
         "properties": {
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the PII-free resultsSummary is anonymously readable via the public-group RBAC rule (publicatiedatum <= $now). Set by ParticipationPublicationService on publish."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the PII-free resultsSummary is anonymously readable via the public-group RBAC rule (publicationDate <= $now). Set by ParticipationPublicationService on publish."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
@@ -5438,7 +5438,7 @@
           "resultsSummary": {
             "title": "Results summary",
             "type": "string",
-            "description": "JSON-encoded, PII-free result summary (approved-reaction digest + staff response) attached when results are published; publicatiedatum is set alongside it so the public-group RBAC rule makes the object anonymously readable."
+            "description": "JSON-encoded, PII-free result summary (approved-reaction digest + staff response) attached when results are published; publicationDate is set alongside it so the public-group RBAC rule makes the object anonymously readable."
           },
           "marketScope": {
             "title": "Market scope",
@@ -5630,7 +5630,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 },
                 "moderationStatus": "approved"
@@ -5644,14 +5644,14 @@
           "moderationStatus"
         ],
         "properties": {
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). Set by a moderator opt-in (publishReaction) on an approved reaction; the public-group RBAC rule then makes the reaction anonymously readable while publicatiedatum <= $now AND moderationStatus is approved."
+            "description": "Publication date (WOO/DIWOO). Set by a moderator opt-in (publishReaction) on an approved reaction; the public-group RBAC rule then makes the reaction anonymously readable while publicationDate <= $now AND moderationStatus is approved."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
@@ -6248,7 +6248,7 @@
         "icon": "BullhornOutline",
         "version": "0.1.0",
         "title": "PublicationRecord",
-        "description": "Bookkeeping record for a single public-publication action (publish-decisions-via-opencatalogi). Tracks which source governance object was published, the derived immutable payload object that received publicatiedatum, the OpenCatalogi catalog publication reference, and the withdraw/rectify lifecycle. Anonymous read of published data happens exclusively through OR's RBAC published-predicate (public-group authorization.read matching publicatiedatum <= $now) / OpenCatalogi — NOT through any app-local route. Maps schema:PublicationEvent.",
+        "description": "Bookkeeping record for a single public-publication action (publish-decisions-via-opencatalogi). Tracks which source governance object was published, the derived immutable payload object that received publicationDate, the OpenCatalogi catalog publication reference, and the withdraw/rectify lifecycle. Anonymous read of published data happens exclusively through OR's RBAC published-predicate (public-group authorization.read matching publicationDate <= $now) / OpenCatalogi — NOT through any app-local route. Maps schema:PublicationEvent.",
         "type": "object",
         "x-schema-org": "schema:PublicationEvent",
         "x-openregister": {
@@ -6301,7 +6301,7 @@
           "payloadObject": {
             "title": "Payload object",
             "type": "string",
-            "description": "UUID of the derived immutable PublicationPayload object that carries publicatiedatum. Never the live source object.",
+            "description": "UUID of the derived immutable PublicationPayload object that carries publicationDate. Never the live source object.",
             "example": "f1e2d3c4-b5a6-9870-fedc-ba0987654321"
           },
           "payloadVersion": {
@@ -6403,7 +6403,7 @@
         "icon": "FileDocumentOutline",
         "version": "0.1.0",
         "title": "PublicationPayload",
-        "description": "Derived, immutable public payload (publish-decisions-via-opencatalogi). Constructed ALLOW-LIST style by PublicationPayloadService — one polymorphic shape discriminated by oriType (Besluit / Vergadering / Verslag). Carries OpenRaadsinformatie-mapped fields alongside schema.org annotations so OpenCatalogi/OR public-API consumers receive ORI-compatible data without a bespoke harvester. By construction this schema contains NO UID fields, NO contact details, NO individual vote records, and NO voter identities — decision payloads carry vote TOTALS only, agenda payloads omit confidential items, minutes payloads render attendance per the body's policy. Anonymous visibility is governed by the OpenRegister RBAC published-predicate: the authorization.read rule grants the public group read access when publicatiedatum <= $now; publishing sets publicatiedatum on the payload instance, withdraw sets depublicatiedatum. The live source object is never published.",
+        "description": "Derived, immutable public payload (publish-decisions-via-opencatalogi). Constructed ALLOW-LIST style by PublicationPayloadService — one polymorphic shape discriminated by oriType (Besluit / Vergadering / Verslag). Carries OpenRaadsinformatie-mapped fields alongside schema.org annotations so OpenCatalogi/OR public-API consumers receive ORI-compatible data without a bespoke harvester. By construction this schema contains NO UID fields, NO contact details, NO individual vote records, and NO voter identities — decision payloads carry vote TOTALS only, agenda payloads omit confidential items, minutes payloads render attendance per the body's policy. Anonymous visibility is governed by the OpenRegister RBAC published-predicate: the authorization.read rule grants the public group read access when publicationDate <= $now; publishing sets publicationDate on the payload instance, withdraw sets depublicationDate. The live source object is never published.",
         "type": "object",
         "x-openregister": {
           "schemaType": "schema:CreativeWork",
@@ -6417,7 +6417,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -6430,14 +6430,14 @@
           "title"
         ],
         "properties": {
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set to a date in the past, this payload is live and anonymously readable through the OpenRegister published-predicate (public-group RBAC rule publicatiedatum <= $now). Set by PublicationService on publish; never written by clients."
+            "description": "Publication date (WOO/DIWOO). When set to a date in the past, this payload is live and anonymously readable through the OpenRegister published-predicate (public-group RBAC rule publicationDate <= $now). Set by PublicationService on publish; never written by clients."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
@@ -6749,7 +6749,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -6857,16 +6857,16 @@
           "scoreSummary": {
             "title": "Score summary",
             "type": "string",
-            "description": "JSON-encoded governance-specific scoring result (BoardEvaluationScoreService, REQ-AN-LEAF-002): overallScore always present; dimensionScores and themes are set to null and suppressed=true when respondedCount is below minRespondentThreshold, so no breakdown ever exists to leak — even internally, even to an admin. This is the one field exposed publicly (via publicatiedatum) when the body opts to publish; raw EvaluationResponse objects are never published."
+            "description": "JSON-encoded governance-specific scoring result (BoardEvaluationScoreService, REQ-AN-LEAF-002): overallScore always present; dimensionScores and themes are set to null and suppressed=true when respondedCount is below minRespondentThreshold, so no breakdown ever exists to leak — even internally, even to an admin. This is the one field exposed publicly (via publicationDate) when the body opts to publish; raw EvaluationResponse objects are never published."
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/governance transparency). When set in the past, scoreSummary (aggregate-only, already threshold-suppressed) is anonymously readable via the public-group RBAC rule (publicatiedatum <= $now). Set by ParticipationPublicationService::publishEvaluationResults() on publish opt-in."
+            "description": "Publication date (WOO/governance transparency). When set in the past, scoreSummary (aggregate-only, already threshold-suppressed) is anonymously readable via the public-group RBAC rule (publicationDate <= $now). Set by ParticipationPublicationService::publishEvaluationResults() on publish opt-in."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",

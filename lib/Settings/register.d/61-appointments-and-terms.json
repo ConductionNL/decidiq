@@ -1,7 +1,7 @@
 {
   "x-openregister": {
     "seedData": {
-      "description": "Seed objects for the appointments & terms register (appointments-and-terms, fragment 61 / ADR-016). References resolve by slug against existing decidesk seed objects (governance-body auditcommissie-provincie-nh / raad-van-commissarissen-acme-bv, person marie-janssen, agenda-item, voting-round). The nil UUID 00000000-0000-0000-0000-000000000000 is an obvious placeholder where no matching seed object exists at seed time (no benoemingsbesluit / created Membership / RvC agenda-item is seeded; RoosterRegel Memberships are unresolved because no Membership is seeded for the auditcommissie/ACME-RvC bodies — the derived persoonNaam carries the name). Covers all four schemas across the municipal committee and corporate RvC domains: 2 TermijnRegelingen, 3 Voordrachten (ingediend / benoemd / ingetrokken), 2 RoosterVanAftreden (one published RvC rooster with publicatiedatum, one unpublished municipal committee rooster), and 5 RoosterRegels including one inside the 6-month rappel window (2026-11-01, drives the KPI + rappel demo) and at its maximum consecutive term (termijnNummer 2, herbenoembaar false, drives the advisory warning).",
+      "description": "Seed objects for the appointments & terms register (appointments-and-terms, fragment 61 / ADR-016). References resolve by slug against existing decidesk seed objects (governance-body auditcommissie-provincie-nh / raad-van-commissarissen-acme-bv, person marie-janssen, agenda-item, voting-round). The nil UUID 00000000-0000-0000-0000-000000000000 is an obvious placeholder where no matching seed object exists at seed time (no benoemingsbesluit / created Membership / RvC agenda-item is seeded; RoosterRegel Memberships are unresolved because no Membership is seeded for the auditcommissie/ACME-RvC bodies — the derived persoonNaam carries the name). Covers all four schemas across the municipal committee and corporate RvC domains: 2 TermijnRegelingen, 3 Voordrachten (ingediend / benoemd / ingetrokken), 2 RoosterVanAftreden (one published RvC rooster with publicationDate, one unpublished municipal committee rooster), and 5 RoosterRegels including one inside the 6-month rappel window (2026-11-01, drives the KPI + rappel demo) and at its maximum consecutive term (termijnNummer 2, herbenoembaar false, drives the advisory warning).",
       "objects": {
         "termijn-regeling": [
           {
@@ -81,7 +81,7 @@
             "body": "raad-van-commissarissen-acme-bv",
             "gegenereerdOp": "2026-07-01T09:00:00Z",
             "gegenereerdDoor": "Griffie",
-            "publicatiedatum": "2026-07-02T09:00:00Z"
+            "publicationDate": "2026-07-02T09:00:00Z"
           },
           {
             "slug": "rooster-auditcommissie",
@@ -420,7 +420,7 @@
         "icon": "CalendarMonthOutline",
         "version": "0.1.0",
         "title": "RoosterVanAftreden",
-        "description": "One live rooster van aftreden (retirement schedule) object per governance body — a regeneratable projection (design D3), never hand-maintained truth. Carries generation metadata (gegenereerdOp/gegenereerdDoor) and the publication predicate for the rooster as a whole; the ordered term entries live as first-class RoosterRegel objects referencing this rooster. Publication is predicate-on-live-object (design D4, REQ-APT-009) justified against public-publication's derived-payload rule because the rooster is ALREADY an allow-list projection (name, role, term number, term dates, herbenoembaar — never contact details, NC UIDs, addresses, or vote data). Setting publicatiedatum grants the public group read while publicatiedatum <= $now; clearing it withdraws.",
+        "description": "One live rooster van aftreden (retirement schedule) object per governance body — a regeneratable projection (design D3), never hand-maintained truth. Carries generation metadata (gegenereerdOp/gegenereerdDoor) and the publication predicate for the rooster as a whole; the ordered term entries live as first-class RoosterRegel objects referencing this rooster. Publication is predicate-on-live-object (design D4, REQ-APT-009) justified against public-publication's derived-payload rule because the rooster is ALREADY an allow-list projection (name, role, term number, term dates, herbenoembaar — never contact details, NC UIDs, addresses, or vote data). Setting publicationDate grants the public group read while publicationDate <= $now; clearing it withdraws.",
         "type": "object",
         "x-schema-org": "schema:ItemList",
         "x-openregister": {
@@ -435,7 +435,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -467,15 +467,15 @@
             "type": "string",
             "description": "Who triggered the most recent generation (griffie/secretary). Allow-list metadata only."
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "nullable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the live rooster and its regels are anonymously readable through the OR published-predicate (public-group authorization.read rule publicatiedatum <= $now). Opt-in per rooster; withdraw by clearing (REQ-APT-009, design D4)."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the live rooster and its regels are anonymously readable through the OR published-predicate (public-group authorization.read rule publicationDate <= $now). Opt-in per rooster; withdraw by clearing (REQ-APT-009, design D4)."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
@@ -567,7 +567,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }

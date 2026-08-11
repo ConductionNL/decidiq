@@ -23,7 +23,7 @@
               }
             ],
             "originMotie": "00000000-0000-0000-0000-000000000000",
-            "publicatiedatum": "2026-06-20T09:00:00Z"
+            "publicationDate": "2026-06-20T09:00:00Z"
           },
           {
             "slug": "lta-rib-wachtlijsten-jeugdzorg",
@@ -37,7 +37,7 @@
             "lifecycle": "gepland",
             "verschuifHistorie": [],
             "originToezegging": "00000000-0000-0000-0000-000000000000",
-            "publicatiedatum": "2026-06-20T09:00:00Z"
+            "publicationDate": "2026-06-20T09:00:00Z"
           },
           {
             "slug": "lta-themabijeenkomst-energietransitie",
@@ -49,7 +49,7 @@
             "toelichting": "Beeldvormende bijeenkomst ter voorbereiding op de warmtevisie.",
             "lifecycle": "gepland",
             "verschuifHistorie": [],
-            "publicatiedatum": "2026-06-20T09:00:00Z"
+            "publicationDate": "2026-06-20T09:00:00Z"
           },
           {
             "slug": "lta-kadernota-2027",
@@ -74,7 +74,7 @@
             "lifecycle": "vervallen",
             "verschuifHistorie": [],
             "redenVervallen": "Opgegaan in de bredere herziening van de legesverordening",
-            "publicatiedatum": "2026-06-20T09:00:00Z"
+            "publicationDate": "2026-06-20T09:00:00Z"
           }
         ]
       }
@@ -87,7 +87,7 @@
         "icon": "CalendarClockOutline",
         "version": "0.1.0",
         "title": "TermijnagendaItem",
-        "description": "A termijnagenda (long-term agenda / LTA) item: a forward-planned proposal or topic a governance body can expect (raadsvoorstel, raadsinformatiebrief, themabijeenkomst, begrotingsstuk), in which period, owned by griffie/college/portefeuillehouder, optionally originating from a toezegging, motie, or earlier decision, and optionally realised into an actual AgendaItem/Decision. It closes the accountability loop between commitments (toezegging), motion execution (Decision/UitvoeringsUpdate — referenced, NEVER duplicated here) and the meeting agenda, and doubles as a live public transparency instrument via the OpenRegister published-predicate. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no internal-only property; shift reasons are deliberately public). Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicatiedatum <= $now.",
+        "description": "A termijnagenda (long-term agenda / LTA) item: a forward-planned proposal or topic a governance body can expect (raadsvoorstel, raadsinformatiebrief, themabijeenkomst, begrotingsstuk), in which period, owned by griffie/college/portefeuillehouder, optionally originating from a toezegging, motie, or earlier decision, and optionally realised into an actual AgendaItem/Decision. It closes the accountability loop between commitments (toezegging), motion execution (Decision/UitvoeringsUpdate — referenced, NEVER duplicated here) and the meeting agenda, and doubles as a live public transparency instrument via the OpenRegister published-predicate. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no internal-only property; shift reasons are deliberately public). Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicationDate <= $now.",
         "type": "object",
         "x-schema-org": "schema:PlanAction",
         "x-openregister": {
@@ -178,7 +178,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -352,14 +352,14 @@
             "nullable": true,
             "description": "Reference to the actual Decision that realised this planned item, set when marking gerealiseerd (REQ-LTA-006). Nullable; presence means 'realised' for the overdue computation."
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the live item is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicatiedatum <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public termijnagenda reflects reschedules and lifecycle changes without republication (REQ-LTA-009 / design D4)."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the live item is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public termijnagenda reflects reschedules and lifecycle changes without republication (REQ-LTA-009 / design D4)."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
