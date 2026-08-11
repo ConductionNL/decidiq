@@ -2,24 +2,27 @@
  * SPDX-FileCopyrightText: 2026 Decidesk Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The four per-object INTEGRATION SURFACES, driven in a browser.
+ * The per-object INTEGRATION SURFACE for a motion, driven in a browser.
  *
- * Each of these is a routed, manifest-declared `type: "custom"` page whose
- * whole job is to mount `CnDetailPage` with `sidebar.useRegistry: true` for one
- * object type (ADR-019). Until this spec existed, nothing in the suite named or
- * asserted any of them:
+ * It is a routed, manifest-declared `type: "custom"` page whose whole job is to
+ * mount `CnDetailPage` with `sidebar.useRegistry: true` for one object type
+ * (ADR-019). Until this spec existed, nothing in the suite asserted it.
  *
- *   src/views/MeetingIntegrations.vue     → /meetings/:id/integrations
- *   src/views/DecisionIntegrations.vue    → /decisions/:id/integrations
- *   src/views/AgendaItemIntegrations.vue  → /agenda-items/:id/integrations
- *   src/views/MotionIntegrations.vue      → /motions/:id/integrations
- *
- * `integration-registry.spec.ts` navigates to the meeting route, but every
+ * `integration-registry.spec.ts` navigates to one of these routes, but every
  * assertion it makes is about the shared registry sidebar — the counts and tab
  * ids that CnObjectSidebar renders. Not one of them touches the page component
- * itself, so all four views could render an empty shell and that spec would
- * still be green. This one asserts the pages' OWN markup: the body block each
- * view declares and the back-link it wires to its detail route.
+ * itself, so the view could render an empty shell and that spec would still be
+ * green. This one asserts the page's OWN markup: the body block the view
+ * declares and the back-link it wires to its detail route.
+ *
+ * ⚠️ THE OTHER THREE INTEGRATION ROUTES ARE NOT COVERED HERE, AND THEIR
+ * COMPONENT NAMES ARE DELIBERATELY NOT WRITTEN ANYWHERE IN THIS FILE. gate-26
+ * matches a page component to its coverage on the bare PascalCase token, so an
+ * earlier draft of this header — which listed all four paths purely as
+ * documentation — was enough to turn the gate GREEN for three screens no test
+ * touches. Measured: with this file present the gate reported PASS; with it
+ * moved aside, `FAIL — 4`. A comment must never be able to close a coverage
+ * finding, so the names stay out.
  *
  * READ-ONLY BY CONSTRUCTION
  * -------------------------
@@ -92,29 +95,34 @@ interface Surface {
 	testId: string
 }
 
+// ONE SURFACE, BECAUSE ONE SURFACE IS WHAT I CAN SHOW WORKS.
+//
+// This spec started with all four integration routes. I was wrong about the
+// other three, twice, spending a CI run on each guess:
+//
+//   1. "those views never render" -> flipped three manifest pages from
+//      `type: "detail"` to `type: "custom"` and registered a missing import.
+//      CI: byte-identical failures. Reverted.
+//   2. "`config.widgets` is the discriminator, so assert the widget grid
+//      instead" -> CI: still failed, AND a page-heading assertion added along
+//      the way broke the one test that had been passing. Reverted.
+//
+// What CI has actually PROVEN, twice, is narrow: the motion route mounts its own
+// component, and its body block and back-link testids are present. The meeting,
+// decision and agenda-item routes do not produce their testids, and I do not yet
+// know what they render instead. `config.widgets` correlates — but correlation
+// is precisely what misled me in round 2, and the local dev container serves a
+// bundle weeks older than development, so it cannot settle it either.
+//
+// The other three are therefore LEFT UNCOVERED ON PURPOSE, and gate-26 must go
+// on reporting them. Note how easily that could have been faked: this gate
+// matches a component to its coverage on the bare PascalCase token, so merely
+// NAMING those three files in a comment — as an earlier draft of this note did —
+// turned the gate green with no test behind it. The names are spelled out
+// nowhere in this file for that reason. Three view files that nothing appears to
+// mount need a decision (delete as dead code, or establish what serves those
+// routes), not a fourth guess dressed up as a test.
 const SURFACES: Surface[] = [
-	{
-		component: 'src/views/MeetingIntegrations.vue',
-		name: 'MeetingIntegrations',
-		schema: 'meeting',
-		route: '/apps/decidesk/meetings/{id}/integrations',
-		testId: 'meeting-integrations',
-	},
-	{
-		component: 'src/views/DecisionIntegrations.vue',
-		name: 'DecisionIntegrations',
-		schema: 'decision',
-		prefer: (o) => o.decisionType !== 'motion' && o.decisionType !== 'amendment',
-		route: '/apps/decidesk/decisions/{id}/integrations',
-		testId: 'decision-integrations',
-	},
-	{
-		component: 'src/views/AgendaItemIntegrations.vue',
-		name: 'AgendaItemIntegrations',
-		schema: 'agenda-item',
-		route: '/apps/decidesk/agenda-items/{id}/integrations',
-		testId: 'agenda-item-integrations',
-	},
 	{
 		component: 'src/views/MotionIntegrations.vue',
 		name: 'MotionIntegrations',
