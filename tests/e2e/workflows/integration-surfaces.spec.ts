@@ -52,6 +52,9 @@
  * Scenario here would be authoring the spec this suite is checked against.
  * Tracked as an issue instead.
  */
+import * as fs from 'fs'
+import * as path from 'path'
+
 import { test, expect, type Page } from '@playwright/test'
 
 import {
@@ -62,6 +65,25 @@ import {
 	objId,
 	type SeedLedger,
 } from './governance-fixture'
+
+/**
+ * The manifest page ids these routes are served by, and the page `type` that
+ * decides whether a `component` is consulted at all.
+ *
+ * Declared as data rather than described in prose on purpose. The visual- and
+ * e2e-coverage gates match component names as PLAIN SUBSTRINGS over the raw
+ * text of everything under tests/e2e — comments included — so a component named
+ * only in a comment counts as covered (.github#358). Before this table existed,
+ * `MotionIntegrations` appeared in this file exclusively in two explanatory
+ * comments while the tests addressed it by its `data-testid`
+ * (`motion-integrations`), which is a different string: the gate was reporting
+ * that page as covered on the strength of my prose, not of the test below it.
+ */
+const MANIFEST_PAGES = {
+	MotionIntegrations: { type: 'custom', component: 'MotionIntegrations' },
+	DecisionIntegrations: { type: 'detail', component: undefined },
+	AgendaItemIntegrations: { type: 'detail', component: undefined },
+} as const
 
 let ledger: SeedLedger
 
@@ -121,6 +143,34 @@ async function expectOnlyThisSurface(page: Page, expected: typeof SURFACES[numbe
 }
 
 test.describe('per-object integration surfaces', () => {
+	// The regression guard for the defect that deleted two .vue files here.
+	//
+	// A manifest page of type "detail" is built from config.widgets + config.layout
+	// and its `component` key is never resolved; only type "custom" consults
+	// src/registry.js. Two of these pages named a component that therefore could
+	// not render, and stayed that way through import, registration and bundling
+	// because every static signal said the file was live. Flipping the motion page
+	// to "detail", or re-adding a component key to either of the other two, would
+	// silently recreate that state — and nothing else in the suite would notice,
+	// because all three routes render something either way.
+	test('the manifest declares each integrations page with a type that matches how it is served', () => {
+		const manifestPath = path.resolve(__dirname, '../../../src/manifest.json')
+		const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'))
+		const byId = new Map<string, any>(manifest.pages.map((p: any) => [p.id, p]))
+
+		for (const [id, expected] of Object.entries(MANIFEST_PAGES)) {
+			const page = byId.get(id)
+			expect(page, `manifest page ${id}`).toBeTruthy()
+			expect(page.type, `${id}.type`).toBe(expected.type)
+			expect(page.component, `${id}.component`).toBe(expected.component)
+			if (expected.type === 'detail') {
+				// A detail page must actually carry the declarative body it is
+				// served from, or "no component" means "no page".
+				expect(page.config?.widgets?.length, `${id}.config.widgets`).toBeGreaterThan(0)
+			}
+		}
+	})
+
 	test('decision integrations surface renders its own body and returns to the decision', async ({ page }) => {
 		const decision = await createObject(page, ledger, 'decision', {
 			title: 'E2E integrations decision',
