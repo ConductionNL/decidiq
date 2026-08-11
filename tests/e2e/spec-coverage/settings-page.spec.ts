@@ -47,14 +47,31 @@ test('Admin settings: the Nextcloud admin section mounts with the app configurat
 	await expect(page.getByTestId('organisation-mode-settings')).toBeVisible()
 })
 
-// @e2e openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
+// @e2e openspec/specs/admin-settings/spec.md#admin-selects-a-tenant-mode
 //
 // organisatie_modus was the ONE key the deleted in-app page owned that the
 // admin page did not — the other two Advanced fields (ori_endpoint,
 // email_voting_enabled) already had sections here. This test is what makes the
-// rehoming real rather than asserted: it selects a mode, saves, reloads, and
-// requires the choice to have survived the round trip.
-test('Admin settings: organisation mode selects, saves and survives a reload', async ({ page }) => {
+// rehoming real rather than asserted: it selects a mode, saves, and requires
+// the choice to have reached a consumer on the other side of the server.
+//
+// The anchor above used to name the REQUIREMENT slug
+// (`requirement-req-adm-mode-001-...`). gate-19 indexes SCENARIO slugs, so that
+// anchor resolved to nothing and was reported by nobody — a dangling anchor is
+// silent, which is why it survived. It now names the scenario this body
+// actually exercises.
+//
+// And the body was extended to cover all three of that scenario's THEN clauses
+// rather than two. It used to re-read the admin form it had just written, which
+// proves the form round-trips and nothing else; the third clause — "the
+// navigation Bodies item relabels on next render" — went unasserted, and a mode
+// setting that persists while changing nothing a user sees is the whole failure
+// this scenario guards against. src/config/modeLabels.js maps Bodies to
+// "Factions & bodies" under gov and "Factions & committees" under assoc, so
+// reading the label in the SPA proves persistence AND the relabel in one
+// navigation. Mutating that map to any other string fails this test and no
+// other, which is the control that makes the anchor honest.
+test('Admin settings: organisation mode saves, reaches the SPA and relabels the nav', async ({ page }) => {
 	await openAdminSettings(page)
 
 	const section = page.getByTestId('organisation-mode-settings')
@@ -74,17 +91,41 @@ test('Admin settings: organisation mode selects, saves and survives a reload', a
 	await page.getByRole('option').filter({ hasText: /^Association \(assoc\)$/ }).click()
 	await section.getByTestId('organisation-mode-save').click()
 
-	// Round-trip through the server: the value is only proven persisted if a
-	// fresh load of the page renders it.
-	await openAdminSettings(page)
-	await expect(page.getByTestId('organisation-mode-settings')).toContainText('Association (assoc)')
+	// The round trip is proven against a DIFFERENT consumer, which is both
+	// stronger evidence and one page load cheaper than re-reading the form that
+	// wrote it. The SPA reads organisatie_modus from the server on boot and
+	// resolves nav labels through src/config/modeLabels.js: the Bodies entry is
+	// 'Factions & bodies' under gov and 'Factions & committees' under assoc. So
+	// this single navigation covers the scenario's remaining two THEN clauses —
+	// the value persisted server-side, and the navigation relabelled.
+	//
+	// ⚠️ Two page loads, not three. This app awaits initializeStores() BEFORE
+	// createApp().mount(), so every navigation blocks on a settings round trip;
+	// an earlier draft re-read the admin page here as well and spent the whole
+	// 20 s per-test budget on redundant SPA boots. The fix is to remove a
+	// navigation, never to widen the timeout.
+	await page.goto(`${BASE}/apps/decidesk/`)
+	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+	const bodiesEntry = page.getByTestId('cn-nav-entry-GovernanceBodies')
+		.or(page.getByRole('link', { name: /^Factions & (bodies|committees)$/ }))
+		.first()
+	// Asserting the gov label is ABSENT as well as the assoc label present is
+	// what separates "the label changed" from "something on the page matched".
+	await expect(bodiesEntry).toContainText('Factions & committees')
+	await expect(bodiesEntry).not.toContainText('Factions & bodies')
 
 	// Restore the instance default so the assertion is not order-dependent for
-	// any later spec that reads the mode.
-	const restore = page.getByTestId('organisation-mode-settings')
-	await restore.locator('[data-testid="organisation-mode"] input').first().click()
-	await page.getByRole('option').filter({ hasText: /^Government \(gov\)$/ }).click()
-	await restore.getByTestId('organisation-mode-save').click()
+	// any later spec that reads the mode. Cleanup goes through the API on
+	// purpose: it is not the thing under test, and a third SPA boot is what
+	// broke this test's budget.
+	const restore = await page.request.put(`${BASE}/index.php/apps/decidesk/api/settings`, {
+		headers: {
+			'Content-Type': 'application/json',
+			requesttoken: (await (await page.request.get(`${BASE}/index.php/csrftoken`)).json()).token,
+		},
+		data: { organisatie_modus: 'gov' },
+	})
+	expect(restore.status(), 'restoring organisatie_modus=gov').toBeLessThan(300)
 })
 
 // @e2e openspec/specs/openregister-integration/spec.md#configure-register-mapping

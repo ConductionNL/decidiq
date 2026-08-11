@@ -366,7 +366,9 @@
             "title": "Achterbanraadpleging",
             "type": "string",
             "format": "uuid",
-            "description": "Optional reference to the raadpleging/poll object owned by the constituency-consultation capability (member-consultation slug) that the OR started for this traject (REQ-WCC-003). This capability defines NO poll mechanics of its own (no question schema, no response tallying). Modelled as a plain uuid reference (not a hard $ref) so the traject degrades gracefully when the sibling capability is not installed: the lifecycle step remains a usable plain status and the detail page shows an empty raadpleging reference. Never a $ref to keep the cross-capability dependency soft (constituency-consultation lands in any order, design migration plan)."
+            "$ref": "MemberConsultation",
+            "nullable": true,
+            "description": "Optional reference to the raadpleging/poll object owned by the constituency-consultation capability (member-consultation slug) that the OR started for this traject (REQ-WCC-003). This capability defines NO poll mechanics of its own (no question schema, no response tallying) — it only points at one. The relation is optional (nullable, not required), so a traject with no raadpleging keeps a usable plain lifecycle status and a detail page with an empty reference."
           },
           "responseOutcome": {
             "title": "Response outcome",
