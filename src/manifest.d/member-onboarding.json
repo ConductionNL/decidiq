@@ -65,7 +65,7 @@
 				"schema": "onboarding-traject",
 				"_note": "OnboardingTrajectDetail (REQ-MOB-012). Schema BY SLUG onboarding-traject.",
 				"widgets": [
-					{ "id": "onboarding-data", "type": "data", "title": "Onboarding traject", "icon": "AccountPlusOutline", "content": { "columns": 2 } },
+					{ "id": "onboarding-data", "type": "data", "title": "Onboarding traject", "icon": "AccountGroup", "content": { "columns": 2 } },
 					{ "id": "onboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
@@ -128,7 +128,7 @@
 				"schema": "offboarding-traject",
 				"_note": "OffboardingTrajectDetail (REQ-MOB-012). Schema BY SLUG offboarding-traject.",
 				"widgets": [
-					{ "id": "offboarding-data", "type": "data", "title": "Offboarding traject", "icon": "AccountRemoveOutline", "content": { "columns": 2 } },
+					{ "id": "offboarding-data", "type": "data", "title": "Offboarding traject", "icon": "AccountGroup", "content": { "columns": 2 } },
 					{ "id": "offboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [

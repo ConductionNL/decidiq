@@ -72,7 +72,7 @@
 				"register": "decidesk",
 				"schema": "voordracht",
 				"widgets": [
-					{ "id": "voordracht-data", "type": "data", "title": "Nomination", "icon": "AccountMultiplePlusOutline", "content": { "columns": 2 } },
+					{ "id": "voordracht-data", "type": "data", "title": "Nomination", "icon": "AccountGroup", "content": { "columns": 2 } },
 					{ "id": "voordracht-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "voordracht-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
@@ -128,7 +128,7 @@
 				"register": "decidesk",
 				"schema": "rooster-van-aftreden",
 				"widgets": [
-					{ "id": "rooster-data", "type": "data", "title": "Retirement schedule", "icon": "CalendarMonthOutline", "content": { "columns": 2 } },
+					{ "id": "rooster-data", "type": "data", "title": "Retirement schedule", "icon": "Calendar", "content": { "columns": 2 } },
 					{ "id": "rooster-related", "type": "related", "title": "Term entries", "icon": "LinkVariant" }
 				],
 				"layout": [
@@ -187,7 +187,7 @@
 				"register": "decidesk",
 				"schema": "rooster-regel",
 				"widgets": [
-					{ "id": "regel-data", "type": "data", "title": "Term entry", "icon": "CalendarClock", "content": { "columns": 2 } },
+					{ "id": "regel-data", "type": "data", "title": "Term entry", "icon": "Calendar", "content": { "columns": 2 } },
 					{ "id": "regel-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
@@ -245,7 +245,7 @@
 				"register": "decidesk",
 				"schema": "termijn-regeling",
 				"widgets": [
-					{ "id": "regeling-data", "type": "data", "title": "Term rule", "icon": "CalendarClockOutline", "content": { "columns": 2 } },
+					{ "id": "regeling-data", "type": "data", "title": "Term rule", "icon": "Calendar", "content": { "columns": 2 } },
 					{ "id": "regeling-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [

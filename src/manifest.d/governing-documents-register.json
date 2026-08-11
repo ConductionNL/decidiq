@@ -60,7 +60,7 @@
 				"schema": "governing-document",
 				"_note": "GoverningDocumentDetail (REQ-GDR-003/004/005/006). Document metadata leads 8-wide; the linked governingBody renders as a resolved reference in the data + Related widgets. The Related widget surfaces the full version timeline (each GoverningDocumentVersie with versienummer, inwerkingtreding, state, its enacting-decision link where present — navigating to the existing Decision detail page — and notarial-deed metadata where present), the 'geldend op' date control driving the REQ-GDR-004 resolution, and the reverse lookup of decisions citing this document via citesGoverningDocuments (REQ-GDR-005) — all wired imperatively by the page/service tasks; keyboard-navigable, WCAG 2.1 AA. Files leaf for the consolidated-text PDF per sealed version (OR file abstraction). Audit trail is a sidebar tab.",
 				"widgets": [
-					{ "id": "document-data", "type": "data", "title": "Governing document", "icon": "FileDocumentOutline", "content": { "columns": 2 } },
+					{ "id": "document-data", "type": "data", "title": "Governing document", "icon": "FileDocument", "content": { "columns": 2 } },
 					{ "id": "document-files", "type": "integration", "integrationId": "files", "title": "Consolidated text", "icon": "FolderOutline" },
 					{ "id": "document-related", "type": "related", "title": "Versions & citing decisions", "icon": "LinkVariant" }
 				],

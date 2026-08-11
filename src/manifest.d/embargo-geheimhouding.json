@@ -63,7 +63,7 @@
 				"register": "decidesk",
 				"schema": "geheimhouding",
 				"widgets": [
-					{ "id": "geheimhouding-data", "type": "data", "title": "Confidentiality", "icon": "ShieldLockOutline", "content": { "columns": 2 } },
+					{ "id": "geheimhouding-data", "type": "data", "title": "Confidentiality", "icon": "ShieldCheckOutline", "content": { "columns": 2 } },
 					{ "id": "geheimhouding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [

@@ -93,7 +93,7 @@
 				"schema": "regeling-versie",
 				"_note": "RegelingVersieDetail (REQ-VOR-002/003). Version metadata leads 8-wide; the linked regeling (parent work) and vastgesteldDoor (wijzigingsbesluit Decision) render as resolved references in the data + Related widgets — the amending-decision link navigates to the existing Decision detail page (REQ-VOR-008). The consolidated-text document is the Files leaf (attached via the OR file abstraction, not a schema property). Once the version is in-werking it is sealed and immutable (REQ-VOR-003) — the seal is enforced server-side by OpenRegister, independent of this UI. Audit trail is a sidebar tab.",
 				"widgets": [
-					{ "id": "versie-data", "type": "data", "title": "Regulation version", "icon": "FileDocumentOutline", "content": { "columns": 2 } },
+					{ "id": "versie-data", "type": "data", "title": "Regulation version", "icon": "FileDocument", "content": { "columns": 2 } },
 					{ "id": "versie-files", "type": "integration", "integrationId": "files", "title": "Consolidated text", "icon": "FolderOutline" },
 					{ "id": "versie-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
