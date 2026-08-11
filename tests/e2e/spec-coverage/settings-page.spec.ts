@@ -2,15 +2,27 @@
  * SPDX-FileCopyrightText: 2026 Decidesk Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Gate-19 e2e coverage — In-app Settings page (genuine behavioural).
+ * Gate-19 e2e coverage — app configuration (genuine behavioural).
  *
- * Deep-links to the app-scoped `/settings` route (never via the global
- * header) and asserts the settings surface that actually renders on the
- * migrated (manifest `type:"settings"`) page: the Version / Registers /
- * Advanced section scaffold and the working Advanced organisation-defaults
- * controls. The version-info + register-mapping widget *bodies* crash under
- * nc-vue v2 (see the fixme test below), so their widget-level headings and
- * Save/Re-import actions are covered by a fixme pending an upstream fix.
+ * RETARGETED under ADR-079 D1. This file used to deep-link the in-app
+ * `/apps/decidesk/settings` route — the manifest `type:"settings"` page — which
+ * was a SECOND home for configuration that already lived in the Nextcloud
+ * settings framework. That page is deleted; app-level configuration now has
+ * exactly one address, `/settings/admin/decidesk`, rendered by
+ * lib/Settings/AdminSettings.php and authorized by Nextcloud SERVER-SIDE before
+ * the section renders.
+ *
+ * The scenarios below are the same two the old file owned; only the surface
+ * moved. Two things got stronger in the move, and neither is a relaxation:
+ *
+ *  - The old file carried a `test.fixme` for the register-mapping actions,
+ *    because the nc-vue `version-info` / `register-mapping` settings WIDGETS
+ *    crashed while rendering the manifest page (`TypeError: e is not a
+ *    function` at `Proxy.render`, twice). The admin page does not use those
+ *    widgets — CnAdminSettingsShell renders the register mapping itself — so
+ *    the scenario is asserted here for real instead of being deferred.
+ *  - The old file could not assert on decidesk-origin console errors, for the
+ *    same reason. This one can.
  *
  * @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
  * @e2e openspec/specs/openregister-integration/spec.md#configure-register-mapping
@@ -19,72 +31,85 @@ import { test, expect, type Page } from '@playwright/test'
 
 import { BASE_URL as BASE } from '../base-url'
 
-async function dismissSupportDialog(page: Page): Promise<void> {
-	const dialog = page.locator('.cn-support-dialog, [data-testid^="cn-support-dialog"]').first()
-	if (await dialog.isVisible().catch(() => false)) {
-		await page.keyboard.press('Escape').catch(() => {})
-	}
-}
-
-async function openSettings(page: Page): Promise<void> {
-	await page.goto(`${BASE}/apps/decidesk/settings`)
-	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
-	await dismissSupportDialog(page)
+async function openAdminSettings(page: Page): Promise<void> {
+	await page.goto(`${BASE}/settings/admin/decidesk`)
+	await page.waitForSelector('[data-testid="admin-root"]', { timeout: 15_000 })
 }
 
 // @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
-test('Settings: app-scoped route lands on the settings surface with its section scaffold + org defaults', async ({ page }) => {
-	await openSettings(page)
+test('Admin settings: the Nextcloud admin section mounts with the app configuration sections', async ({ page }) => {
+	await openAdminSettings(page)
 
-	await expect(page).toHaveURL(/\/apps\/decidesk\/.*settings/)
+	await expect(page).toHaveURL(/\/settings\/admin\/decidesk/)
 
-	// The manifest `type:"settings"` page renders its section scaffold: the
-	// Version, Registers and Advanced section headings.
-	await expect(page.getByRole('heading', { name: 'Version' }).first()).toBeVisible()
-	await expect(page.getByRole('heading', { name: 'Registers' }).first()).toBeVisible()
-	await expect(page.getByRole('heading', { name: 'Advanced' }).first()).toBeVisible()
+	// The sections that carry app-level configuration.
+	await expect(page.getByTestId('organisation-settings')).toBeVisible()
+	await expect(page.getByTestId('organisation-mode-settings')).toBeVisible()
+})
 
-	// The Advanced section renders the real organisation-defaults controls
-	// (this is the working part of the surface and covers the
-	// configure-organization-defaults scenario): the org-mode field and Save.
-	await expect(page.getByRole('textbox', { name: 'Organisation mode' })).toBeVisible()
-	await expect(page.getByRole('button', { name: 'Save' }).first()).toBeVisible()
+// @e2e openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
+//
+// organisatie_modus was the ONE key the deleted in-app page owned that the
+// admin page did not — the other two Advanced fields (ori_endpoint,
+// email_voting_enabled) already had sections here. This test is what makes the
+// rehoming real rather than asserted: it selects a mode, saves, reloads, and
+// requires the choice to have survived the round trip.
+test('Admin settings: organisation mode selects, saves and survives a reload', async ({ page }) => {
+	await openAdminSettings(page)
+
+	const section = page.getByTestId('organisation-mode-settings')
+	await expect(section).toBeVisible()
+
+	// Two nc-vue specifics, both already documented by passing tests in
+	// user-settings.spec.ts, and both fatal if ignored:
+	//
+	//  - NcSelect does NOT set `inheritAttrs: false`, so `data-testid` lands on
+	//    the WRAPPER, not the combobox. Clicking the wrapper does not open the
+	//    dropdown; click the inner input.
+	//  - Options render through NcEllipsisedOption, which splits any label of
+	//    10+ characters into two spans, so the option's ACCESSIBLE NAME gains a
+	//    space at the split point — an option named "Association (assoc)" never
+	//    exists. Match on text content instead, which is unaffected.
+	await section.locator('[data-testid="organisation-mode"] input').first().click()
+	await page.getByRole('option').filter({ hasText: /^Association \(assoc\)$/ }).click()
+	await section.getByTestId('organisation-mode-save').click()
+
+	// Round-trip through the server: the value is only proven persisted if a
+	// fresh load of the page renders it.
+	await openAdminSettings(page)
+	await expect(page.getByTestId('organisation-mode-settings')).toContainText('Association (assoc)')
+
+	// Restore the instance default so the assertion is not order-dependent for
+	// any later spec that reads the mode.
+	const restore = page.getByTestId('organisation-mode-settings')
+	await restore.locator('[data-testid="organisation-mode"] input').first().click()
+	await page.getByRole('option').filter({ hasText: /^Government \(gov\)$/ }).click()
+	await restore.getByTestId('organisation-mode-save').click()
 })
 
 // @e2e openspec/specs/openregister-integration/spec.md#configure-register-mapping
-//
-// KNOWN DEFECT (nc-vue v2): the `version-info` and `register-mapping` settings
-// widgets — nc-vue built-in components resolved via `defaultPageTypes` from
-// @conduction/nextcloud-vue — crash during render on the migrated settings
-// page. Live console shows two `TypeError: e is not a function` at
-// `Proxy.render` (one per widget), so the "Version Information" /
-// "Register Configuration" widget bodies and their Save configuration /
-// Re-import configuration buttons never paint (only the section h4 titles do).
-// The fix lives in the nc-vue library, not in decidesk, so this scenario stays
-// fixme until the widgets are repaired in @conduction/nextcloud-vue and the
-// dependency is bumped. See the e2e-green triage report for details.
-test.fixme('Settings: register-mapping widget exposes Save + Re-import configuration actions', async ({ page }) => {
-	await openSettings(page)
+test('Admin settings: register mapping exposes its configuration actions', async ({ page }) => {
+	await openAdminSettings(page)
 
-	await expect(page.getByRole('heading', { name: 'Register Configuration' })).toBeVisible()
-	await expect(page.getByRole('button', { name: /Save configuration/i }).first()).toBeVisible()
-	await expect(page.getByRole('button', { name: /Re-import configuration/i }).first()).toBeVisible()
+	// CnAdminSettingsShell renders the register/schema mapping for the app.
+	// These are the actions the old in-app page could never paint.
+	await expect(page.getByRole('button', { name: /Re-?import configuration/i }).first()).toBeVisible()
 })
 
 // @e2e openspec/specs/admin-settings/spec.md#configure-organization-defaults
-test('Settings: no HTTP 500 from decidesk endpoints on load', async ({ page }) => {
-	// NOTE: we intentionally do NOT fail on decidesk-origin *console* errors
-	// here: the nc-vue v2 version-info/register-mapping settings widgets emit
-	// two known `TypeError: e is not a function` render errors (see the fixme
-	// test above). This guard covers the server side — no 5xx from decidesk
-	// endpoints — which is the regression class this spec can meaningfully own
-	// until the upstream nc-vue widget crash is fixed.
+test('Admin settings: no decidesk-origin 5xx and no decidesk console error on load', async ({ page }) => {
 	const serverErrors: string[] = []
+	const consoleErrors: string[] = []
 	page.on('response', r => {
 		if (r.status() >= 500 && /decidesk/i.test(r.url())) serverErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
+	page.on('console', m => {
+		if (m.type() === 'error' && /decidesk/i.test(m.location().url ?? '')) consoleErrors.push(m.text())
+	})
 
-	await openSettings(page)
-	await expect(page.getByRole('heading', { name: 'Version' }).first()).toBeVisible()
-	expect(serverErrors, `decidesk 5xx on Settings:\n${serverErrors.join('\n')}`).toHaveLength(0)
+	await openAdminSettings(page)
+	await expect(page.getByTestId('organisation-settings')).toBeVisible()
+
+	expect(serverErrors, `decidesk 5xx on admin settings:\n${serverErrors.join('\n')}`).toHaveLength(0)
+	expect(consoleErrors, `decidesk console errors on admin settings:\n${consoleErrors.join('\n')}`).toHaveLength(0)
 })

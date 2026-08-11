@@ -134,8 +134,13 @@ test('lifecycle tab renders the 7-state timeline with current state and actions'
 	await page.goto(`${BASE}/apps/decidesk/decisions/${decisionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
-	// Open the Lifecycle sidebar tab.
-	await page.getByRole('tab', { name: 'Lifecycle' }).click()
+	// The lifecycle state machine is a BODY WIDGET on the decision dossier, not
+	// a sidebar tab (ADR-062: DecisionDetail's manifest lays `decision-lifecycle`
+	// out at gridX 8 and gives the sidebar a single `audit` tab). There is no
+	// `role=tab` control to click and there must not be one — a tab role without
+	// a tablist/tabpanel is a WCAG 4.1.2 regression, not a fix. So assert the
+	// widget the user actually lands on, then keep every check below unchanged.
+	await expect(page.getByRole('heading', { name: 'Lifecycle', exact: true }).first()).toBeVisible()
 	await page.waitForSelector('[data-testid="decision-lifecycle-tab"]', { timeout: 15_000 })
 
 	// All seven states render in machine order.
@@ -172,7 +177,9 @@ test('voting results tab renders on decision detail', async ({ page }) => {
 	await page.goto(`${BASE}/apps/decidesk/decisions/${decisionId}`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 
-	await page.getByRole('tab', { name: 'Voting results' }).click()
+	// Voting results is a BODY WIDGET (ADR-062), not a sidebar tab — see the
+	// note on the lifecycle test above. Assert it is on the page as rendered.
+	await expect(page.getByRole('heading', { name: 'Voting results', exact: true }).first()).toBeVisible()
 	await page.waitForSelector('[data-testid="decision-voting-tab"]', { timeout: 15_000 })
 
 	// Tally rounds, the votes table, or the explicit no-motion notice render.
