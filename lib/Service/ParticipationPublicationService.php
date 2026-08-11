@@ -41,10 +41,10 @@ use Psr\Log\LoggerInterface;
  * published schemas (public-consultation, participatory-budget,
  * consultation-reaction, and the opencatalogi publication) declare an
  * `authorization.read` rule granting the public group read access while
- * `publicatiedatum <= $now`. "Publish" means setting `publicatiedatum` (a normal
+ * `publicationDate <= $now`. "Publish" means setting `publicationDate` (a normal
  * field) on the register-owned object via the ordinary OR object API — these are
  * RBAC-save-path objects, so the historical MagicMapper `published` allowlist
- * limitation never applied. Withdraw sets `depublicatiedatum`. Catalog routing
+ * limitation never applied. Withdraw sets `depublicationDate`. Catalog routing
  * degrades gracefully when OpenCatalogi is absent (ADR-022 — no app-local public
  * read endpoint).
  *
@@ -115,7 +115,7 @@ class ParticipationPublicationService
      * Build + publish the PII-free summary for a closed consultation.
      *
      * Builds a digest of APPROVED reactions (body only — no submitterId, no
-     * pseudonymous token) plus the staff response, sets `publicatiedatum` (the
+     * pseudonymous token) plus the staff response, sets `publicationDate` (the
      * RBAC published predicate), and routes to OpenCatalogi when installed.
      *
      * @param string $consultationId The consultation UUID.
@@ -215,7 +215,7 @@ class ParticipationPublicationService
     }//end publishBudgetResults()
 
     /**
-     * Publish (set publicatiedatum on) a closed BoardEvaluation's aggregate
+     * Publish (set publicationDate on) a closed BoardEvaluation's aggregate
      * scoreSummary (board-self-evaluation, REQ-EVAL-005). Reuses this
      * service's generic publishSummary() — the same mechanism as
      * publishBudgetResults()/publishConsultationResults() — instead of a new
@@ -352,7 +352,7 @@ class ParticipationPublicationService
      *
      * The PII-free summary is stored as a `resultsSummary` JSON field on the
      * source object (consultation or budget round) and the source object's
-     * `publicatiedatum` is set — the public-group RBAC rule on the schema then
+     * `publicationDate` is set — the public-group RBAC rule on the schema then
      * makes it anonymously readable, avoiding an undeclared schema while still
      * producing one anonymously-publishable result object.
      *
@@ -386,12 +386,12 @@ class ParticipationPublicationService
             }
         }
 
-        // Attach the PII-free summary and set publicatiedatum so the public-group
-        // RBAC rule (publicatiedatum <= $now) on the schema makes the object
+        // Attach the PII-free summary and set publicationDate so the public-group
+        // RBAC rule (publicationDate <= $now) on the schema makes the object
         // anonymously readable through the OR published-predicate surface.
         $sourceObject['resultsSummary']    = json_encode($summary);
-        $sourceObject['publicatiedatum']   = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-        $sourceObject['depublicatiedatum'] = null;
+        $sourceObject['publicationDate']   = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
+        $sourceObject['depublicationDate'] = null;
 
         $predicateSet = false;
         try {
@@ -425,7 +425,7 @@ class ParticipationPublicationService
             'summary'                => $summary,
             'publishedPredicateSet'  => $predicateSet,
             // Anonymous visibility is governed by the public-group RBAC rule on
-            // the published schema (publicatiedatum <= $now); when the predicate
+            // the published schema (publicationDate <= $now); when the predicate
             // write succeeded the object is publicly readable.
             'anonVisibilityVerified' => $predicateSet,
             'openCatalogiInstalled'  => $catalogiInstalled,
@@ -436,7 +436,7 @@ class ParticipationPublicationService
     }//end publishSummary()
 
     /**
-     * Publish (set publicatiedatum on) a single approved reaction (moderator opt-in).
+     * Publish (set publicationDate on) a single approved reaction (moderator opt-in).
      *
      * Never blanket: the moderator publishes one reaction at a time. The
      * reaction body carries no PII (the submitterId stays internal and is not
@@ -463,8 +463,8 @@ class ParticipationPublicationService
             throw new RuntimeException('Only approved reactions may be published');
         }
 
-        $reaction['publicatiedatum']   = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-        $reaction['depublicatiedatum'] = null;
+        $reaction['publicationDate']   = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
+        $reaction['depublicationDate'] = null;
         $saved = $objectService->saveObject(register: 'decidesk', schema: 'consultation-reaction', object: $reaction);
 
         return $this->normaliseSaved(saved: $saved, fallback: $reaction);
@@ -528,7 +528,7 @@ class ParticipationPublicationService
                 'catalog'         => $catalogId,
                 'sourceId'        => (string) ($summary['sourceId'] ?? ''),
                 'publishedAt'     => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-                'publicatiedatum' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+                'publicationDate' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
             ];
             $objectService->saveObject(register: 'opencatalogi', schema: 'publication', object: $publication);
             return true;

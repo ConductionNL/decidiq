@@ -36,8 +36,8 @@ use Psr\Log\LoggerInterface;
  *
  * publish-decisions-via-opencatalogi task 5.2 — the harvest feed must surface a
  * PublicationPayload only inside its RBAC published-predicate window: visible
- * once `publicatiedatum <= now`, never before that date, and gone once
- * `depublicatiedatum` is in the past. The feed must self-declare each item's ORI
+ * once `publicationDate <= now`, never before that date, and gone once
+ * `depublicationDate` is in the past. The feed must self-declare each item's ORI
  * `@type` from the payload `oriType` and carry only the allow-list, PII-free
  * fields the payload schema constructs.
  *
@@ -162,7 +162,7 @@ class OriControllerTest extends TestCase
                         'outcome'         => 'adopted',
                         'voteTotals'      => ['for' => 30, 'against' => 5, 'abstain' => 0],
                         'bodyName'        => 'Gemeenteraad Amsterdam',
-                        'publicatiedatum' => $past,
+                        'publicationDate' => $past,
                     ]
                 ),
             ]
@@ -193,7 +193,7 @@ class OriControllerTest extends TestCase
 
 
     /**
-     * A future-dated publication (publicatiedatum in the future) is NOT visible
+     * A future-dated publication (publicationDate in the future) is NOT visible
      * on the anonymous harvest feed.
      *
      * @return void
@@ -211,7 +211,7 @@ class OriControllerTest extends TestCase
                         'uuid'            => 'pub-future',
                         'oriType'         => 'Besluit',
                         'title'           => 'Embargoed decision',
-                        'publicatiedatum' => $future,
+                        'publicationDate' => $future,
                     ]
                 ),
             ]
@@ -227,8 +227,8 @@ class OriControllerTest extends TestCase
 
 
     /**
-     * A depublished publication (depublicatiedatum in the past) is gone from the
-     * harvest feed even though publicatiedatum is in the past.
+     * A depublished publication (depublicationDate in the past) is gone from the
+     * harvest feed even though publicationDate is in the past.
      *
      * @return void
      *
@@ -246,8 +246,8 @@ class OriControllerTest extends TestCase
                         'uuid'              => 'pub-withdrawn',
                         'oriType'           => 'Verslag',
                         'title'             => 'Withdrawn minutes',
-                        'publicatiedatum'   => $past,
-                        'depublicatiedatum' => $depublishPast,
+                        'publicationDate'   => $past,
+                        'depublicationDate' => $depublishPast,
                     ]
                 ),
             ]
@@ -282,8 +282,8 @@ class OriControllerTest extends TestCase
                         'title'             => 'Agenda with scheduled depublication',
                         'meetingDate'       => $past,
                         'agendaItems'       => [['oriType' => 'AgendaPunt', 'title' => 'Item 1']],
-                        'publicatiedatum'   => $past,
-                        'depublicatiedatum' => $future,
+                        'publicationDate'   => $past,
+                        'depublicationDate' => $future,
                     ]
                 ),
             ]
@@ -302,7 +302,7 @@ class OriControllerTest extends TestCase
 
 
     /**
-     * A payload with no publicatiedatum at all (never published) is not visible.
+     * A payload with no publicationDate at all (never published) is not visible.
      *
      * @return void
      *
@@ -346,7 +346,7 @@ class OriControllerTest extends TestCase
                     'uuid'            => 'pub-future',
                     'oriType'         => 'Besluit',
                     'title'           => 'Embargoed',
-                    'publicatiedatum' => $future,
+                    'publicationDate' => $future,
                 ]
             )
         );
@@ -404,7 +404,7 @@ class OriControllerTest extends TestCase
                     'uuid'            => 'pub-live',
                     'oriType'         => 'Besluit',
                     'title'           => 'Live decision',
-                    'publicatiedatum' => $past,
+                    'publicationDate' => $past,
                 ]
             )
         );

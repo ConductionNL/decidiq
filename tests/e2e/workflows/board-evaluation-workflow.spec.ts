@@ -207,7 +207,7 @@ test.describe('board self-evaluation flow', () => {
 		await expect(page.getByTestId(`evaluation-card-${objId(evaluation)}`)).toContainText(/published/i, { timeout: 15_000 })
 
 		const published = await getObject(page, 'board-evaluation', objId(evaluation))
-		expect(published?.publicatiedatum).toBeTruthy()
+		expect(published?.publicationDate).toBeTruthy()
 		// No raw EvaluationResponse ever appears on the published object.
 		expect(JSON.stringify(published)).not.toContain('freeText')
 	})
