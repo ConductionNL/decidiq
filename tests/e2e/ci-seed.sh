@@ -74,6 +74,12 @@ BASE="${BASE%/}"
 USER_NAME="${ADMIN_USER:-${NC_ADMIN_USER:-admin}}"
 USER_PASS="${ADMIN_PASSWORD:-${NC_ADMIN_PASS:-admin}}"
 
+# The calendar collection action-item VTODOs are written into. Its own URI, not
+# `personal`: Nextcloud's auto-provisioned "Personal" calendar is VEVENT-only,
+# and a calendar's component set is fixed at creation — so this must be a
+# calendar the seed creates, never one it adopts. See section 0a-bis.
+VTODO_CALENDAR_URI="${VTODO_CALENDAR_URI:-decidesk-action-items}"
+
 echo "[ci-seed] target:  ${BASE}"
 echo "[ci-seed] app dir: ${APP_DIR}"
 
@@ -118,8 +124,59 @@ if [ -f ./occ ]; then
 		echo "::error::fails on a selector timeout that names an element rather than the real cause."
 		exit 1
 	fi
+
+	# ── 0a-bis. A VTODO-CAPABLE CALENDAR MUST EXIST FOR THE ACTING USER ──────
+	#
+	# Action items ARE CalDAV VTODOs (ADR-002): ActionItemWriter hands the write
+	# to OpenRegister's TaskService, whose findUserCalendar() walks the user's
+	# calendars and takes the first whose
+	# `{urn:ietf:params:xml:ns:caldav}supported-calendar-component-set`
+	# includes VTODO. If none does it throws NoVtodoCalendarException,
+	# ActionItemWriter catches \Throwable and returns null, and
+	# ActionItemController turns that into a bare
+	# `{"error":"Could not create action item"}` with HTTP 500.
+	#
+	# A STOCK NEXTCLOUD HAS NO SUCH CALENDAR. Measured on this instance:
+	#
+	#   id | uri               | displayname       | components
+	#    1 | personal          | Personal          | VEVENT
+	#    2 | contact_birthdays | Contact birthdays | VEVENT
+	#
+	# The auto-provisioned "Personal" calendar is VEVENT-ONLY. VTODO arrives
+	# only when something creates a task list — the Tasks app, or the user. So
+	# the seed must create one, exactly as it must import the register: both are
+	# prerequisites the product needs and a bare `maintenance:install` does not
+	# provide. Without it three action-item specs fail on an opaque 500 whose
+	# message names nothing.
+	#
+	# `occ dav:create-calendar` creates it as VEVENT,VTODO,VJOURNAL — verified
+	# by reading the row back below, not assumed.
+	#
+	# Idempotent: a second run just reports "already exists", which is why the
+	# create is allowed to fail and the VERIFY is what gates.
+	php ./occ dav:create-calendar "${USER_NAME}" "${VTODO_CALENDAR_URI}" >/dev/null 2>&1 || true
+
+	# VERIFY over CalDAV, not over the create's exit code. `occ` exiting 0 says
+	# a calendar exists; it does not say it accepts VTODO, and a VEVENT-only
+	# calendar is indistinguishable from a correct one until a write fails 500.
+	# PROPFIND the collection and require VTODO in the component set.
+	CAL_PROPS="$(curl -sS -u "${USER_NAME}:${USER_PASS}" -X PROPFIND \
+		-H 'Depth: 0' -H 'Content-Type: application/xml' \
+		--data '<?xml version="1.0"?><d:propfind xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav"><d:prop><c:supported-calendar-component-set/></d:prop></d:propfind>' \
+		"${BASE}/remote.php/dav/calendars/${USER_NAME}/${VTODO_CALENDAR_URI}/" 2>/dev/null || true)"
+	if printf '%s' "${CAL_PROPS}" | grep -q 'name="VTODO"'; then
+		echo "[ci-seed] VTODO calendar '${VTODO_CALENDAR_URI}' present for ${USER_NAME}."
+	else
+		echo "::error::no VTODO-supporting calendar for '${USER_NAME}' after dav:create-calendar."
+		echo "::error::OpenRegister's TaskService::findUserCalendar() will throw NoVtodoCalendarException,"
+		echo "::error::ActionItemWriter will swallow it, and every action-item create answers a bare"
+		echo "::error::HTTP 500 {\"error\":\"Could not create action item\"} that names no cause."
+		echo "::error::PROPFIND returned: ${CAL_PROPS}"
+		exit 1
+	fi
 else
 	echo "[ci-seed] no ./occ in $(pwd) — skipping the front-controller config (not a server root?)."
+	echo "[ci-seed] WARNING: the VTODO calendar gate is also skipped; action-item specs may 500."
 fi
 
 # ── 0b. GATE: the SERVED page must actually advertise pretty URLs ────────────

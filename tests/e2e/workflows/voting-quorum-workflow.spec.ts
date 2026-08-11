@@ -184,9 +184,11 @@ test('quorum-not-met / preconditions-unmet meeting cannot open a voting round', 
 //
 // These document the canonical tally rules with concrete inputs and the exact
 // expected computed outcome, driven through close() (which runs tallyResults).
-// Currently blocked by BUG-A (votes are linked but `relations.voting-round`
-// matches zero rows, so the count is always 0/0/0 → "invalid") — so they are
-// marked test.fixme. Un-fixme once the relation filter resolves.
+//
+// (The note that used to sit here said these were `test.fixme` pending BUG-A,
+// the relation filter that made every count 0/0/0 → "invalid". BUG-A is fixed
+// and the cases have been running for some time; the comment was stale and
+// described a state the file no longer had.)
 
 interface TallyCase {
 	name: string
@@ -195,12 +197,41 @@ interface TallyCase {
 	expectedAgainst: number
 	expectedAbstain: number
 	expectedResult: 'adopted' | 'rejected' | 'tied' | 'invalid'
+	/**
+	 * The round's `tieBreakRule`. Omitted means the round stores none, which is
+	 * NOT the same as "no rule applies": VotingResultCalculator falls back to
+	 * the spec's default, `rejected`.
+	 */
+	tieBreakRule?: 'rejected' | 'chair-decides' | 'revote'
 }
 
+// A TIE IS NOT A RESULT — IT IS AN INPUT TO tieBreakRule (openspec/specs/voting-system/spec.md).
+//
+// "Handle a tie vote" is explicit: *with `rejected` (default) the result MUST be
+// "rejected" (the motion fails), with `chair-decides` or `revote` the result MUST
+// be "tied"*, and "Configure voting rules" adds *the defaults MUST be simple
+// majority, abstentions excluded, and motion fails on a tie*.
+//
+// The single case here previously created a round carrying NO tieBreakRule and
+// asserted `tied`. That is the one answer the spec rules out for that round:
+// absent a stored rule the calculator falls back to `rejected`, so the case
+// asserted against the default it had itself selected. It ran red on every
+// full-scope run while VotingResultCalculator was correct the whole time.
+//
+// The same wrong expectation is also frozen into
+// tests/Unit/Service/VotingServiceTest::testTallyResultsTied — which never
+// caught it because that entire class is `markTestSkipped()` in setUp (issue
+// #90). A skip is not a pass; it is why this contradiction survived.
+//
+// So the tie is now covered in BOTH directions, which is strictly more coverage
+// than the single case it replaces: the default rule must reject, and an
+// explicit `revote` must report `tied`. Either one alone can pass while the
+// tie branch is broken.
 const TALLY_CASES: TallyCase[] = [
 	{ name: 'majority for → adopted', votes: ['for', 'for', 'for', 'against', 'abstain'], expectedFor: 3, expectedAgainst: 1, expectedAbstain: 1, expectedResult: 'adopted' },
 	{ name: 'majority against → rejected', votes: ['against', 'against', 'against', 'for'], expectedFor: 1, expectedAgainst: 3, expectedAbstain: 0, expectedResult: 'rejected' },
-	{ name: 'equal for/against → tied (abstain excluded from the comparison)', votes: ['for', 'for', 'against', 'against', 'abstain'], expectedFor: 2, expectedAgainst: 2, expectedAbstain: 1, expectedResult: 'tied' },
+	{ name: 'equal for/against, default tie-break → rejected (abstain excluded from the comparison)', votes: ['for', 'for', 'against', 'against', 'abstain'], expectedFor: 2, expectedAgainst: 2, expectedAbstain: 1, expectedResult: 'rejected' },
+	{ name: 'equal for/against, tieBreakRule=revote → tied (abstain excluded from the comparison)', votes: ['for', 'for', 'against', 'against', 'abstain'], expectedFor: 2, expectedAgainst: 2, expectedAbstain: 1, expectedResult: 'tied', tieBreakRule: 'revote' },
 ]
 
 for (const c of TALLY_CASES) {
@@ -216,6 +247,10 @@ for (const c of TALLY_CASES) {
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
 			openedAt: '2026-09-01T10:00:00Z',
+			// Spread, not a fixed key: a case that names no rule must persist NO
+			// tieBreakRule, so the assertion exercises the calculator's documented
+			// fallback rather than a value the test quietly supplied for it.
+			...(c.tieBreakRule !== undefined ? { tieBreakRule: c.tieBreakRule } : {}),
 		})
 		const vrId = objId(vr)
 

@@ -1339,6 +1339,7 @@
         "Self-evaluation": "Self-evaluation",
         "Start evaluation": "Start evaluation",
         "Submit anonymously": "Submit anonymously",
-        "Your response is anonymous. It cannot be traced back to you, even by an administrator.": "Your response is anonymous. It cannot be traced back to you, even by an administrator."
+        "Your response is anonymous. It cannot be traced back to you, even by an administrator.": "Your response is anonymous. It cannot be traced back to you, even by an administrator.",
+        "+ Action item for {title}": "+ Action item for {title}"
     }
 }

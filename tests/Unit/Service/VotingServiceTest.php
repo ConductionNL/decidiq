@@ -435,8 +435,24 @@ class VotingServiceTest extends TestCase
     }//end testTallyResultsRejected()
 
     /**
-     * Test that tallyResults returns 'tied' when votes for equal votes against.
+     * Test that tallyResults returns 'tied' when votes for equal votes against
+     * AND the round's tie-break rule is one that yields a tie.
      *
+     * ⚠️ `tieBreakRule` is load-bearing here, not decoration. This test used to
+     * pass a round of `['openedAt' => …]` only and still assert 'tied' — but
+     * with no stored rule VotingResultCalculator falls back to the spec default
+     * `rejected`, so 'tied' is the one answer that round CANNOT produce
+     * (openspec/specs/voting-system/spec.md, "Handle a tie vote": *with
+     * `rejected` (default) the result MUST be "rejected" … with `chair-decides`
+     * or `revote` the result MUST be "tied"*).
+     *
+     * It was never caught because this whole class is markTestSkipped() in
+     * setUp (issue #90) — a skip is not a pass. The same wrong expectation was
+     * copied into tests/e2e/workflows/voting-quorum-workflow.spec.ts, where it
+     * DOES run, and it failed every full-scope run while the production
+     * calculator was correct throughout.
+     *
+     * @spec openspec/specs/voting-system/spec.md
      * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.5
      *
      * @return void
@@ -450,7 +466,10 @@ class VotingServiceTest extends TestCase
             ],
         ];
 
-        $round = ['openedAt' => '2025-04-14T20:05:00+02:00'];
+        $round = [
+            'openedAt'     => '2025-04-14T20:05:00+02:00',
+            'tieBreakRule' => 'revote',
+        ];
 
         $this->objectService->method('findObjects')->willReturn($votes);
         $this->objectService->method('getObject')->willReturn($round);

@@ -102,15 +102,45 @@ test('meetings list page loads without errors', async ({ page }) => {
 test('meetings list shows lifecycle column values', async ({ page }) => {
 	await page.goto(`${BASE}/apps/decidesk/meetings`)
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
-	// Switch to table view (the toggle button shows "Table" as the inactive option when Cards is active)
-	// The CnDataTable has a toggle — click if it switches to rows
-	const viewToggle = page.locator('[aria-label*="able"], [title*="able"]').first()
-	if (await viewToggle.isVisible().catch(() => false)) {
-		await viewToggle.click()
-	}
-	// In table mode rows appear; in card mode it's still showing meeting cards
-	// Either way the app is mounted and has data
-	await expect(page.getByText('Showing')).toBeVisible()
+
+	// NO VIEW-TOGGLE CLICK. There used to be one, guarded by
+	//
+	//     page.locator('[aria-label*="able"], [title*="able"]').first()
+	//
+	// which is a substring match on the four letters "able". The only element it
+	// actually resolves to on this page is
+	//
+	//     <div aria-label="Scrollable table">   ← the table's SCROLL CONTAINER
+	//
+	// (measured: exactly 1 match, and `.click()` on it never settles, so it burned
+	// the whole test budget before any assertion ran). The real toggle is a pair of
+	// properly named buttons, "Cards" and "Table" — but clicking either is
+	// unnecessary: the table IS the default view. Measured on a fresh browser
+	// context with no click at all, the page already renders
+	//   headers: ['', 'Title', 'Meeting type', 'Start date', 'Mode', 'Status', '']
+	// and populated `cn-object-row`s. A test that asserts on table columns should
+	// simply fail if the default view ever stops being the table, rather than
+	// paper over it with a click.
+
+	// ASSERT WHAT THIS TEST IS NAMED FOR. The only assertion here used to be
+	// `getByText('Showing')` — the "Showing 8 of 8" footer, which CnActionsBar
+	// renders only when a `pagination` object reaches it (`countText` returns ''
+	// otherwise). So the test turned on incidental chrome that the page is free
+	// to stop rendering, and said nothing about lifecycle values either way.
+	//
+	// The Status column carries the meeting lifecycle. Assert the column exists
+	// and that a real lifecycle value is rendered in it — both of which fail if
+	// the list is empty, unmounted, or drops the column.
+	await expect(page.getByRole('columnheader', { name: 'Status' })).toBeVisible({ timeout: 10_000 })
+
+	const LIFECYCLE_VALUES = ['draft', 'scheduled', 'convoked', 'opened', 'closed', 'cancelled']
+	const firstRow = page.getByTestId('cn-object-row').first()
+	await expect(firstRow).toBeVisible({ timeout: 10_000 })
+	const rowText = await firstRow.innerText()
+	expect(
+		LIFECYCLE_VALUES.some((v) => rowText.includes(v)),
+		`the first meeting row should render a lifecycle value from ${LIFECYCLE_VALUES.join('|')}; got: ${rowText.replace(/\n/g, ' | ')}`,
+	).toBe(true)
 })
 
 // @e2e openspec/specs/meeting-management/spec.md#register-attendance-and-verify-quorum-is-met

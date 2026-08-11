@@ -1342,7 +1342,8 @@
         "Self-evaluation": "Zelfevaluatie",
         "Start evaluation": "Evaluatie starten",
         "Submit anonymously": "Anoniem verzenden",
-        "Your response is anonymous. It cannot be traced back to you, even by an administrator.": "Uw reactie is anoniem. Deze kan niet naar u worden herleid, zelfs niet door een beheerder."
+        "Your response is anonymous. It cannot be traced back to you, even by an administrator.": "Uw reactie is anoniem. Deze kan niet naar u worden herleid, zelfs niet door een beheerder.",
+        "+ Action item for {title}": "+ Actiepunt voor {title}"
     },
     "plurals": null
 }

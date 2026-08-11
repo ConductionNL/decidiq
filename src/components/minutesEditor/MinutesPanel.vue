@@ -59,10 +59,33 @@
 				:data-testid="`minutes-panel-item-${item.id}`">
 				<div class="minutes-panel__item-header">
 					<h4>{{ item.orderNumber }}. {{ item.title }}</h4>
+					<!--
+						THE ACCESSIBLE NAME MUST CONTAIN THE VISIBLE LABEL (WCAG 2.5.3,
+						Label in Name). This aria-label used to read
+
+						    'Add action item for {title}'
+
+						while the button VISIBLY reads "+ Action item". An aria-label
+						REPLACES the text content for accessible-name computation, so the
+						visible words appeared nowhere in the name — which breaks 2.5.3
+						outright, and breaks every voice-control user who says what they
+						can see ("click add action item" matched nothing).
+
+						It also silently broke the e2e selector: Playwright's
+						`getByRole('button', { name: '+ Action item' })` matches the
+						ACCESSIBLE name, so it could never resolve this button no matter
+						how long it waited. That is the failure mode of
+						tests/e2e/spec-coverage/resolution-minutes.spec.ts:121.
+
+						Prefixing the visible string fixes the standard and the selector
+						with one change, and keeps the per-item disambiguation that the
+						aria-label was added for in the first place (several of these
+						buttons render at once, one per agenda item).
+					-->
 					<NcButton
 						v-if="editable"
 						size="small"
-						:aria-label="t('decidesk', 'Add action item for {title}', { title: item.title })"
+						:aria-label="t('decidesk', '+ Action item for {title}', { title: item.title })"
 						@click="actionItemTarget = item">
 						{{ t('decidesk', '+ Action item') }}
 					</NcButton>
