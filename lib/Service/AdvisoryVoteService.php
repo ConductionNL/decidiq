@@ -105,15 +105,21 @@ class AdvisoryVoteService
 
         // Duplicate detection — reuse the relation filter (the statutory dedup path):
         // scope to the proposal, then to the voterId.
+        //
+        // The filter key comes from ObjectRelationFilter::filterFor(), NOT from the
+        // schema slug. `_relations.budget-proposal` — what this call site used to
+        // hand-write — can never match: OpenRegister keys the `_relations` JSONB by
+        // the property path it walked (`relations.0.id`), never by the related
+        // schema's slug, so the query returned ZERO rows on a healthy HTTP 200 and
+        // this guard let every duplicate through. Measured on a live instance:
+        // voting twice as the same user produced two CitizenVote rows sharing one
+        // idempotency slug, both answered 201.
         $objectService->setRegister('decidesk');
         $objectService->setSchema('citizen-vote');
         $existing = $this->relationFilter->matching(
             entities: $objectService->findAll(
                 [
-                    'filters' => [
-                        '_relations.budget-proposal' => $proposalId,
-                        'voterId'                    => $voterId,
-                    ],
+                    'filters' => ($this->relationFilter->filterFor(targetId: $proposalId) + ['voterId' => $voterId]),
                 ]
             ),
             schema: 'budget-proposal',
@@ -172,8 +178,12 @@ class AdvisoryVoteService
 
         $objectService->setRegister('decidesk');
         $objectService->setSchema('citizen-vote');
+        // Same correction as applyAdvisoryTally(): the filter key is
+        // ObjectRelationFilter::filterFor()'s, not the schema slug. With
+        // `_relations.budget-proposal` this query returned nothing, so every
+        // advisory tally wrote back votesFor=0 / votesAgainst=0 over real votes.
         $voteEntities = $this->relationFilter->matching(
-            entities: $objectService->findAll(['filters' => ['_relations.budget-proposal' => $proposalId]]),
+            entities: $objectService->findAll(['filters' => $this->relationFilter->filterFor(targetId: $proposalId)]),
             schema: 'budget-proposal',
             targetId: $proposalId
         );
