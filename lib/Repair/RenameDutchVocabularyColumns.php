@@ -66,6 +66,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Rename decidesk's Dutch vocabulary columns to their English equivalents.
+ *
+ * @spec openspec/specs/agenda-publication/spec.md
  */
 class RenameDutchVocabularyColumns implements IRepairStep
 {
@@ -114,6 +116,8 @@ class RenameDutchVocabularyColumns implements IRepairStep
      * Human-readable step name.
      *
      * @return string
+     *
+     * @spec openspec/specs/agenda-publication/spec.md
      */
     public function getName(): string
     {
@@ -127,6 +131,8 @@ class RenameDutchVocabularyColumns implements IRepairStep
      * @param IOutput $output Repair output.
      *
      * @return void
+     *
+     * @spec openspec/specs/agenda-publication/spec.md
      */
     public function run(IOutput $output): void
     {
@@ -141,6 +147,7 @@ class RenameDutchVocabularyColumns implements IRepairStep
 
         foreach ($tables as $table) {
             $columns = $this->columnsOf(table: $table);
+            $qTable  = $this->quote(identifier: $table);
 
             foreach (self::COLUMN_MAP as $old => $new) {
                 if (in_array($old, $columns, true) === false) {
@@ -148,8 +155,12 @@ class RenameDutchVocabularyColumns implements IRepairStep
                     continue;
                 }
 
+                $qOld = $this->quote(identifier: $old);
+                $qNew = $this->quote(identifier: $new);
+
                 if (in_array($new, $columns, true) === false) {
-                    if ($this->exec(sql: 'ALTER TABLE '.$this->quote($table).' RENAME COLUMN '.$this->quote($old).' TO '.$this->quote($new)) === true) {
+                    $sql = 'ALTER TABLE '.$qTable.' RENAME COLUMN '.$qOld.' TO '.$qNew;
+                    if ($this->exec(sql: $sql) === true) {
                         $renamed++;
                     }
 
@@ -158,7 +169,9 @@ class RenameDutchVocabularyColumns implements IRepairStep
 
                 // The mapper already added an empty English column: back-fill and
                 // leave the Dutch one, so this stays reversible.
-                if ($this->exec(sql: 'UPDATE '.$this->quote($table).' SET '.$this->quote($new).' = '.$this->quote($old).' WHERE '.$this->quote($new).' IS NULL AND '.$this->quote($old).' IS NOT NULL') === true) {
+                $sql = 'UPDATE '.$qTable.' SET '.$qNew.' = '.$qOld
+                    .' WHERE '.$qNew.' IS NULL AND '.$qOld.' IS NOT NULL';
+                if ($this->exec(sql: $sql) === true) {
                     $copied++;
                 }
             }//end foreach
@@ -222,15 +235,15 @@ class RenameDutchVocabularyColumns implements IRepairStep
 
         $tables = [];
         while (($row = $stmt->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $name = (string) ($row['table_name'] ?? '');
-            $at   = strpos($name, $marker);
-            if ($at === false) {
+            $name   = (string) ($row['table_name'] ?? '');
+            $offset = strpos($name, $marker);
+            if ($offset === false) {
                 continue;
             }
 
             // Everything after the marker must be the numeric schema id, so
             // register 18 cannot match register 180's tables.
-            if (ctype_digit(substr($name, ($at + strlen($marker)))) === true) {
+            if (ctype_digit(substr($name, ($offset + strlen($marker)))) === true) {
                 $tables[] = $name;
             }
         }
@@ -248,7 +261,7 @@ class RenameDutchVocabularyColumns implements IRepairStep
      */
     private function columnsOf(string $table): array
     {
-        // information_schema again — IDBConnection has no getSchema().
+        // Queried from information_schema — IDBConnection has no getSchema().
         try {
             $stmt = $this->db->prepare(
                 'SELECT column_name FROM information_schema.columns WHERE table_name = :table'

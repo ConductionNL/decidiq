@@ -290,7 +290,7 @@ class ParticipationPublicationServiceTest extends TestCase
 
         // The predicate write happened, so the object really is published.
         self::assertTrue($result['publishedPredicateSet']);
-        self::assertArrayHasKey('publicatiedatum', $captured);
+        self::assertArrayHasKey('publicationDate', $captured);
         self::assertSame('published', $captured['lifecycle']);
 
         // ...and it went back in the DECLARED shape: a JSON string, not an array.
@@ -341,7 +341,7 @@ class ParticipationPublicationServiceTest extends TestCase
         $this->objectService->method('find')->willReturn($this->entity(['id' => 'c9', 'title' => 'Visie', 'status' => 'closed']));
         $this->objectService->method('findAll')->willReturn([]);
         $this->objectService->method('saveObject')->willThrowException(
-            new \RuntimeException("Property 'depublicatiedatum' should be type 'string' but is 'null'.")
+            new \RuntimeException("Property 'depublicationDate' should be type 'string' but is 'null'.")
         );
 
         $result = $this->makeService(openCatalogi: false)->publishConsultationResults(consultationId: 'c9', staffResponse: 'Thanks');
