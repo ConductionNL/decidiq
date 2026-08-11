@@ -39,14 +39,24 @@
 			<label class="decidesk-transcription__label" for="transcription-source-select">
 				{{ t('decidesk', 'Recording source') }}
 			</label>
+			<!--
+				@nextcloud/vue v9 renamed the NcSelect model to
+				`modelValue` / `update:modelValue` and DELETED the v8 pair:
+				there is no `value` prop left to bind and the deprecated
+				`input` event is no longer emitted. The v8 form still renders a
+				working-looking combobox that opens, filters and highlights an
+				option — it simply never tells the parent what was picked, so
+				`selectedSource` stayed null and "Attach recording" stayed
+				disabled forever.
+			-->
 			<NcSelect
 				input-id="transcription-source-select"
 				data-testid="transcription-source-select"
 				:input-label="t('decidesk', 'Recording source')"
 				:options="sourceOptions"
-				:value="selectedSource"
+				:model-value="selectedSource"
 				label="label"
-				@input="onSelectSource" />
+				@update:model-value="onSelectSource" />
 			<p v-if="loaded && sourceOptions.length === 0" class="decidesk-transcription__hint">
 				{{ t('decidesk', 'No audio files found in this meeting\'s folder. Upload a recording to the meeting folder, then refresh.') }}
 			</p>
@@ -136,7 +146,7 @@
 					v-model="section.summary"
 					:label="t('decidesk', 'Section summary')"
 					resize="vertical"
-					@update:value="markEdited(section)" />
+					@update:model-value="markEdited(section)" />
 				<p v-else class="decidesk-transcription__hint">
 					{{ t('decidesk', 'Section discarded — write your own text in the minutes editor.') }}
 				</p>

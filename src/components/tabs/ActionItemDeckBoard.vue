@@ -87,14 +87,21 @@
 						<div v-if="item.assignee" class="ai-deck-card__meta">{{ item.assignee }}</div>
 						<div v-if="item.dueDate" class="ai-deck-card__meta">{{ item.dueDate }}</div>
 						<div class="ai-deck-card__footer">
+							<!--
+								v9 model pair (`modelValue` /
+								`update:modelValue`). The v8 `:value` / `@input`
+								form renders an identical, fully interactive
+								combobox but emits nothing, so choosing a lane
+								here silently moved no card at all.
+							-->
 							<NcSelect
-								:value="laneOption(item)"
+								:model-value="laneOption(item)"
 								:options="laneOptions"
 								:clearable="false"
 								:input-label="t('decidesk', 'Status')"
 								:aria-label-combobox="t('decidesk', 'Move action item to another status')"
 								class="ai-deck-card__move"
-								@input="(opt) => moveTo(item, opt)" />
+								@update:model-value="(opt) => moveTo(item, opt)" />
 							<a
 								v-if="item.deckCardId"
 								:href="deckCardUrl"
