@@ -30,9 +30,9 @@ governance law, so this app is where the statutory rule does most of its work.
       **Not one of them is greenfield.** The schema renames therefore cannot land until
       the migration in task 2.3 exists and has been exercised — a renamed schema orphans
       its objects exactly as thoroughly as a renamed property does.
-- [ ] 1c.2 A schema rename also moves the SLUG, and slug resolution is instance-global.
-      Before adopting any English schema name, check it against every app's declared
-      slugs — `Adviesaanvraag` and `Decision` are already known collisions with procest.
+      A schema rename also moves the SLUG, and slug resolution is instance-global, so
+      check every proposed English name against all apps' declared slugs first —
+      `Adviesaanvraag` and `Decision` are already known collisions with procest.
 
 ## 2. Count stored objects and plan the migration
 
