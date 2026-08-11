@@ -318,6 +318,8 @@
         "description": "Additive delta (ADR-037 fragment-located additive pattern): this fragment merges ONLY maxProxiesPerHolder and requireSignedProxy onto the existing votingRule.properties, next to voteThreshold/abstentionHandling/tieBreakRule (fragment 43). No existing key is touched and both new keys are optional/unset on the built-in templates, so a zero-configuration upgrade is behaviour-identical: the global decidesk/max_proxies_per_holder config stays authoritative and requireSignedProxy is off everywhere until an admin sets a body-level value (REQ-MPA-005/006). The full ProcessTemplate schema remains defined in fragment 43-process-config-v1.json.",
         "properties": {
           "votingRule": {
+            "title": "Voting rule",
+            "description": "Default voting rule applied to rounds opened under a body assigned this template. This fragment only merges the two proxy keys below onto the node defined in 43-process-config-v1.json; title and description repeat that definition so the merged property is self-describing wherever a fragment is read on its own.",
             "properties": {
               "maxProxiesPerHolder": {
                 "title": "Max proxies per holder",
