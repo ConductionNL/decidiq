@@ -90,8 +90,39 @@ interface Surface {
 	route: string
 	/** `data-testid` the view puts on its own body block. */
 	testId: string
+	/**
+	 * How this route actually renders: `component` mounts the named `.vue` file
+	 * (manifest `type: "custom"` with no widgets); `widgets` renders the
+	 * declarative `config.widgets` grid and never mounts the file.
+	 */
+	renders: 'component' | 'widgets'
+	/** The page title CnPageRenderer renders as the page heading. */
+	heading: string
 }
 
+// ⚠️ THREE OF THESE FOUR ROUTES DO NOT RENDER THE .vue FILE THEY ARE NAMED
+// AFTER, AND THE FIRST VERSION OF THIS SPEC ASSUMED THEY DID.
+//
+// Measured on CI: MotionIntegrations passed and the other three failed, every
+// time, on `[data-testid="<x>-integrations"]` never appearing. The discriminator
+// is in the manifest, not in the views:
+//
+//   MotionIntegrations      type: "custom"   config.widgets: 0   -> renders the .vue
+//   MeetingIntegrations     type: "detail"   config.widgets: 4   -> renders widgets
+//   DecisionIntegrations    type: "detail"   config.widgets: 3   -> renders widgets
+//   AgendaItemIntegrations  type: "detail"   config.widgets: 3   -> renders widgets
+//
+// The three widget pages are composed declaratively — CnPageRenderer lays out the
+// `config.widgets` grid, and the `.vue` file is never mounted. Flipping them to
+// `type: "custom"` was tried and REVERTED: it did not help, because a custom page
+// that also declares `config.widgets` still renders the widget body. The pages
+// are not broken; the three .vue files are simply not what serves them, which is
+// reported separately as dead code rather than papered over here.
+//
+// So each surface declares HOW it renders, and the test asserts that and nothing
+// stronger. Asserting a component testid on a page that renders widgets would be
+// a test that can never pass; asserting only "the route loaded" would be a test
+// that can never fail.
 const SURFACES: Surface[] = [
 	{
 		component: 'src/views/MeetingIntegrations.vue',
@@ -99,6 +130,8 @@ const SURFACES: Surface[] = [
 		schema: 'meeting',
 		route: '/apps/decidesk/meetings/{id}/integrations',
 		testId: 'meeting-integrations',
+		renders: 'widgets',
+		heading: 'Meeting integrations',
 	},
 	{
 		component: 'src/views/DecisionIntegrations.vue',
@@ -107,6 +140,8 @@ const SURFACES: Surface[] = [
 		prefer: (o) => o.decisionType !== 'motion' && o.decisionType !== 'amendment',
 		route: '/apps/decidesk/decisions/{id}/integrations',
 		testId: 'decision-integrations',
+		renders: 'widgets',
+		heading: 'Decision integrations',
 	},
 	{
 		component: 'src/views/AgendaItemIntegrations.vue',
@@ -114,6 +149,8 @@ const SURFACES: Surface[] = [
 		schema: 'agenda-item',
 		route: '/apps/decidesk/agenda-items/{id}/integrations',
 		testId: 'agenda-item-integrations',
+		renders: 'widgets',
+		heading: 'Agenda item integrations',
 	},
 	{
 		component: 'src/views/MotionIntegrations.vue',
@@ -122,6 +159,8 @@ const SURFACES: Surface[] = [
 		prefer: (o) => o.decisionType === 'motion',
 		route: '/apps/decidesk/motions/{id}/integrations',
 		testId: 'motion-integrations',
+		renders: 'component',
+		heading: 'Motion integrations',
 	},
 ]
 
@@ -132,18 +171,41 @@ test.describe('Integration surfaces — per-object integration pages render', ()
 
 			await page.goto(surface.route.replace('{id}', id))
 
-			// The view's OWN body block — declared by the component under test,
-			// not by CnDetailPage or the registry sidebar.
-			const body = page.locator(`[data-testid="${surface.testId}"]`)
-			await expect(body, `${surface.name} body block must mount`).toBeVisible({ timeout: 15_000 })
+			// Every surface must reach a rendered app, not a blank shell or a
+			// redirect. Asserted first so a routing failure names itself here
+			// rather than as a confusing missing-element error below.
+			await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
+			await expect(
+				page.getByRole('heading', { name: surface.heading, exact: true }).first(),
+				`${surface.name} page heading must render`,
+			).toBeVisible({ timeout: 15_000 })
 
-			// It carries the explanatory copy every one of these surfaces ships;
-			// an empty shell is a regression this spec must catch.
-			await expect(body).not.toBeEmpty()
+			if (surface.renders === 'component') {
+				// The view's OWN body block — declared by the component under
+				// test, not by CnDetailPage or the registry sidebar.
+				const body = page.locator(`[data-testid="${surface.testId}"]`)
+				await expect(body, `${surface.name} body block must mount`).toBeVisible({ timeout: 15_000 })
 
-			// The back-link the view wires to its detail route.
-			const back = page.locator(`[data-testid="${surface.testId}-back"]`)
-			await expect(back, `${surface.name} back-link must render`).toBeVisible()
+				// It carries the explanatory copy every one of these surfaces
+				// ships; an empty shell is a regression this spec must catch.
+				await expect(body).not.toBeEmpty()
+
+				// The back-link the view wires to its detail route.
+				const back = page.locator(`[data-testid="${surface.testId}-back"]`)
+				await expect(back, `${surface.name} back-link must render`).toBeVisible()
+				return
+			}
+
+			// Widget-composed page: assert the declarative body actually laid
+			// out. `config.widgets` is non-empty for all three, so zero rendered
+			// widgets means the grid did not build — the failure this catches.
+			const widgets = page.locator('.cn-widget, [data-testid^="cn-widget"]')
+			await expect
+				.poll(async () => await widgets.count(), {
+					message: `${surface.name} must render its declarative widget grid`,
+					timeout: 15_000,
+				})
+				.toBeGreaterThan(0)
 		})
 	}
 })
