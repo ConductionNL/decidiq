@@ -32,10 +32,21 @@ if [ "${DECIDESK_NEWMAN_LOCKED:-}" != "1" ] && command -v flock >/dev/null 2>&1;
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COLLECTIONS=(
-  "${SCRIPT_DIR}/decidesk.postman_collection.json"
-  "${SCRIPT_DIR}/decidesk-security-flow-e2e.postman_collection.json"
-)
+
+# EVERY collection in this directory, which is what CI runs:
+# `for collection in *.postman_collection.json` in the shared quality workflow's
+# newman job. This list used to name two files by hand. The tree now ships
+# fourteen, so a green `./run-newman.sh` was a green over an unopened scope —
+# a developer could add a collection, watch this script pass, and never learn
+# it had not been executed until CI ran it. Globbing keeps the local runner and
+# CI measuring the same thing by construction.
+shopt -s nullglob
+COLLECTIONS=("${SCRIPT_DIR}"/*.postman_collection.json)
+shopt -u nullglob
+if [ "${#COLLECTIONS[@]}" -eq 0 ]; then
+  echo "ERROR: no *.postman_collection.json found in ${SCRIPT_DIR}" >&2
+  exit 1
+fi
 
 BASE_URL="${BASE_URL:-http://localhost:8080}"
 ADMIN_USER="${ADMIN_USER:-admin}"
