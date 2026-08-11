@@ -196,12 +196,6 @@
         "version": "0.8.0",
         "description": "Additive delta (ADR-037 fragment-located additive pattern; OpenSpec urgent-decision-procedure). This fragment merges ONLY the four optional urgency properties (isUrgent, urgencyReason, urgencyDeclaredBy, urgencyDeclaredAt), one ratifying-stage aggregation, the awaitingRatification calculation, and two notification rules onto the existing decision schema. It adds NO required field and modifies NO existing property, aggregation, calculation, or notification — the register deep-merge (SettingsService::deepMergeConfig) unions these by key with the base schema, so decisions created before this change stay valid and the existing x-openregister-lifecycle transition map is untouched (urgency is orthogonal to lifecycle, exactly like isPublished). Version bumped to 0.8.0 (the sibling governing-documents fragment sets 0.7.0; ONE fragment wins the scalar version — this one uses the higher number). CONDITIONAL/GUARDED RULES are SAVE-TIME imperative, NOT schema constraints (no allOf/anyOf/oneOf in an OR register schema): urgencyReason is required when isUrgent is true (enforced by the trigger flow); the urgency fields are writable ONLY through the guarded urgency-trigger endpoint and rejected on direct object update (same posture as isPublished); every write path carries the urgency fields forward (saveObject is PUT-semantic). See design.md seams A/B and Task 3.",
         "properties": {
-          "zzPlantProbeRelationDialect": {
-            "title": "ZZ plant probe",
-            "type": "string",
-            "format": "uuid",
-            "description": "PLANT — temporary gate-54 true positive. Reference to the GovernanceBody that declared the urgency."
-          },
           "isUrgent": {
             "title": "Urgent",
             "type": "boolean",
