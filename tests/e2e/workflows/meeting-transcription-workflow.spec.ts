@@ -231,7 +231,28 @@ test.describe('meeting transcription UI', () => {
 		await expect(page.getByTestId('transcription-consent-modal')).toBeVisible()
 		// Confirm button disabled until consent is checked.
 		await expect(page.getByTestId('transcription-consent-confirm')).toBeDisabled()
-		await page.getByTestId('transcription-consent-checkbox').click()
+		// `NcCheckboxRadioSwitch` merges `$attrs` onto the <input> itself, so this
+		// `data-testid` IS the input — and @nextcloud/vue 9.9.0 styles that input
+		// `position: absolute; z-index: -1; opacity: 0 !important` with its own
+		// `NcCheckboxContent` (`span.checkbox-radio-switch__content`) painted over
+		// the box. So `locator.click()` can never land: Playwright reports the
+		// content span intercepting pointer events and retries until the 20 s
+		// per-test budget dies, which surfaces as a bare timeout rather than as
+		// "this control is not clickable".
+		//
+		// Use the same actuation the six PASSING NcCheckboxRadioSwitch tests in
+		// `spec-coverage/user-settings.spec.ts` use (`setSwitch()`): dispatch the
+		// click at the input. A checkbox's activation behaviour runs for dispatched
+		// clicks, so `checked` flips and `change` fires — the event nc-vue binds
+		// `onToggle` to — and it still does nothing when the control is disabled.
+		// Bracket it with state assertions so a click that actuates NOTHING fails
+		// here by name instead of further down; that is what stops the dispatch
+		// from being a way to skip the question.
+		const consent = page.getByTestId('transcription-consent-checkbox')
+		await expect(consent).not.toBeChecked()
+		await consent.dispatchEvent('click')
+		await expect(consent).toBeChecked()
+		await expect(page.getByTestId('transcription-consent-confirm')).toBeEnabled()
 		await page.getByTestId('transcription-consent-confirm').click()
 
 		// Transcript view groups segments per agenda item + an unassigned group.
