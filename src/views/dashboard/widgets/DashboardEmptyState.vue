@@ -56,6 +56,7 @@ export default {
 		 * the button's own label — "Set Up Body" — has always promised.
 		 *
 		 * @return {void}
+		 * @spec openspec/specs/app-navigation/spec.md#scenario-bodies-item-is-present-and-routes-to-governancebodies
 		 */
 		goGovernanceBodies() {
 			this.$router.push({ name: 'GovernanceBodies' })

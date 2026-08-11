@@ -273,6 +273,7 @@ export default {
 		 *
 		 * @param {object} evaluation The BoardEvaluation object.
 		 * @return {object|null} The summary, or null when absent/unreadable.
+		 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
 		 */
 		scoreSummaryFor(evaluation) {
 			const summary = evaluation.scoreSummary

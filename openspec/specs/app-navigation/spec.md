@@ -34,17 +34,37 @@ Defines the app shell layout, navigation menu, and routing. App.vue renders load
 bundled manifest `menu`. The menu SHALL list ADR-004's six canonical working
 items plus a Dashboard landing item: Dashboard (landing, route `Dashboard`),
 Meetings (`Meetings`), Decisions (`Decisions`), Action items (`ActionItems`),
-Motions (`Motions`), Bodies (`GovernanceBodies`), and Beheer (the Settings entry,
-settings section). Minutes, Workspaces, and Engagement SHALL NOT appear as
-top-level menu items (their routes remain reachable). A settings link (Beheer)
-SHALL appear via the manifest `settings` section; Documentation and
-Features-roadmap SHALL remain in the `footer` section.
+Motions (`Motions`), and Bodies (`GovernanceBodies`). Minutes, Workspaces, and
+Engagement SHALL NOT appear as top-level menu items (their routes remain
+reachable). Documentation and Features-roadmap SHALL remain in the `footer`
+section.
+
+The app SHALL NOT contribute any entry of its own to the manifest `settings`
+section, and `menu-layout.json`'s `settingsSection` SHALL be empty. This is a
+consequence of **ADR-079 D1**, not a navigation preference: app-level
+configuration has exactly one address, `/settings/admin/decidesk`, rendered by
+the Nextcloud settings framework and authorized server-side before the section
+renders. An in-app `type:"settings"` page is a defect there, so there is no
+in-app route for a settings entry to point at. The gear foldout carries only the
+per-user entries plus nc-vue's admin link-out, both supplied by `CnAppNav`.
+
+This requirement previously read "and Beheer (the Settings entry, settings
+section)" and "A settings link (Beheer) SHALL appear via the manifest `settings`
+section". Those clauses described the duplicate surface ADR-079 deletes, and
+they also produced the `Settings › Settings` collision ADR-079 Context (4)
+records — the foldout's own button is already labelled "Settings". They are
+removed here so the spec stops requiring a surface the decision removes.
 
 #### Scenario: Six working items plus Dashboard are rendered
 - WHEN the app is in the ready state
 - THEN the main menu shows Dashboard, Meetings, Decisions, Action items, Motions, and Bodies
-- AND Beheer (Settings) appears in the settings section
 - AND Minutes, Workspaces, and Engagement are NOT shown as top-level items
+
+#### Scenario: The app contributes no settings entry of its own
+- WHEN the app is in the ready state
+- THEN no menu entry declared by this app appears in the `settings` section
+- AND no route resolves for an in-app app-level configuration page
+- AND app-level configuration is reachable at `/settings/admin/decidesk`
 
 #### Scenario: Bodies item is present and routes to GovernanceBodies
 - WHEN the app is in the ready state
