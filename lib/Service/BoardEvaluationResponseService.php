@@ -236,13 +236,33 @@ class BoardEvaluationResponseService
                 $freeText = (string) $freeText;
             }
 
-            $sanitised[] = [
-                'questionId'  => (string) ($answer['questionId'] ?? ''),
-                'dimension'   => (string) ($answer['dimension'] ?? ''),
-                'likertValue' => $likertValue,
-                'freeText'    => $freeText,
+            // OpenRegister declares `answers.items.likertValue` as `integer` and
+            // `answers.items.freeText` as `string`, neither of them nullable, and its
+            // validator rejects an explicit null for a typed property outright — it
+            // does NOT treat null as "absent". Writing the key with a null value
+            // therefore failed the WHOLE saveObject with
+            // `Property 'answers.0.freeText' should be type 'string' but is 'null'`,
+            // which this service catches and returns as a 422. Every likert answer
+            // carries a null freeText, so no likert response could EVER be stored:
+            // `recordCompletion()` was never reached and `respondedCount` stayed 0
+            // while the UI showed no error (the NoteCard renders outside the card the
+            // count lives in). Omit the key instead — an absent optional property is
+            // what the schema expects, and it is the fleet-standing rule for OR.
+            $entry = [
+                'questionId' => (string) ($answer['questionId'] ?? ''),
+                'dimension'  => (string) ($answer['dimension'] ?? ''),
             ];
-        }
+
+            if ($likertValue !== null) {
+                $entry['likertValue'] = $likertValue;
+            }
+
+            if ($freeText !== null) {
+                $entry['freeText'] = $freeText;
+            }
+
+            $sanitised[] = $entry;
+        }//end foreach
 
         return $sanitised;
 

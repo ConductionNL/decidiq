@@ -21,7 +21,7 @@
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2
+// SPDX-License-Identifier: EUPL-1.2.
 declare(strict_types=1);
 
 namespace OCA\Decidesk\Service;
@@ -244,15 +244,25 @@ class ParticipationPublicationService
             throw new RuntimeException('Only a closed evaluation may be published');
         }
 
-        $raw     = (string) ($evaluation['scoreSummary'] ?? '');
-        $decoded = null;
-        if ($raw !== '') {
-            $decoded = json_decode($raw, true);
-        }
-
+        // Read the materialised scoreSummary WHICHEVER SHAPE IT ARRIVES IN. The
+        // schema declares it as a `string` holding JSON and BoardEvaluationScoreService
+        // writes one, but OpenRegister hands it back ALREADY PARSED, as an array —
+        // measured on a live instance and documented on the Vue side, which had the
+        // identical bug (`GovernanceBodyEvaluationsTab::scoreSummaryFor()`, where
+        // `JSON.parse()` on the object turned every real summary into null).
+        // Here `(string)` on an array yields the literal "Array", `json_decode`
+        // returns null, and EVERY aggregate below silently fell back to null — so a
+        // published board evaluation carried `overallScore: null` while the stored
+        // object held a perfectly good score. Same defect class, other language.
+        $rawSummary   = ($evaluation['scoreSummary'] ?? null);
         $scoreSummary = [];
-        if (is_array($decoded) === true) {
-            $scoreSummary = $decoded;
+        if (is_array($rawSummary) === true) {
+            $scoreSummary = $rawSummary;
+        } else if (is_string($rawSummary) === true && $rawSummary !== '') {
+            $decoded = json_decode($rawSummary, true);
+            if (is_array($decoded) === true) {
+                $scoreSummary = $decoded;
+            }
         }
 
         $summary = [
@@ -272,6 +282,18 @@ class ParticipationPublicationService
 
         // Mark the evaluation as published.
         $evaluation['lifecycle'] = 'published';
+
+        // `$evaluation` is about to be written back as `$sourceObject`, and the read
+        // above establishes that OpenRegister handed `scoreSummary` over as an ARRAY
+        // while the schema declares it `type: "string"`. Saving it in that shape fails
+        // validation for the whole object — and `publishSummary()` swallows that
+        // failure in a `catch (\Throwable)` that only logs a warning, so the endpoint
+        // still answered 200 with `publishedPredicateSet: false` and the evaluation
+        // was never touched (`lifecycle` stayed `closed`, `publicatiedatum` absent).
+        // Restore the declared shape before the save.
+        if (isset($evaluation['scoreSummary']) === true && is_array($evaluation['scoreSummary']) === true) {
+            $evaluation['scoreSummary'] = json_encode($evaluation['scoreSummary']);
+        }
 
         return $this->publishSummary(
             summary: $summary,
@@ -389,19 +411,38 @@ class ParticipationPublicationService
         // Attach the PII-free summary and set publicationDate so the public-group
         // RBAC rule (publicationDate <= $now) on the schema makes the object
         // anonymously readable through the OR published-predicate surface.
-        $sourceObject['resultsSummary']    = json_encode($summary);
-        $sourceObject['publicationDate']   = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-        $sourceObject['depublicationDate'] = null;
+        $sourceObject['resultsSummary']  = json_encode($summary);
+        $sourceObject['publicationDate'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
+        // `depublicationDate` is declared `type: "string", format: "date-time"` and is
+        // NOT nullable, and OpenRegister's validator rejects an explicit null for a
+        // typed property rather than reading it as "absent". Writing the key failed the
+        // entire save, which the catch below turns into a logged warning under an
+        // HTTP 200 — the publish looked successful and persisted nothing. Publishing
+        // means "not depublished", and the absence of the key is how that is spelled.
+        //
+        // The rename branch had `= null` here. Merging development's fix in means
+        // keeping the unset() and only moving the key name; taking "ours" wholesale
+        // would have reverted the fix and restored the silent-no-op publish.
+        unset($sourceObject['depublicationDate']);
 
         $predicateSet = false;
+        $persistError = null;
         try {
             $saved        = $objectService->saveObject(register: 'decidesk', schema: $sourceSchema, object: $sourceObject);
             $summary      = array_merge($summary, ['sourceObject' => $this->normaliseSaved(saved: $saved, fallback: $sourceObject)]);
             $predicateSet = true;
         } catch (\Throwable $e) {
-            $this->logger->warning(
+            // This catch is deliberate — a catalog-routing flow should not 500 because
+            // the predicate write failed — but as a WARNING with no reader it made a
+            // total failure indistinguishable from success: the endpoint answered 200,
+            // `publishedPredicateSet` was the only tell, and nothing said why. Carry
+            // the reason out in `warning` so the caller can see it, and log at error
+            // level, because nothing about this is advisory: the object was NOT
+            // published.
+            $persistError = $e->getMessage();
+            $this->logger->error(
                 'Decidesk participation: failed to persist published summary',
-                ['error' => $e->getMessage()]
+                ['error' => $persistError, 'schema' => $sourceSchema, 'sourceId' => $sourceId]
             );
         }
 
@@ -419,6 +460,12 @@ class ParticipationPublicationService
                 $warning = 'OpenCatalogi is installed but no target catalog is configured for this governance body; '
                     .'the summary was not routed to a catalog.';
             }
+        }
+
+        if ($persistError !== null) {
+            $failure = 'The published predicate could not be persisted, so the object is NOT publicly readable: '
+                .$persistError;
+            $warning = trim($failure.' '.($warning ?? ''));
         }
 
         return [

@@ -189,7 +189,25 @@ async function deleteRowViaUi(page, title: string): Promise<void> {
 	await expect(page.locator('[data-testid-modal="cn-delete-dialog"][data-testid-phase="result"]'))
 		.toBeVisible({ timeout: 8_000 })
 	await expect(page.getByRole('dialog')).toContainText('successfully deleted')
-	await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click()
+	// TWO buttons in this dialog answer to the accessible name "Close": the
+	// action-footer button CnDeleteDialog renders in the result phase
+	// (`closeLabel`, default "Close") and the X in NcModal's own chrome
+	// (`.modal-container__close`, `aria-label="Close"`). An unscoped
+	// `getByRole('button', { name: 'Close' })` therefore raises a strict-mode
+	// violation, which Playwright keeps RETRYING until the per-test budget dies —
+	// so it surfaces as a bare 20 s timeout, not as an ambiguous-locator error.
+	// Exclude the modal chrome by the class the failing run PRINTED
+	// (`modal-container__close`) rather than by scoping to a container class that
+	// looked right in the library source but was never observed in this app's DOM —
+	// an unobserved container would resolve to zero elements and fail as another
+	// bare timeout, which is the thing being fixed. Strictness is preserved: a third
+	// button named "Close" would still raise. `exact: true` because `name` matches a
+	// SUBSTRING by default, so the loose form would also accept a future
+	// "Close cycle"-style button.
+	await page.getByRole('dialog')
+		.getByRole('button', { name: 'Close', exact: true })
+		.and(page.locator(':not(.modal-container__close)'))
+		.click()
 	try {
 		await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 8_000 })
 	} catch (err) {
