@@ -27,7 +27,7 @@
 				"search": true,
 				"searchFields": [
 					"number",
-					"onderwerp"
+					"subject"
 				],
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -39,7 +39,7 @@
 				],
 				"columns": [
 					{ "key": "number", "label": "Number", "widget": "link" },
-					{ "key": "onderwerp", "label": "Subject" },
+					{ "key": "subject", "label": "Subject" },
 					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
 					{ "key": "category", "label": "Category", "widget": "badge" },
 					{ "key": "sentAt", "label": "Sent" },
@@ -80,7 +80,7 @@
 							"columns": [
 								{ "key": "vraag", "label": "Question" },
 								{ "key": "gesteldDoor", "label": "Asked by" },
-								{ "key": "fractie", "label": "Fraction" },
+								{ "key": "politicalGroup", "label": "Fraction" },
 								{ "key": "gesteldOp", "label": "Asked on" },
 								{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 							]

@@ -14,7 +14,7 @@
               "Tegen",
               "Voor, mits aangepast"
             ],
-            "audienceType": "fractie",
+            "audienceType": "politicalGroup",
             "audienceBody": "gemeenteraad-amsterdam",
             "audienceParty": "Groen Voorbeeldingen",
             "agendaItem": "begroting-2026-bespreking",
@@ -251,10 +251,10 @@
             "description": "Which audience is polled (REQ-CCO-002). body-members = all Persons with an active Membership in audienceBody; fractie = the subset of those whose active Membership carries party = audienceParty; nc-group = the members of the Nextcloud group audienceGroup (e.g. an OR's achterban). Resolved server-side by ConsultationAudienceService; never trusted from the client. Required.",
             "enum": [
               "body-members",
-              "fractie",
+              "politicalGroup",
               "nc-group"
             ],
-            "example": "fractie"
+            "example": "politicalGroup"
           },
           "audienceBody": {
             "title": "Audience body",

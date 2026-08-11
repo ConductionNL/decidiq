@@ -8,14 +8,14 @@
             "slug": "termijn-regeling-auditcommissie",
             "body": "auditcommissie-provincie-nh",
             "termijnDuurMaanden": 48,
-            "toelichting": "Benoeming voor de duur van de raadsperiode; geen maximum aan aansluitende termijnen."
+            "notes": "Benoeming voor de duur van de raadsperiode; geen maximum aan aansluitende termijnen."
           },
           {
             "slug": "termijn-regeling-rvc-acme",
             "body": "raad-van-commissarissen-acme-bv",
             "termijnDuurMaanden": 48,
             "maxAansluitendeTermijnen": 2,
-            "toelichting": "Statutair: eenmaal herbenoembaar (art. 12 statuten)."
+            "notes": "Statutair: eenmaal herbenoembaar (art. 12 statuten)."
           }
         ],
         "voordracht": [
@@ -26,11 +26,11 @@
             "kandidaten": [
               {
                 "persoon": "marie-janssen",
-                "toelichting": "Financiële expertise gewenst in de auditcommissie."
+                "notes": "Financiële expertise gewenst in de auditcommissie."
               }
             ],
             "voordragendePartij": {
-              "type": "fractie",
+              "type": "politicalGroup",
               "naam": "D66"
             },
             "motivering": "Financiële expertise gewenst.",
@@ -43,7 +43,7 @@
             "kandidaten": [
               {
                 "externeNaam": "Mw. J. van Duin",
-                "toelichting": "Externe werving; nog geen Person-registratie — wordt na benoeming aangemaakt."
+                "notes": "Externe werving; nog geen Person-registratie — wordt na benoeming aangemaakt."
               }
             ],
             "voordragendePartij": {
@@ -64,11 +64,11 @@
             "kandidaten": [
               {
                 "externeNaam": "K. Bakker",
-                "toelichting": "Kandidaat trekt zich terug voor behandeling."
+                "notes": "Kandidaat trekt zich terug voor behandeling."
               }
             ],
             "voordragendePartij": {
-              "type": "fractie",
+              "type": "politicalGroup",
               "naam": "GroenLinks"
             },
             "motivering": "Kandidaat trekt zich terug.",
@@ -262,7 +262,7 @@
                   "nullable": true,
                   "description": "Free-text name for a not-yet-registered candidate (typical for corporate RvC/RvT externals). Later linkable to a Person record without losing voordracht history."
                 },
-                "toelichting": {
+                "notes": {
                   "title": "Note",
                   "type": "string",
                   "nullable": true,
@@ -281,11 +281,11 @@
                 "type": "string",
                 "description": "Nature of the nominating party.",
                 "enum": [
-                  "fractie",
+                  "politicalGroup",
                   "orgaan",
                   "persoon"
                 ],
-                "example": "fractie"
+                "example": "politicalGroup"
               },
               "naam": {
                 "title": "Name",
@@ -408,7 +408,7 @@
             "description": "Maximum number of consecutive terms. Optional — empty means unlimited. Drives the advisory (non-blocking, design D5) max-term warning on the rooster and on voordrachten.",
             "example": 2
           },
-          "toelichting": {
+          "notes": {
             "title": "Note",
             "type": "string",
             "description": "Free-text explanation of the rule (e.g. the statutory/verordening basis)."

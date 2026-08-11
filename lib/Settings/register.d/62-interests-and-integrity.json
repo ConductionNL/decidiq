@@ -99,7 +99,7 @@
             "governanceBody": "gemeenteraad-amsterdam",
             "type": "geschenk",
             "gever": "Delegatie gemeente Aken",
-            "omschrijving": "Fotoboek stedenband",
+            "description": "Fotoboek stedenband",
             "geschatteWaarde": 20,
             "ontvangenOp": "2026-01-20",
             "besluit": "aanvaard",
@@ -112,11 +112,11 @@
             "governanceBody": "gemeenteraad-amsterdam",
             "type": "uitnodiging",
             "gever": "Projectontwikkelaar BV",
-            "omschrijving": "Diner nieuwjaarsreceptie",
+            "description": "Diner nieuwjaarsreceptie",
             "geschatteWaarde": 95,
             "ontvangenOp": "2026-01-08",
             "besluit": "geweigerd",
-            "toelichting": "Boven het drempelbedrag; uitnodiging geweigerd conform gedragscode.",
+            "notes": "Boven het drempelbedrag; uitnodiging geweigerd conform gedragscode.",
             "declaredAt": "2026-01-09",
             "publicationDate": "2026-01-15T09:00:00Z"
           },
@@ -126,11 +126,11 @@
             "governanceBody": "rvc-waterschap-amstel",
             "type": "uitnodiging",
             "gever": "Brancheorganisatie Water",
-            "omschrijving": "Congres met overnachting",
+            "description": "Congres met overnachting",
             "geschatteWaarde": 400,
             "ontvangenOp": "2026-02-03",
             "besluit": "overgedragen",
-            "toelichting": "Deelname overgedragen aan de organisatie; geen persoonlijk voordeel.",
+            "notes": "Deelname overgedragen aan de organisatie; geen persoonlijk voordeel.",
             "declaredAt": "2026-02-04"
           }
         ]
@@ -459,7 +459,7 @@
           "governanceBody",
           "type",
           "gever",
-          "omschrijving",
+          "description",
           "geschatteWaarde",
           "ontvangenOp",
           "besluit",
@@ -497,7 +497,7 @@
             "description": "The giving party as a plain display string — NEVER a Person reference, so no external-party PII enters the people register (design D4 / security). Required.",
             "example": "Delegatie gemeente Aken"
           },
-          "omschrijving": {
+          "description": {
             "title": "Description",
             "type": "string",
             "description": "Description of the gift or invitation. Required.",
@@ -530,7 +530,7 @@
             ],
             "example": "aanvaard"
           },
-          "toelichting": {
+          "notes": {
             "title": "Note",
             "type": "string",
             "description": "Optional note explaining the decision (e.g. why an invitation was refused or handed over)."

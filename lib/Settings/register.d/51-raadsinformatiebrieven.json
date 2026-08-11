@@ -7,7 +7,7 @@
           {
             "slug": "rib-2026-012-wachtlijsten-jeugdzorg",
             "number": "RIB-2026-012",
-            "onderwerp": "Wachtlijsten jeugdzorg: stand van zaken en maatregelen",
+            "subject": "Wachtlijsten jeugdzorg: stand van zaken en maatregelen",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "category": "toezegging-afdoening",
             "sentAt": "2026-02-20",
@@ -24,7 +24,7 @@
           {
             "slug": "rib-2026-013-energietransitie",
             "number": "RIB-2026-013",
-            "onderwerp": "Voortgang energietransitie gebouwde omgeving",
+            "subject": "Voortgang energietransitie gebouwde omgeving",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "category": "actieve-informatieplicht",
             "sentAt": "2026-03-05",
@@ -35,7 +35,7 @@
           {
             "slug": "rib-2026-014-afdoening-motie-fietsveiligheid",
             "number": "RIB-2026-014",
-            "onderwerp": "Afdoening motie Fietsveiligheid schoolroutes",
+            "subject": "Afdoening motie Fietsveiligheid schoolroutes",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "category": "motie-afdoening",
             "sentAt": "2026-03-12",
@@ -53,7 +53,7 @@
             "rib": "rib-2026-012-wachtlijsten-jeugdzorg",
             "vraag": "Hoe verhoudt de genoemde gemiddelde doorlooptijd zich tot de landelijke norm?",
             "gesteldDoor": "00000000-0000-0000-0000-000000000000",
-            "fractie": "GroenLinks",
+            "politicalGroup": "GroenLinks",
             "gesteldOp": "2026-02-24",
             "antwoord": "De doorlooptijd ligt 12% boven de landelijke norm; het plan van aanpak voorziet in een reductie naar de norm binnen twee kwartalen.",
             "beantwoordDoor": "Afdeling Sociaal Domein",
@@ -66,7 +66,7 @@
             "rib": "rib-2026-012-wachtlijsten-jeugdzorg",
             "vraag": "Kunnen de wachtlijstcijfers worden uitgesplitst per regiogemeente?",
             "gesteldDoor": "00000000-0000-0000-0000-000000000000",
-            "fractie": "VVD",
+            "politicalGroup": "VVD",
             "gesteldOp": "2026-02-25",
             "lifecycle": "gesteld"
           },
@@ -75,7 +75,7 @@
             "rib": "rib-2026-013-energietransitie",
             "vraag": "Welke wijken lopen vertraging op door netcapaciteit?",
             "gesteldDoor": "00000000-0000-0000-0000-000000000000",
-            "fractie": "D66",
+            "politicalGroup": "D66",
             "gesteldOp": "2026-03-08",
             "lifecycle": "gesteld"
           }
@@ -170,7 +170,7 @@
         },
         "required": [
           "number",
-          "onderwerp",
+          "subject",
           "portefeuillehouder",
           "category",
           "sentAt",
@@ -187,7 +187,7 @@
             "description": "Human-readable letter number in the format RIB-{jaar}-{volgnummer} (schema-validated by pattern). Required and unique per year — often assigned by the college's own systems before the letter reaches the griffie, so decidesk accepts an externally given number rather than force-generating one (design D5). The creation dialog pre-fills the next free volgnummer for the current year; uniqueness is a review/validation concern (OR has no cross-object unique constraint) and the index sorts by number so duplicates are immediately visible.",
             "example": "RIB-2026-014"
           },
-          "onderwerp": {
+          "subject": {
             "title": "Subject",
             "type": "string",
             "description": "Subject of the raadsinformatiebrief. Required.",
@@ -373,7 +373,7 @@
             "$ref": "Person",
             "description": "Reference to the council member (raadslid) who asked the question. Required. A public officeholder — WOO-conformant to publish (design D4)."
           },
-          "fractie": {
+          "politicalGroup": {
             "title": "Fraction",
             "type": "string",
             "facetable": true,

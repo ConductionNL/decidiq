@@ -9,7 +9,7 @@
             "type": "delegatie",
             "delegans": "gemeenteraad-amsterdam",
             "delegatarisBody": "00000000-0000-0000-0000-000000000000",
-            "onderwerp": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
+            "subject": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
             "beperkingen": "Uitsluitend binnen door de raad vastgestelde kaders",
             "ondermandaatToegestaan": false,
             "wettelijkeGrondslag": [
@@ -26,7 +26,7 @@
             "type": "mandaat",
             "delegans": "00000000-0000-0000-0000-000000000000",
             "delegatarisFunctie": "gemeentesecretaris",
-            "onderwerp": "Beslissen op subsidieaanvragen tot het genoemde plafond",
+            "subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
             "financieelPlafond": 25000,
             "beperkingen": "Geen subsidies met precedentwerking",
             "ondermandaatToegestaan": true,
@@ -44,7 +44,7 @@
             "type": "mandaat",
             "delegansOmschrijving": "gemeentesecretaris",
             "delegatarisFunctie": "afdelingshoofd Samenleving",
-            "onderwerp": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
+            "subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
             "financieelPlafond": 5000,
             "beperkingen": "Uitsluitend reguliere subsidieregelingen",
             "ondermandaatToegestaan": false,
@@ -63,7 +63,7 @@
             "type": "volmacht",
             "delegansOmschrijving": "burgemeester",
             "delegatarisFunctie": "teamleider Inkoop",
-            "onderwerp": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
+            "subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
             "financieelPlafond": 50000,
             "beperkingen": "Binnen het vastgestelde inkoopbeleid",
             "ondermandaatToegestaan": false,
@@ -81,7 +81,7 @@
             "delegans": "00000000-0000-0000-0000-000000000000",
             "delegatarisFunctie": "juridisch adviseur team Recht",
             "delegatarisPersoon": "00000000-0000-0000-0000-000000000000",
-            "onderwerp": "Vertegenwoordiging bij Woo-bezwaarprocedures",
+            "subject": "Vertegenwoordiging bij Woo-bezwaarprocedures",
             "ondermandaatToegestaan": false,
             "wettelijkeGrondslag": [
               "Awb art. 10:3"
@@ -220,7 +220,7 @@
         },
         "required": [
           "type",
-          "onderwerp",
+          "subject",
           "besluit",
           "geldigVanaf",
           "status"
@@ -276,7 +276,7 @@
             "$ref": "Person",
             "description": "Reference to the delegataris / gemandateerde as a Popolo Person, where the authority is assigned to a named natural person. At least one delegataris field MUST be present."
           },
-          "onderwerp": {
+          "subject": {
             "title": "Subject",
             "type": "string",
             "description": "The subject / scope of the assigned authority (what may be exercised). Required.",
