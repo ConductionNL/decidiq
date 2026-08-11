@@ -24,6 +24,7 @@
  */
 
 import LiveMeetingView from './views/LiveMeeting.vue'
+import MeetingIntegrations from './views/MeetingIntegrations.vue'
 import DecisionIntegrations from './views/DecisionIntegrations.vue'
 import AgendaItemIntegrations from './views/AgendaItemIntegrations.vue'
 import MotionIntegrations from './views/MotionIntegrations.vue'
@@ -163,6 +164,13 @@ export default {
 	// Email leaf (migrate-email-links-to-email-leaf) — surfaces as a
 	// tab. Replaces the retired in-app EmailLink linking surface; email
 	// linking is now held by the registry, not an {app}_email_links store.
+	// Same defect as MotionIntegrations below, found the same way — by a test
+	// that opened the page. MeetingIntegrations.vue existed and its own docblock
+	// said "registered in src/registry.js", but it never was, and its manifest
+	// page was `type: "detail"` so CnPageRenderer mounted a generic CnDetailPage
+	// and never looked for a component. Two independent reasons the file could
+	// not render; both had to go.
+	MeetingIntegrations: page(MeetingIntegrations),
 	DecisionIntegrations: page(DecisionIntegrations),
 	AgendaItemIntegrations: page(AgendaItemIntegrations),
 	// src/manifest.json page 15 names this component on the route
