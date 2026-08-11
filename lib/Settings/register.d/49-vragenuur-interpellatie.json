@@ -16,10 +16,10 @@
           {
             "slug": "mv-wachtlijsten-jeugdzorg",
             "vraagNummer": "MV-2026-001",
-            "onderwerp": "Wachtlijsten jeugdzorg na aanbesteding",
+            "subject": "Wachtlijsten jeugdzorg na aanbesteding",
             "motivering": "Na de recente aanbesteding jeugdhulp bereiken de fractie signalen van oplopende wachttijden. Graag een toelichting van de portefeuillehouder op de actuele stand en de te nemen maatregelen.",
             "indiener": "00000000-0000-0000-0000-000000000000",
-            "fractie": "00000000-0000-0000-0000-000000000000",
+            "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
@@ -34,10 +34,10 @@
           {
             "slug": "mv-verkeersveiligheid-lindelaan",
             "vraagNummer": "MV-2026-002",
-            "onderwerp": "Verkeersveiligheid schoolzone Lindelaan",
+            "subject": "Verkeersveiligheid schoolzone Lindelaan",
             "motivering": "Ouders melden onveilige situaties tijdens de spits bij de schoolzone Lindelaan. Welke korte-termijnmaatregelen ziet het college?",
             "indiener": "00000000-0000-0000-0000-000000000000",
-            "fractie": "00000000-0000-0000-0000-000000000000",
+            "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
@@ -48,10 +48,10 @@
           {
             "slug": "mv-sluiting-zwembad",
             "vraagNummer": "MV-2026-003",
-            "onderwerp": "Voorgenomen sluiting zwembad De Plons",
+            "subject": "Voorgenomen sluiting zwembad De Plons",
             "motivering": "In de media wordt gesproken over een voorgenomen sluiting van zwembad De Plons. Klopt dit en is de raad hierover tijdig geïnformeerd?",
             "indiener": "00000000-0000-0000-0000-000000000000",
-            "fractie": "00000000-0000-0000-0000-000000000000",
+            "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
@@ -60,10 +60,10 @@
           {
             "slug": "mv-opvang-statushouders",
             "vraagNummer": "MV-2026-004",
-            "onderwerp": "Opvangcapaciteit statushouders Q3",
+            "subject": "Opvangcapaciteit statushouders Q3",
             "motivering": "Graag inzicht in de opvangcapaciteit voor statushouders in het derde kwartaal en de gevolgen voor de taakstelling.",
             "indiener": "00000000-0000-0000-0000-000000000000",
-            "fractie": "00000000-0000-0000-0000-000000000000",
+            "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "targetMeeting": "raadsvergadering-2025-01-15",
@@ -75,11 +75,11 @@
           {
             "slug": "int-veiligheid-stationsgebied",
             "verzoekNummer": "INT-2026-001",
-            "onderwerp": "Veiligheid stationsgebied",
+            "subject": "Veiligheid stationsgebied",
             "vragen": "1. Sinds wanneer was het college bekend met de toename van incidenten in het stationsgebied? 2. Welke maatregelen zijn getroffen en waarom is de raad hierover niet eerder geïnformeerd?",
             "motivering": "De aanhoudende onveiligheid in het stationsgebied rechtvaardigt een interpellatiedebat buiten de orde van de dag.",
             "verzoeker": "00000000-0000-0000-0000-000000000000",
-            "fractie": "00000000-0000-0000-0000-000000000000",
+            "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "steunbetuigingen": [
@@ -97,11 +97,11 @@
           {
             "slug": "int-jaarrekening-grondbedrijf",
             "verzoekNummer": "INT-2026-002",
-            "onderwerp": "Tekorten jaarrekening grondbedrijf",
+            "subject": "Tekorten jaarrekening grondbedrijf",
             "vragen": "1. Waarom is de raad niet geïnformeerd over de tekorten in het grondbedrijf? 2. Welke gevolgen heeft dit voor de meerjarenbegroting?",
             "motivering": "De omvang van de tekorten en het uitblijven van informatie aan de raad vragen om een interpellatie.",
             "verzoeker": "00000000-0000-0000-0000-000000000000",
-            "fractie": "00000000-0000-0000-0000-000000000000",
+            "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "steunbetuigingen": [
@@ -113,11 +113,11 @@
           {
             "slug": "int-subsidie-cultuurhuis",
             "verzoekNummer": "INT-2026-003",
-            "onderwerp": "Subsidieverlening cultuurhuis",
+            "subject": "Subsidieverlening cultuurhuis",
             "vragen": "1. Op welke grond is de subsidie aan het cultuurhuis verhoogd? 2. Voldoet de verhoging aan het geldende subsidiekader?",
             "motivering": "De onderbouwing van de subsidieverhoging is voor de raad onvoldoende inzichtelijk.",
             "verzoeker": "00000000-0000-0000-0000-000000000000",
-            "fractie": "00000000-0000-0000-0000-000000000000",
+            "politicalGroup": "00000000-0000-0000-0000-000000000000",
             "portefeuillehouder": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "gemeenteraad-amsterdam",
             "steunbetuigingen": [
@@ -361,8 +361,8 @@
         "required": [
           "vraagNummer",
           "indiener",
-          "fractie",
-          "onderwerp",
+          "politicalGroup",
+          "subject",
           "motivering",
           "portefeuillehouder",
           "governanceBody",
@@ -385,12 +385,12 @@
             "$ref": "Person",
             "description": "Reference to the raadslid (Person) submitting the question (schema:Question author). Required."
           },
-          "fractie": {
+          "politicalGroup": {
             "title": "Fraction",
             "type": "string",
             "description": "Reference to the submitter's Fractie (fractievoorzitter-fractie-koppeling — hard depends_on, that change owns the schema). Required. Seeded as a nil-UUID placeholder until that change lands (design D6). Declared as a PLAIN STRING, not format:uuid + $ref: the Fractie schema does not exist in this register yet, so a $ref to it is a dangling target (ADR-062 rule f) while dropping the $ref but keeping format:uuid is a relation-shaped property with no $ref (rule 7) — the pair is unsatisfiable until that change lands. Restore format:uuid + $ref: Fractie in the same commit that introduces the schema."
           },
-          "onderwerp": {
+          "subject": {
             "title": "Subject",
             "type": "string",
             "maxLength": 200,
@@ -479,12 +479,12 @@
           "vervolgSchriftelijkeVraag": {
             "title": "Follow-up written question",
             "type": "string",
-            "description": "Optional reference to a follow-up SchriftelijkeVraag (fractievoorzitter-fractie-koppeling) created from a niet-behandeld or beantwoord oral question. Its answering workflow stays in that change (REQ-VRI-006). Declared as a PLAIN STRING — see the note on MondelingeVraag.fractie: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it."
+            "description": "Optional reference to a follow-up SchriftelijkeVraag (fractievoorzitter-fractie-koppeling) created from a niet-behandeld or beantwoord oral question. Its answering workflow stays in that change (REQ-VRI-006). Declared as a PLAIN STRING — see the note on MondelingeVraag.politicalGroup: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it."
           },
           "bronSchriftelijkeVraag": {
             "title": "Source written question",
             "type": "string",
-            "description": "Declared as a PLAIN STRING — see the note on MondelingeVraag.fractie: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it. Optional reference to the SchriftelijkeVraag this oral question escalates from (fractievoorzitter-fractie-koppeling). Set on written → oral escalation; when the oral question reaches beantwoord, OralQuestionService sets the linked SV to 'vervallen-door-mondelinge-beantwoording' via a PUT-semantic save carrying all other SV fields forward (design D6, REQ-VRI-006). No field mirroring or shared lifecycle."
+            "description": "Declared as a PLAIN STRING — see the note on MondelingeVraag.politicalGroup: the SchriftelijkeVraag schema does not exist in this register yet. Restore format:uuid + $ref in the commit that introduces it. Optional reference to the SchriftelijkeVraag this oral question escalates from (fractievoorzitter-fractie-koppeling). Set on written → oral escalation; when the oral question reaches beantwoord, OralQuestionService sets the linked SV to 'vervallen-door-mondelinge-beantwoording' via a PUT-semantic save carrying all other SV fields forward (design D6, REQ-VRI-006). No field mirroring or shared lifecycle."
           }
         }
       },
@@ -669,8 +669,8 @@
         "required": [
           "verzoekNummer",
           "verzoeker",
-          "fractie",
-          "onderwerp",
+          "politicalGroup",
+          "subject",
           "vragen",
           "portefeuillehouder",
           "governanceBody",
@@ -692,12 +692,12 @@
             "$ref": "Person",
             "description": "Reference to the raadslid (Person) requesting the interpellation (schema:AskAction agent). Required."
           },
-          "fractie": {
+          "politicalGroup": {
             "title": "Fraction",
             "type": "string",
-            "description": "Reference to the requester's Fractie (fractievoorzitter-fractie-koppeling — hard depends_on). Required. Seeded as a nil-UUID placeholder until that change lands (design D6). Declared as a PLAIN STRING — see the note on MondelingeVraag.fractie: the Fractie schema does not exist in this register yet. Restore format:uuid + $ref: Fractie in the commit that introduces it."
+            "description": "Reference to the requester's Fractie (fractievoorzitter-fractie-koppeling — hard depends_on). Required. Seeded as a nil-UUID placeholder until that change lands (design D6). Declared as a PLAIN STRING — see the note on MondelingeVraag.politicalGroup: the Fractie schema does not exist in this register yet. Restore format:uuid + $ref: Fractie in the commit that introduces it."
           },
-          "onderwerp": {
+          "subject": {
             "title": "Subject",
             "type": "string",
             "maxLength": 200,
