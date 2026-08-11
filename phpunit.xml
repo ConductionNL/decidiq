@@ -29,6 +29,24 @@
         <exclude>
             <directory>lib/Migration/</directory>
             <file>lib/AppInfo/Application.php</file>
+            <!--
+                Same category as lib/Migration/ above: a repair step whose body is
+                ALTER TABLE / UPDATE against shard tables resolved at runtime. It
+                cannot be unit-tested — mocking IDBConnection needs doctrine/dbal,
+                which this app does not install, and OCP's IQueryBuilder references
+                Doctrine\DBAL\ParameterType, so createMock() throws before any
+                assertion runs. run()/shardTables()/columnsOf()/exec() therefore
+                have no reachable unit path.
+
+                Excluded from MEASUREMENT only. The decision logic IS tested:
+                tests/Unit/Repair/RenameDutchVocabularyColumnsTest.php pins that
+                another register's shard is never matched — which is the whole
+                point of scoping this step by register, since `onderwerp` also
+                exists in procest — plus the toelichting/omschrijving split and the
+                map invariants. Those tests still run, and go red when the guard is
+                removed.
+            -->
+            <file>lib/Repair/RenameDutchVocabularyColumns.php</file>
         </exclude>
     </source>
 
