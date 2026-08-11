@@ -60,7 +60,7 @@
 				"schema": "member-consultation",
 				"_note": "RaadplegingDetail (REQ-CCO-008). Consultation data leads 8-wide; results summary stacked right. The linked agendaItem/decision and (per-response) member-consultation-response objects render as resolved references in the data and Related widgets. Audit trail is a sidebar tab. 'niet-bindende raadpleging' label shown (REQ-CCO-005).",
 				"widgets": [
-					{ "id": "raadpleging-data", "type": "data", "title": "Consultation", "icon": "AccountQuestionOutline", "content": { "columns": 2 } },
+					{ "id": "raadpleging-data", "type": "data", "title": "Consultation", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "raadpleging-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [

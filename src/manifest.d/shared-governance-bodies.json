@@ -72,7 +72,7 @@
 				"schema": "zienswijzeronde",
 				"_note": "ZienswijzerondeDetail (REQ-SGB-004/007). Ronde data leads 8-wide; the subject document(s) attach via the Files leaf (OR file abstraction). The Related widget surfaces the aggregated overview of all its Zienswijze objects (reverse lookup on ronde) with participant/status/standpunt/ingediendDatum/verwerking, plus the resolved sharedBody, cyclusStap (soft), and closing decision (vaststellingsbesluit) references — read from the declared x-openregister-relations, no bespoke aggregation endpoint. Status is declared in x-openregister-lifecycle. Audit trail is a sidebar tab. Schema ref by slug (zienswijzeronde).",
 				"widgets": [
-					{ "id": "ronde-data", "type": "data", "title": "Zienswijzeronde", "icon": "CommentQuoteOutline", "content": { "columns": 2 } },
+					{ "id": "ronde-data", "type": "data", "title": "Zienswijzeronde", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "ronde-files", "type": "integration", "integrationId": "files", "title": "Subject documents", "icon": "FolderOutline" },
 					{ "id": "ronde-related", "type": "related", "title": "Zienswijzen & references", "icon": "LinkVariant" }
 				],

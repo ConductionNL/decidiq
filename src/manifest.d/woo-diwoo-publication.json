@@ -121,7 +121,7 @@
 				"schema": "woo-bestuursorgaan",
 				"_note": "WooBestuursorgaanDetail (REQ-WOO-006). The per-body bestuursorgaan override (governanceBody reference, bestuursorgaan TOOI id, label, active, notes) renders in the data widget with the linked GovernanceBody as a resolved reference; edit runs in a dedicated dialog (modal-isolation gate). Audit trail is a sidebar tab.",
 				"widgets": [
-					{ "id": "woo-org-data", "type": "data", "title": "Woo governing body", "icon": "OfficeBuildingOutline", "content": { "columns": 2 } },
+					{ "id": "woo-org-data", "type": "data", "title": "Woo governing body", "icon": "OfficeBuilding", "content": { "columns": 2 } },
 					{ "id": "woo-org-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [

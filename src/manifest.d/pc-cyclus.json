@@ -56,8 +56,8 @@
 				"schema": "pc-cyclus",
 				"_note": "PCCyclusDetail (REQ-PCC-009). The year-view timeline is a custom widget shipped in src/ (design D7); the Related widget lists the child CyclusStap objects in sequence order as the degrade-gracefully fallback. Progress (completedStepCount of stepCount) and overdueStepCount read from the REQ-PCC-001 declarative aggregations, never recomputed. No meeting/agenda/decision is created here.",
 				"widgets": [
-					{ "id": "cyclus-data", "type": "data", "title": "P&C cycle", "icon": "CalendarMonthOutline", "content": { "columns": 2 } },
-					{ "id": "cyclus-steps", "type": "related", "title": "Steps", "icon": "CalendarCheckOutline" }
+					{ "id": "cyclus-data", "type": "data", "title": "P&C cycle", "icon": "Calendar", "content": { "columns": 2 } },
+					{ "id": "cyclus-steps", "type": "related", "title": "Steps", "icon": "ClipboardCheckOutline" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "cyclus-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 4 },
@@ -84,7 +84,7 @@
 				"schema": "cyclus-stap",
 				"_note": "CyclusStapDetail (REQ-PCC-003/007/009). Step data leads 8-wide; document slots and their delivered FileService files in the Files leaf; the linked cyclus/agendaItem/decision/besluitvormendOrgaan/behandelendeCommissie render as resolved references in the data + Related widgets. Status is declared in x-openregister-lifecycle. Audit trail is a sidebar tab.",
 				"widgets": [
-					{ "id": "stap-data", "type": "data", "title": "P&C step", "icon": "CalendarCheckOutline", "content": { "columns": 2 } },
+					{ "id": "stap-data", "type": "data", "title": "P&C step", "icon": "ClipboardCheckOutline", "content": { "columns": 2 } },
 					{ "id": "stap-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "stap-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],

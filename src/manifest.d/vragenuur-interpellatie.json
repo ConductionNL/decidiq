@@ -74,7 +74,7 @@
 				"schema": "mondelinge-vraag",
 				"_note": "MondelingeVraagDetail (REQ-VRI-008). Question data leads 8-wide, admission/scheduling/answer actions stacked right; the linked indiener/fractie/portefeuillehouder/governanceBody/targetMeeting/vragenuurAgendaItem/beantwoordDoor/vervolgToezegging/bronSchriftelijkeVraag/vervolgSchriftelijkeVraag render as resolved references in the data + Related widgets (navigable links, REQ-VRI-006/REQ-VRI-005 link back to the written question and the toezegging). Files leaf for the original schriftelijke-vraag PDF. Audit trail is a sidebar tab. Submission/admission/scheduling/answer run in dedicated dialogs (modal-isolation gate) wired to OralQuestionService.",
 				"widgets": [
-					{ "id": "mv-data", "type": "data", "title": "Oral question", "icon": "CommentQuestionOutline", "content": { "columns": 2 } },
+					{ "id": "mv-data", "type": "data", "title": "Oral question", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "mv-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "mv-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
@@ -146,7 +146,7 @@
 				"schema": "interpellatieverzoek",
 				"_note": "InterpellatieverzoekDetail (REQ-VRI-011/REQ-VRI-012/REQ-VRI-013/REQ-VRI-014). Request data leads 8-wide, admission/scheduling/treatment actions stacked right; the linked verzoeker/fractie/portefeuillehouder/governanceBody/behandeldIn/agendaItem render as resolved references in the data + Related widgets (navigable links). Support recording (steunbetuigingen) runs in a dedicated dialog while ingediend; the support status ('N of M required', ceil) is computed client-side from VragenuurConfiguratie and the body's member count and informs, never gates. Files leaf for the written interpellation request PDF. Audit trail is a sidebar tab. Actions wired to OralQuestionService (modal-isolation gate).",
 				"widgets": [
-					{ "id": "int-data", "type": "data", "title": "Interpellation request", "icon": "AccountVoice", "content": { "columns": 2 } },
+					{ "id": "int-data", "type": "data", "title": "Interpellation request", "icon": "MessageTextOutline", "content": { "columns": 2 } },
 					{ "id": "int-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "int-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],

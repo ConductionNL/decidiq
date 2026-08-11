@@ -116,7 +116,7 @@
 				"schema": "modelreglement-preset",
 				"_note": "Schema ref by slug (modelreglement-preset), never PascalCase.",
 				"widgets": [
-					{ "id": "preset-data", "type": "data", "title": "Modelreglement preset", "icon": "BookOpenVariantOutline", "content": { "columns": 2 } }
+					{ "id": "preset-data", "type": "data", "title": "Modelreglement preset", "icon": "BookOpenVariant", "content": { "columns": 2 } }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "preset-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 8 }
@@ -164,7 +164,7 @@
 				"schema": "vve-configuration",
 				"_note": "Schema ref by slug (vve-configuration), never PascalCase.",
 				"widgets": [
-					{ "id": "config-data", "type": "data", "title": "VvE configuration", "icon": "OfficeBuildingOutline", "content": { "columns": 2 } },
+					{ "id": "config-data", "type": "data", "title": "VvE configuration", "icon": "OfficeBuilding", "content": { "columns": 2 } },
 					{ "id": "config-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
