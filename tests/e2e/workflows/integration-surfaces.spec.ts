@@ -42,8 +42,15 @@
  * button that is visible but wired to a route name that does not resolve is a
  * defect a visibility assertion cannot see.
  *
- * @e2e openspec/specs/decision-management/spec.md#decision-integrations-surface
- * @e2e openspec/specs/agenda-management/spec.md#agenda-item-integrations-surface
+ * NO SPEC ANCHORS HERE, DELIBERATELY. These three routes have no Scenario in
+ * openspec/specs — I wrote two anchors for slugs that sounded right, and they
+ * resolved to nothing. A traceability anchor that resolves to nothing is never
+ * reported by the coverage gate, so it survives indefinitely while reading like
+ * proof; there are twelve more of them in this suite, filed rather than
+ * repointed. Repointing one at a scenario whose steps the body does not
+ * actually perform would be worse than leaving it off, and writing the missing
+ * Scenario here would be authoring the spec this suite is checked against.
+ * Tracked as an issue instead.
  */
 import { test, expect, type Page } from '@playwright/test'
 
@@ -77,11 +84,17 @@ test.afterAll(async ({ browser }) => {
  * body out as a grid of widgets, each rendered as a `role="group"` named by
  * the widget id the manifest declares — `di-*` for the decision page, `ai-*`
  * for the agenda item, and never shared between them.
+ *
+ * ⚠️ `exact: true` is load-bearing, not tidiness. `getByRole`'s `name` option
+ * matches a SUBSTRING by default, so renaming the manifest's `di-deck` widget
+ * to `MUTANT-di-deck` still satisfied `{ name: 'di-deck' }` and the mutation
+ * control came back green — a null result that reads exactly like a test which
+ * cannot fail. The locator, not the test, was the thing that was broken.
  */
 function handle(page: Page, surface: 'decision' | 'motion' | 'agendaItem') {
 	if (surface === 'motion') return page.getByTestId('motion-integrations')
 	const widgetId = surface === 'decision' ? 'di-email' : 'ai-tasks'
-	return page.getByRole('group', { name: widgetId })
+	return page.getByRole('group', { name: widgetId, exact: true })
 }
 
 const SURFACES = ['decision', 'motion', 'agendaItem'] as const
@@ -130,7 +143,7 @@ test.describe('per-object integration surfaces', () => {
 			.toContainText(/linked Emails, the Action items board \(Deck\) and files/i)
 		// All three declared widgets are laid out, not just the first.
 		for (const widgetId of ['di-email', 'di-deck', 'di-files']) {
-			await expect(page.getByRole('group', { name: widgetId })).toBeVisible()
+			await expect(page.getByRole('group', { name: widgetId, exact: true })).toBeVisible()
 		}
 	})
 
@@ -179,7 +192,7 @@ test.describe('per-object integration surfaces', () => {
 		await expect(page.getByRole('main'))
 			.toContainText(/linked Emails, files and tasks surface on the body/i)
 		for (const widgetId of ['ai-email', 'ai-files', 'ai-tasks']) {
-			await expect(page.getByRole('group', { name: widgetId })).toBeVisible()
+			await expect(page.getByRole('group', { name: widgetId, exact: true })).toBeVisible()
 		}
 	})
 })
