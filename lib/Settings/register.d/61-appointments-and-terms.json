@@ -297,7 +297,8 @@
                 "type": "string",
                 "format": "uuid",
                 "nullable": true,
-                "description": "Optional reference to a resolved Person or GovernanceBody for the nominating party when one exists."
+                "x-relation-schema-field": "type",
+                "description": "Optional reference to a resolved object for the nominating party when one exists. Polymorphic: the sibling 'type' names the target schema — persoon resolves against Person, fractie/orgaan against GovernanceBody — so a single $ref cannot express it without asserting one target for every row."
               }
             }
           },
