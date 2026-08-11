@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "consultation-request",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "WOR-trajecten index (REQ-WCC-008). Columns subject/type/worArticle/bestuurder/receivedDate/requestedResponseDate/lifecycle; quick filters on type and lifecycle (governance-body filter available via the sidebar/facets). Non-public confidential list; schema ref BY SLUG consultation-request.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,

@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "woo-categorie-mapping",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "WooCategorieMapping index (REQ-WOO-001). Per-publishable-type default TOOI informatiecategorie mappings. Columns objectType/informatiecategorieLabel/informatiecategorie/active; quick filters on active; index _search matches objectType and informatiecategorieLabel. Sorted by objectType so duplicate type rows are immediately visible (OR has no cross-object unique constraint). Create/edit run through OR's object API via useObjectStore — no pass-through controllers.",
 				"search": true,
 				"searchFields": [
@@ -83,6 +85,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "woo-bestuursorgaan",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "WooBestuursorgaan index (REQ-WOO-006 admin settings shape). Per-governance-body bestuursorgaan TOOI id override; the instance-wide default lives in app config. Columns governanceBody/bestuursorgaan/label/active; quick filters on active; index _search matches bestuursorgaan and label. Create/edit through OR's object API via useObjectStore — no pass-through controllers.",
 				"search": true,
 				"searchFields": [

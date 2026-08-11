@@ -28,6 +28,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "zienswijzeronde",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Zienswijzerondes list (REQ-SGB-010 (2)). Columns title/sharedBody/subjectType/deadline/status; quick filters on subjectType and status; filterable on sharedBody. Schema ref by slug (zienswijzeronde). CSV export via the shared ExportService + CnMassExportDialog.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -100,6 +102,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "zienswijze",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Zienswijzen list (REQ-SGB-010 (3)). Filterable on participant organisation and status so each organisation sees its open zienswijze obligations; the Dashboard 'Openstaande zienswijzen' KPI (base src/manifest.json) deep-links here pre-filtered to the open set (status uitstaand/in-voorbereiding), where the participant filter gives the per-organisation view. Columns ronde/participant/standpunt/deadline/status. Schema ref by slug (zienswijze).",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,

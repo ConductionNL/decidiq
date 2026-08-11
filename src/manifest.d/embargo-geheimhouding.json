@@ -28,6 +28,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "geheimhouding",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -89,6 +91,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "geheimhouding-grond",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [

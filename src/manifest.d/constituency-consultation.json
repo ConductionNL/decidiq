@@ -21,6 +21,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "member-consultation",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Raadplegingen index (REQ-CCO-008). Columns question/audienceType/agendaItem/closesAt/lifecycle; quick filters on lifecycle and audience type. Non-binding member poll — never a VotingRound, never a public surface (REQ-CCO-005).",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,

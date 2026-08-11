@@ -20,6 +20,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "bevoegdheidstoedeling",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Delegatie- en mandaatregister index (REQ-DMR-004). Columns type/delegans/delegataris/onderwerp/geldigVanaf/geldigTot/status; quick filters on status and type. Per-delegans (body or role), per-delegataris (body, function, or person), full-text search over onderwerp/beperkingen/delegataris description, and the 'geldig op' in-force-on-date filter (status van-kracht AND geldigVanaf <= X AND (geldigTot empty OR geldigTot >= X)) are wired as a pure OR list query by Task 4 — no per-row resolution service, no N+1. CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome) includes type, delegans, delegataris, onderwerp, financieelPlafond, wettelijke grondslag, besluit, geldigheid, and status.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,

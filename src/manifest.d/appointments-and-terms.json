@@ -35,6 +35,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "voordracht",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "kandidaten is a structured array (design D1) so the primary link column uses motivering; candidates render in the detail data widget.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -100,6 +102,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "rooster-van-aftreden",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": false,
 				"quickFilters": [
@@ -154,6 +158,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "rooster-regel",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
@@ -213,6 +219,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "termijn-regeling",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [

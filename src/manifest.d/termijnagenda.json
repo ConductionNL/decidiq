@@ -20,6 +20,8 @@
 			"config": {
 				"register": "decidesk",
 				"schema": "termijnagenda-item",
+				"sortKey": "@self.created",
+				"sortOrder": "desc",
 				"_note": "Termijnagenda index (REQ-LTA-007). Columns onderwerp/governanceBody/plannedPeriod/expectedType/ownerType/lifecycle; quick filters on lifecycle (expectedType, governanceBody and plannedPeriod are facetable and available via the index sidebar facets). CSV export via the shared ExportService + CnMassExportDialog. The overdue-KPI deep-link (deferred Dashboard widget, design D6) targets this page pre-filtered to non-terminal lifecycle.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
