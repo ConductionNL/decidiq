@@ -13,15 +13,22 @@ governance law, so this app is where the statutory rule does most of its work.
 - [ ] 1.2 `Toezegging` → **`CouncilCommitment`**, not `Commitment` — shillinq's PR #495
       introduces `Commitment*` on merge. The collision is latent today and lands then.
 - [ ] 1.3 Do **not** rename decidesk's `Decision` schema (the ADR-005 governance
-      supertype). It already collides with procest's `decision`; resolving that belongs
-      to the fleet change.
-- [ ] 1.4 Flag `Adviesaanvraag`: procest declares it too, and both apps' changes
-      independently plan `AdviceRequest`. Do not claim the name unilaterally.
+      supertype) and do **not** claim `Adviesaanvraag` → `AdviceRequest` unilaterally:
+      procest declares both slugs too, and both apps' changes independently plan the same
+      English name. Resolving these belongs to the fleet change.
 
-## 2. Count stored objects
+## 2. Count stored objects and plan the migration
 
-- [ ] 2.1 Count objects per schema across all 36 — too many to assume greenfield. Read
-      the per-schema shard tables, exclude soft-deleted rows.
+- [ ] 2.1 Count objects per schema across all 36 — far too many to assume greenfield.
+      Resolve numeric register and schema ids through `oc_openregister_schemas`, then read
+      the `oc_openregister_table_<reg>_<schema>` shards; matching shard table names against
+      the schema title matches nothing and reports zero for every app. Exclude `_deleted`,
+      and sum across every register each schema is registered in.
+- [ ] 2.2 Prove the counting query can return non-zero before recording any zero. The
+      openbuild pilot was assumed greenfield and held 12 live objects across two registers;
+      only the positive control caught it.
+- [ ] 2.3 Write the migration for every non-zero schema, covering **schema renames as well
+      as property renames** — a renamed schema orphans its objects just as thoroughly.
 
 ## 3. Rename schemas with statute markers
 
@@ -91,6 +98,8 @@ governance law, so this app is where the statutory rule does most of its work.
 ## Acceptance criteria
 
 - Token-aware scan reports decidesk at 0/0.
+- Stored-object counts measured across all 36 schemas and proven by a positive control;
+  every non-zero schema migrated, schema renames included.
 - Every proposed schema name checked against the fleet slug list; no new collision added.
 - `CouncilCommitment` used, not `Commitment`; decidesk's `Decision` schema untouched.
 - Event dates keep event names; only true validity boundaries take `validFrom`/`validUntil`.
