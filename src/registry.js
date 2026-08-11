@@ -24,8 +24,6 @@
  */
 
 import LiveMeetingView from './views/LiveMeeting.vue'
-import DecisionIntegrations from './views/DecisionIntegrations.vue'
-import AgendaItemIntegrations from './views/AgendaItemIntegrations.vue'
 import MotionIntegrations from './views/MotionIntegrations.vue'
 
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
@@ -158,17 +156,24 @@ export default {
 	LiveMeetingView: page(LiveMeetingView),
 
 	// --- Integration-registry surfaces (ADR-019 / ADR-022). ---
-	// Each mounts CnDetailPage in `useRegistry` mode bound to its OR
-	// object so every registered integration provider — including the
-	// Email leaf (migrate-email-links-to-email-leaf) — surfaces as a
-	// tab. Replaces the retired in-app EmailLink linking surface; email
-	// linking is now held by the registry, not an {app}_email_links store.
-	DecisionIntegrations: page(DecisionIntegrations),
-	AgendaItemIntegrations: page(AgendaItemIntegrations),
-	// src/manifest.json page 15 names this component on the route
-	// /motions/:id/integrations, but nothing registered it — resolution fell
-	// through and the page rendered NOTHING. The component itself already
-	// existed; only the registration was missing.
+	// Mounts CnDetailPage in `useRegistry` mode bound to its OR object so
+	// every registered integration provider — including the Talk leaf —
+	// surfaces as a tab. Replaces the retired in-app linking surfaces.
+	//
+	// ONLY the motion page is registered here, and that is not an omission.
+	// A registry entry is consulted for a manifest page of `type: "custom"`.
+	// The decision and agenda-item integration pages are `type: "detail"`
+	// with a full declarative body (`config.widgets` + `config.layout`), and
+	// the renderer builds THAT and never resolves `component` — measured in
+	// the browser: both routes rendered their manifest widgets and neither
+	// `.vue` root testid ever appeared. Registering a component there does
+	// not make it render; it only makes a dead file look reachable. The two
+	// `.vue` files were deleted for that reason.
+	//
+	// The inverse mistake is recorded here too, because it is one line away:
+	// this motion page's component was once named by the manifest and never
+	// registered, so resolution fell through and the page rendered NOTHING.
+	// `type: "custom"` needs the registration; `type: "detail"` ignores it.
 	MotionIntegrations: page(MotionIntegrations),
 
 	// --- Detail-tab components (one per cross-schema relation). ---

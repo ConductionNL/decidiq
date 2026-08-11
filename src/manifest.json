@@ -518,7 +518,6 @@
 			"route": "/decisions/:id/integrations",
 			"type": "detail",
 			"title": "Decision integrations",
-			"component": "DecisionIntegrations",
 			"config": {
 				"register": "decidesk",
 				"schema": "decision",
@@ -548,7 +547,6 @@
 			"route": "/agenda-items/:id/integrations",
 			"type": "detail",
 			"title": "Agenda item integrations",
-			"component": "AgendaItemIntegrations",
 			"config": {
 				"register": "decidesk",
 				"schema": "agenda-item",
