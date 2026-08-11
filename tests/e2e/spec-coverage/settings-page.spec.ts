@@ -60,8 +60,18 @@ test('Admin settings: organisation mode selects, saves and survives a reload', a
 	const section = page.getByTestId('organisation-mode-settings')
 	await expect(section).toBeVisible()
 
-	await section.getByTestId('organisation-mode').click()
-	await page.getByRole('option', { name: 'Association (assoc)' }).click()
+	// Two nc-vue specifics, both already documented by passing tests in
+	// user-settings.spec.ts, and both fatal if ignored:
+	//
+	//  - NcSelect does NOT set `inheritAttrs: false`, so `data-testid` lands on
+	//    the WRAPPER, not the combobox. Clicking the wrapper does not open the
+	//    dropdown; click the inner input.
+	//  - Options render through NcEllipsisedOption, which splits any label of
+	//    10+ characters into two spans, so the option's ACCESSIBLE NAME gains a
+	//    space at the split point — an option named "Association (assoc)" never
+	//    exists. Match on text content instead, which is unaffected.
+	await section.locator('[data-testid="organisation-mode"] input').first().click()
+	await page.getByRole('option').filter({ hasText: /^Association \(assoc\)$/ }).click()
 	await section.getByTestId('organisation-mode-save').click()
 
 	// Round-trip through the server: the value is only proven persisted if a
@@ -72,8 +82,8 @@ test('Admin settings: organisation mode selects, saves and survives a reload', a
 	// Restore the instance default so the assertion is not order-dependent for
 	// any later spec that reads the mode.
 	const restore = page.getByTestId('organisation-mode-settings')
-	await restore.getByTestId('organisation-mode').click()
-	await page.getByRole('option', { name: 'Government (gov)' }).click()
+	await restore.locator('[data-testid="organisation-mode"] input').first().click()
+	await page.getByRole('option').filter({ hasText: /^Government \(gov\)$/ }).click()
 	await restore.getByTestId('organisation-mode-save').click()
 })
 
