@@ -91,7 +91,12 @@ async function dismissOverlays(page: Page): Promise<void> {
 
 /** Navigate to a Decidesk (or absolute) route and settle. */
 async function go(page: Page, route: string): Promise<void> {
-	const url = route.startsWith('/apps/') ? route : `${APP}${route}`
+	// `/settings/` joins `/apps/` as a server-absolute prefix: since ADR-079 D1
+	// the app's configuration surface is a Nextcloud settings section at
+	// /settings/admin/decidesk, not an in-app route, so it must not be prefixed
+	// with APP. Anything else is still an app-relative route.
+	const isAbsolute = route.startsWith('/apps/') || route.startsWith('/settings/')
+	const url = isAbsolute ? route : `${APP}${route}`
 
 	// ADR-074 rule 4: 'networkidle' NEVER settles on Nextcloud — long-polling
 	// endpoints and the notification stream keep a request open indefinitely.
@@ -293,10 +298,13 @@ test.describe('docs: admin track', () => {
 	})
 
 	test('AN admin-settings', async ({ page }) => {
-		// docs/tutorials/admin/03-admin-settings.md — Decidesk's settings
-		// live in-app at /apps/decidesk/settings (the three-section page:
-		// Version, Registers, Advanced).
-		await go(page, '/settings')
+		// docs/tutorials/admin/03-admin-settings.md — Decidesk's app-level
+		// configuration lives at /settings/admin/decidesk, in the Nextcloud
+		// settings framework, and nowhere else (ADR-079 D1). The in-app
+		// `/apps/decidesk/settings` twin this test used to shoot is deleted, so
+		// screenshotting it would document a surface that no longer exists.
+		// `/settings/...` is server-absolute — see the prefix rule in `go()`.
+		await go(page, '/settings/admin/decidesk')
 		await shoot(page, 'admin', '03-admin-settings-01.png')
 		await page.evaluate(() => window.scrollTo(0, 0))
 		await page.waitForTimeout(300)
@@ -317,6 +325,6 @@ test.describe('docs: admin track', () => {
 			await page.waitForTimeout(300)
 		}
 		await shoot(page, 'admin', '03-admin-settings-05.png')
-		expect(page.url()).toContain('/apps/decidesk/settings')
+		expect(page.url()).toContain('/settings/admin/decidesk')
 	})
 })

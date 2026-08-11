@@ -7,20 +7,20 @@
 
  The host dashboard renders this instead of the widget grid once the
  governance-body collection resolves to zero. It greets the user and offers
- three quick-start actions: Set Up Body → Settings, Create Meeting → Meetings,
- Create Decision → Decisions.
+ three quick-start actions: Set Up Body → GovernanceBodies, Create Meeting →
+ Meetings, Create Decision → Decisions.
 -->
 <template>
 	<div class="dashboard-empty" data-testid="dashboard-empty-state">
 		<NcEmptyContent
 			:name="t('decidesk', 'Welcome to Decidesk!')"
-			:description="t('decidesk', 'Welcome to Decidesk! Get started by setting up your first governing body in Settings.')">
+			:description="t('decidesk', 'Welcome to Decidesk! Get started by setting up your first governing body.')">
 			<template #icon>
 				<AccountGroupOutline :size="48" />
 			</template>
 			<template #action>
 				<div class="dashboard-empty__actions">
-					<NcButton variant="primary" data-testid="dashboard-empty-setup" @click="goSettings">
+					<NcButton variant="primary" data-testid="dashboard-empty-setup" @click="goGovernanceBodies">
 						{{ t('decidesk', 'Set Up Body') }}
 					</NcButton>
 					<NcButton data-testid="dashboard-empty-meeting" @click="goMeetings">
@@ -46,12 +46,19 @@ export default {
 
 	methods: {
 		/**
-		 * Navigate to the Settings page to set up the first governing body.
+		 * Navigate to Governance bodies, where the first governing body is created.
+		 *
+		 * This used to push `{ name: 'Settings' }` — the in-app `type:"settings"`
+		 * page deleted under ADR-079 D1. That target was wrong on both counts:
+		 * the route no longer resolves (vue-router warns and the click does
+		 * nothing), and a governing body was never created there in the first
+		 * place. Bodies are created on the GovernanceBodies index, which is what
+		 * the button's own label — "Set Up Body" — has always promised.
 		 *
 		 * @return {void}
 		 */
-		goSettings() {
-			this.$router.push({ name: 'Settings' })
+		goGovernanceBodies() {
+			this.$router.push({ name: 'GovernanceBodies' })
 		},
 
 		/**
