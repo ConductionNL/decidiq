@@ -211,15 +211,4 @@ class SettingsController extends Controller
 
         return new JSONResponse(['success' => true, 'config' => $saved]);
     }//end setPublicationConfig()
-
-    /**
-     * PLANT — temporary gate-25 true positive, to be reverted.
-     *
-     * @return JSONResponse
-     */
-    #[NoAdminRequired]
-    public function zzPlantProbeContract(): JSONResponse
-    {
-        return new JSONResponse(['plant' => true]);
-    }//end zzPlantProbeContract()
 }//end class

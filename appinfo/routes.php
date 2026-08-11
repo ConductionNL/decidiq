@@ -36,7 +36,6 @@ $extra = [
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
-        ['name' => 'settings#zzPlantProbeContract', 'url' => '/api/settings/zz-plant-probe-contract', 'verb' => 'GET'],
 
         // Publication action endpoints — publish/withdraw/rectify ONLY (ADR-022; CRUD stays on OR object API).
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
