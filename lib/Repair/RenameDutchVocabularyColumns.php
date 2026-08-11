@@ -235,15 +235,8 @@ class RenameDutchVocabularyColumns implements IRepairStep
 
         $tables = [];
         while (($row = $stmt->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $name   = (string) ($row['table_name'] ?? '');
-            $offset = strpos($name, $marker);
-            if ($offset === false) {
-                continue;
-            }
-
-            // Everything after the marker must be the numeric schema id, so
-            // register 18 cannot match register 180's tables.
-            if (ctype_digit(substr($name, ($offset + strlen($marker)))) === true) {
+            $name = (string) ($row['table_name'] ?? '');
+            if ($this->isShardOfRegister(table: $name, marker: $marker) === true) {
                 $tables[] = $name;
             }
         }
@@ -251,6 +244,30 @@ class RenameDutchVocabularyColumns implements IRepairStep
         return $tables;
 
     }//end decideskShardTables()
+
+    /**
+     * Whether a table is a shard of the decidesk register.
+     *
+     * @param string $table  Table name from information_schema.
+     * @param string $marker `openregister_table_<registerId>_`.
+     *
+     * @return bool
+     */
+    private function isShardOfRegister(string $table, string $marker): bool
+    {
+        $offset = strpos($table, $marker);
+        if ($offset === false) {
+            return false;
+        }
+
+        // Everything after the marker must be the numeric schema id, so a
+        // derived table (…_18_85_backup) or a non-shard (…_18_audit) is left
+        // alone. Note this is NOT what stops register 18 matching register
+        // 180's tables — the marker already ends in '_', so `…_table_18_` is
+        // not a substring of `…_table_180_85` in the first place.
+        return ctype_digit(substr($table, ($offset + strlen($marker)))) === true;
+
+    }//end isShardOfRegister()
 
     /**
      * List the column names of a table.
