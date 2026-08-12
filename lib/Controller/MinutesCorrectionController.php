@@ -254,6 +254,18 @@ class MinutesCorrectionController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
+	 * @throws DoesNotExistException When OpenRegister cannot resolve the
+	 *      Minutes uuid in any magic table. Note this is a SEPARATE path from
+	 *      the `$minutesEntity === null` branch below: `ObjectService::find()`
+	 *      returns null for some misses and raises for others, and both end as
+	 *      a 404 — the null here, the throw in resolveCorrection(), which is
+	 *      this method's only caller and already translates it.
+	 * @throws Exception When `saveObject()` rejects the updated Minutes.
+	 *      resolveCorrection() maps this to a 500. Declared rather than caught
+	 *      here on purpose: this helper's job is to decide the outcome, and
+	 *      moving the translation into it would put two catch sites on one
+	 *      path and let them drift apart.
+	 *
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	private function applyCorrectionResolution(string $minutesId, string $correctionId, string $status): JSONResponse {
