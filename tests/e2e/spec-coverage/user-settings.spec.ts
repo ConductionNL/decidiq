@@ -286,6 +286,19 @@ test('Communication: governance email overrides the account default and saves', 
 })
 
 // @e2e openspec/specs/user-settings/spec.md#set-default-landing-page
+//
+// This test is the browser coverage for the `UserSettings` page component
+// (`src/views/settings/UserSettings.vue`, manifest page id `UserSettings`,
+// route `/user-settings`): it navigates to the route the manifest declares and
+// asserts the component's own `user-settings-page` body block mounts.
+//
+// The component name is written out here because it was NOT written anywhere in
+// this file before, and gate-26 matches a page component to its coverage on the
+// literal token `\bUserSettings\b` (file stem / manifest page id). Every mention
+// was the kebab-case route `/user-settings`, so the gate reported this screen as
+// having no e2e test while this test had been driving it all along. Recording an
+// existing truth, not waiving a gap — delete this note only together with the
+// test below.
 test('SPA mount: /apps/decidesk/user-settings renders the four sections without decidesk errors', async ({ page }) => {
 	const appErrors: string[] = []
 	page.on('console', m => {
