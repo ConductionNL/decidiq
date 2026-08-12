@@ -15,7 +15,15 @@
  *
  * Matched against ConductionNL/openregister@origin/development, lib/Db/Schema.php:
  *
- *   class Schema extends Entity implements JsonSerializable
+ *   class Schema extends Entity implements JsonSerializable   (line 137)
+ *   public function setSlug(?string $slug): void              (line 1714)
+ *
+ * DELIBERATELY ABSENT: getSlug(). Production declares it ONLY as an `@method`
+ * docblock tag (line 49) and serves it through Entity::__call, so
+ * `method_exists()` is false for it. ListenerSchemaResolver reads it through
+ * property_exists() + an exception-safe call precisely because of that
+ * (decidesk#471); declaring it here would invert the predicate under test.
+ * setSlug(), by contrast, IS concrete in production and is declared here.
  */
 
 declare(strict_types=1);
@@ -58,6 +66,21 @@ class Schema extends Entity implements JsonSerializable
         $this->addType('slug', 'string');
 
     }//end __construct()
+
+
+    /**
+     * Set the slug. Concrete in production (lib/Db/Schema.php:1714).
+     *
+     * @param string|null $slug The slug to set
+     *
+     * @return void
+     */
+    public function setSlug(?string $slug): void
+    {
+        $this->slug = $slug;
+        $this->markFieldUpdated(attribute: 'slug');
+
+    }//end setSlug()
 
 
     /**
