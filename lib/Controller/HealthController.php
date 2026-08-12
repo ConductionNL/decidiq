@@ -62,191 +62,182 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/specs/apphost-adoption/spec.md
  */
-class HealthController extends Controller
-{
+class HealthController extends Controller {
 
-    /**
-     * FQCN of the AppHost observability manifest loader.
-     *
-     * Referenced as a string, never imported: the class only exists when
-     * openregister is installed.
-     *
-     * @var string
-     */
-    private const MANIFEST_LOADER = 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader';
+	/**
+	 * FQCN of the AppHost observability manifest loader.
+	 *
+	 * Referenced as a string, never imported: the class only exists when
+	 * openregister is installed.
+	 *
+	 * @var string
+	 */
+	private const MANIFEST_LOADER = 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader';
 
-    /**
-     * FQCN of the AppHost declarative health-check executor.
-     *
-     * Referenced as a string, never imported: the class only exists when
-     * openregister is installed.
-     *
-     * @var string
-     */
-    private const HEALTH_EXECUTOR = 'OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor';
+	/**
+	 * FQCN of the AppHost declarative health-check executor.
+	 *
+	 * Referenced as a string, never imported: the class only exists when
+	 * openregister is installed.
+	 *
+	 * @var string
+	 */
+	private const HEALTH_EXECUTOR = 'OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor';
 
-    /**
-     * Constructor.
-     *
-     * @param IRequest           $request   The request object.
-     * @param IConfig            $config    The Nextcloud config service (baseUrl).
-     * @param ContainerInterface $container DI container — resolves the AppHost engine lazily.
-     *
-     * @return void
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly IConfig $config,
-        private readonly ContainerInterface $container,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The request object.
+	 * @param IConfig $config The Nextcloud config service (baseUrl).
+	 * @param ContainerInterface $container DI container — resolves the AppHost engine lazily.
+	 *
+	 * @return void
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly IConfig $config,
+		private readonly ContainerInterface $container,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * GET /api/health and the legacy /api/v1/health — REQ-API-004 body.
-     *
-     * Runs the engine checks (orAvailable + always-200 policy + CORS, from the
-     * manifest), then reshapes the result into the published body that
-     * reverse-proxy probes verify: the effective base URL, the app version, and
-     * a flattened `openregister: connected|unavailable` status.
-     *
-     * When the AppHost engine cannot be resolved — openregister absent or
-     * disabled — the endpoint still answers (the whole point of a health
-     * probe): `status: degraded`, `openregister: unavailable`, HTTP 200.
-     *
-     * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
-     *
-     * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
-     * @spec openspec/changes/adopt-apphost/tasks.md#task-2.5
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    public function index(): JSONResponse
-    {
-        $baseUrl = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '');
+	/**
+	 * GET /api/health and the legacy /api/v1/health — REQ-API-004 body.
+	 *
+	 * Runs the engine checks (orAvailable + always-200 policy + CORS, from the
+	 * manifest), then reshapes the result into the published body that
+	 * reverse-proxy probes verify: the effective base URL, the app version, and
+	 * a flattened `openregister: connected|unavailable` status.
+	 *
+	 * When the AppHost engine cannot be resolved — openregister absent or
+	 * disabled — the endpoint still answers (the whole point of a health
+	 * probe): `status: degraded`, `openregister: unavailable`, HTTP 200.
+	 *
+	 * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
+	 *
+	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.5
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	public function index(): JSONResponse {
+		$baseUrl = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '');
 
-        $body = $this->engineBody();
-        if ($body === null) {
-            $body = [
-                'status'       => 'degraded',
-                'version'      => $this->config->getAppValue(Application::APP_ID, 'installed_version', ''),
-                'openregister' => 'unavailable',
-                'httpStatus'   => Http::STATUS_OK,
-            ];
-        }
+		$body = $this->engineBody();
+		if ($body === null) {
+			$body = [
+				'status' => 'degraded',
+				'version' => $this->config->getAppValue(Application::APP_ID, 'installed_version', ''),
+				'openregister' => 'unavailable',
+				'httpStatus' => Http::STATUS_OK,
+			];
+		}
 
-        $httpStatus = (int) $body['httpStatus'];
-        unset($body['httpStatus']);
+		$httpStatus = (int)$body['httpStatus'];
+		unset($body['httpStatus']);
 
-        $response = new JSONResponse(
-            [
-                'status'       => $body['status'],
-                'baseUrl'      => $baseUrl,
-                'version'      => $body['version'],
-                'openregister' => $body['openregister'],
-            ],
-            $httpStatus
-        );
+		$response = new JSONResponse(
+			[
+				'status' => $body['status'],
+				'baseUrl' => $baseUrl,
+				'version' => $body['version'],
+				'openregister' => $body['openregister'],
+			],
+			$httpStatus
+		);
 
-        $this->applyCorsHeaders(response: $response);
+		$this->applyCorsHeaders(response: $response);
 
-        return $response;
+		return $response;
+	}//end index()
 
-    }//end index()
+	/**
+	 * Run the AppHost observability engine and flatten its result.
+	 *
+	 * @return array{status: string, version: string, openregister: string, httpStatus: int}|null
+	 *                                                                                            Null when the engine is unavailable (openregister absent/disabled).
+	 */
+	private function engineBody(): ?array {
+		try {
+			$manifestLoader = $this->container->get(self::MANIFEST_LOADER);
+			$executor = $this->container->get(self::HEALTH_EXECUTOR);
 
-    /**
-     * Run the AppHost observability engine and flatten its result.
-     *
-     * @return array{status: string, version: string, openregister: string, httpStatus: int}|null
-     *         Null when the engine is unavailable (openregister absent/disabled).
-     */
-    private function engineBody(): ?array
-    {
-        try {
-            $manifestLoader = $this->container->get(self::MANIFEST_LOADER);
-            $executor       = $this->container->get(self::HEALTH_EXECUTOR);
+			$appId = $this->appName;
+			$manifest = $manifestLoader->load(appId: $appId);
+			$result = $executor->execute(manifest: $manifest);
 
-            $appId    = $this->appName;
-            $manifest = $manifestLoader->load(appId: $appId);
-            $result   = $executor->execute(manifest: $manifest);
+			// Flatten the engine's `checks.openregister` (ok|failed[: ...]) back
+			// to the historical `connected|unavailable` value.
+			$orCheck = (string)($result->checks['openregister'] ?? 'failed');
+			$openregister = 'unavailable';
+			if (str_starts_with($orCheck, 'ok') === true) {
+				$openregister = 'connected';
+			}
 
-            // Flatten the engine's `checks.openregister` (ok|failed[: ...]) back
-            // to the historical `connected|unavailable` value.
-            $orCheck      = (string) ($result->checks['openregister'] ?? 'failed');
-            $openregister = 'unavailable';
-            if (str_starts_with($orCheck, 'ok') === true) {
-                $openregister = 'connected';
-            }
+			return [
+				'status' => (string)$result->status,
+				'version' => (string)$manifestLoader->appVersion(appId: $appId),
+				'openregister' => $openregister,
+				'httpStatus' => (int)$result->httpStatusCode,
+			];
+		} catch (\Throwable $e) {
+			return null;
+		}//end try
 
-            return [
-                'status'       => (string) $result->status,
-                'version'      => (string) $manifestLoader->appVersion(appId: $appId),
-                'openregister' => $openregister,
-                'httpStatus'   => (int) $result->httpStatusCode,
-            ];
-        } catch (\Throwable $e) {
-            return null;
-        }//end try
+	}//end engineBody()
 
-    }//end engineBody()
+	/**
+	 * Legacy alias target for `GET /api/v1/health`. Delegates to {@see index()}.
+	 *
+	 * Kept so existing reverse-proxy probes on the historical URL keep working
+	 * during the deprecation window.
+	 *
+	 * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
+	 *
+	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	public function status(): JSONResponse {
+		return $this->index();
+	}//end status()
 
-    /**
-     * Legacy alias target for `GET /api/v1/health`. Delegates to {@see index()}.
-     *
-     * Kept so existing reverse-proxy probes on the historical URL keep working
-     * during the deprecation window.
-     *
-     * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
-     *
-     * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    public function status(): JSONResponse
-    {
-        return $this->index();
+	/**
+	 * CORS preflight for the legacy `OPTIONS /api/v1/health` route.
+	 *
+	 * @return JSONResponse HTTP 200 with Access-Control-* headers.
+	 *
+	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	public function statusOptions(): JSONResponse {
+		$response = new JSONResponse([], Http::STATUS_OK);
+		$this->applyCorsHeaders(response: $response);
 
-    }//end status()
+		return $response;
+	}//end statusOptions()
 
-    /**
-     * CORS preflight for the legacy `OPTIONS /api/v1/health` route.
-     *
-     * @return JSONResponse HTTP 200 with Access-Control-* headers.
-     *
-     * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    public function statusOptions(): JSONResponse
-    {
-        $response = new JSONResponse([], Http::STATUS_OK);
-        $this->applyCorsHeaders(response: $response);
+	/**
+	 * Apply CORS headers using the configured proxy origin when available
+	 * (REQ-API-004 parity with the pre-adoption controller).
+	 *
+	 * @param JSONResponse $response The response to decorate.
+	 *
+	 * @return void
+	 */
+	private function applyCorsHeaders(JSONResponse $response): void {
+		$origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
 
-        return $response;
+		$allowedOrigin = '*';
+		if ($origin !== '') {
+			$allowedOrigin = $origin;
+		}
 
-    }//end statusOptions()
+		$response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
+		$response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
+		$response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
 
-    /**
-     * Apply CORS headers using the configured proxy origin when available
-     * (REQ-API-004 parity with the pre-adoption controller).
-     *
-     * @param JSONResponse $response The response to decorate.
-     *
-     * @return void
-     */
-    private function applyCorsHeaders(JSONResponse $response): void
-    {
-        $origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
-
-        $allowedOrigin = '*';
-        if ($origin !== '') {
-            $allowedOrigin = $origin;
-        }
-
-        $response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
-        $response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
-        $response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
-
-    }//end applyCorsHeaders()
+	}//end applyCorsHeaders()
 }//end class

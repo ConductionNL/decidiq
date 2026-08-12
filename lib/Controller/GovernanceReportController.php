@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Governance Report Controller
  *
@@ -42,173 +43,165 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
  */
-class GovernanceReportController extends Controller
-{
-    use RequiresOrAdmin;
+class GovernanceReportController extends Controller {
+	use RequiresOrAdmin;
+	use GovernanceControllerTrait;
 
-    use GovernanceControllerTrait;
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request HTTP request
+	 * @param GovernanceReportingService $reportingService Reporting service
+	 * @param IUserSession $userSession User session
+	 * @param IGroupManager $groupManager Group manager
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly GovernanceReportingService $reportingService,
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Constructor.
-     *
-     * @param IRequest                   $request          HTTP request
-     * @param GovernanceReportingService $reportingService Reporting service
-     * @param IUserSession               $userSession      User session
-     * @param IGroupManager              $groupManager     Group manager
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly GovernanceReportingService $reportingService,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+	/**
+	 * Generate an annual report.
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function generate(): JSONResponse {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-    /**
-     * Generate an annual report.
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function generate(): JSONResponse
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+		$boardId = (string)$this->request->getParam('boardId', '');
+		$year = (int)$this->request->getParam('year', 0);
+		if ($boardId === '' || $year === 0) {
+			return new JSONResponse(
+				['message' => "Missing required parameter 'boardId' or 'year'."],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-        $boardId = (string) $this->request->getParam('boardId', '');
-        $year    = (int) $this->request->getParam('year', 0);
-        if ($boardId === '' || $year === 0) {
-            return new JSONResponse(
-                ['message' => "Missing required parameter 'boardId' or 'year'."],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+		return $this->respondFromResult(
+			result: $this->reportingService->generateAnnualReport($boardId, $year),
+			payloadKey: 'report',
+			successCode: Http::STATUS_CREATED
+		);
 
-        return $this->respondFromResult(
-            result: $this->reportingService->generateAnnualReport($boardId, $year),
-            payloadKey: 'report',
-            successCode: Http::STATUS_CREATED
-        );
+	}//end generate()
 
-    }//end generate()
+	/**
+	 * List reports for a board.
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function index(): JSONResponse {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-    /**
-     * List reports for a board.
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function index(): JSONResponse
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+		$boardId = (string)$this->request->getParam('boardId', '');
+		if ($boardId === '') {
+			return new JSONResponse(
+				['message' => "Missing required parameter 'boardId'."],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-        $boardId = (string) $this->request->getParam('boardId', '');
-        if ($boardId === '') {
-            return new JSONResponse(
-                ['message' => "Missing required parameter 'boardId'."],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+		$result = $this->reportingService->listReports($boardId);
+		return new JSONResponse(
+			[
+				'results' => $result['reports'],
+				'total' => $result['count'],
+			]
+		);
 
-        $result = $this->reportingService->listReports($boardId);
-        return new JSONResponse(
-            [
-                'results' => $result['reports'],
-                'total'   => $result['count'],
-            ]
-        );
+	}//end index()
 
-    }//end index()
+	/**
+	 * Show a single report (JSON).
+	 *
+	 * @param string $id UUID of the report
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function show(string $id): JSONResponse {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-    /**
-     * Show a single report (JSON).
-     *
-     * @param string $id UUID of the report
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function show(string $id): JSONResponse
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+		$result = $this->reportingService->exportReport($id, 'json');
+		if ($result['success'] === false) {
+			$message = $result['message'];
+			$status = Http::STATUS_NOT_FOUND;
+			if (stripos($message, 'not found') === false) {
+				$status = Http::STATUS_UNPROCESSABLE_ENTITY;
+			}
 
-        $result = $this->reportingService->exportReport($id, 'json');
-        if ($result['success'] === false) {
-            $message = $result['message'];
-            $status  = Http::STATUS_NOT_FOUND;
-            if (stripos($message, 'not found') === false) {
-                $status = Http::STATUS_UNPROCESSABLE_ENTITY;
-            }
+			return new JSONResponse(['message' => $message], $status);
+		}
 
-            return new JSONResponse(['message' => $message], $status);
-        }
+		$decoded = json_decode($result['body'], true);
+		if (is_array($decoded) === false) {
+			$decoded = ['body' => $result['body']];
+		}
 
-        $decoded = json_decode($result['body'], true);
-        if (is_array($decoded) === false) {
-            $decoded = ['body' => $result['body']];
-        }
+		return new JSONResponse($decoded);
+	}//end show()
 
-        return new JSONResponse($decoded);
+	/**
+	 * Export a report in the chosen format (json or csv).
+	 *
+	 * @param string $id UUID of the report
+	 * @param string $format One of json|csv
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+	 *
+	 * @return Response
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function export(string $id, string $format): Response {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-    }//end show()
+		$result = $this->reportingService->exportReport($id, $format);
+		if ($result['success'] === false) {
+			return new JSONResponse(
+				['message' => $result['message']],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
 
-    /**
-     * Export a report in the chosen format (json or csv).
-     *
-     * @param string $id     UUID of the report
-     * @param string $format One of json|csv
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
-     *
-     * @return Response
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function export(string $id, string $format): Response
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+		$extension = 'json';
+		if ($format === 'csv') {
+			$extension = 'csv';
+		}
 
-        $result = $this->reportingService->exportReport($id, $format);
-        if ($result['success'] === false) {
-            return new JSONResponse(
-                ['message' => $result['message']],
-                Http::STATUS_UNPROCESSABLE_ENTITY
-            );
-        }
+		$filename = 'governance-report-' . $id . '.' . $extension;
+		$response = new DataDisplayResponse(
+			$result['body'],
+			Http::STATUS_OK,
+			['Content-Type' => $result['contentType']]
+		);
+		$response->addHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+		return $response;
+	}//end export()
 
-        $extension = 'json';
-        if ($format === 'csv') {
-            $extension = 'csv';
-        }
-
-        $filename = 'governance-report-'.$id.'.'.$extension;
-        $response = new DataDisplayResponse(
-            $result['body'],
-            Http::STATUS_OK,
-            ['Content-Type' => $result['contentType']]
-        );
-        $response->addHeader('Content-Disposition', 'attachment; filename="'.$filename.'"');
-        return $response;
-
-    }//end export()
-
-    // Admin guard requireAdmin() comes from the shared RequiresOrAdmin trait
-    // (consume-or-rbac-authorization, REQ-RBAC-004).
+	// Admin guard requireAdmin() comes from the shared RequiresOrAdmin trait
+	// (consume-or-rbac-authorization, REQ-RBAC-004).
 }//end class

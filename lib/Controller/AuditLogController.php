@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Audit Log Controller
  *
@@ -46,134 +47,127 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
  */
-class AuditLogController extends Controller
-{
-    use RequiresOrAdmin;
+class AuditLogController extends Controller {
+	use RequiresOrAdmin;
+	use GovernanceControllerTrait;
 
-    use GovernanceControllerTrait;
+	/**
+	 * Constructor for AuditLogController.
+	 *
+	 * @param IRequest $request The HTTP request
+	 * @param AuditLogService $auditLogService The audit log service
+	 * @param IUserSession $userSession The user session
+	 * @param IGroupManager $groupManager NC group manager (admin check)
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly AuditLogService $auditLogService,
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Constructor for AuditLogController.
-     *
-     * @param IRequest        $request         The HTTP request
-     * @param AuditLogService $auditLogService The audit log service
-     * @param IUserSession    $userSession     The user session
-     * @param IGroupManager   $groupManager    NC group manager (admin check)
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly AuditLogService $auditLogService,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+	/**
+	 * Query the audit log.
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function index(): JSONResponse {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-    /**
-     * Query the audit log.
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function index(): JSONResponse
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+		$filters = [
+			'actor' => (string)$this->request->getParam('actor', ''),
+			'action' => (string)$this->request->getParam('action', ''),
+			'startDate' => (string)$this->request->getParam('startDate', ''),
+			'endDate' => (string)$this->request->getParam('endDate', ''),
+			'objectUuid' => (string)$this->request->getParam('objectUuid', ''),
+			'limit' => (int)$this->request->getParam('limit', 100),
+			'offset' => (int)$this->request->getParam('offset', 0),
+		];
 
-        $filters = [
-            'actor'      => (string) $this->request->getParam('actor', ''),
-            'action'     => (string) $this->request->getParam('action', ''),
-            'startDate'  => (string) $this->request->getParam('startDate', ''),
-            'endDate'    => (string) $this->request->getParam('endDate', ''),
-            'objectUuid' => (string) $this->request->getParam('objectUuid', ''),
-            'limit'      => (int) $this->request->getParam('limit', 100),
-            'offset'     => (int) $this->request->getParam('offset', 0),
-        ];
+		foreach (['actor', 'action', 'startDate', 'endDate', 'objectUuid'] as $key) {
+			if ($filters[$key] === '') {
+				unset($filters[$key]);
+			}
+		}
 
-        foreach (['actor', 'action', 'startDate', 'endDate', 'objectUuid'] as $key) {
-            if ($filters[$key] === '') {
-                unset($filters[$key]);
-            }
-        }
+		$result = $this->auditLogService->query($filters);
+		if ($result['success'] === false) {
+			return new JSONResponse(['message' => 'Failed to query audit log.'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
 
-        $result = $this->auditLogService->query($filters);
-        if ($result['success'] === false) {
-            return new JSONResponse(['message' => 'Failed to query audit log.'], Http::STATUS_SERVICE_UNAVAILABLE);
-        }
+		return new JSONResponse(
+			[
+				'results' => $result['entries'],
+				'total' => $result['count'],
+			]
+		);
 
-        return new JSONResponse(
-            [
-                'results' => $result['entries'],
-                'total'   => $result['count'],
-            ]
-        );
+	}//end index()
 
-    }//end index()
+	/**
+	 * Verify the hash chain up to (and including) the given entry.
+	 *
+	 * @param string $id UUID of the entry to stop at
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function verify(string $id): JSONResponse {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-    /**
-     * Verify the hash chain up to (and including) the given entry.
-     *
-     * @param string $id UUID of the entry to stop at
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function verify(string $id): JSONResponse
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+		return new JSONResponse($this->auditLogService->verify($id));
+	}//end verify()
 
-        return new JSONResponse($this->auditLogService->verify($id));
+	/**
+	 * Export a date-range slice of the audit log as JSON or CSV.
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+	 *
+	 * @return Response
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function export(): Response {
+		$deny = $this->requireAdmin();
+		if ($deny !== null) {
+			return $deny;
+		}
 
-    }//end verify()
+		$startDate = (string)$this->request->getParam('startDate', '1970-01-01T00:00:00Z');
+		$endDate = (string)$this->request->getParam('endDate', '9999-12-31T23:59:59Z');
+		$format = strtolower((string)$this->request->getParam('format', 'json'));
 
-    /**
-     * Export a date-range slice of the audit log as JSON or CSV.
-     *
-     * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
-     *
-     * @return Response
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function export(): Response
-    {
-        $deny = $this->requireAdmin();
-        if ($deny !== null) {
-            return $deny;
-        }
+		$result = $this->auditLogService->export($startDate, $endDate, $format);
+		if ($result['success'] === false) {
+			return new JSONResponse(['message' => 'Failed to export audit log.'], Http::STATUS_UNPROCESSABLE_ENTITY);
+		}
 
-        $startDate = (string) $this->request->getParam('startDate', '1970-01-01T00:00:00Z');
-        $endDate   = (string) $this->request->getParam('endDate', '9999-12-31T23:59:59Z');
-        $format    = strtolower((string) $this->request->getParam('format', 'json'));
+		$contentType = 'application/json';
+		$extension = 'json';
+		if ($format === 'csv') {
+			$contentType = 'text/csv';
+			$extension = 'csv';
+		}
 
-        $result = $this->auditLogService->export($startDate, $endDate, $format);
-        if ($result['success'] === false) {
-            return new JSONResponse(['message' => 'Failed to export audit log.'], Http::STATUS_UNPROCESSABLE_ENTITY);
-        }
+		$filename = 'audit-log-' . gmdate('Ymd-His') . '.' . $extension;
 
-        $contentType = 'application/json';
-        $extension   = 'json';
-        if ($format === 'csv') {
-            $contentType = 'text/csv';
-            $extension   = 'csv';
-        }
+		$response = new DataDisplayResponse($result['body'], Http::STATUS_OK, ['Content-Type' => $contentType]);
+		$response->addHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+		return $response;
+	}//end export()
 
-        $filename = 'audit-log-'.gmdate('Ymd-His').'.'.$extension;
-
-        $response = new DataDisplayResponse($result['body'], Http::STATUS_OK, ['Content-Type' => $contentType]);
-        $response->addHeader('Content-Disposition', 'attachment; filename="'.$filename.'"');
-        return $response;
-
-    }//end export()
-
-    // Admin guard requireAdmin() comes from the shared RequiresOrAdmin trait
-    // (consume-or-rbac-authorization, REQ-RBAC-004).
+	// Admin guard requireAdmin() comes from the shared RequiresOrAdmin trait
+	// (consume-or-rbac-authorization, REQ-RBAC-004).
 }//end class

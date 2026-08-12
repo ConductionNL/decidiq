@@ -39,184 +39,173 @@ use Psr\Container\ContainerInterface;
 /**
  * Verifies Nextcloud-UID to Participant-UUID resolution, scoped and unscoped.
  */
-final class ParticipantUuidLookupTest extends TestCase
-{
+final class ParticipantUuidLookupTest extends TestCase {
 
-    /**
-     * Mock OpenRegister ObjectService.
-     *
-     * @var ObjectService&MockObject
-     */
-    private ObjectService $objectService;
+	/**
+	 * Mock OpenRegister ObjectService.
+	 *
+	 * @var ObjectService&MockObject
+	 */
+	private ObjectService $objectService;
 
-    /**
-     * The service under test.
-     *
-     * @var ParticipantUuidLookup
-     */
-    private ParticipantUuidLookup $lookup;
+	/**
+	 * The service under test.
+	 *
+	 * @var ParticipantUuidLookup
+	 */
+	private ParticipantUuidLookup $lookup;
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-        $container           = $this->createMock(ContainerInterface::class);
-        $this->objectService = $this->createMock(ObjectService::class);
+		$container = $this->createMock(ContainerInterface::class);
+		$this->objectService = $this->createMock(ObjectService::class);
 
-        $this->objectService->method('setRegister')->willReturnSelf();
-        $this->objectService->method('setSchema')->willReturnSelf();
-        $container->method('get')->willReturn($this->objectService);
+		$this->objectService->method('setRegister')->willReturnSelf();
+		$this->objectService->method('setSchema')->willReturnSelf();
+		$container->method('get')->willReturn($this->objectService);
 
-        $this->lookup = new ParticipantUuidLookup($container);
+		$this->lookup = new ParticipantUuidLookup($container);
 
-    }//end setUp()
+	}//end setUp()
 
-    /**
-     * Build an ObjectEntity mock whose jsonSerialize() returns $data.
-     *
-     * @param array<string, mixed> $data The serialised participant payload.
-     *
-     * @return ObjectEntity&MockObject
-     */
-    private function entity(array $data): ObjectEntity
-    {
-        $entity = $this->getMockBuilder(ObjectEntity::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['jsonSerialize'])
-            ->getMock();
-        $entity->method('jsonSerialize')->willReturn($data);
-        return $entity;
+	/**
+	 * Build an ObjectEntity mock whose jsonSerialize() returns $data.
+	 *
+	 * @param array<string, mixed> $data The serialised participant payload.
+	 *
+	 * @return ObjectEntity&MockObject
+	 */
+	private function entity(array $data): ObjectEntity {
+		$entity = $this->getMockBuilder(ObjectEntity::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['jsonSerialize'])
+			->getMock();
+		$entity->method('jsonSerialize')->willReturn($data);
+		return $entity;
+	}//end entity()
 
-    }//end entity()
+	/**
+	 * The unscoped lookup answers with the first participant it is given.
+	 *
+	 * @return void
+	 */
+	public function testForNextcloudUserReturnsFirstMatch(): void {
+		$this->objectService->method('findAll')->willReturn(
+			[$this->entity(['uuid' => 'participant-a', 'governanceBody' => 'body-1'])]
+		);
 
-    /**
-     * The unscoped lookup answers with the first participant it is given.
-     *
-     * @return void
-     */
-    public function testForNextcloudUserReturnsFirstMatch(): void
-    {
-        $this->objectService->method('findAll')->willReturn(
-            [$this->entity(['uuid' => 'participant-a', 'governanceBody' => 'body-1'])]
-        );
+		$this->assertSame('participant-a', $this->lookup->forNextcloudUser(nextcloudUid: 'bestuurslid'));
 
-        $this->assertSame('participant-a', $this->lookup->forNextcloudUser(nextcloudUid: 'bestuurslid'));
+	}//end testForNextcloudUserReturnsFirstMatch()
 
-    }//end testForNextcloudUserReturnsFirstMatch()
+	/**
+	 * No participant rows means no identity — null, never an empty string.
+	 *
+	 * @return void
+	 */
+	public function testForNextcloudUserReturnsNullWhenNoParticipant(): void {
+		$this->objectService->method('findAll')->willReturn([]);
 
-    /**
-     * No participant rows means no identity — null, never an empty string.
-     *
-     * @return void
-     */
-    public function testForNextcloudUserReturnsNullWhenNoParticipant(): void
-    {
-        $this->objectService->method('findAll')->willReturn([]);
+		$this->assertNull($this->lookup->forNextcloudUser(nextcloudUid: 'outsider'));
 
-        $this->assertNull($this->lookup->forNextcloudUser(nextcloudUid: 'outsider'));
+	}//end testForNextcloudUserReturnsNullWhenNoParticipant()
 
-    }//end testForNextcloudUserReturnsNullWhenNoParticipant()
+	/**
+	 * `id` stands in when the payload carries no `uuid`.
+	 *
+	 * @return void
+	 */
+	public function testForNextcloudUserFallsBackToIdWhenUuidAbsent(): void {
+		$this->objectService->method('findAll')->willReturn(
+			[$this->entity(['id' => 'participant-by-id'])]
+		);
 
-    /**
-     * `id` stands in when the payload carries no `uuid`.
-     *
-     * @return void
-     */
-    public function testForNextcloudUserFallsBackToIdWhenUuidAbsent(): void
-    {
-        $this->objectService->method('findAll')->willReturn(
-            [$this->entity(['id' => 'participant-by-id'])]
-        );
+		$this->assertSame('participant-by-id', $this->lookup->forNextcloudUser(nextcloudUid: 'bestuurslid'));
 
-        $this->assertSame('participant-by-id', $this->lookup->forNextcloudUser(nextcloudUid: 'bestuurslid'));
+	}//end testForNextcloudUserFallsBackToIdWhenUuidAbsent()
 
-    }//end testForNextcloudUserFallsBackToIdWhenUuidAbsent()
+	/**
+	 * THE DEFECT THIS CLASS EXISTS FOR.
+	 *
+	 * One user, two boards, two participant rows. The scoped lookup must answer
+	 * with the identity held on the body asked about — not the first row.
+	 *
+	 * @return void
+	 */
+	public function testForNextcloudUserInBodyPicksTheIdentityForThatBody(): void {
+		$this->objectService->method('findAll')->willReturn(
+			[
+				$this->entity(['uuid' => 'participant-on-board-1', 'governanceBody' => 'body-1']),
+				$this->entity(['uuid' => 'participant-on-board-2', 'governanceBody' => 'body-2']),
+			]
+		);
 
-    /**
-     * THE DEFECT THIS CLASS EXISTS FOR.
-     *
-     * One user, two boards, two participant rows. The scoped lookup must answer
-     * with the identity held on the body asked about — not the first row.
-     *
-     * @return void
-     */
-    public function testForNextcloudUserInBodyPicksTheIdentityForThatBody(): void
-    {
-        $this->objectService->method('findAll')->willReturn(
-            [
-                $this->entity(['uuid' => 'participant-on-board-1', 'governanceBody' => 'body-1']),
-                $this->entity(['uuid' => 'participant-on-board-2', 'governanceBody' => 'body-2']),
-            ]
-        );
+		$this->assertSame(
+			'participant-on-board-2',
+			$this->lookup->forNextcloudUserInBody(nextcloudUid: 'bestuurslid', governanceBodyId: 'body-2'),
+			'the scoped lookup must skip the identity held on a different board'
+		);
 
-        $this->assertSame(
-            'participant-on-board-2',
-            $this->lookup->forNextcloudUserInBody(nextcloudUid: 'bestuurslid', governanceBodyId: 'body-2'),
-            'the scoped lookup must skip the identity held on a different board'
-        );
+	}//end testForNextcloudUserInBodyPicksTheIdentityForThatBody()
 
-    }//end testForNextcloudUserInBodyPicksTheIdentityForThatBody()
+	/**
+	 * The body link is also honoured when it lives in `@self.relations`.
+	 *
+	 * @return void
+	 */
+	public function testForNextcloudUserInBodyReadsTheRelationsForm(): void {
+		$this->objectService->method('findAll')->willReturn(
+			[
+				$this->entity(['uuid' => 'participant-on-board-1', 'governanceBody' => 'body-1']),
+				$this->entity(
+					[
+						'uuid' => 'participant-via-relations',
+						'@self' => ['relations' => ['governanceBody' => 'body-2']],
+					]
+				),
+			]
+		);
 
-    /**
-     * The body link is also honoured when it lives in `@self.relations`.
-     *
-     * @return void
-     */
-    public function testForNextcloudUserInBodyReadsTheRelationsForm(): void
-    {
-        $this->objectService->method('findAll')->willReturn(
-            [
-                $this->entity(['uuid' => 'participant-on-board-1', 'governanceBody' => 'body-1']),
-                $this->entity(
-                    [
-                        'uuid'  => 'participant-via-relations',
-                        '@self' => ['relations' => ['governanceBody' => 'body-2']],
-                    ]
-                ),
-            ]
-        );
+		$this->assertSame(
+			'participant-via-relations',
+			$this->lookup->forNextcloudUserInBody(nextcloudUid: 'bestuurslid', governanceBodyId: 'body-2')
+		);
 
-        $this->assertSame(
-            'participant-via-relations',
-            $this->lookup->forNextcloudUserInBody(nextcloudUid: 'bestuurslid', governanceBodyId: 'body-2')
-        );
+	}//end testForNextcloudUserInBodyReadsTheRelationsForm()
 
-    }//end testForNextcloudUserInBodyReadsTheRelationsForm()
+	/**
+	 * A member of no such body resolves to null rather than to someone else.
+	 *
+	 * @return void
+	 */
+	public function testForNextcloudUserInBodyReturnsNullWhenNotOnThatBody(): void {
+		$this->objectService->method('findAll')->willReturn(
+			[$this->entity(['uuid' => 'participant-on-board-1', 'governanceBody' => 'body-1'])]
+		);
 
-    /**
-     * A member of no such body resolves to null rather than to someone else.
-     *
-     * @return void
-     */
-    public function testForNextcloudUserInBodyReturnsNullWhenNotOnThatBody(): void
-    {
-        $this->objectService->method('findAll')->willReturn(
-            [$this->entity(['uuid' => 'participant-on-board-1', 'governanceBody' => 'body-1'])]
-        );
+		$this->assertNull(
+			$this->lookup->forNextcloudUserInBody(nextcloudUid: 'bestuurslid', governanceBodyId: 'body-9'),
+			'belonging to no such body must not fall back to an unrelated identity'
+		);
 
-        $this->assertNull(
-            $this->lookup->forNextcloudUserInBody(nextcloudUid: 'bestuurslid', governanceBodyId: 'body-9'),
-            'belonging to no such body must not fall back to an unrelated identity'
-        );
+	}//end testForNextcloudUserInBodyReturnsNullWhenNotOnThatBody()
 
-    }//end testForNextcloudUserInBodyReturnsNullWhenNotOnThatBody()
+	/**
+	 * Empty inputs short-circuit before any store call.
+	 *
+	 * @return void
+	 */
+	public function testForNextcloudUserInBodyRejectsEmptyInputsWithoutQuerying(): void {
+		$this->objectService->expects($this->never())->method('findAll');
 
-    /**
-     * Empty inputs short-circuit before any store call.
-     *
-     * @return void
-     */
-    public function testForNextcloudUserInBodyRejectsEmptyInputsWithoutQuerying(): void
-    {
-        $this->objectService->expects($this->never())->method('findAll');
+		$this->assertNull($this->lookup->forNextcloudUserInBody(nextcloudUid: '', governanceBodyId: 'body-1'));
+		$this->assertNull($this->lookup->forNextcloudUserInBody(nextcloudUid: 'bestuurslid', governanceBodyId: ''));
 
-        $this->assertNull($this->lookup->forNextcloudUserInBody(nextcloudUid: '', governanceBodyId: 'body-1'));
-        $this->assertNull($this->lookup->forNextcloudUserInBody(nextcloudUid: 'bestuurslid', governanceBodyId: ''));
-
-    }//end testForNextcloudUserInBodyRejectsEmptyInputsWithoutQuerying()
+	}//end testForNextcloudUserInBodyRejectsEmptyInputsWithoutQuerying()
 }//end class

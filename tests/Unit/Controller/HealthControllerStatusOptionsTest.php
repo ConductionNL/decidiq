@@ -38,107 +38,96 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
  */
-class HealthControllerStatusOptionsTest extends TestCase
-{
+class HealthControllerStatusOptionsTest extends TestCase {
 
-    /**
-     * Mock IConfig.
-     *
-     * @var IConfig&MockObject
-     */
-    private IConfig&MockObject $config;
+	/**
+	 * Mock IConfig.
+	 *
+	 * @var IConfig&MockObject
+	 */
+	private IConfig&MockObject $config;
 
-    /**
-     * The controller under test.
-     *
-     * @var HealthController
-     */
-    private HealthController $controller;
+	/**
+	 * The controller under test.
+	 *
+	 * @var HealthController
+	 */
+	private HealthController $controller;
 
+	/**
+	 * Set up mocks and the controller.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up mocks and the controller.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		$this->config = $this->createMock(IConfig::class);
 
-        $this->config = $this->createMock(IConfig::class);
+		$this->controller = new HealthController(
+			$this->createMock(IRequest::class),
+			$this->config,
+			$this->createMock(ContainerInterface::class),
+		);
 
-        $this->controller = new HealthController(
-            $this->createMock(IRequest::class),
-            $this->config,
-            $this->createMock(ContainerInterface::class),
-        );
+	}//end setUp()
 
-    }//end setUp()
+	/**
+	 * Read the headers the controller itself set on a response.
+	 *
+	 * `Response::getHeaders()` merges in framework headers by asking
+	 * `\OC::$server` for the request, and `\OC` does not exist in a standalone
+	 * unit run. For a CORS preflight the status is not the contract, so this
+	 * reads the private `headers` array that `Response::addHeader()` writes to.
+	 *
+	 * @param \OCP\AppFramework\Http\Response $response The response to inspect.
+	 *
+	 * @return array<string, string> The controller-set headers.
+	 */
+	private function controllerHeaders(\OCP\AppFramework\Http\Response $response): array {
+		$property = new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'headers');
+		$property->setAccessible(true);
 
+		return (array)$property->getValue($response);
+	}//end controllerHeaders()
 
-    /**
-     * Read the headers the controller itself set on a response.
-     *
-     * `Response::getHeaders()` merges in framework headers by asking
-     * `\OC::$server` for the request, and `\OC` does not exist in a standalone
-     * unit run. For a CORS preflight the status is not the contract, so this
-     * reads the private `headers` array that `Response::addHeader()` writes to.
-     *
-     * @param \OCP\AppFramework\Http\Response $response The response to inspect.
-     *
-     * @return array<string, string> The controller-set headers.
-     */
-    private function controllerHeaders(\OCP\AppFramework\Http\Response $response): array
-    {
-        $property = new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'headers');
-        $property->setAccessible(true);
+	/**
+	 * The health preflight answers 200 with an empty body and the CORS triple.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 */
+	public function testStatusOptionsReturnsCorsHeaders(): void {
+		$this->config->method('getSystemValueString')->willReturn('https://raad.example');
 
-        return (array) $property->getValue($response);
+		$response = $this->controller->statusOptions();
 
-    }//end controllerHeaders()
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame([], $response->getData());
 
+		$headers = $this->controllerHeaders($response);
+		self::assertSame('https://raad.example', $headers['Access-Control-Allow-Origin']);
+		self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
+		self::assertStringContainsString('Authorization', $headers['Access-Control-Allow-Headers']);
 
-    /**
-     * The health preflight answers 200 with an empty body and the CORS triple.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
-     */
-    public function testStatusOptionsReturnsCorsHeaders(): void
-    {
-        $this->config->method('getSystemValueString')->willReturn('https://raad.example');
+	}//end testStatusOptionsReturnsCorsHeaders()
 
-        $response = $this->controller->statusOptions();
+	/**
+	 * With no configured overwrite URL the origin falls back to the wildcard
+	 * rather than an empty header value.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 */
+	public function testStatusOptionsFallsBackToWildcardOrigin(): void {
+		$this->config->method('getSystemValueString')->willReturn('');
 
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-        self::assertSame([], $response->getData());
+		$response = $this->controller->statusOptions();
 
-        $headers = $this->controllerHeaders($response);
-        self::assertSame('https://raad.example', $headers['Access-Control-Allow-Origin']);
-        self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
-        self::assertStringContainsString('Authorization', $headers['Access-Control-Allow-Headers']);
+		self::assertSame('*', $this->controllerHeaders($response)['Access-Control-Allow-Origin']);
 
-    }//end testStatusOptionsReturnsCorsHeaders()
-
-
-    /**
-     * With no configured overwrite URL the origin falls back to the wildcard
-     * rather than an empty header value.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
-     */
-    public function testStatusOptionsFallsBackToWildcardOrigin(): void
-    {
-        $this->config->method('getSystemValueString')->willReturn('');
-
-        $response = $this->controller->statusOptions();
-
-        self::assertSame('*', $this->controllerHeaders($response)['Access-Control-Allow-Origin']);
-
-    }//end testStatusOptionsFallsBackToWildcardOrigin()
-
+	}//end testStatusOptionsFallsBackToWildcardOrigin()
 
 }//end class

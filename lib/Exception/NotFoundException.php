@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NotFoundException — thrown when a requested resource cannot be found.
  *
@@ -27,6 +28,5 @@ use RuntimeException;
  *
  * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
  */
-class NotFoundException extends RuntimeException
-{
+class NotFoundException extends RuntimeException {
 }//end class

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Motion Notifier
  *
@@ -41,53 +42,51 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
  */
-class MotionNotifier
-{
-    /**
-     * Construct the MotionNotifier.
-     *
-     * @param ContainerInterface $container The DI container for lazy-loading the notification manager
-     * @param LoggerInterface    $logger    Logger interface
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-    ) {
+class MotionNotifier {
+	/**
+	 * Construct the MotionNotifier.
+	 *
+	 * @param ContainerInterface $container The DI container for lazy-loading the notification manager
+	 * @param LoggerInterface $logger Logger interface
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+		private readonly LoggerInterface $logger,
+	) {
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * Send one motion notification, swallowing and logging any delivery failure.
-     *
-     * @param string               $userId     Nextcloud UID of the recipient
-     * @param string               $motionId   UUID the notification is about
-     * @param string               $subject    Notification subject key
-     * @param array<string, mixed> $parameters Subject parameters
-     * @param string               $failureLog Warning message prefix logged on failure
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
-     *
-     * @return void
-     */
-    public function notify(string $userId, string $motionId, string $subject, array $parameters, string $failureLog): void
-    {
-        try {
-            $manager      = $this->container->get(IManager::class);
-            $notification = $manager->createNotification();
-            $notification->setApp('decidesk')
-                ->setUser($userId)
-                ->setDateTime(new DateTime())
-                ->setObject('motion', $motionId)
-                ->setSubject($subject, $parameters);
-            $manager->notify($notification);
-        } catch (\Throwable $e) {
-            $this->logger->warning(
-                message: $failureLog.$e->getMessage(),
-                context: ['exception' => $e]
-            );
-        }//end try
+	/**
+	 * Send one motion notification, swallowing and logging any delivery failure.
+	 *
+	 * @param string $userId Nextcloud UID of the recipient
+	 * @param string $motionId UUID the notification is about
+	 * @param string $subject Notification subject key
+	 * @param array<string, mixed> $parameters Subject parameters
+	 * @param string $failureLog Warning message prefix logged on failure
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 *
+	 * @return void
+	 */
+	public function notify(string $userId, string $motionId, string $subject, array $parameters, string $failureLog): void {
+		try {
+			$manager = $this->container->get(IManager::class);
+			$notification = $manager->createNotification();
+			$notification->setApp('decidesk')
+				->setUser($userId)
+				->setDateTime(new DateTime())
+				->setObject('motion', $motionId)
+				->setSubject($subject, $parameters);
+			$manager->notify($notification);
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				message: $failureLog . $e->getMessage(),
+				context: ['exception' => $e]
+			);
+		}//end try
 
-    }//end notify()
+	}//end notify()
 }//end class

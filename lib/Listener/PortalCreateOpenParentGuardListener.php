@@ -82,351 +82,335 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/portal-citizen-create-actions/spec.md
  */
-class PortalCreateOpenParentGuardListener implements IEventListener
-{
+class PortalCreateOpenParentGuardListener implements IEventListener {
 
-    /**
-     * The register slug every guarded schema lives in.
-     *
-     * @var string
-     */
-    private const REGISTER = 'decidesk';
+	/**
+	 * The register slug every guarded schema lives in.
+	 *
+	 * @var string
+	 */
+	private const REGISTER = 'decidesk';
 
-    /**
-     * The schema slug this listener recognises as a consultation reaction.
-     *
-     * @var string
-     */
-    private const SCHEMA_CONSULTATION_REACTION = 'consultation-reaction';
+	/**
+	 * The schema slug this listener recognises as a consultation reaction.
+	 *
+	 * @var string
+	 */
+	private const SCHEMA_CONSULTATION_REACTION = 'consultation-reaction';
 
-    /**
-     * The schema slug this listener recognises as a budget proposal.
-     *
-     * @var string
-     */
-    private const SCHEMA_BUDGET_PROPOSAL = 'budget-proposal';
+	/**
+	 * The schema slug this listener recognises as a budget proposal.
+	 *
+	 * @var string
+	 */
+	private const SCHEMA_BUDGET_PROPOSAL = 'budget-proposal';
 
-    /**
-     * OpenRegister's object service FQCN (lazily resolved from the container).
-     *
-     * @var string
-     */
-    private const OBJECT_SERVICE = 'OCA\\OpenRegister\\Service\\ObjectService';
+	/**
+	 * OpenRegister's object service FQCN (lazily resolved from the container).
+	 *
+	 * @var string
+	 */
+	private const OBJECT_SERVICE = 'OCA\\OpenRegister\\Service\\ObjectService';
 
-    /**
-     * Constructor.
-     *
-     * @param ContainerInterface $container DI container (lazy ObjectService resolution).
-     * @param LoggerInterface    $logger    The logger.
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param ContainerInterface $container DI container (lazy ObjectService resolution).
+	 * @param LoggerInterface $logger The logger.
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle an OpenRegister lifecycle event; reject a guarded create whose
-     * parent does not satisfy its declared constraint.
-     *
-     * @param Event $event The event to handle.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/portal-citizen-create-actions/spec.md
-     */
-    public function handle(Event $event): void
-    {
-        if ($event instanceof ObjectCreatingEvent === false) {
-            return;
-        }
+	/**
+	 * Handle an OpenRegister lifecycle event; reject a guarded create whose
+	 * parent does not satisfy its declared constraint.
+	 *
+	 * @param Event $event The event to handle.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	public function handle(Event $event): void {
+		if ($event instanceof ObjectCreatingEvent === false) {
+			return;
+		}
 
-        try {
-            $this->evaluate(event: $event);
-        } catch (\Throwable $e) {
-            // A resolution error must never silently ALLOW a guarded write
-            // through: reject closed rather than fail open on the two schemas
-            // this listener owns. Unrelated schemas never reach this catch
-            // block (evaluate() already returns before any lookup runs when
-            // neither tier identifies the row as one of the two schemas).
-            $this->logger->warning(
-                'Decidesk: portal create open-parent guard failed, rejecting closed',
-                ['exception' => $e->getMessage()]
-            );
-            $event->setErrors(['message' => 'Could not verify the parent is open']);
-            $event->stopPropagation();
-        }
+		try {
+			$this->evaluate(event: $event);
+		} catch (\Throwable $e) {
+			// A resolution error must never silently ALLOW a guarded write
+			// through: reject closed rather than fail open on the two schemas
+			// this listener owns. Unrelated schemas never reach this catch
+			// block (evaluate() already returns before any lookup runs when
+			// neither tier identifies the row as one of the two schemas).
+			$this->logger->warning(
+				'Decidesk: portal create open-parent guard failed, rejecting closed',
+				['exception' => $e->getMessage()]
+			);
+			$event->setErrors(['message' => 'Could not verify the parent is open']);
+			$event->stopPropagation();
+		}
 
-    }//end handle()
+	}//end handle()
 
-    /**
-     * Identify the row, resolve its declared parent constraint, and reject
-     * the create when the parent does not satisfy it. Returns early (a no-op)
-     * for any row that is not one of the two owned schemas, or that declares
-     * no `parentConstraint`.
-     *
-     * @param ObjectCreatingEvent $event The event to evaluate.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/portal-citizen-create-actions/spec.md
-     */
-    private function evaluate(ObjectCreatingEvent $event): void
-    {
-        $entity = $event->getObject();
-        if (is_object($entity) === false) {
-            return;
-        }
+	/**
+	 * Identify the row, resolve its declared parent constraint, and reject
+	 * the create when the parent does not satisfy it. Returns early (a no-op)
+	 * for any row that is not one of the two owned schemas, or that declares
+	 * no `parentConstraint`.
+	 *
+	 * @param ObjectCreatingEvent $event The event to evaluate.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function evaluate(ObjectCreatingEvent $event): void {
+		$entity = $event->getObject();
+		if (is_object($entity) === false) {
+			return;
+		}
 
-        $row = [];
-        if (method_exists($entity, 'getObject') === true) {
-            $row = (array) $entity->getObject();
-        }
+		$row = [];
+		if (method_exists($entity, 'getObject') === true) {
+			$row = (array)$entity->getObject();
+		}
 
-        $schema = $this->schemaSlugFromRow(row: $row);
-        if ($schema === '') {
-            $schema = $this->schemaSlugFromEntity(entity: $entity);
-        }
+		$schema = $this->schemaSlugFromRow(row: $row);
+		if ($schema === '') {
+			$schema = $this->schemaSlugFromEntity(entity: $entity);
+		}
 
-        if (in_array($schema, [self::SCHEMA_CONSULTATION_REACTION, self::SCHEMA_BUDGET_PROPOSAL], true) === false) {
-            $schema = $this->detectSchemaBySignature(row: $row);
-        }
+		if (in_array($schema, [self::SCHEMA_CONSULTATION_REACTION, self::SCHEMA_BUDGET_PROPOSAL], true) === false) {
+			$schema = $this->detectSchemaBySignature(row: $row);
+		}
 
-        if ($schema === '') {
-            return;
-        }
+		if ($schema === '') {
+			return;
+		}
 
-        $constraint = $this->parentConstraintFor(schema: $schema);
-        if ($constraint === null) {
-            return;
-        }
+		$constraint = $this->parentConstraintFor(schema: $schema);
+		if ($constraint === null) {
+			return;
+		}
 
-        $parentId  = $this->resolveParentId(row: $row, constraint: $constraint);
-        $satisfied = ($parentId !== '' && $this->parentSatisfiesConstraint(parentId: $parentId, constraint: $constraint) === true);
-        if ($satisfied === false) {
-            $this->reject(event: $event, schema: $schema, constraint: $constraint);
-        }
+		$parentId = $this->resolveParentId(row: $row, constraint: $constraint);
+		$satisfied = ($parentId !== '' && $this->parentSatisfiesConstraint(parentId: $parentId, constraint: $constraint) === true);
+		if ($satisfied === false) {
+			$this->reject(event: $event, schema: $schema, constraint: $constraint);
+		}
 
-    }//end evaluate()
+	}//end evaluate()
 
-    /**
-     * Reject the create: set a descriptive error and stop propagation so
-     * `MagicMapper::insertObjectEntity()` throws before the row is persisted.
-     *
-     * @param ObjectCreatingEvent  $event      The event to stop.
-     * @param string               $schema     The recognised schema slug.
-     * @param array<string, mixed> $constraint The unmet parent constraint.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/portal-citizen-create-actions/spec.md
-     */
-    private function reject(ObjectCreatingEvent $event, string $schema, array $constraint): void
-    {
-        $event->setErrors(
-            [
-                'message' => sprintf(
-                    "%s requires the parent %s to have %s == '%s'",
-                    $schema,
-                    (string) $constraint['parentSchema'],
-                    (string) $constraint['statusField'],
-                    (string) $constraint['statusValue']
-                ),
-            ]
-        );
-        $event->stopPropagation();
+	/**
+	 * Reject the create: set a descriptive error and stop propagation so
+	 * `MagicMapper::insertObjectEntity()` throws before the row is persisted.
+	 *
+	 * @param ObjectCreatingEvent $event The event to stop.
+	 * @param string $schema The recognised schema slug.
+	 * @param array<string, mixed> $constraint The unmet parent constraint.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function reject(ObjectCreatingEvent $event, string $schema, array $constraint): void {
+		$event->setErrors(
+			[
+				'message' => sprintf(
+					"%s requires the parent %s to have %s == '%s'",
+					$schema,
+					(string)$constraint['parentSchema'],
+					(string)$constraint['statusField'],
+					(string)$constraint['statusValue']
+				),
+			]
+		);
+		$event->stopPropagation();
 
-    }//end reject()
+	}//end reject()
 
-    /**
-     * Tier 1a: resolve the schema slug from the raw object payload's own
-     * schema-hint keys (the same row-key candidates
-     * `SubmissionDeadlineListener`/`MeetingFolderListener` use for
-     * `ObjectCreatingEvent`/`ObjectCreatedEvent` elsewhere in this codebase).
-     * Returns '' when none resolve, in which case the caller falls back to
-     * {@see detectSchemaBySignature()}.
-     *
-     * @param array<string, mixed> $row Serialized payload.
-     *
-     * @return string Schema slug, or '' when unresolvable.
-     *
-     * @spec openspec/specs/portal-citizen-create-actions/spec.md
-     */
-    private function schemaSlugFromRow(array $row): string
-    {
-        $candidates = [
-            $row['_schemaSlug'] ?? null,
-            $row['_schema'] ?? null,
-            $row['schema'] ?? null,
-        ];
-        foreach ($candidates as $candidate) {
-            if (is_string($candidate) === true && $candidate !== '') {
-                return strtolower($candidate);
-            }
-        }
+	/**
+	 * Tier 1a: resolve the schema slug from the raw object payload's own
+	 * schema-hint keys (the same row-key candidates
+	 * `SubmissionDeadlineListener`/`MeetingFolderListener` use for
+	 * `ObjectCreatingEvent`/`ObjectCreatedEvent` elsewhere in this codebase).
+	 * Returns '' when none resolve, in which case the caller falls back to
+	 * {@see detectSchemaBySignature()}.
+	 *
+	 * @param array<string, mixed> $row Serialized payload.
+	 *
+	 * @return string Schema slug, or '' when unresolvable.
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function schemaSlugFromRow(array $row): string {
+		$candidates = [
+			$row['_schemaSlug'] ?? null,
+			$row['_schema'] ?? null,
+			$row['schema'] ?? null,
+		];
+		foreach ($candidates as $candidate) {
+			if (is_string($candidate) === true && $candidate !== '') {
+				return strtolower($candidate);
+			}
+		}
 
-        return '';
+		return '';
+	}//end schemaSlugFromRow()
 
-    }//end schemaSlugFromRow()
+	/**
+	 * Tier 1b: resolve the schema slug from the entity's own accessor methods
+	 * (matches `SubmissionDeadlineListener`/`MeetingFolderListener`'s
+	 * fallback). Note: the REAL `ObjectEntity::getSchema()` returns the
+	 * schema's numeric database id, not its slug (verified against
+	 * `MagicMapper` at HEAD), so in practice this tier only ever resolves via
+	 * a (currently hypothetical) `getSchemaSlug()` method; it is kept for
+	 * forward-compatibility and codebase consistency, not because it fires
+	 * today.
+	 *
+	 * @param object $entity The OR object entity.
+	 *
+	 * @return string Schema slug, or '' when unresolvable.
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function schemaSlugFromEntity(object $entity): string {
+		if (method_exists($entity, 'getSchemaSlug') === true) {
+			$slug = $entity->getSchemaSlug();
+			if (is_string($slug) === true && $slug !== '') {
+				return strtolower($slug);
+			}
+		}
 
-    /**
-     * Tier 1b: resolve the schema slug from the entity's own accessor methods
-     * (matches `SubmissionDeadlineListener`/`MeetingFolderListener`'s
-     * fallback). Note: the REAL `ObjectEntity::getSchema()` returns the
-     * schema's numeric database id, not its slug (verified against
-     * `MagicMapper` at HEAD), so in practice this tier only ever resolves via
-     * a (currently hypothetical) `getSchemaSlug()` method; it is kept for
-     * forward-compatibility and codebase consistency, not because it fires
-     * today.
-     *
-     * @param object $entity The OR object entity.
-     *
-     * @return string Schema slug, or '' when unresolvable.
-     *
-     * @spec openspec/specs/portal-citizen-create-actions/spec.md
-     */
-    private function schemaSlugFromEntity(object $entity): string
-    {
-        if (method_exists($entity, 'getSchemaSlug') === true) {
-            $slug = $entity->getSchemaSlug();
-            if (is_string($slug) === true && $slug !== '') {
-                return strtolower($slug);
-            }
-        }
+		if (method_exists($entity, 'getSchema') === true) {
+			$schema = $entity->getSchema();
+			if (is_string($schema) === true && $schema !== '') {
+				return strtolower($schema);
+			}
+		}
 
-        if (method_exists($entity, 'getSchema') === true) {
-            $schema = $entity->getSchema();
-            if (is_string($schema) === true && $schema !== '') {
-                return strtolower($schema);
-            }
-        }
+		return '';
+	}//end schemaSlugFromEntity()
 
-        return '';
+	/**
+	 * Tier 2: identify whether a row is a `consultation-reaction` or
+	 * `budget-proposal` create by its required, jointly-distinctive field
+	 * signature (see class docblock for why schema slugs are usually
+	 * unavailable at this lifecycle point).
+	 *
+	 * @param array<string, mixed> $row The raw (pre-render) object data.
+	 *
+	 * @return string The recognised schema slug, or '' when neither matches.
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function detectSchemaBySignature(array $row): string {
+		if (array_key_exists('moderationStatus', $row) === true
+			&& array_key_exists('submitterId', $row) === true
+			&& array_key_exists('body', $row) === true
+		) {
+			return self::SCHEMA_CONSULTATION_REACTION;
+		}
 
-    }//end schemaSlugFromEntity()
+		if (array_key_exists('submitter', $row) === true
+			&& array_key_exists('requestedAmount', $row) === true
+			&& array_key_exists('status', $row) === true
+		) {
+			return self::SCHEMA_BUDGET_PROPOSAL;
+		}
 
-    /**
-     * Tier 2: identify whether a row is a `consultation-reaction` or
-     * `budget-proposal` create by its required, jointly-distinctive field
-     * signature (see class docblock for why schema slugs are usually
-     * unavailable at this lifecycle point).
-     *
-     * @param array<string, mixed> $row The raw (pre-render) object data.
-     *
-     * @return string The recognised schema slug, or '' when neither matches.
-     *
-     * @spec openspec/specs/portal-citizen-create-actions/spec.md
-     */
-    private function detectSchemaBySignature(array $row): string
-    {
-        if (array_key_exists('moderationStatus', $row) === true
-            && array_key_exists('submitterId', $row) === true
-            && array_key_exists('body', $row) === true
-        ) {
-            return self::SCHEMA_CONSULTATION_REACTION;
-        }
+		return '';
+	}//end detectSchemaBySignature()
 
-        if (array_key_exists('submitter', $row) === true
-            && array_key_exists('requestedAmount', $row) === true
-            && array_key_exists('status', $row) === true
-        ) {
-            return self::SCHEMA_BUDGET_PROPOSAL;
-        }
+	/**
+	 * Resolve the declared `parentConstraint` for a schema from
+	 * `PortalContributionProvider`'s own `citizen` manifest (single source of
+	 * truth for both what portaliq is told and what this listener enforces).
+	 *
+	 * @param string $schema The child schema slug.
+	 *
+	 * @return array<string, mixed>|null The constraint, or null when undeclared.
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function parentConstraintFor(string $schema): ?array {
+		$manifest = (new PortalContributionProvider())->getContribution(['audience' => 'citizen']);
+		foreach ((array)($manifest['actions'] ?? []) as $action) {
+			if (($action['schema'] ?? '') === $schema && isset($action['parentConstraint']) === true) {
+				return (array)$action['parentConstraint'];
+			}
+		}
 
-        return '';
+		return null;
+	}//end parentConstraintFor()
 
-    }//end detectSchemaBySignature()
+	/**
+	 * Resolve the parent id from either the scalar reference field (the
+	 * portaliq create action's shape) or the generic `relations` array
+	 * (Decidesk's own `ReactionIntakeService`/`BudgetVotingService` shape).
+	 *
+	 * @param array<string, mixed> $row The raw object data.
+	 * @param array<string, mixed> $constraint The resolved parent constraint.
+	 *
+	 * @return string The parent id, or '' when unresolvable.
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function resolveParentId(array $row, array $constraint): string {
+		$field = (string)($constraint['field'] ?? '');
+		if ($field !== '' && is_string($row[$field] ?? null) === true && (string)$row[$field] !== '') {
+			return (string)$row[$field];
+		}
 
-    /**
-     * Resolve the declared `parentConstraint` for a schema from
-     * `PortalContributionProvider`'s own `citizen` manifest (single source of
-     * truth for both what portaliq is told and what this listener enforces).
-     *
-     * @param string $schema The child schema slug.
-     *
-     * @return array<string, mixed>|null The constraint, or null when undeclared.
-     *
-     * @spec openspec/specs/portal-citizen-create-actions/spec.md
-     */
-    private function parentConstraintFor(string $schema): ?array
-    {
-        $manifest = (new PortalContributionProvider())->getContribution(['audience' => 'citizen']);
-        foreach ((array) ($manifest['actions'] ?? []) as $action) {
-            if (($action['schema'] ?? '') === $schema && isset($action['parentConstraint']) === true) {
-                return (array) $action['parentConstraint'];
-            }
-        }
+		$parentSchema = (string)($constraint['parentSchema'] ?? '');
+		foreach ((array)($row['relations'] ?? []) as $relation) {
+			if (is_array($relation) === true
+				&& ($relation['schema'] ?? '') === $parentSchema
+				&& isset($relation['id']) === true
+			) {
+				return (string)$relation['id'];
+			}
+		}
 
-        return null;
+		return '';
+	}//end resolveParentId()
 
-    }//end parentConstraintFor()
+	/**
+	 * Fetch the parent object and confirm it satisfies the constraint's
+	 * status field/value. Fails closed (false) on any lookup error or a
+	 * missing parent.
+	 *
+	 * @param string $parentId The parent object id.
+	 * @param array<string, mixed> $constraint The resolved parent constraint.
+	 *
+	 * @return bool True only when the parent exists and matches.
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function parentSatisfiesConstraint(string $parentId, array $constraint): bool {
+		$objectService = $this->container->get(self::OBJECT_SERVICE);
 
-    /**
-     * Resolve the parent id from either the scalar reference field (the
-     * portaliq create action's shape) or the generic `relations` array
-     * (Decidesk's own `ReactionIntakeService`/`BudgetVotingService` shape).
-     *
-     * @param array<string, mixed> $row        The raw object data.
-     * @param array<string, mixed> $constraint The resolved parent constraint.
-     *
-     * @return string The parent id, or '' when unresolvable.
-     *
-     * @spec openspec/specs/portal-citizen-create-actions/spec.md
-     */
-    private function resolveParentId(array $row, array $constraint): string
-    {
-        $field = (string) ($constraint['field'] ?? '');
-        if ($field !== '' && is_string($row[$field] ?? null) === true && (string) $row[$field] !== '') {
-            return (string) $row[$field];
-        }
+		$parentSchema = (string)($constraint['parentSchema'] ?? '');
+		$parentEntity = $objectService->find(id: $parentId, register: self::REGISTER, schema: $parentSchema);
+		if ($parentEntity === null) {
+			return false;
+		}
 
-        $parentSchema = (string) ($constraint['parentSchema'] ?? '');
-        foreach ((array) ($row['relations'] ?? []) as $relation) {
-            if (is_array($relation) === true
-                && ($relation['schema'] ?? '') === $parentSchema
-                && isset($relation['id']) === true
-            ) {
-                return (string) $relation['id'];
-            }
-        }
+		$parent = [];
+		if (method_exists($parentEntity, 'jsonSerialize') === true) {
+			$parent = (array)$parentEntity->jsonSerialize();
+		} elseif (method_exists($parentEntity, 'getObject') === true) {
+			$parent = (array)$parentEntity->getObject();
+		}
 
-        return '';
+		$statusField = (string)($constraint['statusField'] ?? 'status');
+		$statusValue = (string)($constraint['statusValue'] ?? '');
 
-    }//end resolveParentId()
-
-    /**
-     * Fetch the parent object and confirm it satisfies the constraint's
-     * status field/value. Fails closed (false) on any lookup error or a
-     * missing parent.
-     *
-     * @param string               $parentId   The parent object id.
-     * @param array<string, mixed> $constraint The resolved parent constraint.
-     *
-     * @return bool True only when the parent exists and matches.
-     *
-     * @spec openspec/specs/portal-citizen-create-actions/spec.md
-     */
-    private function parentSatisfiesConstraint(string $parentId, array $constraint): bool
-    {
-        $objectService = $this->container->get(self::OBJECT_SERVICE);
-
-        $parentSchema = (string) ($constraint['parentSchema'] ?? '');
-        $parentEntity = $objectService->find(id: $parentId, register: self::REGISTER, schema: $parentSchema);
-        if ($parentEntity === null) {
-            return false;
-        }
-
-        $parent = [];
-        if (method_exists($parentEntity, 'jsonSerialize') === true) {
-            $parent = (array) $parentEntity->jsonSerialize();
-        } else if (method_exists($parentEntity, 'getObject') === true) {
-            $parent = (array) $parentEntity->getObject();
-        }
-
-        $statusField = (string) ($constraint['statusField'] ?? 'status');
-        $statusValue = (string) ($constraint['statusValue'] ?? '');
-
-        return (string) ($parent[$statusField] ?? '') === $statusValue;
-
-    }//end parentSatisfiesConstraint()
+		return (string)($parent[$statusField] ?? '') === $statusValue;
+	}//end parentSatisfiesConstraint()
 }//end class

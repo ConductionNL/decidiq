@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Unit tests for RegulatorExportService.
  *
@@ -34,385 +35,362 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
  */
-class RegulatorExportServiceTest extends TestCase
-{
+class RegulatorExportServiceTest extends TestCase {
 
+	/**
+	 * Build a service over an in-memory rowset keyed by schema.
+	 *
+	 * @param array<string, array<int, array<string, mixed>>> &$rowsBySchema Map schema => rows
+	 * @param array<int, array<string, mixed>> &$saved Captured saves
+	 * @param AuditLogService|null $auditMock Audit mock
+	 *
+	 * @return RegulatorExportService
+	 */
+	private function makeService(
+		array &$rowsBySchema,
+		array &$saved,
+		?AuditLogService $auditMock = null,
+	): RegulatorExportService {
+		$rowsRef = &$rowsBySchema;
+		$savedRef = &$saved;
+		$objectService = $this->createMock(ObjectService::class);
 
-    /**
-     * Build a service over an in-memory rowset keyed by schema.
-     *
-     * @param array<string, array<int, array<string, mixed>>> &$rowsBySchema Map schema => rows
-     * @param array<int, array<string, mixed>>                &$saved        Captured saves
-     * @param AuditLogService|null                            $auditMock     Audit mock
-     *
-     * @return RegulatorExportService
-     */
-    private function makeService(
-        array &$rowsBySchema,
-        array &$saved,
-        ?AuditLogService $auditMock=null,
-    ): RegulatorExportService {
-        $rowsRef       = &$rowsBySchema;
-        $savedRef      = &$saved;
-        $objectService = $this->createMock(ObjectService::class);
+		$objectService->method('findAll')->willReturnCallback(
+			static function (array $config) use (&$rowsRef): array {
+				$schema = (string)($config['schema'] ?? '');
+				$filters = ($config['filters'] ?? []);
+				$rows = ($rowsRef[$schema] ?? []);
+				if ($filters === []) {
+					return $rows;
+				}
 
-        $objectService->method('findAll')->willReturnCallback(
-            static function (array $config) use (&$rowsRef): array {
-                $schema  = (string) ($config['schema'] ?? '');
-                $filters = ($config['filters'] ?? []);
-                $rows    = ($rowsRef[$schema] ?? []);
-                if ($filters === []) {
-                    return $rows;
-                }
+				return array_values(
+					array_filter(
+						$rows,
+						static function (array $row) use ($filters): bool {
+							foreach ($filters as $k => $v) {
+								if (($row[$k] ?? null) !== $v) {
+									return false;
+								}
+							}
 
-                return array_values(
-                    array_filter(
-                        $rows,
-                        static function (array $row) use ($filters): bool {
-                            foreach ($filters as $k => $v) {
-                                if (($row[$k] ?? null) !== $v) {
-                                    return false;
-                                }
-                            }
+							return true;
+						}
+					)
+				);
+			}
+		);
 
-                            return true;
-                        }
-                    )
-                );
-            }
-        );
+		$objectService->method('find')->willReturnCallback(
+			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use (&$rowsRef) {
+				$schemaKey = (string)$schema;
+				foreach (($rowsRef[$schemaKey] ?? []) as $row) {
+					if ((string)($row['id'] ?? '') === (string)$id) {
+						$entity = $this->createMock(ObjectEntity::class);
+						$entity->method('jsonSerialize')->willReturn($row);
+						$entity->method('getObject')->willReturn($row);
+						return $entity;
+					}
+				}
 
-        $objectService->method('find')->willReturnCallback(
-            function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null) use (&$rowsRef) {
-                $schemaKey = (string) $schema;
-                foreach (($rowsRef[$schemaKey] ?? []) as $row) {
-                    if ((string) ($row['id'] ?? '') === (string) $id) {
-                        $entity = $this->createMock(ObjectEntity::class);
-                        $entity->method('jsonSerialize')->willReturn($row);
-                        $entity->method('getObject')->willReturn($row);
-                        return $entity;
-                    }
-                }
+				return null;
+			}
+		);
 
-                return null;
-            }
-        );
+		$objectService->method('saveObject')->willReturnCallback(
+			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$savedRef, &$rowsRef): ObjectEntity {
+				$schemaKey = (string)$schema;
+				$savedRef[] = $object + ['_schema' => $schemaKey];
+				$id = ((string)($uuid ?? '') !== '' ? (string)$uuid : ($schemaKey . '-' . (count($savedRef))));
+				$row = array_merge(['id' => $id], $object);
 
-        $objectService->method('saveObject')->willReturnCallback(
-            function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null) use (&$savedRef, &$rowsRef): ObjectEntity {
-                $schemaKey  = (string) $schema;
-                $savedRef[] = $object + ['_schema' => $schemaKey];
-                $id         = ((string) ($uuid ?? '') !== '' ? (string) $uuid : ($schemaKey.'-'.(count($savedRef))));
-                $row        = array_merge(['id' => $id], $object);
+				$rowsRef[$schemaKey] ??= [];
+				$rowsRef[$schemaKey][] = $row;
+				$entity = $this->createMock(ObjectEntity::class);
+				$entity->method('jsonSerialize')->willReturn($row);
+				$entity->method('getObject')->willReturn($row);
+				return $entity;
+			}
+		);
 
-                $rowsRef[$schemaKey] ??= [];
-                $rowsRef[$schemaKey][] = $row;
-                $entity = $this->createMock(ObjectEntity::class);
-                $entity->method('jsonSerialize')->willReturn($row);
-                $entity->method('getObject')->willReturn($row);
-                return $entity;
-            }
-        );
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturn($objectService);
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willReturn($objectService);
+		$audit = ($auditMock ?? $this->createMock(AuditLogService::class));
 
-        $audit = ($auditMock ?? $this->createMock(AuditLogService::class));
+		return new RegulatorExportService(
+			container: $container,
+			logger: $this->createMock(LoggerInterface::class),
+			auditLogService: $audit,
+		);
 
-        return new RegulatorExportService(
-            container: $container,
-            logger: $this->createMock(LoggerInterface::class),
-            auditLogService: $audit,
-        );
+	}//end makeService()
 
-    }//end makeService()
+	/**
+	 * generate rejects empty boardId.
+	 *
+	 * @return void
+	 */
+	public function testGenerateRejectsEmptyBoardId(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
 
+		$result = $svc->generate('', 'resolutions', 'pdf', 'alice');
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('boardId', $result['message']);
 
-    /**
-     * generate rejects empty boardId.
-     *
-     * @return void
-     */
-    public function testGenerateRejectsEmptyBoardId(): void
-    {
-        $rows  = [];
-        $saved = [];
-        $svc   = $this->makeService($rows, $saved);
+	}//end testGenerateRejectsEmptyBoardId()
 
-        $result = $svc->generate('', 'resolutions', 'pdf', 'alice');
-        $this->assertFalse($result['success']);
-        $this->assertStringContainsString('boardId', $result['message']);
+	/**
+	 * generate rejects unsupported scope.
+	 *
+	 * @return void
+	 */
+	public function testGenerateRejectsUnknownScope(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
 
-    }//end testGenerateRejectsEmptyBoardId()
+		$result = $svc->generate('b-1', 'expenses', 'pdf', 'alice');
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('scope', $result['message']);
 
+	}//end testGenerateRejectsUnknownScope()
 
-    /**
-     * generate rejects unsupported scope.
-     *
-     * @return void
-     */
-    public function testGenerateRejectsUnknownScope(): void
-    {
-        $rows  = [];
-        $saved = [];
-        $svc   = $this->makeService($rows, $saved);
+	/**
+	 * generate rejects unsupported format.
+	 *
+	 * @return void
+	 */
+	public function testGenerateRejectsUnknownFormat(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
 
-        $result = $svc->generate('b-1', 'expenses', 'pdf', 'alice');
-        $this->assertFalse($result['success']);
-        $this->assertStringContainsString('scope', $result['message']);
+		$result = $svc->generate('b-1', 'resolutions', 'docx', 'alice');
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('format', $result['message']);
 
-    }//end testGenerateRejectsUnknownScope()
+	}//end testGenerateRejectsUnknownFormat()
 
+	/**
+	 * generate produces a PDF body, persists a record and audits.
+	 *
+	 * @return void
+	 */
+	public function testGenerateResolutionsPdf(): void {
+		$rows = [
+			'meeting' => [
+				['id' => 'm-1', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-03-15T10:00:00Z'],
+			],
+			'decision' => [
+				[
+					'id' => 'r-1',
+					'meetingKoppeling' => 'm-1',
+					'resolutionNumber' => 'R-2026-001',
+					'title' => 'Approve annual budget',
+					'type' => 'approval',
+					'status' => 'adopted',
+				],
+				[
+					'id' => 'r-2',
+					'meetingKoppeling' => 'm-9',
+					'title' => 'Out of scope (other meeting)',
+				],
+			],
+		];
+		$saved = [];
 
-    /**
-     * generate rejects unsupported format.
-     *
-     * @return void
-     */
-    public function testGenerateRejectsUnknownFormat(): void
-    {
-        $rows  = [];
-        $saved = [];
-        $svc   = $this->makeService($rows, $saved);
+		$audit = $this->createMock(AuditLogService::class);
+		$audit->expects($this->once())->method('append');
 
-        $result = $svc->generate('b-1', 'resolutions', 'docx', 'alice');
-        $this->assertFalse($result['success']);
-        $this->assertStringContainsString('format', $result['message']);
+		$svc = $this->makeService($rows, $saved, $audit);
 
-    }//end testGenerateRejectsUnknownFormat()
+		$result = $svc->generate('b-1', 'resolutions', 'pdf', 'alice');
 
+		$this->assertTrue($result['success']);
+		$this->assertSame('application/pdf', $result['contentType']);
+		$this->assertStringStartsWith('%PDF-1.4', $result['body']);
+		$this->assertStringContainsString('%%EOF', $result['body']);
+		$this->assertStringContainsString('decidesk-resolutions-b-1-', $result['filename']);
+		$this->assertStringEndsWith('.pdf', $result['filename']);
 
-    /**
-     * generate produces a PDF body, persists a record and audits.
-     *
-     * @return void
-     */
-    public function testGenerateResolutionsPdf(): void
-    {
-        $rows = [
-            'meeting' => [
-                ['id' => 'm-1', 'boardKoppeling' => 'b-1', 'meetingDate' => '2026-03-15T10:00:00Z'],
-            ],
-            'decision'    => [
-                [
-                    'id'               => 'r-1',
-                    'meetingKoppeling' => 'm-1',
-                    'resolutionNumber' => 'R-2026-001',
-                    'title'            => 'Approve annual budget',
-                    'type'             => 'approval',
-                    'status'           => 'adopted',
-                ],
-                [
-                    'id'               => 'r-2',
-                    'meetingKoppeling' => 'm-9',
-                    'title'            => 'Out of scope (other meeting)',
-                ],
-            ],
-        ];
-        $saved = [];
+		$recordSaves = array_values(
+			array_filter($saved, static fn (array $s): bool => ($s['_schema'] ?? '') === RegulatorExportService::SCHEMA)
+		);
+		$this->assertCount(1, $recordSaves);
+		$this->assertSame(1, $recordSaves[0]['recordCount']);
+		$this->assertSame('resolutions', $recordSaves[0]['scope']);
 
-        $audit = $this->createMock(AuditLogService::class);
-        $audit->expects($this->once())->method('append');
+	}//end testGenerateResolutionsPdf()
 
-        $svc = $this->makeService($rows, $saved, $audit);
+	/**
+	 * generate produces a CSV body with the expected header line.
+	 *
+	 * @return void
+	 */
+	public function testGenerateResolutionsCsv(): void {
+		$rows = [
+			'meeting' => [
+				['id' => 'm-1', 'boardKoppeling' => 'b-1'],
+			],
+			'decision' => [
+				[
+					'id' => 'r-1',
+					'meetingKoppeling' => 'm-1',
+					'resolutionNumber' => 'R-2026-001',
+					'title' => 'Approve, budget',
+					'type' => 'approval',
+					'status' => 'adopted',
+				],
+			],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
 
-        $result = $svc->generate('b-1', 'resolutions', 'pdf', 'alice');
+		$result = $svc->generate('b-1', 'resolutions', 'csv', 'alice');
 
-        $this->assertTrue($result['success']);
-        $this->assertSame('application/pdf', $result['contentType']);
-        $this->assertStringStartsWith('%PDF-1.4', $result['body']);
-        $this->assertStringContainsString('%%EOF', $result['body']);
-        $this->assertStringContainsString('decidesk-resolutions-b-1-', $result['filename']);
-        $this->assertStringEndsWith('.pdf', $result['filename']);
+		$this->assertTrue($result['success']);
+		$this->assertSame('text/csv', $result['contentType']);
+		$this->assertStringStartsWith('id,meetingKoppeling,resolutionNumber,title,type,status,voteThreshold,adoptionDate', $result['body']);
+		// Comma in the title field must be quoted.
+		$this->assertStringContainsString('"Approve, budget"', $result['body']);
 
-        $recordSaves = array_values(
-            array_filter($saved, static fn(array $s): bool => ($s['_schema'] ?? '') === RegulatorExportService::SCHEMA)
-        );
-        $this->assertCount(1, $recordSaves);
-        $this->assertSame(1, $recordSaves[0]['recordCount']);
-        $this->assertSame('resolutions', $recordSaves[0]['scope']);
+	}//end testGenerateResolutionsCsv()
 
-    }//end testGenerateResolutionsPdf()
+	/**
+	 * generate scopes audit-log to all entries.
+	 *
+	 * @return void
+	 */
+	public function testGenerateAuditLogCsv(): void {
+		$rows = [
+			'meeting' => [],
+			'audit-trail' => [
+				[
+					'id' => 'a-1',
+					'timestamp' => '2026-04-01T10:00:00Z',
+					'actorUuid' => 'alice',
+					'action' => 'vote',
+					'previousHash' => 'GENESIS',
+					'currentHash' => 'h1',
+				],
+				[
+					'id' => 'a-2',
+					'timestamp' => '2026-04-01T11:00:00Z',
+					'actorUuid' => 'bob',
+					'action' => 'signature',
+					'previousHash' => 'h1',
+					'currentHash' => 'h2',
+				],
+			],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
 
+		$result = $svc->generate('b-1', 'audit-log', 'csv', 'alice');
 
-    /**
-     * generate produces a CSV body with the expected header line.
-     *
-     * @return void
-     */
-    public function testGenerateResolutionsCsv(): void
-    {
-        $rows = [
-            'meeting' => [
-                ['id' => 'm-1', 'boardKoppeling' => 'b-1'],
-            ],
-            'decision'    => [
-                [
-                    'id'               => 'r-1',
-                    'meetingKoppeling' => 'm-1',
-                    'resolutionNumber' => 'R-2026-001',
-                    'title'            => 'Approve, budget',
-                    'type'             => 'approval',
-                    'status'           => 'adopted',
-                ],
-            ],
-        ];
-        $saved = [];
-        $svc   = $this->makeService($rows, $saved);
+		$this->assertTrue($result['success']);
+		$this->assertSame('text/csv', $result['contentType']);
+		$this->assertStringContainsString('vote', $result['body']);
+		$this->assertStringContainsString('signature', $result['body']);
 
-        $result = $svc->generate('b-1', 'resolutions', 'csv', 'alice');
+		$recordSaves = array_values(
+			array_filter($saved, static fn (array $s): bool => ($s['_schema'] ?? '') === RegulatorExportService::SCHEMA)
+		);
+		$this->assertCount(1, $recordSaves);
+		$this->assertSame(2, $recordSaves[0]['recordCount']);
 
-        $this->assertTrue($result['success']);
-        $this->assertSame('text/csv', $result['contentType']);
-        $this->assertStringStartsWith('id,meetingKoppeling,resolutionNumber,title,type,status,voteThreshold,adoptionDate', $result['body']);
-        // Comma in the title field must be quoted.
-        $this->assertStringContainsString('"Approve, budget"', $result['body']);
+	}//end testGenerateAuditLogCsv()
 
-    }//end testGenerateResolutionsCsv()
+	/**
+	 * download regenerates a persisted export and returns its body.
+	 *
+	 * @return void
+	 */
+	public function testDownloadRegeneratesPersistedExport(): void {
+		$rows = [
+			'meeting' => [
+				['id' => 'm-1', 'boardKoppeling' => 'b-1'],
+			],
+			'decision' => [
+				['id' => 'r-1', 'meetingKoppeling' => 'm-1', 'title' => 'R'],
+			],
+			RegulatorExportService::SCHEMA => [
+				[
+					'id' => 'exp-1',
+					'boardKoppeling' => 'b-1',
+					'scope' => 'resolutions',
+					'format' => 'csv',
+					'filename' => 'persisted.csv',
+				],
+			],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
 
+		$result = $svc->download('exp-1', 'alice');
 
-    /**
-     * generate scopes audit-log to all entries.
-     *
-     * @return void
-     */
-    public function testGenerateAuditLogCsv(): void
-    {
-        $rows = [
-            'meeting'          => [],
-            'audit-trail'  => [
-                [
-                    'id'           => 'a-1',
-                    'timestamp'    => '2026-04-01T10:00:00Z',
-                    'actorUuid'    => 'alice',
-                    'action'       => 'vote',
-                    'previousHash' => 'GENESIS',
-                    'currentHash'  => 'h1',
-                ],
-                [
-                    'id'           => 'a-2',
-                    'timestamp'    => '2026-04-01T11:00:00Z',
-                    'actorUuid'    => 'bob',
-                    'action'       => 'signature',
-                    'previousHash' => 'h1',
-                    'currentHash'  => 'h2',
-                ],
-            ],
-        ];
-        $saved = [];
-        $svc   = $this->makeService($rows, $saved);
+		$this->assertTrue($result['success']);
+		$this->assertSame('text/csv', $result['contentType']);
+		$this->assertSame('persisted.csv', $result['filename']);
+		$this->assertStringContainsString('id,meetingKoppeling', $result['body']);
 
-        $result = $svc->generate('b-1', 'audit-log', 'csv', 'alice');
+	}//end testDownloadRegeneratesPersistedExport()
 
-        $this->assertTrue($result['success']);
-        $this->assertSame('text/csv', $result['contentType']);
-        $this->assertStringContainsString('vote', $result['body']);
-        $this->assertStringContainsString('signature', $result['body']);
+	/**
+	 * download returns failure when export id is unknown.
+	 *
+	 * @return void
+	 */
+	public function testDownloadFailsForMissingExport(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
 
-        $recordSaves = array_values(
-            array_filter($saved, static fn(array $s): bool => ($s['_schema'] ?? '') === RegulatorExportService::SCHEMA)
-        );
-        $this->assertCount(1, $recordSaves);
-        $this->assertSame(2, $recordSaves[0]['recordCount']);
+		$result = $svc->download('missing', 'alice');
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('not found', $result['message']);
 
-    }//end testGenerateAuditLogCsv()
+	}//end testDownloadFailsForMissingExport()
 
+	/**
+	 * listExports filters by board.
+	 *
+	 * @return void
+	 */
+	public function testListExportsFiltersByBoard(): void {
+		$rows = [
+			RegulatorExportService::SCHEMA => [
+				['id' => 'e-1', 'boardKoppeling' => 'b-1'],
+				['id' => 'e-2', 'boardKoppeling' => 'b-2'],
+				['id' => 'e-3', 'boardKoppeling' => 'b-1'],
+			],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
 
-    /**
-     * download regenerates a persisted export and returns its body.
-     *
-     * @return void
-     */
-    public function testDownloadRegeneratesPersistedExport(): void
-    {
-        $rows = [
-            'meeting'                       => [
-                ['id' => 'm-1', 'boardKoppeling' => 'b-1'],
-            ],
-            'decision'                          => [
-                ['id' => 'r-1', 'meetingKoppeling' => 'm-1', 'title' => 'R'],
-            ],
-            RegulatorExportService::SCHEMA        => [
-                [
-                    'id'             => 'exp-1',
-                    'boardKoppeling' => 'b-1',
-                    'scope'          => 'resolutions',
-                    'format'         => 'csv',
-                    'filename'       => 'persisted.csv',
-                ],
-            ],
-        ];
-        $saved = [];
-        $svc   = $this->makeService($rows, $saved);
+		$result = $svc->listExports('b-1');
 
-        $result = $svc->download('exp-1', 'alice');
+		$this->assertTrue($result['success']);
+		$this->assertSame(2, $result['count']);
 
-        $this->assertTrue($result['success']);
-        $this->assertSame('text/csv', $result['contentType']);
-        $this->assertSame('persisted.csv', $result['filename']);
-        $this->assertStringContainsString('id,meetingKoppeling', $result['body']);
+	}//end testListExportsFiltersByBoard()
 
-    }//end testDownloadRegeneratesPersistedExport()
+	/**
+	 * listExports rejects an empty board id.
+	 *
+	 * @return void
+	 */
+	public function testListExportsRejectsEmptyBoardId(): void {
+		$rows = [];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
 
+		$result = $svc->listExports('');
+		$this->assertFalse($result['success']);
 
-    /**
-     * download returns failure when export id is unknown.
-     *
-     * @return void
-     */
-    public function testDownloadFailsForMissingExport(): void
-    {
-        $rows  = [];
-        $saved = [];
-        $svc   = $this->makeService($rows, $saved);
-
-        $result = $svc->download('missing', 'alice');
-        $this->assertFalse($result['success']);
-        $this->assertStringContainsString('not found', $result['message']);
-
-    }//end testDownloadFailsForMissingExport()
-
-
-    /**
-     * listExports filters by board.
-     *
-     * @return void
-     */
-    public function testListExportsFiltersByBoard(): void
-    {
-        $rows = [
-            RegulatorExportService::SCHEMA => [
-                ['id' => 'e-1', 'boardKoppeling' => 'b-1'],
-                ['id' => 'e-2', 'boardKoppeling' => 'b-2'],
-                ['id' => 'e-3', 'boardKoppeling' => 'b-1'],
-            ],
-        ];
-        $saved = [];
-        $svc   = $this->makeService($rows, $saved);
-
-        $result = $svc->listExports('b-1');
-
-        $this->assertTrue($result['success']);
-        $this->assertSame(2, $result['count']);
-
-    }//end testListExportsFiltersByBoard()
-
-
-    /**
-     * listExports rejects an empty board id.
-     *
-     * @return void
-     */
-    public function testListExportsRejectsEmptyBoardId(): void
-    {
-        $rows  = [];
-        $saved = [];
-        $svc   = $this->makeService($rows, $saved);
-
-        $result = $svc->listExports('');
-        $this->assertFalse($result['success']);
-
-    }//end testListExportsRejectsEmptyBoardId()
-
+	}//end testListExportsRejectsEmptyBoardId()
 
 }//end class

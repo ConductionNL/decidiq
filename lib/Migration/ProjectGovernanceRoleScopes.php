@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk repair step — backfill governance RBAC scopes
  *
@@ -38,53 +39,50 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
  */
-class ProjectGovernanceRoleScopes implements IRepairStep
-{
-    /**
-     * Constructor.
-     *
-     * @param GovernanceRoleScopeProjector $projector Scope projector
-     * @param LoggerInterface              $logger    Diagnostic logger
-     */
-    public function __construct(
-        private readonly GovernanceRoleScopeProjector $projector,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class ProjectGovernanceRoleScopes implements IRepairStep {
+	/**
+	 * Constructor.
+	 *
+	 * @param GovernanceRoleScopeProjector $projector Scope projector
+	 * @param LoggerInterface $logger Diagnostic logger
+	 */
+	public function __construct(
+		private readonly GovernanceRoleScopeProjector $projector,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Repair-step name.
-     *
-     * @return string
-     *
-     * @spec exclude Trivial repair-step label accessor.
-     */
-    public function getName(): string
-    {
-        return 'Project decidesk governance-body roles into OpenRegister RBAC scopes';
-    }//end getName()
+	/**
+	 * Repair-step name.
+	 *
+	 * @return string
+	 *
+	 * @spec exclude Trivial repair-step label accessor.
+	 */
+	public function getName(): string {
+		return 'Project decidesk governance-body roles into OpenRegister RBAC scopes';
+	}//end getName()
 
-    /**
-     * Run the backfill for every GovernanceBody.
-     *
-     * @param IOutput $output Progress reporting
-     *
-     * @return void
-     *
-     * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
-     */
-    public function run(IOutput $output): void
-    {
-        try {
-            $count = $this->projector->reconcileAll();
-            $output->info(sprintf('Reconciled governance RBAC scopes for %d body/bodies.', $count));
-        } catch (\Throwable $e) {
-            // Fail soft: OpenRegister may not yet be initialised at repair time.
-            $this->logger->warning(
-                'Decidesk: governance role scope backfill skipped',
-                ['exception' => $e->getMessage()]
-            );
-            $output->warning('Governance RBAC scope backfill skipped: '.$e->getMessage());
-        }//end try
-    }//end run()
+	/**
+	 * Run the backfill for every GovernanceBody.
+	 *
+	 * @param IOutput $output Progress reporting
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	public function run(IOutput $output): void {
+		try {
+			$count = $this->projector->reconcileAll();
+			$output->info(sprintf('Reconciled governance RBAC scopes for %d body/bodies.', $count));
+		} catch (\Throwable $e) {
+			// Fail soft: OpenRegister may not yet be initialised at repair time.
+			$this->logger->warning(
+				'Decidesk: governance role scope backfill skipped',
+				['exception' => $e->getMessage()]
+			);
+			$output->warning('Governance RBAC scope backfill skipped: ' . $e->getMessage());
+		}//end try
+	}//end run()
 }//end class

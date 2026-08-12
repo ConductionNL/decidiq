@@ -44,69 +44,61 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/specs/apphost-adoption/spec.md
  */
-class DashboardControllerTest extends TestCase
-{
+class DashboardControllerTest extends TestCase {
 
-    /**
-     * The controller under test.
-     *
-     * @var DashboardController
-     */
-    private DashboardController $controller;
+	/**
+	 * The controller under test.
+	 *
+	 * @var DashboardController
+	 */
+	private DashboardController $controller;
 
+	/**
+	 * Set up the controller.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up the controller.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		$this->controller = new DashboardController($this->createMock(IRequest::class));
 
-        $this->controller = new DashboardController($this->createMock(IRequest::class));
+	}//end setUp()
 
-    }//end setUp()
+	/**
+	 * page() renders the decidesk `index` template with HTTP 200.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/apphost-adoption/spec.md
+	 */
+	public function testPageRendersIndexTemplate(): void {
+		$response = $this->controller->page();
 
+		self::assertInstanceOf(TemplateResponse::class, $response);
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame('index', $response->getTemplateName());
+		self::assertSame(Application::APP_ID, $response->getApp());
 
-    /**
-     * page() renders the decidesk `index` template with HTTP 200.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/apphost-adoption/spec.md
-     */
-    public function testPageRendersIndexTemplate(): void
-    {
-        $response = $this->controller->page();
+	}//end testPageRendersIndexTemplate()
 
-        self::assertInstanceOf(TemplateResponse::class, $response);
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-        self::assertSame('index', $response->getTemplateName());
-        self::assertSame(Application::APP_ID, $response->getApp());
+	/**
+	 * catchAll() serves the same template as page() so a reloaded deep link
+	 * boots the SPA instead of 404ing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/apphost-adoption/spec.md
+	 */
+	public function testCatchAllServesTheSameSpaShell(): void {
+		$response = $this->controller->catchAll();
 
-    }//end testPageRendersIndexTemplate()
+		self::assertInstanceOf(TemplateResponse::class, $response);
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame('index', $response->getTemplateName());
+		self::assertSame(Application::APP_ID, $response->getApp());
+		self::assertSame($this->controller->page()->getTemplateName(), $response->getTemplateName());
 
-
-    /**
-     * catchAll() serves the same template as page() so a reloaded deep link
-     * boots the SPA instead of 404ing.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/apphost-adoption/spec.md
-     */
-    public function testCatchAllServesTheSameSpaShell(): void
-    {
-        $response = $this->controller->catchAll();
-
-        self::assertInstanceOf(TemplateResponse::class, $response);
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-        self::assertSame('index', $response->getTemplateName());
-        self::assertSame(Application::APP_ID, $response->getApp());
-        self::assertSame($this->controller->page()->getTemplateName(), $response->getTemplateName());
-
-    }//end testCatchAllServesTheSameSpaShell()
-
+	}//end testCatchAllServesTheSameSpaShell()
 
 }//end class

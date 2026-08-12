@@ -32,48 +32,42 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getSlug()
  * @method string|null getTitle()
  */
-class Register extends Entity implements JsonSerializable
-{
+class Register extends Entity implements JsonSerializable {
 
-    /**
-     * Unique identifier for the register.
-     *
-     * @var string|null
-     */
-    protected ?string $uuid = null;
+	/**
+	 * Unique identifier for the register.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $uuid = null;
 
-    /**
-     * URL-friendly identifier for the register.
-     *
-     * @var string|null
-     */
-    protected ?string $slug = null;
+	/**
+	 * URL-friendly identifier for the register.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $slug = null;
 
+	/**
+	 * Register the field types, as the production entity does.
+	 */
+	public function __construct() {
+		$this->addType('uuid', 'string');
+		$this->addType('slug', 'string');
 
-    /**
-     * Register the field types, as the production entity does.
-     */
-    public function __construct()
-    {
-        $this->addType('uuid', 'string');
-        $this->addType('slug', 'string');
+	}//end __construct()
 
-    }//end __construct()
+	/**
+	 * Return a JSON-serialisable representation of the register.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->uuid,
+			'slug' => $this->slug,
+		];
 
-
-    /**
-     * Return a JSON-serialisable representation of the register.
-     *
-     * @return array<string,mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'   => $this->uuid,
-            'slug' => $this->slug,
-        ];
-
-    }//end jsonSerialize()
-
+	}//end jsonSerialize()
 
 }//end class

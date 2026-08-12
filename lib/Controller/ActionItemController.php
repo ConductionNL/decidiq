@@ -36,105 +36,101 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
-class ActionItemController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param string           $appName     The app id.
-     * @param IRequest         $request     The request.
-     * @param ActionItemWriter $writer      The VTODO write path.
-     * @param IUserSession     $userSession The user session (CalDAV writes are user-scoped).
-     *
-     * @return void
-     */
-    public function __construct(
-        string $appName,
-        IRequest $request,
-        private readonly ActionItemWriter $writer,
-        private readonly IUserSession $userSession,
-    ) {
-        parent::__construct(appName: $appName, request: $request);
-    }//end __construct()
+class ActionItemController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param string $appName The app id.
+	 * @param IRequest $request The request.
+	 * @param ActionItemWriter $writer The VTODO write path.
+	 * @param IUserSession $userSession The user session (CalDAV writes are user-scoped).
+	 *
+	 * @return void
+	 */
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		private readonly ActionItemWriter $writer,
+		private readonly IUserSession $userSession,
+	) {
+		parent::__construct(appName: $appName, request: $request);
+	}//end __construct()
 
-    /**
-     * Create an action item (as a VTODO).
-     *
-     * Per-user safe: ActionItemWriter writes to the acting user's calendar; a
-     * logged-in user is required (NoAdminRequired) and the VTODO is owned by them.
-     *
-     * @return JSONResponse The created action item, or an error.
-     *
-     * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
-     */
-    #[NoAdminRequired]
-    public function create(): JSONResponse
-    {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Create an action item (as a VTODO).
+	 *
+	 * Per-user safe: ActionItemWriter writes to the acting user's calendar; a
+	 * logged-in user is required (NoAdminRequired) and the VTODO is owned by them.
+	 *
+	 * @return JSONResponse The created action item, or an error.
+	 *
+	 * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
+	 */
+	#[NoAdminRequired]
+	public function create(): JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        $payload = $this->request->getParams();
-        unset($payload['_route']);
-        $created = $this->writer->create(item: $payload);
-        if ($created === null) {
-            return new JSONResponse(['error' => 'Could not create action item'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+		$payload = $this->request->getParams();
+		unset($payload['_route']);
+		$created = $this->writer->create(item: $payload);
+		if ($created === null) {
+			return new JSONResponse(['error' => 'Could not create action item'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
 
-        return new JSONResponse(['success' => true, 'actionItem' => $created], Http::STATUS_CREATED);
-    }//end create()
+		return new JSONResponse(['success' => true, 'actionItem' => $created], Http::STATUS_CREATED);
+	}//end create()
 
-    /**
-     * Update an action item (located by its VTODO uid).
-     *
-     * IDOR-safe: ActionItemWriter resolves the uid only among the acting user's
-     * own CalDAV tasks, so a user cannot mutate another user's VTODO.
-     *
-     * @param string $uid The action item's VTODO uid.
-     *
-     * @return JSONResponse The updated action item, or an error.
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
-     */
-    #[NoAdminRequired]
-    public function update(string $uid): JSONResponse
-    {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Update an action item (located by its VTODO uid).
+	 *
+	 * IDOR-safe: ActionItemWriter resolves the uid only among the acting user's
+	 * own CalDAV tasks, so a user cannot mutate another user's VTODO.
+	 *
+	 * @param string $uid The action item's VTODO uid.
+	 *
+	 * @return JSONResponse The updated action item, or an error.
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 */
+	#[NoAdminRequired]
+	public function update(string $uid): JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        $changes = $this->request->getParams();
-        unset($changes['_route'], $changes['uid']);
-        $updated = $this->writer->update(uid: $uid, changes: $changes);
-        if ($updated === null) {
-            return new JSONResponse(['error' => 'Action item not found'], Http::STATUS_NOT_FOUND);
-        }
+		$changes = $this->request->getParams();
+		unset($changes['_route'], $changes['uid']);
+		$updated = $this->writer->update(uid: $uid, changes: $changes);
+		if ($updated === null) {
+			return new JSONResponse(['error' => 'Action item not found'], Http::STATUS_NOT_FOUND);
+		}
 
-        return new JSONResponse(['success' => true, 'actionItem' => $updated]);
-    }//end update()
+		return new JSONResponse(['success' => true, 'actionItem' => $updated]);
+	}//end update()
 
-    /**
-     * Delete an action item (located by its VTODO uid).
-     *
-     * IDOR-safe for the same reason as update().
-     *
-     * @param string $uid The action item's VTODO uid.
-     *
-     * @return JSONResponse Success, or 404 when not found.
-     *
-     * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
-     */
-    #[NoAdminRequired]
-    public function destroy(string $uid): JSONResponse
-    {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Delete an action item (located by its VTODO uid).
+	 *
+	 * IDOR-safe for the same reason as update().
+	 *
+	 * @param string $uid The action item's VTODO uid.
+	 *
+	 * @return JSONResponse Success, or 404 when not found.
+	 *
+	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 */
+	#[NoAdminRequired]
+	public function destroy(string $uid): JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        if ($this->writer->delete(uid: $uid) === false) {
-            return new JSONResponse(['error' => 'Action item not found'], Http::STATUS_NOT_FOUND);
-        }
+		if ($this->writer->delete(uid: $uid) === false) {
+			return new JSONResponse(['error' => 'Action item not found'], Http::STATUS_NOT_FOUND);
+		}
 
-        return new JSONResponse(['success' => true]);
-    }//end destroy()
+		return new JSONResponse(['success' => true]);
+	}//end destroy()
 }//end class

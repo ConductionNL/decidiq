@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Participant Notifier
  *
@@ -38,147 +39,142 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
  */
-class ParticipantNotifier
-{
-    /**
-     * Constructor.
-     *
-     * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
-     * @param LoggerInterface    $logger    The logger
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
-     */
-    public function __construct(
-        private ContainerInterface $container,
-        private LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class ParticipantNotifier {
+	/**
+	 * Constructor.
+	 *
+	 * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
+	 * @param LoggerInterface $logger The logger
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	public function __construct(
+		private ContainerInterface $container,
+		private LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Notify every participant whose Nextcloud UID can be resolved.
-     *
-     * Participants whose UID cannot be resolved are logged and skipped; a
-     * delivery failure for one recipient never aborts the rest.
-     *
-     * @param array<int,array<string,mixed>> $participants The participant records
-     * @param string                         $title        The notification title
-     * @param string                         $message      The notification body
-     * @param string                         $deepLink     The in-app deep link
-     *
-     * @return int The count of notifications actually sent
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
-     */
-    public function notifyAll(array $participants, string $title, string $message, string $deepLink): int
-    {
-        if (count($participants) === 0) {
-            return 0;
-        }
+	/**
+	 * Notify every participant whose Nextcloud UID can be resolved.
+	 *
+	 * Participants whose UID cannot be resolved are logged and skipped; a
+	 * delivery failure for one recipient never aborts the rest.
+	 *
+	 * @param array<int,array<string,mixed>> $participants The participant records
+	 * @param string $title The notification title
+	 * @param string $message The notification body
+	 * @param string $deepLink The in-app deep link
+	 *
+	 * @return int The count of notifications actually sent
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	public function notifyAll(array $participants, string $title, string $message, string $deepLink): int {
+		if (count($participants) === 0) {
+			return 0;
+		}
 
-        $notificationService = $this->container->get('OpenRegisterNotificationService');
+		$notificationService = $this->container->get('OpenRegisterNotificationService');
 
-        $sentCount = 0;
-        foreach ($participants as $participant) {
-            $ncUid = $this->resolveUid(participant: $participant);
-            if ($ncUid === null) {
-                $displayName = ($participant['displayName'] ?? '?');
-                $this->logger->warning(
-                    'Decidesk: cannot resolve Nextcloud UID for participant',
-                    ['participant' => $displayName]
-                );
-                continue;
-            }
+		$sentCount = 0;
+		foreach ($participants as $participant) {
+			$ncUid = $this->resolveUid(participant: $participant);
+			if ($ncUid === null) {
+				$displayName = ($participant['displayName'] ?? '?');
+				$this->logger->warning(
+					'Decidesk: cannot resolve Nextcloud UID for participant',
+					['participant' => $displayName]
+				);
+				continue;
+			}
 
-            $sent = $this->send(
-                notificationService: $notificationService,
-                userId: $ncUid,
-                title: $title,
-                message: $message,
-                deepLink: $deepLink
-            );
+			$sent = $this->send(
+				notificationService: $notificationService,
+				userId: $ncUid,
+				title: $title,
+				message: $message,
+				deepLink: $deepLink
+			);
 
-            if ($sent === true) {
-                $sentCount++;
-            }
-        }//end foreach
+			if ($sent === true) {
+				$sentCount++;
+			}
+		}//end foreach
 
-        return $sentCount;
+		return $sentCount;
+	}//end notifyAll()
 
-    }//end notifyAll()
+	/**
+	 * Deliver one notification, swallowing per-recipient delivery failures.
+	 *
+	 * @param object $notificationService The OpenRegister notification service
+	 * @param string $userId The Nextcloud UID
+	 * @param string $title The notification title
+	 * @param string $message The notification body
+	 * @param string $deepLink The in-app deep link
+	 *
+	 * @return bool True when the notification was accepted
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	private function send(
+		object $notificationService,
+		string $userId,
+		string $title,
+		string $message,
+		string $deepLink,
+	): bool {
+		try {
+			$notificationService->sendNotification(
+				userId: $userId,
+				title: $title,
+				message: $message,
+				deepLink: $deepLink
+			);
+			return true;
+		} catch (Exception $e) {
+			$this->logger->warning("Failed to send notification to $userId: " . $e->getMessage());
+			return false;
+		}
 
-    /**
-     * Deliver one notification, swallowing per-recipient delivery failures.
-     *
-     * @param object $notificationService The OpenRegister notification service
-     * @param string $userId              The Nextcloud UID
-     * @param string $title               The notification title
-     * @param string $message             The notification body
-     * @param string $deepLink            The in-app deep link
-     *
-     * @return bool True when the notification was accepted
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
-     */
-    private function send(
-        object $notificationService,
-        string $userId,
-        string $title,
-        string $message,
-        string $deepLink
-    ): bool {
-        try {
-            $notificationService->sendNotification(
-                userId: $userId,
-                title: $title,
-                message: $message,
-                deepLink: $deepLink
-            );
-            return true;
-        } catch (Exception $e) {
-            $this->logger->warning("Failed to send notification to $userId: ".$e->getMessage());
-            return false;
-        }
+	}//end send()
 
-    }//end send()
+	/**
+	 * Resolve a participant's Nextcloud UID.
+	 *
+	 * Tries, in order: the stored nextcloudUserId, an email lookup, and finally
+	 * a display-name search. Returns null when none of them resolves.
+	 *
+	 * @param array<string,mixed> $participant The participant record
+	 *
+	 * @return string|null The Nextcloud UID, or null when unresolvable
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	private function resolveUid(array $participant): ?string {
+		$ncUid = ($participant['nextcloudUserId'] ?? null);
+		if (empty($ncUid) === false) {
+			return (string)$ncUid;
+		}
 
-    /**
-     * Resolve a participant's Nextcloud UID.
-     *
-     * Tries, in order: the stored nextcloudUserId, an email lookup, and finally
-     * a display-name search. Returns null when none of them resolves.
-     *
-     * @param array<string,mixed> $participant The participant record
-     *
-     * @return string|null The Nextcloud UID, or null when unresolvable
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
-     */
-    private function resolveUid(array $participant): ?string
-    {
-        $ncUid = ($participant['nextcloudUserId'] ?? null);
-        if (empty($ncUid) === false) {
-            return (string) $ncUid;
-        }
+		$userManager = $this->container->get(\OCP\IUserManager::class);
 
-        $userManager = $this->container->get(\OCP\IUserManager::class);
+		$email = ($participant['email'] ?? null);
+		if (empty($email) === false) {
+			$users = $userManager->getByEmail(email: (string)$email);
+			if (empty($users) === false) {
+				return array_values($users)[0]->getUID();
+			}
+		}
 
-        $email = ($participant['email'] ?? null);
-        if (empty($email) === false) {
-            $users = $userManager->getByEmail(email: (string) $email);
-            if (empty($users) === false) {
-                return array_values($users)[0]->getUID();
-            }
-        }
+		$displayName = ($participant['displayName'] ?? null);
+		if (empty($displayName) === false) {
+			$users = $userManager->search(pattern: (string)$displayName, limit: 1);
+			if (empty($users) === false) {
+				return array_values($users)[0]->getUID();
+			}
+		}
 
-        $displayName = ($participant['displayName'] ?? null);
-        if (empty($displayName) === false) {
-            $users = $userManager->search(pattern: (string) $displayName, limit: 1);
-            if (empty($users) === false) {
-                return array_values($users)[0]->getUID();
-            }
-        }
-
-        return null;
-
-    }//end resolveUid()
+		return null;
+	}//end resolveUid()
 }//end class

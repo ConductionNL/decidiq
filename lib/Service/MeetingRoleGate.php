@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Meeting Role Gate
  *
@@ -38,55 +39,53 @@ use OCP\IGroupManager;
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  */
-class MeetingRoleGate
-{
+class MeetingRoleGate {
 
-    /**
-     * Meeting roles that count as "presiding" for guarded meeting actions.
-     *
-     * @var string[]
-     */
-    private const PRESIDING_ROLES = ['chair', 'secretary'];
+	/**
+	 * Meeting roles that count as "presiding" for guarded meeting actions.
+	 *
+	 * @var string[]
+	 */
+	private const PRESIDING_ROLES = ['chair', 'secretary'];
 
-    /**
-     * Constructor for MeetingRoleGate.
-     *
-     * @param IGroupManager       $groupManager        Group manager for the NC-admin fallback
-     * @param ParticipantResolver $participantResolver Meeting-role resolver
-     *
-     * @return void
-     */
-    public function __construct(
-        private readonly IGroupManager $groupManager,
-        private readonly ParticipantResolver $participantResolver,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor for MeetingRoleGate.
+	 *
+	 * @param IGroupManager $groupManager Group manager for the NC-admin fallback
+	 * @param ParticipantResolver $participantResolver Meeting-role resolver
+	 *
+	 * @return void
+	 */
+	public function __construct(
+		private readonly IGroupManager $groupManager,
+		private readonly ParticipantResolver $participantResolver,
+	) {
+	}//end __construct()
 
-    /**
-     * True when the actor is chair or secretary of the meeting, or an NC admin.
-     *
-     * The admin fallback is evaluated first so a system administrator never
-     * triggers a meeting-roster lookup; any other actor must hold one of the
-     * presiding roles on that specific meeting (fails closed).
-     *
-     * @param string $meetingId UUID of the meeting
-     * @param string $userId    Nextcloud UID of the actor
-     *
-     * @spec openspec/specs/resolution-minutes/spec.md
-     *
-     * @return bool True when the actor may perform chair/secretary actions
-     */
-    public function isChairOrSecretary(string $meetingId, string $userId): bool
-    {
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return true;
-        }
+	/**
+	 * True when the actor is chair or secretary of the meeting, or an NC admin.
+	 *
+	 * The admin fallback is evaluated first so a system administrator never
+	 * triggers a meeting-roster lookup; any other actor must hold one of the
+	 * presiding roles on that specific meeting (fails closed).
+	 *
+	 * @param string $meetingId UUID of the meeting
+	 * @param string $userId Nextcloud UID of the actor
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return bool True when the actor may perform chair/secretary actions
+	 */
+	public function isChairOrSecretary(string $meetingId, string $userId): bool {
+		if ($this->groupManager->isAdmin($userId) === true) {
+			return true;
+		}
 
-        return $this->participantResolver->hasRole(
-            meetingId: $meetingId,
-            nextcloudUid: $userId,
-            roles: self::PRESIDING_ROLES,
-        );
+		return $this->participantResolver->hasRole(
+			meetingId: $meetingId,
+			nextcloudUid: $userId,
+			roles: self::PRESIDING_ROLES,
+		);
 
-    }//end isChairOrSecretary()
+	}//end isChairOrSecretary()
 }//end class

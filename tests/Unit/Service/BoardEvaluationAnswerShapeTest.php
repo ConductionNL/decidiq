@@ -46,191 +46,183 @@ use Psr\Log\LoggerInterface;
 /**
  * Verifies no optional answer field is ever persisted as an explicit null.
  */
-final class BoardEvaluationAnswerShapeTest extends TestCase
-{
+final class BoardEvaluationAnswerShapeTest extends TestCase {
 
-    /**
-     * Mock OpenRegister ObjectService.
-     *
-     * @var ObjectService&MockObject
-     */
-    private ObjectService $objectService;
+	/**
+	 * Mock OpenRegister ObjectService.
+	 *
+	 * @var ObjectService&MockObject
+	 */
+	private ObjectService $objectService;
 
-    /**
-     * The service under test.
-     *
-     * @var BoardEvaluationResponseService
-     */
-    private BoardEvaluationResponseService $service;
+	/**
+	 * The service under test.
+	 *
+	 * @var BoardEvaluationResponseService
+	 */
+	private BoardEvaluationResponseService $service;
 
-    /**
-     * The object handed to saveObject() by the last submitResponse() call.
-     *
-     * @var array<string, mixed>
-     */
-    private array $captured = [];
+	/**
+	 * The object handed to saveObject() by the last submitResponse() call.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private array $captured = [];
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-        $container           = $this->createMock(ContainerInterface::class);
-        $this->objectService = $this->createMock(ObjectService::class);
-        $container->method('get')->willReturn($this->objectService);
+		$container = $this->createMock(ContainerInterface::class);
+		$this->objectService = $this->createMock(ObjectService::class);
+		$container->method('get')->willReturn($this->objectService);
 
-        $this->objectService->method('find')->willReturn(
-            $this->entity(
-                [
-                    'lifecycle'             => 'open',
-                    'invitedParticipantIds' => ['participant-1'],
-                    'invitedMemberCount'    => 3,
-                ]
-            )
-        );
-        $this->objectService->method('saveObject')->willReturnCallback(
-            function (...$args) {
-                // The response save is the first call; recordCompletion() saves the
-                // evaluation afterwards. Only capture the one carrying `answers`.
-                $object = ($args[0] ?? []);
-                if (is_array($object) === true && isset($object['answers']) === true) {
-                    $this->captured = $object;
-                }
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				[
+					'lifecycle' => 'open',
+					'invitedParticipantIds' => ['participant-1'],
+					'invitedMemberCount' => 3,
+				]
+			)
+		);
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (...$args) {
+				// The response save is the first call; recordCompletion() saves the
+				// evaluation afterwards. Only capture the one carrying `answers`.
+				$object = ($args[0] ?? []);
+				if (is_array($object) === true && isset($object['answers']) === true) {
+					$this->captured = $object;
+				}
 
-                return $this->entity(is_array($object) ? $object : []);
-            }
-        );
+				return $this->entity(is_array($object) ? $object : []);
+			}
+		);
 
-        $this->service = new BoardEvaluationResponseService(
-            $container,
-            $this->createMock(IAppConfig::class),
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(ParticipantUuidLookup::class),
-        );
+		$this->service = new BoardEvaluationResponseService(
+			$container,
+			$this->createMock(IAppConfig::class),
+			$this->createMock(LoggerInterface::class),
+			$this->createMock(ParticipantUuidLookup::class),
+		);
 
-    }//end setUp()
+	}//end setUp()
 
-    /**
-     * Build an ObjectEntity mock whose jsonSerialize() returns $data.
-     *
-     * @param array<string, mixed> $data The serialised payload.
-     *
-     * @return ObjectEntity&MockObject
-     */
-    private function entity(array $data): ObjectEntity
-    {
-        $entity = $this->getMockBuilder(ObjectEntity::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['jsonSerialize'])
-            ->getMock();
-        $entity->method('jsonSerialize')->willReturn($data);
-        return $entity;
+	/**
+	 * Build an ObjectEntity mock whose jsonSerialize() returns $data.
+	 *
+	 * @param array<string, mixed> $data The serialised payload.
+	 *
+	 * @return ObjectEntity&MockObject
+	 */
+	private function entity(array $data): ObjectEntity {
+		$entity = $this->getMockBuilder(ObjectEntity::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['jsonSerialize'])
+			->getMock();
+		$entity->method('jsonSerialize')->willReturn($data);
+		return $entity;
+	}//end entity()
 
-    }//end entity()
+	/**
+	 * A likert-only answer must persist WITHOUT a `freeText` key.
+	 *
+	 * This is the exact submission the live 422 was measured on: two likert
+	 * answers, no free text.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/board-self-evaluation/spec.md
+	 */
+	public function testALikertAnswerOmitsFreeTextInsteadOfWritingNull(): void {
+		$result = $this->service->submitResponse(
+			evaluationId: 'eval-1',
+			participantId: 'participant-1',
+			answers: [
+				['questionId' => 'q-strategy-likert', 'dimension' => 'strategy-and-oversight', 'likertValue' => 4],
+				['questionId' => 'q-chair-likert', 'dimension' => 'chair-effectiveness', 'likertValue' => 3],
+			]
+		);
 
-    /**
-     * A likert-only answer must persist WITHOUT a `freeText` key.
-     *
-     * This is the exact submission the live 422 was measured on: two likert
-     * answers, no free text.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/board-self-evaluation/spec.md
-     */
-    public function testALikertAnswerOmitsFreeTextInsteadOfWritingNull(): void
-    {
-        $result = $this->service->submitResponse(
-            evaluationId: 'eval-1',
-            participantId: 'participant-1',
-            answers: [
-                ['questionId' => 'q-strategy-likert', 'dimension' => 'strategy-and-oversight', 'likertValue' => 4],
-                ['questionId' => 'q-chair-likert', 'dimension' => 'chair-effectiveness', 'likertValue' => 3],
-            ]
-        );
+		self::assertTrue($result['success'], (string)($result['message'] ?? ''));
+		self::assertCount(2, $this->captured['answers']);
 
-        self::assertTrue($result['success'], (string) ($result['message'] ?? ''));
-        self::assertCount(2, $this->captured['answers']);
+		foreach ($this->captured['answers'] as $index => $answer) {
+			self::assertArrayNotHasKey('freeText', $answer, "answers.{$index} must omit freeText, not null it");
+			self::assertArrayHasKey('likertValue', $answer);
+			self::assertNotContains(null, $answer, "answers.{$index} carries an explicit null");
+		}
 
-        foreach ($this->captured['answers'] as $index => $answer) {
-            self::assertArrayNotHasKey('freeText', $answer, "answers.{$index} must omit freeText, not null it");
-            self::assertArrayHasKey('likertValue', $answer);
-            self::assertNotContains(null, $answer, "answers.{$index} carries an explicit null");
-        }
+		self::assertSame(4, $this->captured['answers'][0]['likertValue']);
+		self::assertSame('strategy-and-oversight', $this->captured['answers'][0]['dimension']);
 
-        self::assertSame(4, $this->captured['answers'][0]['likertValue']);
-        self::assertSame('strategy-and-oversight', $this->captured['answers'][0]['dimension']);
+	}//end testALikertAnswerOmitsFreeTextInsteadOfWritingNull()
 
-    }//end testALikertAnswerOmitsFreeTextInsteadOfWritingNull()
+	/**
+	 * A free-text-only answer must persist WITHOUT a `likertValue` key — the
+	 * mirror case, so the fix is not just "drop freeText".
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/board-self-evaluation/spec.md
+	 */
+	public function testAFreeTextAnswerOmitsLikertValueInsteadOfWritingNull(): void {
+		$result = $this->service->submitResponse(
+			evaluationId: 'eval-1',
+			participantId: 'participant-1',
+			answers: [['questionId' => 'q-open', 'dimension' => 'culture', 'freeText' => 'More time for strategy.']]
+		);
 
-    /**
-     * A free-text-only answer must persist WITHOUT a `likertValue` key — the
-     * mirror case, so the fix is not just "drop freeText".
-     *
-     * @return void
-     *
-     * @spec openspec/specs/board-self-evaluation/spec.md
-     */
-    public function testAFreeTextAnswerOmitsLikertValueInsteadOfWritingNull(): void
-    {
-        $result = $this->service->submitResponse(
-            evaluationId: 'eval-1',
-            participantId: 'participant-1',
-            answers: [['questionId' => 'q-open', 'dimension' => 'culture', 'freeText' => 'More time for strategy.']]
-        );
+		self::assertTrue($result['success'], (string)($result['message'] ?? ''));
+		$answer = $this->captured['answers'][0];
+		self::assertArrayNotHasKey('likertValue', $answer);
+		self::assertSame('More time for strategy.', $answer['freeText']);
+		self::assertNotContains(null, $answer);
 
-        self::assertTrue($result['success'], (string) ($result['message'] ?? ''));
-        $answer = $this->captured['answers'][0];
-        self::assertArrayNotHasKey('likertValue', $answer);
-        self::assertSame('More time for strategy.', $answer['freeText']);
-        self::assertNotContains(null, $answer);
+	}//end testAFreeTextAnswerOmitsLikertValueInsteadOfWritingNull()
 
-    }//end testAFreeTextAnswerOmitsLikertValueInsteadOfWritingNull()
+	/**
+	 * An answer carrying BOTH keeps both — omission must be driven by the value
+	 * being absent, not by the key being optional.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/board-self-evaluation/spec.md
+	 */
+	public function testAnAnswerCarryingBothKeepsBoth(): void {
+		$result = $this->service->submitResponse(
+			evaluationId: 'eval-1',
+			participantId: 'participant-1',
+			answers: [['questionId' => 'q-both', 'dimension' => 'culture', 'likertValue' => 2, 'freeText' => 'Mixed.']]
+		);
 
-    /**
-     * An answer carrying BOTH keeps both — omission must be driven by the value
-     * being absent, not by the key being optional.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/board-self-evaluation/spec.md
-     */
-    public function testAnAnswerCarryingBothKeepsBoth(): void
-    {
-        $result = $this->service->submitResponse(
-            evaluationId: 'eval-1',
-            participantId: 'participant-1',
-            answers: [['questionId' => 'q-both', 'dimension' => 'culture', 'likertValue' => 2, 'freeText' => 'Mixed.']]
-        );
+		self::assertTrue($result['success'], (string)($result['message'] ?? ''));
+		self::assertSame(2, $this->captured['answers'][0]['likertValue']);
+		self::assertSame('Mixed.', $this->captured['answers'][0]['freeText']);
 
-        self::assertTrue($result['success'], (string) ($result['message'] ?? ''));
-        self::assertSame(2, $this->captured['answers'][0]['likertValue']);
-        self::assertSame('Mixed.', $this->captured['answers'][0]['freeText']);
+	}//end testAnAnswerCarryingBothKeepsBoth()
 
-    }//end testAnAnswerCarryingBothKeepsBoth()
+	/**
+	 * The response never carries the participant id — anonymity is the whole
+	 * point of the token, and this fix touches the same payload.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+	 */
+	public function testTheStoredResponseNeverCarriesTheParticipantId(): void {
+		$this->service->submitResponse(
+			evaluationId: 'eval-1',
+			participantId: 'participant-1',
+			answers: [['questionId' => 'q-chair-likert', 'dimension' => 'chair-effectiveness', 'likertValue' => 5]]
+		);
 
-    /**
-     * The response never carries the participant id — anonymity is the whole
-     * point of the token, and this fix touches the same payload.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
-     */
-    public function testTheStoredResponseNeverCarriesTheParticipantId(): void
-    {
-        $this->service->submitResponse(
-            evaluationId: 'eval-1',
-            participantId: 'participant-1',
-            answers: [['questionId' => 'q-chair-likert', 'dimension' => 'chair-effectiveness', 'likertValue' => 5]]
-        );
+		self::assertStringNotContainsString('participant-1', (string)json_encode($this->captured));
 
-        self::assertStringNotContainsString('participant-1', (string) json_encode($this->captured));
-
-    }//end testTheStoredResponseNeverCarriesTheParticipantId()
+	}//end testTheStoredResponseNeverCarriesTheParticipantId()
 
 }//end class

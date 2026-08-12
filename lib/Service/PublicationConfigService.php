@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Publication Config Service
  *
@@ -34,169 +35,161 @@ use OCP\IAppConfig;
  *
  * @spec openspec/specs/public-publication/spec.md
  */
-class PublicationConfigService
-{
-    /**
-     * IAppConfig key the publication configuration blob is stored under.
-     *
-     * @var string
-     */
-    public const CONFIG_KEY = 'publication_config';
+class PublicationConfigService {
+	/**
+	 * IAppConfig key the publication configuration blob is stored under.
+	 *
+	 * @var string
+	 */
+	public const CONFIG_KEY = 'publication_config';
 
-    /**
-     * Valid per-type publication policy values.
-     *
-     * @var string[]
-     */
-    public const POLICIES = ['manual-only', 'prompt-on-transition'];
+	/**
+	 * Valid per-type publication policy values.
+	 *
+	 * @var string[]
+	 */
+	public const POLICIES = ['manual-only', 'prompt-on-transition'];
 
-    /**
-     * Valid attendance-rendering policy values for minutes payloads.
-     *
-     * @var string[]
-     */
-    public const ATTENDANCE_POLICIES = ['counts', 'role-holders'];
+	/**
+	 * Valid attendance-rendering policy values for minutes payloads.
+	 *
+	 * @var string[]
+	 */
+	public const ATTENDANCE_POLICIES = ['counts', 'role-holders'];
 
-    /**
-     * Constructor.
-     *
-     * @param IAppConfig $appConfig App configuration store.
-     *
-     * @spec openspec/specs/public-publication/spec.md
-     */
-    public function __construct(
-        private readonly IAppConfig $appConfig,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param IAppConfig $appConfig App configuration store.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	public function __construct(
+		private readonly IAppConfig $appConfig,
+	) {
+	}//end __construct()
 
-    /**
-     * Read the full publication configuration blob.
-     *
-     * @spec openspec/specs/public-publication/spec.md
-     *
-     * @return array<string,mixed> Map of bodyId => body config.
-     */
-    public function getAll(): array
-    {
-        $raw = $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, '');
-        if ($raw === '') {
-            return [];
-        }
+	/**
+	 * Read the full publication configuration blob.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return array<string,mixed> Map of bodyId => body config.
+	 */
+	public function getAll(): array {
+		$raw = $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, '');
+		if ($raw === '') {
+			return [];
+		}
 
-        $decoded = json_decode($raw, true);
-        if (is_array($decoded) === false) {
-            return [];
-        }
+		$decoded = json_decode($raw, true);
+		if (is_array($decoded) === false) {
+			return [];
+		}
 
-        return $decoded;
+		return $decoded;
+	}//end getAll()
 
-    }//end getAll()
+	/**
+	 * Resolve the configuration for one governance body, with safe defaults.
+	 *
+	 * @param string $bodyId UUID of the GovernanceBody.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return array{catalog:string,policy:array<string,string>,attendance:string}
+	 */
+	public function getForBody(string $bodyId): array {
+		$all = $this->getAll();
+		$body = ($all[$bodyId] ?? []);
 
-    /**
-     * Resolve the configuration for one governance body, with safe defaults.
-     *
-     * @param string $bodyId UUID of the GovernanceBody.
-     *
-     * @spec openspec/specs/public-publication/spec.md
-     *
-     * @return array{catalog:string,policy:array<string,string>,attendance:string}
-     */
-    public function getForBody(string $bodyId): array
-    {
-        $all  = $this->getAll();
-        $body = ($all[$bodyId] ?? []);
+		$policy = [];
+		if (isset($body['policy']) === true && is_array($body['policy']) === true) {
+			$policy = $body['policy'];
+		}
 
-        $policy = [];
-        if (isset($body['policy']) === true && is_array($body['policy']) === true) {
-            $policy = $body['policy'];
-        }
+		$attendance = ($body['attendance'] ?? 'counts');
+		if (in_array($attendance, self::ATTENDANCE_POLICIES, true) === false) {
+			$attendance = 'counts';
+		}
 
-        $attendance = ($body['attendance'] ?? 'counts');
-        if (in_array($attendance, self::ATTENDANCE_POLICIES, true) === false) {
-            $attendance = 'counts';
-        }
+		return [
+			'catalog' => (string)($body['catalog'] ?? ''),
+			'policy' => $policy,
+			'attendance' => $attendance,
+		];
 
-        return [
-            'catalog'    => (string) ($body['catalog'] ?? ''),
-            'policy'     => $policy,
-            'attendance' => $attendance,
-        ];
+	}//end getForBody()
 
-    }//end getForBody()
+	/**
+	 * Resolve the publication policy for a (body, source type) pair.
+	 *
+	 * @param string $bodyId UUID of the GovernanceBody.
+	 * @param string $sourceType One of decision|agenda|minutes.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return string 'manual-only' (default) or 'prompt-on-transition'.
+	 */
+	public function getPolicy(string $bodyId, string $sourceType): string {
+		$body = $this->getForBody(bodyId: $bodyId);
+		$value = ($body['policy'][$sourceType] ?? 'manual-only');
+		if (in_array($value, self::POLICIES, true) === false) {
+			return 'manual-only';
+		}
 
-    /**
-     * Resolve the publication policy for a (body, source type) pair.
-     *
-     * @param string $bodyId     UUID of the GovernanceBody.
-     * @param string $sourceType One of decision|agenda|minutes.
-     *
-     * @spec openspec/specs/public-publication/spec.md
-     *
-     * @return string 'manual-only' (default) or 'prompt-on-transition'.
-     */
-    public function getPolicy(string $bodyId, string $sourceType): string
-    {
-        $body  = $this->getForBody(bodyId: $bodyId);
-        $value = ($body['policy'][$sourceType] ?? 'manual-only');
-        if (in_array($value, self::POLICIES, true) === false) {
-            return 'manual-only';
-        }
+		return $value;
+	}//end getPolicy()
 
-        return $value;
+	/**
+	 * Persist the full publication configuration blob.
+	 *
+	 * Validates policy + attendance enums; unknown values are dropped to keep
+	 * the stored blob well-formed.
+	 *
+	 * @param array<string,mixed> $config Map of bodyId => body config.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return array<string,mixed> The normalised, persisted config.
+	 */
+	public function save(array $config): array {
+		$clean = [];
+		foreach ($config as $bodyId => $body) {
+			if (is_array($body) === false) {
+				continue;
+			}
 
-    }//end getPolicy()
+			$policy = [];
+			$rawPolicy = ($body['policy'] ?? []);
+			if (is_array($rawPolicy) === true) {
+				foreach (['decision', 'agenda', 'minutes'] as $type) {
+					$value = ($rawPolicy[$type] ?? null);
+					if (in_array($value, self::POLICIES, true) === true) {
+						$policy[$type] = $value;
+					}
+				}
+			}
 
-    /**
-     * Persist the full publication configuration blob.
-     *
-     * Validates policy + attendance enums; unknown values are dropped to keep
-     * the stored blob well-formed.
-     *
-     * @param array<string,mixed> $config Map of bodyId => body config.
-     *
-     * @spec openspec/specs/public-publication/spec.md
-     *
-     * @return array<string,mixed> The normalised, persisted config.
-     */
-    public function save(array $config): array
-    {
-        $clean = [];
-        foreach ($config as $bodyId => $body) {
-            if (is_array($body) === false) {
-                continue;
-            }
+			$attendance = ($body['attendance'] ?? 'counts');
+			if (in_array($attendance, self::ATTENDANCE_POLICIES, true) === false) {
+				$attendance = 'counts';
+			}
 
-            $policy    = [];
-            $rawPolicy = ($body['policy'] ?? []);
-            if (is_array($rawPolicy) === true) {
-                foreach (['decision', 'agenda', 'minutes'] as $type) {
-                    $value = ($rawPolicy[$type] ?? null);
-                    if (in_array($value, self::POLICIES, true) === true) {
-                        $policy[$type] = $value;
-                    }
-                }
-            }
+			$clean[(string)$bodyId] = [
+				'catalog' => (string)($body['catalog'] ?? ''),
+				'policy' => $policy,
+				'attendance' => $attendance,
+			];
+		}//end foreach
 
-            $attendance = ($body['attendance'] ?? 'counts');
-            if (in_array($attendance, self::ATTENDANCE_POLICIES, true) === false) {
-                $attendance = 'counts';
-            }
+		$encoded = json_encode($clean, (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		if ($encoded === false) {
+			$encoded = '{}';
+		}
 
-            $clean[(string) $bodyId] = [
-                'catalog'    => (string) ($body['catalog'] ?? ''),
-                'policy'     => $policy,
-                'attendance' => $attendance,
-            ];
-        }//end foreach
+		$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_KEY, $encoded);
 
-        $encoded = json_encode($clean, (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        if ($encoded === false) {
-            $encoded = '{}';
-        }
-
-        $this->appConfig->setValueString(Application::APP_ID, self::CONFIG_KEY, $encoded);
-
-        return $clean;
-
-    }//end save()
+		return $clean;
+	}//end save()
 }//end class

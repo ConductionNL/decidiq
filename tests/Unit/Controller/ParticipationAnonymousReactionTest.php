@@ -57,209 +57,193 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class ParticipationAnonymousReactionTest extends TestCase
-{
+class ParticipationAnonymousReactionTest extends TestCase {
 
-    /**
-     * Mock IRequest.
-     *
-     * @var IRequest&MockObject
-     */
-    private IRequest&MockObject $request;
+	/**
+	 * Mock IRequest.
+	 *
+	 * @var IRequest&MockObject
+	 */
+	private IRequest&MockObject $request;
 
-    /**
-     * Mock ReactionIntakeService.
-     *
-     * @var ReactionIntakeService&MockObject
-     */
-    private ReactionIntakeService&MockObject $intakeService;
+	/**
+	 * Mock ReactionIntakeService.
+	 *
+	 * @var ReactionIntakeService&MockObject
+	 */
+	private ReactionIntakeService&MockObject $intakeService;
 
-    /**
-     * The controller under test.
-     *
-     * @var ParticipationController
-     */
-    private ParticipationController $controller;
+	/**
+	 * The controller under test.
+	 *
+	 * @var ParticipationController
+	 */
+	private ParticipationController $controller;
 
+	/**
+	 * Set up mocks and the controller.
+	 *
+	 * The responder is the REAL ParticipationResponder over a mocked staff
+	 * guard: the anonymous route does not go through it, and building it for
+	 * real keeps this test from asserting against a stand-in of the class that
+	 * decides the app's participation status codes.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up mocks and the controller.
-     *
-     * The responder is the REAL ParticipationResponder over a mocked staff
-     * guard: the anonymous route does not go through it, and building it for
-     * real keeps this test from asserting against a stand-in of the class that
-     * decides the app's participation status codes.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		$this->request = $this->createMock(IRequest::class);
+		$this->intakeService = $this->createMock(ReactionIntakeService::class);
+		$this->request->method('getRemoteAddress')->willReturn('198.51.100.7');
 
-        $this->request       = $this->createMock(IRequest::class);
-        $this->intakeService = $this->createMock(ReactionIntakeService::class);
-        $this->request->method('getRemoteAddress')->willReturn('198.51.100.7');
+		$this->controller = new ParticipationController(
+			$this->request,
+			$this->createMock(ParticipationLifecycleService::class),
+			$this->intakeService,
+			$this->createMock(ParticipationPublicationService::class),
+			new ParticipationResponder($this->createMock(ParticipationStaffGuard::class)),
+		);
 
-        $this->controller = new ParticipationController(
-            $this->request,
-            $this->createMock(ParticipationLifecycleService::class),
-            $this->intakeService,
-            $this->createMock(ParticipationPublicationService::class),
-            new ParticipationResponder($this->createMock(ParticipationStaffGuard::class)),
-        );
+	}//end setUp()
 
-    }//end setUp()
+	/**
+	 * A valid anonymous reaction answers 201 with the stored reaction, and the
+	 * service is called with NO user id plus the server-derived client seed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	public function testAnonymousReactionReturns201AndCarriesNoUserIdentity(): void {
+		$this->intakeService->expects($this->once())
+			->method('submitReaction')
+			->with(
+				consultationId: 'consultation-1',
+				body: 'Graag meer groen in dit plan.',
+				ncUid: null,
+				clientSeed: '198.51.100.7'
+			)
+			->willReturn(['id' => 'reaction-1', 'submitter' => 'pseudonym-4f2a', 'status' => 'pending']);
 
+		$response = $this->controller->submitAnonymousReaction(
+			consultationId: 'consultation-1',
+			body: 'Graag meer groen in dit plan.'
+		);
 
-    /**
-     * A valid anonymous reaction answers 201 with the stored reaction, and the
-     * service is called with NO user id plus the server-derived client seed.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    public function testAnonymousReactionReturns201AndCarriesNoUserIdentity(): void
-    {
-        $this->intakeService->expects($this->once())
-            ->method('submitReaction')
-            ->with(
-                consultationId: 'consultation-1',
-                body: 'Graag meer groen in dit plan.',
-                ncUid: null,
-                clientSeed: '198.51.100.7'
-            )
-            ->willReturn(['id' => 'reaction-1', 'submitter' => 'pseudonym-4f2a', 'status' => 'pending']);
+		self::assertSame(Http::STATUS_CREATED, $response->getStatus());
+		self::assertSame('reaction-1', $response->getData()['reaction']['id']);
+		self::assertSame('pseudonym-4f2a', $response->getData()['reaction']['submitter']);
 
-        $response = $this->controller->submitAnonymousReaction(
-            consultationId: 'consultation-1',
-            body: 'Graag meer groen in dit plan.'
-        );
+	}//end testAnonymousReactionReturns201AndCarriesNoUserIdentity()
 
-        self::assertSame(Http::STATUS_CREATED, $response->getStatus());
-        self::assertSame('reaction-1', $response->getData()['reaction']['id']);
-        self::assertSame('pseudonym-4f2a', $response->getData()['reaction']['submitter']);
+	/**
+	 * A consultation that has not opted in to anonymous reactions answers 401
+	 * and the response is throttled — this rejection is the one an anonymous
+	 * prober could otherwise use to enumerate consultation configuration.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	public function testAnonymousReactionNotEnabledIs401AndThrottled(): void {
+		$this->intakeService->method('submitReaction')
+			->willThrowException(
+				new \InvalidArgumentException('Anonymous reactions are not enabled for this consultation.')
+			);
 
-    }//end testAnonymousReactionReturns201AndCarriesNoUserIdentity()
+		$response = $this->controller->submitAnonymousReaction(
+			consultationId: 'consultation-1',
+			body: 'Poging.'
+		);
 
+		self::assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 
-    /**
-     * A consultation that has not opted in to anonymous reactions answers 401
-     * and the response is throttled — this rejection is the one an anonymous
-     * prober could otherwise use to enumerate consultation configuration.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    public function testAnonymousReactionNotEnabledIs401AndThrottled(): void
-    {
-        $this->intakeService->method('submitReaction')
-            ->willThrowException(
-                new \InvalidArgumentException('Anonymous reactions are not enabled for this consultation.')
-            );
+		// Response::throttle() records the metadata that makes NC's brute-force
+		// middleware count this attempt. Asserting only the 401 would pass just
+		// as happily with the throttle call deleted.
+		$property = new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'throttleMetadata');
+		$property->setAccessible(true);
+		self::assertSame(['action' => 'decideskAnonReaction'], $property->getValue($response));
 
-        $response = $this->controller->submitAnonymousReaction(
-            consultationId: 'consultation-1',
-            body: 'Poging.'
-        );
+	}//end testAnonymousReactionNotEnabledIs401AndThrottled()
 
-        self::assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+	/**
+	 * A malformed body (empty or oversized) is 400, NOT the 401 reserved for
+	 * the not-enabled case — a citizen who typed nothing should not be told to
+	 * authenticate.
+	 *
+	 * @param string $serviceMessage The service's rejection message.
+	 *
+	 * @return void
+	 *
+	 * @dataProvider malformedBodyMessages
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	public function testAnonymousReactionMalformedBodyIs400(string $serviceMessage): void {
+		$this->intakeService->method('submitReaction')
+			->willThrowException(new \InvalidArgumentException($serviceMessage));
 
-        // Response::throttle() records the metadata that makes NC's brute-force
-        // middleware count this attempt. Asserting only the 401 would pass just
-        // as happily with the throttle call deleted.
-        $property = new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'throttleMetadata');
-        $property->setAccessible(true);
-        self::assertSame(['action' => 'decideskAnonReaction'], $property->getValue($response));
+		$response = $this->controller->submitAnonymousReaction(consultationId: 'consultation-1', body: '');
 
-    }//end testAnonymousReactionNotEnabledIs401AndThrottled()
+		self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 
+	}//end testAnonymousReactionMalformedBodyIs400()
 
-    /**
-     * A malformed body (empty or oversized) is 400, NOT the 401 reserved for
-     * the not-enabled case — a citizen who typed nothing should not be told to
-     * authenticate.
-     *
-     * @param string $serviceMessage The service's rejection message.
-     *
-     * @return void
-     *
-     * @dataProvider malformedBodyMessages
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    public function testAnonymousReactionMalformedBodyIs400(string $serviceMessage): void
-    {
-        $this->intakeService->method('submitReaction')
-            ->willThrowException(new \InvalidArgumentException($serviceMessage));
+	/**
+	 * Service rejections that describe the payload rather than the feature gate.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function malformedBodyMessages(): array {
+		return [
+			'empty body' => ['A reaction body is required.'],
+			'oversized body' => ['A reaction body may not exceed 5000 characters.'],
+		];
 
-        $response = $this->controller->submitAnonymousReaction(consultationId: 'consultation-1', body: '');
+	}//end malformedBodyMessages()
 
-        self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	/**
+	 * A consultation not open for reactions (closed, or never published) is 409
+	 * — coarse on purpose: it does not distinguish "closed" from "unknown".
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	public function testAnonymousReactionOnUnavailableConsultationIs409(): void {
+		$this->intakeService->method('submitReaction')
+			->willThrowException(new \RuntimeException('Consultation is not open for reactions.'));
 
-    }//end testAnonymousReactionMalformedBodyIs400()
+		$response = $this->controller->submitAnonymousReaction(
+			consultationId: 'ghost',
+			body: 'Reactie.'
+		);
 
+		self::assertSame(Http::STATUS_CONFLICT, $response->getStatus());
 
-    /**
-     * Service rejections that describe the payload rather than the feature gate.
-     *
-     * @return array<string, array{0: string}>
-     */
-    public static function malformedBodyMessages(): array
-    {
-        return [
-            'empty body'     => ['A reaction body is required.'],
-            'oversized body' => ['A reaction body may not exceed 5000 characters.'],
-        ];
+	}//end testAnonymousReactionOnUnavailableConsultationIs409()
 
-    }//end malformedBodyMessages()
+	/**
+	 * The `body` parameter defaults to an empty string, so a request that omits
+	 * it entirely reaches the service (which validates) rather than raising an
+	 * ArgumentCountError out of the router.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	public function testAnonymousReactionWithOmittedBodyReachesTheService(): void {
+		$this->intakeService->expects($this->once())
+			->method('submitReaction')
+			->with(consultationId: 'consultation-1', body: '', ncUid: null, clientSeed: '198.51.100.7')
+			->willThrowException(new \InvalidArgumentException('A reaction body is required.'));
 
+		$response = $this->controller->submitAnonymousReaction(consultationId: 'consultation-1');
 
-    /**
-     * A consultation not open for reactions (closed, or never published) is 409
-     * — coarse on purpose: it does not distinguish "closed" from "unknown".
-     *
-     * @return void
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    public function testAnonymousReactionOnUnavailableConsultationIs409(): void
-    {
-        $this->intakeService->method('submitReaction')
-            ->willThrowException(new \RuntimeException('Consultation is not open for reactions.'));
+		self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 
-        $response = $this->controller->submitAnonymousReaction(
-            consultationId: 'ghost',
-            body: 'Reactie.'
-        );
-
-        self::assertSame(Http::STATUS_CONFLICT, $response->getStatus());
-
-    }//end testAnonymousReactionOnUnavailableConsultationIs409()
-
-
-    /**
-     * The `body` parameter defaults to an empty string, so a request that omits
-     * it entirely reaches the service (which validates) rather than raising an
-     * ArgumentCountError out of the router.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    public function testAnonymousReactionWithOmittedBodyReachesTheService(): void
-    {
-        $this->intakeService->expects($this->once())
-            ->method('submitReaction')
-            ->with(consultationId: 'consultation-1', body: '', ncUid: null, clientSeed: '198.51.100.7')
-            ->willThrowException(new \InvalidArgumentException('A reaction body is required.'));
-
-        $response = $this->controller->submitAnonymousReaction(consultationId: 'consultation-1');
-
-        self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-
-    }//end testAnonymousReactionWithOmittedBodyReachesTheService()
-
+	}//end testAnonymousReactionWithOmittedBodyReachesTheService()
 
 }//end class

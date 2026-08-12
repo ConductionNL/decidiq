@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk AccessDeniedException
  *
@@ -25,6 +26,5 @@ namespace OCA\Decidesk\Exception;
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
-class AccessDeniedException extends \RuntimeException
-{
+class AccessDeniedException extends \RuntimeException {
 }//end class

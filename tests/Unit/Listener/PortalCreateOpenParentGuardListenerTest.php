@@ -46,336 +46,317 @@ use Psr\Log\NullLogger;
  *
  * @spec openspec/specs/portal-citizen-create-actions/spec.md
  */
-class PortalCreateOpenParentGuardListenerTest extends TestCase
-{
+class PortalCreateOpenParentGuardListenerTest extends TestCase {
 
+	/**
+	 * Build a listener over an in-memory object store double (mirrors
+	 * SubmissionDeadlineListenerTest's fixture pattern).
+	 *
+	 * @param array<string, array<string, mixed>> $store Seed parent objects by id.
+	 *
+	 * @return PortalCreateOpenParentGuardListener
+	 */
+	private function buildListener(array $store): PortalCreateOpenParentGuardListener {
+		$storeRef = new \ArrayObject($store);
 
-    /**
-     * Build a listener over an in-memory object store double (mirrors
-     * SubmissionDeadlineListenerTest's fixture pattern).
-     *
-     * @param array<string, array<string, mixed>> $store Seed parent objects by id.
-     *
-     * @return PortalCreateOpenParentGuardListener
-     */
-    private function buildListener(array $store): PortalCreateOpenParentGuardListener
-    {
-        $storeRef = new \ArrayObject($store);
+		$objectService = new class($storeRef) {
 
-        $objectService = new class ($storeRef) {
+			/**
+			 * Constructor.
+			 *
+			 * @param \ArrayObject $store In-memory object store.
+			 */
+			public function __construct(
+				private \ArrayObject $store,
+			) {
+			}//end __construct()
 
+			/**
+			 * Find an object by id, returning an entity-like wrapper.
+			 *
+			 * @param int|string $id Object id.
+			 * @param string|int|null $register Register slug.
+			 * @param string|int|null $schema Schema slug.
+			 *
+			 * @return object|null
+			 */
+			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+				$payload = ($this->store[(string)$id] ?? null);
+				if ($payload === null) {
+					return null;
+				}
 
-            /**
-             * Constructor.
-             *
-             * @param \ArrayObject $store In-memory object store.
-             */
-            public function __construct(private \ArrayObject $store)
-            {
-            }//end __construct()
+				return new class($payload) {
+					/**
+					 * Constructor.
+					 *
+					 * @param array<string, mixed> $object The payload.
+					 */
+					public function __construct(
+						private array $object,
+					) {
+					}//end __construct()
 
-            /**
-             * Find an object by id, returning an entity-like wrapper.
-             *
-             * @param int|string      $id       Object id.
-             * @param string|int|null $register Register slug.
-             * @param string|int|null $schema   Schema slug.
-             *
-             * @return object|null
-             */
-            public function find(int|string $id, string|int|null $register=null, string|int|null $schema=null): ?object
-            {
-                $payload = ($this->store[(string) $id] ?? null);
-                if ($payload === null) {
-                    return null;
-                }
+					/**
+					 * Serialize like an ObjectEntity.
+					 *
+					 * @return array<string, mixed>
+					 */
+					public function jsonSerialize(): array {
+						return $this->object;
+					}//end jsonSerialize()
+				};
 
-                return new class ($payload) {
+			}//end find()
+		};
 
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			static function (string $id) use ($objectService): object {
+				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
+					return $objectService;
+				}
 
-                    /**
-                     * Constructor.
-                     *
-                     * @param array<string, mixed> $object The payload.
-                     */
-                    public function __construct(private array $object)
-                    {
-                    }//end __construct()
+				throw new \RuntimeException('not wired in test: ' . $id);
+			}
+		);
 
-                    /**
-                     * Serialize like an ObjectEntity.
-                     *
-                     * @return array<string, mixed>
-                     */
-                    public function jsonSerialize(): array
-                    {
-                        return $this->object;
+		return new PortalCreateOpenParentGuardListener(
+			container: $container,
+			logger: new NullLogger(),
+		);
 
-                    }//end jsonSerialize()
-                };
+	}//end buildListener()
 
-            }//end find()
-        };
+	/**
+	 * Build a listener whose container always throws (infrastructure failure).
+	 *
+	 * @return PortalCreateOpenParentGuardListener
+	 */
+	private function buildBrokenListener(): PortalCreateOpenParentGuardListener {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(new \RuntimeException('DI is down'));
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willReturnCallback(
-            static function (string $id) use ($objectService): object {
-                if ($id === 'OCA\OpenRegister\Service\ObjectService') {
-                    return $objectService;
-                }
+		return new PortalCreateOpenParentGuardListener(
+			container: $container,
+			logger: new NullLogger(),
+		);
 
-                throw new \RuntimeException('not wired in test: '.$id);
-            }
-        );
+	}//end buildBrokenListener()
 
-        return new PortalCreateOpenParentGuardListener(
-            container: $container,
-            logger: new NullLogger(),
-        );
+	/**
+	 * Build an ObjectCreatingEvent carrying an entity that serialises to $row.
+	 *
+	 * @param array<string, mixed> $row The object payload being created.
+	 *
+	 * @return ObjectCreatingEvent
+	 */
+	private function eventFor(array $row): ObjectCreatingEvent {
+		$entity = $this->createMock(ObjectEntity::class);
+		$entity->method('getObject')->willReturn($row);
+		$entity->method('jsonSerialize')->willReturn($row);
 
-    }//end buildListener()
+		return new ObjectCreatingEvent($entity);
+	}//end eventFor()
 
-    /**
-     * Build a listener whose container always throws (infrastructure failure).
-     *
-     * @return PortalCreateOpenParentGuardListener
-     */
-    private function buildBrokenListener(): PortalCreateOpenParentGuardListener
-    {
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willThrowException(new \RuntimeException('DI is down'));
+	/**
+	 * A reaction on an OPEN consultation (scalar `consultation` reference
+	 * field, the portaliq create-action shape) is allowed.
+	 *
+	 * @return void
+	 */
+	public function testReactionOnOpenConsultationAllowed(): void {
+		$listener = $this->buildListener(['c-1' => ['id' => 'c-1', 'status' => 'open']]);
 
-        return new PortalCreateOpenParentGuardListener(
-            container: $container,
-            logger: new NullLogger(),
-        );
+		$event = $this->eventFor(
+			[
+				'consultation' => 'c-1',
+				'body' => 'I support this',
+				'moderationStatus' => 'pending',
+				'submitterId' => 'anon-token',
+			]
+		);
+		$listener->handle($event);
 
-    }//end buildBrokenListener()
+		self::assertFalse($event->isPropagationStopped());
 
-    /**
-     * Build an ObjectCreatingEvent carrying an entity that serialises to $row.
-     *
-     * @param array<string, mixed> $row The object payload being created.
-     *
-     * @return ObjectCreatingEvent
-     */
-    private function eventFor(array $row): ObjectCreatingEvent
-    {
-        $entity = $this->createMock(ObjectEntity::class);
-        $entity->method('getObject')->willReturn($row);
-        $entity->method('jsonSerialize')->willReturn($row);
+	}//end testReactionOnOpenConsultationAllowed()
 
-        return new ObjectCreatingEvent($entity);
+	/**
+	 * A reaction on a CLOSED consultation fails closed (REQ-DKPCA-001
+	 * Scenario: "against a consultation whose status is not open fails
+	 * closed").
+	 *
+	 * @return void
+	 */
+	public function testReactionOnClosedConsultationRejected(): void {
+		$listener = $this->buildListener(['c-1' => ['id' => 'c-1', 'status' => 'closed']]);
 
-    }//end eventFor()
+		$event = $this->eventFor(
+			[
+				'consultation' => 'c-1',
+				'body' => 'Too late?',
+				'moderationStatus' => 'pending',
+				'submitterId' => 'anon-token',
+			]
+		);
+		$listener->handle($event);
 
-    /**
-     * A reaction on an OPEN consultation (scalar `consultation` reference
-     * field, the portaliq create-action shape) is allowed.
-     *
-     * @return void
-     */
-    public function testReactionOnOpenConsultationAllowed(): void
-    {
-        $listener = $this->buildListener(['c-1' => ['id' => 'c-1', 'status' => 'open']]);
+		self::assertTrue($event->isPropagationStopped());
+		self::assertNotSame('', $event->getErrors()['message'] ?? '');
 
-        $event = $this->eventFor(
-            [
-                'consultation'     => 'c-1',
-                'body'             => 'I support this',
-                'moderationStatus' => 'pending',
-                'submitterId'      => 'anon-token',
-            ]
-        );
-        $listener->handle($event);
+	}//end testReactionOnClosedConsultationRejected()
 
-        self::assertFalse($event->isPropagationStopped());
+	/**
+	 * A reaction resolved through the generic `relations` array (Decidesk's
+	 * own ReactionIntakeService shape, no scalar `consultation` key) on an
+	 * open consultation is allowed.
+	 *
+	 * @return void
+	 */
+	public function testReactionViaRelationsShapeOnOpenConsultationAllowed(): void {
+		$listener = $this->buildListener(['c-1' => ['id' => 'c-1', 'status' => 'open']]);
 
-    }//end testReactionOnOpenConsultationAllowed()
+		$event = $this->eventFor(
+			[
+				'body' => 'Support',
+				'moderationStatus' => 'pending',
+				'submitterId' => 'user-1',
+				'relations' => [
+					['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => 'c-1'],
+				],
+			]
+		);
+		$listener->handle($event);
 
-    /**
-     * A reaction on a CLOSED consultation fails closed (REQ-DKPCA-001
-     * Scenario: "against a consultation whose status is not open fails
-     * closed").
-     *
-     * @return void
-     */
-    public function testReactionOnClosedConsultationRejected(): void
-    {
-        $listener = $this->buildListener(['c-1' => ['id' => 'c-1', 'status' => 'closed']]);
+		self::assertFalse($event->isPropagationStopped());
 
-        $event = $this->eventFor(
-            [
-                'consultation'     => 'c-1',
-                'body'             => 'Too late?',
-                'moderationStatus' => 'pending',
-                'submitterId'      => 'anon-token',
-            ]
-        );
-        $listener->handle($event);
+	}//end testReactionViaRelationsShapeOnOpenConsultationAllowed()
 
-        self::assertTrue($event->isPropagationStopped());
-        self::assertNotSame('', $event->getErrors()['message'] ?? '');
+	/**
+	 * A budget proposal into a submission-phase round is allowed.
+	 *
+	 * @return void
+	 */
+	public function testBudgetProposalOnSubmissionRoundAllowed(): void {
+		$listener = $this->buildListener(['b-1' => ['id' => 'b-1', 'status' => 'submission']]);
 
-    }//end testReactionOnClosedConsultationRejected()
+		$event = $this->eventFor(
+			[
+				'participatoryBudget' => 'b-1',
+				'title' => 'New playground',
+				'requestedAmount' => 5000,
+				'submitter' => 'anon-token',
+				'status' => 'submitted',
+			]
+		);
+		$listener->handle($event);
 
-    /**
-     * A reaction resolved through the generic `relations` array (Decidesk's
-     * own ReactionIntakeService shape, no scalar `consultation` key) on an
-     * open consultation is allowed.
-     *
-     * @return void
-     */
-    public function testReactionViaRelationsShapeOnOpenConsultationAllowed(): void
-    {
-        $listener = $this->buildListener(['c-1' => ['id' => 'c-1', 'status' => 'open']]);
+		self::assertFalse($event->isPropagationStopped());
 
-        $event = $this->eventFor(
-            [
-                'body'             => 'Support',
-                'moderationStatus' => 'pending',
-                'submitterId'      => 'user-1',
-                'relations'        => [
-                    ['register' => 'decidesk', 'schema' => 'public-consultation', 'id' => 'c-1'],
-                ],
-            ]
-        );
-        $listener->handle($event);
+	}//end testBudgetProposalOnSubmissionRoundAllowed()
 
-        self::assertFalse($event->isPropagationStopped());
+	/**
+	 * A budget proposal into a round NOT in the submission phase fails closed
+	 * (REQ-DKPCA-002 Scenario).
+	 *
+	 * @return void
+	 */
+	public function testBudgetProposalOnDraftRoundRejected(): void {
+		$listener = $this->buildListener(['b-1' => ['id' => 'b-1', 'status' => 'draft']]);
 
-    }//end testReactionViaRelationsShapeOnOpenConsultationAllowed()
+		$event = $this->eventFor(
+			[
+				'participatoryBudget' => 'b-1',
+				'title' => 'Too early',
+				'requestedAmount' => 1000,
+				'submitter' => 'anon-token',
+				'status' => 'submitted',
+			]
+		);
+		$listener->handle($event);
 
-    /**
-     * A budget proposal into a submission-phase round is allowed.
-     *
-     * @return void
-     */
-    public function testBudgetProposalOnSubmissionRoundAllowed(): void
-    {
-        $listener = $this->buildListener(['b-1' => ['id' => 'b-1', 'status' => 'submission']]);
+		self::assertTrue($event->isPropagationStopped());
 
-        $event = $this->eventFor(
-            [
-                'participatoryBudget' => 'b-1',
-                'title'               => 'New playground',
-                'requestedAmount'     => 5000,
-                'submitter'           => 'anon-token',
-                'status'              => 'submitted',
-            ]
-        );
-        $listener->handle($event);
+	}//end testBudgetProposalOnDraftRoundRejected()
 
-        self::assertFalse($event->isPropagationStopped());
+	/**
+	 * A create whose parent id does not resolve to any stored object fails
+	 * closed (no existence oracle; same posture as a status mismatch).
+	 *
+	 * @return void
+	 */
+	public function testMissingParentRejected(): void {
+		$listener = $this->buildListener([]);
 
-    }//end testBudgetProposalOnSubmissionRoundAllowed()
+		$event = $this->eventFor(
+			[
+				'consultation' => 'does-not-exist',
+				'body' => 'x',
+				'moderationStatus' => 'pending',
+				'submitterId' => 'anon-token',
+			]
+		);
+		$listener->handle($event);
 
-    /**
-     * A budget proposal into a round NOT in the submission phase fails closed
-     * (REQ-DKPCA-002 Scenario).
-     *
-     * @return void
-     */
-    public function testBudgetProposalOnDraftRoundRejected(): void
-    {
-        $listener = $this->buildListener(['b-1' => ['id' => 'b-1', 'status' => 'draft']]);
+		self::assertTrue($event->isPropagationStopped());
 
-        $event = $this->eventFor(
-            [
-                'participatoryBudget' => 'b-1',
-                'title'               => 'Too early',
-                'requestedAmount'     => 1000,
-                'submitter'           => 'anon-token',
-                'status'              => 'submitted',
-            ]
-        );
-        $listener->handle($event);
+	}//end testMissingParentRejected()
 
-        self::assertTrue($event->isPropagationStopped());
+	/**
+	 * An unrelated schema (neither field signature matches) is ignored.
+	 *
+	 * @return void
+	 */
+	public function testUnrelatedSchemaIgnored(): void {
+		$listener = $this->buildListener([]);
 
-    }//end testBudgetProposalOnDraftRoundRejected()
+		$event = $this->eventFor(['title' => 'Q3 Meeting', 'startDate' => '2026-01-01']);
+		$listener->handle($event);
 
-    /**
-     * A create whose parent id does not resolve to any stored object fails
-     * closed (no existence oracle; same posture as a status mismatch).
-     *
-     * @return void
-     */
-    public function testMissingParentRejected(): void
-    {
-        $listener = $this->buildListener([]);
+		self::assertFalse($event->isPropagationStopped());
 
-        $event = $this->eventFor(
-            [
-                'consultation'     => 'does-not-exist',
-                'body'             => 'x',
-                'moderationStatus' => 'pending',
-                'submitterId'      => 'anon-token',
-            ]
-        );
-        $listener->handle($event);
+	}//end testUnrelatedSchemaIgnored()
 
-        self::assertTrue($event->isPropagationStopped());
+	/**
+	 * Non-ObjectCreatingEvent events are ignored.
+	 *
+	 * @return void
+	 */
+	public function testNonCreatingEventsIgnored(): void {
+		$listener = $this->buildListener([]);
 
-    }//end testMissingParentRejected()
+		// A generic Event has no isPropagationStopped()/getErrors() API to
+		// assert against; reaching this point without an exception is the
+		// assertion (the instanceof guard at the top of handle() returns
+		// immediately for any non-ObjectCreatingEvent).
+		$listener->handle($this->createMock(Event::class));
+		self::assertTrue(condition: true);
 
-    /**
-     * An unrelated schema (neither field signature matches) is ignored.
-     *
-     * @return void
-     */
-    public function testUnrelatedSchemaIgnored(): void
-    {
-        $listener = $this->buildListener([]);
+	}//end testNonCreatingEventsIgnored()
 
-        $event = $this->eventFor(['title' => 'Q3 Meeting', 'startDate' => '2026-01-01']);
-        $listener->handle($event);
+	/**
+	 * An infrastructure failure (container/ObjectService unavailable) fails
+	 * CLOSED — the deliberate contrast with SubmissionDeadlineListener's
+	 * fail-soft posture, because this is a security invariant (write-IDOR /
+	 * open-parent), not an opt-in business rule.
+	 *
+	 * @return void
+	 */
+	public function testInfrastructureFailureRejectsClosed(): void {
+		$listener = $this->buildBrokenListener();
 
-        self::assertFalse($event->isPropagationStopped());
+		$event = $this->eventFor(
+			[
+				'consultation' => 'c-1',
+				'body' => 'x',
+				'moderationStatus' => 'pending',
+				'submitterId' => 'anon-token',
+			]
+		);
+		$listener->handle($event);
 
-    }//end testUnrelatedSchemaIgnored()
+		self::assertTrue($event->isPropagationStopped());
 
-    /**
-     * Non-ObjectCreatingEvent events are ignored.
-     *
-     * @return void
-     */
-    public function testNonCreatingEventsIgnored(): void
-    {
-        $listener = $this->buildListener([]);
-
-        // A generic Event has no isPropagationStopped()/getErrors() API to
-        // assert against; reaching this point without an exception is the
-        // assertion (the instanceof guard at the top of handle() returns
-        // immediately for any non-ObjectCreatingEvent).
-        $listener->handle($this->createMock(Event::class));
-        self::assertTrue(condition: true);
-
-    }//end testNonCreatingEventsIgnored()
-
-    /**
-     * An infrastructure failure (container/ObjectService unavailable) fails
-     * CLOSED — the deliberate contrast with SubmissionDeadlineListener's
-     * fail-soft posture, because this is a security invariant (write-IDOR /
-     * open-parent), not an opt-in business rule.
-     *
-     * @return void
-     */
-    public function testInfrastructureFailureRejectsClosed(): void
-    {
-        $listener = $this->buildBrokenListener();
-
-        $event = $this->eventFor(
-            [
-                'consultation'     => 'c-1',
-                'body'             => 'x',
-                'moderationStatus' => 'pending',
-                'submitterId'      => 'anon-token',
-            ]
-        );
-        $listener->handle($event);
-
-        self::assertTrue($event->isPropagationStopped());
-
-    }//end testInfrastructureFailureRejectsClosed()
+	}//end testInfrastructureFailureRejectsClosed()
 }//end class

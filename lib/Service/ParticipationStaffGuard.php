@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Participation Staff Guard
  *
@@ -41,67 +42,62 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class ParticipationStaffGuard
-{
-    /**
-     * Constructor for ParticipationStaffGuard.
-     *
-     * @param IUserSession  $userSession  The user session
-     * @param IGroupManager $groupManager The group manager
-     * @param IAppConfig    $appConfig    App config (staff group)
-     *
-     * @return void
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    public function __construct(
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-        private readonly IAppConfig $appConfig,
-    ) {
+class ParticipationStaffGuard {
+	/**
+	 * Constructor for ParticipationStaffGuard.
+	 *
+	 * @param IUserSession $userSession The user session
+	 * @param IGroupManager $groupManager The group manager
+	 * @param IAppConfig $appConfig App config (staff group)
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	public function __construct(
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+		private readonly IAppConfig $appConfig,
+	) {
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * Resolve the acting user's UID.
-     *
-     * @return string|null The UID, or null when no user is signed in.
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    public function currentUid(): ?string
-    {
-        return $this->userSession->getUser()?->getUID();
+	/**
+	 * Resolve the acting user's UID.
+	 *
+	 * @return string|null The UID, or null when no user is signed in.
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	public function currentUid(): ?string {
+		return $this->userSession->getUser()?->getUID();
+	}//end currentUid()
 
-    }//end currentUid()
+	/**
+	 * Decide whether the acting user holds staff (governance-body) authority.
+	 *
+	 * Nextcloud admins always qualify; otherwise membership of the configured
+	 * chair group is required. No signed-in user is never staff.
+	 *
+	 * @return bool True when the actor may perform staff actions.
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	public function isStaff(): bool {
+		$uid = $this->currentUid();
+		if ($uid === null) {
+			return false;
+		}
 
-    /**
-     * Decide whether the acting user holds staff (governance-body) authority.
-     *
-     * Nextcloud admins always qualify; otherwise membership of the configured
-     * chair group is required. No signed-in user is never staff.
-     *
-     * @return bool True when the actor may perform staff actions.
-     *
-     * @spec openspec/specs/citizen-participation/spec.md
-     */
-    public function isStaff(): bool
-    {
-        $uid = $this->currentUid();
-        if ($uid === null) {
-            return false;
-        }
+		if ($this->groupManager->isAdmin($uid) === true) {
+			return true;
+		}
 
-        if ($this->groupManager->isAdmin($uid) === true) {
-            return true;
-        }
+		$chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
+		if ($chairGroup === '') {
+			return false;
+		}
 
-        $chairGroup = $this->appConfig->getValueString('decidesk', 'chair_group', '');
-        if ($chairGroup === '') {
-            return false;
-        }
-
-        return $this->groupManager->isInGroup($uid, $chairGroup);
-
-    }//end isStaff()
+		return $this->groupManager->isInGroup($uid, $chairGroup);
+	}//end isStaff()
 }//end class

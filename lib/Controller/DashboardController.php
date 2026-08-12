@@ -50,59 +50,51 @@ use OCP\IRequest;
  *
  * @spec openspec/specs/apphost-adoption/spec.md
  */
-class DashboardController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest $request The request object.
-     *
-     * @return void
-     */
-    public function __construct(IRequest $request)
-    {
-        parent::__construct(appName: Application::APP_ID, request: $request);
+class DashboardController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The request object.
+	 *
+	 * @return void
+	 */
+	public function __construct(IRequest $request) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * Render the main SPA page from `templates/index.php`.
-     *
-     * @return TemplateResponse The rendered decidesk index template.
-     *
-     * @spec openspec/specs/apphost-adoption/spec.md
-     */
-    #[NoAdminRequired]
-    #[NoCSRFRequired]
-    public function page(): TemplateResponse
-    {
-        return $this->renderIndex();
+	/**
+	 * Render the main SPA page from `templates/index.php`.
+	 *
+	 * @return TemplateResponse The rendered decidesk index template.
+	 *
+	 * @spec openspec/specs/apphost-adoption/spec.md
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function page(): TemplateResponse {
+		return $this->renderIndex();
+	}//end page()
 
-    }//end page()
+	/**
+	 * Serve the SPA for deep links (Vue history mode). Delegates to {@see page()}.
+	 *
+	 * @return TemplateResponse The rendered decidesk index template.
+	 *
+	 * @spec openspec/specs/apphost-adoption/spec.md
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function catchAll(): TemplateResponse {
+		return $this->page();
+	}//end catchAll()
 
-    /**
-     * Serve the SPA for deep links (Vue history mode). Delegates to {@see page()}.
-     *
-     * @return TemplateResponse The rendered decidesk index template.
-     *
-     * @spec openspec/specs/apphost-adoption/spec.md
-     */
-    #[NoAdminRequired]
-    #[NoCSRFRequired]
-    public function catchAll(): TemplateResponse
-    {
-        return $this->page();
-
-    }//end catchAll()
-
-    /**
-     * Build the `index` TemplateResponse.
-     *
-     * @return TemplateResponse The rendered decidesk index template.
-     */
-    protected function renderIndex(): TemplateResponse
-    {
-        return new TemplateResponse($this->appName, 'index');
-
-    }//end renderIndex()
+	/**
+	 * Build the `index` TemplateResponse.
+	 *
+	 * @return TemplateResponse The rendered decidesk index template.
+	 */
+	protected function renderIndex(): TemplateResponse {
+		return new TemplateResponse($this->appName, 'index');
+	}//end renderIndex()
 }//end class

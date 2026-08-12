@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Unit tests for TranslationQueueJob.
  *
@@ -34,80 +35,72 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
  */
-class TranslationQueueJobTest extends TestCase
-{
+class TranslationQueueJobTest extends TestCase {
 
+	/**
+	 * run() delegates to MultilingualReconciliationService::processQueue.
+	 *
+	 * @return void
+	 */
+	public function testRunDelegatesToService(): void {
+		$time = $this->createMock(ITimeFactory::class);
+		$time->method('getTime')->willReturn(time());
 
-    /**
-     * run() delegates to MultilingualReconciliationService::processQueue.
-     *
-     * @return void
-     */
-    public function testRunDelegatesToService(): void
-    {
-        $time = $this->createMock(ITimeFactory::class);
-        $time->method('getTime')->willReturn(time());
+		$service = $this->createMock(MultilingualReconciliationService::class);
+		$service->expects($this->once())
+			->method('processQueue')
+			->with(20)
+			->willReturn([
+				'success' => true,
+				'processed' => 3,
+				'completed' => 2,
+				'failed' => 1,
+				'message' => 'Processed 3 entries.',
+			]);
 
-        $service = $this->createMock(MultilingualReconciliationService::class);
-        $service->expects($this->once())
-            ->method('processQueue')
-            ->with(20)
-            ->willReturn([
-                'success'   => true,
-                'processed' => 3,
-                'completed' => 2,
-                'failed'    => 1,
-                'message'   => 'Processed 3 entries.',
-            ]);
+		$job = new class($time, $service, $this->createMock(LoggerInterface::class)) extends TranslationQueueJob {
+			/**
+			 * Expose the protected run().
+			 *
+			 * @return void
+			 */
+			public function runForTest(): void {
+				$this->run(null);
+			}
+		};
 
-        $job = new class($time, $service, $this->createMock(LoggerInterface::class)) extends TranslationQueueJob {
-            /**
-             * Expose the protected run().
-             *
-             * @return void
-             */
-            public function runForTest(): void
-            {
-                $this->run(null);
-            }
-        };
+		$job->runForTest();
 
-        $job->runForTest();
+	}//end testRunDelegatesToService()
 
-    }//end testRunDelegatesToService()
+	/**
+	 * run() swallows exceptions thrown by the service so cron does not die.
+	 *
+	 * @return void
+	 */
+	public function testRunSwallowsExceptions(): void {
+		$time = $this->createMock(ITimeFactory::class);
+		$time->method('getTime')->willReturn(time());
 
+		$service = $this->createMock(MultilingualReconciliationService::class);
+		$service->method('processQueue')->willThrowException(new \RuntimeException('boom'));
 
-    /**
-     * run() swallows exceptions thrown by the service so cron does not die.
-     *
-     * @return void
-     */
-    public function testRunSwallowsExceptions(): void
-    {
-        $time = $this->createMock(ITimeFactory::class);
-        $time->method('getTime')->willReturn(time());
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->atLeastOnce())->method('error');
 
-        $service = $this->createMock(MultilingualReconciliationService::class);
-        $service->method('processQueue')->willThrowException(new \RuntimeException('boom'));
+		$job = new class($time, $service, $logger) extends TranslationQueueJob {
+			/**
+			 * Expose the protected run().
+			 *
+			 * @return void
+			 */
+			public function runForTest(): void {
+				$this->run(null);
+			}
+		};
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->atLeastOnce())->method('error');
+		$job->runForTest();
 
-        $job = new class($time, $service, $logger) extends TranslationQueueJob {
-            /**
-             * Expose the protected run().
-             *
-             * @return void
-             */
-            public function runForTest(): void
-            {
-                $this->run(null);
-            }
-        };
-
-        $job->runForTest();
-
-    }//end testRunSwallowsExceptions()
-
+	}//end testRunSwallowsExceptions()
 
 }//end class

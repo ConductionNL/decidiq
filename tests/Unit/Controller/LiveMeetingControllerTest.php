@@ -49,338 +49,312 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
  */
-class LiveMeetingControllerTest extends TestCase
-{
+class LiveMeetingControllerTest extends TestCase {
 
-    /**
-     * Mock IRequest.
-     *
-     * @var IRequest&MockObject
-     */
-    private IRequest&MockObject $request;
+	/**
+	 * Mock IRequest.
+	 *
+	 * @var IRequest&MockObject
+	 */
+	private IRequest&MockObject $request;
 
-    /**
-     * Mock LiveDecisionService.
-     *
-     * @var LiveDecisionService&MockObject
-     */
-    private LiveDecisionService&MockObject $liveDecisionService;
+	/**
+	 * Mock LiveDecisionService.
+	 *
+	 * @var LiveDecisionService&MockObject
+	 */
+	private LiveDecisionService&MockObject $liveDecisionService;
 
-    /**
-     * Mock IUserSession.
-     *
-     * @var IUserSession&MockObject
-     */
-    private IUserSession&MockObject $userSession;
+	/**
+	 * Mock IUserSession.
+	 *
+	 * @var IUserSession&MockObject
+	 */
+	private IUserSession&MockObject $userSession;
 
-    /**
-     * Mock IGroupManager.
-     *
-     * @var IGroupManager&MockObject
-     */
-    private IGroupManager&MockObject $groupManager;
+	/**
+	 * Mock IGroupManager.
+	 *
+	 * @var IGroupManager&MockObject
+	 */
+	private IGroupManager&MockObject $groupManager;
 
-    /**
-     * Mock ParticipantResolver.
-     *
-     * @var ParticipantResolver&MockObject
-     */
-    private ParticipantResolver&MockObject $participantResolver;
+	/**
+	 * Mock ParticipantResolver.
+	 *
+	 * @var ParticipantResolver&MockObject
+	 */
+	private ParticipantResolver&MockObject $participantResolver;
 
-    /**
-     * The controller under test.
-     *
-     * @var LiveMeetingController
-     */
-    private LiveMeetingController $controller;
+	/**
+	 * The controller under test.
+	 *
+	 * @var LiveMeetingController
+	 */
+	private LiveMeetingController $controller;
 
+	/**
+	 * Set up mocks and the controller.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up mocks and the controller.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		$this->request = $this->createMock(IRequest::class);
+		$this->liveDecisionService = $this->createMock(LiveDecisionService::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->groupManager = $this->createMock(IGroupManager::class);
+		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 
-        $this->request             = $this->createMock(IRequest::class);
-        $this->liveDecisionService = $this->createMock(LiveDecisionService::class);
-        $this->userSession         = $this->createMock(IUserSession::class);
-        $this->groupManager        = $this->createMock(IGroupManager::class);
-        $this->participantResolver = $this->createMock(ParticipantResolver::class);
+		$this->controller = new LiveMeetingController(
+			$this->request,
+			$this->liveDecisionService,
+			$this->userSession,
+			$this->groupManager,
+			$this->participantResolver,
+		);
 
-        $this->controller = new LiveMeetingController(
-            $this->request,
-            $this->liveDecisionService,
-            $this->userSession,
-            $this->groupManager,
-            $this->participantResolver,
-        );
+	}//end setUp()
 
-    }//end setUp()
+	/**
+	 * Sign a user into the mocked session.
+	 *
+	 * @param string $uid The Nextcloud uid.
+	 * @param bool $isAdmin Whether the uid is an instance admin.
+	 *
+	 * @return void
+	 */
+	private function signIn(string $uid = 'voorzitter', bool $isAdmin = false): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($uid);
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->groupManager->method('isAdmin')->with($uid)->willReturn($isAdmin);
 
+	}//end signIn()
 
-    /**
-     * Sign a user into the mocked session.
-     *
-     * @param string $uid     The Nextcloud uid.
-     * @param bool   $isAdmin Whether the uid is an instance admin.
-     *
-     * @return void
-     */
-    private function signIn(string $uid='voorzitter', bool $isAdmin=false): void
-    {
-        $user = $this->createMock(IUser::class);
-        $user->method('getUID')->willReturn($uid);
-        $this->userSession->method('getUser')->willReturn($user);
-        $this->groupManager->method('isAdmin')->with($uid)->willReturn($isAdmin);
+	/**
+	 * Stub a complete decision body on the request.
+	 *
+	 * @return void
+	 */
+	private function completeBody(): void {
+		$this->request->method('getParam')->willReturnMap(
+			[
+				['title', null, 'Vaststelling begroting'],
+				['text', null, 'De raad besluit de begroting vast te stellen.'],
+				['outcome', null, 'adopted'],
+				['legalBasis', null, 'Gemeentewet art. 189'],
+			]
+		);
 
-    }//end signIn()
+	}//end completeBody()
 
+	/**
+	 * An anonymous caller gets 401 and nothing is recorded.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 */
+	public function testRecordLiveDecisionWithoutSessionIs401(): void {
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->liveDecisionService->expects($this->never())->method('recordDecision');
 
-    /**
-     * Stub a complete decision body on the request.
-     *
-     * @return void
-     */
-    private function completeBody(): void
-    {
-        $this->request->method('getParam')->willReturnMap(
-            [
-                ['title', null, 'Vaststelling begroting'],
-                ['text', null, 'De raad besluit de begroting vast te stellen.'],
-                ['outcome', null, 'adopted'],
-                ['legalBasis', null, 'Gemeentewet art. 189'],
-            ]
-        );
+		$response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
 
-    }//end completeBody()
+		self::assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 
+	}//end testRecordLiveDecisionWithoutSessionIs401()
 
-    /**
-     * An anonymous caller gets 401 and nothing is recorded.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
-     */
-    public function testRecordLiveDecisionWithoutSessionIs401(): void
-    {
-        $this->userSession->method('getUser')->willReturn(null);
-        $this->liveDecisionService->expects($this->never())->method('recordDecision');
+	/**
+	 * A member without a chair/secretary role ON THIS MEETING is 403, and the
+	 * role question is asked about the meeting from the URL — not in general.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 */
+	public function testRecordLiveDecisionWithoutChairRoleIs403(): void {
+		$this->signIn(uid: 'raadslid');
+		$this->participantResolver->expects($this->once())
+			->method('hasRole')
+			->with(meetingId: 'meeting-B', nextcloudUid: 'raadslid', roles: ['chair', 'secretary'])
+			->willReturn(false);
+		$this->liveDecisionService->expects($this->never())->method('recordDecision');
 
-        $response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
+		$response = $this->controller->recordLiveDecision(meetingId: 'meeting-B');
 
-        self::assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 
-    }//end testRecordLiveDecisionWithoutSessionIs401()
+	}//end testRecordLiveDecisionWithoutChairRoleIs403()
 
+	/**
+	 * An instance admin is admitted without a per-meeting role lookup.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 */
+	public function testRecordLiveDecisionAdminBypassesRoleCheck(): void {
+		$this->signIn(uid: 'admin', isAdmin: true);
+		$this->participantResolver->expects($this->never())->method('hasRole');
+		$this->completeBody();
+		$this->liveDecisionService->method('recordDecision')->willReturn('decision-1');
 
-    /**
-     * A member without a chair/secretary role ON THIS MEETING is 403, and the
-     * role question is asked about the meeting from the URL — not in general.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
-     */
-    public function testRecordLiveDecisionWithoutChairRoleIs403(): void
-    {
-        $this->signIn(uid: 'raadslid');
-        $this->participantResolver->expects($this->once())
-            ->method('hasRole')
-            ->with(meetingId: 'meeting-B', nextcloudUid: 'raadslid', roles: ['chair', 'secretary'])
-            ->willReturn(false);
-        $this->liveDecisionService->expects($this->never())->method('recordDecision');
+		self::assertSame(
+			Http::STATUS_OK,
+			$this->controller->recordLiveDecision(meetingId: 'meeting-1')->getStatus()
+		);
 
-        $response = $this->controller->recordLiveDecision(meetingId: 'meeting-B');
+	}//end testRecordLiveDecisionAdminBypassesRoleCheck()
 
-        self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	/**
+	 * A body missing any of title/text/outcome is 400 and nothing is recorded.
+	 *
+	 * @param string|null $title The title field as sent.
+	 * @param string|null $text The text field as sent.
+	 * @param string|null $outcome The outcome field as sent.
+	 *
+	 * @return void
+	 *
+	 * @dataProvider incompleteBodies
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 */
+	public function testRecordLiveDecisionIncompleteBodyIs400(?string $title, ?string $text, ?string $outcome): void {
+		$this->signIn();
+		$this->participantResolver->method('hasRole')->willReturn(true);
+		$this->request->method('getParam')->willReturnMap(
+			[
+				['title', null, $title],
+				['text', null, $text],
+				['outcome', null, $outcome],
+				['legalBasis', null, null],
+			]
+		);
+		$this->liveDecisionService->expects($this->never())->method('recordDecision');
 
-    }//end testRecordLiveDecisionWithoutChairRoleIs403()
+		$response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
 
+		self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 
-    /**
-     * An instance admin is admitted without a per-meeting role lookup.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
-     */
-    public function testRecordLiveDecisionAdminBypassesRoleCheck(): void
-    {
-        $this->signIn(uid: 'admin', isAdmin: true);
-        $this->participantResolver->expects($this->never())->method('hasRole');
-        $this->completeBody();
-        $this->liveDecisionService->method('recordDecision')->willReturn('decision-1');
+	}//end testRecordLiveDecisionIncompleteBodyIs400()
 
-        self::assertSame(
-            Http::STATUS_OK,
-            $this->controller->recordLiveDecision(meetingId: 'meeting-1')->getStatus()
-        );
+	/**
+	 * Decision bodies that must be refused.
+	 *
+	 * @return array<string, array{0: string|null, 1: string|null, 2: string|null}>
+	 */
+	public static function incompleteBodies(): array {
+		return [
+			'no title' => [null, 'De raad besluit.', 'adopted'],
+			'no text' => ['Vaststelling', null, 'adopted'],
+			'no outcome' => ['Vaststelling', 'De raad besluit.', null],
+			'all empty' => ['', '', ''],
+		];
 
-    }//end testRecordLiveDecisionAdminBypassesRoleCheck()
+	}//end incompleteBodies()
 
+	/**
+	 * A chair on this meeting records the decision: the service receives the
+	 * meeting id, the assembled decision data and the ACTING uid, and the
+	 * response carries the new decision's slug.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 */
+	public function testRecordLiveDecisionReturnsSlug(): void {
+		$this->signIn(uid: 'voorzitter');
+		$this->participantResolver->method('hasRole')->willReturn(true);
+		$this->completeBody();
 
-    /**
-     * A body missing any of title/text/outcome is 400 and nothing is recorded.
-     *
-     * @param string|null $title   The title field as sent.
-     * @param string|null $text    The text field as sent.
-     * @param string|null $outcome The outcome field as sent.
-     *
-     * @return void
-     *
-     * @dataProvider incompleteBodies
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
-     */
-    public function testRecordLiveDecisionIncompleteBodyIs400(?string $title, ?string $text, ?string $outcome): void
-    {
-        $this->signIn();
-        $this->participantResolver->method('hasRole')->willReturn(true);
-        $this->request->method('getParam')->willReturnMap(
-            [
-                ['title', null, $title],
-                ['text', null, $text],
-                ['outcome', null, $outcome],
-                ['legalBasis', null, null],
-            ]
-        );
-        $this->liveDecisionService->expects($this->never())->method('recordDecision');
+		$this->liveDecisionService->expects($this->once())
+			->method('recordDecision')
+			->with(
+				'meeting-1',
+				[
+					'title' => 'Vaststelling begroting',
+					'text' => 'De raad besluit de begroting vast te stellen.',
+					'outcome' => 'adopted',
+					'legalBasis' => 'Gemeentewet art. 189',
+				],
+				'voorzitter'
+			)
+			->willReturn('besluit-2026-014');
 
-        $response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
+		$response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
 
-        self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame('besluit-2026-014', $response->getData()['slug']);
 
-    }//end testRecordLiveDecisionIncompleteBodyIs400()
+	}//end testRecordLiveDecisionReturnsSlug()
 
+	/**
+	 * An unknown meeting is 404.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 */
+	public function testRecordLiveDecisionUnknownMeetingIs404(): void {
+		$this->signIn();
+		$this->participantResolver->method('hasRole')->willReturn(true);
+		$this->completeBody();
+		$this->liveDecisionService->method('recordDecision')
+			->willThrowException(new MissingObjectException('Meeting not found.'));
 
-    /**
-     * Decision bodies that must be refused.
-     *
-     * @return array<string, array{0: string|null, 1: string|null, 2: string|null}>
-     */
-    public static function incompleteBodies(): array
-    {
-        return [
-            'no title'   => [null, 'De raad besluit.', 'adopted'],
-            'no text'    => ['Vaststelling', null, 'adopted'],
-            'no outcome' => ['Vaststelling', 'De raad besluit.', null],
-            'all empty'  => ['', '', ''],
-        ];
+		self::assertSame(
+			Http::STATUS_NOT_FOUND,
+			$this->controller->recordLiveDecision(meetingId: 'ghost')->getStatus()
+		);
 
-    }//end incompleteBodies()
+	}//end testRecordLiveDecisionUnknownMeetingIs404()
 
+	/**
+	 * Recording into a meeting that is not opened is 409 — distinct from the
+	 * generic 500 every other exception maps to. The client shows "open the
+	 * meeting first" off this code.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 */
+	public function testRecordLiveDecisionOnClosedMeetingIs409(): void {
+		$this->signIn();
+		$this->participantResolver->method('hasRole')->willReturn(true);
+		$this->completeBody();
+		$this->liveDecisionService->method('recordDecision')
+			->willThrowException(new \RuntimeException('Meeting is not opened.', 409));
 
-    /**
-     * A chair on this meeting records the decision: the service receives the
-     * meeting id, the assembled decision data and the ACTING uid, and the
-     * response carries the new decision's slug.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
-     */
-    public function testRecordLiveDecisionReturnsSlug(): void
-    {
-        $this->signIn(uid: 'voorzitter');
-        $this->participantResolver->method('hasRole')->willReturn(true);
-        $this->completeBody();
+		$response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
 
-        $this->liveDecisionService->expects($this->once())
-            ->method('recordDecision')
-            ->with(
-                'meeting-1',
-                [
-                    'title'      => 'Vaststelling begroting',
-                    'text'       => 'De raad besluit de begroting vast te stellen.',
-                    'outcome'    => 'adopted',
-                    'legalBasis' => 'Gemeentewet art. 189',
-                ],
-                'voorzitter'
-            )
-            ->willReturn('besluit-2026-014');
+		self::assertSame(Http::STATUS_CONFLICT, $response->getStatus());
+		self::assertSame('Meeting is not opened.', $response->getData()['error']);
 
-        $response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
+	}//end testRecordLiveDecisionOnClosedMeetingIs409()
 
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-        self::assertSame('besluit-2026-014', $response->getData()['slug']);
+	/**
+	 * Any other service failure is a 500 whose body carries a GENERIC message —
+	 * the exception text is not echoed to the caller.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 */
+	public function testRecordLiveDecisionUnexpectedFailureIs500WithoutLeakingDetail(): void {
+		$this->signIn();
+		$this->participantResolver->method('hasRole')->willReturn(true);
+		$this->completeBody();
+		$this->liveDecisionService->method('recordDecision')
+			->willThrowException(new \RuntimeException('SQLSTATE[42P01]: undefined_table oc_decidesk_secret'));
 
-    }//end testRecordLiveDecisionReturnsSlug()
+		$response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
 
+		self::assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
+		self::assertSame('Internal server error.', $response->getData()['error']);
 
-    /**
-     * An unknown meeting is 404.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
-     */
-    public function testRecordLiveDecisionUnknownMeetingIs404(): void
-    {
-        $this->signIn();
-        $this->participantResolver->method('hasRole')->willReturn(true);
-        $this->completeBody();
-        $this->liveDecisionService->method('recordDecision')
-            ->willThrowException(new MissingObjectException('Meeting not found.'));
-
-        self::assertSame(
-            Http::STATUS_NOT_FOUND,
-            $this->controller->recordLiveDecision(meetingId: 'ghost')->getStatus()
-        );
-
-    }//end testRecordLiveDecisionUnknownMeetingIs404()
-
-
-    /**
-     * Recording into a meeting that is not opened is 409 — distinct from the
-     * generic 500 every other exception maps to. The client shows "open the
-     * meeting first" off this code.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
-     */
-    public function testRecordLiveDecisionOnClosedMeetingIs409(): void
-    {
-        $this->signIn();
-        $this->participantResolver->method('hasRole')->willReturn(true);
-        $this->completeBody();
-        $this->liveDecisionService->method('recordDecision')
-            ->willThrowException(new \RuntimeException('Meeting is not opened.', 409));
-
-        $response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
-
-        self::assertSame(Http::STATUS_CONFLICT, $response->getStatus());
-        self::assertSame('Meeting is not opened.', $response->getData()['error']);
-
-    }//end testRecordLiveDecisionOnClosedMeetingIs409()
-
-
-    /**
-     * Any other service failure is a 500 whose body carries a GENERIC message —
-     * the exception text is not echoed to the caller.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
-     */
-    public function testRecordLiveDecisionUnexpectedFailureIs500WithoutLeakingDetail(): void
-    {
-        $this->signIn();
-        $this->participantResolver->method('hasRole')->willReturn(true);
-        $this->completeBody();
-        $this->liveDecisionService->method('recordDecision')
-            ->willThrowException(new \RuntimeException('SQLSTATE[42P01]: undefined_table oc_decidesk_secret'));
-
-        $response = $this->controller->recordLiveDecision(meetingId: 'meeting-1');
-
-        self::assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
-        self::assertSame('Internal server error.', $response->getData()['error']);
-
-    }//end testRecordLiveDecisionUnexpectedFailureIs500WithoutLeakingDetail()
-
+	}//end testRecordLiveDecisionUnexpectedFailureIs500WithoutLeakingDetail()
 
 }//end class

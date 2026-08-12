@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Settings Controller
  *
@@ -39,176 +40,169 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
  */
-class SettingsController extends Controller
-{
-    /**
-     * Constructor for the SettingsController.
-     *
-     * @param IRequest                 $request           The request object
-     * @param SettingsService          $settingsService   The settings service
-     * @param IUserSession             $userSession       The user session
-     * @param PublicationConfigService $publicationConfig The publication configuration service
-     *
-     * @return void
-     */
-    public function __construct(
-        IRequest $request,
-        private SettingsService $settingsService,
-        private IUserSession $userSession,
-        private \OCA\Decidesk\Service\PublicationConfigService $publicationConfig,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+class SettingsController extends Controller {
+	/**
+	 * Constructor for the SettingsController.
+	 *
+	 * @param IRequest $request The request object
+	 * @param SettingsService $settingsService The settings service
+	 * @param IUserSession $userSession The user session
+	 * @param PublicationConfigService $publicationConfig The publication configuration service
+	 *
+	 * @return void
+	 */
+	public function __construct(
+		IRequest $request,
+		private SettingsService $settingsService,
+		private IUserSession $userSession,
+		private \OCA\Decidesk\Service\PublicationConfigService $publicationConfig,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Retrieve all current settings.
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
-     *
-     * @return JSONResponse
-     */
-    #[NoAdminRequired]
-    public function index(): JSONResponse
-    {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Retrieve all current settings.
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function index(): JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        return new JSONResponse(
-            $this->settingsService->getSettings()
-        );
-    }//end index()
+		return new JSONResponse(
+			$this->settingsService->getSettings()
+		);
+	}//end index()
 
-    /**
-     * Update settings with provided data.
-     *
-     * This is the canonical write, matching
-     * `\OCA\OpenRegister\AppHost\Controller\GenericSettingsControllerBase::update()`.
-     * The AppHost canonical route table routes `PUT /api/settings` to
-     * `settings#update`, and because decidesk ships its own SettingsController
-     * the generic is never aliased in (see
-     * `AppHost\Bootstrap::aliasControllerUnlessLeafDefinesIt()`) — so this
-     * method has to exist here or the request dies with a 500, not a 404.
-     * Measured 2026-08-08 on the dev instance: `PUT /apps/decidesk/api/settings`
-     * returned 500 with `ReflectionException: Method
-     * OCA\Decidesk\Controller\SettingsController::update() does not exist`.
-     *
-     * Writes the whitelisted `SettingsService::CONFIG_KEYS` into the
-     * instance-wide `IAppConfig` and returns the refreshed settings map
-     * (secrets omitted by `getSettings()`).
-     *
-     * Requires admin privileges — enforced via the AuthorizedAdminSetting
-     * attribute (NC28+ settings panel). The write reaches instance-wide app
-     * config, so the posture is deliberately identical to the POST alias
-     * below; it is NOT the `#[NoAdminRequired]` posture of the read routes.
-     *
-     * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
-     * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function update(): JSONResponse
-    {
-        $data   = $this->request->getParams();
-        $config = $this->settingsService->updateSettings($data);
+	/**
+	 * Update settings with provided data.
+	 *
+	 * This is the canonical write, matching
+	 * `\OCA\OpenRegister\AppHost\Controller\GenericSettingsControllerBase::update()`.
+	 * The AppHost canonical route table routes `PUT /api/settings` to
+	 * `settings#update`, and because decidesk ships its own SettingsController
+	 * the generic is never aliased in (see
+	 * `AppHost\Bootstrap::aliasControllerUnlessLeafDefinesIt()`) — so this
+	 * method has to exist here or the request dies with a 500, not a 404.
+	 * Measured 2026-08-08 on the dev instance: `PUT /apps/decidesk/api/settings`
+	 * returned 500 with `ReflectionException: Method
+	 * OCA\Decidesk\Controller\SettingsController::update() does not exist`.
+	 *
+	 * Writes the whitelisted `SettingsService::CONFIG_KEYS` into the
+	 * instance-wide `IAppConfig` and returns the refreshed settings map
+	 * (secrets omitted by `getSettings()`).
+	 *
+	 * Requires admin privileges — enforced via the AuthorizedAdminSetting
+	 * attribute (NC28+ settings panel). The write reaches instance-wide app
+	 * config, so the posture is deliberately identical to the POST alias
+	 * below; it is NOT the `#[NoAdminRequired]` posture of the read routes.
+	 *
+	 * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function update(): JSONResponse {
+		$data = $this->request->getParams();
+		$config = $this->settingsService->updateSettings($data);
 
-        return new JSONResponse(
-            [
-                'success' => true,
-                'config'  => $config,
-            ]
-        );
-    }//end update()
+		return new JSONResponse(
+			[
+				'success' => true,
+				'config' => $config,
+			]
+		);
+	}//end update()
 
-    /**
-     * Legacy POST alias for {@see update()}.
-     *
-     * The canonical AppHost route table still ships `settings#create`
-     * (POST /api/settings), and decidesk's own
-     * `src/store/modules/settings.js::saveSettings()` posts to it, so it stays
-     * reachable and byte-identical in behaviour (ADR-029).
-     *
-     * The attribute is repeated deliberately: Nextcloud's middleware evaluates
-     * auth attributes on the DISPATCHED method only, so delegating to
-     * `update()` does not inherit its posture.
-     *
-     * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
-     * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function create(): JSONResponse
-    {
-        return $this->update();
-    }//end create()
+	/**
+	 * Legacy POST alias for {@see update()}.
+	 *
+	 * The canonical AppHost route table still ships `settings#create`
+	 * (POST /api/settings), and decidesk's own
+	 * `src/store/modules/settings.js::saveSettings()` posts to it, so it stays
+	 * reachable and byte-identical in behaviour (ADR-029).
+	 *
+	 * The attribute is repeated deliberately: Nextcloud's middleware evaluates
+	 * auth attributes on the DISPATCHED method only, so delegating to
+	 * `update()` does not inherit its posture.
+	 *
+	 * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function create(): JSONResponse {
+		return $this->update();
+	}//end create()
 
-    /**
-     * Re-import the configuration from decidesk_register.json.
-     *
-     * Forces a fresh import regardless of version, auto-configuring
-     * all schema and register IDs from the import result.
-     *
-     * Requires admin privileges — enforced via the AuthorizedAdminSetting
-     * attribute (NC28+ settings panel).
-     *
-     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-     * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
-     * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function load(): JSONResponse
-    {
-        $result = $this->settingsService->reloadConfiguration();
+	/**
+	 * Re-import the configuration from decidesk_register.json.
+	 *
+	 * Forces a fresh import regardless of version, auto-configuring
+	 * all schema and register IDs from the import result.
+	 *
+	 * Requires admin privileges — enforced via the AuthorizedAdminSetting
+	 * attribute (NC28+ settings panel).
+	 *
+	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function load(): JSONResponse {
+		$result = $this->settingsService->reloadConfiguration();
 
-        return new JSONResponse($result);
-    }//end load()
+		return new JSONResponse($result);
+	}//end load()
 
-    /**
-     * Read the per-governance-body publication configuration.
-     *
-     * Returned to authenticated staff so the publish/withdraw UI can resolve
-     * each body's target catalog and policy. Read-only; safe for any authed user.
-     *
-     * @spec openspec/specs/public-publication/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[NoAdminRequired]
-    public function getPublicationConfig(): JSONResponse
-    {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Read the per-governance-body publication configuration.
+	 *
+	 * Returned to authenticated staff so the publish/withdraw UI can resolve
+	 * each body's target catalog and policy. Read-only; safe for any authed user.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function getPublicationConfig(): JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        return new JSONResponse(['config' => $this->publicationConfig->getAll()]);
-    }//end getPublicationConfig()
+		return new JSONResponse(['config' => $this->publicationConfig->getAll()]);
+	}//end getPublicationConfig()
 
-    /**
-     * Persist the per-governance-body publication configuration.
-     *
-     * Admin-only via the AuthorizedAdminSetting attribute. Body: { config: { <bodyId>: { catalog, policy, attendance } } }.
-     *
-     * @spec openspec/specs/public-publication/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function setPublicationConfig(): JSONResponse
-    {
-        $config = $this->request->getParam('config', []);
-        if (is_array($config) === false) {
-            $config = [];
-        }
+	/**
+	 * Persist the per-governance-body publication configuration.
+	 *
+	 * Admin-only via the AuthorizedAdminSetting attribute. Body: { config: { <bodyId>: { catalog, policy, attendance } } }.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function setPublicationConfig(): JSONResponse {
+		$config = $this->request->getParam('config', []);
+		if (is_array($config) === false) {
+			$config = [];
+		}
 
-        $saved = $this->publicationConfig->save($config);
+		$saved = $this->publicationConfig->save($config);
 
-        return new JSONResponse(['success' => true, 'config' => $saved]);
-    }//end setPublicationConfig()
+		return new JSONResponse(['success' => true, 'config' => $saved]);
+	}//end setPublicationConfig()
 }//end class

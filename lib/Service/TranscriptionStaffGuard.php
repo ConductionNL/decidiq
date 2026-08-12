@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Transcription Staff Guard
  *
@@ -41,263 +42,249 @@ use Throwable;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class TranscriptionStaffGuard
-{
+class TranscriptionStaffGuard {
 
-    /**
-     * Meeting participant roles that count as transcription staff.
-     *
-     * @var list<string>
-     */
-    private const STAFF_ROLES = [
-        'chair',
-        'secretary',
-    ];
+	/**
+	 * Meeting participant roles that count as transcription staff.
+	 *
+	 * @var list<string>
+	 */
+	private const STAFF_ROLES = [
+		'chair',
+		'secretary',
+	];
 
-    /**
-     * Denial message used when the subject cannot be resolved at all.
-     */
-    private const UNRESOLVED_MESSAGE = 'Forbidden.';
+	/**
+	 * Denial message used when the subject cannot be resolved at all.
+	 */
+	private const UNRESOLVED_MESSAGE = 'Forbidden.';
 
-    /**
-     * Construct the guard.
-     *
-     * @param ObjectService       $objectService       OR object service (subject reads).
-     * @param ParticipantResolver $participantResolver Meeting role resolution.
-     * @param IUserSession        $userSession         Current user session.
-     * @param IGroupManager       $groupManager        Group manager (admin check).
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function __construct(
-        private readonly ObjectService $objectService,
-        private readonly ParticipantResolver $participantResolver,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-    ) {
-    }//end __construct()
+	/**
+	 * Construct the guard.
+	 *
+	 * @param ObjectService $objectService OR object service (subject reads).
+	 * @param ParticipantResolver $participantResolver Meeting role resolution.
+	 * @param IUserSession $userSession Current user session.
+	 * @param IGroupManager $groupManager Group manager (admin check).
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function __construct(
+		private readonly ObjectService $objectService,
+		private readonly ParticipantResolver $participantResolver,
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+	) {
+	}//end __construct()
 
-    /**
-     * The UID of the session user, or an empty string when unauthenticated.
-     *
-     * @return string The Nextcloud UID.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function currentUserId(): string
-    {
-        return (string) $this->userSession->getUser()?->getUID();
+	/**
+	 * The UID of the session user, or an empty string when unauthenticated.
+	 *
+	 * @return string The Nextcloud UID.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function currentUserId(): string {
+		return (string)$this->userSession->getUser()?->getUID();
+	}//end currentUserId()
 
-    }//end currentUserId()
+	/**
+	 * Staff guard for a meeting id (chair/secretary or NC admin).
+	 *
+	 * @param string $meetingId Meeting UUID.
+	 *
+	 * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function forMeeting(string $meetingId): ?JSONResponse {
+		return $this->authorize(
+			resolveMeetings: static function () use ($meetingId): ?array {
+				if ($meetingId === '') {
+					return null;
+				}
 
-    /**
-     * Staff guard for a meeting id (chair/secretary or NC admin).
-     *
-     * @param string $meetingId Meeting UUID.
-     *
-     * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function forMeeting(string $meetingId): ?JSONResponse
-    {
-        return $this->authorize(
-            resolveMeetings: static function () use ($meetingId): ?array {
-                if ($meetingId === '') {
-                    return null;
-                }
+				return [$meetingId];
+			},
+			roleMessage: 'Forbidden: chair or secretary role required.'
+		);
 
-                return [$meetingId];
-            },
-            roleMessage: 'Forbidden: chair or secretary role required.'
-        );
+	}//end forMeeting()
 
-    }//end forMeeting()
+	/**
+	 * Staff guard for a transcript id — resolves its meeting then delegates.
+	 *
+	 * Fails CLOSED for non-admins: an unresolvable transcript/meeting yields 403.
+	 *
+	 * @param string $transcriptId Transcript UUID.
+	 *
+	 * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function forTranscript(string $transcriptId): ?JSONResponse {
+		return $this->authorize(
+			resolveMeetings: fn (): ?array => $this->meetingsOfTranscript(transcriptId: $transcriptId),
+			roleMessage: 'Forbidden: chair or secretary role required.'
+		);
 
-    /**
-     * Staff guard for a transcript id — resolves its meeting then delegates.
-     *
-     * Fails CLOSED for non-admins: an unresolvable transcript/meeting yields 403.
-     *
-     * @param string $transcriptId Transcript UUID.
-     *
-     * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function forTranscript(string $transcriptId): ?JSONResponse
-    {
-        return $this->authorize(
-            resolveMeetings: fn (): ?array => $this->meetingsOfTranscript(transcriptId: $transcriptId),
-            roleMessage: 'Forbidden: chair or secretary role required.'
-        );
+	}//end forTranscript()
 
-    }//end forTranscript()
+	/**
+	 * Staff guard for a governance body id.
+	 *
+	 * Non-admins must hold a chair/secretary role on at least one meeting of the
+	 * body. Fails CLOSED: when no such meeting can be resolved, access is denied.
+	 *
+	 * @param string $bodyId Governance body UUID.
+	 *
+	 * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	public function forBody(string $bodyId): ?JSONResponse {
+		return $this->authorize(
+			resolveMeetings: function () use ($bodyId): ?array {
+				if ($bodyId === '') {
+					return null;
+				}
 
-    /**
-     * Staff guard for a governance body id.
-     *
-     * Non-admins must hold a chair/secretary role on at least one meeting of the
-     * body. Fails CLOSED: when no such meeting can be resolved, access is denied.
-     *
-     * @param string $bodyId Governance body UUID.
-     *
-     * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    public function forBody(string $bodyId): ?JSONResponse
-    {
-        return $this->authorize(
-            resolveMeetings: function () use ($bodyId): ?array {
-                if ($bodyId === '') {
-                    return null;
-                }
+				return $this->meetingsOfBody(bodyId: $bodyId);
+			},
+			roleMessage: 'Forbidden: chair or secretary role required for this body.'
+		);
 
-                return $this->meetingsOfBody(bodyId: $bodyId);
-            },
-            roleMessage: 'Forbidden: chair or secretary role required for this body.'
-        );
+	}//end forBody()
 
-    }//end forBody()
+	/**
+	 * Shared authorization pipeline: authenticate, admit admins, then role-check.
+	 *
+	 * The meeting resolver is a callable so the (potentially expensive) subject
+	 * lookup only runs for non-admins, exactly as the inline guards did. It
+	 * returns null when the subject cannot be resolved at all, which denies with
+	 * the neutral message that never leaks existence.
+	 *
+	 * @param callable $resolveMeetings Lazily yields the candidate meeting ids, or null.
+	 * @param string $roleMessage Denial message when no staff role matches.
+	 *
+	 * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function authorize(callable $resolveMeetings, string $roleMessage): ?JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
+		}
 
-    /**
-     * Shared authorization pipeline: authenticate, admit admins, then role-check.
-     *
-     * The meeting resolver is a callable so the (potentially expensive) subject
-     * lookup only runs for non-admins, exactly as the inline guards did. It
-     * returns null when the subject cannot be resolved at all, which denies with
-     * the neutral message that never leaks existence.
-     *
-     * @param callable $resolveMeetings Lazily yields the candidate meeting ids, or null.
-     * @param string   $roleMessage     Denial message when no staff role matches.
-     *
-     * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function authorize(callable $resolveMeetings, string $roleMessage): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
-        }
+		$userId = $user->getUID();
+		if ($this->groupManager->isAdmin($userId) === true) {
+			return null;
+		}
 
-        $userId = $user->getUID();
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
+		$meetingIds = $resolveMeetings();
+		if ($meetingIds === null) {
+			return new JSONResponse(['message' => self::UNRESOLVED_MESSAGE], Http::STATUS_FORBIDDEN);
+		}
 
-        $meetingIds = $resolveMeetings();
-        if ($meetingIds === null) {
-            return new JSONResponse(['message' => self::UNRESOLVED_MESSAGE], Http::STATUS_FORBIDDEN);
-        }
+		foreach ($meetingIds as $meetingId) {
+			if ($this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: self::STAFF_ROLES) === true) {
+				return null;
+			}
+		}
 
-        foreach ($meetingIds as $meetingId) {
-            if ($this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: self::STAFF_ROLES) === true) {
-                return null;
-            }
-        }
+		return new JSONResponse(['message' => $roleMessage], Http::STATUS_FORBIDDEN);
+	}//end authorize()
 
-        return new JSONResponse(['message' => $roleMessage], Http::STATUS_FORBIDDEN);
+	/**
+	 * Resolve the meeting a transcript belongs to.
+	 *
+	 * @param string $transcriptId Transcript UUID.
+	 *
+	 * @return list<string>|null The single owning meeting id, or null when unresolvable.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function meetingsOfTranscript(string $transcriptId): ?array {
+		$entity = $this->objectService->find(id: $transcriptId, register: 'decidesk', schema: 'transcript');
+		if ($entity === null) {
+			// Fail closed: do not leak existence to non-staff.
+			return null;
+		}
 
-    }//end authorize()
+		$transcript = (array)$entity->jsonSerialize();
+		$meetingId = ($transcript['relations']['meeting'] ?? ($transcript['meeting'] ?? null));
+		if (is_array($meetingId) === true) {
+			$meetingId = ($meetingId['id'] ?? ($meetingId[0] ?? null));
+		}
 
-    /**
-     * Resolve the meeting a transcript belongs to.
-     *
-     * @param string $transcriptId Transcript UUID.
-     *
-     * @return list<string>|null The single owning meeting id, or null when unresolvable.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function meetingsOfTranscript(string $transcriptId): ?array
-    {
-        $entity = $this->objectService->find(id: $transcriptId, register: 'decidesk', schema: 'transcript');
-        if ($entity === null) {
-            // Fail closed: do not leak existence to non-staff.
-            return null;
-        }
+		if ($meetingId === null || $meetingId === '') {
+			return null;
+		}
 
-        $transcript = (array) $entity->jsonSerialize();
-        $meetingId  = ($transcript['relations']['meeting'] ?? ($transcript['meeting'] ?? null));
-        if (is_array($meetingId) === true) {
-            $meetingId = ($meetingId['id'] ?? ($meetingId[0] ?? null));
-        }
+		return [(string)$meetingId];
+	}//end meetingsOfTranscript()
 
-        if ($meetingId === null || $meetingId === '') {
-            return null;
-        }
+	/**
+	 * Resolve the meetings that belong to a governance body.
+	 *
+	 * @param string $bodyId Governance body UUID.
+	 *
+	 * @return list<string> The resolvable meeting ids (possibly empty).
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function meetingsOfBody(string $bodyId): array {
+		try {
+			$entities = $this->objectService->findAll(
+				[
+					'register' => 'decidesk',
+					'schema' => 'meeting',
+					'filters' => [
+						'register' => 'decidesk',
+						'schema' => 'meeting',
+						'_relations.GovernanceBody' => $bodyId,
+					],
+				]
+			);
+		} catch (Throwable) {
+			return [];
+		}
 
-        return [(string) $meetingId];
+		$meetingIds = [];
+		foreach ($entities as $entity) {
+			$meeting = $this->toArray(entity: $entity);
+			if ($meeting === null) {
+				continue;
+			}
 
-    }//end meetingsOfTranscript()
+			$meetingId = (string)($meeting['id'] ?? ($meeting['@self']['id'] ?? ''));
+			if ($meetingId !== '') {
+				$meetingIds[] = $meetingId;
+			}
+		}
 
-    /**
-     * Resolve the meetings that belong to a governance body.
-     *
-     * @param string $bodyId Governance body UUID.
-     *
-     * @return list<string> The resolvable meeting ids (possibly empty).
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function meetingsOfBody(string $bodyId): array
-    {
-        try {
-            $entities = $this->objectService->findAll(
-                [
-                    'register' => 'decidesk',
-                    'schema'   => 'meeting',
-                    'filters'  => [
-                        'register'                  => 'decidesk',
-                        'schema'                    => 'meeting',
-                        '_relations.GovernanceBody' => $bodyId,
-                    ],
-                ]
-            );
-        } catch (Throwable) {
-            return [];
-        }
+		return $meetingIds;
+	}//end meetingsOfBody()
 
-        $meetingIds = [];
-        foreach ($entities as $entity) {
-            $meeting = $this->toArray(entity: $entity);
-            if ($meeting === null) {
-                continue;
-            }
+	/**
+	 * Normalise an OpenRegister result entry to a plain property array.
+	 *
+	 * @param mixed $entity An array payload or an entity exposing jsonSerialize().
+	 *
+	 * @return array<string, mixed>|null The property map, or null when unusable.
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function toArray(mixed $entity): ?array {
+		if (is_array($entity) === true) {
+			return $entity;
+		}
 
-            $meetingId = (string) ($meeting['id'] ?? ($meeting['@self']['id'] ?? ''));
-            if ($meetingId !== '') {
-                $meetingIds[] = $meetingId;
-            }
-        }
+		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
+			return (array)$entity->jsonSerialize();
+		}
 
-        return $meetingIds;
-
-    }//end meetingsOfBody()
-
-    /**
-     * Normalise an OpenRegister result entry to a plain property array.
-     *
-     * @param mixed $entity An array payload or an entity exposing jsonSerialize().
-     *
-     * @return array<string, mixed>|null The property map, or null when unusable.
-     *
-     * @spec openspec/specs/meeting-transcription/spec.md
-     */
-    private function toArray(mixed $entity): ?array
-    {
-        if (is_array($entity) === true) {
-            return $entity;
-        }
-
-        if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-            return (array) $entity->jsonSerialize();
-        }
-
-        return null;
-
-    }//end toArray()
+		return null;
+	}//end toArray()
 }//end class

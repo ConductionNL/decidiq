@@ -57,382 +57,371 @@ use Psr\Log\NullLogger;
  *
  * @spec openspec/specs/user-settings/spec.md
  */
-class VotingServiceDelegationGateTest extends TestCase
-{
+class VotingServiceDelegationGateTest extends TestCase {
 
-    /**
-     * Build a VotingService whose container serves an open round without proxy notes.
-     *
-     * @param bool $delegationActive Whether the preference service reports an active delegation.
-     *
-     * @return VotingService
-     */
-    private function buildService(bool $delegationActive): VotingService
-    {
-        // Open voting round, no motion relation (skips the meeting-membership
-        // branch), no Proxy notes (so the formal-grant check fails).
-        $round = [
-            'openedAt'  => (new \DateTimeImmutable('-1 hour'))->format(\DateTimeInterface::ATOM),
-            'closedAt'  => null,
-            'isSecret'  => false,
-            'relations' => [],
-            'notes'     => [],
-        ];
+	/**
+	 * Build a VotingService whose container serves an open round without proxy notes.
+	 *
+	 * @param bool $delegationActive Whether the preference service reports an active delegation.
+	 *
+	 * @return VotingService
+	 */
+	private function buildService(bool $delegationActive): VotingService {
+		// Open voting round, no motion relation (skips the meeting-membership
+		// branch), no Proxy notes (so the formal-grant check fails).
+		$round = [
+			'openedAt' => (new \DateTimeImmutable('-1 hour'))->format(\DateTimeInterface::ATOM),
+			'closedAt' => null,
+			'isSecret' => false,
+			'relations' => [],
+			'notes' => [],
+		];
 
-        $roundEntity = new class($round) {
+		$roundEntity = new class($round) {
 
-            /**
-             * Constructor.
-             *
-             * @param array<string, mixed> $round The round payload.
-             */
-            public function __construct(private array $round)
-            {
-            }
+			/**
+			 * Constructor.
+			 *
+			 * @param array<string, mixed> $round The round payload.
+			 */
+			public function __construct(
+				private array $round,
+			) {
+			}
 
-            /**
-             * Serialize like an ObjectEntity.
-             *
-             * @return array<string, mixed>
-             */
-            public function jsonSerialize(): array
-            {
-                return $this->round;
-            }
-        };
+			/**
+			 * Serialize like an ObjectEntity.
+			 *
+			 * @return array<string, mixed>
+			 */
+			public function jsonSerialize(): array {
+				return $this->round;
+			}
+		};
 
-        $objectService = new class($roundEntity) {
+		$objectService = new class($roundEntity) {
 
-            /**
-             * Constructor.
-             *
-             * @param object $roundEntity The round entity double.
-             */
-            public function __construct(private object $roundEntity)
-            {
-            }
+			/**
+			 * Constructor.
+			 *
+			 * @param object $roundEntity The round entity double.
+			 */
+			public function __construct(
+				private object $roundEntity,
+			) {
+			}
 
-            /**
-             * Find returning the round entity for any id.
-             *
-             * @param int|string      $id       Object id.
-             * @param string|int|null $register Register slug.
-             * @param string|int|null $schema   Schema slug.
-             *
-             * @return object|null
-             */
-            public function find(int|string $id, string|int|null $register=null, string|int|null $schema=null): ?object
-            {
-                return $this->roundEntity;
-            }
-        };
+			/**
+			 * Find returning the round entity for any id.
+			 *
+			 * @param int|string $id Object id.
+			 * @param string|int|null $register Register slug.
+			 * @param string|int|null $schema Schema slug.
+			 *
+			 * @return object|null
+			 */
+			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+				return $this->roundEntity;
+			}
+		};
 
-        $prefService = $this->createMock(NotificationPreferenceService::class);
-        $prefService->method('hasActiveDelegationTo')->willReturnCallback(
-            function (string $delegatorId, string $delegateId) use ($delegationActive): bool {
-                return $delegationActive === true && $delegatorId === 'member-a' && $delegateId === 'caster-uid';
-            }
-        );
+		$prefService = $this->createMock(NotificationPreferenceService::class);
+		$prefService->method('hasActiveDelegationTo')->willReturnCallback(
+			function (string $delegatorId, string $delegateId) use ($delegationActive): bool {
+				return $delegationActive === true && $delegatorId === 'member-a' && $delegateId === 'caster-uid';
+			}
+		);
 
-        $services = [
-            'OCA\OpenRegister\Service\ObjectService' => $objectService,
-            NotificationPreferenceService::class     => $prefService,
-        ];
+		$services = [
+			'OCA\OpenRegister\Service\ObjectService' => $objectService,
+			NotificationPreferenceService::class => $prefService,
+		];
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willReturnCallback(
-            function (string $id) use ($services) {
-                return ($services[$id] ?? throw new \RuntimeException('unexpected container id: '.$id));
-            }
-        );
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			function (string $id) use ($services) {
+				return ($services[$id] ?? throw new \RuntimeException('unexpected container id: ' . $id));
+			}
+		);
 
-        return $this->assembleVotingService(container: $container);
+		return $this->assembleVotingService(container: $container);
+	}//end buildService()
 
-    }//end buildService()
+	/**
+	 * Assemble the VotingService facade from its collaborators.
+	 *
+	 * VotingService is a thin facade: every operation is delegated to a
+	 * single-purpose collaborator, so the graph has to be built explicitly here
+	 * where production relies on Nextcloud's constructor auto-wiring.
+	 *
+	 * @param ContainerInterface $container The (mocked) DI container.
+	 *
+	 * @return VotingService
+	 */
+	private function assembleVotingService(ContainerInterface $container): VotingService {
+		$logger = new NullLogger();
+		$motionService = $this->createMock(MotionService::class);
+		$participantResolver = $this->createMock(ParticipantResolver::class);
+		$templateService = $this->createMock(ProcessTemplateService::class);
+		$amendmentOrder = new AmendmentOrderService(container: $container, motionService: $motionService);
+		$relationFilter = new ObjectRelationFilter();
 
-    /**
-     * Assemble the VotingService facade from its collaborators.
-     *
-     * VotingService is a thin facade: every operation is delegated to a
-     * single-purpose collaborator, so the graph has to be built explicitly here
-     * where production relies on Nextcloud's constructor auto-wiring.
-     *
-     * @param ContainerInterface $container The (mocked) DI container.
-     *
-     * @return VotingService
-     */
-    private function assembleVotingService(ContainerInterface $container): VotingService
-    {
-        $logger              = new NullLogger();
-        $motionService       = $this->createMock(MotionService::class);
-        $participantResolver = $this->createMock(ParticipantResolver::class);
-        $templateService     = $this->createMock(ProcessTemplateService::class);
-        $amendmentOrder      = new AmendmentOrderService(container: $container, motionService: $motionService);
-        $relationFilter      = new ObjectRelationFilter();
+		return new VotingService(
+			opener: new VotingRoundOpener(
+				container: $container,
+				motionService: $motionService,
+				participantResolver: $participantResolver,
+				preflight: new VotingRoundPreflight(
+					container: $container,
+					logger: $logger,
+					motionService: $motionService,
+					participantResolver: $participantResolver,
+					templateService: $templateService
+				),
+				notifier: new VotingOpenedNotifier(
+					container: $container,
+					logger: $logger,
+					participantResolver: $participantResolver
+				)
+			),
+			caster: new VoteCastingService(
+				container: $container,
+				logger: $logger,
+				participantResolver: $participantResolver,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter
+			),
+			closer: new VotingRoundCloser(
+				container: $container,
+				logger: $logger,
+				oriService: $this->createMock(OriPublicationService::class),
+				motionService: $motionService,
+				amendmentOrder: $amendmentOrder,
+				relationFilter: $relationFilter
+			),
+			results: new VotingRoundResults(
+				container: $container,
+				motionService: $motionService,
+				participantResolver: $participantResolver
+			),
+			projection: new VotingRoundProjection(container: $container),
+			participants: new ParticipantUuidLookup(container: $container),
+		);
 
-        return new VotingService(
-            opener: new VotingRoundOpener(
-                container: $container,
-                motionService: $motionService,
-                participantResolver: $participantResolver,
-                preflight: new VotingRoundPreflight(
-                    container: $container,
-                    logger: $logger,
-                    motionService: $motionService,
-                    participantResolver: $participantResolver,
-                    templateService: $templateService
-                ),
-                notifier: new VotingOpenedNotifier(
-                    container: $container,
-                    logger: $logger,
-                    participantResolver: $participantResolver
-                )
-            ),
-            caster: new VoteCastingService(
-                container: $container,
-                logger: $logger,
-                participantResolver: $participantResolver,
-                amendmentOrder: $amendmentOrder,
-                relationFilter: $relationFilter
-            ),
-            closer: new VotingRoundCloser(
-                container: $container,
-                logger: $logger,
-                oriService: $this->createMock(OriPublicationService::class),
-                motionService: $motionService,
-                amendmentOrder: $amendmentOrder,
-                relationFilter: $relationFilter
-            ),
-            results: new VotingRoundResults(
-                container: $container,
-                motionService: $motionService,
-                participantResolver: $participantResolver
-            ),
-            projection: new VotingRoundProjection(container: $container),
-            participants: new ParticipantUuidLookup(container: $container),
-        );
+	}//end assembleVotingService()
 
-    }//end assembleVotingService()
+	/**
+	 * An absence delegate without a formal proxy gets the spec-mandated rejection
+	 * including the pointer to the proxy-granting process.
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 *
+	 * @return void
+	 */
+	public function testDelegateWithoutProxyGetsSpecMandatedRejection(): void {
+		$service = $this->buildService(delegationActive: true);
 
-    /**
-     * An absence delegate without a formal proxy gets the spec-mandated rejection
-     * including the pointer to the proxy-granting process.
-     *
-     * @spec openspec/specs/user-settings/spec.md
-     *
-     * @return void
-     */
-    public function testDelegateWithoutProxyGetsSpecMandatedRejection(): void
-    {
-        $service = $this->buildService(delegationActive: true);
+		try {
+			$service->castVote(
+				votingRoundId: 'round-1',
+				participantId: 'participant-b',
+				value: 'for',
+				isProxy: true,
+				delegatorId: 'member-a',
+				callerUid: 'caster-uid'
+			);
+			self::fail('castVote must reject a delegation-only proxy attempt');
+		} catch (\RuntimeException $e) {
+			self::assertStringContainsString(
+				'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.',
+				$e->getMessage()
+			);
+			self::assertStringContainsString(
+				'/api/voting-rounds/{id}/proxy',
+				$e->getMessage(),
+				'The rejection must point to the proxy-granting process'
+			);
+		}
 
-        try {
-            $service->castVote(
-                votingRoundId: 'round-1',
-                participantId: 'participant-b',
-                value: 'for',
-                isProxy: true,
-                delegatorId: 'member-a',
-                callerUid: 'caster-uid'
-            );
-            self::fail('castVote must reject a delegation-only proxy attempt');
-        } catch (\RuntimeException $e) {
-            self::assertStringContainsString(
-                'Delegation does not include voting rights. A formal proxy (volmacht) is required for voting.',
-                $e->getMessage()
-            );
-            self::assertStringContainsString(
-                '/api/voting-rounds/{id}/proxy',
-                $e->getMessage(),
-                'The rejection must point to the proxy-granting process'
-            );
-        }
+	}//end testDelegateWithoutProxyGetsSpecMandatedRejection()
 
-    }//end testDelegateWithoutProxyGetsSpecMandatedRejection()
+	/**
+	 * Without an absence delegation the pre-existing generic rejection is preserved.
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 *
+	 * @return void
+	 */
+	public function testNoDelegationKeepsGenericProxyRejection(): void {
+		$service = $this->buildService(delegationActive: false);
 
-    /**
-     * Without an absence delegation the pre-existing generic rejection is preserved.
-     *
-     * @spec openspec/specs/user-settings/spec.md
-     *
-     * @return void
-     */
-    public function testNoDelegationKeepsGenericProxyRejection(): void
-    {
-        $service = $this->buildService(delegationActive: false);
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('Geen geldige volmacht gevonden');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Geen geldige volmacht gevonden');
+		$service->castVote(
+			votingRoundId: 'round-1',
+			participantId: 'participant-b',
+			value: 'for',
+			isProxy: true,
+			delegatorId: 'member-a',
+			callerUid: 'caster-uid'
+		);
 
-        $service->castVote(
-            votingRoundId: 'round-1',
-            participantId: 'participant-b',
-            value: 'for',
-            isProxy: true,
-            delegatorId: 'member-a',
-            callerUid: 'caster-uid'
-        );
+	}//end testNoDelegationKeepsGenericProxyRejection()
 
-    }//end testNoDelegationKeepsGenericProxyRejection()
+	/**
+	 * A valid formal proxy grant still casts (the gate never blocks real volmachten).
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 *
+	 * @return void
+	 */
+	public function testFormalProxyGrantIsUntouchedByTheGate(): void {
+		// Round WITH a matching Proxy note — the grant check passes and the
+		// delegation gate is never consulted. The cast then proceeds into
+		// dedup/save, which this double does not implement; reaching that
+		// point (instead of the gate's RuntimeException) proves the gate
+		// does not interfere. We assert the failure is NOT a gate rejection.
+		$round = [
+			'openedAt' => (new \DateTimeImmutable('-1 hour'))->format(\DateTimeInterface::ATOM),
+			'closedAt' => null,
+			'isSecret' => false,
+			'relations' => [],
+			'notes' => [
+				[
+					'title' => 'Proxy',
+					'body' => json_encode(
+						[
+							'fromParticipantId' => 'member-a',
+							'toParticipantId' => 'participant-b',
+						]
+					),
+				],
+			],
+		];
 
-    /**
-     * A valid formal proxy grant still casts (the gate never blocks real volmachten).
-     *
-     * @spec openspec/specs/user-settings/spec.md
-     *
-     * @return void
-     */
-    public function testFormalProxyGrantIsUntouchedByTheGate(): void
-    {
-        // Round WITH a matching Proxy note — the grant check passes and the
-        // delegation gate is never consulted. The cast then proceeds into
-        // dedup/save, which this double does not implement; reaching that
-        // point (instead of the gate's RuntimeException) proves the gate
-        // does not interfere. We assert the failure is NOT a gate rejection.
-        $round = [
-            'openedAt'  => (new \DateTimeImmutable('-1 hour'))->format(\DateTimeInterface::ATOM),
-            'closedAt'  => null,
-            'isSecret'  => false,
-            'relations' => [],
-            'notes'     => [
-                [
-                    'title' => 'Proxy',
-                    'body'  => json_encode(
-                        [
-                            'fromParticipantId' => 'member-a',
-                            'toParticipantId'   => 'participant-b',
-                        ]
-                    ),
-                ],
-            ],
-        ];
+		$roundEntity = new class($round) {
 
-        $roundEntity = new class($round) {
+			/**
+			 * Constructor.
+			 *
+			 * @param array<string, mixed> $round The round payload.
+			 */
+			public function __construct(
+				private array $round,
+			) {
+			}
 
-            /**
-             * Constructor.
-             *
-             * @param array<string, mixed> $round The round payload.
-             */
-            public function __construct(private array $round)
-            {
-            }
+			/**
+			 * Serialize like an ObjectEntity.
+			 *
+			 * @return array<string, mixed>
+			 */
+			public function jsonSerialize(): array {
+				return $this->round;
+			}
+		};
 
-            /**
-             * Serialize like an ObjectEntity.
-             *
-             * @return array<string, mixed>
-             */
-            public function jsonSerialize(): array
-            {
-                return $this->round;
-            }
-        };
+		$objectService = new class($roundEntity) {
 
-        $objectService = new class($roundEntity) {
+			/**
+			 * Constructor.
+			 *
+			 * @param object $roundEntity The round entity double.
+			 */
+			public function __construct(
+				private object $roundEntity,
+			) {
+			}
 
-            /**
-             * Constructor.
-             *
-             * @param object $roundEntity The round entity double.
-             */
-            public function __construct(private object $roundEntity)
-            {
-            }
+			/**
+			 * Find returning the round entity.
+			 *
+			 * @param int|string $id Object id.
+			 * @param string|int|null $register Register slug.
+			 * @param string|int|null $schema Schema slug.
+			 *
+			 * @return object|null
+			 */
+			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+				return $this->roundEntity;
+			}
 
-            /**
-             * Find returning the round entity.
-             *
-             * @param int|string      $id       Object id.
-             * @param string|int|null $register Register slug.
-             * @param string|int|null $schema   Schema slug.
-             *
-             * @return object|null
-             */
-            public function find(int|string $id, string|int|null $register=null, string|int|null $schema=null): ?object
-            {
-                return $this->roundEntity;
-            }
+			/**
+			 * Fluent register setter.
+			 *
+			 * @param string $register Register slug.
+			 *
+			 * @return static
+			 */
+			public function setRegister(string $register): static {
+				return $this;
+			}
 
-            /**
-             * Fluent register setter.
-             *
-             * @param string $register Register slug.
-             *
-             * @return static
-             */
-            public function setRegister(string $register): static
-            {
-                return $this;
-            }
+			/**
+			 * Fluent schema setter.
+			 *
+			 * @param string $schema Schema slug.
+			 *
+			 * @return static
+			 */
+			public function setSchema(string $schema): static {
+				return $this;
+			}
 
-            /**
-             * Fluent schema setter.
-             *
-             * @param string $schema Schema slug.
-             *
-             * @return static
-             */
-            public function setSchema(string $schema): static
-            {
-                return $this;
-            }
+			/**
+			 * Empty result set for the dedup queries.
+			 *
+			 * @param array<string, mixed> $config Query config.
+			 *
+			 * @return array<int, object>
+			 */
+			public function findAll(array $config = []): array {
+				return [];
+			}
 
-            /**
-             * Empty result set for the dedup queries.
-             *
-             * @param array<string, mixed> $config Query config.
-             *
-             * @return array<int, object>
-             */
-            public function findAll(array $config=[]): array
-            {
-                return [];
-            }
+			/**
+			 * Echoing save.
+			 *
+			 * @param string|int|null $register Register slug.
+			 * @param string|int|null $schema Schema slug.
+			 * @param array<string, mixed> $object The object payload.
+			 *
+			 * @return array<string, mixed>
+			 */
+			public function saveObject(string|int|null $register = null, string|int|null $schema = null, array $object = []): array {
+				return $object;
+			}
+		};
 
-            /**
-             * Echoing save.
-             *
-             * @param string|int|null      $register Register slug.
-             * @param string|int|null      $schema   Schema slug.
-             * @param array<string, mixed> $object   The object payload.
-             *
-             * @return array<string, mixed>
-             */
-            public function saveObject(string|int|null $register=null, string|int|null $schema=null, array $object=[]): array
-            {
-                return $object;
-            }
-        };
+		$prefService = $this->createMock(NotificationPreferenceService::class);
+		$prefService->expects($this->never())->method('hasActiveDelegationTo');
 
-        $prefService = $this->createMock(NotificationPreferenceService::class);
-        $prefService->expects($this->never())->method('hasActiveDelegationTo');
+		$services = [
+			'OCA\OpenRegister\Service\ObjectService' => $objectService,
+			NotificationPreferenceService::class => $prefService,
+		];
 
-        $services = [
-            'OCA\OpenRegister\Service\ObjectService' => $objectService,
-            NotificationPreferenceService::class     => $prefService,
-        ];
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			function (string $id) use ($services) {
+				return ($services[$id] ?? throw new \RuntimeException('unexpected container id: ' . $id));
+			}
+		);
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('get')->willReturnCallback(
-            function (string $id) use ($services) {
-                return ($services[$id] ?? throw new \RuntimeException('unexpected container id: '.$id));
-            }
-        );
+		$service = $this->assembleVotingService(container: $container);
 
-        $service = $this->assembleVotingService(container: $container);
+		$vote = $service->castVote(
+			votingRoundId: 'round-1',
+			participantId: 'participant-b',
+			value: 'for',
+			isProxy: true,
+			delegatorId: 'member-a',
+			callerUid: 'caster-uid'
+		);
 
-        $vote = $service->castVote(
-            votingRoundId: 'round-1',
-            participantId: 'participant-b',
-            value: 'for',
-            isProxy: true,
-            delegatorId: 'member-a',
-            callerUid: 'caster-uid'
-        );
+		self::assertSame('for', $vote['value']);
+		self::assertTrue($vote['isProxy']);
 
-        self::assertSame('for', $vote['value']);
-        self::assertTrue($vote['isProxy']);
-
-    }//end testFormalProxyGrantIsUntouchedByTheGate()
+	}//end testFormalProxyGrantIsUntouchedByTheGate()
 }//end class

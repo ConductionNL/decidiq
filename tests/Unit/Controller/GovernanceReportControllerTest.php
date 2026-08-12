@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Unit tests for GovernanceReportController.
  *
@@ -35,208 +36,187 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
  */
-class GovernanceReportControllerTest extends TestCase
-{
+class GovernanceReportControllerTest extends TestCase {
 
+	/**
+	 * Build a controller wired to the supplied service.
+	 *
+	 * @param GovernanceReportingService $service Service double
+	 * @param array<string, mixed> $requestParams Params returned by IRequest
+	 * @param bool $authenticated Whether session has a user
+	 * @param bool $admin Whether the user is admin
+	 *
+	 * @return GovernanceReportController
+	 */
+	private function makeController(GovernanceReportingService $service, array $requestParams = [], bool $authenticated = true, bool $admin = true): GovernanceReportController {
+		$request = $this->createMock(IRequest::class);
+		$request->method('getParams')->willReturn($requestParams);
+		$request->method('getParam')->willReturnCallback(
+			static function (string $key, mixed $default = null) use ($requestParams): mixed {
+				return ($requestParams[$key] ?? $default);
+			}
+		);
 
-    /**
-     * Build a controller wired to the supplied service.
-     *
-     * @param GovernanceReportingService $service       Service double
-     * @param array<string, mixed>       $requestParams Params returned by IRequest
-     * @param bool                       $authenticated Whether session has a user
-     * @param bool                       $admin         Whether the user is admin
-     *
-     * @return GovernanceReportController
-     */
-    private function makeController(GovernanceReportingService $service, array $requestParams=[], bool $authenticated=true, bool $admin=true): GovernanceReportController
-    {
-        $request = $this->createMock(IRequest::class);
-        $request->method('getParams')->willReturn($requestParams);
-        $request->method('getParam')->willReturnCallback(
-            static function (string $key, mixed $default=null) use ($requestParams): mixed {
-                return ($requestParams[$key] ?? $default);
-            }
-        );
+		$session = $this->createMock(IUserSession::class);
+		if ($authenticated === true) {
+			$user = $this->createMock(IUser::class);
+			$user->method('getUID')->willReturn('alice');
+			$session->method('getUser')->willReturn($user);
+		} else {
+			$session->method('getUser')->willReturn(null);
+		}
 
-        $session = $this->createMock(IUserSession::class);
-        if ($authenticated === true) {
-            $user = $this->createMock(IUser::class);
-            $user->method('getUID')->willReturn('alice');
-            $session->method('getUser')->willReturn($user);
-        } else {
-            $session->method('getUser')->willReturn(null);
-        }
+		$groups = $this->createMock(IGroupManager::class);
+		$groups->method('isAdmin')->willReturn($admin);
 
-        $groups = $this->createMock(IGroupManager::class);
-        $groups->method('isAdmin')->willReturn($admin);
+		return new GovernanceReportController($request, $service, $session, $groups);
+	}//end makeController()
 
-        return new GovernanceReportController($request, $service, $session, $groups);
+	/**
+	 * generate requires authentication.
+	 *
+	 * @return void
+	 */
+	public function testGenerateRequiresAuth(): void {
+		$service = $this->createMock(GovernanceReportingService::class);
+		$controller = $this->makeController($service, authenticated: false);
 
-    }//end makeController()
+		$response = $controller->generate();
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 
+	}//end testGenerateRequiresAuth()
 
-    /**
-     * generate requires authentication.
-     *
-     * @return void
-     */
-    public function testGenerateRequiresAuth(): void
-    {
-        $service    = $this->createMock(GovernanceReportingService::class);
-        $controller = $this->makeController($service, authenticated: false);
+	/**
+	 * generate requires admin.
+	 *
+	 * @return void
+	 */
+	public function testGenerateRequiresAdmin(): void {
+		$service = $this->createMock(GovernanceReportingService::class);
+		$controller = $this->makeController($service, admin: false);
 
-        $response = $controller->generate();
-        $this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$response = $controller->generate();
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 
-    }//end testGenerateRequiresAuth()
+	}//end testGenerateRequiresAdmin()
 
+	/**
+	 * generate rejects missing fields.
+	 *
+	 * @return void
+	 */
+	public function testGenerateRejectsMissingFields(): void {
+		$service = $this->createMock(GovernanceReportingService::class);
+		$controller = $this->makeController($service);
 
-    /**
-     * generate requires admin.
-     *
-     * @return void
-     */
-    public function testGenerateRequiresAdmin(): void
-    {
-        $service    = $this->createMock(GovernanceReportingService::class);
-        $controller = $this->makeController($service, admin: false);
+		$response = $controller->generate();
+		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
 
-        $response = $controller->generate();
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}//end testGenerateRejectsMissingFields()
 
-    }//end testGenerateRequiresAdmin()
+	/**
+	 * generate returns 201 on success.
+	 *
+	 * @return void
+	 */
+	public function testGenerateReturns201(): void {
+		$service = $this->createMock(GovernanceReportingService::class);
+		$service->expects($this->once())->method('generateAnnualReport')
+			->with('b-1', 2026)
+			->willReturn(['success' => true, 'report' => ['id' => 'rep-1'], 'message' => 'ok']);
 
+		$controller = $this->makeController($service, requestParams: ['boardId' => 'b-1', 'year' => 2026]);
 
-    /**
-     * generate rejects missing fields.
-     *
-     * @return void
-     */
-    public function testGenerateRejectsMissingFields(): void
-    {
-        $service    = $this->createMock(GovernanceReportingService::class);
-        $controller = $this->makeController($service);
+		$response = $controller->generate();
+		$this->assertSame(Http::STATUS_CREATED, $response->getStatus());
 
-        $response = $controller->generate();
-        $this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
+	}//end testGenerateReturns201()
 
-    }//end testGenerateRejectsMissingFields()
+	/**
+	 * index requires boardId.
+	 *
+	 * @return void
+	 */
+	public function testIndexRequiresBoardId(): void {
+		$service = $this->createMock(GovernanceReportingService::class);
+		$controller = $this->makeController($service);
 
+		$response = $controller->index();
+		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
 
-    /**
-     * generate returns 201 on success.
-     *
-     * @return void
-     */
-    public function testGenerateReturns201(): void
-    {
-        $service = $this->createMock(GovernanceReportingService::class);
-        $service->expects($this->once())->method('generateAnnualReport')
-            ->with('b-1', 2026)
-            ->willReturn(['success' => true, 'report' => ['id' => 'rep-1'], 'message' => 'ok']);
+	}//end testIndexRequiresBoardId()
 
-        $controller = $this->makeController($service, requestParams: ['boardId' => 'b-1', 'year' => 2026]);
+	/**
+	 * show returns the report JSON.
+	 *
+	 * @return void
+	 */
+	public function testShowReturnsReportJson(): void {
+		$service = $this->createMock(GovernanceReportingService::class);
+		$service->method('exportReport')->willReturn(
+			[
+				'success' => true,
+				'body' => json_encode(['boardKoppeling' => 'b-1', 'year' => 2026]),
+				'contentType' => 'application/json',
+				'message' => 'ok',
+			]
+		);
 
-        $response = $controller->generate();
-        $this->assertSame(Http::STATUS_CREATED, $response->getStatus());
+		$controller = $this->makeController($service);
+		$response = $controller->show('rep-1');
 
-    }//end testGenerateReturns201()
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('b-1', $response->getData()['boardKoppeling']);
 
+	}//end testShowReturnsReportJson()
 
-    /**
-     * index requires boardId.
-     *
-     * @return void
-     */
-    public function testIndexRequiresBoardId(): void
-    {
-        $service    = $this->createMock(GovernanceReportingService::class);
-        $controller = $this->makeController($service);
+	/**
+	 * show returns 404 when service reports not-found.
+	 *
+	 * @return void
+	 */
+	public function testShowReturns404OnNotFound(): void {
+		$service = $this->createMock(GovernanceReportingService::class);
+		$service->method('exportReport')->willReturn(
+			[
+				'success' => false,
+				'body' => '',
+				'contentType' => 'text/plain',
+				'message' => 'Report not found.',
+			]
+		);
 
-        $response = $controller->index();
-        $this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
+		$controller = $this->makeController($service);
+		$response = $controller->show('rep-x');
 
-    }//end testIndexRequiresBoardId()
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
 
+	}//end testShowReturns404OnNotFound()
 
-    /**
-     * show returns the report JSON.
-     *
-     * @return void
-     */
-    public function testShowReturnsReportJson(): void
-    {
-        $service = $this->createMock(GovernanceReportingService::class);
-        $service->method('exportReport')->willReturn(
-            [
-                'success'     => true,
-                'body'        => json_encode(['boardKoppeling' => 'b-1', 'year' => 2026]),
-                'contentType' => 'application/json',
-                'message'     => 'ok',
-            ]
-        );
+	/**
+	 * export delegates to service and returns a DataDisplayResponse on success.
+	 *
+	 * @return void
+	 */
+	public function testExportReturnsCsvDownload(): void {
+		$service = $this->createMock(GovernanceReportingService::class);
+		$service->expects($this->once())->method('exportReport')
+			->with('rep-1', 'csv')
+			->willReturn(
+				[
+					'success' => true,
+					'body' => 'key,value',
+					'contentType' => 'text/csv',
+					'message' => 'ok',
+				]
+			);
 
-        $controller = $this->makeController($service);
-        $response   = $controller->show('rep-1');
+		$controller = $this->makeController($service);
+		$response = $controller->export('rep-1', 'csv');
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertSame('b-1', $response->getData()['boardKoppeling']);
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		// Response::getHeaders() requires OC::$server (real bootstrap); status is enough here.
 
-    }//end testShowReturnsReportJson()
-
-
-    /**
-     * show returns 404 when service reports not-found.
-     *
-     * @return void
-     */
-    public function testShowReturns404OnNotFound(): void
-    {
-        $service = $this->createMock(GovernanceReportingService::class);
-        $service->method('exportReport')->willReturn(
-            [
-                'success'     => false,
-                'body'        => '',
-                'contentType' => 'text/plain',
-                'message'     => 'Report not found.',
-            ]
-        );
-
-        $controller = $this->makeController($service);
-        $response   = $controller->show('rep-x');
-
-        $this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
-
-    }//end testShowReturns404OnNotFound()
-
-
-    /**
-     * export delegates to service and returns a DataDisplayResponse on success.
-     *
-     * @return void
-     */
-    public function testExportReturnsCsvDownload(): void
-    {
-        $service = $this->createMock(GovernanceReportingService::class);
-        $service->expects($this->once())->method('exportReport')
-            ->with('rep-1', 'csv')
-            ->willReturn(
-                [
-                    'success'     => true,
-                    'body'        => 'key,value',
-                    'contentType' => 'text/csv',
-                    'message'     => 'ok',
-                ]
-            );
-
-        $controller = $this->makeController($service);
-        $response   = $controller->export('rep-1', 'csv');
-
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        // Response::getHeaders() requires OC::$server (real bootstrap); status is enough here.
-
-    }//end testExportReturnsCsvDownload()
-
+	}//end testExportReturnsCsvDownload()
 
 }//end class

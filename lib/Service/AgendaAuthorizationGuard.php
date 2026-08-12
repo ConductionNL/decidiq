@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Agenda Authorization Guard
  *
@@ -47,113 +48,107 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
  */
-class AgendaAuthorizationGuard
-{
-    /**
-     * Construct the AgendaAuthorizationGuard.
-     *
-     * @param ObjectService       $objectService       OpenRegister object service
-     * @param IUserSession        $userSession         The current user session
-     * @param IGroupManager       $groupManager        Group manager for admin checks
-     * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
-     *
-     * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
-     */
-    public function __construct(
-        private readonly ObjectService $objectService,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-        private readonly ParticipantResolver $participantResolver,
-    ) {
-    }//end __construct()
+class AgendaAuthorizationGuard {
+	/**
+	 * Construct the AgendaAuthorizationGuard.
+	 *
+	 * @param ObjectService $objectService OpenRegister object service
+	 * @param IUserSession $userSession The current user session
+	 * @param IGroupManager $groupManager Group manager for admin checks
+	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 */
+	public function __construct(
+		private readonly ObjectService $objectService,
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+		private readonly ParticipantResolver $participantResolver,
+	) {
+	}//end __construct()
 
-    /**
-     * Verify a user is authenticated.
-     *
-     * @return JSONResponse|null Null if authenticated, 401 JSONResponse if not.
-     *
-     * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
-     */
-    public function requireUser(): ?JSONResponse
-    {
-        if ($this->userSession->getUser() === null) {
-            return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Verify a user is authenticated.
+	 *
+	 * @return JSONResponse|null Null if authenticated, 401 JSONResponse if not.
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 */
+	public function requireUser(): ?JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        return null;
+		return null;
+	}//end requireUser()
 
-    }//end requireUser()
+	/**
+	 * Verify the current user is an admin or holds a chair/secretary role for a meeting.
+	 *
+	 * @param string $meetingId UUID of the meeting to check
+	 *
+	 * @return JSONResponse|null Null if authorised, 401/403 JSONResponse if not.
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 */
+	public function requireChairOrAdmin(string $meetingId): ?JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
 
-    /**
-     * Verify the current user is an admin or holds a chair/secretary role for a meeting.
-     *
-     * @param string $meetingId UUID of the meeting to check
-     *
-     * @return JSONResponse|null Null if authorised, 401/403 JSONResponse if not.
-     *
-     * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
-     */
-    public function requireChairOrAdmin(string $meetingId): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
-        }
+		$userId = $user->getUID();
 
-        $userId = $user->getUID();
+		if ($this->groupManager->isAdmin($userId) === true) {
+			return null;
+		}
 
-        if ($this->groupManager->isAdmin($userId) === true) {
-            return null;
-        }
+		if ($this->participantResolver->hasRole(
+			meetingId: $meetingId,
+			nextcloudUid: $userId,
+			roles: ['chair', 'secretary'],
+		) === true
+		) {
+			return null;
+		}
 
-        if ($this->participantResolver->hasRole(
-            meetingId: $meetingId,
-            nextcloudUid: $userId,
-            roles: ['chair', 'secretary'],
-        ) === true
-        ) {
-            return null;
-        }
+		return new JSONResponse(
+			['message' => 'Chair or secretary role required for this meeting'],
+			Http::STATUS_FORBIDDEN
+		);
 
-        return new JSONResponse(
-            ['message' => 'Chair or secretary role required for this meeting'],
-            Http::STATUS_FORBIDDEN
-        );
+	}//end requireChairOrAdmin()
 
-    }//end requireChairOrAdmin()
+	/**
+	 * Resolve an agenda item's meeting and authorise the caller against it.
+	 *
+	 * Returns a 404 when the item does not exist and a 403 when its meeting
+	 * cannot be resolved, mirroring the behaviour the agenda endpoints had when
+	 * this lived inline in the controller.
+	 *
+	 * @param string $agendaItemId UUID of the AgendaItem
+	 *
+	 * @return JSONResponse|null Null if authorised, 401/403/404 JSONResponse if not.
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 */
+	public function requireChairOrAdminForAgendaItem(string $agendaItemId): ?JSONResponse {
+		// Resolve the meeting for authorization; 404 if item does not exist.
+		$item = $this->objectService->find($agendaItemId);
+		if ($item === null) {
+			return new JSONResponse(['message' => 'Agenda item not found.'], Http::STATUS_NOT_FOUND);
+		}
 
-    /**
-     * Resolve an agenda item's meeting and authorise the caller against it.
-     *
-     * Returns a 404 when the item does not exist and a 403 when its meeting
-     * cannot be resolved, mirroring the behaviour the agenda endpoints had when
-     * this lived inline in the controller.
-     *
-     * @param string $agendaItemId UUID of the AgendaItem
-     *
-     * @return JSONResponse|null Null if authorised, 401/403/404 JSONResponse if not.
-     *
-     * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
-     */
-    public function requireChairOrAdminForAgendaItem(string $agendaItemId): ?JSONResponse
-    {
-        // Resolve the meeting for authorization; 404 if item does not exist.
-        $item = $this->objectService->find($agendaItemId);
-        if ($item === null) {
-            return new JSONResponse(['message' => 'Agenda item not found.'], Http::STATUS_NOT_FOUND);
-        }
+		$itemData = (array)$item;
+		$meetingId = $itemData['@self']['relations']['meeting'] ?? null;
 
-        $itemData  = (array) $item;
-        $meetingId = $itemData['@self']['relations']['meeting'] ?? null;
+		if ($meetingId === null) {
+			return new JSONResponse(
+				['message' => 'Could not resolve meeting for authorization.'],
+				Http::STATUS_FORBIDDEN
+			);
+		}
 
-        if ($meetingId === null) {
-            return new JSONResponse(
-                ['message' => 'Could not resolve meeting for authorization.'],
-                Http::STATUS_FORBIDDEN
-            );
-        }
-
-        return $this->requireChairOrAdmin(meetingId: (string) $meetingId);
-
-    }//end requireChairOrAdminForAgendaItem()
+		return $this->requireChairOrAdmin(meetingId: (string)$meetingId);
+	}//end requireChairOrAdminForAgendaItem()
 }//end class

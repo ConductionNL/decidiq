@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Notification Preference Controller
  *
@@ -38,90 +39,85 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/p4-collaboration/tasks.md#task-7.2
  */
-class NotificationPreferenceController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest                               $request           HTTP request
-     * @param NotificationPreferenceService          $preferenceService Preference service
-     * @param IUserSession                           $userSession       Current user session
-     * @param NotificationPreferenceRequestValidator $validator         Update-payload validator
-     *
-     * @spec openspec/changes/p4-collaboration/tasks.md#task-7.2
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly NotificationPreferenceService $preferenceService,
-        private readonly IUserSession $userSession,
-        private readonly NotificationPreferenceRequestValidator $validator,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+class NotificationPreferenceController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request HTTP request
+	 * @param NotificationPreferenceService $preferenceService Preference service
+	 * @param IUserSession $userSession Current user session
+	 * @param NotificationPreferenceRequestValidator $validator Update-payload validator
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.2
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly NotificationPreferenceService $preferenceService,
+		private readonly IUserSession $userSession,
+		private readonly NotificationPreferenceRequestValidator $validator,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Read own notification preferences.
-     *
-     * GET /api/notification-preference
-     *
-     * Per-USER scoped: the person is derived exclusively from the session —
-     * the request can never name another user (no IDOR surface). The response
-     * is defaults-merged and includes `accountEmail` so the UI can show the
-     * Nextcloud default for governance communications.
-     *
-     * @return JSONResponse
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/specs/user-settings/spec.md
-     */
-    public function show(): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Read own notification preferences.
+	 *
+	 * GET /api/notification-preference
+	 *
+	 * Per-USER scoped: the person is derived exclusively from the session —
+	 * the request can never name another user (no IDOR surface). The response
+	 * is defaults-merged and includes `accountEmail` so the UI can show the
+	 * Nextcloud default for governance communications.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	public function show(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        $pref = $this->preferenceService->getPreferenceWithDefaults($user->getUID());
-        $pref['accountEmail'] = $user->getEMailAddress();
+		$pref = $this->preferenceService->getPreferenceWithDefaults($user->getUID());
+		$pref['accountEmail'] = $user->getEMailAddress();
 
-        return new JSONResponse($pref);
+		return new JSONResponse($pref);
+	}//end show()
 
-    }//end show()
+	/**
+	 * Update own notification preferences.
+	 *
+	 * PUT /api/notification-preference
+	 *
+	 * Per-USER scoped (session user only). Validates every new preference
+	 * category: reminder-time whitelist, delegation period sanity (mandatory
+	 * expiry, until >= from, ISO dates), governance e-mail format, urgent
+	 * phone shape, and the communication-language whitelist. Unknown fields
+	 * are ignored (field whitelisting), invalid values are rejected with 422.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	public function update(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
+		}
 
-    /**
-     * Update own notification preferences.
-     *
-     * PUT /api/notification-preference
-     *
-     * Per-USER scoped (session user only). Validates every new preference
-     * category: reminder-time whitelist, delegation period sanity (mandatory
-     * expiry, until >= from, ISO dates), governance e-mail format, urgent
-     * phone shape, and the communication-language whitelist. Unknown fields
-     * are ignored (field whitelisting), invalid values are rejected with 422.
-     *
-     * @return JSONResponse
-     *
-     * @NoAdminRequired
-     *
-     * @spec openspec/specs/user-settings/spec.md
-     */
-    public function update(): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
-        }
+		$changes = [];
+		$error = $this->validator->collect(changes: $changes);
+		if ($error !== null) {
+			return new JSONResponse(['message' => $error], Http::STATUS_UNPROCESSABLE_ENTITY);
+		}
 
-        $changes = [];
-        $error   = $this->validator->collect(changes: $changes);
-        if ($error !== null) {
-            return new JSONResponse(['message' => $error], Http::STATUS_UNPROCESSABLE_ENTITY);
-        }
-
-        $pref = $this->preferenceService->updatePreference($user->getUID(), $changes);
-        $pref['accountEmail'] = $user->getEMailAddress();
-        return new JSONResponse($pref);
-
-    }//end update()
+		$pref = $this->preferenceService->updatePreference($user->getUID(), $changes);
+		$pref['accountEmail'] = $user->getEMailAddress();
+		return new JSONResponse($pref);
+	}//end update()
 }//end class

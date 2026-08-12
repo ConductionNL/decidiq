@@ -38,162 +38,150 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
  */
-class ParticipantResolverPhase0RegressionTest extends TestCase
-{
+class ParticipantResolverPhase0RegressionTest extends TestCase {
 
-    /**
-     * @var ContainerInterface&MockObject
-     */
-    private ContainerInterface $container;
+	/**
+	 * @var ContainerInterface&MockObject
+	 */
+	private ContainerInterface $container;
 
-    /**
-     * @var LoggerInterface&MockObject
-     */
-    private LoggerInterface $logger;
+	/**
+	 * @var LoggerInterface&MockObject
+	 */
+	private LoggerInterface $logger;
 
-    /**
-     * @var ObjectService&MockObject
-     */
-    private ObjectService $objectService;
+	/**
+	 * @var ObjectService&MockObject
+	 */
+	private ObjectService $objectService;
 
-    /**
-     * The service under test.
-     *
-     * @var ParticipantResolver
-     */
-    private ParticipantResolver $resolver;
+	/**
+	 * The service under test.
+	 *
+	 * @var ParticipantResolver
+	 */
+	private ParticipantResolver $resolver;
 
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		$this->container = $this->createMock(ContainerInterface::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->objectService = $this->createMock(ObjectService::class);
 
-        $this->container     = $this->createMock(ContainerInterface::class);
-        $this->logger        = $this->createMock(LoggerInterface::class);
-        $this->objectService = $this->createMock(ObjectService::class);
+		$this->objectService->method('setRegister')->willReturnSelf();
+		$this->objectService->method('setSchema')->willReturnSelf();
+		$this->container->method('get')->willReturn($this->objectService);
 
-        $this->objectService->method('setRegister')->willReturnSelf();
-        $this->objectService->method('setSchema')->willReturnSelf();
-        $this->container->method('get')->willReturn($this->objectService);
+		$this->resolver = new ParticipantResolver(
+			$this->container,
+			$this->logger,
+		);
 
-        $this->resolver = new ParticipantResolver(
-            $this->container,
-            $this->logger,
-        );
+	}//end setUp()
 
-    }//end setUp()
+	/**
+	 * Build an ObjectEntity mock whose jsonSerialize() returns $data.
+	 *
+	 * @param array<string, mixed> $data The serialised object payload.
+	 *
+	 * @return ObjectEntity&MockObject
+	 */
+	private function entity(array $data): ObjectEntity {
+		$entity = $this->getMockBuilder(ObjectEntity::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['jsonSerialize'])
+			->getMock();
+		$entity->method('jsonSerialize')->willReturn($data);
+		return $entity;
+	}//end entity()
 
+	/**
+	 * resolveMeetingParticipants() reads the full participant set
+	 * (`findAll([])`) and filters in PHP via relationsReference(), keeping only
+	 * those whose relations actually reference the resolved governance body id.
+	 *
+	 * Server-side `_relations.*` filtering was intentionally dropped (see the
+	 * NOTE in ParticipantResolver::resolveMeetingParticipants): OR-object-API
+	 * participants store the link as a flat camelCase field, which the
+	 * structured `_relations.governance-body` filter never matched — silently
+	 * returning an empty list and 403'ing seeded chairs. This regression test
+	 * now pins the PHP-side scoping contract.
+	 *
+	 * @return void
+	 */
+	public function testResolveMeetingParticipantsIdScopesByGovernanceBody(): void {
+		$meetingId = 'mt1';
+		$bodyId = 'gb-target';
 
-    /**
-     * Build an ObjectEntity mock whose jsonSerialize() returns $data.
-     *
-     * @param array<string, mixed> $data The serialised object payload.
-     *
-     * @return ObjectEntity&MockObject
-     */
-    private function entity(array $data): ObjectEntity
-    {
-        $entity = $this->getMockBuilder(ObjectEntity::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['jsonSerialize'])
-            ->getMock();
-        $entity->method('jsonSerialize')->willReturn($data);
-        return $entity;
+		// find() resolves the meeting → governance-body link.
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				[
+					'id' => $meetingId,
+					'relations' => [['schema' => 'governance-body', 'id' => $bodyId]],
+				]
+			)
+		);
 
-    }//end entity()
+		// findAll() reads the full participant set (no server-side relation
+		// filter — scoping happens in PHP).
+		$this->objectService->expects($this->once())
+			->method('findAll')
+			->with([])
+			->willReturn(
+				[
+					// Genuinely in the target body.
+					$this->entity(['id' => 'p1', 'relations' => [['schema' => 'governance-body', 'id' => $bodyId]]]),
+					// Presence-only match leak: relates to a DIFFERENT body — must be dropped.
+					$this->entity(['id' => 'p2', 'relations' => [['schema' => 'governance-body', 'id' => 'gb-other']]]),
+				]
+			);
 
+		$participants = $this->resolver->resolveMeetingParticipants(meetingId: $meetingId);
 
-    /**
-     * resolveMeetingParticipants() reads the full participant set
-     * (`findAll([])`) and filters in PHP via relationsReference(), keeping only
-     * those whose relations actually reference the resolved governance body id.
-     *
-     * Server-side `_relations.*` filtering was intentionally dropped (see the
-     * NOTE in ParticipantResolver::resolveMeetingParticipants): OR-object-API
-     * participants store the link as a flat camelCase field, which the
-     * structured `_relations.governance-body` filter never matched — silently
-     * returning an empty list and 403'ing seeded chairs. This regression test
-     * now pins the PHP-side scoping contract.
-     *
-     * @return void
-     */
-    public function testResolveMeetingParticipantsIdScopesByGovernanceBody(): void
-    {
-        $meetingId = 'mt1';
-        $bodyId    = 'gb-target';
+		$ids = array_column($participants, 'id');
+		$this->assertSame(['p1'], $ids);
 
-        // find() resolves the meeting → governance-body link.
-        $this->objectService->method('find')->willReturn(
-            $this->entity(
-                [
-                    'id'        => $meetingId,
-                    'relations' => [['schema' => 'governance-body', 'id' => $bodyId]],
-                ]
-            )
-        );
+	}//end testResolveMeetingParticipantsIdScopesByGovernanceBody()
 
-        // findAll() reads the full participant set (no server-side relation
-        // filter — scoping happens in PHP).
-        $this->objectService->expects($this->once())
-            ->method('findAll')
-            ->with([])
-            ->willReturn(
-                [
-                    // Genuinely in the target body.
-                    $this->entity(['id' => 'p1', 'relations' => [['schema' => 'governance-body', 'id' => $bodyId]]]),
-                    // Presence-only match leak: relates to a DIFFERENT body — must be dropped.
-                    $this->entity(['id' => 'p2', 'relations' => [['schema' => 'governance-body', 'id' => 'gb-other']]]),
-                ]
-            );
+	/**
+	 * resolveMeetingParticipants() returns an empty array when the meeting has no
+	 * governance-body relation (no body resolvable).
+	 *
+	 * @return void
+	 */
+	public function testResolveMeetingParticipantsEmptyWithoutGovernanceBody(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['id' => 'mt-x', 'relations' => []])
+		);
 
-        $participants = $this->resolver->resolveMeetingParticipants(meetingId: $meetingId);
+		$this->objectService->expects($this->never())->method('findAll');
 
-        $ids = array_column($participants, 'id');
-        $this->assertSame(['p1'], $ids);
+		$this->assertSame([], $this->resolver->resolveMeetingParticipants(meetingId: 'mt-x'));
 
-    }//end testResolveMeetingParticipantsIdScopesByGovernanceBody()
+	}//end testResolveMeetingParticipantsEmptyWithoutGovernanceBody()
 
+	/**
+	 * resolveGovernanceBodyId() reads the body id from the meeting's structured
+	 * relations list.
+	 *
+	 * @return void
+	 */
+	public function testResolveGovernanceBodyIdFromStructuredRelations(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(
+				['relations' => [['schema' => 'governance-body', 'id' => 'gb-99']]]
+			)
+		);
 
-    /**
-     * resolveMeetingParticipants() returns an empty array when the meeting has no
-     * governance-body relation (no body resolvable).
-     *
-     * @return void
-     */
-    public function testResolveMeetingParticipantsEmptyWithoutGovernanceBody(): void
-    {
-        $this->objectService->method('find')->willReturn(
-            $this->entity(['id' => 'mt-x', 'relations' => []])
-        );
+		$this->assertSame('gb-99', $this->resolver->resolveGovernanceBodyId(meetingId: 'mt9'));
 
-        $this->objectService->expects($this->never())->method('findAll');
-
-        $this->assertSame([], $this->resolver->resolveMeetingParticipants(meetingId: 'mt-x'));
-
-    }//end testResolveMeetingParticipantsEmptyWithoutGovernanceBody()
-
-
-    /**
-     * resolveGovernanceBodyId() reads the body id from the meeting's structured
-     * relations list.
-     *
-     * @return void
-     */
-    public function testResolveGovernanceBodyIdFromStructuredRelations(): void
-    {
-        $this->objectService->method('find')->willReturn(
-            $this->entity(
-                ['relations' => [['schema' => 'governance-body', 'id' => 'gb-99']]]
-            )
-        );
-
-        $this->assertSame('gb-99', $this->resolver->resolveGovernanceBodyId(meetingId: 'mt9'));
-
-    }//end testResolveGovernanceBodyIdFromStructuredRelations()
+	}//end testResolveGovernanceBodyIdFromStructuredRelations()
 
 }//end class

@@ -42,147 +42,134 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p4-integration/tasks.md#task-1.4
  */
-class ApiControllerPreflightTest extends TestCase
-{
+class ApiControllerPreflightTest extends TestCase {
 
-    /**
-     * Mock IRequest.
-     *
-     * @var IRequest&MockObject
-     */
-    private IRequest&MockObject $request;
+	/**
+	 * Mock IRequest.
+	 *
+	 * @var IRequest&MockObject
+	 */
+	private IRequest&MockObject $request;
 
-    /**
-     * Mock IConfig.
-     *
-     * @var IConfig&MockObject
-     */
-    private IConfig&MockObject $config;
+	/**
+	 * Mock IConfig.
+	 *
+	 * @var IConfig&MockObject
+	 */
+	private IConfig&MockObject $config;
 
-    /**
-     * The controller under test.
-     *
-     * @var ApiController
-     */
-    private ApiController $controller;
+	/**
+	 * The controller under test.
+	 *
+	 * @var ApiController
+	 */
+	private ApiController $controller;
 
+	/**
+	 * Set up mocks and the controller.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up mocks and the controller.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		$this->request = $this->createMock(IRequest::class);
+		$this->config = $this->createMock(IConfig::class);
 
-        $this->request = $this->createMock(IRequest::class);
-        $this->config  = $this->createMock(IConfig::class);
+		$this->controller = new ApiController(
+			$this->request,
+			$this->createMock(IUserSession::class),
+			$this->config,
+			$this->createMock(ContainerInterface::class),
+			$this->createMock(LoggerInterface::class),
+		);
 
-        $this->controller = new ApiController(
-            $this->request,
-            $this->createMock(IUserSession::class),
-            $this->config,
-            $this->createMock(ContainerInterface::class),
-            $this->createMock(LoggerInterface::class),
-        );
+	}//end setUp()
 
-    }//end setUp()
+	/**
+	 * Read the headers the controller itself set on a response.
+	 *
+	 * `Response::getHeaders()` merges in framework headers by asking
+	 * `\OC::$server` for the request, and `\OC` does not exist in a standalone
+	 * unit run — which is why sibling controller tests settle for asserting the
+	 * status only. For a CORS preflight the status IS NOT the contract, so this
+	 * reads the private `headers` array Response::addHeader() writes into. It
+	 * holds exactly what the controller emitted and nothing the framework adds.
+	 *
+	 * @param \OCP\AppFramework\Http\Response $response The response to inspect.
+	 *
+	 * @return array<string, string> The controller-set headers.
+	 */
+	private function controllerHeaders(\OCP\AppFramework\Http\Response $response): array {
+		$property = new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'headers');
+		$property->setAccessible(true);
 
+		return (array)$property->getValue($response);
+	}//end controllerHeaders()
 
-    /**
-     * Read the headers the controller itself set on a response.
-     *
-     * `Response::getHeaders()` merges in framework headers by asking
-     * `\OC::$server` for the request, and `\OC` does not exist in a standalone
-     * unit run — which is why sibling controller tests settle for asserting the
-     * status only. For a CORS preflight the status IS NOT the contract, so this
-     * reads the private `headers` array Response::addHeader() writes into. It
-     * holds exactly what the controller emitted and nothing the framework adds.
-     *
-     * @param \OCP\AppFramework\Http\Response $response The response to inspect.
-     *
-     * @return array<string, string> The controller-set headers.
-     */
-    private function controllerHeaders(\OCP\AppFramework\Http\Response $response): array
-    {
-        $property = new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'headers');
-        $property->setAccessible(true);
+	/**
+	 * The list preflight answers 200 with an empty body and the full CORS
+	 * header triple, echoing the instance's configured origin.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 */
+	public function testPreflightReturnsCorsHeaders(): void {
+		$this->config->method('getSystemValueString')->willReturn('https://raad.example');
 
-        return (array) $property->getValue($response);
+		$response = $this->controller->preflight(resource: 'meetings');
 
-    }//end controllerHeaders()
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame([], $response->getData());
 
+		$headers = $this->controllerHeaders($response);
+		self::assertSame('https://raad.example', $headers['Access-Control-Allow-Origin']);
+		self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
+		self::assertStringContainsString('Authorization', $headers['Access-Control-Allow-Headers']);
+		self::assertStringContainsString('Content-Type', $headers['Access-Control-Allow-Headers']);
 
-    /**
-     * The list preflight answers 200 with an empty body and the full CORS
-     * header triple, echoing the instance's configured origin.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-     */
-    public function testPreflightReturnsCorsHeaders(): void
-    {
-        $this->config->method('getSystemValueString')->willReturn('https://raad.example');
+	}//end testPreflightReturnsCorsHeaders()
 
-        $response = $this->controller->preflight(resource: 'meetings');
+	/**
+	 * An instance with no configured overwrite URL falls back to the wildcard
+	 * origin rather than emitting an empty `Access-Control-Allow-Origin`, which
+	 * a browser treats as no header at all.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 */
+	public function testPreflightFallsBackToWildcardOrigin(): void {
+		$this->config->method('getSystemValueString')->willReturn('');
 
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-        self::assertSame([], $response->getData());
+		$response = $this->controller->preflight(resource: 'motions');
 
-        $headers = $this->controllerHeaders($response);
-        self::assertSame('https://raad.example', $headers['Access-Control-Allow-Origin']);
-        self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
-        self::assertStringContainsString('Authorization', $headers['Access-Control-Allow-Headers']);
-        self::assertStringContainsString('Content-Type', $headers['Access-Control-Allow-Headers']);
+		self::assertSame('*', $this->controllerHeaders($response)['Access-Control-Allow-Origin']);
 
-    }//end testPreflightReturnsCorsHeaders()
+	}//end testPreflightFallsBackToWildcardOrigin()
 
+	/**
+	 * The item preflight (`/api/v1/{resource}/{id}`) carries the same header
+	 * triple — a preflight that only covered the collection URL would let every
+	 * cross-origin detail read fail in the browser.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 */
+	public function testPreflightItemReturnsCorsHeaders(): void {
+		$this->config->method('getSystemValueString')->willReturn('https://raad.example');
 
-    /**
-     * An instance with no configured overwrite URL falls back to the wildcard
-     * origin rather than emitting an empty `Access-Control-Allow-Origin`, which
-     * a browser treats as no header at all.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-     */
-    public function testPreflightFallsBackToWildcardOrigin(): void
-    {
-        $this->config->method('getSystemValueString')->willReturn('');
+		$response = $this->controller->preflightItem(resource: 'meetings', id: 'meeting-uuid-1');
 
-        $response = $this->controller->preflight(resource: 'motions');
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame([], $response->getData());
 
-        self::assertSame('*', $this->controllerHeaders($response)['Access-Control-Allow-Origin']);
+		$headers = $this->controllerHeaders($response);
+		self::assertSame('https://raad.example', $headers['Access-Control-Allow-Origin']);
+		self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
 
-    }//end testPreflightFallsBackToWildcardOrigin()
-
-
-    /**
-     * The item preflight (`/api/v1/{resource}/{id}`) carries the same header
-     * triple — a preflight that only covered the collection URL would let every
-     * cross-origin detail read fail in the browser.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-     */
-    public function testPreflightItemReturnsCorsHeaders(): void
-    {
-        $this->config->method('getSystemValueString')->willReturn('https://raad.example');
-
-        $response = $this->controller->preflightItem(resource: 'meetings', id: 'meeting-uuid-1');
-
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-        self::assertSame([], $response->getData());
-
-        $headers = $this->controllerHeaders($response);
-        self::assertSame('https://raad.example', $headers['Access-Control-Allow-Origin']);
-        self::assertSame('GET, OPTIONS', $headers['Access-Control-Allow-Methods']);
-
-    }//end testPreflightItemReturnsCorsHeaders()
-
+	}//end testPreflightItemReturnsCorsHeaders()
 
 }//end class

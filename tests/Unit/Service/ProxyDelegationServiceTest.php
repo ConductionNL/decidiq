@@ -34,115 +34,108 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
  */
-class ProxyDelegationServiceTest extends TestCase
-{
+class ProxyDelegationServiceTest extends TestCase {
 
-    /**
-     * Service under test.
-     *
-     * @var ProxyDelegationService
-     */
-    private ProxyDelegationService $service;
+	/**
+	 * Service under test.
+	 *
+	 * @var ProxyDelegationService
+	 */
+	private ProxyDelegationService $service;
 
-    /**
-     * Mock ObjectService.
-     *
-     * @var ObjectService&MockObject
-     */
-    private ObjectService&MockObject $objectService;
+	/**
+	 * Mock ObjectService.
+	 *
+	 * @var ObjectService&MockObject
+	 */
+	private ObjectService&MockObject $objectService;
 
-    /**
-     * Set up fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $container           = $this->createMock(ContainerInterface::class);
-        $this->objectService = $this->createMock(ObjectService::class);
-        $container->method('get')->willReturn($this->objectService);
+	/**
+	 * Set up fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$container = $this->createMock(ContainerInterface::class);
+		$this->objectService = $this->createMock(ObjectService::class);
+		$container->method('get')->willReturn($this->objectService);
 
-        $this->service = new ProxyDelegationService(
-            container: $container,
-            logger: $this->createMock(LoggerInterface::class),
-        );
+		$this->service = new ProxyDelegationService(
+			container: $container,
+			logger: $this->createMock(LoggerInterface::class),
+		);
 
-    }//end setUp()
+	}//end setUp()
 
-    /**
-     * Build an ObjectEntity mock serialising to the given array.
-     *
-     * @param array<string, mixed> $data Payload.
-     *
-     * @return ObjectEntity&MockObject
-     */
-    private function entity(array $data): ObjectEntity&MockObject
-    {
-        $entity = $this->createMock(ObjectEntity::class);
-        $entity->method('jsonSerialize')->willReturn($data);
-        return $entity;
+	/**
+	 * Build an ObjectEntity mock serialising to the given array.
+	 *
+	 * @param array<string, mixed> $data Payload.
+	 *
+	 * @return ObjectEntity&MockObject
+	 */
+	private function entity(array $data): ObjectEntity&MockObject {
+		$entity = $this->createMock(ObjectEntity::class);
+		$entity->method('jsonSerialize')->willReturn($data);
+		return $entity;
+	}//end entity()
 
-    }//end entity()
+	/**
+	 * A participant may not delegate a proxy to themselves.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 */
+	public function testGrantProxyRejectsSelfDelegation(): void {
+		$this->objectService->expects($this->never())->method('saveObject');
 
-    /**
-     * A participant may not delegate a proxy to themselves.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     */
-    public function testGrantProxyRejectsSelfDelegation(): void
-    {
-        $this->objectService->expects($this->never())->method('saveObject');
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('Een deelnemer kan geen volmacht aan zichzelf verlenen');
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Een deelnemer kan geen volmacht aan zichzelf verlenen');
+		$this->service->grantProxy('round-uuid', 'same-uuid', 'same-uuid');
 
-        $this->service->grantProxy('round-uuid', 'same-uuid', 'same-uuid');
+	}//end testGrantProxyRejectsSelfDelegation()
 
-    }//end testGrantProxyRejectsSelfDelegation()
+	/**
+	 * A delegate holding a non-voting role may not receive a proxy.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.5
+	 */
+	public function testGrantProxyRejectsObserverRole(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['displayName' => 'Observer X', 'role' => 'observer'])
+		);
+		$this->objectService->expects($this->never())->method('saveObject');
 
-    /**
-     * A delegate holding a non-voting role may not receive a proxy.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.5
-     */
-    public function testGrantProxyRejectsObserverRole(): void
-    {
-        $this->objectService->method('find')->willReturn(
-            $this->entity(['displayName' => 'Observer X', 'role' => 'observer'])
-        );
-        $this->objectService->expects($this->never())->method('saveObject');
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage("Deelnemer met rol 'observer' kan geen volmacht ontvangen");
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Deelnemer met rol 'observer' kan geen volmacht ontvangen");
+		$this->service->grantProxy('round-uuid', 'granter-uuid', 'delegate-uuid');
 
-        $this->service->grantProxy('round-uuid', 'granter-uuid', 'delegate-uuid');
+	}//end testGrantProxyRejectsObserverRole()
 
-    }//end testGrantProxyRejectsObserverRole()
+	/**
+	 * A proxy may not be revoked once the round has opened.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 */
+	public function testRevokeProxyRefusedOnOpenedRound(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['id' => 'round-uuid', 'openedAt' => '2026-06-15T10:00:00+00:00', 'notes' => []])
+		);
+		$this->objectService->expects($this->never())->method('saveObject');
 
-    /**
-     * A proxy may not be revoked once the round has opened.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
-     */
-    public function testRevokeProxyRefusedOnOpenedRound(): void
-    {
-        $this->objectService->method('find')->willReturn(
-            $this->entity(['id' => 'round-uuid', 'openedAt' => '2026-06-15T10:00:00+00:00', 'notes' => []])
-        );
-        $this->objectService->expects($this->never())->method('saveObject');
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('Stemronde is al geopend');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Stemronde is al geopend');
+		$this->service->revokeProxy('round-uuid', 'granter-uuid');
 
-        $this->service->revokeProxy('round-uuid', 'granter-uuid');
-
-    }//end testRevokeProxyRefusedOnOpenedRound()
+	}//end testRevokeProxyRefusedOnOpenedRound()
 
 }//end class

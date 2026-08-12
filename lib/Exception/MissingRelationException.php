@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk MissingRelationException
  *
@@ -30,6 +31,5 @@ namespace OCA\Decidesk\Exception;
  *
  * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
  */
-class MissingRelationException extends \RuntimeException
-{
+class MissingRelationException extends \RuntimeException {
 }//end class

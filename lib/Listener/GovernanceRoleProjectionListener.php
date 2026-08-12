@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Governance Role Projection Listener
  *
@@ -43,122 +44,118 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
  */
-class GovernanceRoleProjectionListener implements IEventListener
-{
+class GovernanceRoleProjectionListener implements IEventListener {
 
-    /**
-     * Schema slugs whose writes change a body's signatory roster.
-     *
-     * @var string[]
-     */
-    private const ROSTER_SCHEMAS = ['participant', 'membership'];
+	/**
+	 * Schema slugs whose writes change a body's signatory roster.
+	 *
+	 * @var string[]
+	 */
+	private const ROSTER_SCHEMAS = ['participant', 'membership'];
 
-    /**
-     * Constructor.
-     *
-     * @param GovernanceRoleScopeProjector $projector Scope projector
-     * @param LoggerInterface              $logger    Diagnostic logger
-     */
-    public function __construct(
-        private readonly GovernanceRoleScopeProjector $projector,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param GovernanceRoleScopeProjector $projector Scope projector
+	 * @param LoggerInterface $logger Diagnostic logger
+	 */
+	public function __construct(
+		private readonly GovernanceRoleScopeProjector $projector,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle a Participant/Membership OR write event by reconciling scopes.
-     *
-     * @param Event $event The dispatched event
-     *
-     * @return void
-     *
-     * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof ObjectCreatedEvent) === false
-            && ($event instanceof ObjectUpdatedEvent) === false
-            && ($event instanceof ObjectDeletedEvent) === false
-        ) {
-            return;
-        }
+	/**
+	 * Handle a Participant/Membership OR write event by reconciling scopes.
+	 *
+	 * @param Event $event The dispatched event
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof ObjectCreatedEvent) === false
+			&& ($event instanceof ObjectUpdatedEvent) === false
+			&& ($event instanceof ObjectDeletedEvent) === false
+		) {
+			return;
+		}
 
-        try {
-            $entity = $event->getObject();
-            if ($entity === null) {
-                return;
-            }
+		try {
+			$entity = $event->getObject();
+			if ($entity === null) {
+				return;
+			}
 
-            $row  = $this->extractRow(entity: $entity);
-            $slug = $this->resolveSchemaSlug(entity: $entity, row: $row);
-            if (in_array($slug, self::ROSTER_SCHEMAS, true) === false) {
-                return;
-            }
+			$row = $this->extractRow(entity: $entity);
+			$slug = $this->resolveSchemaSlug(entity: $entity, row: $row);
+			if (in_array($slug, self::ROSTER_SCHEMAS, true) === false) {
+				return;
+			}
 
-            $this->projector->reconcileFromMemberRow($row);
-        } catch (\Throwable $e) {
-            // Fail soft: scope projection must never break the object write path.
-            $this->logger->warning(
-                'Decidesk: governance role projection listener failed',
-                ['exception' => $e->getMessage()]
-            );
-        }//end try
-    }//end handle()
+			$this->projector->reconcileFromMemberRow($row);
+		} catch (\Throwable $e) {
+			// Fail soft: scope projection must never break the object write path.
+			$this->logger->warning(
+				'Decidesk: governance role projection listener failed',
+				['exception' => $e->getMessage()]
+			);
+		}//end try
+	}//end handle()
 
-    /**
-     * Extract the serialised payload row from an OR object entity.
-     *
-     * Prefers the entity's own `getObject()` map and falls back to
-     * `jsonSerialize()` when that yields nothing.
-     *
-     * @param object $entity OR object entity
-     *
-     * @return array<string, mixed> Serialised payload, empty when unavailable
-     *
-     * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
-     */
-    private function extractRow(object $entity): array
-    {
-        $row = [];
-        if (method_exists($entity, 'getObject') === true) {
-            $row = (array) $entity->getObject();
-        }
+	/**
+	 * Extract the serialised payload row from an OR object entity.
+	 *
+	 * Prefers the entity's own `getObject()` map and falls back to
+	 * `jsonSerialize()` when that yields nothing.
+	 *
+	 * @param object $entity OR object entity
+	 *
+	 * @return array<string, mixed> Serialised payload, empty when unavailable
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	private function extractRow(object $entity): array {
+		$row = [];
+		if (method_exists($entity, 'getObject') === true) {
+			$row = (array)$entity->getObject();
+		}
 
-        if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-            $row = (array) $entity->jsonSerialize();
-        }
+		if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
+			$row = (array)$entity->jsonSerialize();
+		}
 
-        return $row;
-    }//end extractRow()
+		return $row;
+	}//end extractRow()
 
-    /**
-     * Resolve the schema slug from the OR entity surface.
-     *
-     * @param object               $entity OR object entity
-     * @param array<string, mixed> $row    Serialised payload
-     *
-     * @return string Schema slug (lower-cased), or '' when unresolvable
-     */
-    private function resolveSchemaSlug(object $entity, array $row): string
-    {
-        $candidates = [
-            ($row['_schemaSlug'] ?? null),
-            ($row['_schema'] ?? null),
-            ($row['schema'] ?? null),
-        ];
-        foreach ($candidates as $candidate) {
-            if (is_string($candidate) === true && $candidate !== '') {
-                return strtolower($candidate);
-            }
-        }
+	/**
+	 * Resolve the schema slug from the OR entity surface.
+	 *
+	 * @param object $entity OR object entity
+	 * @param array<string, mixed> $row Serialised payload
+	 *
+	 * @return string Schema slug (lower-cased), or '' when unresolvable
+	 */
+	private function resolveSchemaSlug(object $entity, array $row): string {
+		$candidates = [
+			($row['_schemaSlug'] ?? null),
+			($row['_schema'] ?? null),
+			($row['schema'] ?? null),
+		];
+		foreach ($candidates as $candidate) {
+			if (is_string($candidate) === true && $candidate !== '') {
+				return strtolower($candidate);
+			}
+		}
 
-        if (method_exists($entity, 'getSchemaSlug') === true) {
-            $slug = $entity->getSchemaSlug();
-            if (is_string($slug) === true && $slug !== '') {
-                return strtolower($slug);
-            }
-        }
+		if (method_exists($entity, 'getSchemaSlug') === true) {
+			$slug = $entity->getSchemaSlug();
+			if (is_string($slug) === true && $slug !== '') {
+				return strtolower($slug);
+			}
+		}
 
-        return '';
-    }//end resolveSchemaSlug()
+		return '';
+	}//end resolveSchemaSlug()
 }//end class

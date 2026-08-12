@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Saved Object Normaliser
  *
@@ -31,32 +32,29 @@ namespace OCA\Decidesk\Service;
  *
  * @spec openspec/specs/voting-system/spec.md
  */
-class SavedObjectNormaliser
-{
-    /**
-     * Normalise the result of ObjectService::saveObject() to an array.
-     *
-     * Falls back to the original payload when the saved value is neither an
-     * ObjectEntity nor an array.
-     *
-     * @param mixed                $saved    The value returned by saveObject()
-     * @param array<string, mixed> $fallback The original object payload
-     *
-     * @return array<string, mixed> The persisted object as an array
-     *
-     * @spec openspec/specs/voting-system/spec.md
-     */
-    public function toArray(mixed $saved, array $fallback): array
-    {
-        if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-            return $saved->jsonSerialize();
-        }
+class SavedObjectNormaliser {
+	/**
+	 * Normalise the result of ObjectService::saveObject() to an array.
+	 *
+	 * Falls back to the original payload when the saved value is neither an
+	 * ObjectEntity nor an array.
+	 *
+	 * @param mixed $saved The value returned by saveObject()
+	 * @param array<string, mixed> $fallback The original object payload
+	 *
+	 * @return array<string, mixed> The persisted object as an array
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function toArray(mixed $saved, array $fallback): array {
+		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
+			return $saved->jsonSerialize();
+		}
 
-        if (is_array($saved) === true) {
-            return $saved;
-        }
+		if (is_array($saved) === true) {
+			return $saved;
+		}
 
-        return $fallback;
-
-    }//end toArray()
+		return $fallback;
+	}//end toArray()
 }//end class

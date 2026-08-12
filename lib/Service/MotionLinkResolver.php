@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Motion Link Resolver
  *
@@ -41,206 +42,194 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/specs/motion-amendment/spec.md
  */
-class MotionLinkResolver
-{
-    /**
-     * Construct the MotionLinkResolver.
-     *
-     * @param ContainerInterface $container The DI container for lazy-loading OR services
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-    ) {
+class MotionLinkResolver {
+	/**
+	 * Construct the MotionLinkResolver.
+	 *
+	 * @param ContainerInterface $container The DI container for lazy-loading OR services
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+	) {
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * Resolve the meeting UUID linked to a motion.
-     *
-     * Returns null when the motion, or any meeting link on it, cannot be
-     * resolved — callers treat that as "no meeting context".
-     *
-     * @param string $motionId The motion UUID
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return string|null The meeting UUID or null if not found
-     */
-    public function resolveMeetingId(string $motionId): ?string
-    {
-        try {
-            $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-            $motionEntity  = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
-            if ($motionEntity === null) {
-                return null;
-            }
+	/**
+	 * Resolve the meeting UUID linked to a motion.
+	 *
+	 * Returns null when the motion, or any meeting link on it, cannot be
+	 * resolved — callers treat that as "no meeting context".
+	 *
+	 * @param string $motionId The motion UUID
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return string|null The meeting UUID or null if not found
+	 */
+	public function resolveMeetingId(string $motionId): ?string {
+		try {
+			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+			$motionEntity = $objectService->find(id: $motionId, register: 'decidesk', schema: 'decision');
+			if ($motionEntity === null) {
+				return null;
+			}
 
-            return $this->readMeetingLink(motion: $motionEntity->jsonSerialize());
-        } catch (\Throwable) {
-            // Silently fall through — callers treat null as "no meeting context".
-            return null;
-        }//end try
+			return $this->readMeetingLink(motion: $motionEntity->jsonSerialize());
+		} catch (\Throwable) {
+			// Silently fall through — callers treat null as "no meeting context".
+			return null;
+		}//end try
 
-    }//end resolveMeetingId()
+	}//end resolveMeetingId()
 
-    /**
-     * Read the meeting reference out of a serialised motion, either shape.
-     *
-     * @param array<string, mixed> $motion The serialised motion object
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return string|null The meeting UUID or null if not linked
-     */
-    private function readMeetingLink(array $motion): ?string
-    {
-        // Flat meeting property (canonical UI shape).
-        $meetingRef = ($motion['meeting'] ?? null);
-        if (is_string($meetingRef) === true && $meetingRef !== '') {
-            return $meetingRef;
-        }
+	/**
+	 * Read the meeting reference out of a serialised motion, either shape.
+	 *
+	 * @param array<string, mixed> $motion The serialised motion object
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return string|null The meeting UUID or null if not linked
+	 */
+	private function readMeetingLink(array $motion): ?string {
+		// Flat meeting property (canonical UI shape).
+		$meetingRef = ($motion['meeting'] ?? null);
+		if (is_string($meetingRef) === true && $meetingRef !== '') {
+			return $meetingRef;
+		}
 
-        if (is_array($meetingRef) === true && (($meetingRef['id'] ?? $meetingRef['uuid'] ?? '') !== '')) {
-            return ($meetingRef['id'] ?? $meetingRef['uuid']);
-        }
+		if (is_array($meetingRef) === true && (($meetingRef['id'] ?? $meetingRef['uuid'] ?? '') !== '')) {
+			return ($meetingRef['id'] ?? $meetingRef['uuid']);
+		}
 
-        foreach (($motion['relations'] ?? []) as $relation) {
-            if (($relation['schema'] ?? '') === 'meeting') {
-                return ($relation['id'] ?? null);
-            }
-        }
+		foreach (($motion['relations'] ?? []) as $relation) {
+			if (($relation['schema'] ?? '') === 'meeting') {
+				return ($relation['id'] ?? null);
+			}
+		}
 
-        return null;
+		return null;
+	}//end readMeetingLink()
 
-    }//end readMeetingLink()
+	/**
+	 * Serialize an ObjectService result item (entity or array) to an array.
+	 *
+	 * @param mixed $entity ObjectEntity or already-serialized array
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return array<string, mixed>|null Serialized object, or null when unusable
+	 */
+	public function serializeAmendment(mixed $entity): ?array {
+		if (is_array($entity) === true) {
+			return $entity;
+		}
 
-    /**
-     * Serialize an ObjectService result item (entity or array) to an array.
-     *
-     * @param mixed $entity ObjectEntity or already-serialized array
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return array<string, mixed>|null Serialized object, or null when unusable
-     */
-    public function serializeAmendment(mixed $entity): ?array
-    {
-        if (is_array($entity) === true) {
-            return $entity;
-        }
+		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
+			$serialized = $entity->jsonSerialize();
+			if (is_array($serialized) === true) {
+				return $serialized;
+			}
+		}
 
-        if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-            $serialized = $entity->jsonSerialize();
-            if (is_array($serialized) === true) {
-                return $serialized;
-            }
-        }
+		return null;
+	}//end serializeAmendment()
 
-        return null;
+	/**
+	 * Determine whether a serialized amendment references the given motion.
+	 *
+	 * Checks the flat `amends` property (string or {id} object) — the ADR-005
+	 * replacement for the retired Amendment schema's `parentMotion` — and the
+	 * structured `relations` list.
+	 *
+	 * @param array<string, mixed> $amendment Serialized amendment object
+	 * @param string $motionId UUID of the motion
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return bool True when the amendment belongs to the motion
+	 */
+	public function amendmentReferencesMotion(array $amendment, string $motionId): bool {
+		if ($this->parentMotionMatches(amendment: $amendment, motionId: $motionId) === true) {
+			return true;
+		}
 
-    }//end serializeAmendment()
+		foreach (($amendment['relations'] ?? []) as $relation) {
+			if (is_array($relation) === true) {
+				if ($this->relationEntryMatches(relation: $relation, motionId: $motionId) === true) {
+					return true;
+				}
 
-    /**
-     * Determine whether a serialized amendment references the given motion.
-     *
-     * Checks the flat `amends` property (string or {id} object) — the ADR-005
-     * replacement for the retired Amendment schema's `parentMotion` — and the
-     * structured `relations` list.
-     *
-     * @param array<string, mixed> $amendment Serialized amendment object
-     * @param string               $motionId  UUID of the motion
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return bool True when the amendment belongs to the motion
-     */
-    public function amendmentReferencesMotion(array $amendment, string $motionId): bool
-    {
-        if ($this->parentMotionMatches(amendment: $amendment, motionId: $motionId) === true) {
-            return true;
-        }
+				continue;
+			}
 
-        foreach (($amendment['relations'] ?? []) as $relation) {
-            if (is_array($relation) === true) {
-                if ($this->relationEntryMatches(relation: $relation, motionId: $motionId) === true) {
-                    return true;
-                }
+			if (is_string($relation) === true && $relation === $motionId) {
+				return true;
+			}
+		}
 
-                continue;
-            }
+		return false;
+	}//end amendmentReferencesMotion()
 
-            if (is_string($relation) === true && $relation === $motionId) {
-                return true;
-            }
-        }
+	/**
+	 * Determine whether the flat parent-decision property points at the motion.
+	 *
+	 * Honours both the string form and the {id}/{uuid} object form.
+	 *
+	 * ADR-005 retired the Amendment schema together with its flat `parentMotion`
+	 * property; the parent link is now the `amends` relation declared on
+	 * `Decision` ("replaces the retired Amendment → Motion relation"). Reading
+	 * `parentMotion` here would read a property the register no longer declares.
+	 *
+	 * @param array<string, mixed> $amendment Serialized amendment object
+	 * @param string $motionId UUID of the motion
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return bool True when the amends property matches
+	 */
+	private function parentMotionMatches(array $amendment, string $motionId): bool {
+		$parentRef = ($amendment['amends'] ?? null);
 
-        return false;
+		if (is_string($parentRef) === true) {
+			return ($parentRef === $motionId);
+		}
 
-    }//end amendmentReferencesMotion()
+		if (is_array($parentRef) === true) {
+			return ((($parentRef['id'] ?? $parentRef['uuid'] ?? '')) === $motionId);
+		}
 
-    /**
-     * Determine whether the flat parent-decision property points at the motion.
-     *
-     * Honours both the string form and the {id}/{uuid} object form.
-     *
-     * ADR-005 retired the Amendment schema together with its flat `parentMotion`
-     * property; the parent link is now the `amends` relation declared on
-     * `Decision` ("replaces the retired Amendment → Motion relation"). Reading
-     * `parentMotion` here would read a property the register no longer declares.
-     *
-     * @param array<string, mixed> $amendment Serialized amendment object
-     * @param string               $motionId  UUID of the motion
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return bool True when the amends property matches
-     */
-    private function parentMotionMatches(array $amendment, string $motionId): bool
-    {
-        $parentRef = ($amendment['amends'] ?? null);
+		return false;
+	}//end parentMotionMatches()
 
-        if (is_string($parentRef) === true) {
-            return ($parentRef === $motionId);
-        }
+	/**
+	 * Determine whether one structured relation entry points at the motion.
+	 *
+	 * A relation with no `schema` key is accepted (legacy shape); a relation
+	 * carrying a different schema is not.
+	 *
+	 * ADR-005 folded the `motion` schema into `decision`, so a relation written
+	 * against the unified schema records `decision`. The `motion` token is still
+	 * accepted: VotingRoundPreflight::buildRoundPayload() writes the subject
+	 * relation under the decisionType token, and pre-migration rows carry it too.
+	 *
+	 * @param array<string, mixed> $relation One entry from the amendment's relations list
+	 * @param string $motionId UUID of the motion
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return bool True when the relation references the motion
+	 */
+	private function relationEntryMatches(array $relation, string $motionId): bool {
+		$relId = ($relation['id'] ?? $relation['uuid'] ?? '');
+		$relSchema = ($relation['schema'] ?? null);
 
-        if (is_array($parentRef) === true) {
-            return ((($parentRef['id'] ?? $parentRef['uuid'] ?? '')) === $motionId);
-        }
+		$schemaAccepted = ($relSchema === null
+			|| $relSchema === 'decision'
+			|| $relSchema === 'motion');
 
-        return false;
-
-    }//end parentMotionMatches()
-
-    /**
-     * Determine whether one structured relation entry points at the motion.
-     *
-     * A relation with no `schema` key is accepted (legacy shape); a relation
-     * carrying a different schema is not.
-     *
-     * ADR-005 folded the `motion` schema into `decision`, so a relation written
-     * against the unified schema records `decision`. The `motion` token is still
-     * accepted: VotingRoundPreflight::buildRoundPayload() writes the subject
-     * relation under the decisionType token, and pre-migration rows carry it too.
-     *
-     * @param array<string, mixed> $relation One entry from the amendment's relations list
-     * @param string               $motionId UUID of the motion
-     *
-     * @spec openspec/specs/motion-amendment/spec.md
-     *
-     * @return bool True when the relation references the motion
-     */
-    private function relationEntryMatches(array $relation, string $motionId): bool
-    {
-        $relId     = ($relation['id'] ?? $relation['uuid'] ?? '');
-        $relSchema = ($relation['schema'] ?? null);
-
-        $schemaAccepted = ($relSchema === null
-            || $relSchema === 'decision'
-            || $relSchema === 'motion');
-
-        return ($relId === $motionId && $schemaAccepted);
-
-    }//end relationEntryMatches()
+		return ($relId === $motionId && $schemaAccepted);
+	}//end relationEntryMatches()
 }//end class

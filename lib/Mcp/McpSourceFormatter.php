@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk MCP Source Formatter
  *
@@ -38,176 +39,163 @@ use DateTimeInterface;
  *
  * @spec openspec/specs/mcp-tools/spec.md
  */
-class McpSourceFormatter
-{
+class McpSourceFormatter {
 
-    /**
-     * Maximum number of source descriptors per tool result (REQ-DMCP-006).
-     *
-     * @var int
-     */
-    private const SOURCES_CAP = 20;
+	/**
+	 * Maximum number of source descriptors per tool result (REQ-DMCP-006).
+	 *
+	 * @var int
+	 */
+	private const SOURCES_CAP = 20;
 
-    /**
-     * Normalise an OpenRegister object to a plain PHP array.
-     *
-     * @param mixed $item Raw item from ObjectService
-     *
-     * @return array<string, mixed> The normalised array.
-     *
-     * @spec openspec/specs/mcp-tools/spec.md
-     */
-    public function toArray(mixed $item): array
-    {
-        if (is_array(value: $item) === true) {
-            return $item;
-        }
+	/**
+	 * Normalise an OpenRegister object to a plain PHP array.
+	 *
+	 * @param mixed $item Raw item from ObjectService
+	 *
+	 * @return array<string, mixed> The normalised array.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function toArray(mixed $item): array {
+		if (is_array(value: $item) === true) {
+			return $item;
+		}
 
-        if (is_object(value: $item) === true && method_exists($item, 'getObject') === true) {
-            return $item->getObject();
-        }
+		if (is_object(value: $item) === true && method_exists($item, 'getObject') === true) {
+			return $item->getObject();
+		}
 
-        if (is_object(value: $item) === true && method_exists($item, 'jsonSerialize') === true) {
-            return $item->jsonSerialize();
-        }
+		if (is_object(value: $item) === true && method_exists($item, 'jsonSerialize') === true) {
+			return $item->jsonSerialize();
+		}
 
-        return (array) $item;
+		return (array)$item;
+	}//end toArray()
 
-    }//end toArray()
+	/**
+	 * Extract the UUID from a normalised object array.
+	 *
+	 * Checks multiple common field names to handle different OR object shapes.
+	 *
+	 * @param array<string, mixed> $item The normalised object array
+	 *
+	 * @return string The UUID, or empty string when not found.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function extractUuid(array $item): string {
+		$uuid = $item['uuid'] ?? $item['id'] ?? ($item['@self']['uuid'] ?? ($item['@self']['id'] ?? ''));
+		return (string)$uuid;
+	}//end extractUuid()
 
-    /**
-     * Extract the UUID from a normalised object array.
-     *
-     * Checks multiple common field names to handle different OR object shapes.
-     *
-     * @param array<string, mixed> $item The normalised object array
-     *
-     * @return string The UUID, or empty string when not found.
-     *
-     * @spec openspec/specs/mcp-tools/spec.md
-     */
-    public function extractUuid(array $item): string
-    {
-        $uuid = $item['uuid'] ?? $item['id'] ?? ($item['@self']['uuid'] ?? ($item['@self']['id'] ?? ''));
-        return (string) $uuid;
+	/**
+	 * Build a deep link URL for a decidesk resource.
+	 *
+	 * @param string $type One of: meeting, agendaItem, decision, actionItem
+	 * @param string $uuid The object UUID
+	 *
+	 * @return string The deep link path, e.g. /apps/decidesk/meetings/<uuid>.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function deepLink(string $type, string $uuid): string {
+		$paths = [
+			'meeting' => '/apps/decidesk/meetings',
+			'agendaItem' => '/apps/decidesk/agenda-items',
+			'decision' => '/apps/decidesk/decisions',
+			'actionItem' => '/apps/decidesk/action-items',
+		];
 
-    }//end extractUuid()
+		$base = $paths[$type] ?? "/apps/decidesk/{$type}s";
+		return "{$base}/{$uuid}";
+	}//end deepLink()
 
-    /**
-     * Build a deep link URL for a decidesk resource.
-     *
-     * @param string $type One of: meeting, agendaItem, decision, actionItem
-     * @param string $uuid The object UUID
-     *
-     * @return string The deep link path, e.g. /apps/decidesk/meetings/<uuid>.
-     *
-     * @spec openspec/specs/mcp-tools/spec.md
-     */
-    public function deepLink(string $type, string $uuid): string
-    {
-        $paths = [
-            'meeting'    => '/apps/decidesk/meetings',
-            'agendaItem' => '/apps/decidesk/agenda-items',
-            'decision'   => '/apps/decidesk/decisions',
-            'actionItem' => '/apps/decidesk/action-items',
-        ];
+	/**
+	 * Build one source descriptor.
+	 *
+	 * @param string $type The source type, e.g. "decidesk.meeting"
+	 * @param string $uuid The object UUID
+	 * @param string $label The human-readable label
+	 *
+	 * @return array<string, mixed> The source descriptor.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function source(string $type, string $uuid, string $label): array {
+		$linkType = $type;
+		$dotPos = strrpos($type, '.');
+		if ($dotPos !== false) {
+			$linkType = substr($type, ($dotPos + 1));
+		}
 
-        $base = $paths[$type] ?? "/apps/decidesk/{$type}s";
-        return "{$base}/{$uuid}";
+		return [
+			'type' => $type,
+			'uuid' => $uuid,
+			'url' => $this->deepLink(type: $linkType, uuid: $uuid),
+			'label' => $label,
+		];
 
-    }//end deepLink()
+	}//end source()
 
-    /**
-     * Build one source descriptor.
-     *
-     * @param string $type  The source type, e.g. "decidesk.meeting"
-     * @param string $uuid  The object UUID
-     * @param string $label The human-readable label
-     *
-     * @return array<string, mixed> The source descriptor.
-     *
-     * @spec openspec/specs/mcp-tools/spec.md
-     */
-    public function source(string $type, string $uuid, string $label): array
-    {
-        $linkType = $type;
-        $dotPos   = strrpos($type, '.');
-        if ($dotPos !== false) {
-            $linkType = substr($type, ($dotPos + 1));
-        }
+	/**
+	 * Attach a (possibly capped) sources array to a successful tool payload.
+	 *
+	 * When the source list exceeds SOURCES_CAP the payload additionally carries
+	 * `sourcesTruncated` and `sourcesTotalCount` (REQ-DMCP-006).
+	 *
+	 * @param array<string, mixed> $payload The success payload
+	 * @param array<int, array<string, mixed>> $sources The full sources array
+	 *
+	 * @return array<string, mixed> The payload with sources attached.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function withSources(array $payload, array $sources): array {
+		$totalCount = count($sources);
+		$capped = $sources;
 
-        return [
-            'type'  => $type,
-            'uuid'  => $uuid,
-            'url'   => $this->deepLink(type: $linkType, uuid: $uuid),
-            'label' => $label,
-        ];
+		if ($totalCount > self::SOURCES_CAP) {
+			$capped = array_slice(array: $sources, offset: 0, length: self::SOURCES_CAP);
+			$payload['sources'] = $capped;
+			$payload['sourcesTruncated'] = true;
+			$payload['sourcesTotalCount'] = $totalCount;
 
-    }//end source()
+			return $payload;
+		}
 
-    /**
-     * Attach a (possibly capped) sources array to a successful tool payload.
-     *
-     * When the source list exceeds SOURCES_CAP the payload additionally carries
-     * `sourcesTruncated` and `sourcesTotalCount` (REQ-DMCP-006).
-     *
-     * @param array<string, mixed>             $payload The success payload
-     * @param array<int, array<string, mixed>> $sources The full sources array
-     *
-     * @return array<string, mixed> The payload with sources attached.
-     *
-     * @spec openspec/specs/mcp-tools/spec.md
-     */
-    public function withSources(array $payload, array $sources): array
-    {
-        $totalCount = count($sources);
-        $capped     = $sources;
+		$payload['sources'] = $capped;
 
-        if ($totalCount > self::SOURCES_CAP) {
-            $capped = array_slice(array: $sources, offset: 0, length: self::SOURCES_CAP);
-            $payload['sources']           = $capped;
-            $payload['sourcesTruncated']  = true;
-            $payload['sourcesTotalCount'] = $totalCount;
+		return $payload;
+	}//end withSources()
 
-            return $payload;
-        }
+	/**
+	 * Build a structured MCP error envelope.
+	 *
+	 * @param string $code The machine-readable error code
+	 * @param string $message The human-readable message
+	 *
+	 * @return array<string, mixed> The error envelope.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function error(string $code, string $message): array {
+		return [
+			'isError' => true,
+			'error' => $code,
+			'message' => $message,
+		];
 
-        $payload['sources'] = $capped;
+	}//end error()
 
-        return $payload;
-
-    }//end withSources()
-
-    /**
-     * Build a structured MCP error envelope.
-     *
-     * @param string $code    The machine-readable error code
-     * @param string $message The human-readable message
-     *
-     * @return array<string, mixed> The error envelope.
-     *
-     * @spec openspec/specs/mcp-tools/spec.md
-     */
-    public function error(string $code, string $message): array
-    {
-        return [
-            'isError' => true,
-            'error'   => $code,
-            'message' => $message,
-        ];
-
-    }//end error()
-
-    /**
-     * Current timestamp in ISO 8601 (ATOM) form.
-     *
-     * @return string The formatted timestamp.
-     *
-     * @spec openspec/specs/mcp-tools/spec.md
-     */
-    public function nowIso(): string
-    {
-        return (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-
-    }//end nowIso()
+	/**
+	 * Current timestamp in ISO 8601 (ATOM) form.
+	 *
+	 * @return string The formatted timestamp.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function nowIso(): string {
+		return (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
+	}//end nowIso()
 }//end class

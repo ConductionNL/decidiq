@@ -43,177 +43,166 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/process-configuration/spec.md
  */
-class ProcessTemplateController extends Controller
-{
-    /**
-     * Constructor for ProcessTemplateController.
-     *
-     * @param IRequest               $request         The request object
-     * @param ProcessTemplateService $templateService The process-template service
-     * @param LoggerInterface        $logger          The logger
-     *
-     * @spec openspec/specs/process-configuration/spec.md
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly ProcessTemplateService $templateService,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
+class ProcessTemplateController extends Controller {
+	/**
+	 * Constructor for ProcessTemplateController.
+	 *
+	 * @param IRequest $request The request object
+	 * @param ProcessTemplateService $templateService The process-template service
+	 * @param LoggerInterface $logger The logger
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly ProcessTemplateService $templateService,
+		private readonly LoggerInterface $logger,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
 
-    }//end __construct()
+	}//end __construct()
 
-    /**
-     * List all process templates.
-     *
-     * @spec openspec/specs/process-configuration/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function index(): JSONResponse
-    {
-        return new JSONResponse(['results' => $this->templateService->list()]);
+	/**
+	 * List all process templates.
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function index(): JSONResponse {
+		return new JSONResponse(['results' => $this->templateService->list()]);
+	}//end index()
 
-    }//end index()
+	/**
+	 * Show a single process template.
+	 *
+	 * @param string $id The template UUID
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function show(string $id): JSONResponse {
+		$template = $this->templateService->get(templateId: $id);
+		if ($template === null) {
+			return new JSONResponse(['message' => 'Process template not found.'], Http::STATUS_NOT_FOUND);
+		}
 
-    /**
-     * Show a single process template.
-     *
-     * @param string $id The template UUID
-     *
-     * @spec openspec/specs/process-configuration/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function show(string $id): JSONResponse
-    {
-        $template = $this->templateService->get(templateId: $id);
-        if ($template === null) {
-            return new JSONResponse(['message' => 'Process template not found.'], Http::STATUS_NOT_FOUND);
-        }
+		return new JSONResponse($template);
+	}//end show()
 
-        return new JSONResponse($template);
+	/**
+	 * Create a process template (validates the state machine, fail closed).
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function create(): JSONResponse {
+		$params = $this->request->getParams();
+		try {
+			$created = $this->templateService->create(template: $params);
+			return new JSONResponse($created, Http::STATUS_CREATED);
+		} catch (\InvalidArgumentException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		} catch (\Throwable $e) {
+			$this->logger->error('Decidesk: process template create failed', ['error' => $e->getMessage()]);
+			return new JSONResponse(['message' => 'Failed to create process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
 
-    }//end show()
+	}//end create()
 
-    /**
-     * Create a process template (validates the state machine, fail closed).
-     *
-     * @spec openspec/specs/process-configuration/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function create(): JSONResponse
-    {
-        $params = $this->request->getParams();
-        try {
-            $created = $this->templateService->create(template: $params);
-            return new JSONResponse($created, Http::STATUS_CREATED);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        } catch (\Throwable $e) {
-            $this->logger->error('Decidesk: process template create failed', ['error' => $e->getMessage()]);
-            return new JSONResponse(['message' => 'Failed to create process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+	/**
+	 * Validate a state-machine graph without persisting (editor pre-flight).
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function validate(): JSONResponse {
+		$params = $this->request->getParams();
+		return new JSONResponse($this->templateService->validateStateMachine(template: $params));
+	}//end validate()
 
-    }//end create()
+	/**
+	 * Update a process template (refused for built-in templates).
+	 *
+	 * @param string $id The template UUID
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function update(string $id): JSONResponse {
+		$params = $this->request->getParams();
+		try {
+			$updated = $this->templateService->update(templateId: $id, template: $params);
+			return new JSONResponse($updated);
+		} catch (\InvalidArgumentException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		} catch (\RuntimeException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_CONFLICT);
+		} catch (\Throwable $e) {
+			$this->logger->error('Decidesk: process template update failed', ['error' => $e->getMessage()]);
+			return new JSONResponse(['message' => 'Failed to update process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
 
-    /**
-     * Validate a state-machine graph without persisting (editor pre-flight).
-     *
-     * @spec openspec/specs/process-configuration/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function validate(): JSONResponse
-    {
-        $params = $this->request->getParams();
-        return new JSONResponse($this->templateService->validateStateMachine(template: $params));
+	}//end update()
 
-    }//end validate()
+	/**
+	 * Duplicate a process template into an editable copy.
+	 *
+	 * @param string $id The template UUID to duplicate
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function duplicate(string $id): JSONResponse {
+		$params = $this->request->getParams();
+		$newName = null;
+		if (isset($params['name']) === true && is_string($params['name']) === true && $params['name'] !== '') {
+			$newName = $params['name'];
+		}
 
-    /**
-     * Update a process template (refused for built-in templates).
-     *
-     * @param string $id The template UUID
-     *
-     * @spec openspec/specs/process-configuration/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function update(string $id): JSONResponse
-    {
-        $params = $this->request->getParams();
-        try {
-            $updated = $this->templateService->update(templateId: $id, template: $params);
-            return new JSONResponse($updated);
-        } catch (\InvalidArgumentException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_CONFLICT);
-        } catch (\Throwable $e) {
-            $this->logger->error('Decidesk: process template update failed', ['error' => $e->getMessage()]);
-            return new JSONResponse(['message' => 'Failed to update process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
+		try {
+			$copy = $this->templateService->duplicate(templateId: $id, newName: $newName);
+			return new JSONResponse($copy, Http::STATUS_CREATED);
+		} catch (\RuntimeException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+		} catch (\Throwable $e) {
+			$this->logger->error('Decidesk: process template duplicate failed', ['error' => $e->getMessage()]);
+			return new JSONResponse(['message' => 'Failed to duplicate process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
 
-    }//end update()
+	}//end duplicate()
 
-    /**
-     * Duplicate a process template into an editable copy.
-     *
-     * @param string $id The template UUID to duplicate
-     *
-     * @spec openspec/specs/process-configuration/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function duplicate(string $id): JSONResponse
-    {
-        $params  = $this->request->getParams();
-        $newName = null;
-        if (isset($params['name']) === true && is_string($params['name']) === true && $params['name'] !== '') {
-            $newName = $params['name'];
-        }
+	/**
+	 * Delete a process template (refused for built-in templates).
+	 *
+	 * @param string $id The template UUID
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function destroy(string $id): JSONResponse {
+		try {
+			$this->templateService->delete(templateId: $id);
+			return new JSONResponse(['success' => true]);
+		} catch (\RuntimeException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_CONFLICT);
+		} catch (\Throwable $e) {
+			$this->logger->error('Decidesk: process template delete failed', ['error' => $e->getMessage()]);
+			return new JSONResponse(['message' => 'Failed to delete process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
 
-        try {
-            $copy = $this->templateService->duplicate(templateId: $id, newName: $newName);
-            return new JSONResponse($copy, Http::STATUS_CREATED);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-        } catch (\Throwable $e) {
-            $this->logger->error('Decidesk: process template duplicate failed', ['error' => $e->getMessage()]);
-            return new JSONResponse(['message' => 'Failed to duplicate process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
-
-    }//end duplicate()
-
-    /**
-     * Delete a process template (refused for built-in templates).
-     *
-     * @param string $id The template UUID
-     *
-     * @spec openspec/specs/process-configuration/spec.md
-     *
-     * @return JSONResponse
-     */
-    #[AuthorizedAdminSetting(AdminSettings::class)]
-    public function destroy(string $id): JSONResponse
-    {
-        try {
-            $this->templateService->delete(templateId: $id);
-            return new JSONResponse(['success' => true]);
-        } catch (\RuntimeException $e) {
-            return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_CONFLICT);
-        } catch (\Throwable $e) {
-            $this->logger->error('Decidesk: process template delete failed', ['error' => $e->getMessage()]);
-            return new JSONResponse(['message' => 'Failed to delete process template.'], Http::STATUS_INTERNAL_SERVER_ERROR);
-        }
-
-    }//end destroy()
+	}//end destroy()
 }//end class

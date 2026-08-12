@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Decidesk Activity Setting
  *
@@ -34,101 +35,88 @@ use OCP\IL10N;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class GovernanceSetting extends ActivitySettings
-{
+class GovernanceSetting extends ActivitySettings {
 
-    /**
-     * Activity type identifier shared by all Decidesk governance events.
-     *
-     * @var string
-     */
-    public const TYPE_GOVERNANCE = 'decidesk_governance';
+	/**
+	 * Activity type identifier shared by all Decidesk governance events.
+	 *
+	 * @var string
+	 */
+	public const TYPE_GOVERNANCE = 'decidesk_governance';
 
-    /**
-     * Constructor.
-     *
-     * @param IL10N $l10n Translation service for the decidesk app
-     */
-    public function __construct(
-        private readonly IL10N $l10n,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param IL10N $l10n Translation service for the decidesk app
+	 */
+	public function __construct(
+		private readonly IL10N $l10n,
+	) {
+	}//end __construct()
 
-    /**
-     * Get the activity type identifier.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function getIdentifier()
-    {
-        return self::TYPE_GOVERNANCE;
+	/**
+	 * Get the activity type identifier.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function getIdentifier() {
+		return self::TYPE_GOVERNANCE;
+	}//end getIdentifier()
 
-    }//end getIdentifier()
+	/**
+	 * Get the translated setting name.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function getName() {
+		return $this->l10n->t('A governance event (decision, meeting, vote or resolution) happened in Decidesk');
+	}//end getName()
 
-    /**
-     * Get the translated setting name.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function getName()
-    {
-        return $this->l10n->t('A governance event (decision, meeting, vote or resolution) happened in Decidesk');
+	/**
+	 * Get the settings group identifier.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function getGroupIdentifier() {
+		return 'other';
+	}//end getGroupIdentifier()
 
-    }//end getName()
+	/**
+	 * Get the translated settings group name.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function getGroupName() {
+		return $this->l10n->t('Other activities');
+	}//end getGroupName()
 
-    /**
-     * Get the settings group identifier.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function getGroupIdentifier()
-    {
-        return 'other';
+	/**
+	 * Get the setting priority (0-100, ascending order).
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function getPriority() {
+		return 60;
+	}//end getPriority()
 
-    }//end getGroupIdentifier()
-
-    /**
-     * Get the translated settings group name.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function getGroupName()
-    {
-        return $this->l10n->t('Other activities');
-
-    }//end getGroupName()
-
-    /**
-     * Get the setting priority (0-100, ascending order).
-     *
-     * @return int
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function getPriority()
-    {
-        return 60;
-
-    }//end getPriority()
-
-    /**
-     * Whether notifications for this type are enabled by default.
-     *
-     * @return bool
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     */
-    public function isDefaultEnabledNotification()
-    {
-        return true;
-
-    }//end isDefaultEnabledNotification()
+	/**
+	 * Whether notifications for this type are enabled by default.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function isDefaultEnabledNotification() {
+		return true;
+	}//end isDefaultEnabledNotification()
 }//end class

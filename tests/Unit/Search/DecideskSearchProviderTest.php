@@ -37,168 +37,159 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class DecideskSearchProviderTest extends TestCase
-{
+class DecideskSearchProviderTest extends TestCase {
 
-    /**
-     * Build the provider over a schema-routed fake ObjectService.
-     *
-     * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
-     * @param bool                                            $broken       True = ObjectService unavailable
-     *
-     * @return DecideskSearchProvider
-     */
-    private function makeProvider(array $rowsBySchema=[], bool $broken=false): DecideskSearchProvider
-    {
-        $objectService = new class ($rowsBySchema) {
+	/**
+	 * Build the provider over a schema-routed fake ObjectService.
+	 *
+	 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
+	 * @param bool $broken True = ObjectService unavailable
+	 *
+	 * @return DecideskSearchProvider
+	 */
+	private function makeProvider(array $rowsBySchema = [], bool $broken = false): DecideskSearchProvider {
+		$objectService = new class($rowsBySchema) {
 
-            /**
-             * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
-             */
-            public function __construct(private array $rowsBySchema)
-            {
-            }
+			/**
+			 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
+			 */
+			public function __construct(
+				private array $rowsBySchema,
+			) {
+			}
 
-            /**
-             * Schema-routed findAll fixture.
-             *
-             * @param array<string, mixed> $config Query config
-             *
-             * @return array<int, array<string, mixed>>
-             */
-            public function findAll(array $config=[]): array
-            {
-                return ($this->rowsBySchema[$config['schema'] ?? ''] ?? []);
+			/**
+			 * Schema-routed findAll fixture.
+			 *
+			 * @param array<string, mixed> $config Query config
+			 *
+			 * @return array<int, array<string, mixed>>
+			 */
+			public function findAll(array $config = []): array {
+				return ($this->rowsBySchema[$config['schema'] ?? ''] ?? []);
+			}//end findAll()
+		};
 
-            }//end findAll()
-        };
+		$container = $this->createMock(ContainerInterface::class);
+		if ($broken === true) {
+			$container->method('get')->willThrowException(new \RuntimeException('OR missing'));
+		} else {
+			$container->method('get')->willReturn($objectService);
+		}
 
-        $container = $this->createMock(ContainerInterface::class);
-        if ($broken === true) {
-            $container->method('get')->willThrowException(new \RuntimeException('OR missing'));
-        } else {
-            $container->method('get')->willReturn($objectService);
-        }
+		$urlGenerator = $this->createMock(IURLGenerator::class);
+		$urlGenerator->method('imagePath')->willReturn('/img/decidesk/app-dark.svg');
+		$urlGenerator->method('linkToRoute')->willReturn('/apps/decidesk/');
 
-        $urlGenerator = $this->createMock(IURLGenerator::class);
-        $urlGenerator->method('imagePath')->willReturn('/img/decidesk/app-dark.svg');
-        $urlGenerator->method('linkToRoute')->willReturn('/apps/decidesk/');
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnArgument(0);
 
-        $l10n = $this->createMock(IL10N::class);
-        $l10n->method('t')->willReturnArgument(0);
+		return new DecideskSearchProvider(
+			container: $container,
+			urlGenerator: $urlGenerator,
+			l10n: $l10n,
+			logger: $this->createMock(LoggerInterface::class),
+		);
 
-        return new DecideskSearchProvider(
-            container: $container,
-            urlGenerator: $urlGenerator,
-            l10n: $l10n,
-            logger: $this->createMock(LoggerInterface::class),
-        );
+	}//end makeProvider()
 
-    }//end makeProvider()
+	/**
+	 * Build a search query mock for a term.
+	 *
+	 * @param string $term Search term
+	 *
+	 * @return ISearchQuery
+	 */
+	private function query(string $term): ISearchQuery {
+		$query = $this->createMock(ISearchQuery::class);
+		$query->method('getTerm')->willReturn($term);
+		return $query;
+	}//end query()
 
-    /**
-     * Build a search query mock for a term.
-     *
-     * @param string $term Search term
-     *
-     * @return ISearchQuery
-     */
-    private function query(string $term): ISearchQuery
-    {
-        $query = $this->createMock(ISearchQuery::class);
-        $query->method('getTerm')->willReturn($term);
-        return $query;
+	/**
+	 * Identity + ordering contract.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return void
+	 */
+	public function testIdentityAndOrder(): void {
+		$provider = $this->makeProvider();
 
-    }//end query()
+		self::assertSame(expected: 'decidesk', actual: $provider->getId());
+		self::assertSame(expected: -1, actual: $provider->getOrder('decidesk.dashboard.page', []));
+		self::assertSame(expected: 25, actual: $provider->getOrder('files.view.index', []));
 
-    /**
-     * Identity + ordering contract.
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return void
-     */
-    public function testIdentityAndOrder(): void
-    {
-        $provider = $this->makeProvider();
+	}//end testIdentityAndOrder()
 
-        self::assertSame(expected: 'decidesk', actual: $provider->getId());
-        self::assertSame(expected: -1, actual: $provider->getOrder('decidesk.dashboard.page', []));
-        self::assertSame(expected: 25, actual: $provider->getOrder('files.view.index', []));
+	/**
+	 * Empty terms short-circuit with no OR access.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return void
+	 */
+	public function testEmptyTermShortCircuits(): void {
+		$provider = $this->makeProvider(broken: true);
 
-    }//end testIdentityAndOrder()
+		$result = $provider->search($this->createMock(IUser::class), $this->query('   '));
 
-    /**
-     * Empty terms short-circuit with no OR access.
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return void
-     */
-    public function testEmptyTermShortCircuits(): void
-    {
-        $provider = $this->makeProvider(broken: true);
+		self::assertSame(expected: [], actual: $result->jsonSerialize()['entries']);
 
-        $result = $provider->search($this->createMock(IUser::class), $this->query('   '));
+	}//end testEmptyTermShortCircuits()
 
-        self::assertSame(expected: [], actual: $result->jsonSerialize()['entries']);
+	/**
+	 * Result rows from every searched schema map into entries; rows without
+	 * id/title are dropped.
+	 *
+	 * The supertype refactor (ADR-005) folded the former `resolution` schema
+	 * into `decision` (resolutions are now Decision rows carrying a
+	 * decisionType), so the provider searches the two live schemas
+	 * (`decision`, `meeting`). A row supplied under the retired `resolution`
+	 * schema is never queried and must not surface.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return void
+	 */
+	public function testMapsRowsAcrossSchemas(): void {
+		$provider = $this->makeProvider(
+			rowsBySchema: [
+				'decision' => [
+					['id' => 'd-1', 'title' => 'Budget 2026', 'lifecycle' => 'enacted'],
+					['id' => 'd-broken'],
+				],
+				'meeting' => [
+					['id' => 'm-1', 'title' => 'Q2 Board Meeting', 'lifecycle' => 'scheduled'],
+				],
+				// Retired schema — supplied to prove it is not searched.
+				'resolution' => [
+					['id' => 'r-1', 'title' => 'Merger resolution', 'status' => 'adopted'],
+				],
+			]
+		);
 
-    }//end testEmptyTermShortCircuits()
+		$result = $provider->search($this->createMock(IUser::class), $this->query('budget'));
+		$entries = $result->jsonSerialize()['entries'];
 
-    /**
-     * Result rows from every searched schema map into entries; rows without
-     * id/title are dropped.
-     *
-     * The supertype refactor (ADR-005) folded the former `resolution` schema
-     * into `decision` (resolutions are now Decision rows carrying a
-     * decisionType), so the provider searches the two live schemas
-     * (`decision`, `meeting`). A row supplied under the retired `resolution`
-     * schema is never queried and must not surface.
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return void
-     */
-    public function testMapsRowsAcrossSchemas(): void
-    {
-        $provider = $this->makeProvider(
-            rowsBySchema: [
-                'decision'   => [
-                    ['id' => 'd-1', 'title' => 'Budget 2026', 'lifecycle' => 'enacted'],
-                    ['id' => 'd-broken'],
-                ],
-                'meeting'    => [
-                    ['id' => 'm-1', 'title' => 'Q2 Board Meeting', 'lifecycle' => 'scheduled'],
-                ],
-                // Retired schema — supplied to prove it is not searched.
-                'resolution' => [
-                    ['id' => 'r-1', 'title' => 'Merger resolution', 'status' => 'adopted'],
-                ],
-            ]
-        );
+		// d-1 + m-1 map; d-broken (no title) is dropped; r-1 is never queried.
+		self::assertCount(expectedCount: 2, haystack: $entries);
 
-        $result  = $provider->search($this->createMock(IUser::class), $this->query('budget'));
-        $entries = $result->jsonSerialize()['entries'];
+	}//end testMapsRowsAcrossSchemas()
 
-        // d-1 + m-1 map; d-broken (no title) is dropped; r-1 is never queried.
-        self::assertCount(expectedCount: 2, haystack: $entries);
+	/**
+	 * A broken register fails soft with an empty result.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return void
+	 */
+	public function testFailsSoftOnBrokenRegister(): void {
+		$provider = $this->makeProvider(broken: true);
 
-    }//end testMapsRowsAcrossSchemas()
+		$result = $provider->search($this->createMock(IUser::class), $this->query('budget'));
 
-    /**
-     * A broken register fails soft with an empty result.
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return void
-     */
-    public function testFailsSoftOnBrokenRegister(): void
-    {
-        $provider = $this->makeProvider(broken: true);
+		self::assertSame(expected: [], actual: $result->jsonSerialize()['entries']);
 
-        $result = $provider->search($this->createMock(IUser::class), $this->query('budget'));
-
-        self::assertSame(expected: [], actual: $result->jsonSerialize()['entries']);
-
-    }//end testFailsSoftOnBrokenRegister()
+	}//end testFailsSoftOnBrokenRegister()
 }//end class

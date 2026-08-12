@@ -35,152 +35,145 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/meeting-efficiency/spec.md
  */
-class MeetingCostServiceTest extends TestCase
-{
+class MeetingCostServiceTest extends TestCase {
 
-    /**
-     * Mock DI container.
-     *
-     * @var ContainerInterface&MockObject
-     */
-    private ContainerInterface&MockObject $container;
+	/**
+	 * Mock DI container.
+	 *
+	 * @var ContainerInterface&MockObject
+	 */
+	private ContainerInterface&MockObject $container;
 
-    /**
-     * Mock logger.
-     *
-     * @var LoggerInterface&MockObject
-     */
-    private LoggerInterface&MockObject $logger;
+	/**
+	 * Mock logger.
+	 *
+	 * @var LoggerInterface&MockObject
+	 */
+	private LoggerInterface&MockObject $logger;
 
-    /**
-     * Mock ObjectService.
-     *
-     * @var ObjectService&MockObject
-     */
-    private ObjectService&MockObject $objectService;
+	/**
+	 * Mock ObjectService.
+	 *
+	 * @var ObjectService&MockObject
+	 */
+	private ObjectService&MockObject $objectService;
 
-    /**
-     * Service under test.
-     *
-     * @var MeetingCostService
-     */
-    private MeetingCostService $service;
+	/**
+	 * Service under test.
+	 *
+	 * @var MeetingCostService
+	 */
+	private MeetingCostService $service;
 
-    /**
-     * Set up fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->container     = $this->createMock(originalClassName: ContainerInterface::class);
-        $this->logger        = $this->createMock(originalClassName: LoggerInterface::class);
-        $this->objectService = $this->createMock(originalClassName: ObjectService::class);
+	/**
+	 * Set up fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->container = $this->createMock(originalClassName: ContainerInterface::class);
+		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$this->objectService = $this->createMock(originalClassName: ObjectService::class);
 
-        $this->container->method('get')
-            ->with('OCA\OpenRegister\Service\ObjectService')
-            ->willReturn($this->objectService);
+		$this->container->method('get')
+			->with('OCA\OpenRegister\Service\ObjectService')
+			->willReturn($this->objectService);
 
-        $this->service = new MeetingCostService(
-            container: $this->container,
-            logger: $this->logger,
-        );
+		$this->service = new MeetingCostService(
+			container: $this->container,
+			logger: $this->logger,
+		);
 
-    }//end setUp()
+	}//end setUp()
 
-    /**
-     * The pure formula matches the spec worked example (45 min x 12 x EUR 75 = 675).
-     *
-     * @return void
-     */
-    public function testComputeCostMatchesSpecWorkedExample(): void
-    {
-        self::assertSame(
-            expected: 675.0,
-            actual: $this->service->computeCost(elapsedSeconds: (45 * 60), attendeeCount: 12, hourlyRate: 75.0)
-        );
+	/**
+	 * The pure formula matches the spec worked example (45 min x 12 x EUR 75 = 675).
+	 *
+	 * @return void
+	 */
+	public function testComputeCostMatchesSpecWorkedExample(): void {
+		self::assertSame(
+			expected: 675.0,
+			actual: $this->service->computeCost(elapsedSeconds: (45 * 60), attendeeCount: 12, hourlyRate: 75.0)
+		);
 
-    }//end testComputeCostMatchesSpecWorkedExample()
+	}//end testComputeCostMatchesSpecWorkedExample()
 
-    /**
-     * The formula clamps negatives and zero inputs to 0.
-     *
-     * @return void
-     */
-    public function testComputeCostClampsNegativesAndZeros(): void
-    {
-        self::assertSame(expected: 0.0, actual: $this->service->computeCost(elapsedSeconds: -100, attendeeCount: 12, hourlyRate: 75.0));
-        self::assertSame(expected: 0.0, actual: $this->service->computeCost(elapsedSeconds: 2700, attendeeCount: 0, hourlyRate: 75.0));
-        self::assertSame(expected: 0.0, actual: $this->service->computeCost(elapsedSeconds: 2700, attendeeCount: 12, hourlyRate: 0.0));
+	/**
+	 * The formula clamps negatives and zero inputs to 0.
+	 *
+	 * @return void
+	 */
+	public function testComputeCostClampsNegativesAndZeros(): void {
+		self::assertSame(expected: 0.0, actual: $this->service->computeCost(elapsedSeconds: -100, attendeeCount: 12, hourlyRate: 75.0));
+		self::assertSame(expected: 0.0, actual: $this->service->computeCost(elapsedSeconds: 2700, attendeeCount: 0, hourlyRate: 75.0));
+		self::assertSame(expected: 0.0, actual: $this->service->computeCost(elapsedSeconds: 2700, attendeeCount: 12, hourlyRate: 0.0));
 
-    }//end testComputeCostClampsNegativesAndZeros()
+	}//end testComputeCostClampsNegativesAndZeros()
 
-    /**
-     * The formula is linear and rounds to two decimals.
-     *
-     * @return void
-     */
-    public function testComputeCostRoundsToTwoDecimals(): void
-    {
-        // 10 minutes x 10 attendees x EUR 60 = 100.0 exactly after rounding.
-        self::assertSame(expected: 100.0, actual: $this->service->computeCost(elapsedSeconds: 600, attendeeCount: 10, hourlyRate: 60.0));
+	/**
+	 * The formula is linear and rounds to two decimals.
+	 *
+	 * @return void
+	 */
+	public function testComputeCostRoundsToTwoDecimals(): void {
+		// 10 minutes x 10 attendees x EUR 60 = 100.0 exactly after rounding.
+		self::assertSame(expected: 100.0, actual: $this->service->computeCost(elapsedSeconds: 600, attendeeCount: 10, hourlyRate: 60.0));
 
-    }//end testComputeCostRoundsToTwoDecimals()
+	}//end testComputeCostRoundsToTwoDecimals()
 
-    /**
-     * calculateForMeeting returns null when the body has no hourlyRate
-     * (nothing should be persisted).
-     *
-     * @return void
-     */
-    public function testCalculateForMeetingReturnsNullWithoutRate(): void
-    {
-        $meeting = [
-            'openedAt'       => '2026-01-01T09:00:00+00:00',
-            'closedAt'       => '2026-01-01T10:00:00+00:00',
-            'governanceBody' => 'body-uuid',
-        ];
+	/**
+	 * calculateForMeeting returns null when the body has no hourlyRate
+	 * (nothing should be persisted).
+	 *
+	 * @return void
+	 */
+	public function testCalculateForMeetingReturnsNullWithoutRate(): void {
+		$meeting = [
+			'openedAt' => '2026-01-01T09:00:00+00:00',
+			'closedAt' => '2026-01-01T10:00:00+00:00',
+			'governanceBody' => 'body-uuid',
+		];
 
-        $bodyEntity = $this->createMock(originalClassName: ObjectEntity::class);
-        $bodyEntity->method('getObject')->willReturn(['id' => 'body-uuid']); // no hourlyRate
+		$bodyEntity = $this->createMock(originalClassName: ObjectEntity::class);
+		$bodyEntity->method('getObject')->willReturn(['id' => 'body-uuid']); // no hourlyRate
 
-        $this->objectService->method('find')->willReturn($bodyEntity);
+		$this->objectService->method('find')->willReturn($bodyEntity);
 
-        self::assertNull(actual: $this->service->calculateForMeeting(meetingId: 'm-uuid', meeting: $meeting));
+		self::assertNull(actual: $this->service->calculateForMeeting(meetingId: 'm-uuid', meeting: $meeting));
 
-    }//end testCalculateForMeetingReturnsNullWithoutRate()
+	}//end testCalculateForMeetingReturnsNullWithoutRate()
 
-    /**
-     * calculateForMeeting resolves rate + window + attendees and computes the cost.
-     *
-     * @return void
-     */
-    public function testCalculateForMeetingComputesCostFromStoredData(): void
-    {
-        $meeting = [
-            'openedAt'       => '2026-01-01T09:00:00+00:00',
-            'closedAt'       => '2026-01-01T09:45:00+00:00', // 45 minutes
-            'governanceBody' => 'body-uuid',
-        ];
+	/**
+	 * calculateForMeeting resolves rate + window + attendees and computes the cost.
+	 *
+	 * @return void
+	 */
+	public function testCalculateForMeetingComputesCostFromStoredData(): void {
+		$meeting = [
+			'openedAt' => '2026-01-01T09:00:00+00:00',
+			'closedAt' => '2026-01-01T09:45:00+00:00', // 45 minutes
+			'governanceBody' => 'body-uuid',
+		];
 
-        $bodyEntity = $this->createMock(originalClassName: ObjectEntity::class);
-        $bodyEntity->method('getObject')->willReturn(['id' => 'body-uuid', 'hourlyRate' => 75]);
+		$bodyEntity = $this->createMock(originalClassName: ObjectEntity::class);
+		$bodyEntity->method('getObject')->willReturn(['id' => 'body-uuid', 'hourlyRate' => 75]);
 
-        $this->objectService->method('find')->willReturn($bodyEntity);
+		$this->objectService->method('find')->willReturn($bodyEntity);
 
-        // 12 participants found.
-        $participants = [];
-        for ($i = 0; $i < 12; $i++) {
-            $participants[] = ['id' => 'p'.$i];
-        }
+		// 12 participants found.
+		$participants = [];
+		for ($i = 0; $i < 12; $i++) {
+			$participants[] = ['id' => 'p' . $i];
+		}
 
-        $this->objectService->method('findAll')->willReturn($participants);
+		$this->objectService->method('findAll')->willReturn($participants);
 
-        self::assertSame(
-            expected: 675.0,
-            actual: $this->service->calculateForMeeting(meetingId: 'm-uuid', meeting: $meeting)
-        );
+		self::assertSame(
+			expected: 675.0,
+			actual: $this->service->calculateForMeeting(meetingId: 'm-uuid', meeting: $meeting)
+		);
 
-    }//end testCalculateForMeetingComputesCostFromStoredData()
+	}//end testCalculateForMeetingComputesCostFromStoredData()
 }//end class
