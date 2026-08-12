@@ -261,17 +261,20 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-lifecycle__timeline {
 	list-style: none;
 	margin: 0;
@@ -280,12 +283,14 @@ export default {
 	flex-direction: column;
 	gap: 2px;
 }
+
 .decidesk-lifecycle__step {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	padding: 4px 0;
 }
+
 .decidesk-lifecycle__marker {
 	width: 10px;
 	height: 10px;
@@ -293,36 +298,44 @@ export default {
 	border: 2px solid var(--color-border-dark);
 	flex-shrink: 0;
 }
+
 .decidesk-lifecycle__step--done .decidesk-lifecycle__marker {
 	background: var(--color-success);
 	border-color: var(--color-success);
 }
+
 .decidesk-lifecycle__step--current .decidesk-lifecycle__marker {
 	background: var(--color-primary-element);
 	border-color: var(--color-primary-element);
 }
+
 .decidesk-lifecycle__step--upcoming .decidesk-lifecycle__label {
 	color: var(--color-text-maxcontrast);
 }
+
 .decidesk-lifecycle__actions {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-lifecycle__actions-title {
 	margin: 8px 0 0;
 	font-size: 0.95rem;
 	font-weight: bold;
 }
+
 .decidesk-lifecycle__none {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 }
+
 .decidesk-lifecycle__buttons {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 }
+
 .decidesk-lifecycle__chair-hint {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.85em;

@@ -411,21 +411,25 @@ export default {
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__empty,
 .decidesk-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .evaluation-list {
 	list-style: none;
 	margin: 0;
@@ -434,6 +438,7 @@ export default {
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 2);
 }
+
 .evaluation-card {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius);
@@ -442,36 +447,44 @@ export default {
 	flex-direction: column;
 	gap: 6px;
 }
+
 .evaluation-card__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
+
 .evaluation-card__status {
 	color: var(--color-text-maxcontrast);
 	text-transform: capitalize;
 }
+
 .evaluation-card__meta {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 }
+
 .evaluation-card__actions {
 	display: flex;
 	gap: 6px;
 	flex-wrap: wrap;
 }
+
 .evaluation-card__results {
 	margin-top: 6px;
 }
+
 .evaluation-card__overall {
 	font-weight: bold;
 	margin: 0 0 4px 0;
 }
+
 .evaluation-card__suppressed {
 	color: var(--color-text-maxcontrast);
 	font-style: italic;
 	margin: 0;
 }
+
 .efficiency-bars {
 	list-style: none;
 	margin: 0;
@@ -480,28 +493,33 @@ export default {
 	flex-direction: column;
 	gap: 4px;
 }
+
 .efficiency-bars__row {
 	display: grid;
 	grid-template-columns: 8rem 1fr 4rem;
 	align-items: center;
 	gap: var(--default-grid-baseline);
 }
+
 .efficiency-bars__label {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
 .efficiency-bars__track {
 	background: var(--color-background-dark);
 	border-radius: var(--border-radius);
 	height: 12px;
 	overflow: hidden;
 }
+
 .efficiency-bars__fill {
 	display: block;
 	height: 100%;
 	background: var(--color-primary-element);
 }
+
 .efficiency-bars__value {
 	font-variant-numeric: tabular-nums;
 	text-align: right;

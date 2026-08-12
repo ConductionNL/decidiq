@@ -199,10 +199,12 @@ export default {
 	max-width: 700px;
 	margin-block-start: calc(var(--default-grid-baseline) * 3);
 }
+
 .decidesk-pub-settings__title {
 	margin: 0;
 	font-weight: bold;
 }
+
 .decidesk-pub-settings__body {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius-large);
@@ -211,19 +213,23 @@ export default {
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-pub-settings__fields {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-pub-settings__field {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
+
 .decidesk-pub-settings__field input {
 	width: 100%;
 }
+
 .decidesk-pub-settings__intro,
 .decidesk-pub-settings__empty {
 	color: var(--color-text-maxcontrast);

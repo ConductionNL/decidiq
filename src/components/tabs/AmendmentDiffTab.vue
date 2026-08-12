@@ -134,11 +134,13 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;

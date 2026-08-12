@@ -165,25 +165,30 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__hint {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .decidesk-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .decidesk-tab__footer {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	margin-top: 4px;
 }
+
 .decidesk-tab__saved {
 	color: var(--color-success);
 }

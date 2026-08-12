@@ -241,22 +241,26 @@ export default {
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .decidesk-tab__generate {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-end;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__list {
 	list-style: none;
 	margin: 0;
@@ -265,6 +269,7 @@ export default {
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__document {
 	display: flex;
 	flex-direction: column;
@@ -272,17 +277,21 @@ export default {
 	padding: var(--default-grid-baseline) 0;
 	border-bottom: 1px solid var(--color-border);
 }
+
 .decidesk-tab__document:last-child {
 	border-bottom: none;
 }
+
 .decidesk-tab__document-path {
 	word-break: break-all;
 }
+
 .decidesk-tab__meta,
 .decidesk-tab__empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .decidesk-tab__proof {
 	display: flex;
 	flex-direction: column;

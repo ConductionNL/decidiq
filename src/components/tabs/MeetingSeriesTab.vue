@@ -237,31 +237,37 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .series-form {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 }
+
 .series-form__preview {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .series-instances h4 {
 	margin: var(--default-grid-baseline) 0;
 }

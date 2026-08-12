@@ -194,37 +194,44 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__count {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
 }
+
 .decidesk-tab__rounds {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
+
 .decidesk-tab__round {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius);
 	padding: 8px;
 }
+
 .decidesk-tab__round-header {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
+
 .decidesk-tab__round-tally {
 	margin: 4px 0 0;
 	color: var(--color-text-maxcontrast);

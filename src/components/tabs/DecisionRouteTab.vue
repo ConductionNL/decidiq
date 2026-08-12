@@ -360,47 +360,57 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .decidesk-route__banner-link {
 	margin-top: 4px;
 }
+
 .decidesk-route__progress {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
+
 .decidesk-route__progress-dots {
 	display: inline-flex;
 	gap: 4px;
 }
+
 .decidesk-route__progress-dot {
 	width: 10px;
 	height: 10px;
 	border-radius: 50%;
 	border: 2px solid var(--color-border-dark);
 }
+
 .decidesk-route__progress-dot--done {
 	background: var(--color-success);
 	border-color: var(--color-success);
 }
+
 .decidesk-route__progress-label {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9rem;
 }
+
 .decidesk-route__timeline {
 	list-style: none;
 	margin: 0;
@@ -409,15 +419,18 @@ export default {
 	flex-direction: column;
 	gap: 8px;
 }
+
 .decidesk-route__step {
 	display: flex;
 	gap: 8px;
 	padding: 6px 8px;
 	border-radius: var(--border-radius);
 }
+
 .decidesk-route__step--current {
 	background: var(--color-primary-element-light);
 }
+
 .decidesk-route__marker {
 	width: 12px;
 	height: 12px;
@@ -426,20 +439,24 @@ export default {
 	flex-shrink: 0;
 	margin-top: 4px;
 }
+
 .decidesk-route__marker--decided,
 .decidesk-route__marker--skipped {
 	background: var(--color-success);
 	border-color: var(--color-success);
 }
+
 .decidesk-route__marker--active {
 	background: var(--color-primary-element);
 	border-color: var(--color-primary-element);
 }
+
 .decidesk-route__body {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 }
+
 .decidesk-route__line1,
 .decidesk-route__line2 {
 	display: flex;
@@ -447,15 +464,18 @@ export default {
 	align-items: center;
 	gap: 8px;
 }
+
 .decidesk-route__seq {
 	font-weight: bold;
 }
+
 .decidesk-route__meta,
 .decidesk-route__date,
 .decidesk-route__stage-label {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.85rem;
 }
+
 .decidesk-route__todo {
 	margin: 0;
 	color: var(--color-text-maxcontrast);

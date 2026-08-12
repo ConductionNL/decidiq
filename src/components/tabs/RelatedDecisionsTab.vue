@@ -330,32 +330,38 @@ export default {
 	gap: var(--default-grid-baseline);
 	padding: var(--default-grid-baseline);
 }
+
 .decidesk-tab__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--default-grid-baseline);
 }
+
 .decidesk-tab__title {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: bold;
 }
+
 .decidesk-tab__loading {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
 }
+
 .decidesk-related__group {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
+
 .decidesk-related__group-title {
 	margin: 4px 0 0;
 	font-size: 0.9rem;
 	font-weight: bold;
 	color: var(--color-text-maxcontrast);
 }
+
 .decidesk-related__list {
 	list-style: none;
 	margin: 0;
@@ -364,14 +370,17 @@ export default {
 	flex-direction: column;
 	gap: 2px;
 }
+
 .decidesk-related__row {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
+
 .decidesk-related__row--incoming .decidesk-related__link {
 	color: var(--color-text-maxcontrast);
 }
+
 .decidesk-related__link {
 	background: none;
 	border: none;
@@ -381,6 +390,7 @@ export default {
 	text-align: start;
 	flex: 1;
 }
+
 .decidesk-related__link:hover {
 	text-decoration: underline;
 }
