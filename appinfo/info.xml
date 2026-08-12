@@ -119,6 +119,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
             <step>OCA\Decidesk\Migration\MigrateCommentsToTalkLeaf</step>
             <step>OCA\Decidesk\Migration\MigrateActionItemsToDeckLeaf</step>
             <step>OCA\Decidesk\Migration\ProjectGovernanceRoleScopes</step>
+            <!--
+                Must run AFTER the register sync that adds the English columns, so it
+                can tell the rename case from the back-fill case. Scoped to the
+                decidesk register only — several of these words (onderwerp) also
+                exist in procest. Idempotent and non-destructive.
+            -->
+            <step>OCA\Decidesk\Repair\RenameDutchVocabularyColumns</step>
         </post-migration>
         <install>
             <step>OCA\Decidesk\Repair\InitializeSettings</step>

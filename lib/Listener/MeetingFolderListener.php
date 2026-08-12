@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidesk\Listener;
 
+use OCA\Decidesk\Service\ListenerSchemaResolver;
 use OCA\Decidesk\Service\MeetingFolderService;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCP\EventDispatcher\Event;
@@ -52,11 +53,13 @@ class MeetingFolderListener implements IEventListener
     /**
      * Constructor.
      *
-     * @param MeetingFolderService $folderService Meeting folder service
-     * @param LoggerInterface      $logger        Logger
+     * @param MeetingFolderService   $folderService  Meeting folder service
+     * @param ListenerSchemaResolver $schemaResolver Resolves the entity's schema slug
+     * @param LoggerInterface        $logger         Logger
      */
     public function __construct(
         private readonly MeetingFolderService $folderService,
+        private readonly ListenerSchemaResolver $schemaResolver,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -83,12 +86,19 @@ class MeetingFolderListener implements IEventListener
             }
 
             $row = $this->extractRow(entity: $entity);
-            if ($this->resolveSchemaSlug(entity: $entity, row: $row) !== self::SCHEMA_MEETING) {
+            if ($this->schemaResolver->matchesSchema(
+                entity: $entity,
+                expectedSlug: self::SCHEMA_MEETING,
+                row: $row
+            ) === false
+            ) {
                 return;
             }
 
-            if (isset($row['id']) === false && method_exists($entity, 'getUuid') === true) {
-                $row['id'] = (string) $entity->getUuid();
+            if (isset($row['id']) === false) {
+                // Entity::__call() serves getUuid(), so the method_exists()
+                // guard this replaces was false for every real entity.
+                $row['id'] = $this->schemaResolver->readValue(entity: $entity, getter: 'getUuid');
             }
 
             $this->folderService->ensureMeetingFolders(meeting: $row);
@@ -128,41 +138,4 @@ class MeetingFolderListener implements IEventListener
         return $row;
 
     }//end extractRow()
-
-    /**
-     * Resolve the schema slug from the canonical OR entity surface
-     * (the canonical meeting entity candidates).
-     *
-     * @param object               $entity OR object entity
-     * @param array<string, mixed> $row    Serialized payload
-     *
-     * @spec openspec/specs/nextcloud-integration/spec.md
-     *
-     * @return string Schema slug, or '' when unresolvable
-     */
-    private function resolveSchemaSlug(object $entity, array $row): string
-    {
-        foreach (['_schemaSlug', '_schema', 'schema'] as $key) {
-            $candidate = ($row[$key] ?? null);
-            if (is_string($candidate) === true && $candidate !== '') {
-                return $candidate;
-            }
-        }
-
-        // Same order as the row keys above; each getter is consulted only when
-        // the entity actually exposes it.
-        foreach (['getSchemaSlug', 'getSchema'] as $getter) {
-            if (method_exists($entity, $getter) === false) {
-                continue;
-            }
-
-            $value = $entity->{$getter}();
-            if (is_string($value) === true && $value !== '') {
-                return $value;
-            }
-        }
-
-        return '';
-
-    }//end resolveSchemaSlug()
 }//end class

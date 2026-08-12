@@ -1343,7 +1343,15 @@
         "Start evaluation": "Evaluatie starten",
         "Submit anonymously": "Anoniem verzenden",
         "Your response is anonymous. It cannot be traced back to you, even by an administrator.": "Uw reactie is anoniem. Deze kan niet naar u worden herleid, zelfs niet door een beheerder.",
-        "+ Action item for {title}": "+ Actiepunt voor {title}"
+        "+ Action item for {title}": "+ Actiepunt voor {title}",
+        "Organisation mode": "Organisatiemodus",
+        "Controls mode-specific labels across the app — for example what a governance body is called. Default: government.": "Bepaalt de modusspecifieke labels in de hele app — bijvoorbeeld hoe een bestuursorgaan heet. Standaard: overheid.",
+        "Government (gov)": "Overheid (gov)",
+        "Corporate (corp)": "Bedrijf (corp)",
+        "Association (assoc)": "Vereniging (assoc)",
+        "Operations (ops)": "Uitvoering (ops)",
+        "Citizen portal (citizen)": "Burgerportaal (citizen)",
+        "Welcome to Decidesk! Get started by setting up your first governing body.": "Welkom bij Decidesk! Begin met het instellen van je eerste bestuursorgaan."
     },
     "plurals": null
 }

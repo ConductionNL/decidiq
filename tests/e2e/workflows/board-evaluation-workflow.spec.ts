@@ -175,7 +175,14 @@ test.describe('board self-evaluation flow', () => {
 		// Pre-closed with a materialised (above-threshold) scoreSummary so the
 		// results tab has something to render without a 3-user live respond loop.
 		const evaluation = await createObject(page, ledger, 'board-evaluation', {
-			cycleLabel: 'E2E-Published',
+			// NOT "E2E-Published": the card renders `cycleLabel` and `lifecycle` in one
+			// text run, so a label containing "Published" satisfies the
+			// `toContainText(/published/i)` assertion below WHATEVER the lifecycle is.
+			// That is exactly what happened — the assertion passed on a run where the
+			// stored object was still `lifecycle: "closed"` and had never been
+			// published at all, and the test only failed four lines later. A fixture
+			// whose own name satisfies the assertion under test is not a fixture.
+			cycleLabel: 'E2E-Aggregate',
 			lifecycle: 'closed',
 			openedAt: new Date(Date.now() - 86400000).toISOString(),
 			closedAt: new Date().toISOString(),
@@ -207,7 +214,7 @@ test.describe('board self-evaluation flow', () => {
 		await expect(page.getByTestId(`evaluation-card-${objId(evaluation)}`)).toContainText(/published/i, { timeout: 15_000 })
 
 		const published = await getObject(page, 'board-evaluation', objId(evaluation))
-		expect(published?.publicatiedatum).toBeTruthy()
+		expect(published?.publicationDate).toBeTruthy()
 		// No raw EvaluationResponse ever appears on the published object.
 		expect(JSON.stringify(published)).not.toContain('freeText')
 	})

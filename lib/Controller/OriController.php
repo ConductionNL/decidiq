@@ -75,7 +75,7 @@ class OriController extends Controller
         // single ORI surface a national/OAI-PMH harvester can poll to discover all
         // published decisions/agendas/minutes without per-type endpoints. Visibility
         // is gated by the same RBAC published-predicate the payload schema declares
-        // (publicatiedatum <= $now, not depublished).
+        // (publicationDate <= $now, not depublished).
         'publications'  => 'publication-payload',
     ];
 
@@ -237,7 +237,7 @@ class OriController extends Controller
             // Publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
             // feed has no `lifecycle`/`isPublished` field; its anonymous visibility
             // is governed solely by the RBAC published-predicate the schema declares
-            // (public group when publicatiedatum <= $now). OR enforces that rule for
+            // (public group when publicationDate <= $now). OR enforces that rule for
             // anonymous callers; the serializer additionally filters the window in
             // PHP (defence-in-depth so a misconfigured RBAC rule cannot leak
             // future-dated or depublished payloads through the harvest feed).
@@ -346,7 +346,7 @@ class OriController extends Controller
 
         if ($resource === self::PUBLICATIONS) {
             // PublicationPayload visibility is the RBAC published-predicate window
-            // (publicatiedatum <= $now, not depublished). A future-dated or
+            // (publicationDate <= $now, not depublished). A future-dated or
             // depublished payload is not-found for anonymous callers — return 404
             // (not 403) so the endpoint never confirms an unpublished payload exists.
             if ($this->serializer->isPayloadLive(object: (array) $object) === false) {

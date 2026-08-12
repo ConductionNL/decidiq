@@ -94,7 +94,7 @@ class OriSerializer
         'agenda_items'  => ['agendaItems'],
         'content'       => ['content'],
         'attendance'    => ['attendance'],
-        'published_at'  => ['publicatiedatum'],
+        'published_at'  => ['publicationDate'],
     ];
 
     /**
@@ -222,10 +222,10 @@ class OriSerializer
      * Evaluate the RBAC published-predicate window for a PublicationPayload.
      *
      * A payload is "live" — and therefore visible on the anonymous ORI harvest
-     * feed — when its `publicatiedatum` is set and not in the future, AND its
-     * `depublicatiedatum` is either unset or still in the future. This mirrors
+     * feed — when its `publicationDate` is set and not in the future, AND its
+     * `depublicationDate` is either unset or still in the future. This mirrors
      * the public-group `authorization.read` rule the PublicationPayload schema
-     * declares (`publicatiedatum <= $now`); it is re-checked in PHP as
+     * declares (`publicationDate <= $now`); it is re-checked in PHP as
      * defence-in-depth so a misconfigured RBAC rule cannot leak future-dated or
      * already-depublished payloads through the harvest surface.
      *
@@ -238,12 +238,12 @@ class OriSerializer
     public function isPayloadLive(array $object): bool
     {
         $now       = new DateTimeImmutable();
-        $published = $this->parseDate(value: ($object['publicatiedatum'] ?? null));
+        $published = $this->parseDate(value: ($object['publicationDate'] ?? null));
         if ($published === null || $published > $now) {
             return false;
         }
 
-        $depublished = $this->parseDate(value: ($object['depublicatiedatum'] ?? null));
+        $depublished = $this->parseDate(value: ($object['depublicationDate'] ?? null));
 
         return ($depublished === null || $depublished > $now);
 

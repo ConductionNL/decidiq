@@ -105,6 +105,39 @@
 			</form>
 		</CnSettingsSection>
 
+		<!-- Organisation mode -->
+		<!--
+		 REHOMED from the in-app `type:"settings"` page deleted under ADR-079 D1.
+		 That page's "Advanced" section held three keys; `ori_endpoint` and
+		 `email_voting_enabled` already had a home here, `organisatie_modus` did
+		 not — this section was the difference, and deleting the page without it
+		 would have left the key writable only by occ.
+		 @spec openspec/specs/admin-settings/spec.md
+		-->
+		<CnSettingsSection
+			:name="t('decidesk', 'Organisation mode')"
+			:description="t('decidesk', 'Controls mode-specific labels across the app — for example what a governance body is called. Default: government.')">
+			<form data-testid="organisation-mode-settings" @submit.prevent="saveOrganisationMode">
+				<div class="form-group">
+					<NcSelect
+						v-model="form.organisatie_modus"
+						:options="organisationModeOptions"
+						:input-label="t('decidesk', 'Organisation mode')"
+						label="label"
+						track-by="id"
+						data-testid="organisation-mode" />
+				</div>
+
+				<NcButton
+					variant="primary"
+					type="submit"
+					data-testid="organisation-mode-save"
+					:disabled="savingOrganisationMode">
+					{{ savingOrganisationMode ? t('decidesk', 'Saving...') : t('decidesk', 'Save') }}
+				</NcButton>
+			</form>
+		</CnSettingsSection>
+
 		<!-- ORI publication settings -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
 		<CnSettingsSection
@@ -213,6 +246,7 @@ export default {
 		return {
 			form: {
 				register: '',
+				organisatie_modus: null,
 				ori_endpoint: '',
 				email_voting_enabled: false,
 				organisation_name: '',
@@ -226,6 +260,7 @@ export default {
 				participation_anon_rate_limit: '',
 			},
 			saving: false,
+			savingOrganisationMode: false,
 			savingOri: false,
 			savingOrganisation: false,
 			savingParticipation: false,
@@ -252,6 +287,23 @@ export default {
 		currencyOptions() {
 			return ['EUR', 'USD', 'GBP', 'CHF']
 		},
+		/**
+		 * The five organisatie_modus values, matching MODE_LABELS in
+		 * src/config/modeLabels.js and the `organisatie_modus` whitelist entry in
+		 * lib/Service/SettingsService.php. Cosmetic UI hint only — it selects
+		 * label vocabulary and drives no authorization decision.
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
+		 */
+		organisationModeOptions() {
+			return [
+				{ id: 'gov', label: this.t('decidesk', 'Government (gov)') },
+				{ id: 'corp', label: this.t('decidesk', 'Corporate (corp)') },
+				{ id: 'assoc', label: this.t('decidesk', 'Association (assoc)') },
+				{ id: 'ops', label: this.t('decidesk', 'Operations (ops)') },
+				{ id: 'citizen', label: this.t('decidesk', 'Citizen portal (citizen)') },
+			]
+		},
 		/** @spec openspec/specs/citizen-participation/spec.md */
 		moderationPolicyOptions() {
 			return [
@@ -265,6 +317,11 @@ export default {
 		const settingsStore = useSettingsStore()
 		const settings = settingsStore.settings || {}
 		this.form.register = settings.register || ''
+		// SettingsService::getSettings() defaults this to 'gov', but fall back
+		// here too so an instance predating the key still selects a valid option
+		// rather than rendering an empty combobox.
+		this.form.organisatie_modus = this.organisationModeOptions.find((o) => o.id === settings.organisatie_modus)
+			|| this.organisationModeOptions[0]
 		this.form.ori_endpoint = settings.ori_endpoint || ''
 		this.form.email_voting_enabled = settings.email_voting_enabled === '1' || settings.email_voting_enabled === true
 		this.form.organisation_name = settings.organisation_name || ''
@@ -317,6 +374,15 @@ export default {
 				participation_anon_rate_limit: String(this.form.participation_anon_rate_limit || ''),
 			})
 			this.savingParticipation = false
+		},
+		/** @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting */
+		async saveOrganisationMode() {
+			this.savingOrganisationMode = true
+			const settingsStore = useSettingsStore()
+			await settingsStore.saveSettings({
+				organisatie_modus: this.form.organisatie_modus?.id || 'gov',
+			})
+			this.savingOrganisationMode = false
 		},
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 */
 		async saveOri() {

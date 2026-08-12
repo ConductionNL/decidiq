@@ -174,6 +174,40 @@ async function deleteRowViaUi(page, title: string): Promise<void> {
 	const confirm = page.getByRole('dialog')
 	await expect(confirm).toBeVisible({ timeout: 8_000 })
 	await confirm.getByRole('button', { name: /^\s*Delete\s*$/ }).click()
+	// CnDeleteDialog is two-phase and, on success, DWELLS: `setResult()` shows
+	// the "Item successfully deleted." NoteCard plus a Close button and only
+	// then arms a 2 s auto-close. Sitting out that dwell is two seconds of pure
+	// waiting inside a 20 s per-test budget that three full list loads have
+	// already spent most of — measured on a live instance, the delete itself
+	// answers 204 in well under a second and the dialog is still on screen at
+	// t+1.5 s purely because of the timer.
+	//
+	// So assert the success phase (a stronger check than "something vanished":
+	// a dialog stuck in `phase=confirm` or showing an error NoteCard now fails
+	// HERE, naming the phase) and then dismiss it the way a user does, instead
+	// of waiting for the timer to do it.
+	await expect(page.locator('[data-testid-modal="cn-delete-dialog"][data-testid-phase="result"]'))
+		.toBeVisible({ timeout: 8_000 })
+	await expect(page.getByRole('dialog')).toContainText('successfully deleted')
+	// TWO buttons in this dialog answer to the accessible name "Close": the
+	// action-footer button CnDeleteDialog renders in the result phase
+	// (`closeLabel`, default "Close") and the X in NcModal's own chrome
+	// (`.modal-container__close`, `aria-label="Close"`). An unscoped
+	// `getByRole('button', { name: 'Close' })` therefore raises a strict-mode
+	// violation, which Playwright keeps RETRYING until the per-test budget dies —
+	// so it surfaces as a bare 20 s timeout, not as an ambiguous-locator error.
+	// Exclude the modal chrome by the class the failing run PRINTED
+	// (`modal-container__close`) rather than by scoping to a container class that
+	// looked right in the library source but was never observed in this app's DOM —
+	// an unobserved container would resolve to zero elements and fail as another
+	// bare timeout, which is the thing being fixed. Strictness is preserved: a third
+	// button named "Close" would still raise. `exact: true` because `name` matches a
+	// SUBSTRING by default, so the loose form would also accept a future
+	// "Close cycle"-style button.
+	await page.getByRole('dialog')
+		.getByRole('button', { name: 'Close', exact: true })
+		.and(page.locator(':not(.modal-container__close)'))
+		.click()
 	try {
 		await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 8_000 })
 	} catch (err) {
@@ -396,8 +430,12 @@ test('Decision: create persists, appears in list, detail shows values, delete re
 		'edited decision title should surface in the list',
 	).toBeVisible({ timeout: 10_000 })
 
-	// DELETE through the UI.
-	await gotoList(page, 'decisions')
+	// DELETE through the UI. No second `gotoList` here: the assertion above
+	// already left the browser on the decisions list with the edited row
+	// visible, so reloading it was a duplicate full page load (~3.7 s measured)
+	// inside a 20 s per-test budget — which is precisely where this test ran
+	// out of clock, at `gotoList`'s app-root wait rather than at anything it
+	// asserts. The Meeting test above deletes from the list it is already on.
 	await deleteRowViaUi(page, newTitle)
 	await expect(page.getByTestId('cn-object-row').filter({ hasText: newTitle })).toHaveCount(0, { timeout: 10_000 })
 	expect(await getObject(page, 'decision', id), 'deleted decision should be gone').toBeNull()

@@ -38,16 +38,36 @@ test('Add Motion dialog opens with co-signers and lifecycle fields', async ({ pa
 	await page.getByTestId('cn-cta-primary').click()
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible({ timeout: 8_000 })
-	await expect(dialog.getByRole('heading', { name: 'Create Motion' })).toBeVisible()
+	// The heading is "Create Decision", not "Create Motion", and that is correct.
+	// Under ADR-005 there is no `motion` schema: a motion IS a Decision with
+	// `decisionType=motion`, and the Motions index is a filtered projection of
+	// the decision schema (manifest page `Motions`: `"schema": "decision"`,
+	// `"filter": {"decisionType": "motion"}`). CnIndexPage mounts its create
+	// dialog without a `dialog-title`, so CnFormDialog falls back to
+	// `Create {schema.title}` and the Decision schema's title is "Decision".
+	// Asserting "Create Motion" asserted a string the product has never
+	// produced. Tracked separately: CnIndexPage has no way to label the create
+	// dialog of a filtered projection of a supertype.
+	await expect(dialog.getByRole('heading', { name: 'Create Decision' })).toBeVisible()
 
-	// Assert the real motion form fields render
-	await expect(dialog.getByText('title *', { exact: false })).toBeVisible()
-	await expect(dialog.getByText('proposer *', { exact: false })).toBeVisible()
-	await expect(dialog.getByText('motionType *', { exact: false })).toBeVisible()
+	// Assert the real motion form fields render.
+	//
+	// Labels are the schema property's `title`, never its key — `fieldsFromSchema()`
+	// builds `label: prop.title || key` and CnFormDialog renders
+	// `label + (required ? ' *' : '')`. So `motionType`/`coSigners`/`lifecycle`
+	// could never match; the rendered labels are "Motion type", "Co-signers",
+	// "Status". And `required` on Decision is exactly
+	// ["title","text","decisionType"], so Title is the only one of these
+	// carrying an asterisk — `proposer *` and `lifecycle *` were asserting a
+	// required-ness the schema does not declare, which is the same mistake the
+	// decision-management spec already corrected for `decisionDate`/`outcome`.
+	await expect(dialog.getByText('Title *', { exact: true })).toBeVisible()
+	await expect(dialog.getByText('Proposer', { exact: true }).first()).toBeVisible()
+	await expect(dialog.getByText('Motion type', { exact: true }).first()).toBeVisible()
 	// coSigners drives the co-signer threshold scenario
-	await expect(dialog.getByText('coSigners', { exact: true })).toBeVisible()
-	// lifecycle label is visible (required)
-	await expect(dialog.getByText('lifecycle *', { exact: false })).toBeVisible()
+	await expect(dialog.getByText('Co-signers', { exact: true }).first()).toBeVisible()
+	// lifecycle is on the form, optional
+	await expect(dialog.getByText('Status', { exact: true }).first()).toBeVisible()
 
 	// Create button visible
 	await expect(dialog.getByRole('button', { name: 'Create' })).toBeVisible()

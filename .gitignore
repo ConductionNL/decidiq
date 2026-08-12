@@ -11,8 +11,13 @@
 /.phpunit.cache
 .phpunit.cache/
 
-/node_modules/
-/website/node_modules/
+# No trailing slash, deliberately. A pattern ending in `/` matches a DIRECTORY
+# only, so `node_modules` created as a SYMLINK (what you get when you point a
+# git worktree at a sibling checkout's install) is not ignored and lands in
+# `git add -A`. That is how a symlink to one machine's absolute path reached
+# this repository. Slashless patterns match a symlink too.
+/node_modules
+/website/node_modules
 /website/.docusaurus/
 /js/
 /custom_apps/
