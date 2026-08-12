@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Tests the PII-free reaction digest, setting the RBAC published predicate
- * (publicatiedatum), and the OpenCatalogi-absent graceful degradation.
+ * (publicationDate), and the OpenCatalogi-absent graceful degradation.
  *
  * @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md
  */
@@ -166,7 +166,7 @@ class ParticipationPublicationServiceTest extends TestCase
     }//end testReactionDigestIsPiiFree()
 
     /**
-     * Publishing consultation results sets publicatiedatum (the RBAC published
+     * Publishing consultation results sets publicationDate (the RBAC published
      * predicate), reports anonVisibilityVerified=true, and degrades with a
      * warning when OpenCatalogi is absent.
      *
@@ -188,19 +188,19 @@ class ParticipationPublicationServiceTest extends TestCase
 
         $result = $this->makeService(openCatalogi: false)->publishConsultationResults(consultationId: 'c1', staffResponse: 'Thanks');
         self::assertTrue($result['publishedPredicateSet']);
-        // RBAC model: publicatiedatum <= $now makes the object anon-readable.
+        // RBAC model: publicationDate <= $now makes the object anon-readable.
         self::assertTrue($result['anonVisibilityVerified']);
         self::assertFalse($result['openCatalogiInstalled']);
         self::assertFalse($result['openCatalogiRouted']);
         self::assertNotNull($result['warning']);
-        // The RBAC published predicate (publicatiedatum) was set on the source
+        // The RBAC published predicate (publicationDate) was set on the source
         // object as a normal field, in the past so the public-group rule matches.
-        self::assertArrayHasKey('publicatiedatum', $captured);
+        self::assertArrayHasKey('publicationDate', $captured);
         self::assertLessThanOrEqual(
             (new \DateTimeImmutable())->getTimestamp(),
-            (new \DateTimeImmutable((string) $captured['publicatiedatum']))->getTimestamp()
+            (new \DateTimeImmutable((string) $captured['publicationDate']))->getTimestamp()
         );
-        // This used to assert `depublicatiedatum` was present AND null — i.e. it
+        // This used to assert the depublication key was present AND null — i.e. it
         // pinned the call the code happened to make, and stayed green for exactly as
         // long as the defect lived. OpenRegister declares the property
         // `type: "string", format: "date-time"` and NOT nullable, and its validator
@@ -208,6 +208,12 @@ class ParticipationPublicationServiceTest extends TestCase
         // key failed the whole saveObject; the service's `catch (\Throwable)` logged a
         // warning and the endpoint still answered 200 with publishedPredicateSet=false.
         // "Not depublished" is spelled by the ABSENCE of the key.
+        //
+        // Asserted under BOTH spellings on purpose. The English one is what this
+        // branch's code writes; the Dutch one guards the merge itself, since a
+        // resolution that kept the rename but lost the unset() would leave
+        // `depublicatiedatum` behind and this line is what would catch it.
+        self::assertArrayNotHasKey('depublicationDate', $captured);
         self::assertArrayNotHasKey('depublicatiedatum', $captured);
         // No legacy @self.published predicate is written anymore.
         self::assertArrayNotHasKey('@self', $captured);
@@ -284,7 +290,7 @@ class ParticipationPublicationServiceTest extends TestCase
 
         // The predicate write happened, so the object really is published.
         self::assertTrue($result['publishedPredicateSet']);
-        self::assertArrayHasKey('publicatiedatum', $captured);
+        self::assertArrayHasKey('publicationDate', $captured);
         self::assertSame('published', $captured['lifecycle']);
 
         // ...and it went back in the DECLARED shape: a JSON string, not an array.
@@ -335,7 +341,7 @@ class ParticipationPublicationServiceTest extends TestCase
         $this->objectService->method('find')->willReturn($this->entity(['id' => 'c9', 'title' => 'Visie', 'status' => 'closed']));
         $this->objectService->method('findAll')->willReturn([]);
         $this->objectService->method('saveObject')->willThrowException(
-            new \RuntimeException("Property 'depublicatiedatum' should be type 'string' but is 'null'.")
+            new \RuntimeException("Property 'depublicationDate' should be type 'string' but is 'null'.")
         );
 
         $result = $this->makeService(openCatalogi: false)->publishConsultationResults(consultationId: 'c9', staffResponse: 'Thanks');

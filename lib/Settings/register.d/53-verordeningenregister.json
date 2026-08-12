@@ -51,7 +51,7 @@
             "versienummer": 1,
             "vastgesteldDoor": "00000000-0000-0000-0000-000000000000",
             "inwerkingtreding": "2024-01-01",
-            "toelichting": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
+            "notes": "Eerste vaststelling van de Afvalstoffenverordening Amsterdam.",
             "status": "vervangen"
           },
           {
@@ -60,7 +60,7 @@
             "versienummer": 2,
             "vastgesteldDoor": "00000000-0000-0000-0000-000000000000",
             "inwerkingtreding": "2025-06-01",
-            "toelichting": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
+            "notes": "Wijziging 2025: gescheiden inzameling GFT-e uitgebreid naar het hele beheergebied.",
             "status": "in-werking"
           },
           {
@@ -69,7 +69,7 @@
             "versienummer": 1,
             "vastgesteldDoor": "00000000-0000-0000-0000-000000000000",
             "inwerkingtreding": "2025-03-01",
-            "toelichting": "Vaststelling beleidsregel terrassen 2025.",
+            "notes": "Vaststelling beleidsregel terrassen 2025.",
             "status": "in-werking"
           },
           {
@@ -78,7 +78,7 @@
             "versienummer": 1,
             "vastgesteldDoor": "00000000-0000-0000-0000-000000000000",
             "inwerkingtreding": "2026-09-01",
-            "toelichting": "Concept eerste huishoudelijk reglement; treedt in werking na vaststelling door de ledenraad.",
+            "notes": "Concept eerste huishoudelijk reglement; treedt in werking na vaststelling door de ledenraad.",
             "status": "concept"
           }
         ],
@@ -391,7 +391,7 @@
             "description": "Optional date on which this version lapses. Empty means the version stays in force until superseded. When set and passed, in-force resolution (REQ-VOR-004) excludes the version.",
             "example": "2027-01-01"
           },
-          "toelichting": {
+          "notes": {
             "title": "Toelichting",
             "type": "string",
             "description": "Summary of what this version changes relative to the previous one. Optional.",

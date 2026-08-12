@@ -150,7 +150,7 @@
 					{ "key": "recipient", "label": "Recipient", "widget": "link" },
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "gever", "label": "Giver" },
-					{ "key": "omschrijving", "label": "Description" },
+					{ "key": "description", "label": "Description" },
 					{ "key": "geschatteWaarde", "label": "Value (EUR)" },
 					{ "key": "besluit", "label": "Decision", "widget": "badge" }
 				],

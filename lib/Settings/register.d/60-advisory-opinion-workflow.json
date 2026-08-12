@@ -52,7 +52,7 @@
             "relatedDecision": "00000000-0000-0000-0000-000000000000",
             "verantwoordingText": "De raad kiest locatie B in afwijking van het advies (locatie A) vanwege geluidsnormen; met de jongerenraad is een evaluatie na één jaar afgesproken.",
             "verantwoordingDate": "2026-03-24",
-            "publicatiedatum": "2026-03-25T09:00:00Z"
+            "publicationDate": "2026-03-25T09:00:00Z"
           }
         ],
         "advies": [
@@ -63,7 +63,7 @@
             "samenvatting": "De adviesraad adviseert positief, mits de continuïteit van lopende ondersteuning wordt geborgd en cliënten actief worden geïnformeerd.",
             "adviesDate": "2026-04-10",
             "recordedBy": "00000000-0000-0000-0000-000000000000",
-            "publicatiedatum": "2026-04-12T09:00:00Z"
+            "publicationDate": "2026-04-12T09:00:00Z"
           },
           {
             "slug": "advies-skatepark-locatie",
@@ -72,7 +72,7 @@
             "samenvatting": "De jongerenraad adviseert negatief over locatie B en positief over locatie A vanwege bereikbaarheid.",
             "adviesDate": "2026-02-14",
             "recordedBy": "00000000-0000-0000-0000-000000000000",
-            "publicatiedatum": "2026-03-25T09:00:00Z"
+            "publicationDate": "2026-03-25T09:00:00Z"
           }
         ]
       }
@@ -244,7 +244,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -359,15 +359,15 @@
             "description": "Date the verantwoording motivering was recorded. Optional; set alongside verantwoordingText on the transition to verantwoord.",
             "example": "2026-03-24"
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "nullable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the live adviesaanvraag is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicatiedatum <= $now, REQ-AOW-007). Because the predicate sits on the live object, a verantwoording recorded after publication is publicly visible without republication (design D3). Publish is an explicit staff action; this schema carries no internal-only fields by construction, so the whole object is publishable."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the live adviesaanvraag is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now, REQ-AOW-007). Because the predicate sits on the live object, a verantwoording recorded after publication is publicly visible without republication (design D3). Publish is an explicit staff action; this schema carries no internal-only fields by construction, so the whole object is publishable."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
@@ -382,7 +382,7 @@
         "icon": "FileDocumentCheckOutline",
         "version": "0.1.0",
         "title": "Advies",
-        "description": "The advisory body's formal response artifact (schema:Recommendation) to an Adviesaanvraag: the strekking (positief / positief-met-kanttekeningen / negatief / geen-advies), a summary, the advies date, the recording secretary, and the optional response document (attached via the Files leaf). It is a SEPARATE first-class object, not response fields on the Adviesaanvraag, because it has its own recording authority (the advisory body's secretary, not the requesting griffie), its own publication moment, and its own strekking that the DEFERRED AdviceAccountabilityGuard evaluates (design D1; mirrors the commissievergaderingen CommissieAdvies precedent). Recording an Advies accompanies the Adviesaanvraag transition to advies-uitgebracht. CONSTRAINT (design D4/REQ-AOW-007): this schema carries ONLY publishable fields by construction (no internal-only/confidential-remarks property) — the whole live object is exposed through the public-group authorization.read rule when publicatiedatum <= $now, so adding any non-public property requires revisiting the public-predicate design.",
+        "description": "The advisory body's formal response artifact (schema:Recommendation) to an Adviesaanvraag: the strekking (positief / positief-met-kanttekeningen / negatief / geen-advies), a summary, the advies date, the recording secretary, and the optional response document (attached via the Files leaf). It is a SEPARATE first-class object, not response fields on the Adviesaanvraag, because it has its own recording authority (the advisory body's secretary, not the requesting griffie), its own publication moment, and its own strekking that the DEFERRED AdviceAccountabilityGuard evaluates (design D1; mirrors the commissievergaderingen CommissieAdvies precedent). Recording an Advies accompanies the Adviesaanvraag transition to advies-uitgebracht. CONSTRAINT (design D4/REQ-AOW-007): this schema carries ONLY publishable fields by construction (no internal-only/confidential-remarks property) — the whole live object is exposed through the public-group authorization.read rule when publicationDate <= $now, so adding any non-public property requires revisiting the public-predicate design.",
         "type": "object",
         "x-schema-org": "schema:Recommendation",
         "x-openregister": {
@@ -425,7 +425,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -490,15 +490,15 @@
             "nullable": true,
             "description": "Optional reference to the response document (the advies PDF), attached via the Files leaf / DigitalDocument relation."
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
             "nullable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the live advies is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicatiedatum <= $now, REQ-AOW-007). The advies publishes independently of its aanvraag. Publish is an explicit staff action."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the live advies is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now, REQ-AOW-007). The advies publishes independently of its aanvraag. Publish is an explicit staff action."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",

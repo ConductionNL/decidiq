@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "Decidesk Publication Anon-Read Contract Suite",
-		"description": "Newman contract tests for the anonymous published-predicate read leg of publish-decisions-via-opencatalogi (RBAC publicatiedatum + public-group authorization.read on PublicationPayload). Asserts the WOO/ORI visibility lifecycle through decidesk's anonymous harvest surface (the ORI feed at /api/ori/v1/publications, a #[PublicPage] endpoint): a PublicationPayload is anonymously visible ONCE publicatiedatum <= now, NOT before (future-dated), and GONE after depublicatiedatum is in the past. Also locks the harvest-feed payload shape (oriType self-declaration, allow-list PII-free fields) and the immutability posture (anonymous writes rejected).\n\nThe anonymous reads target the ORI harvest feed rather than a raw OR object read because (a) that is decidesk's actual anonymous read surface for published governance data (ADR-022: no per-app raw read endpoint beyond ORI), and (b) the feed re-applies the published-predicate window in PHP as defence-in-depth, so the contract holds even if the live OR RBAC rule is misconfigured. The feed's own PHP window filter (isPayloadLive) is what these tests gate; the underlying OR public-group RBAC rule is unit-verified in PublicationServiceTest::testAnonReadablePredicateLifecycle.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated (admin) request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The anonymous read/write requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md",
+		"description": "Newman contract tests for the anonymous published-predicate read leg of publish-decisions-via-opencatalogi (RBAC publicationDate + public-group authorization.read on PublicationPayload). Asserts the WOO/ORI visibility lifecycle through decidesk's anonymous harvest surface (the ORI feed at /api/ori/v1/publications, a #[PublicPage] endpoint): a PublicationPayload is anonymously visible ONCE publicationDate <= now, NOT before (future-dated), and GONE after depublicationDate is in the past. Also locks the harvest-feed payload shape (oriType self-declaration, allow-list PII-free fields) and the immutability posture (anonymous writes rejected).\n\nThe anonymous reads target the ORI harvest feed rather than a raw OR object read because (a) that is decidesk's actual anonymous read surface for published governance data (ADR-022: no per-app raw read endpoint beyond ORI), and (b) the feed re-applies the published-predicate window in PHP as defence-in-depth, so the contract holds even if the live OR RBAC rule is misconfigured. The feed's own PHP window filter (isPayloadLive) is what these tests gate; the underlying OR public-group RBAC rule is unit-verified in PublicationServiceTest::testAnonReadablePredicateLifecycle.\n\nAUTH MODEL (same as decidesk-lifecycle.postman_collection.json): collection auth is noauth; every authenticated (admin) request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. The anonymous read/write requests carry NEITHER and target {{noAuthBase}} so the host-scoped NC session cookie never leaks to them.\n\n@spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -21,7 +21,7 @@
 								"exec": [
 									"const future = new Date(Date.now() + 7*24*3600*1000).toISOString();",
 									"const tag = 'newman-anon-' + Date.now();",
-									"pm.collectionVariables.set('futurePublicatiedatum', future);",
+									"pm.collectionVariables.set('futurePublicationDate', future);",
 									"pm.collectionVariables.set('payloadTag', tag);"
 								]
 							}
@@ -61,14 +61,14 @@
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oriType\": \"Besluit\",\n  \"schemaOrgType\": \"ChooseAction\",\n  \"title\": \"{{payloadTag}} Vaststelling Programmabegroting 2026\",\n  \"text\": \"De raad besluit de Programmabegroting 2026 vast te stellen.\",\n  \"outcome\": \"adopted\",\n  \"bodyName\": \"Gemeenteraad Newman\",\n  \"voteTotals\": { \"for\": 30, \"against\": 5, \"abstain\": 0 },\n  \"payloadVersion\": 1,\n  \"publicatiedatum\": \"{{futurePublicatiedatum}}\",\n  \"depublicatiedatum\": null\n}"
+							"raw": "{\n  \"oriType\": \"Besluit\",\n  \"schemaOrgType\": \"ChooseAction\",\n  \"title\": \"{{payloadTag}} Vaststelling Programmabegroting 2026\",\n  \"text\": \"De raad besluit de Programmabegroting 2026 vast te stellen.\",\n  \"outcome\": \"adopted\",\n  \"bodyName\": \"Gemeenteraad Newman\",\n  \"voteTotals\": { \"for\": 30, \"against\": 5, \"abstain\": 0 },\n  \"payloadVersion\": 1,\n  \"publicationDate\": \"{{futurePublicationDate}}\",\n  \"depublicationDate\": null\n}"
 						}
 					}
 				}
 			]
 		},
 		{
-			"name": "1. Not visible before publicatiedatum",
+			"name": "1. Not visible before publicationDate",
 			"item": [
 				{
 					"name": "Anon feed excludes future-dated payload",
@@ -126,10 +126,10 @@
 			]
 		},
 		{
-			"name": "2. Publish (publicatiedatum <= now)",
+			"name": "2. Publish (publicationDate <= now)",
 			"item": [
 				{
-					"name": "Set publicatiedatum to the past (admin)",
+					"name": "Set publicationDate to the past (admin)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -137,7 +137,7 @@
 								"type": "text/javascript",
 								"exec": [
 									"const past = new Date(Date.now() - 24*3600*1000).toISOString();",
-									"pm.collectionVariables.set('pastPublicatiedatum', past);"
+									"pm.collectionVariables.set('pastPublicationDate', past);"
 								]
 							}
 						},
@@ -146,7 +146,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('Publish: payload updated to past publicatiedatum (200)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
+									"pm.test('Publish: payload updated to past publicationDate (200)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
 								]
 							}
 						}
@@ -172,7 +172,7 @@
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oriType\": \"Besluit\",\n  \"schemaOrgType\": \"ChooseAction\",\n  \"title\": \"{{payloadTag}} Vaststelling Programmabegroting 2026\",\n  \"text\": \"De raad besluit de Programmabegroting 2026 vast te stellen.\",\n  \"outcome\": \"adopted\",\n  \"bodyName\": \"Gemeenteraad Newman\",\n  \"voteTotals\": { \"for\": 30, \"against\": 5, \"abstain\": 0 },\n  \"payloadVersion\": 1,\n  \"publicatiedatum\": \"{{pastPublicatiedatum}}\",\n  \"depublicatiedatum\": null\n}"
+							"raw": "{\n  \"oriType\": \"Besluit\",\n  \"schemaOrgType\": \"ChooseAction\",\n  \"title\": \"{{payloadTag}} Vaststelling Programmabegroting 2026\",\n  \"text\": \"De raad besluit de Programmabegroting 2026 vast te stellen.\",\n  \"outcome\": \"adopted\",\n  \"bodyName\": \"Gemeenteraad Newman\",\n  \"voteTotals\": { \"for\": 30, \"against\": 5, \"abstain\": 0 },\n  \"payloadVersion\": 1,\n  \"publicationDate\": \"{{pastPublicationDate}}\",\n  \"depublicationDate\": null\n}"
 						}
 					}
 				},
@@ -187,7 +187,7 @@
 									"pm.test('Anon harvest feed responds 200', () => pm.response.to.have.status(200));",
 									"const b = pm.response.json();",
 									"const item = (b.items || []).find(i => i.id === pm.collectionVariables.get('payloadId'));",
-									"pm.test('Published payload IS visible anonymously once publicatiedatum <= now', () => {",
+									"pm.test('Published payload IS visible anonymously once publicationDate <= now', () => {",
 									"  pm.expect(item, 'published payload present in feed').to.be.an('object');",
 									"});",
 									"pm.test('Item self-declares oriType=Besluit', () => pm.expect(item['@type']).to.eql('Besluit'));",
@@ -282,10 +282,10 @@
 			]
 		},
 		{
-			"name": "4. Withdraw (depublicatiedatum <= now)",
+			"name": "4. Withdraw (depublicationDate <= now)",
 			"item": [
 				{
-					"name": "Set depublicatiedatum to the past (admin)",
+					"name": "Set depublicationDate to the past (admin)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -293,7 +293,7 @@
 								"type": "text/javascript",
 								"exec": [
 									"const past = new Date(Date.now() - 3600*1000).toISOString();",
-									"pm.collectionVariables.set('pastDepublicatiedatum', past);"
+									"pm.collectionVariables.set('pastDepublicationDate', past);"
 								]
 							}
 						},
@@ -302,7 +302,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('Withdraw: payload depublicatiedatum set (200)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
+									"pm.test('Withdraw: payload depublicationDate set (200)', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
 								]
 							}
 						}
@@ -328,7 +328,7 @@
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oriType\": \"Besluit\",\n  \"schemaOrgType\": \"ChooseAction\",\n  \"title\": \"{{payloadTag}} Vaststelling Programmabegroting 2026\",\n  \"text\": \"De raad besluit de Programmabegroting 2026 vast te stellen.\",\n  \"outcome\": \"adopted\",\n  \"bodyName\": \"Gemeenteraad Newman\",\n  \"voteTotals\": { \"for\": 30, \"against\": 5, \"abstain\": 0 },\n  \"payloadVersion\": 1,\n  \"publicatiedatum\": \"{{pastPublicatiedatum}}\",\n  \"depublicatiedatum\": \"{{pastDepublicatiedatum}}\"\n}"
+							"raw": "{\n  \"oriType\": \"Besluit\",\n  \"schemaOrgType\": \"ChooseAction\",\n  \"title\": \"{{payloadTag}} Vaststelling Programmabegroting 2026\",\n  \"text\": \"De raad besluit de Programmabegroting 2026 vast te stellen.\",\n  \"outcome\": \"adopted\",\n  \"bodyName\": \"Gemeenteraad Newman\",\n  \"voteTotals\": { \"for\": 30, \"against\": 5, \"abstain\": 0 },\n  \"payloadVersion\": 1,\n  \"publicationDate\": \"{{pastPublicationDate}}\",\n  \"depublicationDate\": \"{{pastDepublicationDate}}\"\n}"
 						}
 					}
 				},
@@ -343,7 +343,7 @@
 									"pm.test('Anon harvest feed responds 200', () => pm.response.to.have.status(200));",
 									"const b = pm.response.json();",
 									"const ids = (b.items || []).map(i => i.id);",
-									"pm.test('Withdrawn payload is GONE from the anonymous feed after depublicatiedatum', () => {",
+									"pm.test('Withdrawn payload is GONE from the anonymous feed after depublicationDate', () => {",
 									"  pm.expect(ids).to.not.include(pm.collectionVariables.get('payloadId'));",
 									"});"
 								]
@@ -433,8 +433,8 @@
 		{ "key": "adminPass", "value": "admin" },
 		{ "key": "payloadId", "value": "" },
 		{ "key": "payloadTag", "value": "" },
-		{ "key": "futurePublicatiedatum", "value": "" },
-		{ "key": "pastPublicatiedatum", "value": "" },
-		{ "key": "pastDepublicatiedatum", "value": "" }
+		{ "key": "futurePublicationDate", "value": "" },
+		{ "key": "pastPublicationDate", "value": "" },
+		{ "key": "pastDepublicationDate", "value": "" }
 	]
 }

@@ -173,7 +173,7 @@
             "slug": "kascommissie-verklaring-2025",
             "boekjaar": 2025,
             "verdict": "goedkeurend",
-            "toelichting": "Administratie ordelijk; reservefondsdotatie conform MJOP.",
+            "notes": "Administratie ordelijk; reservefondsdotatie conform MJOP.",
             "agendaItem": "00000000-0000-0000-0000-000000000000",
             "governanceBody": "00000000-0000-0000-0000-000000000000"
           },
@@ -181,7 +181,7 @@
             "slug": "kascommissie-verklaring-2024",
             "boekjaar": 2024,
             "verdict": "met-voorbehoud",
-            "toelichting": "Voorbehoud: onderhoudsfacturen Q3 ontbraken bij controle.",
+            "notes": "Voorbehoud: onderhoudsfacturen Q3 ontbraken bij controle.",
             "governanceBody": "00000000-0000-0000-0000-000000000000"
           }
         ]
@@ -502,7 +502,7 @@
             ],
             "example": "goedkeurend"
           },
-          "toelichting": {
+          "notes": {
             "title": "Toelichting",
             "type": "string",
             "description": "Free-text explanation of the verdict (e.g. the voorbehoud). Optional."

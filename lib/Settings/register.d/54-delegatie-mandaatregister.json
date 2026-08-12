@@ -9,7 +9,7 @@
             "type": "delegatie",
             "delegans": "gemeenteraad-amsterdam",
             "delegatarisBody": "00000000-0000-0000-0000-000000000000",
-            "onderwerp": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
+            "subject": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
             "beperkingen": "Uitsluitend binnen door de raad vastgestelde kaders",
             "ondermandaatToegestaan": false,
             "wettelijkeGrondslag": [
@@ -19,14 +19,14 @@
             "besluit": "00000000-0000-0000-0000-000000000000",
             "geldigVanaf": "2026-01-01",
             "status": "van-kracht",
-            "publicatiedatum": "2026-01-05T09:00:00Z"
+            "publicationDate": "2026-01-05T09:00:00Z"
           },
           {
             "slug": "mandaat-subsidies-secretaris",
             "type": "mandaat",
             "delegans": "00000000-0000-0000-0000-000000000000",
             "delegatarisFunctie": "gemeentesecretaris",
-            "onderwerp": "Beslissen op subsidieaanvragen tot het genoemde plafond",
+            "subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
             "financieelPlafond": 25000,
             "beperkingen": "Geen subsidies met precedentwerking",
             "ondermandaatToegestaan": true,
@@ -37,14 +37,14 @@
             "besluit": "00000000-0000-0000-0000-000000000000",
             "geldigVanaf": "2026-01-01",
             "status": "van-kracht",
-            "publicatiedatum": "2026-01-05T09:00:00Z"
+            "publicationDate": "2026-01-05T09:00:00Z"
           },
           {
             "slug": "ondermandaat-subsidies-samenleving",
             "type": "mandaat",
             "delegansOmschrijving": "gemeentesecretaris",
             "delegatarisFunctie": "afdelingshoofd Samenleving",
-            "onderwerp": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
+            "subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
             "financieelPlafond": 5000,
             "beperkingen": "Uitsluitend reguliere subsidieregelingen",
             "ondermandaatToegestaan": false,
@@ -56,14 +56,14 @@
             "geldigVanaf": "2026-02-01",
             "geldigTot": "2026-08-15",
             "status": "van-kracht",
-            "publicatiedatum": "2026-02-05T09:00:00Z"
+            "publicationDate": "2026-02-05T09:00:00Z"
           },
           {
             "slug": "volmacht-inkoop-teamleider",
             "type": "volmacht",
             "delegansOmschrijving": "burgemeester",
             "delegatarisFunctie": "teamleider Inkoop",
-            "onderwerp": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
+            "subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
             "financieelPlafond": 50000,
             "beperkingen": "Binnen het vastgestelde inkoopbeleid",
             "ondermandaatToegestaan": false,
@@ -81,7 +81,7 @@
             "delegans": "00000000-0000-0000-0000-000000000000",
             "delegatarisFunctie": "juridisch adviseur team Recht",
             "delegatarisPersoon": "00000000-0000-0000-0000-000000000000",
-            "onderwerp": "Vertegenwoordiging bij Woo-bezwaarprocedures",
+            "subject": "Vertegenwoordiging bij Woo-bezwaarprocedures",
             "ondermandaatToegestaan": false,
             "wettelijkeGrondslag": [
               "Awb art. 10:3"
@@ -91,7 +91,7 @@
             "geldigTot": "2026-01-01",
             "status": "ingetrokken",
             "ingetrokkenDoor": "00000000-0000-0000-0000-000000000000",
-            "publicatiedatum": "2025-01-10T09:00:00Z"
+            "publicationDate": "2025-01-10T09:00:00Z"
           }
         ]
       }
@@ -104,7 +104,7 @@
         "icon": "AccountKeyOutline",
         "version": "0.1.0",
         "title": "Bevoegdheidstoedeling",
-        "description": "A bevoegdheidstoedeling: a record of who may exercise which authority on whose behalf — delegatie, mandaat, volmacht, or machtiging (Awb afdeling 10.1.1/10.1.2, BW Boek 3 titel 3). It stores the delegans/mandaatgever and the delegataris/gemandateerde (as a body, a function description, and/or a person), the scope (onderwerp) and its limits (financieelPlafond, beperkingen), the wettelijke grondslag, a trace to the authorizing delegatie-/mandaatbesluit (Decision) and, on intrekking, the revoking Decision, a validity window (geldigVanaf/geldigTot), an ondermandaat parent link, a declarative status lifecycle (ADR-031), declarative expiry rappels, and a live public delegatie- en mandaatregister via the OpenRegister published-predicate. The register documents authority; it never enforces it. It stores relations, not documents: publication of the delegatiebesluit text itself (CVDR/DROP) belongs to the verordeningenregister capability. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no internal-only / confidential-remark property; internal working notes live in the sidebar audit trail; delegataris persons are governance persons already public in the people register; function descriptions are organisational facts). Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicatiedatum <= $now.",
+        "description": "A bevoegdheidstoedeling: a record of who may exercise which authority on whose behalf — delegatie, mandaat, volmacht, or machtiging (Awb afdeling 10.1.1/10.1.2, BW Boek 3 titel 3). It stores the delegans/mandaatgever and the delegataris/gemandateerde (as a body, a function description, and/or a person), the scope (onderwerp) and its limits (financieelPlafond, beperkingen), the wettelijke grondslag, a trace to the authorizing delegatie-/mandaatbesluit (Decision) and, on intrekking, the revoking Decision, a validity window (geldigVanaf/geldigTot), an ondermandaat parent link, a declarative status lifecycle (ADR-031), declarative expiry rappels, and a live public delegatie- en mandaatregister via the OpenRegister published-predicate. The register documents authority; it never enforces it. It stores relations, not documents: publication of the delegatiebesluit text itself (CVDR/DROP) belongs to the verordeningenregister capability. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no internal-only / confidential-remark property; internal working notes live in the sidebar audit trail; delegataris persons are governance persons already public in the people register; function descriptions are organisational facts). Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicationDate <= $now.",
         "type": "object",
         "x-schema-org": "schema:AuthorizeAction",
         "x-openregister": {
@@ -210,7 +210,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -220,7 +220,7 @@
         },
         "required": [
           "type",
-          "onderwerp",
+          "subject",
           "besluit",
           "geldigVanaf",
           "status"
@@ -276,7 +276,7 @@
             "$ref": "Person",
             "description": "Reference to the delegataris / gemandateerde as a Popolo Person, where the authority is assigned to a named natural person. At least one delegataris field MUST be present."
           },
-          "onderwerp": {
+          "subject": {
             "title": "Subject",
             "type": "string",
             "description": "The subject / scope of the assigned authority (what may be exercised). Required.",
@@ -364,14 +364,14 @@
             ],
             "example": "van-kracht"
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past, the live toedeling is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicatiedatum <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public register reflects status changes (an intrekking, a vervallen lapse) without republication (REQ-DMR-005 / design D4)."
+            "description": "Publication date (WOO/DIWOO). When set in the past, the live toedeling is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now). Publish is an explicit staff action; because the predicate sits on the live object the public register reflects status changes (an intrekking, a vervallen lapse) without republication (REQ-DMR-005 / design D4)."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",

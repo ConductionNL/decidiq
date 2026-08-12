@@ -35,7 +35,7 @@
             "declaredAt": "2024-03-05",
             "reviewedAt": "2025-05-15",
             "lifecycle": "openbaar",
-            "publicatiedatum": "2024-03-10T09:00:00Z"
+            "publicationDate": "2024-03-10T09:00:00Z"
           },
           {
             "slug": "nf-gr-afvalschap-qq",
@@ -49,7 +49,7 @@
             "declaredAt": "2023-05-08",
             "reviewedAt": "2026-06-15",
             "lifecycle": "openbaar",
-            "publicatiedatum": "2023-05-12T09:00:00Z"
+            "publicationDate": "2023-05-12T09:00:00Z"
           },
           {
             "slug": "nf-docent-hogeschool",
@@ -89,7 +89,7 @@
             "endDate": "2025-12-31",
             "declaredAt": "2021-06-05",
             "lifecycle": "beëindigd",
-            "publicatiedatum": "2021-06-10T09:00:00Z"
+            "publicationDate": "2021-06-10T09:00:00Z"
           }
         ],
         "geschenk": [
@@ -99,12 +99,12 @@
             "governanceBody": "gemeenteraad-amsterdam",
             "type": "geschenk",
             "gever": "Delegatie gemeente Aken",
-            "omschrijving": "Fotoboek stedenband",
+            "description": "Fotoboek stedenband",
             "geschatteWaarde": 20,
             "ontvangenOp": "2026-01-20",
             "besluit": "aanvaard",
             "declaredAt": "2026-01-21",
-            "publicatiedatum": "2026-01-25T09:00:00Z"
+            "publicationDate": "2026-01-25T09:00:00Z"
           },
           {
             "slug": "gs-diner-projectontwikkelaar",
@@ -112,13 +112,13 @@
             "governanceBody": "gemeenteraad-amsterdam",
             "type": "uitnodiging",
             "gever": "Projectontwikkelaar BV",
-            "omschrijving": "Diner nieuwjaarsreceptie",
+            "description": "Diner nieuwjaarsreceptie",
             "geschatteWaarde": 95,
             "ontvangenOp": "2026-01-08",
             "besluit": "geweigerd",
-            "toelichting": "Boven het drempelbedrag; uitnodiging geweigerd conform gedragscode.",
+            "notes": "Boven het drempelbedrag; uitnodiging geweigerd conform gedragscode.",
             "declaredAt": "2026-01-09",
-            "publicatiedatum": "2026-01-15T09:00:00Z"
+            "publicationDate": "2026-01-15T09:00:00Z"
           },
           {
             "slug": "gs-congres-uitnodiging",
@@ -126,11 +126,11 @@
             "governanceBody": "rvc-waterschap-amstel",
             "type": "uitnodiging",
             "gever": "Brancheorganisatie Water",
-            "omschrijving": "Congres met overnachting",
+            "description": "Congres met overnachting",
             "geschatteWaarde": 400,
             "ontvangenOp": "2026-02-03",
             "besluit": "overgedragen",
-            "toelichting": "Deelname overgedragen aan de organisatie; geen persoonlijk voordeel.",
+            "notes": "Deelname overgedragen aan de organisatie; geen persoonlijk voordeel.",
             "declaredAt": "2026-02-04"
           }
         ]
@@ -144,7 +144,7 @@
         "icon": "BriefcaseAccountOutline",
         "version": "0.1.0",
         "title": "Nevenfunctie",
-        "description": "A structured other-position declaration (nevenfunctie) held by a Person at an organisation, made under a specific GovernanceBody's disclosure regime: bezoldigd/onbezoldigd, hours indication, a q.q. flag (uit hoofde van het ambt), start/end dates, a declared-at and reviewed-at date, a declarative disclosure lifecycle (gemeld → openbaar | intern → beëindigd), and a live public nevenfunctiesregister per body via the OpenRegister published-predicate. A nevenfunctie is a schema:Role. It supersedes Membership.otherPositions for new data (the free-text legacy field is not removed). CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction — NO remuneration amounts, NO private contact data, NO free-form internal-remarks property. Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicatiedatum <= $now.",
+        "description": "A structured other-position declaration (nevenfunctie) held by a Person at an organisation, made under a specific GovernanceBody's disclosure regime: bezoldigd/onbezoldigd, hours indication, a q.q. flag (uit hoofde van het ambt), start/end dates, a declared-at and reviewed-at date, a declarative disclosure lifecycle (gemeld → openbaar | intern → beëindigd), and a live public nevenfunctiesregister per body via the OpenRegister published-predicate. A nevenfunctie is a schema:Role. It supersedes Membership.otherPositions for new data (the free-text legacy field is not removed). CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction — NO remuneration amounts, NO private contact data, NO free-form internal-remarks property. Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicationDate <= $now.",
         "type": "object",
         "x-schema-org": "schema:Role",
         "x-openregister": {
@@ -273,7 +273,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -386,14 +386,14 @@
             ],
             "example": "gemeld"
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When set in the past on a verified openbaar nevenfunctie, the LIVE object is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicatiedatum <= $now). Publish is an explicit staff action (griffie); because the predicate sits on the live object the public register reflects lifecycle changes (e.g. beëindigd with endDate) without republication (REQ-INT-004 / design D4)."
+            "description": "Publication date (WOO/DIWOO). When set in the past on a verified openbaar nevenfunctie, the LIVE object is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now). Publish is an explicit staff action (griffie); because the predicate sits on the live object the public register reflects lifecycle changes (e.g. beëindigd with endDate) without republication (REQ-INT-004 / design D4)."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",
@@ -446,7 +446,7 @@
             {
               "group": "public",
               "match": {
-                "publicatiedatum": {
+                "publicationDate": {
                   "$lte": "$now"
                 }
               }
@@ -459,7 +459,7 @@
           "governanceBody",
           "type",
           "gever",
-          "omschrijving",
+          "description",
           "geschatteWaarde",
           "ontvangenOp",
           "besluit",
@@ -497,7 +497,7 @@
             "description": "The giving party as a plain display string — NEVER a Person reference, so no external-party PII enters the people register (design D4 / security). Required.",
             "example": "Delegatie gemeente Aken"
           },
-          "omschrijving": {
+          "description": {
             "title": "Description",
             "type": "string",
             "description": "Description of the gift or invitation. Required.",
@@ -530,7 +530,7 @@
             ],
             "example": "aanvaard"
           },
-          "toelichting": {
+          "notes": {
             "title": "Note",
             "type": "string",
             "description": "Optional note explaining the decision (e.g. why an invitation was refused or handed over)."
@@ -543,14 +543,14 @@
             "description": "Date the gift/invitation was registered. Required.",
             "example": "2026-01-21"
           },
-          "publicatiedatum": {
+          "publicationDate": {
             "title": "Publication date",
             "type": "string",
             "format": "date-time",
             "facetable": true,
-            "description": "Publication date (WOO/DIWOO). When the body's Integriteitsbeleid sets geschenkenOpenbaar true and staff publish, the LIVE geschenk is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicatiedatum <= $now). Publication is an explicit staff action and off by default per body policy (REQ-INT-005)."
+            "description": "Publication date (WOO/DIWOO). When the body's Integriteitsbeleid sets geschenkenOpenbaar true and staff publish, the LIVE geschenk is anonymously readable through the OpenRegister published-predicate (public-group authorization.read rule publicationDate <= $now). Publication is an explicit staff action and off by default per body policy (REQ-INT-005)."
           },
-          "depublicatiedatum": {
+          "depublicationDate": {
             "title": "Depublication date",
             "type": "string",
             "format": "date-time",

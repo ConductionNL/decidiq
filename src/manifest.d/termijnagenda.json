@@ -33,7 +33,7 @@
 					{ "label": "Lapsed", "filter": { "lifecycle": "vervallen" } }
 				],
 				"columns": [
-					{ "key": "onderwerp", "label": "Subject", "widget": "link" },
+					{ "key": "subject", "label": "Subject", "widget": "link" },
 					{ "key": "governanceBody", "label": "Governance body" },
 					{ "key": "plannedPeriod", "label": "Planned period" },
 					{ "key": "expectedType", "label": "Expected type", "widget": "badge" },

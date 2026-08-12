@@ -34,7 +34,7 @@
 				"search": true,
 				"searchFields": [
 					"vraagNummer",
-					"onderwerp"
+					"subject"
 				],
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -50,9 +50,9 @@
 				],
 				"columns": [
 					{ "key": "vraagNummer", "label": "Number", "widget": "link" },
-					{ "key": "onderwerp", "label": "Subject" },
+					{ "key": "subject", "label": "Subject" },
 					{ "key": "indiener", "label": "Submitter" },
-					{ "key": "fractie", "label": "Fraction" },
+					{ "key": "politicalGroup", "label": "Fraction" },
 					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
 					{ "key": "targetMeeting", "label": "Meeting" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -110,7 +110,7 @@
 				"search": true,
 				"searchFields": [
 					"verzoekNummer",
-					"onderwerp"
+					"subject"
 				],
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
@@ -125,9 +125,9 @@
 				],
 				"columns": [
 					{ "key": "verzoekNummer", "label": "Number", "widget": "link" },
-					{ "key": "onderwerp", "label": "Subject" },
+					{ "key": "subject", "label": "Subject" },
 					{ "key": "verzoeker", "label": "Requester" },
-					{ "key": "fractie", "label": "Fraction" },
+					{ "key": "politicalGroup", "label": "Fraction" },
 					{ "key": "portefeuillehouder", "label": "Portefeuillehouder" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
 				],

@@ -4,7 +4,7 @@
  *
  * Owns every OpenRegister object read/write of the publication flow:
  * persisting PublicationPayload and PublicationRecord objects, loading a
- * record, setting the withdraw-side `depublicatiedatum` predicate, and
+ * record, setting the withdraw-side `depublicationDate` predicate, and
  * stamping the source object's published state. Splitting this persistence
  * responsibility out of PublicationService keeps the orchestrator focused on
  * the flow itself.
@@ -120,7 +120,7 @@ class PublicationRepository
     }//end loadRecord()
 
     /**
-     * Set `depublicatiedatum` on a payload object so OR's public-group RBAC rule
+     * Set `depublicationDate` on a payload object so OR's public-group RBAC rule
      * stops returning it — the withdraw side of the published-predicate.
      *
      * This is a normal field write on a register-owned object via the standard
@@ -144,7 +144,7 @@ class PublicationRepository
             }
 
             $data = $entity->jsonSerialize();
-            $data['depublicatiedatum'] = $timestamp;
+            $data['depublicationDate'] = $timestamp;
 
             $objectService->saveObject(
                 object: $data,
@@ -153,7 +153,7 @@ class PublicationRepository
                 uuid: $payloadId,
             );
         } catch (\Throwable $e) {
-            $this->logger->warning('Decidesk publication: failed to set depublicatiedatum on payload', ['exception' => $e->getMessage()]);
+            $this->logger->warning('Decidesk publication: failed to set depublicationDate on payload', ['exception' => $e->getMessage()]);
         }//end try
 
     }//end setDepublicationDate()
